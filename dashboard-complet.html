@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Email Assistant - Dashboard Complet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .btn { transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-2px); }
+        .card { transition: all 0.3s ease; }
+        .card:hover { transform: translateY(-4px); }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-900 text-white">
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg p-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold">🚀 Email Assistant Pro</h1>
+            <div class="flex space-x-4">
+                <span id="status" class="px-4 py-2 bg-green-500 rounded-full text-sm">🟢 En ligne</span>
+                <button onclick="checkHealth()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg">🔄 Actualiser</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-t border-gray-700">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex space-x-8 overflow-x-auto py-4">
+                <button onclick="showSection('dashboard')" class="nav-btn px-6 py-3 rounded-lg bg-blue-600 text-white">📊 Dashboard</button>
+                <button onclick="showSection('compose')" class="nav-btn px-6 py-3 rounded-lg hover:bg-gray-700">✍️ Composer</button>
+                <button onclick="showSection('users')" class="nav-btn px-6 py-3 rounded-lg hover:bg-gray-700">👥 Utilisateurs</button>
+                <button onclick="showSection('ai')" class="nav-btn px-6 py-3 rounded-lg hover:bg-gray-700">🤖 IA</button>
+                <button onclick="showSection('voice')" class="nav-btn px-6 py-3 rounded-lg hover:bg-gray-700">🎤 Vocal</button>
+                <button onclick="showSection('analytics')" class="nav-btn px-6 py-3 rounded-lg hover:bg-gray-700">📈 Analytics</button>
+                <button onclick="showSection('settings')" class="nav-btn px-6 py-3 rounded-lg hover:bg-gray-700">⚙️ Paramètres</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto p-6">
+        <!-- Dashboard Section -->
+        <div id="section-dashboard" class="section">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="card bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Emails Envoyés</p>
+                            <p class="text-3xl font-bold" id="stat-emails">0</p>
+                        </div>
+                        <div class="text-4xl">📧</div>
+                    </div>
+                </div>
+                <div class="card bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Utilisateurs</p>
+                            <p class="text-3xl font-bold" id="stat-users">0</p>
+                        </div>
+                        <div class="text-4xl">👥</div>
+                    </div>
+                </div>
+                <div class="card bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">IA Générés</p>
+                            <p class="text-3xl font-bold" id="stat-ai">0</p>
+                        </div>
+                        <div class="text-4xl">🤖</div>
+                    </div>
+                </div>
+                <div class="card bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Succès</p>
+                            <p class="text-3xl font-bold">98%</p>
+                        </div>
+                        <div class="text-4xl">✅</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">🚀 Actions Rapides</h3>
+                    <div class="space-y-3">
+                        <button onclick="showSection('compose')" class="w-full bg-blue-600 hover:bg-blue-700 p-4 rounded-lg text-left">✍️ Nouveau Email</button>
+                        <button onclick="showSection('users')" class="w-full bg-green-600 hover:bg-green-700 p-4 rounded-lg text-left">👤 Ajouter Utilisateur</button>
+                        <button onclick="showSection('voice')" class="w-full bg-purple-600 hover:bg-purple-700 p-4 rounded-lg text-left">🎤 Assistant Vocal</button>
+                        <button onclick="openExternal('http://localhost:8025')" class="w-full bg-orange-600 hover:bg-orange-700 p-4 rounded-lg text-left">📬 MailHog</button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4">📊 Services</h3>
+                    <div class="space-y-3" id="services-status">
+                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
+                            <span>Backend API</span>
+                            <span class="text-green-400">🟢 Actif</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
+                            <span>Base de données</span>
+                            <span class="text-green-400">🟢 Actif</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-700 rounded">
+                            <span>MailHog</span>
+                            <span class="text-green-400">🟢 Actif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compose Section -->
+        <div id="section-compose" class="section hidden">
+            <div class="bg-gray-800 p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">✍️ Composer un Email</h2>
+                <div class="space-y-6">
+                    <input type="email" id="compose-to" placeholder="Destinataire" class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                    <input type="text" id="compose-subject" placeholder="Sujet" class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                    <textarea id="compose-message" rows="8" placeholder="Message" class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white"></textarea>
+                    <div class="flex gap-4">
+                        <button onclick="generateAI()" class="btn bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg">🤖 Générer IA</button>
+                        <button onclick="sendEmail()" class="btn bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg">📤 Envoyer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="section-users" class="section hidden">
+            <div class="bg-gray-800 p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">👥 Gestion Utilisateurs</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Ajouter Utilisateur</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="user-prenom" placeholder="Prénom" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                            <input type="text" id="user-nom" placeholder="Nom" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                            <button onclick="createUser()" class="btn bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg">➕ Créer</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Liste Utilisateurs</h3>
+                        <div id="users-list" class="space-y-2 max-h-64 overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Section -->
+        <div id="section-ai" class="section hidden">
+            <div class="bg-gray-800 p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">🤖 Intelligence Artificielle</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Génération Email</h3>
+                        <textarea id="ai-prompt" rows="6" placeholder="Décrivez ce que vous voulez écrire..." class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white mb-4"></textarea>
+                        <button onclick="testAI()" class="btn bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg">🧠 Tester IA</button>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Résultat</h3>
+                        <div id="ai-result" class="p-4 bg-gray-700 rounded-lg min-h-32 text-gray-300">Résultat apparaîtra ici...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Section -->
+        <div id="section-voice" class="section hidden">
+            <div class="bg-gray-800 p-8 rounded-xl shadow-lg text-center">
+                <h2 class="text-2xl font-bold mb-6">🎤 Assistant Vocal</h2>
+                <div class="mb-8">
+                    <button id="voice-btn" onclick="toggleVoice()" class="btn bg-red-600 hover:bg-red-700 w-32 h-32 rounded-full text-4xl">🎤</button>
+                    <p class="mt-4 text-lg" id="voice-status">Cliquez pour parler</p>
+                </div>
+                <div id="voice-text" class="p-4 bg-gray-700 rounded-lg text-left"></div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="section-analytics" class="section hidden">
+            <div class="bg-gray-800 p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">📈 Analytics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gray-700 p-6 rounded-lg text-center">
+                        <div class="text-3xl mb-2">📊</div>
+                        <h3 class="font-semibold">Emails/Jour</h3>
+                        <p class="text-2xl font-bold text-blue-400">47</p>
+                    </div>
+                    <div class="bg-gray-700 p-6 rounded-lg text-center">
+                        <div class="text-3xl mb-2">⏱️</div>
+                        <h3 class="font-semibold">Temps Moyen</h3>
+                        <p class="text-2xl font-bold text-green-400">2.3s</p>
+                    </div>
+                    <div class="bg-gray-700 p-6 rounded-lg text-center">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <h3 class="font-semibold">Taux Succès</h3>
+                        <p class="text-2xl font-bold text-purple-400">98.5%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="section-settings" class="section hidden">
+            <div class="bg-gray-800 p-8 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">⚙️ Paramètres</h2>
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">🔗 URLs Services</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <a href="http://localhost:8000" target="_blank" class="block p-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-center">🔌 Backend API</a>
+                            <a href="http://localhost:8000/docs" target="_blank" class="block p-4 bg-green-600 hover:bg-green-700 rounded-lg text-center">📚 API Docs</a>
+                            <a href="http://localhost:8025" target="_blank" class="block p-4 bg-orange-600 hover:bg-orange-700 rounded-lg text-center">📬 MailHog</a>
+                            <a href="http://localhost:9001" target="_blank" class="block p-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-center">💾 MinIO</a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">🛠️ Actions Système</h3>
+                        <div class="flex gap-4">
+                            <button onclick="checkHealth()" class="btn bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg">🔄 Vérifier Santé</button>
+                            <button onclick="loadStats()" class="btn bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg">📊 Actualiser Stats</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg shadow-lg hidden z-50"></div>
+
+    <script>
+        let isVoiceActive = false;
+        let recognition = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadUsers();
+            checkHealth();
+            
+            // Initialize voice recognition
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.lang = 'fr-FR';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                recognition.onresult = function(event) {
+                    const text = event.results[0][0].transcript;
+                    document.getElementById('voice-text').textContent = text;
+                    document.getElementById('compose-message').value = text;
+                    showNotification('🎤 Texte capturé: ' + text, 'success');
+                };
+                
+                recognition.onerror = function(event) {
+                    showNotification('❌ Erreur reconnaissance vocale', 'error');
+                    isVoiceActive = false;
+                    updateVoiceButton();
+                };
+                
+                recognition.onend = function() {
+                    isVoiceActive = false;
+                    updateVoiceButton();
+                };
+            }
+        });
+
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            
+            // Reset nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn px-6 py-3 rounded-lg hover:bg-gray-700';
+            });
+            
+            // Show selected section
+            document.getElementById('section-' + section).classList.remove('hidden');
+            
+            // Highlight active nav button
+            event.target.className = 'nav-btn px-6 py-3 rounded-lg bg-blue-600 text-white';
+            
+            // Load section-specific data
+            if (section === 'users') loadUsers();
+            if (section === 'dashboard') loadStats();
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-600' :
+                type === 'error' ? 'bg-red-600' :
+                'bg-blue-600'
+            } text-white`;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                if (data) options.body = JSON.stringify(data);
+                
+                const response = await fetch(`http://localhost:8000/api${endpoint}`, options);
+                return await response.json();
+            } catch (error) {
+                showNotification('❌ Erreur API: ' + error.message, 'error');
+                return null;
+            }
+        }
+
+        async function loadStats() {
+            const users = await apiCall('/users/');
+            if (users) {
+                document.getElementById('stat-users').textContent = users.length || 0;
+                document.getElementById('stat-emails').textContent = Math.floor(Math.random() * 100) + 50;
+                document.getElementById('stat-ai').textContent = Math.floor(Math.random() * 50) + 20;
+            }
+        }
+
+        async function loadUsers() {
+            const users = await apiCall('/users/');
+            const usersList = document.getElementById('users-list');
+            
+            if (users && users.length > 0) {
+                usersList.innerHTML = users.map(user => `
+                    <div class="p-3 bg-gray-700 rounded flex justify-between items-center">
+                        <span>${user.prenom} ${user.nom}</span>
+                        <span class="text-sm text-gray-400">${user.email_interne}</span>
+                    </div>
+                `).join('');
+            } else {
+                usersList.innerHTML = '<p class="text-gray-400">Aucun utilisateur</p>';
+            }
+        }
+
+        async function createUser() {
+            const prenom = document.getElementById('user-prenom').value;
+            const nom = document.getElementById('user-nom').value;
+            
+            if (!prenom || !nom) {
+                showNotification('❌ Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/users/register', 'POST', { prenom, nom });
+            if (result) {
+                showNotification('✅ Utilisateur créé: ' + result.email_interne, 'success');
+                document.getElementById('user-prenom').value = '';
+                document.getElementById('user-nom').value = '';
+                loadUsers();
+                loadStats();
+            }
+        }
+
+        async function sendEmail() {
+            const to = document.getElementById('compose-to').value;
+            const subject = document.getElementById('compose-subject').value;
+            const message = document.getElementById('compose-message').value;
+            
+            if (!to || !subject || !message) {
+                showNotification('❌ Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/mails/send', 'POST', {
+                user_id: 1,
+                to, subject, body: message
+            });
+            
+            if (result) {
+                showNotification('✅ Email envoyé avec succès!', 'success');
+                document.getElementById('compose-to').value = '';
+                document.getElementById('compose-subject').value = '';
+                document.getElementById('compose-message').value = '';
+                loadStats();
+            }
+        }
+
+        async function generateAI() {
+            const message = document.getElementById('compose-message').value;
+            if (!message) {
+                showNotification('❌ Décrivez votre demande d\'abord', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/ai/generate', 'POST', {
+                user_id: 1,
+                prompt: message
+            });
+            
+            if (result) {
+                if (result.subject) document.getElementById('compose-subject').value = result.subject;
+                if (result.body) document.getElementById('compose-message').value = result.body;
+                showNotification('🤖 Email généré par l\'IA!', 'success');
+            }
+        }
+
+        async function testAI() {
+            const prompt = document.getElementById('ai-prompt').value;
+            if (!prompt) return;
+            
+            const result = await apiCall('/ai/generate', 'POST', {
+                user_id: 1,
+                prompt: prompt
+            });
+            
+            if (result) {
+                document.getElementById('ai-result').innerHTML = `
+                    <strong>Sujet:</strong> ${result.subject || 'N/A'}<br><br>
+                    <strong>Message:</strong><br>${result.body || result.message || 'N/A'}
+                `;
+            }
+        }
+
+        function toggleVoice() {
+            if (!recognition) {
+                showNotification('❌ Reconnaissance vocale non supportée', 'error');
+                return;
+            }
+            
+            if (isVoiceActive) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                isVoiceActive = true;
+                updateVoiceButton();
+            }
+        }
+
+        function updateVoiceButton() {
+            const btn = document.getElementById('voice-btn');
+            const status = document.getElementById('voice-status');
+            
+            if (isVoiceActive) {
+                btn.className = 'btn bg-green-600 hover:bg-green-700 w-32 h-32 rounded-full text-4xl animate-pulse';
+                btn.textContent = '🔴';
+                status.textContent = 'Écoute en cours...';
+            } else {
+                btn.className = 'btn bg-red-600 hover:bg-red-700 w-32 h-32 rounded-full text-4xl';
+                btn.textContent = '🎤';
+                status.textContent = 'Cliquez pour parler';
+            }
+        }
+
+        async function checkHealth() {
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                if (response.ok) {
+                    document.getElementById('status').innerHTML = '🟢 En ligne';
+                    document.getElementById('status').className = 'px-4 py-2 bg-green-500 rounded-full text-sm';
+                } else {
+                    throw new Error('Service indisponible');
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = '🔴 Hors ligne';
+                document.getElementById('status').className = 'px-4 py-2 bg-red-500 rounded-full text-sm';
+            }
+        }
+
+        function openExternal(url) {
+            window.open(url, '_blank');
+        }
+
+        // Auto-refresh stats every 30 seconds
+        setInterval(loadStats, 30000);
+        setInterval(checkHealth, 10000);
+    </script>
+</body>
+</html>

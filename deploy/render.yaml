@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: iapostemanager
+    env: python
+    buildCommand: pip install -r requirements.txt && cd src/frontend && npm ci && npm run build
+    startCommand: python src/backend/app.py
+    healthCheckPath: /api/health
+    envVars:
+      - key: FLASK_ENV
+        value: production

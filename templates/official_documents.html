@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documents Officiels - IAPosteManager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #d32f2f, #f44336);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        
+        .legal-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-top: 15px;
+            display: inline-block;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .document-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .document-type {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .document-type:hover {
+            border-color: #2196F3;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .document-type.selected {
+            border-color: #d32f2f;
+            background: #fff3f3;
+        }
+        
+        .legal-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4caf50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            display: none;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .required {
+            color: #d32f2f;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
+        }
+        
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #d32f2f;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .legal-info {
+            background: #e8f5e8;
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .document-preview {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 20px 0;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+        }
+        
+        .document-header {
+            text-align: right;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .document-body {
+            margin: 30px 0;
+        }
+        
+        .document-signature {
+            text-align: right;
+            margin-top: 50px;
+        }
+        
+        .authenticity-seal {
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            padding: 0 20px;
+        }
+        
+        .step {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .step::after {
+            content: '';
+            position: absolute;
+            top: 25px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #ddd;
+            z-index: -1;
+        }
+        
+        .step:last-child::after {
+            display: none;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #ddd;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+        
+        .step.active .step-number {
+            background: #2196F3;
+        }
+        
+        .step.completed .step-number {
+            background: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ Documents Officiels</h1>
+            <p>Créez des documents avec valeur légale équivalente au courrier papier</p>
+            <div class="legal-badge">
+                🔒 Signature numérique certifiée • Valeur probante
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Étapes -->
+            <div class="steps">
+                <div class="step active" id="step-1">
+                    <div class="step-number">1</div>
+                    <div>Choisir le type</div>
+                </div>
+                <div class="step" id="step-2">
+                    <div class="step-number">2</div>
+                    <div>Remplir le formulaire</div>
+                </div>
+                <div class="step" id="step-3">
+                    <div class="step-number">3</div>
+                    <div>Vérifier et signer</div>
+                </div>
+                <div class="step" id="step-4">
+                    <div class="step-number">4</div>
+                    <div>Envoyer</div>
+                </div>
+            </div>
+            
+            <!-- Informations légales -->
+            <div class="legal-info">
+                <h3>🏛️ Valeur Légale Garantie</h3>
+                <p><strong>Ces documents ont la même valeur juridique qu'un courrier papier recommandé.</strong></p>
+                <ul>
+                    <li>✅ Signature numérique certifiée (RSA-2048)</li>
+                    <li>✅ Horodatage cryptographique</li>
+                    <li>✅ Intégrité vérifiable (SHA-256)</li>
+                    <li>✅ Non-répudiation garantie</li>
+                    <li>✅ Conforme au règlement eIDAS (UE)</li>
+                </ul>
+            </div>
+            
+            <!-- Sélection du type de document -->
+            <div id="document-selection">
+                <h2>Choisissez le type de document officiel</h2>
+                <div class="document-types" id="document-types">
+                    <!-- Chargé dynamiquement -->
+                </div>
+            </div>
+            
+            <!-- Formulaire de création -->
+            <div class="form-section" id="document-form">
+                <h2>Informations du document</h2>
+                
+                <!-- Informations expéditeur -->
+                <h3>👤 Vos informations</h3>
+                <div class="form-group">
+                    <label for="sender-name">Nom complet <span class="required">*</span></label>
+                    <input type="text" id="sender-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="sender-address">Adresse complète <span class="required">*</span></label>
+                    <textarea id="sender-address" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="sender-email">Email <span class="required">*</span></label>
+                    <input type="email" id="sender-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="sender-phone">Téléphone</label>
+                    <input type="tel" id="sender-phone">
+                </div>
+                
+                <!-- Informations destinataire -->
+                <h3>🏢 Destinataire</h3>
+                <div class="form-group">
+                    <label for="recipient-org">Organisation <span class="required">*</span></label>
+                    <input type="text" id="recipient-org" required>
+                </div>
+                <div class="form-group">
+                    <label for="recipient-dept">Service/Département</label>
+                    <input type="text" id="recipient-dept">
+                </div>
+                <div class="form-group">
+                    <label for="recipient-address">Adresse <span class="required">*</span></label>
+                    <textarea id="recipient-address" required></textarea>
+                </div>
+                
+                <!-- Champs dynamiques selon le type -->
+                <h3>📄 Contenu du document</h3>
+                <div id="dynamic-fields">
+                    <!-- Chargé selon le type sélectionné -->
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="previewDocument()">👁️ Aperçu</button>
+                    <button class="btn btn-success" onclick="createDocument()">📝 Créer le document</button>
+                </div>
+            </div>
+            
+            <!-- Aperçu du document -->
+            <div class="form-section" id="document-preview-section">
+                <h2>Aperçu du document officiel</h2>
+                <div class="document-preview" id="document-preview">
+                    <!-- Aperçu généré dynamiquement -->
+                </div>
+                
+                <div class="authenticity-seal">
+                    🔐 Ce document sera signé numériquement et horodaté pour garantir son authenticité
+                </div>
+                
+                <div class="warning">
+                    <strong>⚠️ Attention :</strong> Une fois créé et envoyé, ce document aura valeur légale. 
+                    Vérifiez attentivement toutes les informations avant de procéder.
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="editDocument()">✏️ Modifier</button>
+                    <button class="btn btn-success" onclick="finalizeDocument()">✅ Finaliser et envoyer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedDocType = null;
+        let documentTemplates = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDocumentTemplates();
+        });
+        
+        async function loadDocumentTemplates() {
+            try {
+                const response = await fetch('/api/official-templates');
+                const result = await response.json();
+                
+                if (result.success) {
+                    documentTemplates = result.templates;
+                    displayDocumentTypes();
+                }
+            } catch (error) {
+                console.error('Erreur chargement templates:', error);
+            }
+        }
+        
+        function displayDocumentTypes() {
+            const container = document.getElementById('document-types');
+            
+            container.innerHTML = documentTemplates.map(template => `
+                <div class="document-type" onclick="selectDocumentType('${template.type}')">
+                    <div class="legal-indicator">LÉGAL</div>
+                    <h3>${template.name}</h3>
+                    <p>${template.description}</p>
+                    <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                        ${template.legal_value ? '⚖️ Valeur légale garantie' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function selectDocumentType(type) {
+            selectedDocType = type;
+            
+            // Mettre à jour l'interface
+            document.querySelectorAll('.document-type').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.closest('.document-type').classList.add('selected');
+            
+            // Générer les champs dynamiques
+            generateDynamicFields(type);
+            
+            // Afficher le formulaire
+            document.getElementById('document-form').classList.add('active');
+            
+            // Mettre à jour les étapes
+            updateStep(2);
+        }
+        
+        function generateDynamicFields(type) {
+            const template = documentTemplates.find(t => t.type === type);
+            const container = document.getElementById('dynamic-fields');
+            
+            container.innerHTML = template.fields.map(field => `
+                <div class="form-group">
+                    <label for="field-${field.name}">
+                        ${field.label} 
+                        ${field.required ? '<span class="required">*</span>' : ''}
+                    </label>
+                    ${field.name.includes('description') || field.name.includes('motivation') || field.name.includes('statement') ? 
+                        `<textarea id="field-${field.name}" ${field.required ? 'required' : ''}></textarea>` :
+                        `<input type="text" id="field-${field.name}" ${field.required ? 'required' : ''}>`
+                    }
+                </div>
+            `).join('');
+        }
+        
+        function previewDocument() {
+            const template = documentTemplates.find(t => t.type === selectedDocType);
+            const senderName = document.getElementById('sender-name').value;
+            const senderAddress = document.getElementById('sender-address').value;
+            const recipientOrg = document.getElementById('recipient-org').value;
+            const recipientAddress = document.getElementById('recipient-address').value;
+            
+            // Générer l'aperçu
+            const preview = `
+                <div class="document-header">
+                    <div><strong>${senderName}</strong></div>
+                    <div>${senderAddress.replace(/\n/g, '<br>')}</div>
+                    <div>Email: ${document.getElementById('sender-email').value}</div>
+                    <br>
+                    <div>Le ${new Date().toLocaleDateString('fr-FR')}</div>
+                </div>
+                
+                <div style="margin: 30px 0;">
+                    <div><strong>À l'attention de :</strong></div>
+                    <div><strong>${recipientOrg}</strong></div>
+                    <div>${recipientAddress.replace(/\n/g, '<br>')}</div>
+                </div>
+                
+                <div class="document-body">
+                    <div style="text-align: center; margin: 30px 0;">
+                        <strong style="text-decoration: underline; font-size: 18px;">
+                            ${template.name.toUpperCase()}
+                        </strong>
+                    </div>
+                    
+                    <div style="margin: 30px 0;">
+                        ${generateDocumentContent(template)}
+                    </div>
+                </div>
+                
+                <div class="document-signature">
+                    <div style="margin-top: 50px;">
+                        <div>Fait à [Ville], le ${new Date().toLocaleDateString('fr-FR')}</div>
+                        <div style="margin-top: 30px;">Signature :</div>
+                        <div style="margin-top: 20px; font-style: italic;">[Signature numérique certifiée]</div>
+                        <div><strong>${senderName}</strong></div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('document-preview').innerHTML = preview;
+            document.getElementById('document-preview-section').classList.add('active');
+            
+            updateStep(3);
+        }
+        
+        function generateDocumentContent(template) {
+            let content = '';
+            
+            template.fields.forEach(field => {
+                const value = document.getElementById(`field-${field.name}`).value;
+                if (value) {
+                    content += `<p><strong>${field.label} :</strong> ${value}</p>`;
+                }
+            });
+            
+            return content;
+        }
+        
+        async function createDocument() {
+            try {
+                const documentData = collectFormData();
+                
+                const response = await fetch('/api/official-documents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(documentData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Document officiel créé avec succès !
+                    
+ID: ${result.document_id}
+Valeur légale: ${result.legal_value ? 'OUI' : 'NON'}
+
+Le document a été signé numériquement et peut être utilisé comme preuve légale.`);
+                    
+                    updateStep(4);
+                } else {
+                    alert('Erreur : ' + result.error);
+                }
+            } catch (error) {
+                alert('Erreur de connexion');
+            }
+        }
+        
+        function collectFormData() {
+            const template = documentTemplates.find(t => t.type === selectedDocType);
+            
+            const content = {};
+            template.fields.forEach(field => {
+                const value = document.getElementById(`field-${field.name}`).value;
+                content[field.name] = value;
+            });
+            
+            return {
+                doc_type: selectedDocType,
+                content: content,
+                sender_info: {
+                    name: document.getElementById('sender-name').value,
+                    address: document.getElementById('sender-address').value,
+                    email: document.getElementById('sender-email').value,
+                    phone: document.getElementById('sender-phone').value
+                },
+                recipient_info: {
+                    organization: document.getElementById('recipient-org').value,
+                    department: document.getElementById('recipient-dept').value,
+                    address: document.getElementById('recipient-address').value
+                }
+            };
+        }
+        
+        function editDocument() {
+            document.getElementById('document-preview-section').classList.remove('active');
+            updateStep(2);
+        }
+        
+        function finalizeDocument() {
+            createDocument();
+        }
+        
+        function updateStep(stepNumber) {
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index + 1 < stepNumber) {
+                    step.classList.add('completed');
+                } else if (index + 1 === stepNumber) {
+                    step.classList.add('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

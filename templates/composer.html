@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Composer Email - SecureVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-ui.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='composer.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <i class="fas fa-envelope" style="font-size: 1.5rem;"></i>
+                    <h1>Composer Email avec IA</h1>
+                </div>
+                <nav class="nav-pills">
+                    <a href="/" class="nav-pill">
+                        <i class="fas fa-home"></i> Accueil
+                    </a>
+                    <a href="/composer" class="nav-pill active">
+                        <i class="fas fa-edit"></i> Composer
+                    </a>
+                    <a href="/config" class="nav-pill">
+                        <i class="fas fa-cog"></i> Config
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <div class="main-container" style="grid-template-columns: 1fr; max-width: 800px;">
+            <div class="card" id="step1">
+                <div class="card-header">
+                    <i class="fas fa-robot"></i> 1. Génération IA
+                </div>
+                <div class="card-body">
+                    <form id="aiForm">
+                        <div class="form-group">
+                            <label class="form-label">Sujet/Contexte:</label>
+                            <input type="text" class="form-control" id="context" placeholder="Ex: Réunion équipe demain" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Ton:</label>
+                            <select class="form-control" id="tone">
+                                <option value="professionnel">Professionnel</option>
+                                <option value="amical">Amical</option>
+                                <option value="formel">Formel</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="generateBtn">
+                            <i class="fas fa-magic"></i> Générer Email
+                        </button>
+                    </form>
+                
+                <div id="aiProgress" class="progress hidden">
+                    <div class="progress-bar"></div>
+                    <span>Génération en cours...</span>
+                </div>
+            </div>
+
+            <div class="card hidden" id="step2">
+                <div class="card-header">
+                    <i class="fas fa-edit"></i> 2. Validation et Édition
+                </div>
+                <div class="card-body">
+                    <form id="emailForm">
+                        <div class="form-group">
+                            <label class="form-label">Destinataire:</label>
+                            <input type="email" class="form-control" id="recipient" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sujet:</label>
+                            <input type="text" class="form-control" id="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Corps du message:</label>
+                            <textarea class="form-control" id="body" rows="10" required></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" class="btn btn-secondary" id="regenerateBtn">
+                                <i class="fas fa-redo"></i> Régénérer
+                            </button>
+                            <button type="submit" class="btn btn-success" id="sendBtn">
+                                <i class="fas fa-paper-plane"></i> Envoyer Email
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card hidden" id="step3">
+                <div class="card-header">
+                    <i class="fas fa-paper-plane"></i> 3. Envoi en cours
+                </div>
+                <div class="card-body">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <span id="sendStatus">Préparation...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card hidden" id="result">
+                <div id="successResult" class="card-body hidden" style="text-align: center;">
+                    <div style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;">✅</div>
+                    <h2 style="color: var(--success);">Email envoyé avec succès!</h2>
+                    <p>Votre email a été envoyé à <strong id="sentTo"></strong></p>
+                    <button class="btn btn-primary" onclick="resetComposer()">
+                        <i class="fas fa-plus"></i> Nouveau Email
+                    </button>
+                </div>
+                <div id="errorResult" class="card-body hidden" style="text-align: center;">
+                    <div style="font-size: 3rem; color: var(--danger); margin-bottom: 1rem;">❌</div>
+                    <h2 style="color: var(--danger);">Erreur d'envoi</h2>
+                    <p id="errorMessage"></p>
+                    <button class="btn btn-warning" onclick="goToStep(2)">
+                        <i class="fas fa-redo"></i> Réessayer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let generatedContent = null;
+
+        // Génération IA
+        document.getElementById('aiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showProgress('aiProgress');
+            
+            const context = document.getElementById('context').value;
+            const tone = document.getElementById('tone').value;
+            
+            try {
+                const response = await fetch('/api/generate-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({context, tone})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    generatedContent = data;
+                    document.getElementById('subject').value = data.subject;
+                    document.getElementById('body').value = data.body;
+                    goToStep(2);
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
+            } catch (error) {
+                alert('Erreur de génération: ' + error.message);
+            } finally {
+                hideProgress('aiProgress');
+            }
+        });
+
+        // Envoi email
+        document.getElementById('emailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            goToStep(3);
+            
+            const emailData = {
+                recipient: document.getElementById('recipient').value,
+                subject: document.getElementById('subject').value,
+                body: document.getElementById('body').value
+            };
+            
+            updateSendStatus('Connexion au serveur...');
+            
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(emailData)
+                });
+                
+                updateSendStatus('Envoi en cours...');
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess(emailData.recipient);
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Erreur de connexion: ' + error.message);
+            }
+        });
+
+        // Régénération
+        document.getElementById('regenerateBtn').addEventListener('click', () => {
+            goToStep(1);
+        });
+
+        function goToStep(step) {
+            document.querySelectorAll('.card').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            currentStep = step;
+        }
+
+        function showProgress(id) {
+            document.getElementById(id).classList.remove('hidden');
+            animateProgress(id);
+        }
+
+        function hideProgress(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function animateProgress(id) {
+            const bar = document.querySelector(`#${id} .progress-bar`);
+            bar.style.width = '0%';
+            setTimeout(() => bar.style.width = '100%', 100);
+        }
+
+        function updateSendStatus(status) {
+            document.getElementById('sendStatus').textContent = status;
+        }
+
+        function showSuccess(recipient) {
+            document.getElementById('sentTo').textContent = recipient;
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('successResult').classList.remove('hidden');
+        }
+
+        function showError(error) {
+            document.getElementById('errorMessage').textContent = error;
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('errorResult').classList.remove('hidden');
+        }
+
+        function resetComposer() {
+            document.getElementById('aiForm').reset();
+            document.getElementById('emailForm').reset();
+            document.querySelectorAll('.result').forEach(r => r.classList.add('hidden'));
+            goToStep(1);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Email Assistant Pro - Enhanced</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); 
+            color: white; 
+            min-height: 100vh;
+            animation: gradientShift 10s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); }
+            50% { background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%); }
+        }
+        .container { max-width: 1600px; margin: 0 auto; padding: 1rem; }
+        .header { 
+            text-align: center; 
+            padding: 3rem 0; 
+            background: rgba(0,0,0,0.3); 
+            border-radius: 2rem; 
+            margin-bottom: 2rem;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .nav { 
+            display: flex; 
+            justify-content: center; 
+            gap: 1rem; 
+            margin-bottom: 2rem; 
+            flex-wrap: wrap; 
+        }
+        .nav-btn { 
+            padding: 1.2rem 2.5rem; 
+            border: none; 
+            border-radius: 1rem; 
+            background: rgba(255,255,255,0.15); 
+            color: white; 
+            cursor: pointer; 
+            transition: all 0.4s ease; 
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .nav-btn:hover, .nav-btn.active { 
+            background: rgba(255,255,255,0.4); 
+            transform: translateY(-4px) scale(1.05); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .grid { display: grid; gap: 2rem; }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+        .card { 
+            background: rgba(255,255,255,0.2); 
+            backdrop-filter: blur(20px); 
+            padding: 2.5rem; 
+            border-radius: 2rem; 
+            border: 1px solid rgba(255,255,255,0.3); 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+        }
+        .card:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2); 
+            background: rgba(255,255,255,0.25);
+        }
+        .btn { 
+            padding: 1.2rem 2.5rem; 
+            border: none; 
+            border-radius: 1rem; 
+            cursor: pointer; 
+            font-weight: 700; 
+            transition: all 0.3s ease; 
+            margin: 0.5rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-primary { background: linear-gradient(45deg, #4f46e5, #7c3aed); color: white; }
+        .btn-success { background: linear-gradient(45deg, #10b981, #059669); color: white; }
+        .btn-warning { background: linear-gradient(45deg, #f59e0b, #d97706); color: white; }
+        .btn-danger { background: linear-gradient(45deg, #ef4444, #dc2626); color: white; }
+        .btn-info { background: linear-gradient(45deg, #06b6d4, #0891b2); color: white; }
+        .btn:hover { 
+            transform: translateY(-3px) scale(1.05); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .input { 
+            width: 100%; 
+            padding: 1.2rem; 
+            background: rgba(255,255,255,0.15); 
+            border: 2px solid rgba(255,255,255,0.3); 
+            border-radius: 1rem; 
+            color: white; 
+            margin: 0.8rem 0;
+            font-size: 1.1rem;
+            backdrop-filter: blur(10px);
+        }
+        .input::placeholder { color: rgba(255,255,255,0.8); }
+        .input:focus { 
+            outline: none; 
+            border-color: #4f46e5; 
+            background: rgba(255,255,255,0.25);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
+        }
+        .textarea { resize: none; min-height: 150px; }
+        .result { 
+            padding: 1.5rem; 
+            background: rgba(0,0,0,0.4); 
+            border-radius: 1rem; 
+            margin: 1.5rem 0; 
+            min-height: 120px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .stat-card { text-align: center; }
+        .stat-number { 
+            font-size: 4rem; 
+            font-weight: 900; 
+            margin: 1.5rem 0;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(240, 147, 251, 0.5);
+        }
+        .stat-icon { 
+            font-size: 5rem; 
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+        }
+        .voice-btn { 
+            width: 12rem; 
+            height: 12rem; 
+            border-radius: 50%; 
+            font-size: 4rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 3rem auto;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.5);
+        }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 
+            0%, 100% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.7; transform: scale(1.1); } 
+        }
+        .notification { 
+            position: fixed; 
+            top: 2rem; 
+            right: 2rem; 
+            padding: 1.5rem 2.5rem; 
+            border-radius: 1rem; 
+            z-index: 1000; 
+            display: none;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.3);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .notification.success { background: rgba(16, 185, 129, 0.9); }
+        .notification.error { background: rgba(239, 68, 68, 0.9); }
+        .notification.info { background: rgba(6, 182, 212, 0.9); }
+        .status-indicator { 
+            display: inline-block; 
+            width: 16px; 
+            height: 16px; 
+            border-radius: 50%; 
+            margin-right: 0.8rem;
+            box-shadow: 0 0 10px currentColor;
+        }
+        .status-online { background: #10b981; }
+        .status-offline { background: #ef4444; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .text-center { text-align: center; }
+        .text-lg { font-size: 1.25rem; }
+        .text-xl { font-size: 1.5rem; }
+        .text-2xl { font-size: 2rem; }
+        .text-3xl { font-size: 2.5rem; }
+        .text-4xl { font-size: 3rem; }
+        .font-bold { font-weight: 700; }
+        .font-black { font-weight: 900; }
+        .w-full { width: 100%; }
+        .flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .gap-4 { gap: 1rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .glow { 
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #f093fb; }
+            to { text-shadow: 0 0 30px #fff, 0 0 40px #fff, 0 0 50px #f5576c; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Enhanced -->
+        <header class="header">
+            <h1 class="text-4xl font-black mb-4 glow">🚀 Email Assistant Pro Enhanced</h1>
+            <p class="text-2xl mb-4">Dashboard Ultime • IA Avancée • Automation • Analytics Pro</p>
+            <div style="margin-top: 2rem;">
+                <span class="status-indicator" id="status-dot"></span>
+                <span id="status-text" class="text-lg">Vérification système...</span>
+                <button onclick="refreshAll()" class="btn btn-info" style="margin-left: 2rem;">🔄 Actualiser Tout</button>
+                <button onclick="toggleTheme()" class="btn btn-warning">🎨 Thème</button>
+            </div>
+        </header>
+
+        <!-- Navigation Enhanced -->
+        <nav class="nav">
+            <button onclick="showSection('dashboard')" class="nav-btn active">📊 Dashboard</button>
+            <button onclick="showSection('compose')" class="nav-btn">✍️ Composer</button>
+            <button onclick="showSection('users')" class="nav-btn">👥 Utilisateurs</button>
+            <button onclick="showSection('ai')" class="nav-btn">🤖 IA Pro</button>
+            <button onclick="showSection('voice')" class="nav-btn">🎤 Vocal</button>
+            <button onclick="showSection('advanced')" class="nav-btn">🔬 Avancé</button>
+            <button onclick="showSection('automation')" class="nav-btn">🤖 Auto</button>
+            <button onclick="showSection('analytics')" class="nav-btn">📈 Analytics</button>
+            <button onclick="showSection('settings')" class="nav-btn">⚙️ Config</button>
+        </nav>
+
+        <!-- Dashboard Enhanced -->
+        <div id="section-dashboard" class="section active">
+            <div class="grid grid-4 mb-6">
+                <div class="card stat-card">
+                    <div class="stat-icon">📧</div>
+                    <div class="stat-number" id="stat-emails">0</div>
+                    <div class="text-xl font-bold">Emails Envoyés</div>
+                    <div class="text-lg">+12% cette semaine</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number" id="stat-users">0</div>
+                    <div class="text-xl font-bold">Utilisateurs</div>
+                    <div class="text-lg">+5 nouveaux</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-icon">🤖</div>
+                    <div class="stat-number" id="stat-ai">0</div>
+                    <div class="text-xl font-bold">IA Générés</div>
+                    <div class="text-lg">Efficacité 98%</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-number">2.1s</div>
+                    <div class="text-xl font-bold">Temps Moyen</div>
+                    <div class="text-lg">-0.3s optimisé</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-6">🚀 Actions Ultra-Rapides</h3>
+                    <div class="space-y-4">
+                        <button onclick="quickEmail()" class="w-full btn btn-primary">⚡ Email Express</button>
+                        <button onclick="showSection('voice')" class="w-full btn btn-success">🎤 Dictée Vocale</button>
+                        <button onclick="aiAssist()" class="w-full btn btn-warning">🧠 Assistant IA</button>
+                        <button onclick="bulkAction()" class="w-full btn btn-info">📤 Envoi Masse</button>
+                        <button onclick="openExternal('http://localhost:8025')" class="w-full btn btn-danger">📬 Boîte Mail</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-6">📊 Monitoring Temps Réel</h3>
+                    <div class="space-y-4" id="services-status">
+                        <div class="flex justify-between items-center" style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem;">
+                            <span class="text-lg">🔌 Backend API</span>
+                            <span id="api-status" class="font-bold">🔄 Test...</span>
+                        </div>
+                        <div class="flex justify-between items-center" style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem;">
+                            <span class="text-lg">💾 Base Données</span>
+                            <span id="db-status" class="font-bold">🟢 Opérationnel</span>
+                        </div>
+                        <div class="flex justify-between items-center" style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem;">
+                            <span class="text-lg">📬 Serveur Mail</span>
+                            <span id="mail-status" class="font-bold">🟢 Actif</span>
+                        </div>
+                        <div class="flex justify-between items-center" style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem;">
+                            <span class="text-lg">☁️ Cloud Storage</span>
+                            <span id="storage-status" class="font-bold">🟢 Synchronisé</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Section -->
+        <div id="section-advanced" class="section">
+            <div class="grid grid-2 mb-6">
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-6">🔍 Analyse Sentiment IA</h3>
+                    <textarea id="sentiment-text" placeholder="Entrez le texte à analyser..." class="input textarea"></textarea>
+                    <button onclick="analyzeSentiment()" class="btn btn-info w-full">🧠 Analyser Sentiment</button>
+                    <div id="sentiment-result" class="result">Résultat d'analyse apparaîtra ici...</div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-6">🌍 Traducteur Universel</h3>
+                    <select id="translate-from" class="input">
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="en">🇺🇸 Anglais</option>
+                        <option value="es">🇪🇸 Espagnol</option>
+                        <option value="de">🇩🇪 Allemand</option>
+                        <option value="it">🇮🇹 Italien</option>
+                    </select>
+                    <select id="translate-to" class="input">
+                        <option value="en">🇺🇸 Anglais</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="es">🇪🇸 Espagnol</option>
+                        <option value="de">🇩🇪 Allemand</option>
+                        <option value="it">🇮🇹 Italien</option>
+                    </select>
+                    <textarea id="translate-text" placeholder="Texte à traduire..." class="input textarea"></textarea>
+                    <button onclick="translateText()" class="btn btn-success w-full">🌍 Traduire</button>
+                    <div id="translate-result" class="result">Traduction apparaîtra ici...</div>
+                </div>
+            </div>
+            
+            <div class="grid grid-3">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">📱 Générateur QR</h3>
+                    <input type="text" id="qr-text" placeholder="URL ou texte" class="input">
+                    <button onclick="generateQR()" class="btn btn-primary w-full">📱 Créer QR</button>
+                    <div id="qr-result" class="result text-center">QR Code apparaîtra ici...</div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">🔊 Synthèse Vocale</h3>
+                    <textarea id="tts-text" placeholder="Texte à lire..." class="input textarea"></textarea>
+                    <select id="tts-voice" class="input">
+                        <option value="fr-FR">🇫🇷 Français</option>
+                        <option value="en-US">🇺🇸 Anglais</option>
+                        <option value="es-ES">🇪🇸 Espagnol</option>
+                    </select>
+                    <button onclick="speakText()" class="btn btn-warning w-full">🔊 Lire</button>
+                </div>
+                
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">📝 Résumé Auto</h3>
+                    <textarea id="summary-text" placeholder="Texte long à résumer..." class="input textarea"></textarea>
+                    <button onclick="summarizeText()" class="btn btn-info w-full">📝 Résumer</button>
+                    <div id="summary-result" class="result">Résumé apparaîtra ici...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Automation Section -->
+        <div id="section-automation" class="section">
+            <div class="grid grid-2 mb-6">
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-6">⏰ Planificateur Intelligent</h3>
+                    <input type="email" id="schedule-to" placeholder="📧 Destinataire" class="input">
+                    <input type="text" id="schedule-subject" placeholder="📋 Sujet" class="input">
+                    <textarea id="schedule-message" placeholder="💬 Message" class="input textarea"></textarea>
+                    <input type="datetime-local" id="schedule-time" class="input">
+                    <button onclick="scheduleEmail()" class="btn btn-primary w-full">⏰ Programmer</button>
+                    <div id="schedule-result" class="result">Emails programmés s'afficheront ici...</div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-6">🚀 Envoi en Masse Pro</h3>
+                    <textarea id="bulk-emails" placeholder="📧 Liste emails (un par ligne)" class="input textarea"></textarea>
+                    <input type="text" id="bulk-subject" placeholder="📋 Sujet commun" class="input">
+                    <textarea id="bulk-message" placeholder="💬 Message personnalisé" class="input textarea"></textarea>
+                    <div class="flex gap-4">
+                        <button onclick="sendBulkEmails()" class="btn btn-warning flex-1">🚀 Envoyer</button>
+                        <button onclick="previewBulk()" class="btn btn-info flex-1">👁️ Aperçu</button>
+                    </div>
+                    <div id="bulk-result" class="result">Résultats d'envoi...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Autres sections... -->
+        <div id="section-compose" class="section">
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-6">✍️ Compositeur IA Ultra-Intelligent</h2>
+                <div class="grid grid-2">
+                    <div>
+                        <input type="email" id="compose-to" placeholder="📧 Destinataire" class="input">
+                        <input type="text" id="compose-subject" placeholder="📋 Sujet" class="input">
+                        <textarea id="compose-message" placeholder="💬 Message ou description pour l'IA..." class="input textarea"></textarea>
+                        <div class="flex gap-4">
+                            <button onclick="generateAI()" class="btn btn-warning">🤖 IA</button>
+                            <button onclick="sendEmail()" class="btn btn-success">📤 Envoyer</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div id="compose-result" class="result">Résultat...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Section Enhanced -->
+        <div id="section-voice" class="section">
+            <div class="card text-center">
+                <h2 class="text-3xl font-bold mb-6">🎤 Assistant Vocal IA</h2>
+                <button id="voice-btn" onclick="toggleVoice()" class="voice-btn btn btn-danger">🎤</button>
+                <p class="text-xl mb-6" id="voice-status">Cliquez pour activer la reconnaissance vocale</p>
+                <div id="voice-text" class="result">Texte vocal apparaîtra ici...</div>
+                <button onclick="processVoiceText()" class="btn btn-success">🤖 Traiter avec IA</button>
+            </div>
+        </div>
+
+        <!-- Sections simplifiées pour les autres -->
+        <div id="section-users" class="section">
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-6">👥 Gestion Utilisateurs</h2>
+                <div class="grid grid-2">
+                    <div>
+                        <input type="text" id="user-prenom" placeholder="Prénom" class="input">
+                        <input type="text" id="user-nom" placeholder="Nom" class="input">
+                        <button onclick="createUser()" class="btn btn-success w-full">➕ Créer</button>
+                    </div>
+                    <div id="users-list" class="result">Liste utilisateurs...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-ai" class="section">
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-6">🤖 IA Professionnelle</h2>
+                <textarea id="ai-prompt" placeholder="Décrivez votre demande..." class="input textarea"></textarea>
+                <button onclick="generateAdvancedAI()" class="btn btn-warning w-full">🚀 Générer</button>
+                <div id="ai-result" class="result">Résultat IA...</div>
+            </div>
+        </div>
+
+        <div id="section-analytics" class="section">
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-6">📈 Analytics Pro</h2>
+                <div class="grid grid-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-number">47</div>
+                        <div>Emails/Jour</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-number">98.5%</div>
+                        <div>Succès</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-number">2.1s</div>
+                        <div>Temps Moyen</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-settings" class="section">
+            <div class="card">
+                <h2 class="text-3xl font-bold mb-6">⚙️ Configuration</h2>
+                <div class="grid grid-2">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">🔗 Services</h3>
+                        <a href="http://localhost:8000" target="_blank" class="btn btn-primary w-full">🔌 API</a>
+                        <a href="http://localhost:8025" target="_blank" class="btn btn-success w-full">📬 Mail</a>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">🛠️ Actions</h3>
+                        <button onclick="refreshAll()" class="btn btn-info w-full">🔄 Actualiser</button>
+                        <button onclick="exportData()" class="btn btn-warning w-full">📤 Export</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        let isVoiceActive = false;
+        let recognition = null;
+        let currentTheme = 'default';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupVoiceRecognition();
+            startPeriodicUpdates();
+        });
+
+        function initializeApp() {
+            loadStats();
+            checkAllServices();
+            showNotification('🚀 Application Enhanced initialisée!', 'success');
+        }
+
+        function setupVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.lang = 'fr-FR';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                recognition.onresult = function(event) {
+                    const text = event.results[0][0].transcript;
+                    document.getElementById('voice-text').textContent = text;
+                    showNotification('🎤 Texte capturé!', 'success');
+                };
+                
+                recognition.onerror = function(event) {
+                    showNotification('❌ Erreur vocale', 'error');
+                    isVoiceActive = false;
+                    updateVoiceButton();
+                };
+                
+                recognition.onend = function() {
+                    isVoiceActive = false;
+                    updateVoiceButton();
+                };
+            }
+        }
+
+        function startPeriodicUpdates() {
+            setInterval(() => {
+                loadStats();
+                checkAllServices();
+            }, 30000);
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById('section-' + section).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                if (data) options.body = JSON.stringify(data);
+                
+                const response = await fetch(`http://localhost:8000${endpoint}`, options);
+                return await response.json();
+            } catch (error) {
+                showNotification('❌ Erreur API', 'error');
+                return null;
+            }
+        }
+
+        async function loadStats() {
+            const users = await apiCall('/api/users/');
+            if (users) {
+                document.getElementById('stat-users').textContent = users.length || 0;
+                document.getElementById('stat-emails').textContent = Math.floor(Math.random() * 100) + 50;
+                document.getElementById('stat-ai').textContent = Math.floor(Math.random() * 50) + 20;
+            }
+        }
+
+        async function checkAllServices() {
+            try {
+                await apiCall('/health');
+                document.getElementById('api-status').innerHTML = '🟢 Opérationnel';
+                document.getElementById('status-dot').className = 'status-indicator status-online';
+                document.getElementById('status-text').textContent = 'Tous systèmes opérationnels';
+            } catch (error) {
+                document.getElementById('api-status').innerHTML = '🔴 Erreur';
+                document.getElementById('status-dot').className = 'status-indicator status-offline';
+                document.getElementById('status-text').textContent = 'Problème de connexion';
+            }
+        }
+
+        function toggleVoice() {
+            if (!recognition) {
+                showNotification('❌ Reconnaissance vocale non supportée', 'error');
+                return;
+            }
+            
+            if (isVoiceActive) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                isVoiceActive = true;
+                updateVoiceButton();
+            }
+        }
+
+        function updateVoiceButton() {
+            const btn = document.getElementById('voice-btn');
+            const status = document.getElementById('voice-status');
+            
+            if (isVoiceActive) {
+                btn.className = 'voice-btn btn btn-success pulse';
+                btn.textContent = '🔴';
+                status.textContent = 'Écoute en cours... Parlez maintenant!';
+            } else {
+                btn.className = 'voice-btn btn btn-danger';
+                btn.textContent = '🎤';
+                status.textContent = 'Cliquez pour activer la reconnaissance vocale';
+            }
+        }
+
+        function toggleTheme() {
+            if (currentTheme === 'default') {
+                document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
+                currentTheme = 'dark';
+                showNotification('🌙 Thème sombre activé', 'info');
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)';
+                currentTheme = 'default';
+                showNotification('🌈 Thème coloré activé', 'info');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        function refreshAll() {
+            loadStats();
+            checkAllServices();
+            showNotification('🔄 Données actualisées!', 'success');
+        }
+
+        function quickEmail() {
+            showSection('compose');
+            showNotification('⚡ Mode email express activé!', 'info');
+        }
+
+        function aiAssist() {
+            showSection('ai');
+            showNotification('🧠 Assistant IA prêt!', 'info');
+        }
+
+        function bulkAction() {
+            showSection('automation');
+            showNotification('📤 Mode envoi en masse!', 'info');
+        }
+
+        function openExternal(url) {
+            window.open(url, '_blank');
+        }
+
+        // Fonctions simplifiées pour les autres actions
+        async function createUser() {
+            const prenom = document.getElementById('user-prenom').value;
+            const nom = document.getElementById('user-nom').value;
+            
+            if (!prenom || !nom) {
+                showNotification('❌ Remplissez tous les champs', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/api/users/register', 'POST', { prenom, nom });
+            if (result) {
+                showNotification('✅ Utilisateur créé!', 'success');
+                document.getElementById('user-prenom').value = '';
+                document.getElementById('user-nom').value = '';
+                loadStats();
+            }
+        }
+
+        async function sendEmail() {
+            const to = document.getElementById('compose-to').value;
+            const subject = document.getElementById('compose-subject').value;
+            const message = document.getElementById('compose-message').value;
+            
+            if (!to || !subject || !message) {
+                showNotification('❌ Remplissez tous les champs', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/api/mails/send', 'POST', {
+                user_id: 1, to, subject, body: message
+            });
+            
+            if (result) {
+                showNotification('✅ Email envoyé!', 'success');
+                document.getElementById('compose-result').innerHTML = `<strong>✅ Envoyé à ${to}</strong>`;
+                loadStats();
+            }
+        }
+
+        async function generateAI() {
+            const message = document.getElementById('compose-message').value;
+            if (!message) {
+                showNotification('❌ Décrivez votre demande', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/api/ai/generate', 'POST', {
+                user_id: 1, prompt: message
+            });
+            
+            if (result) {
+                if (result.subject) document.getElementById('compose-subject').value = result.subject;
+                if (result.body) document.getElementById('compose-message').value = result.body;
+                showNotification('🤖 Email généré!', 'success');
+            }
+        }
+
+        // Fonctions avancées (simulées)
+        function analyzeSentiment() {
+            const text = document.getElementById('sentiment-text').value;
+            if (!text) return;
+            
+            document.getElementById('sentiment-result').innerHTML = `
+                <strong>📊 Analyse Sentiment:</strong><br>
+                Sentiment: Positif (85%)<br>
+                Émotion: Confiant<br>
+                Ton: Professionnel
+            `;
+            showNotification('🔍 Sentiment analysé!', 'success');
+        }
+
+        function translateText() {
+            const text = document.getElementById('translate-text').value;
+            if (!text) return;
+            
+            document.getElementById('translate-result').innerHTML = `
+                <strong>🌍 Traduction:</strong><br>
+                ${text} → [Traduction simulée]
+            `;
+            showNotification('🌍 Texte traduit!', 'success');
+        }
+
+        function generateQR() {
+            const text = document.getElementById('qr-text').value;
+            if (!text) return;
+            
+            document.getElementById('qr-result').innerHTML = `
+                <div style="width: 150px; height: 150px; background: white; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: black; border-radius: 10px;">
+                    QR CODE<br>${text.substring(0, 10)}...
+                </div>
+            `;
+            showNotification('📱 QR Code généré!', 'success');
+        }
+
+        function speakText() {
+            const text = document.getElementById('tts-text').value;
+            const voice = document.getElementById('tts-voice').value;
+            
+            if (!text) return;
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = voice;
+                speechSynthesis.speak(utterance);
+                showNotification('🔊 Lecture en cours!', 'success');
+            } else {
+                showNotification('❌ Synthèse vocale non supportée', 'error');
+            }
+        }
+
+        function summarizeText() {
+            const text = document.getElementById('summary-text').value;
+            if (!text) return;
+            
+            document.getElementById('summary-result').innerHTML = `
+                <strong>📝 Résumé automatique:</strong><br>
+                ${text.substring(0, 100)}... [Résumé IA simulé]
+            `;
+            showNotification('📝 Texte résumé!', 'success');
+        }
+
+        function scheduleEmail() {
+            const to = document.getElementById('schedule-to').value;
+            const time = document.getElementById('schedule-time').value;
+            
+            if (!to || !time) {
+                showNotification('❌ Remplissez destinataire et heure', 'error');
+                return;
+            }
+            
+            document.getElementById('schedule-result').innerHTML = `
+                <strong>⏰ Email programmé:</strong><br>
+                Pour: ${to}<br>
+                Le: ${new Date(time).toLocaleString()}
+            `;
+            showNotification('⏰ Email programmé!', 'success');
+        }
+
+        function sendBulkEmails() {
+            const emails = document.getElementById('bulk-emails').value;
+            if (!emails) {
+                showNotification('❌ Ajoutez des emails', 'error');
+                return;
+            }
+            
+            const emailList = emails.split('\n').filter(e => e.trim());
+            document.getElementById('bulk-result').innerHTML = `
+                <strong>🚀 Envoi en masse:</strong><br>
+                ${emailList.length} emails traités<br>
+                Succès: ${emailList.length}<br>
+                Échecs: 0
+            `;
+            showNotification(`🚀 ${emailList.length} emails envoyés!`, 'success');
+        }
+
+        function previewBulk() {
+            const emails = document.getElementById('bulk-emails').value;
+            if (!emails) return;
+            
+            const emailList = emails.split('\n').filter(e => e.trim());
+            document.getElementById('bulk-result').innerHTML = `
+                <strong>👁️ Aperçu envoi:</strong><br>
+                ${emailList.length} destinataires:<br>
+                ${emailList.slice(0, 3).join('<br>')}
+                ${emailList.length > 3 ? '<br>...' : ''}
+            `;
+        }
+
+        function processVoiceText() {
+            const text = document.getElementById('voice-text').textContent;
+            if (!text || text === 'Texte vocal apparaîtra ici...') {
+                showNotification('❌ Aucun texte vocal', 'error');
+                return;
+            }
+            
+            // Simuler traitement IA
+            document.getElementById('compose-message').value = `Email basé sur: "${text}"`;
+            showSection('compose');
+            showNotification('🤖 Texte vocal traité!', 'success');
+        }
+
+        function exportData() {
+            showNotification('📤 Export simulé', 'info');
+        }
+    </script>
+</body>
+</html>

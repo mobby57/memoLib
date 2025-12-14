@@ -1,0 +1,29 @@
+# Flask et extensions
+Flask==3.0.0
+Flask-CORS==4.0.0
+flask-socketio==5.3.6
+Flask-Session==0.8.0
+
+# Sécurité et cryptographie
+cryptography==41.0.7
+
+# Configuration
+python-dotenv==1.0.0
+
+# Base de données et email
+# sqlite3 est inclus avec Python
+
+# IA et OpenAI
+openai==1.12.0
+
+# Reconnaissance vocale et synthèse
+SpeechRecognition==3.10.1
+pyttsx3==2.90
+PyAudio==0.2.14
+
+# Serveur WSGI
+gunicorn==21.2.0
+
+# Websockets
+python-engineio==4.9.0
+python-socketio==5.11.1

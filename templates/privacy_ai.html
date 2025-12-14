@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Privée - Protection Données - IAPosteManager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #1b5e20, #2e7d32);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .privacy-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 25px;
+            border-radius: 25px;
+            margin-top: 15px;
+            display: inline-block;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .protection-level {
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .protection-level h2 {
+            margin: 0 0 10px 0;
+            font-size: 2em;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            border-radius: 8px;
+        }
+        
+        .feature-card h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table th {
+            background: #2e7d32;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .good {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        
+        .bad {
+            color: #f44336;
+            font-weight: bold;
+        }
+        
+        .ai-demo {
+            background: #e8f5e8;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .result-box {
+            background: white;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .privacy-indicators {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .indicator {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .indicator-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4caf50;
+        }
+        
+        .guarantee-list {
+            background: #fff3e0;
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .guarantee-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .guarantee-list li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ IA Privée - Protection Maximale</h1>
+            <p>Intelligence Artificielle 100% Locale - Vos données ne quittent JAMAIS votre ordinateur</p>
+            <div class="privacy-badge">
+                🔒 ZÉRO ENVOI EXTERNE • 100% LOCAL • RGPD COMPLIANT
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Niveau de protection -->
+            <div class="protection-level">
+                <h2>NIVEAU DE PROTECTION : MAXIMUM</h2>
+                <p>Aucune donnée client n'est jamais envoyée à l'extérieur</p>
+            </div>
+            
+            <!-- Indicateurs de confidentialité -->
+            <div class="privacy-indicators">
+                <div class="indicator">
+                    <div class="indicator-value">0</div>
+                    <div>Envois externes</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-value">100%</div>
+                    <div>Données locales</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-value">AES-256</div>
+                    <div>Chiffrement</div>
+                </div>
+                <div class="indicator">
+                    <div class="indicator-value">RGPD</div>
+                    <div>Conformité</div>
+                </div>
+            </div>
+            
+            <!-- Comparaison avec IA externes -->
+            <h2>🆚 Comparaison avec les IA externes</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Critère</th>
+                        <th>IA Externe (ChatGPT, etc.)</th>
+                        <th>Notre IA Locale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Données clients</strong></td>
+                        <td class="bad">❌ Envoyées aux serveurs</td>
+                        <td class="good">✅ Restent sur votre PC</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Confidentialité</strong></td>
+                        <td class="bad">❌ Analysées par l'IA externe</td>
+                        <td class="good">✅ 100% privées</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Contrôle des données</strong></td>
+                        <td class="bad">❌ Aucun contrôle</td>
+                        <td class="good">✅ Contrôle total</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dépendance internet</strong></td>
+                        <td class="bad">❌ Obligatoire</td>
+                        <td class="good">✅ Fonctionne hors ligne</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Coût</strong></td>
+                        <td class="bad">❌ Abonnement mensuel</td>
+                        <td class="good">✅ Gratuit à vie</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Conformité RGPD</strong></td>
+                        <td class="bad">❌ Complexe</td>
+                        <td class="good">✅ Automatique</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Fonctionnalités de protection -->
+            <h2>🔐 Fonctionnalités de Protection</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🏠 Traitement Local</h3>
+                    <p>Toute l'intelligence artificielle fonctionne directement sur votre ordinateur. Aucune donnée n'est jamais transmise à l'extérieur.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔒 Chiffrement AES-256</h3>
+                    <p>Toutes les données sont chiffrées avec l'algorithme militaire AES-256. Même si quelqu'un accède à votre disque, les données sont illisibles.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🚫 Zéro Télémétrie</h3>
+                    <p>Aucune statistique, aucune donnée d'usage, aucune information n'est collectée ou envoyée. Votre vie privée est respectée.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📚 Apprentissage Local</h3>
+                    <p>L'IA apprend de vos préférences localement, sans jamais partager ces informations avec des serveurs externes.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🌐 Indépendance Internet</h3>
+                    <p>Fonctionne même sans connexion internet. Vos données sensibles ne risquent pas d'être interceptées.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>⚖️ Conformité Légale</h3>
+                    <p>Respect automatique du RGPD, des lois sur la protection des données et des réglementations sectorielles.</p>
+                </div>
+            </div>
+            
+            <!-- Démonstration IA locale -->
+            <div class="ai-demo">
+                <h2>🧠 Testez l'IA Locale Protégée</h2>
+                <p><strong>Démonstration :</strong> Générez un email sans envoyer aucune donnée à l'extérieur</p>
+                
+                <div class="form-group">
+                    <label for="demo-context">Décrivez votre besoin :</label>
+                    <textarea id="demo-context" rows="4" placeholder="Ex: Je veux demander une attestation à la CAF pour mon dossier logement"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="demo-tone">Ton souhaité :</label>
+                    <select id="demo-tone">
+                        <option value="professionnel">Professionnel</option>
+                        <option value="simple">Simple</option>
+                        <option value="amical">Amical</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-success" onclick="generateLocalAI()">🧠 Générer avec IA Locale</button>
+                <button class="btn btn-info" onclick="showPrivacyReport()">📊 Rapport de Confidentialité</button>
+                
+                <div class="result-box" id="ai-result">
+                    <!-- Résultat affiché ici -->
+                </div>
+            </div>
+            
+            <!-- Garanties -->
+            <div class="guarantee-list">
+                <h3>🛡️ Nos Garanties de Protection</h3>
+                <ul>
+                    <li><strong>Aucune donnée client ne quitte votre ordinateur</strong> - Traitement 100% local</li>
+                    <li><strong>Chiffrement militaire AES-256</strong> - Protection maximale des données stockées</li>
+                    <li><strong>Code source transparent</strong> - Vous pouvez vérifier qu'aucun envoi externe n'est effectué</li>
+                    <li><strong>Conformité RGPD automatique</strong> - Pas de transfert de données = pas de risque</li>
+                    <li><strong>Indépendance totale</strong> - Fonctionne sans internet, sans abonnement</li>
+                    <li><strong>Contrôle total</strong> - Vous êtes propriétaire de vos données à 100%</li>
+                </ul>
+            </div>
+            
+            <!-- Rapport technique -->
+            <div id="privacy-report" style="display: none;">
+                <h3>📋 Rapport Technique de Confidentialité</h3>
+                <div id="privacy-details">
+                    <!-- Chargé dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generateLocalAI() {
+            const context = document.getElementById('demo-context').value;
+            const tone = document.getElementById('demo-tone').value;
+            
+            if (!context.trim()) {
+                alert('Veuillez décrire votre besoin');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/generate-local-ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        context: context,
+                        tone: tone
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('ai-result').innerHTML = `
+                        <h4>📧 Email généré (100% local)</h4>
+                        <p><strong>Sujet :</strong> ${result.subject}</p>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">${result.body}</pre>
+                        </div>
+                        <div style="background: #e8f5e8; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                            <strong>🔒 ${result.privacy}</strong>
+                        </div>
+                    `;
+                    document.getElementById('ai-result').style.display = 'block';
+                } else {
+                    alert('Erreur : ' + result.error);
+                }
+            } catch (error) {
+                alert('Erreur de connexion');
+            }
+        }
+        
+        async function showPrivacyReport() {
+            try {
+                const response = await fetch('/api/privacy-report');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const report = result.report;
+                    document.getElementById('privacy-details').innerHTML = `
+                        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #4caf50;">
+                            <h4>🛡️ Niveau de Protection : ${report.privacy_level}</h4>
+                            <p><strong>Localisation des données :</strong> ${report.data_location}</p>
+                            <p><strong>Appels externes :</strong> ${report.external_calls}</p>
+                            <p><strong>Chiffrement :</strong> ${report.encryption}</p>
+                            <p><strong>Partage de données :</strong> ${report.data_sharing}</p>
+                            <p><strong>Type d'IA :</strong> ${report.ai_type}</p>
+                            
+                            <h5>✅ Garanties :</h5>
+                            <ul>
+                                ${report.guarantees.map(g => `<li>${g}</li>`).join('')}
+                            </ul>
+                            
+                            <h5>📋 Conformité :</h5>
+                            <ul>
+                                ${report.compliance.map(c => `<li>${c}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    document.getElementById('privacy-report').style.display = 'block';
+                }
+            } catch (error) {
+                alert('Erreur lors de la génération du rapport');
+            }
+        }
+    </script>
+</body>
+</html>
