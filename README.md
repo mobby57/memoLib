@@ -1,157 +1,57 @@
-# IAPosteManager v2.2 - Email Automation avec IA
+# 🚀 IAPosteManager v2.2 - Production Ready
 
-Application web Flask complète pour automatiser l'envoi d'emails avec génération IA, interface vocale et sécurité avancée.
+Application web complète pour automatiser l'envoi d'emails avec génération IA, interface vocale et sécurité avancée.
 
-## 🚀 Démarrage Rapide
+## ✅ Status: Production Ready
+- **39/39 tests E2E Playwright** ✅
+- **Frontend React + Vite** ✅  
+- **Backend Flask unifié** ✅
+- **Interface d'accessibilité complète** ✅
+- **Chiffrement AES-256** ✅
+- **API REST documentée** ✅
 
-### Option 1: Docker (Recommandé)
+## 🌐 Déploiement
+
+### Option 1: Render (Recommandé)
+1. Fork ce repo
+2. Connecter à [render.com](https://render.com)
+3. Build: `./build.sh`
+4. Start: `./start.sh`
+
+### Option 2: Docker
 ```bash
-docker compose up --watch
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-### Option 2: Local
+### Option 3: Local
 ```bash
-python src\web\app.py
+python src/backend/app.py
 ```
-
-**URL:** http://127.0.0.1:5000
-
-## 📁 Structure du Projet
-
-```
-iaPostemanage/
-├── src/
-│   ├── web/app.py              # Application Flask principale
-│   ├── core/                   # Configuration, crypto, database
-│   │   ├── config.py
-│   │   ├── crypto_utils.py
-│   │   └── database.py
-│   ├── services/               # Services email, IA, notifications
-│   │   ├── ai_service.py
-│   │   ├── email_service.py
-│   │   └── voice_service.py
-│   ├── accessibility/          # TTS, transcription vocale
-│   ├── security/               # Audit, 2FA, rotation clés
-│   ├── analytics/              # Dashboard statistiques
-│   └── payment/                # Intégration Stripe
-├── templates/                  # Pages HTML (Jinja2)
-├── static/                     # CSS, JS, assets
-├── data/                       # Données chiffrées
-│   ├── credentials.enc
-│   ├── salt.bin
-│   └── metadata.json
-├── tests/                      # Tests unitaires/intégration
-├── docs/                       # Documentation API
-├── deploy/                     # Configs déploiement
-└── docker-compose.yml          # Orchestration Docker
-```
-
-## ⚙️ Configuration
-
-### 1. Variables d'environnement
-```bash
-cp .env.example .env
-```
-
-### 2. Configuration initiale
-1. Accéder à http://127.0.0.1:5000
-2. Créer mot de passe maître (8+ caractères)
-3. Ajouter Gmail/Outlook App Password
-4. (Optionnel) Ajouter clé OpenAI pour l'IA
 
 ## 🎯 Fonctionnalités
 
-### Core
-- ✅ Envoi emails SMTP (Gmail, Outlook, custom)
-- ✅ Génération IA (OpenAI GPT)
-- ✅ Templates d'emails personnalisables
-- ✅ Chiffrement AES-256 des credentials
-- ✅ Interface web responsive
-
-### Avancées
-- 🎤 **Interface vocale** (TTS, reconnaissance vocale)
+- 📧 **Envoi emails** (Gmail, Outlook, SMTP)
+- 🤖 **Génération IA** (OpenAI GPT)
+- 🎤 **Interface vocale** (TTS, reconnaissance)
+- ♿ **Accessibilité** (profils Aveugle/Sourd/Muet)
+- 🔐 **Sécurité** (chiffrement AES-256)
 - 📊 **Analytics** (statistiques, historique)
-- 🔐 **Sécurité** (audit trail, 2FA, rotation clés)
-- 📱 **Accessibilité** (mode sombre, TTS)
-- 🔄 **Automation** (envoi en masse, planification)
-- 💳 **Paiements** (intégration Stripe)
 - 🌐 **API REST** (endpoints documentés)
 
-### Interfaces
-- `/` - Dashboard principal
-- `/composer` - Compositeur d'emails avec IA
-- `/agent` - Agent IA vocal
-- `/send` - Envoi simple
-- `/api/` - API REST
+## 🏗️ Architecture
 
-## 🛠️ Installation
-
-### Prérequis
-- Python 3.8+
-- Docker (optionnel)
-- Compte Gmail/Outlook avec App Password
-- Clé OpenAI (optionnel)
-
-### Dépendances
-```bash
-pip install -r requirements.txt
+```
+Frontend React (port 3001) ↔ Backend Flask (port 5000)
+├── Services API unifiés
+├── Base SQLite chiffrée  
+├── Tests E2E Playwright
+└── Configurations déploiement
 ```
 
-**Principales dépendances:**
-- Flask 3.0.0 (framework web)
-- cryptography (chiffrement)
-- openai (génération IA)
-- pyttsx3 (synthèse vocale)
-- SpeechRecognition (reconnaissance vocale)
-- stripe (paiements)
-- boto3 (AWS SES)
+## 📱 URLs
+- **Frontend:** http://localhost:3001
+- **Backend:** http://localhost:5000
+- **API:** http://localhost:5000/api
 
-## 🔐 Sécurité
-
-- **Chiffrement**: AES-256 avec Fernet
-- **Dérivation clé**: PBKDF2HMAC (600k itérations)
-- **Audit trail**: Traçabilité complète
-- **2FA**: Authentification à deux facteurs
-- **Rotation**: Rotation automatique des clés
-- **Sessions**: Gestion sécurisée des sessions
-
-## 📚 Documentation
-
-- [Guide d'utilisation](GUIDE_UTILISATION.md)
-- [Documentation API](docs/API_DOCUMENTATION.md)
-- [Guide démarrage rapide](docs/QUICKSTART.md)
-
-## 🧪 Tests
-
-```bash
-# Tests unitaires
-pytest tests/unit/
-
-# Tests d'intégration
-pytest tests/integration/
-
-# Tests E2E
-pytest tests/e2e/
-```
-
-## 🚀 Déploiement
-
-### Docker
-```bash
-docker compose up -d
-```
-
-### Cloud
-- Heroku: `deploy/heroku.yml`
-- Railway: `deploy/railway.json`
-- Render: `deploy/render.yaml`
-
-## 📈 Version
-
-**v2.2.0** - Dernière version stable
-
-- Interface vocale complète
-- Analytics avancées
-- Sécurité renforcée
-- API REST documentée
-- Support multi-plateforme
+---
+**Ready for production deployment! 🎉**

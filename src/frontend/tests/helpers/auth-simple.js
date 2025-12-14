@@ -75,3 +75,20 @@ export async function loginForTests(page, isNewUser = false, password = 'test123
     throw new Error(`Login échoué: ${error.message}`);
   }
 }
+
+/**
+ * Vérifier si l'utilisateur est connecté
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<boolean>}
+ */
+export async function isLoggedIn(page) {
+  // Vérifier si on n'est pas sur /login
+  const url = page.url();
+  if (url.includes('/login')) {
+    return false;
+  }
+  
+  // Vérifier si la navigation principale est présente
+  const navExists = await page.locator('nav').count() > 0;
+  return navExists;
+}
