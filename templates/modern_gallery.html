@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie Moderne - IAPosteManager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-ui.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-images.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <i class="fas fa-images" style="font-size: 1.5rem;"></i>
+                <h1>Galerie Moderne</h1>
+            </div>
+            <nav class="nav-pills">
+                <a href="/" class="nav-pill">
+                    <i class="fas fa-home"></i> Accueil
+                </a>
+                <a href="/gallery" class="nav-pill active">
+                    <i class="fas fa-images"></i> Galerie
+                </a>
+                <a href="/upload" class="nav-pill">
+                    <i class="fas fa-upload"></i> Upload
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contrôles -->
+    <div class="image-controls">
+        <div class="search-filter">
+            <input type="text" class="search-input" placeholder="Rechercher des images..." id="searchInput">
+            <select class="filter-select" id="categoryFilter">
+                <option value="">Toutes les catégories</option>
+                <option value="photos">Photos</option>
+                <option value="illustrations">Illustrations</option>
+                <option value="icons">Icônes</option>
+                <option value="logos">Logos</option>
+            </select>
+        </div>
+        
+        <div class="view-toggle">
+            <button class="view-btn active" data-view="grid">
+                <i class="fas fa-th"></i> Grille
+            </button>
+            <button class="view-btn" data-view="list">
+                <i class="fas fa-list"></i> Liste
+            </button>
+        </div>
+    </div>
+
+    <!-- Galerie principale -->
+    <div class="image-gallery" id="imageGallery">
+        <!-- Exemple d'images -->
+        <div class="image-card">
+            <div class="image-container">
+                <img src="https://picsum.photos/400/250?random=1" alt="Image moderne 1">
+                <div class="status-badge status-new">Nouveau</div>
+                <div class="image-overlay">
+                    <div class="image-actions">
+                        <button class="action-btn primary" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn success" title="Télécharger">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn warning" title="Partager">
+                            <i class="fas fa-share"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="image-meta">
+                <h3 class="image-title">Paysage Moderne</h3>
+                <p class="image-description">Une belle image de paysage avec des couleurs vives et un style moderne.</p>
+                <div class="image-tags">
+                    <span class="tag">Nature</span>
+                    <span class="tag">Paysage</span>
+                    <span class="tag">HD</span>
+                </div>
+                <div class="image-stats">
+                    <span><i class="fas fa-eye"></i> 1.2k vues</span>
+                    <span><i class="fas fa-heart"></i> 89 likes</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="image-container">
+                <img src="https://picsum.photos/400/250?random=2" alt="Image moderne 2">
+                <div class="status-badge status-featured">Vedette</div>
+                <div class="image-overlay">
+                    <div class="image-actions">
+                        <button class="action-btn primary" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn success" title="Télécharger">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn warning" title="Partager">
+                            <i class="fas fa-share"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="image-meta">
+                <h3 class="image-title">Architecture Contemporaine</h3>
+                <p class="image-description">Design architectural moderne avec des lignes épurées et des matériaux innovants.</p>
+                <div class="image-tags">
+                    <span class="tag">Architecture</span>
+                    <span class="tag">Moderne</span>
+                    <span class="tag">Design</span>
+                </div>
+                <div class="image-stats">
+                    <span><i class="fas fa-eye"></i> 2.1k vues</span>
+                    <span><i class="fas fa-heart"></i> 156 likes</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="image-container">
+                <img src="https://picsum.photos/400/250?random=3" alt="Image moderne 3">
+                <div class="status-badge status-popular">Populaire</div>
+                <div class="image-overlay">
+                    <div class="image-actions">
+                        <button class="action-btn primary" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn success" title="Télécharger">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn warning" title="Partager">
+                            <i class="fas fa-share"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="image-meta">
+                <h3 class="image-title">Art Numérique</h3>
+                <p class="image-description">Création artistique numérique avec des effets visuels saisissants.</p>
+                <div class="image-tags">
+                    <span class="tag">Art</span>
+                    <span class="tag">Numérique</span>
+                    <span class="tag">Créatif</span>
+                </div>
+                <div class="image-stats">
+                    <span><i class="fas fa-eye"></i> 3.5k vues</span>
+                    <span><i class="fas fa-heart"></i> 234 likes</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="image-container">
+                <img src="https://picsum.photos/400/250?random=4" alt="Image moderne 4">
+                <div class="image-overlay">
+                    <div class="image-actions">
+                        <button class="action-btn primary" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn success" title="Télécharger">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn warning" title="Partager">
+                            <i class="fas fa-share"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="image-meta">
+                <h3 class="image-title">Technologie Avancée</h3>
+                <p class="image-description">Interface utilisateur moderne avec des éléments technologiques futuristes.</p>
+                <div class="image-tags">
+                    <span class="tag">Tech</span>
+                    <span class="tag">UI/UX</span>
+                    <span class="tag">Futur</span>
+                </div>
+                <div class="image-stats">
+                    <span><i class="fas fa-eye"></i> 1.8k vues</span>
+                    <span><i class="fas fa-heart"></i> 127 likes</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="image-container">
+                <img src="https://picsum.photos/400/250?random=5" alt="Image moderne 5">
+                <div class="image-overlay">
+                    <div class="image-actions">
+                        <button class="action-btn primary" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn success" title="Télécharger">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn warning" title="Partager">
+                            <i class="fas fa-share"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="image-meta">
+                <h3 class="image-title">Design Minimaliste</h3>
+                <p class="image-description">Approche minimaliste avec des espaces blancs et des formes géométriques.</p>
+                <div class="image-tags">
+                    <span class="tag">Minimal</span>
+                    <span class="tag">Clean</span>
+                    <span class="tag">Géométrie</span>
+                </div>
+                <div class="image-stats">
+                    <span><i class="fas fa-eye"></i> 956 vues</span>
+                    <span><i class="fas fa-heart"></i> 78 likes</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="image-card">
+            <div class="image-container">
+                <img src="https://picsum.photos/400/250?random=6" alt="Image moderne 6">
+                <div class="image-overlay">
+                    <div class="image-actions">
+                        <button class="action-btn primary" title="Voir">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn success" title="Télécharger">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn warning" title="Partager">
+                            <i class="fas fa-share"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="image-meta">
+                <h3 class="image-title">Couleurs Vibrantes</h3>
+                <p class="image-description">Palette de couleurs éclatantes pour des designs dynamiques et énergiques.</p>
+                <div class="image-tags">
+                    <span class="tag">Couleur</span>
+                    <span class="tag">Vibrant</span>
+                    <span class="tag">Énergie</span>
+                </div>
+                <div class="image-stats">
+                    <span><i class="fas fa-eye"></i> 1.4k vues</span>
+                    <span><i class="fas fa-heart"></i> 103 likes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue liste (cachée par défaut) -->
+    <div class="image-list-view" id="imageListView" style="display: none; padding: 0 2rem;">
+        <div class="image-list-item">
+            <div class="image-list-thumb">
+                <img src="https://picsum.photos/120/80?random=1" alt="Thumb 1">
+            </div>
+            <div class="image-list-content">
+                <h4 class="image-list-title">Paysage Moderne</h4>
+                <div class="image-list-meta">Nature • 1.2k vues • 89 likes</div>
+            </div>
+        </div>
+        
+        <div class="image-list-item">
+            <div class="image-list-thumb">
+                <img src="https://picsum.photos/120/80?random=2" alt="Thumb 2">
+            </div>
+            <div class="image-list-content">
+                <h4 class="image-list-title">Architecture Contemporaine</h4>
+                <div class="image-list-meta">Architecture • 2.1k vues • 156 likes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour affichage plein écran -->
+    <div class="image-modal" id="imageModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <img class="modal-image" id="modalImage" src="" alt="">
+        </div>
+    </div>
+
+    <script>
+        // Gestion des vues
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const view = btn.dataset.view;
+                const gallery = document.getElementById('imageGallery');
+                const listView = document.getElementById('imageListView');
+                
+                if (view === 'grid') {
+                    gallery.style.display = 'grid';
+                    listView.style.display = 'none';
+                } else {
+                    gallery.style.display = 'none';
+                    listView.style.display = 'flex';
+                }
+            });
+        });
+
+        // Modal image
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalClose = document.getElementById('modalClose');
+
+        document.querySelectorAll('.action-btn.primary').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const img = btn.closest('.image-card').querySelector('img');
+                modalImage.src = img.src;
+                modal.classList.add('active');
+            });
+        });
+
+        modalClose.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        // Recherche
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.image-card').forEach(card => {
+                const title = card.querySelector('.image-title').textContent.toLowerCase();
+                const description = card.querySelector('.image-description').textContent.toLowerCase();
+                const visible = title.includes(query) || description.includes(query);
+                card.style.display = visible ? 'block' : 'none';
+            });
+        });
+
+        // Filtre par catégorie
+        document.getElementById('categoryFilter').addEventListener('change', (e) => {
+            const category = e.target.value;
+            document.querySelectorAll('.image-card').forEach(card => {
+                if (!category) {
+                    card.style.display = 'block';
+                } else {
+                    const tags = Array.from(card.querySelectorAll('.tag')).map(tag => tag.textContent.toLowerCase());
+                    const visible = tags.some(tag => tag.includes(category.toLowerCase()));
+                    card.style.display = visible ? 'block' : 'none';
+                }
+            });
+        });
+
+        // Actions sur les images
+        document.querySelectorAll('.action-btn.success').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const img = btn.closest('.image-card').querySelector('img');
+                const link = document.createElement('a');
+                link.href = img.src;
+                link.download = 'image.jpg';
+                link.click();
+            });
+        });
+
+        document.querySelectorAll('.action-btn.warning').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (navigator.share) {
+                    const img = btn.closest('.image-card').querySelector('img');
+                    navigator.share({
+                        title: 'Image partagée',
+                        url: img.src
+                    });
+                } else {
+                    alert('Partage non supporté sur ce navigateur');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

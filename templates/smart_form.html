@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Form - SecureVault</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/navigation.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <svg width="32" height="32" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M20 10 L20 20 L28 20" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+            <span>SecureVault</span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">🏠 Accueil</a>
+            <a href="/composer" class="nav-link">✨ Composer</a>
+            <a href="/smart" class="nav-link active">🧠 Smart</a>
+            <a href="/history" class="nav-link">📊 Historique</a>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="theme-toggle" id="themeToggle">🌙</button>
+            <a href="/logout" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px;">🚪 Déconnexion</a>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 1200px; margin: 2rem auto;">
+        <header style="text-align: center; margin-bottom: 2rem;">
+            <h1>🧠 Compositeur Smart</h1>
+            <p style="color: #666;">Analyse de documents et génération contextuelle</p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            
+            <!-- Colonne gauche: Upload -->
+            <div class="card">
+                <h2>📁 Documents & Médias</h2>
+                
+                <div class="input-group">
+                    <label>📄 Documents (PDF, DOCX, Images)</label>
+                    <input type="file" id="documents" multiple accept=".pdf,.docx,.doc,.jpg,.jpeg,.png">
+                    <button onclick="analyzeDocuments()" class="btn btn-secondary" style="margin-top: 0.5rem;">🔍 Analyser</button>
+                </div>
+
+                <div class="input-group">
+                    <label>🎤 Enregistrement Audio</label>
+                    <button id="recordBtn" class="btn btn-danger">⏺ Enregistrer</button>
+                    <audio id="audioPlayer" controls style="width: 100%; margin-top: 0.5rem; display: none;"></audio>
+                </div>
+
+                <div class="input-group">
+                    <label>✍️ Texte Libre</label>
+                    <textarea id="freeText" rows="6" placeholder="Ou tapez directement votre contexte..."></textarea>
+                </div>
+
+                <div id="extractedContent" style="display: none; margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                    <h4>📝 Contenu Extrait</h4>
+                    <pre id="extractedText" style="white-space: pre-wrap; font-size: 0.9rem;"></pre>
+                </div>
+            </div>
+
+            <!-- Colonne droite: Génération -->
+            <div class="card">
+                <h2>🤖 Génération IA</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="input-group">
+                        <label>Type d'email</label>
+                        <select id="emailType">
+                            <option value="demande">Demande</option>
+                            <option value="relance">Relance</option>
+                            <option value="remerciement">Remerciement</option>
+                            <option value="reclamation">Réclamation</option>
+                            <option value="information">Information</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Ton</label>
+                        <select id="tone">
+                            <option value="professionnel">Professionnel</option>
+                            <option value="amical">Amical</option>
+                            <option value="formel">Formel</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="generateSmart()" class="btn btn-primary" style="width: 100%;">✨ Générer Email Smart</button>
+
+                <div id="generatedEmail" style="display: none; margin-top: 1.5rem;">
+                    <div class="input-group">
+                        <label>Objet</label>
+                        <input type="text" id="generatedSubject" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label>Message</label>
+                        <textarea id="generatedBody" rows="10" readonly></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Destinataire</label>
+                        <input type="email" id="recipient" placeholder="exemple@email.com" required>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="sendEmail()" class="btn btn-primary">📧 Envoyer</button>
+                        <button onclick="generateSmart()" class="btn btn-secondary">🔄 Régénérer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script src="/static/js/navigation.js"></script>
+    <script>
+        let extractedContext = '';
+        let mediaRecorder;
+        let audioChunks = [];
+
+        // Analyse documents
+        async function analyzeDocuments() {
+            const files = document.getElementById('documents').files;
+            if (files.length === 0) {
+                showNotification('⚠️ Sélectionnez des fichiers', 'warning');
+                return;
+            }
+
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('files', file);
+            }
+
+            showNotification('🔍 Analyse en cours...', 'info');
+
+            try {
+                const response = await fetch('/api/analyze-documents', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    extractedContext = result.content;
+                    document.getElementById('extractedText').textContent = result.content;
+                    document.getElementById('extractedContent').style.display = 'block';
+                    showNotification('✅ Documents analysés!', 'success');
+                } else {
+                    showNotification('❌ ' + result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Erreur: ' + error.message, 'error');
+            }
+        }
+
+        // Enregistrement audio
+        document.getElementById('recordBtn').onclick = async () => {
+            const btn = document.getElementById('recordBtn');
+            
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (e) => {
+                        audioChunks.push(e.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const player = document.getElementById('audioPlayer');
+                        player.src = audioUrl;
+                        player.style.display = 'block';
+
+                        // Transcrire
+                        const formData = new FormData();
+                        formData.append('audio', audioBlob, 'recording.wav');
+
+                        try {
+                            const response = await fetch('/api/transcribe-audio', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const result = await response.json();
+
+                            if (result.success) {
+                                extractedContext = result.text;
+                                document.getElementById('extractedText').textContent = result.text;
+                                document.getElementById('extractedContent').style.display = 'block';
+                                showNotification('✅ Audio transcrit!', 'success');
+                            }
+                        } catch (error) {
+                            showNotification('❌ Erreur transcription', 'error');
+                        }
+                    };
+
+                    mediaRecorder.start();
+                    btn.textContent = '⏹ Arrêter';
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-success');
+                    showNotification('🎤 Enregistrement...', 'info');
+                } catch (error) {
+                    showNotification('❌ Microphone non accessible', 'error');
+                }
+            } else {
+                mediaRecorder.stop();
+                btn.textContent = '⏺ Enregistrer';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-danger');
+            }
+        };
+
+        // Génération smart
+        async function generateSmart() {
+            const freeText = document.getElementById('freeText').value;
+            const context = extractedContext || freeText;
+
+            if (!context) {
+                showNotification('⚠️ Ajoutez du contenu (document, audio ou texte)', 'warning');
+                return;
+            }
+
+            const emailType = document.getElementById('emailType').value;
+            const tone = document.getElementById('tone').value;
+
+            showNotification('🤖 Génération en cours...', 'info');
+
+            try {
+                const response = await fetch('/api/generate-smart-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({context, emailType, tone})
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('generatedSubject').value = result.subject;
+                    document.getElementById('generatedBody').value = result.body;
+                    document.getElementById('generatedEmail').style.display = 'block';
+                    showNotification('✅ Email généré!', 'success');
+                } else {
+                    showNotification('❌ ' + result.error, 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Erreur: ' + error.message, 'error');
+            }
+        }
+
+        // Envoi
+        async function sendEmail() {
+            const recipient = document.getElementById('recipient').value;
+            const subject = document.getElementById('generatedSubject').value;
+            const body = document.getElementById('generatedBody').value;
+
+            if (!recipient) {
+                showNotification('⚠️ Entrez un destinataire', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({recipient, subject, body})
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('✅ Email envoyé!', 'success');
+                    setTimeout(() => location.href = '/history', 1500);
+                } else {
+                    if (result.error.includes('Session')) {
+                        if (confirm(result.error + '\n\nReconnecter?')) {
+                            location.href = '/login';
+                        }
+                    } else {
+                        showNotification('❌ ' + result.error, 'error');
+                    }
+                }
+            } catch (error) {
+                showNotification('❌ Erreur: ' + error.message, 'error');
+            }
+        }
+
+        function showNotification(message, type) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.className = `notification ${type} show`;
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

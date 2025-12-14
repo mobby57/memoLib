@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAPosteManager Unified v3.0</title>
+    <link rel="stylesheet" href="/static/css/unified.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <!-- Navigation moderne -->
+    <nav class="modern-nav">
+        <div class="nav-brand">
+            <div class="logo-icon">📧</div>
+            <span>IAPosteManager v3.0</span>
+        </div>
+        <div class="nav-actions">
+            <button class="theme-toggle" id="themeToggle">🌙</button>
+            <button class="voice-toggle" id="voiceToggle">🎤</button>
+            <a href="/logout" class="logout-btn">🚪</a>
+        </div>
+    </nav>
+
+    <!-- Sidebar moderne -->
+    <aside class="modern-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Menu Principal</h3>
+            <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h4>📧 Email</h4>
+                <button class="menu-item active" data-view="composer">
+                    <span class="icon">✨</span>
+                    <span>Composer IA</span>
+                </button>
+                <button class="menu-item" data-view="send">
+                    <span class="icon">📤</span>
+                    <span>Envoi Rapide</span>
+                </button>
+                <button class="menu-item" data-view="history">
+                    <span class="icon">📊</span>
+                    <span>Historique</span>
+                </button>
+            </div>
+            
+            <div class="menu-section">
+                <h4>🔧 Outils</h4>
+                <button class="menu-item" data-view="voice">
+                    <span class="icon">🎤</span>
+                    <span>Vocal IA</span>
+                </button>
+                <button class="menu-item" data-view="templates">
+                    <span class="icon">📋</span>
+                    <span>Templates</span>
+                </button>
+                <button class="menu-item" data-view="contacts">
+                    <span class="icon">👥</span>
+                    <span>Contacts</span>
+                </button>
+            </div>
+            
+            <div class="menu-section">
+                <h4>⚙️ Configuration</h4>
+                <button class="menu-item" data-view="settings">
+                    <span class="icon">🔧</span>
+                    <span>Paramètres</span>
+                </button>
+                <button class="menu-item" data-view="security">
+                    <span class="icon">🔒</span>
+                    <span>Sécurité</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <!-- Vue Composer IA -->
+        <div class="view active" id="composer-view">
+            <div class="view-header">
+                <h1>✨ Composer avec IA</h1>
+                <p>Générez des emails intelligents avec l'IA</p>
+            </div>
+            
+            <div class="composer-grid">
+                <div class="composer-input">
+                    <div class="card">
+                        <h3>📝 Contexte</h3>
+                        <textarea id="contextInput" placeholder="Décrivez votre demande ou situation..."></textarea>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Ton</label>
+                                <select id="toneSelect">
+                                    <option value="professionnel">Professionnel</option>
+                                    <option value="amical">Amical</option>
+                                    <option value="formel">Formel</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Type</label>
+                                <select id="typeSelect">
+                                    <option value="demande">Demande</option>
+                                    <option value="reclamation">Réclamation</option>
+                                    <option value="information">Information</option>
+                                    <option value="remerciement">Remerciement</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="generateBtn">
+                            <span class="icon">✨</span>
+                            Générer avec IA
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="composer-output">
+                    <div class="card">
+                        <h3>📧 Email généré</h3>
+                        <div class="email-preview" id="emailPreview">
+                            <div class="empty-state">
+                                <div class="empty-icon">🤖</div>
+                                <p>Décrivez votre contexte et cliquez sur "Générer avec IA"</p>
+                            </div>
+                        </div>
+                        
+                        <div class="email-actions" id="emailActions" style="display: none;">
+                            <input type="email" id="recipientInput" placeholder="Destinataire...">
+                            <button class="btn btn-success" id="sendBtn">
+                                <span class="icon">📤</span>
+                                Envoyer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vue Envoi Rapide -->
+        <div class="view" id="send-view">
+            <div class="view-header">
+                <h1>📤 Envoi Rapide</h1>
+                <p>Envoyez un email rapidement</p>
+            </div>
+            
+            <div class="card">
+                <div class="form-group">
+                    <label>Destinataire</label>
+                    <input type="email" id="quickRecipient" placeholder="email@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Sujet</label>
+                    <input type="text" id="quickSubject" placeholder="Sujet de l'email">
+                </div>
+                
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="quickBody" rows="10" placeholder="Votre message..."></textarea>
+                </div>
+                
+                <button class="btn btn-primary" id="quickSendBtn">
+                    <span class="icon">📤</span>
+                    Envoyer
+                </button>
+            </div>
+        </div>
+
+        <!-- Vue Historique -->
+        <div class="view" id="history-view">
+            <div class="view-header">
+                <h1>📊 Historique</h1>
+                <p>Emails envoyés et statistiques</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📧</div>
+                    <div class="stat-number" id="totalEmails">0</div>
+                    <div class="stat-label">Emails envoyés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✨</div>
+                    <div class="stat-number" id="aiGenerated">0</div>
+                    <div class="stat-label">Générés par IA</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-number" id="successRate">100%</div>
+                    <div class="stat-label">Taux de succès</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>📋 Emails récents</h3>
+                <div class="email-list" id="emailList">
+                    <div class="loading">Chargement...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vue Vocal IA -->
+        <div class="view" id="voice-view">
+            <div class="view-header">
+                <h1>🎤 Assistant Vocal IA</h1>
+                <p>Dictez vos emails avec la reconnaissance vocale</p>
+            </div>
+            
+            <div class="voice-grid">
+                <div class="voice-recorder">
+                    <div class="card">
+                        <h3>🎙️ Enregistrement</h3>
+                        <div class="recorder-interface">
+                            <div class="record-button" id="recordBtn">
+                                <div class="record-icon">🎤</div>
+                                <span>Cliquer pour parler</span>
+                            </div>
+                            <div class="recording-status" id="recordingStatus">
+                                <div class="pulse"></div>
+                                <span>Enregistrement en cours...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="voice-controls">
+                            <button class="btn btn-secondary" id="stopBtn" disabled>
+                                <span class="icon">⏹️</span>
+                                Arrêter
+                            </button>
+                            <button class="btn btn-primary" id="transcribeBtn" disabled>
+                                <span class="icon">📝</span>
+                                Transcrire
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="voice-output">
+                    <div class="card">
+                        <h3>📝 Transcription</h3>
+                        <div class="transcription-box" id="transcriptionBox">
+                            <div class="empty-state">
+                                <div class="empty-icon">🎤</div>
+                                <p>Commencez à parler pour voir la transcription</p>
+                            </div>
+                        </div>
+                        
+                        <div class="transcription-actions" id="transcriptionActions" style="display: none;">
+                            <button class="btn btn-primary" id="useTranscriptionBtn">
+                                <span class="icon">✨</span>
+                                Utiliser pour générer un email
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vue Paramètres -->
+        <div class="view" id="settings-view">
+            <div class="view-header">
+                <h1>⚙️ Paramètres</h1>
+                <p>Configuration de l'application</p>
+            </div>
+            
+            <div class="settings-grid">
+                <div class="card">
+                    <h3>📧 Configuration Gmail</h3>
+                    <div class="form-group">
+                        <label>Email Gmail</label>
+                        <input type="email" id="gmailEmail" placeholder="votre@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Mot de passe d'application</label>
+                        <input type="password" id="gmailPassword" placeholder="Mot de passe d'app Gmail">
+                    </div>
+                    <button class="btn btn-primary" id="saveGmailBtn">
+                        <span class="icon">💾</span>
+                        Sauvegarder Gmail
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3>🤖 Configuration OpenAI</h3>
+                    <div class="form-group">
+                        <label>Clé API OpenAI</label>
+                        <input type="password" id="openaiKey" placeholder="sk-...">
+                    </div>
+                    <button class="btn btn-primary" id="saveOpenaiBtn">
+                        <span class="icon">💾</span>
+                        Sauvegarder OpenAI
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>📊 Status</h3>
+                <div class="status-grid" id="statusGrid">
+                    <div class="status-item">
+                        <span class="status-label">Gmail</span>
+                        <span class="status-value" id="gmailStatus">❌ Non configuré</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">OpenAI</span>
+                        <span class="status-value" id="openaiStatus">❌ Non configuré</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notifications -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <span class="notification-icon"></span>
+            <span class="notification-message"></span>
+        </div>
+    </div>
+
+    <!-- Voice Indicator -->
+    <div class="voice-indicator" id="voiceIndicator">
+        <div class="voice-wave"></div>
+        <span>Assistant vocal actif</span>
+    </div>
+
+    <script src="/static/js/unified_fixed.js"></script>
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Personnalisée - IAPosteManager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .training-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .demo-section {
+            background: #e8f5e8;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .result-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .categories-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .category-tag {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .privacy-badge {
+            background: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 IA Personnalisée</h1>
+            <p>Votre IA apprend uniquement de VOS emails pour vous ressembler</p>
+            <div class="privacy-badge">
+                🔒 Basée sur VOTRE historique uniquement
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Section d'entraînement -->
+            <div class="training-section">
+                <h2>📚 Entraînement de votre IA</h2>
+                <p>Votre IA va analyser tous vos emails envoyés pour apprendre votre style d'écriture, vos formules préférées et vos habitudes de communication.</p>
+                
+                <div class="alert alert-info">
+                    <strong>🎯 Principe :</strong> Plus vous avez envoyé d'emails, plus votre IA sera précise et personnalisée. Elle reproduira votre style unique.
+                </div>
+                
+                <button class="btn btn-primary" onclick="trainAI()">🚀 Entraîner mon IA</button>
+                <button class="btn btn-success" onclick="feedMassive()" style="background: #ff9800;">⚡ NOURRIR MASSIVEMENT</button>
+                <button class="btn btn-success" onclick="loadStatistics()">📊 Voir les statistiques</button>
+                
+                <div class="progress-bar" id="training-progress" style="display: none;">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                
+                <div id="training-result" style="margin-top: 20px;"></div>
+            </div>
+            
+            <!-- Statistiques -->
+            <div id="statistics-section" style="display: none;">
+                <h2>📊 Statistiques de votre IA</h2>
+                <div class="stats-grid" id="stats-grid">
+                    <!-- Chargé dynamiquement -->
+                </div>
+                
+                <div id="categories-section">
+                    <h3>📂 Catégories apprises</h3>
+                    <div class="categories-list" id="categories-list">
+                        <!-- Chargé dynamiquement -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Démonstration -->
+            <div class="demo-section">
+                <h2>✨ Testez votre IA personnalisée</h2>
+                <p>Votre IA va générer un email dans VOTRE style, basé sur vos emails précédents.</p>
+                
+                <div class="form-group">
+                    <label for="demo-context">Décrivez votre besoin :</label>
+                    <textarea id="demo-context" rows="4" placeholder="Ex: Je veux demander un rendez-vous avec mon conseiller bancaire"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="demo-tone">Ton (basé sur vos habitudes) :</label>
+                    <select id="demo-tone">
+                        <option value="professionnel">Professionnel (comme vos emails formels)</option>
+                        <option value="simple">Simple (comme vos emails courants)</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-success" onclick="generateFromHistory()">🎨 Générer dans MON style</button>
+                
+                <div class="result-box" id="generation-result">
+                    <!-- Résultat affiché ici -->
+                </div>
+            </div>
+            
+            <!-- Avantages -->
+            <div class="training-section">
+                <h2>🎯 Avantages de votre IA personnalisée</h2>
+                <ul style="font-size: 16px; line-height: 1.8;">
+                    <li><strong>Style unique :</strong> Reproduit VOTRE façon d'écrire</li>
+                    <li><strong>Formules personnelles :</strong> Utilise VOS expressions habituelles</li>
+                    <li><strong>Cohérence :</strong> Emails qui vous ressemblent vraiment</li>
+                    <li><strong>Amélioration continue :</strong> Plus vous envoyez, mieux elle apprend</li>
+                    <li><strong>100% privé :</strong> Basée uniquement sur VOS données</li>
+                    <li><strong>Zéro partage :</strong> Vos patterns restent secrets</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let trainingInProgress = false;
+        
+        async function trainAI() {
+            if (trainingInProgress) return;
+            
+            trainingInProgress = true;
+            document.getElementById('training-progress').style.display = 'block';
+            
+            // Animation de progression
+            let progress = 0;
+            const progressBar = document.getElementById('progress-fill');
+            const progressInterval = setInterval(() => {
+                progress += 2;
+                progressBar.style.width = progress + '%';
+                if (progress >= 90) {
+                    clearInterval(progressInterval);
+                }
+            }, 100);
+            
+            try {
+                const response = await fetch('/api/train-ai-from-database', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                // Compléter la barre de progression
+                progressBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    document.getElementById('training-progress').style.display = 'none';
+                    
+                    if (result.success) {
+                        document.getElementById('training-result').innerHTML = `
+                            <div class="alert alert-success">
+                                <h4>✅ Entraînement terminé !</h4>
+                                <p><strong>${result.processed}</strong> emails analysés</p>
+                                <p>Votre IA a appris vos patterns d'écriture et peut maintenant générer des emails dans votre style.</p>
+                            </div>
+                        `;
+                        
+                        // Charger automatiquement les statistiques
+                        loadStatistics();
+                    } else {
+                        document.getElementById('training-result').innerHTML = `
+                            <div class="alert" style="background: #f8d7da; color: #721c24;">
+                                <strong>Erreur :</strong> ${result.error}
+                            </div>
+                        `;
+                    }
+                    
+                    trainingInProgress = false;
+                }, 1000);
+                
+            } catch (error) {
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    document.getElementById('training-progress').style.display = 'none';
+                    document.getElementById('training-result').innerHTML = `
+                        <div class="alert" style="background: #f8d7da; color: #721c24;">
+                            <strong>Erreur de connexion</strong>
+                        </div>
+                    `;
+                    trainingInProgress = false;
+                }, 1000);
+            }
+        }
+        
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/api/training-statistics');
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Afficher les statistiques
+                    const statsGrid = document.getElementById('stats-grid');
+                    statsGrid.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-value">${result.total_emails_analyzed}</div>
+                            <div class="stat-label">Emails analysés</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${result.patterns_extracted}</div>
+                            <div class="stat-label">Patterns extraits</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${Object.keys(result.categories_learned).length}</div>
+                            <div class="stat-label">Catégories apprises</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">100%</div>
+                            <div class="stat-label">Confidentialité</div>
+                        </div>
+                    `;
+                    
+                    // Afficher les catégories
+                    const categoriesList = document.getElementById('categories-list');
+                    categoriesList.innerHTML = Object.entries(result.categories_learned)
+                        .map(([category, count]) => `
+                            <div class="category-tag">${category} (${count})</div>
+                        `).join('');
+                    
+                    document.getElementById('statistics-section').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Erreur chargement statistiques:', error);
+            }
+        }
+        
+        async function generateFromHistory() {
+            const context = document.getElementById('demo-context').value;
+            const tone = document.getElementById('demo-tone').value;
+            
+            if (!context.trim()) {
+                alert('Veuillez décrire votre besoin');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/generate-from-history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        context: context,
+                        tone: tone
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('generation-result').innerHTML = `
+                        <h4>📧 Email généré dans VOTRE style</h4>
+                        <p><strong>Sujet :</strong> ${result.subject}</p>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                            <pre style="white-space: pre-wrap; font-family: inherit;">${result.body}</pre>
+                        </div>
+                        <div style="background: #e8f5e8; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                            <strong>🎨 ${result.privacy}</strong><br>
+                            <small>Basé sur ${result.similar_emails_used} de vos emails similaires</small>
+                        </div>
+                    `;
+                    document.getElementById('generation-result').style.display = 'block';
+                } else {
+                    alert('Erreur : ' + result.error);
+                }
+            } catch (error) {
+                alert('Erreur de connexion');
+            }
+        }
+        
+        async function feedMassive() {
+            if (trainingInProgress) return;
+            
+            if (!confirm('Voulez-vous nourrir votre IA avec des centaines d\'exemples d\'emails ?\n\nCela va considérablement améliorer ses performances.')) {
+                return;
+            }
+            
+            trainingInProgress = true;
+            document.getElementById('training-progress').style.display = 'block';
+            
+            // Animation de progression rapide
+            let progress = 0;
+            const progressBar = document.getElementById('progress-fill');
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                if (progress >= 95) {
+                    clearInterval(progressInterval);
+                }
+            }, 50);
+            
+            try {
+                const response = await fetch('/api/feed-ai-massive', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                progressBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    document.getElementById('training-progress').style.display = 'none';
+                    
+                    if (result.success) {
+                        document.getElementById('training-result').innerHTML = `
+                            <div class="alert alert-success">
+                                <h4>⚡ ALIMENTATION MASSIVE TERMINÉE !</h4>
+                                <p><strong>${result.total_added}</strong> exemples d'emails ajoutés</p>
+                                <ul>
+                                    <li>Exemples de base : ${result.details.basic_examples}</li>
+                                    <li>Templates professionnels : ${result.details.professional_templates}</li>
+                                </ul>
+                                <p><strong>Votre IA est maintenant TRÈS performante !</strong></p>
+                            </div>
+                        `;
+                        
+                        loadStatistics();
+                    } else {
+                        document.getElementById('training-result').innerHTML = `
+                            <div class="alert" style="background: #f8d7da; color: #721c24;">
+                                <strong>Erreur :</strong> ${result.error}
+                            </div>
+                        `;
+                    }
+                    
+                    trainingInProgress = false;
+                }, 1000);
+                
+            } catch (error) {
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    document.getElementById('training-progress').style.display = 'none';
+                    document.getElementById('training-result').innerHTML = `
+                        <div class="alert" style="background: #f8d7da; color: #721c24;">
+                            <strong>Erreur de connexion</strong>
+                        </div>
+                    `;
+                    trainingInProgress = false;
+                }, 1000);
+            }
+        }
+        
+        // Charger les statistiques au démarrage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStatistics();
+        });
+    </script>
+</body>
+</html>

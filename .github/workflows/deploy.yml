@@ -1,0 +1,25 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build Docker image
+      run: docker build -t securevault:latest .
+    
+    - name: Run tests
+      run: |
+        docker run securevault:latest pytest tests/
+    
+    - name: Deploy to production
+      if: success()
+      run: |
+        echo "Deploy to production server"
+        # Add deployment commands here

@@ -1,0 +1,1266 @@
+﻿
+Running 39 tests using 1 worker
+
+[1A[2K[1/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:14:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 01 - Navigation vers la page Accessibilit├®
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:14:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 01 - Navigation vers la page Accessibilit├®
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  1) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:14:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 01 - Navigation vers la page Accessibilit├® 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('a[href="/accessibility"]')[22m
+
+
+      14 |   test('01 - Navigation vers la page Accessibilit├®', async ({ page }) => {
+      15 |     // Cliquer sur le lien Accessibilit├® dans la sidebar
+    > 16 |     await page.click('a[href="/accessibility"]');
+         |                ^
+      17 |     
+      18 |     // V├®rifier qu'on est sur la bonne page
+      19 |     await expect(page).toHaveURL('/accessibility');
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:16:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-553d2--vers-la-page-Accessibilit├®-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-553d2--vers-la-page-Accessibilit├®-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[2/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:31:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 02 - Activation du profil Aveugle (TTS)
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:31:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 02 - Activation du profil Aveugle (TTS)
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  2) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:31:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 02 - Activation du profil Aveugle (TTS) 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("Aveugle")')[22m
+
+
+      33 |     
+      34 |     // Cliquer sur le profil Aveugle
+    > 35 |     await page.click('button:has-text("Aveugle")');
+         |                ^
+      36 |     
+      37 |     // Attendre l'apparition du message de confirmation
+      38 |     await expect(page.locator('text=Profil appliqu├®')).toBeVisible({ timeout: 5000 });
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:35:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-6c73f-tion-du-profil-Aveugle-TTS--chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-6c73f-tion-du-profil-Aveugle-TTS--chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[3/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:48:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 03 - Activation du profil Sourd (Transcriptions)
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:48:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 03 - Activation du profil Sourd (Transcriptions)
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  3) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:48:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 03 - Activation du profil Sourd (Transcriptions) 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("Sourd")')[22m
+
+
+      50 |     
+      51 |     // Cliquer sur le profil Sourd
+    > 52 |     await page.click('button:has-text("Sourd")');
+         |                ^
+      53 |     
+      54 |     // Attendre l'apparition du message de confirmation
+      55 |     await expect(page.locator('text=Profil appliqu├®')).toBeVisible({ timeout: 5000 });
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:52:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-30ac5-rofil-Sourd-Transcriptions--chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-30ac5-rofil-Sourd-Transcriptions--chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[4/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:61:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 04 - Param├¿tres TTS - Vitesse et Volume
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:61:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 04 - Param├¿tres TTS - Vitesse et Volume
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  4) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:61:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 04 - Param├¿tres TTS - Vitesse et Volume 
+
+    TimeoutError: locator.waitFor: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="checkbox"]').first() to be visible[22m
+
+
+      66 |     // Activer le TTS si pas d├®j├á actif
+      67 |     const ttsCheckbox = page.locator('input[type="checkbox"]').first();
+    > 68 |     await ttsCheckbox.waitFor({ state: 'visible', timeout: 10000 });
+         |                       ^
+      69 |     if (!await ttsCheckbox.isChecked()) {
+      70 |       await ttsCheckbox.click();
+      71 |       await page.waitForTimeout(500);
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:68:23
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-7c0c5-res-TTS---Vitesse-et-Volume-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-7c0c5-res-TTS---Vitesse-et-Volume-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[5/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:92:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 05 - Tailles de police
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:92:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 05 - Tailles de police
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  5) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:92:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 05 - Tailles de police 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Taille de police")') to be visible[22m
+
+
+       96 |     
+       97 |     // Attendre que la section des tailles soit visible
+    >  98 |     await page.waitForSelector('label:has-text("Taille de police")', { timeout: 10000 });
+          |                ^
+       99 |     
+      100 |     // Chercher un bouton contenant "Large" ou "Grand"
+      101 |     const largeButton = page.locator('button').filter({ hasText: /large|grand/i }).first();
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:98:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-8a0d1-ests-05---Tailles-de-police-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-8a0d1-ests-05---Tailles-de-police-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[6/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:116:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 06 - Mode Haut Contraste
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:116:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 06 - Mode Haut Contraste
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  6) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:116:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 06 - Mode Haut Contraste 
+
+    TimeoutError: locator.waitFor: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('text=Haut contraste').first() to be visible[22m
+
+
+      121 |     // Trouver le checkbox de haut contraste
+      122 |     const contrastLabel = page.locator('text=Haut contraste').first();
+    > 123 |     await contrastLabel.waitFor({ state: 'visible', timeout: 10000 });
+          |                         ^
+      124 |     
+      125 |     // Trouver le checkbox associ├®
+      126 |     const contrastCheckbox = page.locator('input[type="checkbox"]').filter({ has: page.locator('text=Haut contraste') }).first();
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:123:25
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-7b05e-ts-06---Mode-Haut-Contraste-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-7b05e-ts-06---Mode-Haut-Contraste-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[7/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:143:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 07 - Raccourcis clavier affich├®s
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:143:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 07 - Raccourcis clavier affich├®s
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  7) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:143:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 07 - Raccourcis clavier affich├®s 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('text=/raccourcis|shortcuts/i').first()
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for locator('text=/raccourcis|shortcuts/i').first()[22m
+
+
+      157 |     } else {
+      158 |       // Sinon, v├®rifier qu'il y a du texte sur les raccourcis
+    > 159 |       await expect(page.locator('text=/raccourcis|shortcuts/i').first()).toBeVisible();
+          |                                                                          ^
+      160 |     }
+      161 |   });
+      162 |
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:159:74
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-c1769-Raccourcis-clavier-affich├®s-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-c1769-Raccourcis-clavier-affich├®s-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[8/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:163:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 08 - Test du bouton TTS
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:163:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 08 - Test du bouton TTS
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  8) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:163:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 08 - Test du bouton TTS 
+
+    TimeoutError: locator.isChecked: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="checkbox"]').first()[22m
+
+
+      166 |     // Activer le TTS
+      167 |     const ttsCheckbox = page.locator('input[type="checkbox"]').first();
+    > 168 |     if (!await ttsCheckbox.isChecked()) {
+          |                            ^
+      169 |       await ttsCheckbox.click();
+      170 |       await page.waitForTimeout(500);
+      171 |     }
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:168:28
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-6d88c-sts-08---Test-du-bouton-TTS-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-6d88c-sts-08---Test-du-bouton-TTS-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[9/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:183:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 09 - API Accessibility Settings
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:183:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 09 - API Accessibility Settings
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  9) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:183:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 09 - API Accessibility Settings 
+
+    TimeoutError: apiRequestContext.get: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - ÔåÆ GET http://localhost:5000/api/accessibility/settings[22m
+    [2m    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.7499.4 Safari/537.36[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+
+
+      183 |   test('09 - API Accessibility Settings', async ({ page, request }) => {
+      184 |     // Test direct de l'API
+    > 185 |     const response = await request.get('http://localhost:5000/api/accessibility/settings');
+          |                                    ^
+      186 |     
+      187 |     expect(response.ok()).toBeTruthy();
+      188 |     
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:185:36
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-8c0de--API-Accessibility-Settings-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-8c0de--API-Accessibility-Settings-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[10/39] [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:196:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 10 - API Keyboard Shortcuts
+[1A[2K[chromium] ÔÇ║ tests\e2e\accessibility.spec.js:196:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 10 - API Keyboard Shortcuts
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  10) [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:196:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 10 - API Keyboard Shortcuts 
+
+    TimeoutError: apiRequestContext.get: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - ÔåÆ GET http://localhost:5000/api/accessibility/keyboard-shortcuts[22m
+    [2m    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.7499.4 Safari/537.36[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+
+
+      195 |
+      196 |   test('10 - API Keyboard Shortcuts', async ({ page, request }) => {
+    > 197 |     const response = await request.get('http://localhost:5000/api/accessibility/keyboard-shortcuts');
+          |                                    ^
+      198 |     
+      199 |     expect(response.ok()).toBeTruthy();
+      200 |     
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\accessibility.spec.js:197:36
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-459e1-10---API-Keyboard-Shortcuts-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\accessibility-Accessibilit-459e1-10---API-Keyboard-Shortcuts-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[11/39] [chromium] ÔÇ║ tests\e2e\auth-test.spec.js:6:7 ÔÇ║ Test Auth Helper ÔÇ║ 01 - Login comme nouvel utilisateur
+[1A[2K[chromium] ÔÇ║ tests\e2e\auth-test.spec.js:6:7 ÔÇ║ Test Auth Helper ÔÇ║ 01 - Login comme nouvel utilisateur
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2KÔ£à Test nouvel utilisateur r├®ussi
+
+[1A[2K[12/39] [chromium] ÔÇ║ tests\e2e\auth-test.spec.js:20:7 ÔÇ║ Test Auth Helper ÔÇ║ 02 - Login comme utilisateur existant
+[1A[2K[chromium] ÔÇ║ tests\e2e\auth-test.spec.js:20:7 ÔÇ║ Test Auth Helper ÔÇ║ 02 - Login comme utilisateur existant
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2KÔ£à Test utilisateur existant r├®ussi
+
+[1A[2K[13/39] [chromium] ÔÇ║ tests\e2e\auth-test.spec.js:34:7 ÔÇ║ Test Auth Helper ÔÇ║ 03 - Acc├¿s ├á /accessibility apr├¿s login
+[1A[2K[chromium] ÔÇ║ tests\e2e\auth-test.spec.js:34:7 ÔÇ║ Test Auth Helper ÔÇ║ 03 - Acc├¿s ├á /accessibility apr├¿s login
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2KURL finale: http://localhost:3001/accessibility
+
+[1A[2KÔ£à Acc├¿s ├á /accessibility r├®ussi apr├¿s login
+
+[1A[2K[14/39] [chromium] ÔÇ║ tests\e2e\debug.spec.js:5:7 ÔÇ║ Debug - Voir le contenu des pages ÔÇ║ Debug 01 - Page d accueil
+[1A[2K  11) [chromium] ÔÇ║ tests\e2e\debug.spec.js:5:7 ÔÇ║ Debug - Voir le contenu des pages ÔÇ║ Debug 01 - Page d accueil 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#root > *') to be visible[22m
+
+
+       5 |   test('Debug 01 - Page d accueil', async ({ page }) => {
+       6 |     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 10000 });
+    >  7 |     await page.waitForSelector('#root > *', { timeout: 10000 });
+         |                ^
+       8 |     await page.waitForTimeout(3000);
+       9 |     
+      10 |     // Screenshot
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\debug.spec.js:7:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\debug-Debug---Voir-le-cont-53d8b-s-Debug-01---Page-d-accueil-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\debug-Debug---Voir-le-cont-53d8b-s-Debug-01---Page-d-accueil-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[15/39] [chromium] ÔÇ║ tests\e2e\debug.spec.js:34:7 ÔÇ║ Debug - Voir le contenu des pages ÔÇ║ Debug 02 - Page Accessibility directe
+[1A[2K  12) [chromium] ÔÇ║ tests\e2e\debug.spec.js:34:7 ÔÇ║ Debug - Voir le contenu des pages ÔÇ║ Debug 02 - Page Accessibility directe 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#root > *') to be visible[22m
+
+
+      34 |   test('Debug 02 - Page Accessibility directe', async ({ page }) => {
+      35 |     await page.goto('/accessibility', { waitUntil: 'domcontentloaded', timeout: 10000 });
+    > 36 |     await page.waitForSelector('#root > *', { timeout: 10000 });
+         |                ^
+      37 |     await page.waitForTimeout(3000);
+      38 |     
+      39 |     // Screenshot
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\debug.spec.js:36:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\debug-Debug---Voir-le-cont-e4fc7--Page-Accessibility-directe-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\debug-Debug---Voir-le-cont-e4fc7--Page-Accessibility-directe-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[16/39] [chromium] ÔÇ║ tests\e2e\debug.spec.js:62:7 ÔÇ║ Debug - Voir le contenu des pages ÔÇ║ Debug 03 - Page Voice Transcription directe
+[1A[2K  13) [chromium] ÔÇ║ tests\e2e\debug.spec.js:62:7 ÔÇ║ Debug - Voir le contenu des pages ÔÇ║ Debug 03 - Page Voice Transcription directe 
+
+    TimeoutError: page.waitForSelector: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#root > *') to be visible[22m
+
+
+      62 |   test('Debug 03 - Page Voice Transcription directe', async ({ page }) => {
+      63 |     await page.goto('/voice-transcription', { waitUntil: 'domcontentloaded', timeout: 10000 });
+    > 64 |     await page.waitForSelector('#root > *', { timeout: 10000 });
+         |                ^
+      65 |     await page.waitForTimeout(3000);
+      66 |     
+      67 |     // Screenshot
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\debug.spec.js:64:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\debug-Debug---Voir-le-cont-e5512-Voice-Transcription-directe-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\debug-Debug---Voir-le-cont-e5512-Voice-Transcription-directe-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[17/39] [chromium] ÔÇ║ tests\e2e\smoke.spec.js:5:7 ÔÇ║ Smoke Tests - V├®rifications de base ÔÇ║ 00 - Frontend r├®pond correctement
+[1A[2K[chromium] ÔÇ║ tests\e2e\smoke.spec.js:5:7 ÔÇ║ Smoke Tests - V├®rifications de base ÔÇ║ 00 - Frontend r├®pond correctement
+Ô£à Frontend r├®pond sur http://localhost:3001
+
+[1A[2K[18/39] [chromium] ÔÇ║ tests\e2e\smoke.spec.js:21:7 ÔÇ║ Smoke Tests - V├®rifications de base ÔÇ║ 01 - Backend API r├®pond
+[1A[2K[chromium] ÔÇ║ tests\e2e\smoke.spec.js:21:7 ÔÇ║ Smoke Tests - V├®rifications de base ÔÇ║ 01 - Backend API r├®pond
+ÔÜá´©Å Backend non accessible - test skipped
+
+[1A[2K[19/39] [chromium] ÔÇ║ tests\e2e\smoke.spec.js:33:7 ÔÇ║ Smoke Tests - V├®rifications de base ÔÇ║ 02 - Navigation de base fonctionne
+[1A[2K[chromium] ÔÇ║ tests\e2e\smoke.spec.js:33:7 ÔÇ║ Smoke Tests - V├®rifications de base ÔÇ║ 02 - Navigation de base fonctionne
+Ô£à Page contient du contenu: 
+    
+    
+  
+
+
+
+[1A[2K[20/39] [chromium] ÔÇ║ tests\e2e\smoke.spec.js:48:7 ÔÇ║ Smoke Tests - V├®rifications de base ÔÇ║ 03 - V├®rifier les routes accessibles
+[1A[2K[chromium] ÔÇ║ tests\e2e\smoke.spec.js:48:7 ÔÇ║ Smoke Tests - V├®rifications de base ÔÇ║ 03 - V├®rifier les routes accessibles
+Ô£à Route /: OK
+
+[1A[2KÔ£à Route /accessibility: OK
+
+[1A[2KÔ£à Route /voice-transcription: OK
+
+[1A[2K[21/39] [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:6:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 01 - Utilisateur aveugle - Setup complet
+[1A[2K[chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:6:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 01 - Utilisateur aveugle - Setup complet
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  14) [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:6:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 01 - Utilisateur aveugle - Setup complet 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('a[href="/accessibility"]')[22m
+
+
+      10 |     
+      11 |     // 2. Aller dans Accessibilit├®
+    > 12 |     await page.click('a[href="/accessibility"]');
+         |                ^
+      13 |     await expect(page).toHaveURL('/accessibility');
+      14 |     
+      15 |     // 3. Activer le profil Aveugle
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\user-journeys.spec.js:12:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-5c905-eur-aveugle---Setup-complet-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-5c905-eur-aveugle---Setup-complet-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[22/39] [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:48:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 02 - Utilisateur sourd - Transcription visuelle
+[1A[2K[chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:48:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 02 - Utilisateur sourd - Transcription visuelle
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  15) [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:48:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 02 - Utilisateur sourd - Transcription visuelle 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('a[href="/accessibility"]')[22m
+
+
+      52 |     
+      53 |     // 2. Aller directement ├á Accessibilit├®
+    > 54 |     await page.click('a[href="/accessibility"]');
+         |                ^
+      55 |     
+      56 |     // 3. Activer le profil Sourd
+      57 |     await page.click('button:has-text("Sourd")');
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\user-journeys.spec.js:54:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-da868-rd---Transcription-visuelle-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-da868-rd---Transcription-visuelle-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[23/39] [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:76:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 03 - Utilisateur muet - Alternatives de communication
+[1A[2K[chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:76:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 03 - Utilisateur muet - Alternatives de communication
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  16) [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:76:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 03 - Utilisateur muet - Alternatives de communication 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('a[href="/accessibility"]')[22m
+
+
+      80 |     
+      81 |     // 2. Aller dans Accessibilit├®
+    > 82 |     await page.click('a[href="/accessibility"]');
+         |                ^
+      83 |     
+      84 |     // 3. Activer le profil Muet
+      85 |     await page.click('button:has-text("Muet")');
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\user-journeys.spec.js:82:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-73cb9-ternatives-de-communication-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-73cb9-ternatives-de-communication-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[24/39] [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:106:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 04 - Utilisateur mobilit├® r├®duite - Navigation clavier
+[1A[2K[chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:106:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 04 - Utilisateur mobilit├® r├®duite - Navigation clavier
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  17) [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:106:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 04 - Utilisateur mobilit├® r├®duite - Navigation clavier 
+
+    TimeoutError: page.waitForURL: Timeout 30000ms exceeded.
+    =========================== logs ===========================
+    waiting for navigation to "/accessibility" until "load"
+    ============================================================
+
+      121 |     await page.keyboard.press('Enter');
+      122 |     
+    > 123 |     await page.waitForURL('/accessibility');
+          |                ^
+      124 |     
+      125 |     // 3. Activer le profil Moteur avec clavier
+      126 |     // Tab jusqu'au bouton Moteur
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\user-journeys.spec.js:123:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-2b1b2-├®duite---Navigation-clavier-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-2b1b2-├®duite---Navigation-clavier-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[25/39] [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:143:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 05 - Test complet APIs
+[1A[2K  18) [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:143:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 05 - Test complet APIs 
+
+    TimeoutError: apiRequestContext.get: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - ÔåÆ GET http://localhost:5000/api/accessibility/settings[22m
+    [2m    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.7499.4 Safari/537.36[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+
+
+      145 |     
+      146 |     // 1. Get settings
+    > 147 |     const settings = await request.get('http://localhost:5000/api/accessibility/settings');
+          |                                    ^
+      148 |     expect(settings.ok()).toBeTruthy();
+      149 |     
+      150 |     // 2. Update settings
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\user-journeys.spec.js:147:36
+
+
+[1A[2K[26/39] [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:195:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 05 - Parcours complet avec toutes les features
+[1A[2K[chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:195:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 05 - Parcours complet avec toutes les features
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  19) [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:195:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 05 - Parcours complet avec toutes les features 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('a[href="/accessibility"]')[22m
+
+
+      199 |     
+      200 |     // 2. Configurer l'accessibilit├®
+    > 201 |     await page.click('a[href="/accessibility"]');
+          |                ^
+      202 |     await page.click('button:has-text("Aveugle")');
+      203 |     await page.waitForTimeout(1000);
+      204 |     
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\user-journeys.spec.js:201:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-1af9f-et-avec-toutes-les-features-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\user-journeys-Full-User-Jo-1af9f-et-avec-toutes-les-features-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[27/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:14:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 01 - Navigation vers Transcription vocale
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:14:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 01 - Navigation vers Transcription vocale
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  20) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:14:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 01 - Navigation vers Transcription vocale 
+
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('a[href="/voice-transcription"]')[22m
+
+
+      14 |   test('01 - Navigation vers Transcription vocale', async ({ page }) => {
+      15 |     // Cliquer sur le lien dans la sidebar
+    > 16 |     await page.click('a[href="/voice-transcription"]');
+         |                ^
+      17 |     
+      18 |     // V├®rifier l'URL
+      19 |     await expect(page).toHaveURL('/voice-transcription');
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:16:16
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--e08a8-n-vers-Transcription-vocale-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--e08a8-n-vers-Transcription-vocale-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[28/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:25:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 02 - Interface de transcription pr├®sente
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:25:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 02 - Interface de transcription pr├®sente
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  21) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:25:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 02 - Interface de transcription pr├®sente 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/Pr.t .* enregistrer/i)
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText(/Pr.t .* enregistrer/i)[22m
+
+
+      29 |     
+      30 |     // V├®rifier que les ├®l├®ments cl├®s sont pr├®sents
+    > 31 |     await expect(page.getByText(/Pr.t .* enregistrer/i)).toBeVisible({ timeout: 10000 });
+         |                                                          ^
+      32 |     await expect(page.getByText(/Transcription Vocale/i)).toBeVisible();
+      33 |     await expect(page.locator('text=Connect├®').or(page.locator('text=D├®connect├®'))).toBeVisible();
+      34 |   });
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:31:58
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--d52c4-e-de-transcription-pr├®sente-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--d52c4-e-de-transcription-pr├®sente-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[29/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:36:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 03 - Param├¿tres d'accessibilit├® int├®gr├®s
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:36:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 03 - Param├¿tres d'accessibilit├® int├®gr├®s
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  22) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:36:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 03 - Param├¿tres d'accessibilit├® int├®gr├®s 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/Parlez et voyez/i)
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText(/Parlez et voyez/i)[22m
+
+
+      43 |     
+      44 |     // V├®rifier que la page contient des informations d'accessibilit├®
+    > 45 |     await expect(page.getByText(/Parlez et voyez/i)).toBeVisible();
+         |                                                      ^
+      46 |     await expect(page.getByText(/Dur├®e/i)).toBeVisible();
+      47 |   });
+      48 |
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:45:54
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--efd1b-es-d-accessibilit├®-int├®gr├®s-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--efd1b-es-d-accessibilit├®-int├®gr├®s-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[30/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:49:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 04 - Toggle TTS dans VoiceTranscription
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:49:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 04 - Toggle TTS dans VoiceTranscription
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  23) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:49:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 04 - Toggle TTS dans VoiceTranscription 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/Pr.t .* enregistrer/i)
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText(/Pr.t .* enregistrer/i)[22m
+
+
+      51 |     
+      52 |     // V├®rifier que la page est charg├®e et fonctionnelle
+    > 53 |     await expect(page.getByText(/Pr.t .* enregistrer/i)).toBeVisible();
+         |                                                          ^
+      54 |   });
+      55 |
+      56 |   test('05 - Toggle Haut Contraste dans VoiceTranscription', async ({ page }) => {
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:53:58
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--40014-TTS-dans-VoiceTranscription-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--40014-TTS-dans-VoiceTranscription-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[31/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:56:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 05 - Toggle Haut Contraste dans VoiceTranscription
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:56:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 05 - Toggle Haut Contraste dans VoiceTranscription
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  24) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:56:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 05 - Toggle Haut Contraste dans VoiceTranscription 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/Pr.t .* enregistrer/i)
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText(/Pr.t .* enregistrer/i)[22m
+
+
+      60 |     
+      61 |     // V├®rifier que la page est charg├®e et fonctionnelle
+    > 62 |     await expect(page.getByText(/Pr.t .* enregistrer/i)).toBeVisible({ timeout: 10000 });
+         |                                                          ^
+      63 |   });
+      64 |
+      65 |   test('06 - Zone de transcription visuelle pr├®sente', async ({ page }) => {
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:62:58
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--91fe7-ste-dans-VoiceTranscription-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--91fe7-ste-dans-VoiceTranscription-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[32/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:65:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 06 - Zone de transcription visuelle pr├®sente
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:65:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 06 - Zone de transcription visuelle pr├®sente
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  25) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:65:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 06 - Zone de transcription visuelle pr├®sente 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/Transcription Vocale/i)
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText(/Transcription Vocale/i)[22m
+
+
+      69 |     
+      70 |     // V├®rifier que le titre de la transcription existe
+    > 71 |     await expect(page.getByText(/Transcription Vocale/i)).toBeVisible({ timeout: 10000 });
+         |                                                           ^
+      72 |   });
+      73 |
+      74 |   test('07 - Instructions d\'utilisation visibles', async ({ page }) => {
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:71:59
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--f2180-scription-visuelle-pr├®sente-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--f2180-scription-visuelle-pr├®sente-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[33/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:74:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 07 - Instructions d'utilisation visibles
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:74:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 07 - Instructions d'utilisation visibles
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  26) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:74:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 07 - Instructions d'utilisation visibles 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/Parlez et voyez/i)
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText(/Parlez et voyez/i)[22m
+
+
+      78 |     
+      79 |     // V├®rifier que les informations sont pr├®sentes
+    > 80 |     await expect(page.getByText(/Parlez et voyez/i)).toBeVisible({ timeout: 10000 });
+         |                                                      ^
+      81 |   });
+      82 |
+      83 |   test('08 - Bouton d\'enregistrement est d├®sactiv├® initialement', async ({ page }) => {
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:80:54
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--b7c3c-ions-d-utilisation-visibles-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--b7c3c-ions-d-utilisation-visibles-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[34/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:83:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 08 - Bouton d'enregistrement est d├®sactiv├® initialement
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:83:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 08 - Bouton d'enregistrement est d├®sactiv├® initialement
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  27) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:83:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 08 - Bouton d'enregistrement est d├®sactiv├® initialement 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/Pr.t .* enregistrer/i)
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByText(/Pr.t .* enregistrer/i)[22m
+
+
+      85 |     
+      86 |     // V├®rifier que l'├®tat initial est "Pr├¬t ├á enregistrer"
+    > 87 |     await expect(page.getByText(/Pr.t .* enregistrer/i)).toBeVisible();
+         |                                                          ^
+      88 |   });
+      89 |
+      90 |   test('09 - API Voice Start (mock)', async ({ page, request }) => {
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:87:58
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--7a34a--est-d├®sactiv├®-initialement-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--7a34a--est-d├®sactiv├®-initialement-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[35/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:90:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 09 - API Voice Start (mock)
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:90:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 09 - API Voice Start (mock)
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  28) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:90:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 09 - API Voice Start (mock) 
+
+    TimeoutError: apiRequestContext.post: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - ÔåÆ POST http://localhost:5000/api/voice/start[22m
+    [2m    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.7499.4 Safari/537.36[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+
+
+      90 |   test('09 - API Voice Start (mock)', async ({ page, request }) => {
+      91 |     // Test de l'API backend (doit ├®chouer sans micro mais on teste la route)
+    > 92 |     const response = await request.post('http://localhost:5000/api/voice/start');
+         |                                    ^
+      93 |     
+      94 |     // On s'attend ├á une r├®ponse (m├¬me si erreur de micro)
+      95 |     expect(response.status()).toBeLessThan(500);
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:92:36
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--77377--09---API-Voice-Start-mock--chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--77377--09---API-Voice-Start-mock--chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[36/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:101:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 10 - API Transcripts r├®cents
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:101:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 10 - API Transcripts r├®cents
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  29) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:101:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 10 - API Transcripts r├®cents 
+
+    TimeoutError: apiRequestContext.get: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - ÔåÆ GET http://localhost:5000/api/accessibility/transcripts?limit=10[22m
+    [2m    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.7499.4 Safari/537.36[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+
+
+      100 |
+      101 |   test('10 - API Transcripts r├®cents', async ({ page, request }) => {
+    > 102 |     const response = await request.get('http://localhost:5000/api/accessibility/transcripts?limit=10');
+          |                                    ^
+      103 |     
+      104 |     expect(response.ok()).toBeTruthy();
+      105 |     
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:102:36
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--6b148-0---API-Transcripts-r├®cents-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--6b148-0---API-Transcripts-r├®cents-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[37/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:112:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 11 - Simulation d'annonce vocale
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:112:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 11 - Simulation d'annonce vocale
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  30) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:112:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 11 - Simulation d'annonce vocale 
+
+    TimeoutError: apiRequestContext.post: Timeout 10000ms exceeded.
+    Call log:
+    [2m  - ÔåÆ POST http://localhost:5000/api/accessibility/announce[22m
+    [2m    - user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.7499.4 Safari/537.36[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+    [2m    - content-type: application/json[22m
+    [2m    - content-length: 87[22m
+
+
+      112 |   test('11 - Simulation d\'annonce vocale', async ({ page, request }) => {
+      113 |     // Test de l'API d'annonce
+    > 114 |     const response = await request.post('http://localhost:5000/api/accessibility/announce', {
+          |                                    ^
+      115 |       data: {
+      116 |         action: 'Test E2E',
+      117 |         details: 'Test automatis├® Playwright',
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:114:36
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--cfe29-Simulation-d-annonce-vocale-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--cfe29-Simulation-d-annonce-vocale-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[38/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:130:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 12 - Responsive design - Mobile
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:130:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 12 - Responsive design - Mobile
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  31) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:130:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 12 - Responsive design - Mobile 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('heading', { name: /Transcription Vocale/i }).first()
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByRole('heading', { name: /Transcription Vocale/i }).first()[22m
+
+
+      134 |     
+      135 |     // V├®rifier que les ├®l├®ments sont toujours visibles
+    > 136 |     await expect(page.getByRole('heading', { name: /Transcription Vocale/i }).first()).toBeVisible();
+          |                                                                                        ^
+      137 |     await expect(page.getByText(/Pr.t .* enregistrer/i)).toBeVisible();
+      138 |   });
+      139 |
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:136:88
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--6d0f9--Responsive-design---Mobile-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--6d0f9--Responsive-design---Mobile-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K[39/39] [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:140:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 13 - Responsive design - Tablet
+[1A[2K[chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:140:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 13 - Responsive design - Tablet
+­ƒöÉ Login test: Mock localStorage (bypass authentification)
+
+[1A[2K  Ô×£ Mock localStorage appliqu├®
+
+[1A[2K  ÔÜá´©Å Timeout waitForSelector - continuons quand m├¬me
+
+[1A[2K  Ô£à Mock auth r├®ussi! URL: http://localhost:3001/
+
+[1A[2K  32) [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:140:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 13 - Responsive design - Tablet 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('heading', { name: /Transcription Vocale/i }).first()
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByRole('heading', { name: /Transcription Vocale/i }).first()[22m
+
+
+      144 |     
+      145 |     // V├®rifier que les ├®l├®ments sont toujours visibles
+    > 146 |     await expect(page.getByRole('heading', { name: /Transcription Vocale/i }).first()).toBeVisible();
+          |                                                                                        ^
+      147 |     await expect(page.getByText(/Pr.t .* enregistrer/i)).toBeVisible();
+      148 |   });
+      149 | });
+        at C:\Users\moros\Desktop\iaPostemanage\frontend-react\tests\e2e\voice-transcription.spec.js:146:88
+
+    attachment #1: screenshot (image/png) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--01df4--Responsive-design---Tablet-chromium\test-failed-1.png
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+    attachment #2: video (video/webm) ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    test-results\voice-transcription-Voice--01df4--Responsive-design---Tablet-chromium\video.webm
+    ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+
+
+[1A[2K  32 failed
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:14:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 01 - Navigation vers la page Accessibilit├® 
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:31:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 02 - Activation du profil Aveugle (TTS) 
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:48:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 03 - Activation du profil Sourd (Transcriptions) 
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:61:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 04 - Param├¿tres TTS - Vitesse et Volume 
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:92:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 05 - Tailles de police 
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:116:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 06 - Mode Haut Contraste 
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:143:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 07 - Raccourcis clavier affich├®s 
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:163:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 08 - Test du bouton TTS 
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:183:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 09 - API Accessibility Settings 
+    [chromium] ÔÇ║ tests\e2e\accessibility.spec.js:196:7 ÔÇ║ Accessibility System E2E Tests ÔÇ║ 10 - API Keyboard Shortcuts 
+    [chromium] ÔÇ║ tests\e2e\debug.spec.js:5:7 ÔÇ║ Debug - Voir le contenu des pages ÔÇ║ Debug 01 - Page d accueil 
+    [chromium] ÔÇ║ tests\e2e\debug.spec.js:34:7 ÔÇ║ Debug - Voir le contenu des pages ÔÇ║ Debug 02 - Page Accessibility directe 
+    [chromium] ÔÇ║ tests\e2e\debug.spec.js:62:7 ÔÇ║ Debug - Voir le contenu des pages ÔÇ║ Debug 03 - Page Voice Transcription directe 
+    [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:6:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 01 - Utilisateur aveugle - Setup complet 
+    [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:48:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 02 - Utilisateur sourd - Transcription visuelle 
+    [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:76:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 03 - Utilisateur muet - Alternatives de communication 
+    [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:106:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 04 - Utilisateur mobilit├® r├®duite - Navigation clavier 
+    [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:143:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 05 - Test complet APIs 
+    [chromium] ÔÇ║ tests\e2e\user-journeys.spec.js:195:7 ÔÇ║ Full User Journey - Accessibility Flow ÔÇ║ Journey 05 - Parcours complet avec toutes les features 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:14:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 01 - Navigation vers Transcription vocale 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:25:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 02 - Interface de transcription pr├®sente 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:36:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 03 - Param├¿tres d'accessibilit├® int├®gr├®s 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:49:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 04 - Toggle TTS dans VoiceTranscription 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:56:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 05 - Toggle Haut Contraste dans VoiceTranscription 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:65:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 06 - Zone de transcription visuelle pr├®sente 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:74:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 07 - Instructions d'utilisation visibles 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:83:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 08 - Bouton d'enregistrement est d├®sactiv├® initialement 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:90:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 09 - API Voice Start (mock) 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:101:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 10 - API Transcripts r├®cents 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:112:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 11 - Simulation d'annonce vocale 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:130:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 12 - Responsive design - Mobile 
+    [chromium] ÔÇ║ tests\e2e\voice-transcription.spec.js:140:7 ÔÇ║ Voice Transcription E2E Tests ÔÇ║ 13 - Responsive design - Tablet 
+  7 passed (11.9m)

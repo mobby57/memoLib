@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console Frontend - Email Assistant</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #fff; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: #2d2d2d; border-radius: 8px; padding: 20px; border: 1px solid #444; }
+        .card h3 { color: #4CAF50; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #ccc; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #555; border-radius: 4px; color: #fff; }
+        .btn { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
+        .btn:hover { background: #45a049; }
+        .btn-secondary { background: #2196F3; }
+        .btn-secondary:hover { background: #1976D2; }
+        .output { background: #1a1a1a; border: 1px solid #555; border-radius: 4px; padding: 10px; min-height: 100px; font-family: monospace; white-space: pre-wrap; }
+        .status { padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .success { background: #4CAF50; }
+        .error { background: #f44336; }
+        .info { background: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Email Assistant Console</h1>
+            <p>Interface de test pour le backend minimal</p>
+        </div>
+
+        <div class="grid">
+            <!-- Inscription Utilisateur -->
+            <div class="card">
+                <h3>👤 Inscription Utilisateur</h3>
+                <div class="form-group">
+                    <label>Prénom:</label>
+                    <input type="text" id="prenom" placeholder="John">
+                </div>
+                <div class="form-group">
+                    <label>Nom:</label>
+                    <input type="text" id="nom" placeholder="Doe">
+                </div>
+                <button class="btn" onclick="registerUser()">Créer Utilisateur</button>
+                <div id="userResult" class="output"></div>
+            </div>
+
+            <!-- Génération Email IA -->
+            <div class="card">
+                <h3>🧠 Génération Email IA</h3>
+                <div class="form-group">
+                    <label>User ID:</label>
+                    <input type="number" id="userId" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Prompt:</label>
+                    <textarea id="prompt" rows="3" placeholder="Écris un email professionnel pour demander un rendez-vous"></textarea>
+                </div>
+                <button class="btn btn-secondary" onclick="generateEmail()">Générer Email</button>
+                <div id="aiResult" class="output"></div>
+            </div>
+
+            <!-- Envoi Email -->
+            <div class="card">
+                <h3>📧 Envoi Email</h3>
+                <div class="form-group">
+                    <label>User ID:</label>
+                    <input type="number" id="sendUserId" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Destinataire:</label>
+                    <input type="email" id="to" placeholder="test@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Sujet:</label>
+                    <input type="text" id="subject" placeholder="Test Email">
+                </div>
+                <div class="form-group">
+                    <label>Message:</label>
+                    <textarea id="body" rows="3" placeholder="Bonjour, ceci est un test..."></textarea>
+                </div>
+                <button class="btn" onclick="sendEmail()">Envoyer Email</button>
+                <div id="emailResult" class="output"></div>
+            </div>
+
+            <!-- Statut Système -->
+            <div class="card">
+                <h3>⚡ Statut Système</h3>
+                <button class="btn btn-secondary" onclick="checkHealth()">Vérifier Santé</button>
+                <button class="btn btn-secondary" onclick="listUsers()" style="margin-top: 10px;">Lister Utilisateurs</button>
+                <div id="systemResult" class="output"></div>
+                
+                <h4 style="margin-top: 20px; color: #4CAF50;">🔗 Liens Utiles:</h4>
+                <p><a href="http://localhost:8000/docs" target="_blank" style="color: #4CAF50;">📚 API Docs</a></p>
+                <p><a href="http://localhost:8025" target="_blank" style="color: #4CAF50;">📬 MailHog</a></p>
+                <p><a href="http://localhost:9001" target="_blank" style="color: #4CAF50;">💾 MinIO</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                if (data) options.body = JSON.stringify(data);
+                
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                const result = await response.json();
+                return { success: response.ok, data: result };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function registerUser() {
+            const prenom = document.getElementById('prenom').value;
+            const nom = document.getElementById('nom').value;
+            
+            if (!prenom || !nom) {
+                showResult('userResult', 'Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            const result = await apiCall('/users/register', 'POST', { prenom, nom });
+            showResult('userResult', result, result.success ? 'success' : 'error');
+        }
+
+        async function generateEmail() {
+            const userId = document.getElementById('userId').value;
+            const prompt = document.getElementById('prompt').value;
+            
+            if (!userId || !prompt) {
+                showResult('aiResult', 'Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            const result = await apiCall('/ai/generate', 'POST', { user_id: parseInt(userId), prompt });
+            showResult('aiResult', result, result.success ? 'success' : 'error');
+        }
+
+        async function sendEmail() {
+            const userId = document.getElementById('sendUserId').value;
+            const to = document.getElementById('to').value;
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+            
+            if (!userId || !to || !subject || !body) {
+                showResult('emailResult', 'Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            const result = await apiCall('/mails/send', 'POST', { 
+                user_id: parseInt(userId), to, subject, body 
+            });
+            showResult('emailResult', result, result.success ? 'success' : 'error');
+        }
+
+        async function checkHealth() {
+            const result = await apiCall('/../health');
+            showResult('systemResult', result, result.success ? 'success' : 'error');
+        }
+
+        async function listUsers() {
+            const result = await apiCall('/users/');
+            showResult('systemResult', result, result.success ? 'success' : 'error');
+        }
+
+        function showResult(elementId, result, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(result, null, 2);
+            element.className = `output ${type}`;
+        }
+
+        // Auto-check health on load
+        window.onload = () => checkHealth();
+    </script>
+</body>
+</html>

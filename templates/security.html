@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sécurité - SecureVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔒 Centre de Sécurité</h1>
+            <nav>
+                <a href="/nav">← Retour</a>
+                <a href="/admin">Administration</a>
+            </nav>
+        </header>
+
+        <div class="security-overview">
+            <div class="security-card">
+                <div class="security-icon">🛡️</div>
+                <div class="security-info">
+                    <h3>Niveau de Sécurité</h3>
+                    <div class="security-level high">Élevé</div>
+                </div>
+            </div>
+            <div class="security-card">
+                <div class="security-icon">🔐</div>
+                <div class="security-info">
+                    <h3>Chiffrement</h3>
+                    <div class="security-status">AES-256 Actif</div>
+                </div>
+            </div>
+            <div class="security-card">
+                <div class="security-icon">⚠️</div>
+                <div class="security-info">
+                    <h3>Alertes</h3>
+                    <div class="security-alerts" id="alertCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="security-tabs">
+            <button class="tab-btn active" onclick="showTab('events')">📋 Événements</button>
+            <button class="tab-btn" onclick="showTab('settings')">⚙️ Configuration</button>
+            <button class="tab-btn" onclick="showTab('audit')">🔍 Audit</button>
+            <button class="tab-btn" onclick="showTab('keys')">🔑 Clés API</button>
+        </div>
+
+        <!-- Événements de Sécurité -->
+        <div class="tab-content active" id="events-tab">
+            <div class="card">
+                <div class="section-header">
+                    <h2>Événements de Sécurité</h2>
+                    <div class="filters">
+                        <select id="severityFilter" onchange="filterEvents()">
+                            <option value="">Toutes sévérités</option>
+                            <option value="info">Info</option>
+                            <option value="warning">Avertissement</option>
+                            <option value="error">Erreur</option>
+                            <option value="critical">Critique</option>
+                        </select>
+                        <button onclick="refreshEvents()" class="btn btn-secondary">🔄 Actualiser</button>
+                    </div>
+                </div>
+                
+                <div id="eventsList" class="events-list"></div>
+            </div>
+        </div>
+
+        <!-- Configuration Sécurité -->
+        <div class="tab-content" id="settings-tab">
+            <div class="card">
+                <h2>Paramètres de Sécurité</h2>
+                <form id="securitySettingsForm">
+                    <div class="settings-grid">
+                        <div class="setting-group">
+                            <h3>Authentification</h3>
+                            <div class="setting-item">
+                                <label>Durée de session (minutes):</label>
+                                <input type="number" id="sessionDuration" value="60" min="5" max="1440">
+                            </div>
+                            <div class="setting-item">
+                                <label>Tentatives de connexion max:</label>
+                                <input type="number" id="maxAttempts" value="5" min="1" max="10">
+                            </div>
+                            <div class="setting-item">
+                                <label>2FA obligatoire:</label>
+                                <input type="checkbox" id="require2FA">
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <h3>Rate Limiting</h3>
+                            <div class="setting-item">
+                                <label>Requêtes par heure:</label>
+                                <input type="number" id="rateLimit" value="100" min="10" max="1000">
+                            </div>
+                            <div class="setting-item">
+                                <label>Blocage IP automatique:</label>
+                                <input type="checkbox" id="autoBlock" checked>
+                            </div>
+                            <div class="setting-item">
+                                <label>Durée de blocage (minutes):</label>
+                                <input type="number" id="blockDuration" value="60" min="5" max="1440">
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <h3>Chiffrement</h3>
+                            <div class="setting-item">
+                                <label>Rotation automatique des clés:</label>
+                                <input type="checkbox" id="autoRotation" checked>
+                            </div>
+                            <div class="setting-item">
+                                <label>Fréquence rotation (jours):</label>
+                                <input type="number" id="rotationDays" value="90" min="1" max="365">
+                            </div>
+                            <div class="setting-item">
+                                <button type="button" onclick="rotateKeys()" class="btn btn-warning">🔄 Rotation Manuelle</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                        <button type="button" onclick="resetSettings()" class="btn btn-secondary">🔄 Réinitialiser</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Audit -->
+        <div class="tab-content" id="audit-tab">
+            <div class="card">
+                <h2>Trail d'Audit</h2>
+                <div class="audit-filters">
+                    <input type="date" id="auditDateFrom">
+                    <input type="date" id="auditDateTo">
+                    <select id="auditAction">
+                        <option value="">Toutes actions</option>
+                        <option value="login">Connexion</option>
+                        <option value="email_sent">Email envoyé</option>
+                        <option value="config_change">Changement config</option>
+                        <option value="user_created">Utilisateur créé</option>
+                    </select>
+                    <button onclick="loadAuditTrail()" class="btn btn-primary">🔍 Rechercher</button>
+                </div>
+                
+                <div id="auditTrail" class="audit-trail"></div>
+            </div>
+
+            <div class="card">
+                <h2>Rapports de Sécurité</h2>
+                <div class="report-actions">
+                    <button onclick="generateReport('daily')" class="btn btn-info">📊 Rapport Quotidien</button>
+                    <button onclick="generateReport('weekly')" class="btn btn-info">📊 Rapport Hebdomadaire</button>
+                    <button onclick="generateReport('monthly')" class="btn btn-info">📊 Rapport Mensuel</button>
+                    <button onclick="exportAudit()" class="btn btn-secondary">📤 Exporter Audit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestion Clés API -->
+        <div class="tab-content" id="keys-tab">
+            <div class="card">
+                <div class="section-header">
+                    <h2>Clés API</h2>
+                    <button onclick="showCreateKey()" class="btn btn-primary">➕ Nouvelle Clé</button>
+                </div>
+                
+                <div id="apiKeysList" class="api-keys-list"></div>
+            </div>
+
+            <!-- Formulaire création clé -->
+            <div class="card hidden" id="createKeyForm">
+                <h3>Nouvelle Clé API</h3>
+                <form id="keyForm">
+                    <div class="form-group">
+                        <label>Nom:</label>
+                        <input type="text" id="keyName" placeholder="Ex: Integration CRM" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Permissions:</label>
+                        <div class="permissions-grid">
+                            <label><input type="checkbox" value="read"> Lecture</label>
+                            <label><input type="checkbox" value="write"> Écriture</label>
+                            <label><input type="checkbox" value="admin"> Administration</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Limite de taux (req/h):</label>
+                        <input type="number" id="keyRateLimit" value="100" min="1" max="1000">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" onclick="cancelCreateKey()">Annuler</button>
+                        <button type="submit">Créer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'events';
+
+        window.onload = function() {
+            loadSecurityEvents();
+            loadApiKeys();
+            updateSecurityOverview();
+        };
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            currentTab = tabName;
+        }
+
+        async function loadSecurityEvents() {
+            // Simulation d'événements
+            const events = [
+                {
+                    timestamp: new Date().toISOString(),
+                    type: 'login_success',
+                    user: 'admin',
+                    ip: '127.0.0.1',
+                    severity: 'info',
+                    details: 'Connexion réussie'
+                },
+                {
+                    timestamp: new Date(Date.now() - 3600000).toISOString(),
+                    type: 'failed_login',
+                    user: 'unknown',
+                    ip: '192.168.1.100',
+                    severity: 'warning',
+                    details: 'Tentative de connexion échouée'
+                },
+                {
+                    timestamp: new Date(Date.now() - 7200000).toISOString(),
+                    type: 'config_change',
+                    user: 'admin',
+                    ip: '127.0.0.1',
+                    severity: 'info',
+                    details: 'Modification paramètres sécurité'
+                }
+            ];
+            
+            displayEvents(events);
+        }
+
+        function displayEvents(events) {
+            const container = document.getElementById('eventsList');
+            
+            container.innerHTML = events.map(event => `
+                <div class="event-item ${event.severity}">
+                    <div class="event-header">
+                        <span class="event-type">${event.type}</span>
+                        <span class="event-time">${new Date(event.timestamp).toLocaleString()}</span>
+                    </div>
+                    <div class="event-details">
+                        <span>Utilisateur: ${event.user}</span>
+                        <span>IP: ${event.ip}</span>
+                        <span class="severity-badge ${event.severity}">${event.severity}</span>
+                    </div>
+                    <div class="event-description">${event.details}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateSecurityOverview() {
+            document.getElementById('alertCount').textContent = '2';
+        }
+
+        function refreshEvents() {
+            loadSecurityEvents();
+        }
+
+        function filterEvents() {
+            // Implémentation du filtrage
+            loadSecurityEvents();
+        }
+
+        function rotateKeys() {
+            if (confirm('Effectuer une rotation manuelle des clés de chiffrement ?')) {
+                alert('Rotation des clés effectuée avec succès');
+            }
+        }
+
+        function generateReport(type) {
+            alert(`Génération du rapport ${type} en cours...`);
+        }
+
+        function exportAudit() {
+            alert('Export du trail d\'audit en cours...');
+        }
+
+        function loadApiKeys() {
+            // Simulation de clés API
+            const keys = [
+                {
+                    id: 1,
+                    name: 'Integration CRM',
+                    key: 'sk-*********************abc123',
+                    permissions: ['read', 'write'],
+                    rate_limit: 100,
+                    last_used: '2024-01-15 10:30:00',
+                    is_active: true
+                }
+            ];
+            
+            displayApiKeys(keys);
+        }
+
+        function displayApiKeys(keys) {
+            const container = document.getElementById('apiKeysList');
+            
+            if (keys.length === 0) {
+                container.innerHTML = '<p class="no-data">Aucune clé API</p>';
+                return;
+            }
+            
+            container.innerHTML = keys.map(key => `
+                <div class="api-key-item">
+                    <div class="key-header">
+                        <h4>${key.name}</h4>
+                        <span class="key-status ${key.is_active ? 'active' : 'inactive'}">
+                            ${key.is_active ? 'Actif' : 'Inactif'}
+                        </span>
+                    </div>
+                    <div class="key-details">
+                        <code>${key.key}</code>
+                        <span>Permissions: ${key.permissions.join(', ')}</span>
+                        <span>Limite: ${key.rate_limit} req/h</span>
+                        <span>Dernière utilisation: ${key.last_used}</span>
+                    </div>
+                    <div class="key-actions">
+                        <button onclick="toggleKey(${key.id})" class="btn-small">
+                            ${key.is_active ? 'Désactiver' : 'Activer'}
+                        </button>
+                        <button onclick="regenerateKey(${key.id})" class="btn-small">Régénérer</button>
+                        <button onclick="deleteKey(${key.id})" class="btn-small btn-danger">Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showCreateKey() {
+            document.getElementById('createKeyForm').classList.remove('hidden');
+        }
+
+        function cancelCreateKey() {
+            document.getElementById('createKeyForm').classList.add('hidden');
+        }
+    </script>
+
+    <style>
+        .security-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .security-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .security-icon {
+            font-size: 2em;
+        }
+        .security-level.high {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .security-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f8f9fa;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+        }
+        .tab-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .event-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #007bff;
+        }
+        .event-item.warning {
+            border-left-color: #ffc107;
+        }
+        .event-item.error {
+            border-left-color: #dc3545;
+        }
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .event-details {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .severity-badge {
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+        .severity-badge.info { background: #d1ecf1; }
+        .severity-badge.warning { background: #fff3cd; }
+        .severity-badge.error { background: #f8d7da; }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .setting-group h3 {
+            margin-bottom: 15px;
+            color: #007bff;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .api-key-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .key-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .key-status.active {
+            color: #28a745;
+        }
+        .key-status.inactive {
+            color: #dc3545;
+        }
+        .key-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        .key-details code {
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .key-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .permissions-grid {
+            display: flex;
+            gap: 15px;
+        }
+    </style>
+</body>
+</html>

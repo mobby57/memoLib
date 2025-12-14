@@ -1,0 +1,67 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    ✅ SOLUTION ERREURS 404 - TROUVÉE !                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+PROBLÈME:
+─────────
+Toutes les routes retournent 404:
+  • GET /api/destinataires HTTP/1.1" 404
+  • GET /api/check-credentials HTTP/1.1" 404
+  • GET /api/workflows HTTP/1.1" 404
+  • POST /api/save-gmail HTTP/1.1" 404
+
+CAUSE:
+──────
+❌ Vous lanciez le MAUVAIS fichier app.py !
+
+Il existe 2 fichiers app.py:
+  1. app.py (racine) ← ANCIEN, non corrigé
+  2. src\web\app.py ← CORRIGÉ, à utiliser
+
+SOLUTION:
+─────────
+✅ Lancer le BON fichier: src\web\app.py
+
+MÉTHODE 1 - Script Batch (Le plus simple):
+   > START_TEST.bat
+
+MÉTHODE 2 - Ligne de commande:
+   > cd src\web
+   > python app.py
+
+VÉRIFICATION:
+─────────────
+Au démarrage, vous DEVEZ voir:
+   ==================================================
+   SecureVault v2.2 - Demarrage
+   ==================================================
+
+Si vous voyez autre chose → Mauvais fichier !
+
+PROTECTION:
+───────────
+L'ancien fichier a été renommé:
+   app.py → app_OLD_DO_NOT_USE.py
+
+Vous ne pouvez plus le lancer par erreur.
+
+RÉSULTAT ATTENDU:
+─────────────────
+✅ GET /api/destinataires → 200 OK (JSON)
+✅ GET /api/check-credentials → 200 OK (JSON)
+✅ GET /api/workflows → 200 OK (JSON)
+✅ POST /api/save-gmail → 200 OK (JSON)
+
+Plus d'erreurs 404 !
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         COMMANDE À UTILISER                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+   START_TEST.bat
+
+C'est tout ! Le script lance automatiquement le bon fichier.
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         PROBLÈME RÉSOLU ✅                                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝

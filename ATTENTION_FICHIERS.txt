@@ -1,0 +1,85 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    ⚠️  ATTENTION - FICHIERS APP.PY  ⚠️                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Il existe DEUX fichiers app.py dans ce projet :
+
+1. ❌ app.py (RACINE) - ANCIEN FICHIER
+   Chemin: iaPostemanage\app.py
+   Status: Version ancienne, NON corrigée
+   Problème: Routes manquantes, erreurs 404
+
+2. ✅ src\web\app.py - FICHIER CORRIGÉ
+   Chemin: iaPostemanage\src\web\app.py
+   Status: Version corrigée avec tous les endpoints
+   Utiliser: OUI, c'est celui-ci !
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         COMMENT DÉMARRER CORRECTEMENT                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✅ MÉTHODE 1 - Script Batch (Recommandé):
+   > START_TEST.bat
+   (Lance automatiquement src\web\app.py)
+
+✅ MÉTHODE 2 - Ligne de commande:
+   > cd src\web
+   > python app.py
+
+❌ NE PAS FAIRE:
+   > python app.py
+   (Lance le mauvais fichier à la racine !)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         VÉRIFICATION RAPIDE                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Au démarrage, vous devez voir:
+   ==================================================
+   SecureVault v2.2 - Demarrage
+   ==================================================
+
+Si vous voyez autre chose, vous lancez le mauvais fichier !
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         DIFFÉRENCES CLÉS                                     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+app.py (RACINE):
+   • Ancien code
+   • Imports relatifs (from crypto_utils import *)
+   • Pas de corrections JSON
+   • Routes manquantes
+
+src\web\app.py (CORRIGÉ):
+   • Code mis à jour
+   • Imports absolus (from src.core.crypto_utils import *)
+   • Corrections JSON appliquées
+   • Tous les endpoints présents
+   • Gestionnaire 404 corrigé
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         SOLUTION PERMANENTE                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Option 1: Toujours utiliser START_TEST.bat
+
+Option 2: Renommer l'ancien fichier
+   > ren app.py app_OLD.py
+
+Option 3: Supprimer l'ancien fichier
+   > del app.py
+   (Après avoir vérifié que src\web\app.py fonctionne)
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         RÉSUMÉ                                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✅ Utiliser: src\web\app.py
+❌ Éviter: app.py (racine)
+
+Commande correcte:
+   cd src\web && python app.py
+
+Ou simplement:
+   START_TEST.bat

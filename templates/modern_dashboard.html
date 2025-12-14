@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAPosteManager - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/modern-ui.css" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/static/images/logo.svg">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="/static/images/logo.svg" width="40" height="40" alt="IAPosteManager">
+                <h1>IAPosteManager</h1>
+            </div>
+            
+            <nav class="nav-pills">
+                <a href="#" class="nav-pill active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="#" class="nav-pill">
+                    <i class="fas fa-envelope"></i> Emails
+                </a>
+                <a href="#" class="nav-pill">
+                    <i class="fas fa-brain"></i> IA
+                </a>
+                <a href="#" class="nav-pill">
+                    <i class="fas fa-cog"></i> Config
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3><i class="fas fa-filter"></i> Filtres Intelligents</h3>
+            
+            <form id="filterForm">
+                <div class="form-group">
+                    <label class="form-label">Période</label>
+                    <input type="date" class="form-control" id="dateFrom" name="date_from">
+                    <input type="date" class="form-control" id="dateTo" name="date_to" style="margin-top: 0.5rem;">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Domaine</label>
+                    <input type="text" class="form-control" id="domain" name="domain" placeholder="gmail.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Expéditeur</label>
+                    <input type="text" class="form-control" id="sender" name="sender">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Catégorie IA</label>
+                    <select class="form-control" id="category" name="category">
+                        <option value="">Toutes</option>
+                        <option value="finance">💰 Finance</option>
+                        <option value="meeting">📅 Réunions</option>
+                        <option value="urgent">🚨 Urgent</option>
+                        <option value="marketing">📢 Marketing</option>
+                        <option value="general">📝 Général</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Priorité IA</label>
+                    <select class="form-control" id="priority" name="priority">
+                        <option value="">Toutes</option>
+                        <option value="high">🔴 Haute</option>
+                        <option value="medium">🟡 Moyenne</option>
+                        <option value="low">🟢 Basse</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-search"></i> Filtrer
+                </button>
+            </form>
+            
+            <hr style="margin: 1.5rem 0; border: none; height: 1px; background: #e2e8f0;">
+            
+            <!-- Suggestions IA -->
+            <h3><i class="fas fa-lightbulb"></i> Suggestions IA</h3>
+            <div id="suggestionsList">
+                <div class="suggestion-item">
+                    <span class="suggestion-text">Emails récents (7j)</span>
+                    <span class="suggestion-count">24</span>
+                </div>
+                <div class="suggestion-item">
+                    <span class="suggestion-text">Priorité haute</span>
+                    <span class="suggestion-count">8</span>
+                </div>
+                <div class="suggestion-item">
+                    <span class="suggestion-text">Gmail.com</span>
+                    <span class="suggestion-count">156</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                <button class="btn btn-success" onclick="fetchEmails()">
+                    <i class="fas fa-sync"></i> Synchroniser
+                </button>
+                <button class="btn btn-warning" onclick="createSmartFilters()">
+                    <i class="fas fa-brain"></i> Filtres IA
+                </button>
+                <button class="btn btn-primary" onclick="autoOrganize()">
+                    <i class="fas fa-magic"></i> Organisation Auto
+                </button>
+                <button class="btn btn-secondary" onclick="checkHealth()">
+                    <i class="fas fa-heartbeat"></i> État Système
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalEmails">0</div>
+                    <div class="stat-label">Total Emails</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="filteredEmails">0</div>
+                    <div class="stat-label">Filtrés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="highPriority">0</div>
+                    <div class="stat-label">Priorité Haute</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="topDomain">-</div>
+                    <div class="stat-label">Domaine Principal</div>
+                </div>
+            </div>
+
+            <!-- Email List -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-inbox"></i> Emails (<span id="emailCount">0</span>)
+                </div>
+                <div class="card-body">
+                    <div id="emailsList">
+                        <div class="loading">
+                            <i class="fas fa-envelope-open fa-3x" style="color: #cbd5e1;"></i>
+                            <div style="margin-left: 1rem;">
+                                <h4>Prêt à synchroniser</h4>
+                                <p>Cliquez sur "Synchroniser" pour charger vos emails</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Configuration -->
+    <div id="configModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 16px; width: 90%; max-width: 500px;">
+            <h3 style="margin-bottom: 1.5rem;">Configuration Email</h3>
+            
+            <form id="configForm">
+                <div class="form-group">
+                    <label class="form-label">Serveur IMAP</label>
+                    <input type="text" class="form-control" id="imapServer" value="imap.gmail.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="emailAddr" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mot de passe App</label>
+                    <input type="password" class="form-control" id="emailPassword" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Limite emails</label>
+                    <input type="number" class="form-control" id="emailLimit" value="100" min="10" max="1000">
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()" style="flex: 1;">
+                        Annuler
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="startFetch()" style="flex: 1;">
+                        Synchroniser
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/modern-dashboard.js"></script>
+</body>
+</html>

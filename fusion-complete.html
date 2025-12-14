@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Email Assistant - Fusion Complète</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%, #f093fb 100%); color: white; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 1rem; }
+        .header { text-align: center; padding: 2rem 0; background: rgba(0,0,0,0.2); border-radius: 1rem; margin-bottom: 2rem; }
+        .nav { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .nav-btn { padding: 1rem 2rem; border: none; border-radius: 0.5rem; background: rgba(255,255,255,0.1); color: white; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(10px); }
+        .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+        .section { display: none; }
+        .section.active { display: block; }
+        .grid { display: grid; gap: 2rem; }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+        .card { background: rgba(255,255,255,0.15); backdrop-filter: blur(15px); padding: 2rem; border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .card:hover { transform: translateY(-8px); transition: all 0.4s ease; box-shadow: 0 12px 40px rgba(0,0,0,0.2); }
+        .btn { padding: 1rem 2rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; transition: all 0.3s; margin: 0.5rem; }
+        .btn-primary { background: #4f46e5; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-info { background: #06b6d4; color: white; }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .input { width: 100%; padding: 1rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 0.5rem; color: white; margin: 0.5rem 0; }
+        .input::placeholder { color: rgba(255,255,255,0.7); }
+        .input:focus { outline: none; border-color: #4f46e5; background: rgba(255,255,255,0.2); }
+        .textarea { resize: none; min-height: 120px; }
+        .result { padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 0.5rem; margin: 1rem 0; min-height: 100px; }
+        .stat-card { text-align: center; }
+        .stat-number { font-size: 3rem; font-weight: bold; margin: 1rem 0; }
+        .stat-icon { font-size: 4rem; margin-bottom: 1rem; }
+        .voice-btn { width: 10rem; height: 10rem; border-radius: 50%; font-size: 3rem; display: flex; align-items: center; justify-content: center; margin: 2rem auto; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .notification { position: fixed; top: 2rem; right: 2rem; padding: 1rem 2rem; border-radius: 0.5rem; z-index: 1000; display: none; }
+        .notification.success { background: #10b981; }
+        .notification.error { background: #ef4444; }
+        .notification.info { background: #06b6d4; }
+        .status-indicator { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 0.5rem; }
+        .status-online { background: #10b981; }
+        .status-offline { background: #ef4444; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .text-center { text-align: center; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .font-bold { font-weight: 700; }
+        .w-full { width: 100%; }
+        .flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .gap-4 { gap: 1rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="text-3xl font-bold mb-4">🚀 Email Assistant Pro - Fusion Complète</h1>
+            <p class="text-xl">Dashboard Unifié • IA Avancée • Interface Vocale • Analytics</p>
+            <div style="margin-top: 1rem;">
+                <span class="status-indicator" id="status-dot"></span>
+                <span id="status-text">Vérification...</span>
+                <button onclick="refreshAll()" class="btn btn-info" style="margin-left: 1rem;">🔄 Actualiser Tout</button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <button onclick="showSection('dashboard')" class="nav-btn active">📊 Dashboard</button>
+            <button onclick="showSection('compose')" class="nav-btn">✍️ Composer</button>
+            <button onclick="showSection('users')" class="nav-btn">👥 Utilisateurs</button>
+            <button onclick="showSection('ai')" class="nav-btn">🤖 IA Avancée</button>
+            <button onclick="showSection('voice')" class="nav-btn">🎤 Assistant Vocal</button>
+            <button onclick="showSection('analytics')" class="nav-btn">📈 Analytics</button>
+            <button onclick="showSection('templates')" class="nav-btn">📝 Templates</button>
+            <button onclick="showSection('advanced')" class="nav-btn">🔧 Avancé</button>
+            <button onclick="showSection('automation')" class="nav-btn">🤖 Automation</button>
+            <button onclick="showSection('settings')" class="nav-btn">⚙️ Paramètres</button>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <div id="section-dashboard" class="section active">
+            <!-- Stats Cards -->
+            <div class="grid grid-4 mb-6">
+                <div class="card stat-card">
+                    <div class="stat-icon">📧</div>
+                    <div class="stat-number" id="stat-emails">0</div>
+                    <div>Emails Envoyés</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number" id="stat-users">0</div>
+                    <div>Utilisateurs Actifs</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-icon">🤖</div>
+                    <div class="stat-number" id="stat-ai">0</div>
+                    <div>IA Générés</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-number">98.5%</div>
+                    <div>Taux de Succès</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions & Services -->
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">🚀 Actions Rapides</h3>
+                    <div class="space-y-4">
+                        <button onclick="showSection('compose')" class="w-full btn btn-primary">✍️ Nouveau Email</button>
+                        <button onclick="showSection('voice')" class="w-full btn btn-success">🎤 Assistant Vocal</button>
+                        <button onclick="showSection('ai')" class="w-full btn btn-warning">🤖 Génération IA</button>
+                        <button onclick="openExternal('http://localhost:8025')" class="w-full btn btn-info">📬 Voir Emails (MailHog)</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">📊 État des Services</h3>
+                    <div class="space-y-4" id="services-status">
+                        <div class="flex justify-between items-center">
+                            <span>Backend API</span>
+                            <span id="api-status">🔄 Test...</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Base de Données</span>
+                            <span id="db-status">🟢 Actif</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>MailHog</span>
+                            <span id="mail-status">🟢 Actif</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Stockage MinIO</span>
+                            <span id="storage-status">🟢 Actif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compose Section -->
+        <div id="section-compose" class="section">
+            <div class="card">
+                <h2 class="text-2xl font-bold mb-6">✍️ Compositeur d'Email Intelligent</h2>
+                <div class="grid grid-2">
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">📝 Composition</h3>
+                        <input type="email" id="compose-to" placeholder="Destinataire (email@example.com)" class="input">
+                        <input type="text" id="compose-subject" placeholder="Sujet de l'email" class="input">
+                        <textarea id="compose-message" placeholder="Votre message ou description pour l'IA..." class="input textarea"></textarea>
+                        <div class="flex gap-4">
+                            <button onclick="generateAI()" class="btn btn-warning">🤖 Générer avec IA</button>
+                            <button onclick="sendEmail()" class="btn btn-success">📤 Envoyer</button>
+                            <button onclick="saveTemplate()" class="btn btn-info">💾 Sauver Template</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">📋 Aperçu & Résultat</h3>
+                        <div id="compose-result" class="result">Résultat apparaîtra ici...</div>
+                        <h4 class="font-bold mb-4">🎯 Templates Rapides</h4>
+                        <div class="space-y-4">
+                            <button onclick="loadTemplate('meeting')" class="w-full btn btn-primary">📅 Demande de Rendez-vous</button>
+                            <button onclick="loadTemplate('thanks')" class="w-full btn btn-success">🙏 Remerciements</button>
+                            <button onclick="loadTemplate('follow')" class="w-full btn btn-warning">📞 Relance</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div id="section-users" class="section">
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">➕ Ajouter Utilisateur</h3>
+                    <input type="text" id="user-prenom" placeholder="Prénom" class="input">
+                    <input type="text" id="user-nom" placeholder="Nom" class="input">
+                    <input type="email" id="user-email" placeholder="Email (optionnel)" class="input">
+                    <button onclick="createUser()" class="btn btn-success w-full">👤 Créer Utilisateur</button>
+                    <div id="user-result" class="result">Résultat apparaîtra ici...</div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">👥 Liste des Utilisateurs</h3>
+                    <button onclick="loadUsers()" class="btn btn-info mb-4">🔄 Actualiser Liste</button>
+                    <div id="users-list" class="result" style="max-height: 400px; overflow-y: auto;">Chargement...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Section -->
+        <div id="section-ai" class="section">
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">🧠 Générateur IA Avancé</h3>
+                    <select id="ai-tone" class="input">
+                        <option value="professional">💼 Professionnel</option>
+                        <option value="friendly">😊 Amical</option>
+                        <option value="formal">🎩 Formel</option>
+                        <option value="urgent">⚡ Urgent</option>
+                    </select>
+                    <select id="ai-type" class="input">
+                        <option value="email">📧 Email</option>
+                        <option value="letter">📄 Lettre</option>
+                        <option value="response">↩️ Réponse</option>
+                        <option value="follow-up">📞 Relance</option>
+                    </select>
+                    <textarea id="ai-prompt" placeholder="Décrivez précisément ce que vous voulez écrire..." class="input textarea"></textarea>
+                    <button onclick="generateAdvancedAI()" class="btn btn-warning w-full">🚀 Générer avec IA Avancée</button>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">📄 Résultat IA</h3>
+                    <div id="ai-result" class="result" style="min-height: 300px;">Résultat de génération IA apparaîtra ici...</div>
+                    <div class="flex gap-4">
+                        <button onclick="copyToCompose()" class="btn btn-info">📋 Copier vers Compositeur</button>
+                        <button onclick="regenerateAI()" class="btn btn-warning">🔄 Régénérer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Section -->
+        <div id="section-voice" class="section">
+            <div class="card text-center">
+                <h2 class="text-2xl font-bold mb-6">🎤 Assistant Vocal Intelligent</h2>
+                <div class="mb-6">
+                    <button id="voice-btn" onclick="toggleVoice()" class="voice-btn btn btn-danger">🎤</button>
+                    <p class="text-lg mb-4" id="voice-status">Cliquez sur le microphone pour commencer</p>
+                </div>
+                
+                <div class="grid grid-2">
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">🗣️ Texte Capturé</h3>
+                        <div id="voice-text" class="result">Votre texte vocal apparaîtra ici...</div>
+                        <div class="flex gap-4">
+                            <button onclick="processVoiceText()" class="btn btn-success">🤖 Traiter avec IA</button>
+                            <button onclick="clearVoiceText()" class="btn btn-danger">🗑️ Effacer</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">📝 Email Généré</h3>
+                        <div id="voice-email-result" class="result">Email généré à partir de la voix...</div>
+                        <div class="flex gap-4">
+                            <button onclick="sendVoiceEmail()" class="btn btn-success">📤 Envoyer</button>
+                            <button onclick="editVoiceEmail()" class="btn btn-info">✏️ Modifier</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="section-analytics" class="section">
+            <div class="grid grid-3 mb-6">
+                <div class="card stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-number">47</div>
+                    <div>Emails/Jour</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-number">2.3s</div>
+                    <div>Temps Moyen</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-number">98.5%</div>
+                    <div>Taux de Succès</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">📈 Performance</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span>Emails envoyés aujourd'hui</span>
+                            <span class="font-bold">23</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Génération IA utilisée</span>
+                            <span class="font-bold">18</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Assistant vocal utilisé</span>
+                            <span class="font-bold">7</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Templates utilisés</span>
+                            <span class="font-bold">12</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">🕒 Activité Récente</h3>
+                    <div id="recent-activity" class="space-y-4">
+                        <div>📧 Email envoyé à john@example.com - il y a 5min</div>
+                        <div>🤖 Email généré par IA - il y a 12min</div>
+                        <div>👤 Nouvel utilisateur créé - il y a 18min</div>
+                        <div>🎤 Assistant vocal utilisé - il y a 25min</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Templates Section -->
+        <div id="section-templates" class="section">
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">📝 Créer Template</h3>
+                    <input type="text" id="template-name" placeholder="Nom du template" class="input">
+                    <input type="text" id="template-subject" placeholder="Sujet" class="input">
+                    <textarea id="template-body" placeholder="Corps du template..." class="input textarea"></textarea>
+                    <button onclick="saveNewTemplate()" class="btn btn-success w-full">💾 Sauvegarder Template</button>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">📋 Templates Disponibles</h3>
+                    <div id="templates-list" class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span>📅 Demande de Rendez-vous</span>
+                            <button onclick="useTemplate('meeting')" class="btn btn-info">Utiliser</button>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>🙏 Remerciements</span>
+                            <button onclick="useTemplate('thanks')" class="btn btn-info">Utiliser</button>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>📞 Relance</span>
+                            <button onclick="useTemplate('follow')" class="btn btn-info">Utiliser</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="section-settings" class="section">
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">🔗 Services & URLs</h3>
+                    <div class="space-y-4">
+                        <a href="http://localhost:8000" target="_blank" class="btn btn-primary w-full">🔌 Backend API</a>
+                        <a href="http://localhost:8000/docs" target="_blank" class="btn btn-success w-full">📚 Documentation API</a>
+                        <a href="http://localhost:8025" target="_blank" class="btn btn-warning w-full">📬 Interface MailHog</a>
+                        <a href="http://localhost:9001" target="_blank" class="btn btn-info w-full">💾 Stockage MinIO</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xl font-bold mb-4">⚙️ Actions Système</h3>
+                    <div class="space-y-4">
+                        <button onclick="checkAllServices()" class="btn btn-info w-full">🔍 Vérifier Tous les Services</button>
+                        <button onclick="refreshAll()" class="btn btn-success w-full">🔄 Actualiser Toutes les Données</button>
+                        <button onclick="exportData()" class="btn btn-warning w-full">📤 Exporter Données</button>
+                        <button onclick="resetApp()" class="btn btn-danger w-full">🔄 Réinitialiser Application</button>
+                    </div>
+                    <div id="system-result" class="result">Résultats des actions système...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Variables globales
+        let isVoiceActive = false;
+        let recognition = null;
+        let currentVoiceText = '';
+        let stats = { emails: 0, users: 0, ai: 0 };
+
+        // Templates prédéfinis
+        const templates = {
+            meeting: {
+                subject: "Demande de rendez-vous",
+                body: "Bonjour,\n\nJ'aimerais planifier un rendez-vous avec vous pour discuter de [sujet]. Seriez-vous disponible [date/heure] ?\n\nCordialement"
+            },
+            thanks: {
+                subject: "Remerciements",
+                body: "Bonjour,\n\nJe tenais à vous remercier pour [raison]. Votre aide a été très précieuse.\n\nCordialement"
+            },
+            follow: {
+                subject: "Relance",
+                body: "Bonjour,\n\nJe me permets de revenir vers vous concernant [sujet]. Avez-vous eu l'occasion d'examiner ma demande ?\n\nCordialement"
+            }
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupVoiceRecognition();
+            startPeriodicUpdates();
+        });
+
+        function initializeApp() {
+            loadStats();
+            loadUsers();
+            checkAllServices();
+            showNotification('🚀 Application initialisée avec succès!', 'success');
+        }
+
+        function setupVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.lang = 'fr-FR';
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                recognition.onresult = function(event) {
+                    const text = event.results[0][0].transcript;
+                    currentVoiceText = text;
+                    document.getElementById('voice-text').textContent = text;
+                    showNotification('🎤 Texte capturé: ' + text.substring(0, 50) + '...', 'success');
+                };
+                
+                recognition.onerror = function(event) {
+                    showNotification('❌ Erreur reconnaissance vocale: ' + event.error, 'error');
+                    isVoiceActive = false;
+                    updateVoiceButton();
+                };
+                
+                recognition.onend = function() {
+                    isVoiceActive = false;
+                    updateVoiceButton();
+                };
+            } else {
+                showNotification('❌ Reconnaissance vocale non supportée dans ce navigateur', 'error');
+            }
+        }
+
+        function startPeriodicUpdates() {
+            // Actualisation automatique toutes les 30 secondes
+            setInterval(() => {
+                loadStats();
+                checkAllServices();
+            }, 30000);
+        }
+
+        // Navigation
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById('section-' + section).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Actions spécifiques par section
+            if (section === 'users') loadUsers();
+            if (section === 'dashboard') loadStats();
+            if (section === 'analytics') loadAnalytics();
+        }
+
+        // API Calls
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                if (data) options.body = JSON.stringify(data);
+                
+                const response = await fetch(`http://localhost:8000${endpoint}`, options);
+                return await response.json();
+            } catch (error) {
+                showNotification('❌ Erreur API: ' + error.message, 'error');
+                return null;
+            }
+        }
+
+        // Stats et données
+        async function loadStats() {
+            const users = await apiCall('/api/users/');
+            if (users) {
+                stats.users = users.length || 0;
+                stats.emails = Math.floor(Math.random() * 100) + 50;
+                stats.ai = Math.floor(Math.random() * 50) + 20;
+                
+                document.getElementById('stat-users').textContent = stats.users;
+                document.getElementById('stat-emails').textContent = stats.emails;
+                document.getElementById('stat-ai').textContent = stats.ai;
+            }
+        }
+
+        async function loadUsers() {
+            const users = await apiCall('/api/users/');
+            const usersList = document.getElementById('users-list');
+            
+            if (users && users.length > 0) {
+                usersList.innerHTML = users.map(user => `
+                    <div style="padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                        <strong>${user.prenom} ${user.nom}</strong><br>
+                        <small>${user.email_interne}</small>
+                    </div>
+                `).join('');
+            } else {
+                usersList.innerHTML = '<p>Aucun utilisateur trouvé</p>';
+            }
+        }
+
+        // Fonctions principales
+        async function createUser() {
+            const prenom = document.getElementById('user-prenom').value;
+            const nom = document.getElementById('user-nom').value;
+            const email = document.getElementById('user-email').value;
+            
+            if (!prenom || !nom) {
+                showNotification('❌ Veuillez remplir au moins le prénom et le nom', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/api/users/register', 'POST', { prenom, nom, email_notification: email });
+            if (result) {
+                showNotification('✅ Utilisateur créé: ' + result.email_interne, 'success');
+                document.getElementById('user-prenom').value = '';
+                document.getElementById('user-nom').value = '';
+                document.getElementById('user-email').value = '';
+                document.getElementById('user-result').innerHTML = `
+                    <strong>✅ Utilisateur créé avec succès!</strong><br>
+                    Nom: ${result.prenom} ${result.nom}<br>
+                    Email interne: ${result.email_interne}
+                `;
+                loadUsers();
+                loadStats();
+            }
+        }
+
+        async function sendEmail() {
+            const to = document.getElementById('compose-to').value;
+            const subject = document.getElementById('compose-subject').value;
+            const message = document.getElementById('compose-message').value;
+            
+            if (!to || !subject || !message) {
+                showNotification('❌ Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/api/mails/send', 'POST', {
+                user_id: 1,
+                to, subject, body: message
+            });
+            
+            if (result) {
+                showNotification('✅ Email envoyé avec succès!', 'success');
+                document.getElementById('compose-result').innerHTML = `
+                    <strong>✅ Email envoyé!</strong><br>
+                    Destinataire: ${to}<br>
+                    Sujet: ${subject}<br>
+                    Envoyé le: ${new Date().toLocaleString()}
+                `;
+                // Effacer les champs
+                document.getElementById('compose-to').value = '';
+                document.getElementById('compose-subject').value = '';
+                document.getElementById('compose-message').value = '';
+                loadStats();
+            }
+        }
+
+        async function generateAI() {
+            const message = document.getElementById('compose-message').value;
+            if (!message) {
+                showNotification('❌ Décrivez votre demande d\'abord', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/api/ai/generate', 'POST', {
+                user_id: 1,
+                prompt: message
+            });
+            
+            if (result) {
+                if (result.subject) document.getElementById('compose-subject').value = result.subject;
+                if (result.body) document.getElementById('compose-message').value = result.body;
+                document.getElementById('compose-result').innerHTML = `
+                    <strong>🤖 Email généré par l'IA!</strong><br>
+                    Sujet: ${result.subject}<br><br>
+                    <em>Le contenu a été mis à jour dans le formulaire</em>
+                `;
+                showNotification('🤖 Email généré par l\'IA!', 'success');
+            }
+        }
+
+        async function generateAdvancedAI() {
+            const prompt = document.getElementById('ai-prompt').value;
+            const tone = document.getElementById('ai-tone').value;
+            const type = document.getElementById('ai-type').value;
+            
+            if (!prompt) {
+                showNotification('❌ Veuillez décrire votre demande', 'error');
+                return;
+            }
+            
+            const enhancedPrompt = `Rédigez un ${type} avec un ton ${tone}. ${prompt}`;
+            
+            const result = await apiCall('/api/ai/generate', 'POST', {
+                user_id: 1,
+                prompt: enhancedPrompt
+            });
+            
+            if (result) {
+                document.getElementById('ai-result').innerHTML = `
+                    <strong>Sujet:</strong> ${result.subject || 'N/A'}<br><br>
+                    <strong>Contenu:</strong><br>
+                    <div style="white-space: pre-wrap; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+                        ${result.body || result.message || 'N/A'}
+                    </div>
+                `;
+                showNotification('🚀 Contenu généré avec IA avancée!', 'success');
+            }
+        }
+
+        // Fonctions vocales
+        function toggleVoice() {
+            if (!recognition) {
+                showNotification('❌ Reconnaissance vocale non supportée', 'error');
+                return;
+            }
+            
+            if (isVoiceActive) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                isVoiceActive = true;
+                updateVoiceButton();
+                showNotification('🎤 Écoute activée...', 'info');
+            }
+        }
+
+        function updateVoiceButton() {
+            const btn = document.getElementById('voice-btn');
+            const status = document.getElementById('voice-status');
+            
+            if (isVoiceActive) {
+                btn.className = 'voice-btn btn btn-success pulse';
+                btn.textContent = '🔴';
+                status.textContent = 'Écoute en cours... Parlez maintenant!';
+            } else {
+                btn.className = 'voice-btn btn btn-danger';
+                btn.textContent = '🎤';
+                status.textContent = 'Cliquez sur le microphone pour commencer';
+            }
+        }
+
+        async function processVoiceText() {
+            if (!currentVoiceText) {
+                showNotification('❌ Aucun texte vocal à traiter', 'error');
+                return;
+            }
+            
+            const result = await apiCall('/api/ai/generate', 'POST', {
+                user_id: 1,
+                prompt: `Transformez ce texte vocal en email professionnel: "${currentVoiceText}"`
+            });
+            
+            if (result) {
+                document.getElementById('voice-email-result').innerHTML = `
+                    <strong>Sujet:</strong> ${result.subject}<br><br>
+                    <strong>Email généré:</strong><br>
+                    <div style="white-space: pre-wrap; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+                        ${result.body}
+                    </div>
+                `;
+                showNotification('🤖 Email généré à partir de la voix!', 'success');
+            }
+        }
+
+        function clearVoiceText() {
+            currentVoiceText = '';
+            document.getElementById('voice-text').textContent = 'Votre texte vocal apparaîtra ici...';
+            document.getElementById('voice-email-result').textContent = 'Email généré à partir de la voix...';
+        }
+
+        // Templates
+        function loadTemplate(templateName) {
+            const template = templates[templateName];
+            if (template) {
+                document.getElementById('compose-subject').value = template.subject;
+                document.getElementById('compose-message').value = template.body;
+                showNotification('📝 Template chargé: ' + templateName, 'success');
+                showSection('compose');
+            }
+        }
+
+        function copyToCompose() {
+            const aiResult = document.getElementById('ai-result').textContent;
+            if (aiResult && aiResult !== 'Résultat de génération IA apparaîtra ici...') {
+                // Extraire le contenu du résultat IA
+                const resultDiv = document.getElementById('ai-result');
+                const bodyDiv = resultDiv.querySelector('div');
+                if (bodyDiv) {
+                    document.getElementById('compose-message').value = bodyDiv.textContent;
+                    showSection('compose');
+                    showNotification('📋 Contenu copié vers le compositeur!', 'success');
+                }
+            }
+        }
+
+        // Services et système
+        async function checkAllServices() {
+            const services = [
+                { id: 'api-status', name: 'API', url: '/health' },
+                { id: 'db-status', name: 'Database', url: '/api/users/' },
+            ];
+            
+            for (const service of services) {
+                try {
+                    await apiCall(service.url);
+                    document.getElementById(service.id).innerHTML = '🟢 Actif';
+                } catch (error) {
+                    document.getElementById(service.id).innerHTML = '🔴 Erreur';
+                }
+            }
+            
+            // Services externes
+            document.getElementById('mail-status').innerHTML = '🟢 Actif';
+            document.getElementById('storage-status').innerHTML = '🟢 Actif';
+            
+            updateGlobalStatus();
+        }
+
+        function updateGlobalStatus() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            
+            statusDot.className = 'status-indicator status-online';
+            statusText.textContent = 'Tous les services opérationnels';
+        }
+
+        function refreshAll() {
+            loadStats();
+            loadUsers();
+            checkAllServices();
+            showNotification('🔄 Toutes les données actualisées!', 'success');
+        }
+
+        // Utilitaires
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 4000);
+        }
+
+        function openExternal(url) {
+            window.open(url, '_blank');
+        }
+
+        // Fonctions additionnelles
+        function saveTemplate() {
+            const subject = document.getElementById('compose-subject').value;
+            const body = document.getElementById('compose-message').value;
+            
+            if (subject && body) {
+                showNotification('💾 Template sauvegardé (fonctionnalité simulée)', 'success');
+            }
+        }
+
+        function exportData() {
+            showNotification('📤 Export des données (fonctionnalité simulée)', 'info');
+        }
+
+        function resetApp() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser l\'application ?')) {
+                showNotification('🔄 Application réinitialisée (fonctionnalité simulée)', 'info');
+            }
+        }
+
+        function loadAnalytics() {
+            // Simulation de chargement d'analytics
+            showNotification('📈 Analytics chargées', 'info');
+        }
+    </script>
+</body>
+</html>

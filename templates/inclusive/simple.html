@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer Email Simple</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .back-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .step.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .question-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .question-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .answers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .answer-card {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .answer-card:hover {
+            border-color: #2196F3;
+            transform: translateY(-3px);
+        }
+        
+        .answer-card.selected {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+        
+        .answer-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .answer-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .input-section {
+            margin: 30px 0;
+        }
+        
+        .simple-input {
+            width: 100%;
+            padding: 20px;
+            border: 3px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .simple-input:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 20px 40px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .preview-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            display: none;
+        }
+        
+        .preview-title {
+            font-size: 24px;
+            color: #856404;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .email-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="goBack()">← Retour</button>
+        
+        <div class="header">
+            <div class="step-indicator">
+                <div class="step active" id="step1">1</div>
+                <div class="step" id="step2">2</div>
+                <div class="step" id="step3">3</div>
+            </div>
+        </div>
+        
+        <div id="questionStep" class="question-section">
+            <div class="question-title">
+                <span id="questionIcon">❓</span>
+                <span id="questionText">Que voulez-vous faire ?</span>
+            </div>
+            
+            <div class="answers" id="answersContainer">
+                <!-- Les réponses seront générées dynamiquement -->
+            </div>
+        </div>
+        
+        <div id="detailsStep" class="input-section" style="display: none;">
+            <label for="details" style="font-size: 20px; font-weight: bold; margin-bottom: 15px; display: block;">
+                📝 Donnez plus de détails (optionnel) :
+            </label>
+            <textarea id="details" class="simple-input" placeholder="Écrivez ici si vous voulez ajouter quelque chose..."></textarea>
+        </div>
+        
+        <div class="loading" id="loadingSection">
+            <div class="spinner"></div>
+            <div style="font-size: 20px; color: #666;">🤖 L'ordinateur écrit votre email...</div>
+        </div>
+        
+        <div class="preview-section" id="previewSection">
+            <div class="preview-title">📧 Votre email est prêt !</div>
+            <div class="email-preview" id="emailPreview">
+                <!-- L'aperçu de l'email sera affiché ici -->
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-secondary" onclick="nextStep()" id="nextBtn">
+                <span>Suivant</span>
+                <span>→</span>
+            </button>
+            <button class="btn btn-primary" onclick="generateEmail()" id="generateBtn" style="display: none;">
+                <span>🤖</span>
+                <span>Créer l'email</span>
+            </button>
+            <button class="btn btn-primary" onclick="sendEmail()" id="sendBtn" style="display: none;">
+                <span>📤</span>
+                <span>Envoyer</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedType = '';
+        let selectedAnswer = '';
+        let generatedEmail = null;
+        
+        const questions = {
+            document: {
+                icon: '📄',
+                text: 'Quel papier voulez-vous demander ?',
+                answers: [
+                    { icon: '🆔', text: 'Carte d\'identité', value: 'carte_identite' },
+                    { icon: '🏠', text: 'Attestation logement', value: 'attestation_logement' },
+                    { icon: '💰', text: 'Relevé de compte', value: 'releve_compte' },
+                    { icon: '🏥', text: 'Certificat médical', value: 'certificat_medical' }
+                ]
+            },
+            money: {
+                icon: '💰',
+                text: 'Quel est votre problème d\'argent ?',
+                answers: [
+                    { icon: '❌', text: 'Pas reçu l\'argent', value: 'pas_recu' },
+                    { icon: '❓', text: 'Question sur montant', value: 'question_montant' },
+                    { icon: '📅', text: 'Changer date paiement', value: 'changer_date' },
+                    { icon: '🔄', text: 'Remboursement', value: 'remboursement' }
+                ]
+            },
+            health: {
+                icon: '🏥',
+                text: 'De quoi avez-vous besoin ?',
+                answers: [
+                    { icon: '📅', text: 'Prendre rendez-vous', value: 'rendez_vous' },
+                    { icon: '📄', text: 'Résultats d\'analyse', value: 'resultats' },
+                    { icon: '💊', text: 'Renouveler ordonnance', value: 'ordonnance' },
+                    { icon: '🚑', text: 'Urgence', value: 'urgence' }
+                ]
+            },
+            housing: {
+                icon: '🏠',
+                text: 'Quel est votre problème de logement ?',
+                answers: [
+                    { icon: '🔧', text: 'Réparation nécessaire', value: 'reparation' },
+                    { icon: '💰', text: 'Problème de loyer', value: 'loyer' },
+                    { icon: '📋', text: 'Demande de logement', value: 'demande_logement' },
+                    { icon: '📞', text: 'Contact propriétaire', value: 'contact_proprio' }
+                ]
+            }
+        };
+        
+        function initPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            selectedType = urlParams.get('type') || 'document';
+            
+            if (questions[selectedType]) {
+                displayQuestion(questions[selectedType]);
+            }
+        }
+        
+        function displayQuestion(question) {
+            document.getElementById('questionIcon').textContent = question.icon;
+            document.getElementById('questionText').textContent = question.text;
+            
+            const container = document.getElementById('answersContainer');
+            container.innerHTML = '';
+            
+            question.answers.forEach(answer => {
+                const card = document.createElement('div');
+                card.className = 'answer-card';
+                card.onclick = () => selectAnswer(answer.value, card);
+                card.innerHTML = `
+                    <span class="answer-icon">${answer.icon}</span>
+                    <div class="answer-text">${answer.text}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function selectAnswer(value, element) {
+            // Désélectionner les autres
+            document.querySelectorAll('.answer-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Sélectionner celui-ci
+            element.classList.add('selected');
+            selectedAnswer = value;
+            
+            // Activer le bouton suivant
+            document.getElementById('nextBtn').style.display = 'flex';
+        }
+        
+        function nextStep() {
+            if (currentStep === 1 && selectedAnswer) {
+                currentStep = 2;
+                document.getElementById('step2').classList.add('active');
+                document.getElementById('detailsStep').style.display = 'block';
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('generateBtn').style.display = 'flex';
+            }
+        }
+        
+        async function generateEmail() {
+            document.getElementById('loadingSection').style.display = 'block';
+            document.getElementById('generateBtn').style.display = 'none';
+            
+            try {
+                const response = await fetch('/inclusive/generate-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: selectedType,
+                        answer: selectedAnswer,
+                        details: document.getElementById('details').value,
+                        context: `${selectedType}_${selectedAnswer}`
+                    })
+                });
+                
+                const result = await response.json();
+                generatedEmail = result;
+                
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('previewSection').style.display = 'block';
+                document.getElementById('step3').classList.add('active');
+                
+                document.getElementById('emailPreview').innerHTML = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>📧 Sujet :</strong> ${result.subject}
+                    </div>
+                    <div style="border-top: 1px solid #dee2e6; padding-top: 15px;">
+                        <strong>📝 Message :</strong><br>
+                        <div style="margin-top: 10px; line-height: 1.6;">${result.body.replace(/\n/g, '<br>')}</div>
+                    </div>
+                `;
+                
+                document.getElementById('sendBtn').style.display = 'flex';
+                
+            } catch (error) {
+                document.getElementById('loadingSection').style.display = 'none';
+                alert('❌ Erreur lors de la création de l\'email');
+            }
+        }
+        
+        async function sendEmail() {
+            const email = prompt('📧 Entrez l\'adresse email du destinataire :');
+            if (!email) return;
+            
+            document.getElementById('sendBtn').textContent = '📤 Envoi...';
+            document.getElementById('sendBtn').disabled = true;
+            
+            try {
+                const response = await fetch('/inclusive/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: generatedEmail.subject,
+                        body: generatedEmail.body
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Email envoyé avec succès !');
+                    window.location.href = '/inclusive';
+                } else {
+                    alert('❌ Erreur lors de l\'envoi');
+                }
+                
+            } catch (error) {
+                alert('❌ Erreur lors de l\'envoi');
+            }
+            
+            document.getElementById('sendBtn').textContent = '📤 Envoyer';
+            document.getElementById('sendBtn').disabled = false;
+        }
+        
+        function goBack() {
+            window.location.href = '/inclusive';
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "iapostemanager",
+  "version": "2.2.0",
+  "description": "Email Automation avec IA - Gestion intelligente des emails",
+  "main": "src/web/app.py",
+  "scripts": {
+    "start": "python src/web/app.py",
+    "build": "python build.py",
+    "test": "python test_production.py",
+    "deploy": "python deploy.py"
+  },
+  "keywords": ["email", "automation", "ai", "flask", "imap"],
+  "author": "IAPosteManager Team",
+  "license": "MIT"
+}

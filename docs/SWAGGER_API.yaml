@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: SecureVault API
+  version: 2.1.0
+  description: API REST pour gestion emails automatises
+
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Development
+  - url: https://api.securevault.com/v1
+    description: Production
+
+paths:
+  /auth/token:
+    post:
+      summary: Obtenir token JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                api_key:
+                  type: string
+      responses:
+        200:
+          description: Token genere
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  /emails/send:
+    post:
+      summary: Envoyer email
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to:
+                  type: string
+                subject:
+                  type: string
+                body:
+                  type: string
+                cc:
+                  type: array
+                  items:
+                    type: string
+                bcc:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: Email envoye
+        401:
+          description: Non autorise
+
+  /emails/generate:
+    post:
+      summary: Generer email avec IA
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  type: string
+                tone:
+                  type: string
+                  enum: [professionnel, amical, formel]
+      responses:
+        200:
+          description: Email genere
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: object
+                    properties:
+                      subject:
+                        type: string
+                      body:
+                        type: string
+
+  /workflows:
+    get:
+      summary: Liste workflows
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Liste workflows
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workflows:
+                    type: array
+                    items:
+                      type: object
+
+  /workflows/{id}:
+    get:
+      summary: Detail workflow
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Workflow trouve
+        404:
+          description: Workflow non trouve
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

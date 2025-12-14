@@ -1,0 +1,12 @@
+node_modules/
+__pycache__/
+*.pyc
+.env
+data/
+.DS_Store
+dist/
+build/
+*.log
+.pytest_cache/
+test-results/
+playwright-report/
