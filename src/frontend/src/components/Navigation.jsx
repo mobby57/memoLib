@@ -8,6 +8,7 @@ export default function Navigation() {
     { path: '/', icon: '📊', label: 'Dashboard' },
     { path: '/compose', icon: '✍️', label: 'Composer' },
     { path: '/voice', icon: '🎤', label: 'Vocal' },
+    { path: '/email-generator', icon: '🌐', label: 'Générateur Email' },
     { path: '/accessibility', icon: '♿', label: 'Accessible' },
     { path: '/settings', icon: '⚙️', label: 'Paramètres' }
   ];

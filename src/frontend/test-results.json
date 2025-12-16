@@ -1,7 +1,7 @@
 {
   "config": {
-    "configFile": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\playwright.config.js",
-    "rootDir": "c:/Users/moros/Desktop/iaPostemanage/src/frontend/tests/e2e",
+    "configFile": "C:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\playwright.config.js",
+    "rootDir": "C:/Users/moros/Desktop/iaPostemanage/src/frontend/tests/e2e",
     "forbidOnly": false,
     "fullyParallel": false,
     "globalSetup": null,
@@ -16,7 +16,20 @@
     "preserveOutput": "always",
     "reporter": [
       [
-        "json"
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
       ]
     ],
     "reportSlowTests": {
@@ -26,7 +39,7 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "c:/Users/moros/Desktop/iaPostemanage/src/frontend/test-results",
+        "outputDir": "C:/Users/moros/Desktop/iaPostemanage/src/frontend/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
@@ -34,7 +47,7 @@
         },
         "id": "chromium",
         "name": "chromium",
-        "testDir": "c:/Users/moros/Desktop/iaPostemanage/src/frontend/tests/e2e",
+        "testDir": "C:/Users/moros/Desktop/iaPostemanage/src/frontend/tests/e2e",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
@@ -59,1416 +72,6 @@
   },
   "suites": [
     {
-      "title": "accessibility.spec.js",
-      "file": "accessibility.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Accessibility System E2E Tests",
-          "file": "accessibility.spec.js",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "01 - Navigation vers la page Accessibilité",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6010,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:10:07.592Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-553d2--vers-la-page-Accessibilité-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-130cf7edec7e4ab92c32",
-              "file": "accessibility.spec.js",
-              "line": 14,
-              "column": 7
-            },
-            {
-              "title": "02 - Activation du profil Aveugle (TTS)",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 11308,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:38:56",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                          "column": 56,
-                          "line": 38
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 36 |\u001b[39m     \n \u001b[90m 37 |\u001b[39m     \u001b[90m// Attendre l'apparition du message de confirmation\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 38 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Profil appliqué'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 39 |\u001b[39m     \n \u001b[90m 40 |\u001b[39m     \u001b[90m// Vérifier que le TTS est activé\u001b[39m\n \u001b[90m 41 |\u001b[39m     \u001b[36mconst\u001b[39m ttsCheckbox \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'input[type=\"checkbox\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                            "column": 56,
-                            "line": 38
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n\n  36 |     \n  37 |     // Attendre l'apparition du message de confirmation\n> 38 |     await expect(page.locator('text=Profil appliqué')).toBeVisible({ timeout: 5000 });\n     |                                                        ^\n  39 |     \n  40 |     // Vérifier que le TTS est activé\n  41 |     const ttsCheckbox = page.locator('input[type=\"checkbox\"]').first();\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:38:56"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:10:13.862Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-6c73f-tion-du-profil-Aveugle-TTS--chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-6c73f-tion-du-profil-Aveugle-TTS--chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-6c73f-tion-du-profil-Aveugle-TTS--chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                        "column": 56,
-                        "line": 38
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-fe4b2f6ba85c07fbd1a3",
-              "file": "accessibility.spec.js",
-              "line": 31,
-              "column": 7
-            },
-            {
-              "title": "03 - Activation du profil Sourd (Transcriptions)",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 11607,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:55:56",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                          "column": 56,
-                          "line": 55
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 53 |\u001b[39m     \n \u001b[90m 54 |\u001b[39m     \u001b[90m// Attendre l'apparition du message de confirmation\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Profil appliqué'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 56 |\u001b[39m     \n \u001b[90m 57 |\u001b[39m     \u001b[90m// Vérifier la description\u001b[39m\n \u001b[90m 58 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Transcriptions visuelles'\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                            "column": 56,
-                            "line": 55
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n\n  53 |     \n  54 |     // Attendre l'apparition du message de confirmation\n> 55 |     await expect(page.locator('text=Profil appliqué')).toBeVisible({ timeout: 5000 });\n     |                                                        ^\n  56 |     \n  57 |     // Vérifier la description\n  58 |     await expect(page.locator('text=Transcriptions visuelles').first()).toBeVisible();\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:55:56"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:10:27.281Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-30ac5-rofil-Sourd-Transcriptions--chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-30ac5-rofil-Sourd-Transcriptions--chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-30ac5-rofil-Sourd-Transcriptions--chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                        "column": 56,
-                        "line": 55
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-87116141446cf4531cf2",
-              "file": "accessibility.spec.js",
-              "line": 48,
-              "column": 7
-            },
-            {
-              "title": "04 - Paramètres TTS - Vitesse et Volume",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 12616,
-                      "error": {
-                        "message": "TimeoutError: locator.waitFor: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"range\"]').first() to be visible\u001b[22m\n",
-                        "stack": "TimeoutError: locator.waitFor: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"range\"]').first() to be visible\u001b[22m\n\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:76:23",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                          "column": 23,
-                          "line": 76
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 74 |\u001b[39m     \u001b[90m// Vérifier que les sliders sont présents\u001b[39m\n \u001b[90m 75 |\u001b[39m     \u001b[36mconst\u001b[39m speedSlider \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'input[type=\"range\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 76 |\u001b[39m     \u001b[36mawait\u001b[39m speedSlider\u001b[33m.\u001b[39mwaitFor({ state\u001b[33m:\u001b[39m \u001b[32m'visible'\u001b[39m\u001b[33m,\u001b[39m timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 77 |\u001b[39m     \n \u001b[90m 78 |\u001b[39m     \u001b[90m// Utiliser evaluate pour changer la valeur au lieu de fill\u001b[39m\n \u001b[90m 79 |\u001b[39m     \u001b[36mawait\u001b[39m speedSlider\u001b[33m.\u001b[39mevaluate((el\u001b[33m,\u001b[39m value) \u001b[33m=>\u001b[39m {\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                            "column": 23,
-                            "line": 76
-                          },
-                          "message": "TimeoutError: locator.waitFor: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[type=\"range\"]').first() to be visible\u001b[22m\n\n\n  74 |     // Vérifier que les sliders sont présents\n  75 |     const speedSlider = page.locator('input[type=\"range\"]').first();\n> 76 |     await speedSlider.waitFor({ state: 'visible', timeout: 5000 });\n     |                       ^\n  77 |     \n  78 |     // Utiliser evaluate pour changer la valeur au lieu de fill\n  79 |     await speedSlider.evaluate((el, value) => {\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:76:23"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:10:41.294Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-7c0c5-res-TTS---Vitesse-et-Volume-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-7c0c5-res-TTS---Vitesse-et-Volume-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-7c0c5-res-TTS---Vitesse-et-Volume-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                        "column": 23,
-                        "line": 76
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-7230da122fe902aac504",
-              "file": "accessibility.spec.js",
-              "line": 61,
-              "column": 7
-            },
-            {
-              "title": "05 - Tailles de police",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6573,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:10:56.308Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-8a0d1-ests-05---Tailles-de-police-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-9d146212f6dddd187205",
-              "file": "accessibility.spec.js",
-              "line": 92,
-              "column": 7
-            },
-            {
-              "title": "06 - Mode Haut Contraste",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 7237,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:140:26",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                          "column": 26,
-                          "line": 140
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 138 |\u001b[39m     \u001b[90m// Vérifier que l'état a changé\u001b[39m\n \u001b[90m 139 |\u001b[39m     \u001b[36mconst\u001b[39m isNowChecked \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m checkbox\u001b[33m.\u001b[39misChecked()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 140 |\u001b[39m     expect(isNowChecked)\u001b[33m.\u001b[39mtoBe(\u001b[33m!\u001b[39mwasChecked)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 141 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 142 |\u001b[39m\n \u001b[90m 143 |\u001b[39m   test(\u001b[32m'07 - Raccourcis clavier affichés'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                            "column": 26,
-                            "line": 140
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  138 |     // Vérifier que l'état a changé\n  139 |     const isNowChecked = await checkbox.isChecked();\n> 140 |     expect(isNowChecked).toBe(!wasChecked);\n      |                          ^\n  141 |   });\n  142 |\n  143 |   test('07 - Raccourcis clavier affichés', async ({ page }) => {\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:140:26"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:11:03.126Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-7b05e-ts-06---Mode-Haut-Contraste-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-7b05e-ts-06---Mode-Haut-Contraste-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-7b05e-ts-06---Mode-Haut-Contraste-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                        "column": 26,
-                        "line": 140
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-c18e4109378382660305",
-              "file": "accessibility.spec.js",
-              "line": 116,
-              "column": 7
-            },
-            {
-              "title": "07 - Raccourcis clavier affichés",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 4,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6347,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:11:12.555Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-c1769-Raccourcis-clavier-affichés-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-9c61a00ee614da92ce7f",
-              "file": "accessibility.spec.js",
-              "line": 143,
-              "column": 7
-            },
-            {
-              "title": "08 - Test du bouton TTS",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 4,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 17647,
-                      "error": {
-                        "message": "TimeoutError: page.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"🔊 Tester\")')\u001b[22m\n",
-                        "stack": "TimeoutError: page.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"🔊 Tester\")')\u001b[22m\n\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:174:16",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                          "column": 16,
-                          "line": 174
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 172 |\u001b[39m     \n \u001b[90m 173 |\u001b[39m     \u001b[90m// Cliquer sur le bouton Tester\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 174 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"🔊 Tester\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 175 |\u001b[39m     \n \u001b[90m 176 |\u001b[39m     \u001b[90m// Attendre un peu (la synthèse vocale se lance en arrière-plan)\u001b[39m\n \u001b[90m 177 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m2000\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                            "column": 16,
-                            "line": 174
-                          },
-                          "message": "TimeoutError: page.click: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:has-text(\"🔊 Tester\")')\u001b[22m\n\n\n  172 |     \n  173 |     // Cliquer sur le bouton Tester\n> 174 |     await page.click('button:has-text(\"🔊 Tester\")');\n      |                ^\n  175 |     \n  176 |     // Attendre un peu (la synthèse vocale se lance en arrière-plan)\n  177 |     await page.waitForTimeout(2000);\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:174:16"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:11:19.143Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-6d88c-sts-08---Test-du-bouton-TTS-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-6d88c-sts-08---Test-du-bouton-TTS-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-6d88c-sts-08---Test-du-bouton-TTS-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                        "column": 16,
-                        "line": 174
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-c8e4ae27970ef917d9fd",
-              "file": "accessibility.spec.js",
-              "line": 163,
-              "column": 7
-            },
-            {
-              "title": "09 - API Accessibility Settings",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 5,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 5915,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:187:27",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                          "column": 27,
-                          "line": 187
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 185 |\u001b[39m     \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m'http://localhost:5000/api/accessibility/settings'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 186 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 187 |\u001b[39m     expect(response\u001b[33m.\u001b[39mok())\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 188 |\u001b[39m     \n \u001b[90m 189 |\u001b[39m     \u001b[36mconst\u001b[39m data \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 190 |\u001b[39m     expect(data\u001b[33m.\u001b[39msuccess)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                            "column": 27,
-                            "line": 187
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  185 |     const response = await request.get('http://localhost:5000/api/accessibility/settings');\n  186 |     \n> 187 |     expect(response.ok()).toBeTruthy();\n      |                           ^\n  188 |     \n  189 |     const data = await response.json();\n  190 |     expect(data.success).toBe(true);\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:187:27"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:11:38.933Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-8c0de--API-Accessibility-Settings-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-8c0de--API-Accessibility-Settings-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-8c0de--API-Accessibility-Settings-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                        "column": 27,
-                        "line": 187
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-74179ca4a40efed44eb1",
-              "file": "accessibility.spec.js",
-              "line": 183,
-              "column": 7
-            },
-            {
-              "title": "10 - API Keyboard Shortcuts",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 6,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 6129,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:199:27",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                          "column": 27,
-                          "line": 199
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 197 |\u001b[39m     \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m'http://localhost:5000/api/accessibility/keyboard-shortcuts'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 198 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 199 |\u001b[39m     expect(response\u001b[33m.\u001b[39mok())\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 200 |\u001b[39m     \n \u001b[90m 201 |\u001b[39m     \u001b[36mconst\u001b[39m data \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 202 |\u001b[39m     expect(data\u001b[33m.\u001b[39msuccess)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                            "column": 27,
-                            "line": 199
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  197 |     const response = await request.get('http://localhost:5000/api/accessibility/keyboard-shortcuts');\n  198 |     \n> 199 |     expect(response.ok()).toBeTruthy();\n      |                           ^\n  200 |     \n  201 |     const data = await response.json();\n  202 |     expect(data.success).toBe(true);\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js:199:27"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:11:47.180Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-459e1-10---API-Keyboard-Shortcuts-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-459e1-10---API-Keyboard-Shortcuts-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\accessibility-Accessibilit-459e1-10---API-Keyboard-Shortcuts-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\accessibility.spec.js",
-                        "column": 27,
-                        "line": 199
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "d316df4bad39fab891ed-8ff0c84bf0bb23e0a50a",
-              "file": "accessibility.spec.js",
-              "line": 196,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "auth-test.spec.js",
-      "file": "auth-test.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Test Auth Helper",
-          "file": "auth-test.spec.js",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "01 - Login comme nouvel utilisateur",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 7,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 4486,
-                      "error": {
-                        "message": "TypeError: (0 , _authSimple.isLoggedIn) is not a function",
-                        "stack": "TypeError: (0 , _authSimple.isLoggedIn) is not a function\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js:14:38",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js",
-                          "column": 38,
-                          "line": 14
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 12 |\u001b[39m     \n \u001b[90m 13 |\u001b[39m     \u001b[90m// Vérifier qu'on est connecté\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 14 |\u001b[39m     \u001b[36mconst\u001b[39m loggedIn \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m isLoggedIn(page)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 15 |\u001b[39m     expect(loggedIn)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 16 |\u001b[39m     \n \u001b[90m 17 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Test nouvel utilisateur réussi'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js",
-                            "column": 38,
-                            "line": 14
-                          },
-                          "message": "TypeError: (0 , _authSimple.isLoggedIn) is not a function\n\n  12 |     \n  13 |     // Vérifier qu'on est connecté\n> 14 |     const loggedIn = await isLoggedIn(page);\n     |                                      ^\n  15 |     expect(loggedIn).toBe(true);\n  16 |     \n  17 |     console.log('✅ Test nouvel utilisateur réussi');\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js:14:38"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: true)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "✨ Création nouveau compte...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:11:55.766Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\auth-test-Test-Auth-Helper-50bc8-in-comme-nouvel-utilisateur-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\auth-test-Test-Auth-Helper-50bc8-in-comme-nouvel-utilisateur-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\auth-test-Test-Auth-Helper-50bc8-in-comme-nouvel-utilisateur-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js",
-                        "column": 38,
-                        "line": 14
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "e91db2f022d9bd792ffd-adb00904ede30587fe5f",
-              "file": "auth-test.spec.js",
-              "line": 6,
-              "column": 7
-            },
-            {
-              "title": "02 - Login comme utilisateur existant",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 8,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 4539,
-                      "error": {
-                        "message": "TypeError: (0 , _authSimple.isLoggedIn) is not a function",
-                        "stack": "TypeError: (0 , _authSimple.isLoggedIn) is not a function\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js:28:38",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js",
-                          "column": 38,
-                          "line": 28
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 26 |\u001b[39m     \n \u001b[90m 27 |\u001b[39m     \u001b[90m// Vérifier qu'on est connecté\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 28 |\u001b[39m     \u001b[36mconst\u001b[39m loggedIn \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m isLoggedIn(page)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 29 |\u001b[39m     expect(loggedIn)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 30 |\u001b[39m     \n \u001b[90m 31 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Test utilisateur existant réussi'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js",
-                            "column": 38,
-                            "line": 28
-                          },
-                          "message": "TypeError: (0 , _authSimple.isLoggedIn) is not a function\n\n  26 |     \n  27 |     // Vérifier qu'on est connecté\n> 28 |     const loggedIn = await isLoggedIn(page);\n     |                                      ^\n  29 |     expect(loggedIn).toBe(true);\n  30 |     \n  31 |     console.log('✅ Test utilisateur existant réussi');\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js:28:38"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:12:02.752Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\auth-test-Test-Auth-Helper-be9fd--comme-utilisateur-existant-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\auth-test-Test-Auth-Helper-be9fd--comme-utilisateur-existant-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\auth-test-Test-Auth-Helper-be9fd--comme-utilisateur-existant-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\auth-test.spec.js",
-                        "column": 38,
-                        "line": 28
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "e91db2f022d9bd792ffd-c9fd294793e7730220fa",
-              "file": "auth-test.spec.js",
-              "line": 20,
-              "column": 7
-            },
-            {
-              "title": "03 - Accès à /accessibility après login",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6737,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        },
-                        {
-                          "text": "URL finale: http://localhost:3001/accessibility\n"
-                        },
-                        {
-                          "text": "✅ Accès à /accessibility réussi après login\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:12:09.607Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\auth-test-Test-Auth-Helper-ffd9a-à-accessibility-après-login-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "e91db2f022d9bd792ffd-0b105a0ae39bbe01cdb4",
-              "file": "auth-test.spec.js",
-              "line": 34,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "debug.spec.js",
-      "file": "debug.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Debug - Voir le contenu des pages",
-          "file": "debug.spec.js",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "Debug 01 - Page d accueil",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4309,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "\n📍 Trouvé 0 liens sur la page:\n"
-                        },
-                        {
-                          "text": "\n🔘 Trouvé 3 boutons sur la page:\n"
-                        },
-                        {
-                          "text": "  - Nouveau compte [type=button]\n"
-                        },
-                        {
-                          "text": "  - Compte existant [type=button]\n"
-                        },
-                        {
-                          "text": "  - 🚀 Se connecter [type=submit]\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:12:16.607Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\debug-Debug---Voir-le-cont-53d8b-s-Debug-01---Page-d-accueil-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "d0c4411d9520030c5a85-4d271053ebeb141714e2",
-              "file": "debug.spec.js",
-              "line": 5,
-              "column": 7
-            },
-            {
-              "title": "Debug 02 - Page Accessibility directe",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4258,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "\n📄 Titre: IAPosteManager - Gestion d'Emails Intelligente\n"
-                        },
-                        {
-                          "text": "📍 URL finale: http://localhost:3001/login\n"
-                        },
-                        {
-                          "text": "\n📝 Contenu (premiers 500 chars):\n\n    🔐 IAPosteManagerInterface unifiée pour l'envoi d'emailsMode :Nouveau compteCompte existantMot de passe maître :🚀 Se connecter✨ Fonctionnalités disponibles :📧 Envoi d'emails avec IA🎤 Interface vocale♿ Mode accessible📊 Dashboard unifié\n    \n  \n\n\n"
-                        },
-                        {
-                          "text": "  - Bouton \"Aveugle\": ❌ Manquant\n"
-                        },
-                        {
-                          "text": "  - Bouton \"Sourd\": ❌ Manquant\n"
-                        },
-                        {
-                          "text": "  - Bouton \"Muet\": ❌ Manquant\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:12:20.945Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\debug-Debug---Voir-le-cont-e4fc7--Page-Accessibility-directe-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "d0c4411d9520030c5a85-e4474f5a6a5fc54691f0",
-              "file": "debug.spec.js",
-              "line": 34,
-              "column": 7
-            },
-            {
-              "title": "Debug 03 - Page Voice Transcription directe",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 4400,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "\n📍 URL finale: http://localhost:3001/login\n"
-                        },
-                        {
-                          "text": "⚠️ REDIRIGÉ VERS LOGIN - Auth requise!\n"
-                        },
-                        {
-                          "text": "\n📝 Contenu (premiers 300 chars):\n\n    🔐 IAPosteManagerInterface unifiée pour l'envoi d'emailsMode :Nouveau compteCompte existantMot de passe maître :🚀 Se connecter✨ Fonctionnalités disponibles :📧 Envoi d'emails avec IA🎤 Interface vocale♿ Mode accessible📊 Dashboard unifié\n    \n  \n\n\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:12:25.238Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\debug-Debug---Voir-le-cont-e5512-Voice-Transcription-directe-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "d0c4411d9520030c5a85-29e12f17fe80c2065fdc",
-              "file": "debug.spec.js",
-              "line": 62,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "smoke.spec.js",
-      "file": "smoke.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Smoke Tests - Vérifications de base",
-          "file": "smoke.spec.js",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "00 - Frontend répond correctement",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 1930,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "✅ Frontend répond sur http://localhost:3001\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:12:29.689Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\smoke-Smoke-Tests---Vérifi-0ecb3-rontend-répond-correctement-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "2c14808d47b386fba9eb-7732de2e54e466c77fdf",
-              "file": "smoke.spec.js",
-              "line": 5,
-              "column": 7
-            },
-            {
-              "title": "01 - Backend API répond",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 377,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "✅ Backend répond sur http://localhost:5000\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:12:31.653Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "2c14808d47b386fba9eb-5698b9ae5a3711f2a6eb",
-              "file": "smoke.spec.js",
-              "line": 21,
-              "column": 7
-            },
-            {
-              "title": "02 - Navigation de base fonctionne",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2964,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "✅ Page contient du contenu: \n    🔐 IAPosteManagerInterface unifiée pour l'envoi d'emailsMode :Nouveau compteCompte existantMot \n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:12:32.062Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\smoke-Smoke-Tests---Vérifi-728a8-vigation-de-base-fonctionne-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "2c14808d47b386fba9eb-a8f8893682f8edf8a5db",
-              "file": "smoke.spec.js",
-              "line": 33,
-              "column": 7
-            },
-            {
-              "title": "03 - Vérifier les routes accessibles",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 9,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 2737,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "✅ Route /: OK\n"
-                        },
-                        {
-                          "text": "✅ Route /accessibility: OK\n"
-                        },
-                        {
-                          "text": "✅ Route /voice-transcription: OK\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:12:35.055Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\smoke-Smoke-Tests---Vérifi-523e4-fier-les-routes-accessibles-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "2c14808d47b386fba9eb-cdbae21b00fa807eaa16",
-              "file": "smoke.spec.js",
-              "line": 48,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
       "title": "user-journeys.spec.js",
       "file": "user-journeys.spec.js",
       "column": 0,
@@ -1483,7 +86,7 @@
           "specs": [
             {
               "title": "Journey 01 - Utilisateur aveugle - Setup complet",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1494,39 +97,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 9,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 11430,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:17:56",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                          "column": 56,
-                          "line": 17
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 15 |\u001b[39m     \u001b[90m// 3. Activer le profil Aveugle\u001b[39m\n \u001b[90m 16 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Aveugle\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 17 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Profil appliqué'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 18 |\u001b[39m     \n \u001b[90m 19 |\u001b[39m     \u001b[90m// 4. Vérifier que TTS est activé\u001b[39m\n \u001b[90m 20 |\u001b[39m     \u001b[36mconst\u001b[39m ttsCheckbox \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'input[type=\"checkbox\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                            "column": 56,
-                            "line": 17
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n\n  15 |     // 3. Activer le profil Aveugle\n  16 |     await page.click('button:has-text(\"Aveugle\")');\n> 17 |     await expect(page.locator('text=Profil appliqué')).toBeVisible({ timeout: 5000 });\n     |                                                        ^\n  18 |     \n  19 |     // 4. Vérifier que TTS est activé\n  20 |     const ttsCheckbox = page.locator('input[type=\"checkbox\"]').first();\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:17:56"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 5548,
+                      "errors": [],
                       "stdout": [
                         {
                           "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
                         },
                         {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
+                          "text": "✅ API login réussi, token obtenu\n"
                         },
                         {
-                          "text": "🔑 Connexion utilisateur existant...\n"
+                          "text": "🔄 Navigation vers la page d'accueil...\n"
                         },
                         {
                           "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
@@ -1534,33 +118,18 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-12-14T23:12:37.832Z",
+                      "startTime": "2025-12-15T11:18:16.861Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-5c905-eur-aveugle---Setup-complet-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-5c905-eur-aveugle---Setup-complet-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-5c905-eur-aveugle---Setup-complet-chromium\\error-context.md"
+                          "path": "C:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-5c905-eur-aveugle---Setup-complet-chromium\\test-finished-1.png"
                         }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                        "column": 56,
-                        "line": 17
-                      }
+                      ]
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "fa632f62551477bf86e7-61d7ca9893e07be2f2f2",
@@ -1570,7 +139,7 @@
             },
             {
               "title": "Journey 02 - Utilisateur sourd - Transcription visuelle",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1581,39 +150,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 10,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 11440,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:58:56",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                          "column": 56,
-                          "line": 58
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 56 |\u001b[39m     \u001b[90m// 3. Activer le profil Sourd\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Sourd\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 58 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Profil appliqué'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 59 |\u001b[39m     \n \u001b[90m 60 |\u001b[39m     \u001b[90m// 4. Vérifier les features du profil\u001b[39m\n \u001b[90m 61 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Transcriptions visuelles'\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                            "column": 56,
-                            "line": 58
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n\n  56 |     // 3. Activer le profil Sourd\n  57 |     await page.click('button:has-text(\"Sourd\")');\n> 58 |     await expect(page.locator('text=Profil appliqué')).toBeVisible({ timeout: 5000 });\n     |                                                        ^\n  59 |     \n  60 |     // 4. Vérifier les features du profil\n  61 |     await expect(page.locator('text=Transcriptions visuelles').first()).toBeVisible();\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:58:56"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 5064,
+                      "errors": [],
                       "stdout": [
                         {
                           "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
                         },
                         {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
+                          "text": "✅ API login réussi, token obtenu\n"
                         },
                         {
-                          "text": "🔑 Connexion utilisateur existant...\n"
+                          "text": "🔄 Navigation vers la page d'accueil...\n"
                         },
                         {
                           "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
@@ -1621,43 +171,28 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-12-14T23:12:51.382Z",
+                      "startTime": "2025-12-15T11:18:22.561Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-da868-rd---Transcription-visuelle-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-da868-rd---Transcription-visuelle-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-da868-rd---Transcription-visuelle-chromium\\error-context.md"
+                          "path": "C:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-da868-rd---Transcription-visuelle-chromium\\test-finished-1.png"
                         }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                        "column": 56,
-                        "line": 58
-                      }
+                      ]
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "fa632f62551477bf86e7-6bfe6f1c5a2725fe199a",
               "file": "user-journeys.spec.js",
-              "line": 48,
+              "line": 47,
               "column": 7
             },
             {
               "title": "Journey 03 - Utilisateur muet - Alternatives de communication",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1668,39 +203,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 11,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 11431,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:86:56",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                          "column": 56,
-                          "line": 86
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 84 |\u001b[39m     \u001b[90m// 3. Activer le profil Muet\u001b[39m\n \u001b[90m 85 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'button:has-text(\"Muet\")'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 86 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Profil appliqué'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 87 |\u001b[39m     \n \u001b[90m 88 |\u001b[39m     \u001b[90m// 4. Vérifier les features\u001b[39m\n \u001b[90m 89 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'text=Saisie de texte partout'\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                            "column": 56,
-                            "line": 86
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Profil appliqué')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Profil appliqué')\u001b[22m\n\n\n  84 |     // 3. Activer le profil Muet\n  85 |     await page.click('button:has-text(\"Muet\")');\n> 86 |     await expect(page.locator('text=Profil appliqué')).toBeVisible({ timeout: 5000 });\n     |                                                        ^\n  87 |     \n  88 |     // 4. Vérifier les features\n  89 |     await expect(page.locator('text=Saisie de texte partout').first()).toBeVisible();\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:86:56"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 5471,
+                      "errors": [],
                       "stdout": [
                         {
                           "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
                         },
                         {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
+                          "text": "✅ API login réussi, token obtenu\n"
                         },
                         {
-                          "text": "🔑 Connexion utilisateur existant...\n"
+                          "text": "🔄 Navigation vers la page d'accueil...\n"
                         },
                         {
                           "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
@@ -1708,43 +224,28 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-12-14T23:13:05.232Z",
+                      "startTime": "2025-12-15T11:18:27.638Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-73cb9-ternatives-de-communication-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-73cb9-ternatives-de-communication-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-73cb9-ternatives-de-communication-chromium\\error-context.md"
+                          "path": "C:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-73cb9-ternatives-de-communication-chromium\\test-finished-1.png"
                         }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                        "column": 56,
-                        "line": 86
-                      }
+                      ]
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "fa632f62551477bf86e7-196197f48a4e78a6e23d",
               "file": "user-journeys.spec.js",
-              "line": 76,
+              "line": 73,
               "column": 7
             },
             {
               "title": "Journey 04 - Utilisateur mobilité réduite - Navigation clavier",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1755,39 +256,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 12,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 38253,
-                      "error": {
-                        "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/accessibility\" until \"load\"\n============================================================",
-                        "stack": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/accessibility\" until \"load\"\n============================================================\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:123:16",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                          "column": 16,
-                          "line": 123
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 121 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mkeyboard\u001b[33m.\u001b[39mpress(\u001b[32m'Enter'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 122 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 123 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/accessibility'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 124 |\u001b[39m     \n \u001b[90m 125 |\u001b[39m     \u001b[90m// 3. Activer le profil Moteur avec clavier\u001b[39m\n \u001b[90m 126 |\u001b[39m     \u001b[90m// Tab jusqu'au bouton Moteur\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                            "column": 16,
-                            "line": 123
-                          },
-                          "message": "TimeoutError: page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/accessibility\" until \"load\"\n============================================================\n\n  121 |     await page.keyboard.press('Enter');\n  122 |     \n> 123 |     await page.waitForURL('/accessibility');\n      |                ^\n  124 |     \n  125 |     // 3. Activer le profil Moteur avec clavier\n  126 |     // Tab jusqu'au bouton Moteur\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:123:16"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 5024,
+                      "errors": [],
                       "stdout": [
                         {
                           "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
                         },
                         {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
+                          "text": "✅ API login réussi, token obtenu\n"
                         },
                         {
-                          "text": "🔑 Connexion utilisateur existant...\n"
+                          "text": "🔄 Navigation vers la page d'accueil...\n"
                         },
                         {
                           "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
@@ -1795,43 +277,28 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-12-14T23:13:19.027Z",
+                      "startTime": "2025-12-15T11:18:33.122Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-2b1b2-éduite---Navigation-clavier-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-2b1b2-éduite---Navigation-clavier-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-2b1b2-éduite---Navigation-clavier-chromium\\error-context.md"
+                          "path": "C:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-2b1b2-éduite---Navigation-clavier-chromium\\test-finished-1.png"
                         }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                        "column": 16,
-                        "line": 123
-                      }
+                      ]
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "fa632f62551477bf86e7-4165321e3199d6e0a0b7",
               "file": "user-journeys.spec.js",
-              "line": 106,
+              "line": 103,
               "column": 7
             },
             {
               "title": "Journey 05 - Test complet APIs",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -1842,49 +309,25 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 13,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 402,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:148:27",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                          "column": 27,
-                          "line": 148
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 146 |\u001b[39m     \u001b[90m// 1. Get settings\u001b[39m\n \u001b[90m 147 |\u001b[39m     \u001b[36mconst\u001b[39m settings \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m'http://localhost:5000/api/accessibility/settings'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 148 |\u001b[39m     expect(settings\u001b[33m.\u001b[39mok())\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 149 |\u001b[39m     \n \u001b[90m 150 |\u001b[39m     \u001b[90m// 2. Update settings\u001b[39m\n \u001b[90m 151 |\u001b[39m     \u001b[36mconst\u001b[39m updateSettings \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39mpost(\u001b[32m'http://localhost:5000/api/accessibility/settings'\u001b[39m\u001b[33m,\u001b[39m {\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                            "column": 27,
-                            "line": 148
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  146 |     // 1. Get settings\n  147 |     const settings = await request.get('http://localhost:5000/api/accessibility/settings');\n> 148 |     expect(settings.ok()).toBeTruthy();\n      |                           ^\n  149 |     \n  150 |     // 2. Update settings\n  151 |     const updateSettings = await request.post('http://localhost:5000/api/accessibility/settings', {\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js:148:27"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 1892,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-12-14T23:13:59.644Z",
+                      "startTime": "2025-12-15T11:18:38.162Z",
                       "annotations": [],
-                      "attachments": [],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\user-journeys.spec.js",
-                        "column": 27,
-                        "line": 148
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "fa632f62551477bf86e7-ba10c52d6f2bc9db937d",
               "file": "user-journeys.spec.js",
-              "line": 143,
+              "line": 130,
               "column": 7
             },
             {
@@ -1900,20 +343,20 @@
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 14,
+                      "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 7090,
+                      "duration": 5857,
                       "errors": [],
                       "stdout": [
                         {
                           "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
                         },
                         {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
+                          "text": "✅ API login réussi, token obtenu\n"
                         },
                         {
-                          "text": "🔑 Connexion utilisateur existant...\n"
+                          "text": "🔄 Navigation vers la page d'accueil...\n"
                         },
                         {
                           "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
@@ -1921,13 +364,13 @@
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-12-14T23:14:02.188Z",
+                      "startTime": "2025-12-15T11:18:40.068Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "screenshot",
                           "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-1af9f-et-avec-toutes-les-features-chromium\\test-finished-1.png"
+                          "path": "C:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\user-journeys-Full-User-Jo-1af9f-et-avec-toutes-les-features-chromium\\test-finished-1.png"
                         }
                       ]
                     }
@@ -1937,815 +380,7 @@
               ],
               "id": "fa632f62551477bf86e7-95273a2f617c70ffeb12",
               "file": "user-journeys.spec.js",
-              "line": 195,
-              "column": 7
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "voice-transcription.spec.js",
-      "file": "voice-transcription.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Voice Transcription E2E Tests",
-          "file": "voice-transcription.spec.js",
-          "line": 4,
-          "column": 6,
-          "specs": [
-            {
-              "title": "01 - Navigation vers Transcription vocale",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 14,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5213,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:14:09.538Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--e08a8-n-vers-Transcription-vocale-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-d4f97e41703ffdec5ff2",
-              "file": "voice-transcription.spec.js",
-              "line": 14,
-              "column": 7
-            },
-            {
-              "title": "02 - Interface de transcription présente",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 14,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6399,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:14:14.781Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--d52c4-e-de-transcription-présente-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-72810a99fc50977c83d3",
-              "file": "voice-transcription.spec.js",
-              "line": 25,
-              "column": 7
-            },
-            {
-              "title": "03 - Paramètres d'accessibilité intégrés",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 14,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6570,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:14:21.215Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--efd1b-es-d-accessibilité-intégrés-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-dcff677e20c842881747",
-              "file": "voice-transcription.spec.js",
-              "line": 36,
-              "column": 7
-            },
-            {
-              "title": "04 - Toggle TTS dans VoiceTranscription",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 14,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5565,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:14:27.833Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--40014-TTS-dans-VoiceTranscription-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-a9850fc6556e9255ed78",
-              "file": "voice-transcription.spec.js",
-              "line": 49,
-              "column": 7
-            },
-            {
-              "title": "05 - Toggle Haut Contraste dans VoiceTranscription",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 14,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6345,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:14:33.432Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--91fe7-ste-dans-VoiceTranscription-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-cc7c8e943093aec473ac",
-              "file": "voice-transcription.spec.js",
-              "line": 56,
-              "column": 7
-            },
-            {
-              "title": "06 - Zone de transcription visuelle présente",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 14,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6284,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:14:39.810Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--f2180-scription-visuelle-présente-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-6147341c7ed694f386bb",
-              "file": "voice-transcription.spec.js",
-              "line": 65,
-              "column": 7
-            },
-            {
-              "title": "07 - Instructions d'utilisation visibles",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 14,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 6267,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:14:46.119Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--b7c3c-ions-d-utilisation-visibles-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-70676bf2ba4e32678e22",
-              "file": "voice-transcription.spec.js",
-              "line": 74,
-              "column": 7
-            },
-            {
-              "title": "08 - Bouton d'enregistrement est désactivé initialement",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 14,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5307,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:14:52.412Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--7a34a--est-désactivé-initialement-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-b27e7f904f2c5dae89e0",
-              "file": "voice-transcription.spec.js",
-              "line": 83,
-              "column": 7
-            },
-            {
-              "title": "09 - API Voice Start (mock)",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 14,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 5853,
-                      "error": {
-                        "message": "SyntaxError: Unexpected token '<', \"<!doctype \"... is not valid JSON",
-                        "stack": "SyntaxError: Unexpected token '<', \"<!doctype \"... is not valid JSON\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js:97:18",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js",
-                          "column": 18,
-                          "line": 97
-                        },
-                        "snippet": "\u001b[0m \u001b[90m  95 |\u001b[39m     expect(response\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBeLessThan(\u001b[35m500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  96 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  97 |\u001b[39m     \u001b[36mconst\u001b[39m data \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m  98 |\u001b[39m     expect(data)\u001b[33m.\u001b[39mtoHaveProperty(\u001b[32m'success'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  99 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 100 |\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js",
-                            "column": 18,
-                            "line": 97
-                          },
-                          "message": "SyntaxError: Unexpected token '<', \"<!doctype \"... is not valid JSON\n\n   95 |     expect(response.status()).toBeLessThan(500);\n   96 |     \n>  97 |     const data = await response.json();\n      |                  ^\n   98 |     expect(data).toHaveProperty('success');\n   99 |   });\n  100 |\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js:97:18"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:14:57.748Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--77377--09---API-Voice-Start-mock--chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--77377--09---API-Voice-Start-mock--chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--77377--09---API-Voice-Start-mock--chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js",
-                        "column": 18,
-                        "line": 97
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-9ac0f303fefaf77f138c",
-              "file": "voice-transcription.spec.js",
-              "line": 90,
-              "column": 7
-            },
-            {
-              "title": "10 - API Transcripts récents",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 15,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 6020,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js:104:27",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js",
-                          "column": 27,
-                          "line": 104
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 102 |\u001b[39m     \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m'http://localhost:5000/api/accessibility/transcripts?limit=10'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 103 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 104 |\u001b[39m     expect(response\u001b[33m.\u001b[39mok())\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 105 |\u001b[39m     \n \u001b[90m 106 |\u001b[39m     \u001b[36mconst\u001b[39m data \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 107 |\u001b[39m     expect(data\u001b[33m.\u001b[39msuccess)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js",
-                            "column": 27,
-                            "line": 104
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  102 |     const response = await request.get('http://localhost:5000/api/accessibility/transcripts?limit=10');\n  103 |     \n> 104 |     expect(response.ok()).toBeTruthy();\n      |                           ^\n  105 |     \n  106 |     const data = await response.json();\n  107 |     expect(data.success).toBe(true);\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js:104:27"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:15:05.831Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--6b148-0---API-Transcripts-récents-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--6b148-0---API-Transcripts-récents-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--6b148-0---API-Transcripts-récents-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js",
-                        "column": 27,
-                        "line": 104
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-08ade3b7a2d6e12c0787",
-              "file": "voice-transcription.spec.js",
-              "line": 101,
-              "column": 7
-            },
-            {
-              "title": "11 - Simulation d'annonce vocale",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 16,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 6098,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js:123:27",
-                        "location": {
-                          "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js",
-                          "column": 27,
-                          "line": 123
-                        },
-                        "snippet": "\u001b[0m \u001b[90m 121 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 122 |\u001b[39m     \n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 123 |\u001b[39m     expect(response\u001b[33m.\u001b[39mok())\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 124 |\u001b[39m     \n \u001b[90m 125 |\u001b[39m     \u001b[36mconst\u001b[39m data \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m response\u001b[33m.\u001b[39mjson()\u001b[33m;\u001b[39m\n \u001b[90m 126 |\u001b[39m     expect(data\u001b[33m.\u001b[39msuccess)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js",
-                            "column": 27,
-                            "line": 123
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mfalse\u001b[39m\n\n  121 |     });\n  122 |     \n> 123 |     expect(response.ok()).toBeTruthy();\n      |                           ^\n  124 |     \n  125 |     const data = await response.json();\n  126 |     expect(data.success).toBe(true);\n    at c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js:123:27"
-                        }
-                      ],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:15:14.372Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--cfe29-Simulation-d-annonce-vocale-chromium\\test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--cfe29-Simulation-d-annonce-vocale-chromium\\video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--cfe29-Simulation-d-annonce-vocale-chromium\\error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\tests\\e2e\\voice-transcription.spec.js",
-                        "column": 27,
-                        "line": 123
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-ad922949bbef81806e35",
-              "file": "voice-transcription.spec.js",
-              "line": 112,
-              "column": 7
-            },
-            {
-              "title": "12 - Responsive design - Mobile",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 17,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5518,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:15:22.805Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--6d0f9--Responsive-design---Mobile-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-d25cc33eabbacb99ea20",
-              "file": "voice-transcription.spec.js",
-              "line": 130,
-              "column": 7
-            },
-            {
-              "title": "13 - Responsive design - Tablet",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 60000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 17,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 5487,
-                      "errors": [],
-                      "stdout": [
-                        {
-                          "text": "🔐 Tentative de connexion (nouvel utilisateur: false)...\n"
-                        },
-                        {
-                          "text": "🔄 Redirection vers login détectée, login manuel...\n"
-                        },
-                        {
-                          "text": "🔑 Connexion utilisateur existant...\n"
-                        },
-                        {
-                          "text": "✅ Login réussi! URL finale: http://localhost:3001/\n"
-                        }
-                      ],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-12-14T23:15:28.585Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "c:\\Users\\moros\\Desktop\\iaPostemanage\\src\\frontend\\test-results\\voice-transcription-Voice--01df4--Responsive-design---Tablet-chromium\\test-finished-1.png"
-                        }
-                      ]
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "696bd1e99948017c4241-ea4610cb5411281a71a3",
-              "file": "voice-transcription.spec.js",
-              "line": 140,
+              "line": 182,
               "column": 7
             }
           ]
@@ -2755,11 +390,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-12-14T23:10:05.314Z",
-    "duration": 328953.582,
-    "expected": 22,
+    "startTime": "2025-12-15T11:18:14.104Z",
+    "duration": 32084.701,
+    "expected": 6,
     "skipped": 0,
-    "unexpected": 17,
+    "unexpected": 0,
     "flaky": 0
   }
 }

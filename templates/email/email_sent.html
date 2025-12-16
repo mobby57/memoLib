@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email envoyé</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: #27ae60; color: white; padding: 40px; text-align: center; border-radius: 10px 10px 0 0; }
+        .header h1 { margin: 0; font-size: 28px; }
+        .content { padding: 40px; }
+        .content p { color: #666; line-height: 1.6; }
+        .success-icon { font-size: 64px; text-align: center; margin: 20px 0; }
+        .email-details { background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .email-details dt { font-weight: bold; color: #333; margin-top: 10px; }
+        .email-details dd { color: #666; margin-left: 0; }
+        .button { display: inline-block; padding: 15px 30px; background: #27ae60; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .button:hover { background: #229954; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #999; font-size: 12px; border-radius: 0 0 10px 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Email envoyé avec succès</h1>
+        </div>
+        
+        <div class="content">
+            <div class="success-icon">🎉</div>
+            
+            <p>Bonjour,</p>
+            
+            <p>Votre email a été envoyé avec succès via <strong>iaPosteManager</strong>.</p>
+            
+            <div class="email-details">
+                <dl>
+                    <dt>📧 Destinataire(s) :</dt>
+                    <dd>{{ recipients }}</dd>
+                    
+                    <dt>📝 Objet :</dt>
+                    <dd>{{ subject }}</dd>
+                    
+                    <dt>🕒 Date d'envoi :</dt>
+                    <dd>{{ sent_at }}</dd>
+                    
+                    {% if tracking_id %}
+                    <dt>🔍 ID de suivi :</dt>
+                    <dd><code>{{ tracking_id }}</code></dd>
+                    {% endif %}
+                </dl>
+            </div>
+            
+            <p>Votre email a été traité et remis au serveur de messagerie. Il devrait être reçu sous quelques secondes.</p>
+            
+            <center>
+                <a href="{{ app_url }}/dashboard" class="button">Retour au tableau de bord</a>
+            </center>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 iaPosteManager</p>
+            <p>{{ app_url }}</p>
+        </div>
+    </div>
+</body>
+</html>

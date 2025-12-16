@@ -16,8 +16,14 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import openai
-import speech_recognition as sr
-import pyttsx3
+
+# Imports optionnels pour fonctionnalités audio (non disponibles en Docker)
+try:
+    import speech_recognition as sr
+    import pyttsx3
+    AUDIO_AVAILABLE = True
+except ImportError:
+    AUDIO_AVAILABLE = False
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -29,6 +35,8 @@ import io
 import hashlib
 import secrets
 import re
+# from email_generator import EmailGenerator  # Not needed in unified version
+# from email_forwarding import EmailForwardingService  # Not needed in unified version
 
 load_dotenv()
 
@@ -170,6 +178,43 @@ class UnifiedDatabase:
                 confidence REAL DEFAULT 1.0,
                 duration REAL DEFAULT 0.0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Nouvelles tables pour le provisioning d'emails
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS email_accounts (
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER DEFAULT 1,
+                email_address TEXT UNIQUE NOT NULL,
+                username TEXT NOT NULL,
+                display_name TEXT,
+                smtp_server TEXT,
+                smtp_port INTEGER,
+                smtp_username TEXT,
+                provider TEXT,
+                status TEXT DEFAULT 'active',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                emails_sent_today INTEGER DEFAULT 0,
+                emails_sent_month INTEGER DEFAULT 0,
+                daily_limit INTEGER DEFAULT 500,
+                monthly_limit INTEGER DEFAULT 10000
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS email_provisioning_logs (
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER DEFAULT 1,
+                email_account_id INTEGER,
+                action TEXT,
+                status TEXT,
+                error_message TEXT,
+                ip_address TEXT,
+                user_agent TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (email_account_id) REFERENCES email_accounts(id)
             )
         ''')
         
@@ -423,9 +468,20 @@ class UnifiedAIService:
 
 class UnifiedVoiceService:
     def __init__(self):
-        self.recognizer = sr.Recognizer()
-        self.recognizer.energy_threshold = 300
-        self.recognizer.dynamic_energy_threshold = True
+        if not AUDIO_AVAILABLE:
+            app.logger.warning("Audio features not available (running in Docker/headless mode)")
+            self.recognizer = None
+            self.microphone = None
+            self.tts_engine = None
+            return
+            
+        try:
+            self.recognizer = sr.Recognizer()
+            self.recognizer.energy_threshold = 300
+            self.recognizer.dynamic_energy_threshold = True
+        except:
+            self.recognizer = None
+            
         try:
             self.microphone = sr.Microphone()
             with self.microphone as source:
@@ -440,6 +496,8 @@ class UnifiedVoiceService:
             self.tts_engine = None
     
     def transcribe_audio(self, audio_file_path):
+        if not AUDIO_AVAILABLE or not self.recognizer:
+            return {'success': False, 'error': 'Audio features not available in this environment'}
         try:
             with sr.AudioFile(audio_file_path) as source:
                 audio = self.recognizer.record(source)
@@ -453,6 +511,8 @@ class UnifiedVoiceService:
             return {'success': False, 'error': str(e)}
     
     def transcribe_audio_data(self, audio_data):
+        if not AUDIO_AVAILABLE or not self.recognizer:
+            return {'success': False, 'error': 'Audio features not available in this environment'}
         try:
             audio = sr.AudioData(audio_data, 16000, 2)
             text = self.recognizer.recognize_google(audio, language='fr-FR')
@@ -465,6 +525,8 @@ class UnifiedVoiceService:
             return {'success': False, 'error': str(e)}
     
     def speak(self, text):
+        if not AUDIO_AVAILABLE or not self.tts_engine:
+            return False
         if self.tts_engine and text:
             try:
                 self.tts_engine.say(text)
@@ -472,6 +534,7 @@ class UnifiedVoiceService:
                 return True
             except Exception as e:
                 app.logger.error(f"TTS error: {e}")
+                return False
         return False
 
 # Initialisation des services
@@ -480,6 +543,8 @@ crypto = UnifiedCrypto()
 email_service = UnifiedEmailService()
 voice_service = UnifiedVoiceService()
 ai_service = None
+# email_generator = EmailGenerator()  # Using UnifiedAIService instead
+forwarding_service = None
 
 # Routes principales
 @app.route('/')
@@ -1101,33 +1166,90 @@ def api_accessibility_settings():
     # Pas d'authentification requise pour les tests
     
     if request.method == 'GET':
-        # Return default accessibility settings with both camelCase and snake_case
+        # Initialiser les settings si nécessaire
+        if not hasattr(app, 'accessibility_settings'):
+            app.accessibility_settings = {
+                'screen_reader': False,
+                'high_contrast': False,
+                'font_size': 'medium',
+                'tts_enabled': False,
+                'tts_rate': 150,
+                'tts_volume': 1.0,
+                'keyboard_shortcuts': True,
+                'transcription_enabled': False
+            }
+        
+        # Return accessibility settings with both camelCase and snake_case
         settings = {
-            'screenReader': False,
-            'screen_reader': False,
-            'highContrast': False,
-            'high_contrast': False,
-            'fontSize': 'medium',
-            'font_size': 'medium',
-            'ttsEnabled': False,
-            'tts_enabled': False,
-            'ttsSpeed': 1.0,
-            'tts_rate': 1.0,
-            'ttsVolume': 1.0,
-            'tts_volume': 1.0,
-            'keyboardShortcuts': True,
-            'keyboard_shortcuts': True,
-            'transcriptionEnabled': False,
-            'transcription_enabled': False
+            'screenReader': app.accessibility_settings['screen_reader'],
+            'screen_reader': app.accessibility_settings['screen_reader'],
+            'highContrast': app.accessibility_settings['high_contrast'],
+            'high_contrast': app.accessibility_settings['high_contrast'],
+            'fontSize': app.accessibility_settings['font_size'],
+            'font_size': app.accessibility_settings['font_size'],
+            'ttsEnabled': app.accessibility_settings['tts_enabled'],
+            'tts_enabled': app.accessibility_settings['tts_enabled'],
+            'ttsSpeed': app.accessibility_settings['tts_rate'],
+            'tts_rate': app.accessibility_settings['tts_rate'],
+            'ttsVolume': app.accessibility_settings['tts_volume'],
+            'tts_volume': app.accessibility_settings['tts_volume'],
+            'keyboardShortcuts': app.accessibility_settings['keyboard_shortcuts'],
+            'keyboard_shortcuts': app.accessibility_settings['keyboard_shortcuts'],
+            'transcriptionEnabled': app.accessibility_settings['transcription_enabled'],
+            'transcription_enabled': app.accessibility_settings['transcription_enabled']
         }
         return jsonify({'success': True, 'settings': settings})
     
     elif request.method == 'POST':
         # Update accessibility settings
         data = request.get_json()
-        # In a real app, you would save these to a database
         app.logger.info(f"Updating accessibility settings: {data}")
-        return jsonify({'success': True, 'message': 'Settings updated'})
+        
+        # Charger les settings actuels (simulés en mémoire)
+        if not hasattr(app, 'accessibility_settings'):
+            app.accessibility_settings = {
+                'screen_reader': False,
+                'high_contrast': False,
+                'font_size': 'medium',
+                'tts_enabled': False,
+                'tts_rate': 150,
+                'tts_volume': 1.0,
+                'keyboard_shortcuts': True,
+                'transcription_enabled': False
+            }
+        
+        # Appliquer les mises à jour
+        if 'toggle_tts' in data:
+            app.accessibility_settings['tts_enabled'] = not app.accessibility_settings['tts_enabled']
+        if 'toggle_contrast' in data:
+            app.accessibility_settings['high_contrast'] = not app.accessibility_settings['high_contrast']
+        if 'tts_rate' in data:
+            app.accessibility_settings['tts_rate'] = data['tts_rate']
+        if 'tts_volume' in data:
+            app.accessibility_settings['tts_volume'] = data['tts_volume']
+        if 'font_size' in data:
+            app.accessibility_settings['font_size'] = data['font_size']
+        
+        # Renvoyer les settings mises à jour avec les deux formats
+        settings = {
+            'screenReader': app.accessibility_settings['screen_reader'],
+            'screen_reader': app.accessibility_settings['screen_reader'],
+            'highContrast': app.accessibility_settings['high_contrast'],
+            'high_contrast': app.accessibility_settings['high_contrast'],
+            'fontSize': app.accessibility_settings['font_size'],
+            'font_size': app.accessibility_settings['font_size'],
+            'ttsEnabled': app.accessibility_settings['tts_enabled'],
+            'tts_enabled': app.accessibility_settings['tts_enabled'],
+            'ttsSpeed': app.accessibility_settings['tts_rate'],
+            'tts_rate': app.accessibility_settings['tts_rate'],
+            'ttsVolume': app.accessibility_settings['tts_volume'],
+            'tts_volume': app.accessibility_settings['tts_volume'],
+            'keyboardShortcuts': app.accessibility_settings['keyboard_shortcuts'],
+            'keyboard_shortcuts': app.accessibility_settings['keyboard_shortcuts'],
+            'transcriptionEnabled': app.accessibility_settings['transcription_enabled'],
+            'transcription_enabled': app.accessibility_settings['transcription_enabled']
+        }
+        return jsonify({'success': True, 'settings': settings, 'message': 'Settings updated'})
 
 @app.route('/api/accessibility/shortcuts', methods=['GET'])
 @handle_api_errors
@@ -1269,9 +1391,47 @@ def api_accessibility_profile():
         
         profile = profiles.get(needs[0] if needs else 'blind', profiles['blind'])
         
+        # Appliquer les settings correspondants selon le profil
+        if not hasattr(app, 'accessibility_settings'):
+            app.accessibility_settings = {
+                'screen_reader': False,
+                'high_contrast': False,
+                'font_size': 'medium',
+                'tts_enabled': False,
+                'tts_rate': 150,
+                'tts_volume': 1.0,
+                'keyboard_shortcuts': True,
+                'transcription_enabled': False
+            }
+        
+        # Activer les settings selon le profil
+        if needs and needs[0] == 'blind':
+            app.accessibility_settings['tts_enabled'] = True
+            app.accessibility_settings['keyboard_shortcuts'] = True
+            app.logger.info(f"Profile blind applied: TTS enabled = {app.accessibility_settings['tts_enabled']}")
+        elif needs and needs[0] == 'deaf':
+            app.accessibility_settings['transcription_enabled'] = True
+        elif needs and needs[0] == 'motor_impaired':
+            app.accessibility_settings['keyboard_shortcuts'] = True
+        
+        # Retourner le profil ET les settings mis à jour
+        updated_settings = {
+            'screenReader': app.accessibility_settings['screen_reader'],
+            'highContrast': app.accessibility_settings['high_contrast'],
+            'fontSize': app.accessibility_settings['font_size'],
+            'ttsEnabled': app.accessibility_settings['tts_enabled'],
+            'tts_enabled': app.accessibility_settings['tts_enabled'],
+            'ttsSpeed': app.accessibility_settings['tts_rate'],
+            'tts_rate': app.accessibility_settings['tts_rate'],
+            'ttsVolume': app.accessibility_settings['tts_volume'],
+            'keyboardShortcuts': app.accessibility_settings['keyboard_shortcuts'],
+            'transcriptionEnabled': app.accessibility_settings['transcription_enabled']
+        }
+        
         return jsonify({
             'success': True,
             'profile': profile,
+            'settings': updated_settings,
             'message': 'Profil appliqué',
             'updated_at': datetime.now().isoformat()
         })
@@ -1325,6 +1485,259 @@ def api_voice_speak():
     
     success = voice_service.speak(text)
     return jsonify({'success': success})
+
+@app.route('/api/accessibility/speak', methods=['POST'])
+@public_api
+def api_accessibility_speak():
+    """Text-to-speech endpoint for accessibility - public for tests"""
+    data = request.get_json() or {}
+    text = sanitize_input(data.get('text', ''), 500)
+    priority = data.get('priority', 'normal')
+    
+    if not text:
+        return jsonify({'success': False, 'error': 'Texte requis'}), 400
+    
+    # Log the TTS request
+    app.logger.info(f"TTS request: {text[:50]}... (priority: {priority})")
+    
+    # Try to use the voice service if available
+    success = False
+    if voice_service:
+        try:
+            success = voice_service.speak(text)
+        except Exception as e:
+            app.logger.error(f"TTS error: {e}")
+    
+    return jsonify({
+        'success': success,
+        'message': 'TTS request processed',
+        'text': text,
+        'priority': priority
+    })
+
+# =============================================================================
+# EMAIL GENERATOR ENDPOINTS
+# =============================================================================
+
+@app.route('/api/email-generator/create', methods=['POST'])
+@handle_api_errors
+def api_create_generic_email():
+    """Créer une nouvelle adresse email générique"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    purpose = sanitize_input(data.get('purpose', 'general'), 50)
+    duration_hours = min(int(data.get('duration_hours', 24)), 168)  # Max 7 jours
+    custom_name = sanitize_input(data.get('custom_name', ''), 50)
+    
+    # Valider le nom personnalisé
+    if custom_name and not re.match(r'^[a-zA-Z0-9_-]+$', custom_name):
+        raise ValidationError('Nom personnalisé invalide (lettres, chiffres, _ et - seulement)')
+    
+    email_data = email_generator.create_email(purpose, duration_hours, custom_name)
+    
+    # Ajouter la règle de transfert si le service est configuré
+    if forwarding_service:
+        password = get_master_password()
+        if password:
+            creds = crypto.get_credentials(password)
+            if creds and creds.get('email'):
+                forwarding_service.add_forwarding_rule(
+                    email_data['email'], 
+                    creds['email'],
+                    data.get('auto_reply')
+                )
+    
+    app.logger.info(f"Email générique créé: {email_data['email']}")
+    return jsonify({
+        'success': True,
+        'email_data': email_data,
+        'message': 'Adresse email créée avec succès'
+    })
+
+@app.route('/api/email-generator/list', methods=['GET'])
+@handle_api_errors
+def api_list_generic_emails():
+    """Lister les adresses email génériques actives"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    # Nettoyer les emails expirés
+    expired = email_generator.cleanup_expired()
+    if expired:
+        app.logger.info(f"Nettoyage: {len(expired)} emails expirés supprimés")
+    
+    active_emails = email_generator.list_active_emails()
+    
+    return jsonify({
+        'success': True,
+        'emails': active_emails,
+        'count': len(active_emails)
+    })
+
+@app.route('/api/email-generator/info/<email>', methods=['GET'])
+@handle_api_errors
+def api_get_email_info(email):
+    """Obtenir les informations d'une adresse email"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    if not validate_email(email):
+        raise ValidationError('Email invalide')
+    
+    email_info = email_generator.get_email_info(email)
+    
+    if not email_info:
+        return jsonify({'success': False, 'error': 'Email non trouvé'}), 404
+    
+    return jsonify({
+        'success': True,
+        'email_info': email_info
+    })
+
+@app.route('/api/email-generator/deactivate', methods=['POST'])
+@handle_api_errors
+def api_deactivate_email():
+    """Désactiver une adresse email générique"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    email = sanitize_input(data.get('email', ''), 100)
+    
+    if not validate_email(email):
+        raise ValidationError('Email invalide')
+    
+    success = email_generator.deactivate_email(email)
+    
+    if success:
+        app.logger.info(f"Email désactivé: {email}")
+        return jsonify({
+            'success': True,
+            'message': 'Email désactivé avec succès'
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': 'Email non trouvé'
+        }), 404
+
+@app.route('/api/email-generator/extend', methods=['POST'])
+@handle_api_errors
+def api_extend_email():
+    """Prolonger la durée de vie d'une adresse email"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    email = sanitize_input(data.get('email', ''), 100)
+    additional_hours = min(int(data.get('additional_hours', 24)), 168)  # Max 7 jours
+    
+    if not validate_email(email):
+        raise ValidationError('Email invalide')
+    
+    success = email_generator.extend_email(email, additional_hours)
+    
+    if success:
+        app.logger.info(f"Email prolongé: {email} (+{additional_hours}h)")
+        return jsonify({
+            'success': True,
+            'message': f'Email prolongé de {additional_hours} heures'
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': 'Email non trouvé'
+        }), 404
+
+@app.route('/api/email-generator/templates', methods=['GET'])
+@public_api
+def api_email_templates():
+    """Obtenir les templates d'emails génériques"""
+    templates = {
+        'general': {
+            'name': 'Général',
+            'description': 'Usage général, polyvalent',
+            'prefix': 'user',
+            'duration': 24
+        },
+        'support': {
+            'name': 'Support',
+            'description': 'Pour le support client',
+            'prefix': 'support',
+            'duration': 72
+        },
+        'contact': {
+            'name': 'Contact',
+            'description': 'Pour les formulaires de contact',
+            'prefix': 'contact',
+            'duration': 48
+        },
+        'info': {
+            'name': 'Information',
+            'description': 'Pour les demandes d\'information',
+            'prefix': 'info',
+            'duration': 48
+        },
+        'noreply': {
+            'name': 'No-Reply',
+            'description': 'Pour les emails automatiques',
+            'prefix': 'noreply',
+            'duration': 168
+        },
+        'temp': {
+            'name': 'Temporaire',
+            'description': 'Usage temporaire court',
+            'prefix': 'temp',
+            'duration': 12
+        },
+        'test': {
+            'name': 'Test',
+            'description': 'Pour les tests et développement',
+            'prefix': 'test',
+            'duration': 6
+        }
+    }
+    
+    return jsonify({
+        'success': True,
+        'templates': templates
+    })
+
+@app.route('/api/email-generator/stats', methods=['GET'])
+@public_api
+def api_email_generator_stats():
+    """Obtenir les statistiques du générateur d'emails"""
+    active_emails = email_generator.list_active_emails()
+    
+    # Calculer les statistiques
+    total_generated = len(email_generator.generated_emails)
+    active_count = len(active_emails)
+    
+    # Type le plus utilisé
+    purpose_counts = {}
+    total_forwarded = 0
+    
+    for email_data in email_generator.generated_emails.values():
+        purpose = email_data.get('purpose', 'general')
+        purpose_counts[purpose] = purpose_counts.get(purpose, 0) + 1
+        total_forwarded += email_data.get('usage_count', 0)
+    
+    most_used_type = max(purpose_counts.items(), key=lambda x: x[1])[0] if purpose_counts else 'general'
+    
+    stats = {
+        'total_generated': total_generated,
+        'active_emails': active_count,
+        'total_forwarded': total_forwarded,
+        'most_used_type': most_used_type,
+        'purpose_breakdown': purpose_counts
+    }
+    
+    return jsonify({
+        'success': True,
+        'stats': stats
+    })
 
 # WebSocket pour transcription temps réel
 @socketio.on('start_recording')
@@ -1413,6 +1826,14 @@ if __name__ == '__main__':
         print("[OK] Endpoints manquants ajoutés")
     except Exception as e:
         print(f"[WARNING] Erreur endpoints: {e}")
+    
+    # Ajouter les endpoints de provisioning d'emails
+    try:
+        from services.email_provisioning_service import register_email_provisioning_routes
+        register_email_provisioning_routes(app)
+        print("[OK] Email provisioning activé (SendGrid/AWS SES/Microsoft365/Google)")
+    except Exception as e:
+        print(f"[WARNING] Email provisioning non disponible: {e}")
     
     app.logger.info("Démarrage de l'application")
     socketio.run(app, debug=False, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)

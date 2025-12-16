@@ -1,100 +1,339 @@
-# 📋 Checklist de Production - IAPosteManager v3.4
+# ✅ CHECKLIST DÉPLOIEMENT PRODUCTION
 
-## ✅ Pré-déploiement
+Date: _______________  
+Responsable: _______________
 
-### Configuration
-
-- [ ] Variables d'environnement configurées (`.env`)
-  - [ ] `OPENAI_API_KEY` définie
-  - [ ] `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` configurés
-  - [ ] `SECRET_KEY` générée (min 32 caractères aléatoires)
-  - [ ] `FLASK_ENV=production`
-
-- [ ] Fichiers sensibles dans `.gitignore`
-  - [ ] `.env`
-  - [ ] `*.db`
-  - [ ] `logs/*.log`
-  - [ ] `__pycache__/`
-
-### Sécurité
-
-- [ ] Désactiver le mode DEBUG Flask
-- [ ] Utiliser HTTPS en production
-- [ ] Configurer CORS correctement
-- [ ] Valider toutes les entrées utilisateur
-- [ ] Rate limiting activé sur les endpoints publics
-- [ ] Sessions sécurisées avec `httponly=True`
-
-### Base de Données
-
-- [ ] Sauvegardes automatiques configurées
-- [ ] Migration schema testée
-- [ ] Index créés pour performances
-- [ ] Données de test nettoyées
-
-### Tests
-
-- [ ] ✅ 39 tests E2E passent
-- [ ] Tests unitaires backend executés
-- [ ] Tests d'intégration validés
-- [ ] Tests de charge effectués
-- [ ] Tests de sécurité (OWASP)
-
----
-
-## 🚀 Déploiement
-
-### Backend
-
-- [ ] Build de production testé
-- [ ] Gunicorn ou uWSGI configuré
-- [ ] Logs rotatifs activés
-- [ ] Monitoring mis en place
-- [ ] Health check endpoint testé
-
-### Frontend
-
-- [ ] `npm run build` réussi
-- [ ] Assets optimisés (images, fonts)
-- [ ] Service Worker configuré
-- [ ] PWA manifeste valide
-- [ ] Bundle size vérifié (< 1MB)
+## Phase 1: Préparation (2h)
 
 ### Infrastructure
+- [ ] Serveur Linux configuré (Ubuntu 20.04+ ou Debian 11+)
+- [ ] Docker 20.10+ installé
+- [ ] Docker Compose 2.0+ installé
+- [ ] Domaine enregistré et DNS configuré
+- [ ] Certificats SSH configurés
+- [ ] Accès sudo disponible
+- [ ] Firewall configuré (ufw)
+- [ ] Minimum 2GB RAM, 20GB disque
 
-- [ ] Serveur web configuré (Nginx/Apache)
-- [ ] Reverse proxy en place
-- [ ] SSL/TLS certificat valide
-- [ ] CDN configuré (optionnel)
-- [ ] Firewall rules définies
+### Repository
+- [ ] Code pushé sur GitHub
+- [ ] Secrets GitHub configurés (DOCKER_*, SSH_*, PRODUCTION_*)
+- [ ] .env.production créé avec valeurs réelles
+- [ ] Tests E2E passent localement (6/6)
+- [ ] Frontend build sans erreurs
+- [ ] Documentation à jour
 
 ---
 
-## 📊 Monitoring
+## Phase 2: Déploiement Application (1h)
 
-### Métriques
+### Docker
+- [ ] Cloner repo sur serveur: `git clone ...`
+- [ ] Copier .env.production: `cp .env.example .env.production`
+- [ ] Éditer variables: `nano .env.production`
+- [ ] Build image: `docker-compose -f docker-compose.prod.yml build`
+- [ ] Démarrer: `docker-compose -f docker-compose.prod.yml up -d`
+- [ ] Vérifier logs: `docker-compose logs -f backend`
+- [ ] Test health: `curl http://localhost:5000/api/health`
+- [ ] Test login: `curl -X POST http://localhost:5000/api/auth/login -H "Content-Type: application/json" -d '{"password":"test"}'`
 
-- [ ] Monitoring CPU/RAM/Disk
-- [ ] Logs centralisés
-- [ ] Alertes configurées
-- [ ] Dashboard Grafana/Datadog
-- [ ] Uptime monitoring (UptimeRobot)
+### Validation
+- [ ] Application accessible sur http://IP:5000
+- [ ] Page d'accueil charge correctement
+- [ ] Login fonctionne
+- [ ] API répond correctement
+- [ ] Pas d'erreurs dans logs
+
+---
+
+## Phase 3: SSL/HTTPS (30min)
+
+### Let's Encrypt
+- [ ] Copier script: `chmod +x ssl/setup-ssl.sh`
+- [ ] Exécuter: `sudo ./ssl/setup-ssl.sh votre-domaine.com`
+- [ ] Vérifier certificat: `ls /etc/letsencrypt/live/votre-domaine.com/`
+- [ ] Test HTTPS: `curl -I https://votre-domaine.com`
+- [ ] Vérifier auto-renewal: `sudo certbot renew --dry-run`
+
+### Nginx
+- [ ] Copier config: `sudo cp security/nginx-secure.conf /etc/nginx/sites-available/iapostemanager`
+- [ ] Activer site: `sudo ln -s /etc/nginx/sites-available/iapostemanager /etc/nginx/sites-enabled/`
+- [ ] Éditer domaine dans config si nécessaire
+- [ ] Test config: `sudo nginx -t`
+- [ ] Recharger: `sudo systemctl reload nginx`
+- [ ] Vérifier redirection HTTP→HTTPS
+- [ ] Test SSL Labs: https://www.ssllabs.com/ssltest/
+
+---
+
+## Phase 4: Monitoring (45min)
+
+### Prometheus + Grafana
+- [ ] Démarrer stack: `docker-compose -f monitoring/docker-compose.monitoring.yml up -d`
+- [ ] Vérifier containers: `docker ps | grep monitoring`
+- [ ] Accès Prometheus: http://IP:9090
+- [ ] Vérifier targets: http://IP:9090/targets (tous UP)
+- [ ] Accès Grafana: http://IP:3000
+- [ ] Login Grafana (admin/admin)
+- [ ] Changer mot de passe admin
+- [ ] Ajouter data source Prometheus
+- [ ] Importer dashboard 1860 (Node Exporter)
+- [ ] Importer dashboard 893 (Docker)
+- [ ] Vérifier métriques s'affichent
+- [ ] Configurer alertes email (optionnel)
+
+---
+
+## Phase 5: CI/CD (30min)
+
+### GitHub Actions
+- [ ] Vérifier workflow: `.github/workflows/ci-cd.yml`
+- [ ] Configurer secrets GitHub (8 secrets requis)
+- [ ] Test workflow: Push sur main
+- [ ] Vérifier exécution dans Actions tab
+- [ ] Valider tests E2E passent
+- [ ] Valider build Docker réussit
+- [ ] Valider déploiement fonctionne
+- [ ] Configurer Slack webhook (optionnel)
+
+---
+
+## Phase 6: Backups (20min)
+
+### Configuration
+- [ ] Rendre exécutable: `chmod +x scripts/backup.sh scripts/restore.sh`
+- [ ] Test backup manuel: `./scripts/backup.sh`
+- [ ] Vérifier backup créé: `ls -lh backups/`
+- [ ] Test restauration: `./scripts/restore.sh backups/backup-*.tar.gz`
+- [ ] Configurer cron: `crontab -e`
+- [ ] Ajouter ligne: `0 2 * * * /chemin/complet/scripts/backup.sh`
+- [ ] Vérifier cron: `crontab -l`
+- [ ] Configurer backup distant (AWS S3 / rsync) - RECOMMANDÉ
+
+---
+
+## Phase 7: Email (30min)
+
+### Configuration SMTP
+- [ ] Choisir provider (Gmail/SendGrid/AWS SES)
+- [ ] Créer compte et obtenir credentials
+- [ ] Éditer `config/email-config.env`
+- [ ] Copier config dans `.env.production`
+- [ ] Redémarrer app: `docker-compose restart`
+- [ ] Test envoi email: Utiliser interface ou API
+- [ ] Vérifier email reçu
+- [ ] Tester templates (welcome, password_reset)
+- [ ] Configurer webhooks SendGrid (optionnel)
+
+---
+
+## Phase 8: Sécurité (1h)
+
+### Headers & SSL
+- [ ] Vérifier headers: `curl -I https://votre-domaine.com`
+- [ ] HSTS présent
+- [ ] X-Frame-Options présent
+- [ ] Content-Security-Policy présent
+- [ ] Score SSL Labs A ou A+
+
+### ModSecurity (WAF)
+- [ ] Installer: `sudo bash security/install-waf.sh`
+- [ ] Vérifier config: `cat /etc/nginx/modsec/main.conf`
+- [ ] Test règle XSS: `curl "https://votre-domaine.com/?test=<script>alert(1)</script>"`
+- [ ] Vérifier logs: `sudo tail /var/log/nginx/modsec_audit.log`
+
+### Fail2Ban
+- [ ] Installer: `sudo bash security/setup-fail2ban.sh`
+- [ ] Vérifier jails: `sudo fail2ban-client status`
+- [ ] Test ban login: 6 tentatives échouées
+- [ ] Vérifier IP bannée: `sudo fail2ban-client status nginx-login`
+
+### Firewall
+- [ ] Configurer ufw: `sudo ufw enable`
+- [ ] Autoriser SSH: `sudo ufw allow 22/tcp`
+- [ ] Autoriser HTTP: `sudo ufw allow 80/tcp`
+- [ ] Autoriser HTTPS: `sudo ufw allow 443/tcp`
+- [ ] Vérifier status: `sudo ufw status verbose`
+- [ ] Fermer ports monitoring si non nécessaires en externe
+
+---
+
+## Phase 9: Tests (1h)
+
+### Tests API
+- [ ] Exécuter: `bash tests/test-api.sh https://votre-domaine.com`
+- [ ] Tous endpoints passent (7/7)
+- [ ] Vérifier rapport: `test-results-*.txt`
+
+### Tests de Charge
+- [ ] Test léger: `bash tests/load-test.sh 10 60 https://votre-domaine.com`
+- [ ] Vérifier: >100 req/sec
+- [ ] Temps réponse: <200ms
+- [ ] Taux erreur: 0%
+- [ ] Consulter rapport: `load-test-report.html`
+- [ ] Test intensif: `bash tests/load-test.sh 50 300 https://votre-domaine.com`
+
+### Audit Sécurité
+- [ ] Exécuter: `bash tests/security-audit.sh https://votre-domaine.com`
+- [ ] Consulter rapport: `security-reports-*/report.html`
+- [ ] Corriger vulnérabilités trouvées
+- [ ] Re-scanner après corrections
+
+---
+
+## Phase 10: PWA (30min)
+
+### Configuration
+- [ ] Vérifier manifest.json accessible: `curl https://votre-domaine.com/manifest.json`
+- [ ] Vérifier service-worker.js: `curl https://votre-domaine.com/service-worker.js`
+- [ ] Test installation Desktop (Chrome)
+- [ ] Test installation Mobile (Android/iOS)
+- [ ] Vérifier mode offline
+- [ ] Test notifications push (si configuré)
+- [ ] Lighthouse PWA score: >90
+
+### Validation
+- [ ] Chrome DevTools → Application → Service Workers (actif)
+- [ ] Manifest affiché correctement
+- [ ] Icônes chargent
+- [ ] Offline.html s'affiche sans connexion
+
+---
+
+## Phase 11: Validation Finale (30min)
+
+### Tests Utilisateur
+- [ ] Créer compte / Login
+- [ ] Rédiger email avec IA
+- [ ] Envoyer email test
+- [ ] Vérifier historique emails
+- [ ] Tester templates prédéfinis
+- [ ] Tester commande vocale (si audio configuré)
+- [ ] Tester accessibilité (lecteur écran)
+- [ ] Tester sur mobile
+- [ ] Tester en mode offline (PWA)
 
 ### Performance
+- [ ] PageSpeed Insights: >90
+- [ ] Lighthouse Performance: >90
+- [ ] Temps chargement <2s
+- [ ] Pas d'erreurs console
+- [ ] Responsive sur tous écrans
 
-- [ ] Temps de réponse API < 200ms
-- [ ] Temps de chargement page < 3s
-- [ ] Score Lighthouse > 90
-- [ ] Cache configuré
-- [ ] Rate limiting testé
+### Monitoring
+- [ ] Grafana dashboards fonctionnels
+- [ ] Métriques remontent correctement
+- [ ] Alertes configurées
+- [ ] Logs accessibles et lisibles
 
 ---
 
-## 🔐 Sécurité Production
+## Phase 12: Documentation & Formation (1h)
 
-### Checklist
+### Documentation
+- [ ] README.md à jour
+- [ ] GUIDE_PRODUCTION_COMPLET.md disponible
+- [ ] Procédures de maintenance documentées
+- [ ] Procédures de rollback documentées
+- [ ] Contacts support définis
 
-- [ ] HTTPS obligatoire
+### Formation Équipe
+- [ ] Accès serveurs distribués
+- [ ] Procédure de déploiement expliquée
+- [ ] Dashboard monitoring expliqué
+- [ ] Procédure d'urgence définie
+- [ ] On-call rotation planifiée
+
+---
+
+## Phase 13: Go Live! 🚀
+
+### Communication
+- [ ] Annonce mise en production
+- [ ] URL partagée avec utilisateurs
+- [ ] Support disponible
+- [ ] Monitoring actif
+
+### Surveillance Post-Déploiement (premières 24h)
+- [ ] Vérifier logs toutes les heures
+- [ ] Surveiller Grafana dashboards
+- [ ] Vérifier aucune alerte
+- [ ] Monitoring utilisation utilisateurs
+- [ ] Temps réponse < 500ms
+- [ ] Taux erreur < 1%
+- [ ] Pas de crash
+
+---
+
+## Métriques de Succès
+
+### Performance
+- ✅ Uptime: >99.9%
+- ✅ Temps réponse API: <200ms
+- ✅ Temps chargement page: <2s
+- ✅ Score Lighthouse: >90
+
+### Sécurité
+- ✅ SSL Labs: A ou A+
+- ✅ Aucune vulnérabilité critique
+- ✅ WAF actif et logs propres
+- ✅ Fail2Ban 0 intrusion
+
+### Disponibilité
+- ✅ Health check: 200 OK
+- ✅ Tous services Docker UP
+- ✅ Monitoring fonctionnel
+- ✅ Backups quotidiens OK
+
+---
+
+## Rollback Plan (En cas de problème)
+
+### Étapes Rollback
+1. [ ] Stop nouveau déploiement: `docker-compose down`
+2. [ ] Restaurer backup: `./scripts/restore.sh backups/backup-dernier.tar.gz`
+3. [ ] Vérifier santé: `curl http://localhost:5000/api/health`
+4. [ ] Communiquer avec équipe
+5. [ ] Analyser logs pour debug
+6. [ ] Fixer problème
+7. [ ] Re-tester en staging
+8. [ ] Redéployer
+
+---
+
+## Contacts Urgence
+
+**Hébergeur:**  
+Support: _______________  
+Téléphone: _______________
+
+**DNS:**  
+Provider: _______________  
+Accès: _______________
+
+**Email Provider:**  
+Support: _______________  
+API Key: _______________
+
+**Équipe:**  
+DevOps: _______________  
+Dev Lead: _______________  
+On-call: _______________
+
+---
+
+## Signature
+
+✅ **Déploiement Validé Par:**
+
+Nom: _______________  
+Date: _______________  
+Signature: _______________
+
+---
+
+*Checklist iaPosteManager v3.5*  
+*Production Ready - Décembre 2025*
 - [ ] Headers sécurité configurés :
   - [ ] `Strict-Transport-Security`
   - [ ] `X-Content-Type-Options`
