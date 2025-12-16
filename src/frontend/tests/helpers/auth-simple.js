@@ -8,56 +8,67 @@ export async function loginForTests(page, isNewUser = false, password = 'test123
   try {
     console.log(`🔐 Tentative de connexion (nouvel utilisateur: ${isNewUser})...`);
     
-    // 1. Tenter le mock localStorage (peut ne pas marcher si l'app vérifie côté serveur)
-    await page.addInitScript(() => {
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('auth_token', 'test-token');
-      localStorage.setItem('user', JSON.stringify({ id: 1, name: 'Test User' }));
+    // 1. Appeler directement l'API de login pour obtenir un vrai token
+    const loginResponse = await page.request.post('http://localhost:5000/api/auth/login', {
+      data: {
+        password: password,
+        isNewUser: isNewUser
+      }
     });
     
-    // 2. Aller à la page d'accueil
-    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    
-    // 3. Attendre que React charge le contenu dans #root
-    await page.waitForSelector('#root > *', { timeout: 15000 });
-    
-    // 4. Si on est redirigé vers /login, faire un login manuel
-    const currentURL = page.url();
-    if (currentURL.includes('/login') || currentURL.includes('/auth')) {
-      console.log('🔄 Redirection vers login détectée, login manuel...');
-      
-      // Attendre le formulaire
-      await page.waitForLoadState('networkidle');
-      
-      if (isNewUser) {
-        // Formulaire pour nouveaux utilisateurs - cliquer sur "Nouveau compte"
-        console.log('✨ Création nouveau compte...');
-        const newUserButton = page.locator('button:has-text("Nouveau compte")');
-        await newUserButton.click({ timeout: 5000 });
-        await page.waitForTimeout(500);
-        
-        await page.fill('input[type="password"]', password);
-        await page.click('button[type="submit"]');
-      } else {
-        // Utilisateur existant - cliquer sur "Compte existant"
-        console.log('🔑 Connexion utilisateur existant...');
-        const existingUserButton = page.locator('button:has-text("Compte existant")');
-        await existingUserButton.click({ timeout: 5000 });
-        await page.waitForTimeout(500);
-        
-        // Remplir le mot de passe
-        await page.fill('input[type="password"]', password);
-        await page.click('button[type="submit"]');
-      }
-      
-      // Attendre la redirection après login
-      await page.waitForURL('**/', { timeout: 10000 });
-      await page.waitForLoadState('networkidle');
+    if (!loginResponse.ok()) {
+      throw new Error(`API login failed: ${loginResponse.status()}`);
     }
     
-    // 5. Vérifier qu'on est bien connecté (on devrait être sur /accessibility ou /)
+    const loginData = await loginResponse.json();
+    console.log('✅ API login réussi, token obtenu');
+    
+    // 2. Injecter le token et l'état auth dans les deux formats (localStorage + Zustand)
+    await page.addInitScript((token) => {
+      // Format classique localStorage
+      // Set Zustand auth store state
+      localStorage.setItem('auth-storage', JSON.stringify({
+        state: {
+          isAuthenticated: true,
+          hasCredentials: true,
+          needsPassword: false
+        },
+        version: 0
+      }));
+      
+      // Legacy localStorage for compatibility
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('auth_token', token);
+      localStorage.setItem('user', JSON.stringify({ id: 1, name: 'Test User' }));
+      
+      // Format Zustand persist (la clé utilisée par le store)
+      const zustandAuthState = {
+        state: {
+          isAuthenticated: true,
+          hasCredentials: true,
+          needsPassword: false
+        },
+        version: 0
+      };
+      localStorage.setItem('auth-storage', JSON.stringify(zustandAuthState));
+    }, loginData.token);
+    
+    // 3. Aller à la page d'accueil avec le token déjà en place
+    console.log('🔄 Navigation vers la page d\'accueil...');
+    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    
+    // 4. Attendre que React charge
+    await page.waitForSelector('#root > *', { timeout: 15000 });
+    await page.waitForLoadState('networkidle', { timeout: 15000 });
+    
+    // 5. Vérifier qu'on n'est PAS redirigé vers login
     await page.waitForTimeout(1000);
     const finalURL = page.url();
+    
+    if (finalURL.includes('/login')) {
+      throw new Error('Still on login page after authentication');
+    }
+    
     console.log(`✅ Login réussi! URL finale: ${finalURL}`);
     
   } catch (error) {
@@ -74,21 +85,4 @@ export async function loginForTests(page, isNewUser = false, password = 'test123
     
     throw new Error(`Login échoué: ${error.message}`);
   }
-}
-
-/**
- * Vérifier si l'utilisateur est connecté
- * @param {import('@playwright/test').Page} page
- * @returns {Promise<boolean>}
- */
-export async function isLoggedIn(page) {
-  // Vérifier si on n'est pas sur /login
-  const url = page.url();
-  if (url.includes('/login')) {
-    return false;
-  }
-  
-  // Vérifier si la navigation principale est présente
-  const navExists = await page.locator('nav').count() > 0;
-  return navExists;
 }

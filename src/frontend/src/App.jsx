@@ -21,6 +21,7 @@ import Inbox from './pages/Inbox';
 import VoiceTranscription from './pages/VoiceTranscription';
 import Accessibility from './pages/Accessibility';
 import FrenchAdmin from './pages/FrenchAdmin';
+import EmailGenerator from './pages/EmailGenerator';
 
 // Layout
 import Layout from './components/Layout';
@@ -80,6 +81,7 @@ function App() {
           <Route path="voice-transcription" element={<VoiceTranscription />} />
           <Route path="accessibility" element={<Accessibility />} />
           <Route path="french-admin" element={<FrenchAdmin />} />
+          <Route path="email-generator" element={<EmailGenerator />} />
         </Route>
         
         <Route path="*" element={<Navigate to="/" replace />} />

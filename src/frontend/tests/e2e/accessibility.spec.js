@@ -37,6 +37,9 @@ test.describe('Accessibility System E2E Tests', () => {
     // Attendre l'apparition du message de confirmation
     await expect(page.locator('text=Profil appliqué')).toBeVisible({ timeout: 5000 });
     
+    // Attendre que les settings soient rechargés (petit délai pour loadSettings())
+    await page.waitForTimeout(500);
+    
     // Vérifier que le TTS est activé
     const ttsCheckbox = page.locator('input[type="checkbox"]').first();
     await expect(ttsCheckbox).toBeChecked();

@@ -65,7 +65,12 @@ export default function AccessibilityPanel() {
       const response = await axios.post('/api/accessibility/profile', { needs });
       if (response.data.success) {
         setProfile(response.data.profile);
-        loadSettings(); // Recharger après application du profil
+        // Utiliser les settings retournés directement par le profil si disponibles
+        if (response.data.settings) {
+          setSettings(response.data.settings);
+        } else {
+          loadSettings(); // Recharger après application du profil
+        }
       }
     } catch (error) {
       console.error('Erreur création profil:', error);

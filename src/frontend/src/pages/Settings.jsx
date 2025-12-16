@@ -52,6 +52,39 @@ export default function Settings() {
               <option value="custom">Personnalisé</option>
             </select>
           </div>
+          
+          <div className="email-generator-section" style={{
+            marginTop: '20px',
+            padding: '15px',
+            background: '#f0f8ff',
+            borderRadius: '8px',
+            borderLeft: '4px solid #007bff'
+          }}>
+            <h4 style={{ margin: '0 0 10px 0', color: '#007bff' }}>🌐 Générateur d'Adresses Email</h4>
+            <p style={{ margin: '10px 0', color: '#666' }}>Créez des adresses email temporaires directement depuis le cloud :</p>
+            <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
+              <li style={{ margin: '5px 0', color: '#555' }}>✨ Génération instantanée</li>
+              <li style={{ margin: '5px 0', color: '#555' }}>⏰ Durée personnalisable (1h à 7 jours)</li>
+              <li style={{ margin: '5px 0', color: '#555' }}>📬 Transfert automatique vers votre email principal</li>
+              <li style={{ margin: '5px 0', color: '#555' }}>🗑️ Suppression automatique après expiration</li>
+            </ul>
+            <button 
+              onClick={() => window.location.href = '/email-generator'}
+              style={{
+                background: 'linear-gradient(45deg, #007bff, #0056b3)',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                marginTop: '10px'
+              }}
+            >
+              🚀 Accéder au Générateur
+            </button>
+          </div>
         </div>
 
         {/* Configuration IA */}
@@ -127,9 +160,10 @@ export default function Settings() {
         <h3>ℹ️ Informations Système</h3>
         <ul>
           <li>Version : 3.0.0</li>
-          <li>Backend : FastAPI</li>
+          <li>Backend : Flask</li>
           <li>Frontend : React</li>
-          <li>Base de données : PostgreSQL</li>
+          <li>Base de données : SQLite</li>
+          <li>Générateur Email : Actif</li>
         </ul>
       </div>
     </div>
