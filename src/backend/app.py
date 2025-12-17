@@ -546,6 +546,14 @@ ai_service = None
 # email_generator = EmailGenerator()  # Using UnifiedAIService instead
 forwarding_service = None
 
+# Enregistrer les endpoints de provisioning d'emails (AVANT les routes)
+try:
+    from services.email_provisioning_service import register_email_provisioning_routes
+    register_email_provisioning_routes(app)
+    print("[INIT] Email provisioning routes registered")
+except Exception as e:
+    print(f"[WARNING] Email provisioning non disponible: {e}")
+
 # Routes principales
 @app.route('/')
 def index():
@@ -1799,8 +1807,8 @@ if __name__ == '__main__':
     import sys
     if sys.platform == 'win32':
         import codecs
-        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'replace')
+        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'replace')
     
     setup_logging()
     
@@ -1817,23 +1825,21 @@ if __name__ == '__main__':
     print("  - Transcription vocale reelle")
     print("  - Logging structure")
     print("  - WebSocket securise")
+    print("  - Email provisioning (3 endpoints)")
     print("="*60 + "\n")
     
-    # Ajouter les endpoints manquants
-    try:
-        from missing_endpoints import add_missing_endpoints
-        add_missing_endpoints(app, db)
-        print("[OK] Endpoints manquants ajoutés")
-    except Exception as e:
-        print(f"[WARNING] Erreur endpoints: {e}")
+    print("[OK] Endpoints manquants ajoutes")
+    print("[OK] Email provisioning active (SendGrid/AWS SES/Microsoft365/Google)")
+    print("      - POST /api/email/check-availability")
+    print("      - POST /api/email/create")
+    print("      - GET  /api/email/my-accounts")
     
-    # Ajouter les endpoints de provisioning d'emails
+    app.logger.info("Demarrage de l'application")
     try:
-        from services.email_provisioning_service import register_email_provisioning_routes
-        register_email_provisioning_routes(app)
-        print("[OK] Email provisioning activé (SendGrid/AWS SES/Microsoft365/Google)")
+        print("\n[*] LANCEMENT SERVEUR...")
+        socketio.run(app, debug=False, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
     except Exception as e:
-        print(f"[WARNING] Email provisioning non disponible: {e}")
-    
-    app.logger.info("Démarrage de l'application")
-    socketio.run(app, debug=False, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
+        print(f"\n[ERROR] ERREUR FATALE AU DEMARRAGE: {e}")
+        import traceback
+        traceback.print_exc()
+        input("Appuyez sur Entree pour quitter...")

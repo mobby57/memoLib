@@ -117,7 +117,7 @@ fetch('/api/generate-email', {
     body: JSON.stringify({
         context: "Je veux demander un RDV",
         tone: "professionnel",
-        master_password: "SESSION_STORED"
+        master_password: process.env.MASTER_PASSWORD
     })
 })
 ```
@@ -143,7 +143,7 @@ fetch('/api/send-email', {
         to_email: "contact@exemple.fr",
         subject: "Demande de rendez-vous",
         body: "Madame, Monsieur...",
-        master_password: "SESSION_STORED"
+        master_password: process.env.MASTER_PASSWORD
     })
 })
 ```
@@ -160,7 +160,7 @@ fetch('/api/generate-and-send', {
         context: "Je veux demander un RDV",
         to_email: "contact@exemple.fr",
         tone: "professionnel",
-        master_password: "SESSION_STORED"
+        master_password: process.env.MASTER_PASSWORD
     })
 })
 ```
@@ -180,8 +180,8 @@ fetch('/api/save-gmail', {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
         email: "votre@gmail.com",
-        app_password: "xxxx xxxx xxxx xxxx",
-        master_password: "votre_mot_de_passe_maitre"
+        app_password: process.env.GMAIL_APP_PASSWORD,
+        master_password: process.env.MASTER_PASSWORD
     })
 })
 ```
@@ -193,9 +193,9 @@ fetch('/api/save-openai', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
-        api_key: "sk-...",
-        org_id: "org-...",
-        master_password: "votre_mot_de_passe_maitre"
+        api_key: process.env.OPENAI_API_KEY,
+        org_id: process.env.OPENAI_ORG_ID,
+        master_password: process.env.MASTER_PASSWORD
     })
 })
 ```

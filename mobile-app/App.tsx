@@ -2,12 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
-import Voice from 'react-native-voice';
+import Voice from '@react-native-voice/voice';
+
+interface Email {
+  id: number;
+  subject: string;
+  body: string;
+  createdAt: string;
+}
 
 export default function App() {
-  const [isListening, setIsListening] = useState(false);
-  const [voiceText, setVoiceText] = useState('');
-  const [emails, setEmails] = useState([]);
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const [voiceText, setVoiceText] = useState<string>('');
+  const [emails, setEmails] = useState<Email[]>([]);
 
   useEffect(() => {
     Voice.onSpeechResults = onSpeechResults;
@@ -19,12 +26,14 @@ export default function App() {
   }, []);
 
   const onSpeechResults = (e: any) => {
-    setVoiceText(e.value[0]);
+    if (e.value && e.value[0]) {
+      setVoiceText(e.value[0]);
+    }
     setIsListening(false);
   };
 
   const onSpeechError = (e: any) => {
-    console.error(e);
+    console.error('Speech error:', e);
     setIsListening(false);
   };
 
@@ -33,7 +42,7 @@ export default function App() {
       setIsListening(true);
       await Voice.start('fr-FR');
     } catch (e) {
-      console.error(e);
+      console.error('Start listening error:', e);
       setIsListening(false);
     }
   };
@@ -43,7 +52,7 @@ export default function App() {
       await Voice.stop();
       setIsListening(false);
     } catch (e) {
-      console.error(e);
+      console.error('Stop listening error:', e);
     }
   };
 
@@ -63,30 +72,36 @@ export default function App() {
         })
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Erreur serveur' }));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
+
       const result = await response.json();
       
-      if (response.ok) {
-        const newEmail = {
+      if (result && result.subject && result.body) {
+        const newEmail: Email = {
           id: Date.now(),
           subject: result.subject,
           body: result.body,
           createdAt: new Date().toLocaleString()
         };
         
-        setEmails([newEmail, ...emails]);
+        setEmails(prevEmails => [newEmail, ...prevEmails]);
         setVoiceText('');
         
-        // Text-to-speech confirmation
         Speech.speak('Email généré avec succès', { language: 'fr' });
       } else {
-        Alert.alert('Erreur', 'Impossible de générer l\'email');
+        throw new Error('Réponse invalide du serveur');
       }
     } catch (error) {
-      Alert.alert('Erreur', 'Problème de connexion au serveur');
+      console.error('Generate email error:', error);
+      const message = error instanceof Error ? error.message : 'Erreur inconnue';
+      Alert.alert('Erreur', `Impossible de générer l'email: ${message}`);
     }
   };
 
-  const sendEmail = async (email: any) => {
+  const sendEmail = async (email: Email) => {
     try {
       const response = await fetch('http://localhost:8000/api/mails/send', {
         method: 'POST',
@@ -99,14 +114,17 @@ export default function App() {
         })
       });
 
-      if (response.ok) {
-        Alert.alert('Succès', 'Email envoyé!');
-        Speech.speak('Email envoyé', { language: 'fr' });
-      } else {
-        Alert.alert('Erreur', 'Échec de l\'envoi');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Erreur serveur' }));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
+
+      Alert.alert('Succès', 'Email envoyé!');
+      Speech.speak('Email envoyé', { language: 'fr' });
     } catch (error) {
-      Alert.alert('Erreur', 'Problème de connexion');
+      console.error('Send email error:', error);
+      const message = error instanceof Error ? error.message : 'Erreur inconnue';
+      Alert.alert('Erreur', `Échec de l'envoi: ${message}`);
     }
   };
 
@@ -145,7 +163,7 @@ export default function App() {
 
       <ScrollView style={styles.emailsList}>
         <Text style={styles.sectionTitle}>Emails Générés</Text>
-        {emails.map((email: any) => (
+        {emails.map((email: Email) => (
           <View key={email.id} style={styles.emailCard}>
             <Text style={styles.emailSubject}>{email.subject}</Text>
             <Text style={styles.emailBody} numberOfLines={3}>

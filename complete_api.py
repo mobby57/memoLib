@@ -238,9 +238,11 @@ def login():
     password = data.get('password', '')
     
     if len(password) >= 8:
+        import secrets
+        token = secrets.token_urlsafe(32)
         return jsonify({
             'success': True,
-            'token': 'demo-token-123',
+            'token': token,
             'redirect': '/'
         })
     return jsonify({'success': False, 'error': 'Mot de passe trop court'}), 400

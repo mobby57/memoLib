@@ -6,7 +6,7 @@
 Authentification utilisateur
 ```json
 Request: { "password": "string" }
-Response: { "success": true, "token": "string", "redirect": "/" }
+Response: { "success": true, "token": "<generated_token>", "redirect": "/" }
 ```
 
 ### POST `/api/auth/logout` ou `/api/logout`
@@ -59,6 +59,60 @@ Response: {
       "body": "Corps",
       "status": "sent",
       "created_at": "2025-12-14T10:00:00"
+    }
+  ]
+}
+```
+
+## 🌐 Email Provisioning (Nouveau)
+
+### POST `/api/email/check-availability`
+Vérifier la disponibilité d'un nom d'utilisateur
+```json
+Request: {
+  "username": "contact"
+}
+Response: {
+  "available": true,
+  "email": "contact@iapostemanager.com",
+  "suggestions": ["contact1", "contact2", "contact-info"]
+}
+```
+
+### POST `/api/email/create`
+Créer une nouvelle adresse email générique
+```json
+Request: {
+  "username": "contact",
+  "display_name": "Support Client"
+}
+Response: {
+  "success": true,
+  "email": "contact@iapostemanager.com",
+  "credentials": {
+    "smtp_server": "smtp.sendgrid.net",
+    "smtp_port": 587,
+    "smtp_username": "contact",
+    "smtp_password": "generated_password"
+  },
+  "message": "Email contact@iapostemanager.com créé avec succès!",
+  "webmail": "https://app.sendgrid.com"
+}
+```
+
+### GET `/api/email/my-accounts`
+Liste des comptes email créés par l'utilisateur
+```json
+Response: {
+  "accounts": [
+    {
+      "id": 1,
+      "email": "contact@iapostemanager.com",
+      "display_name": "Support Client",
+      "status": "active",
+      "created_at": "2025-12-16T10:00:00",
+      "emails_sent_today": 5,
+      "emails_sent_month": 150
     }
   ]
 }
