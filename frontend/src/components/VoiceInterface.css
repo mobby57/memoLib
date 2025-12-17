@@ -1,0 +1,83 @@
+.voice-interface {
+  width: 100%;
+}
+
+.description {
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.voice-btn {
+  background: #4caf50;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  min-width: 200px;
+}
+
+.voice-btn:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.voice-btn:disabled {
+  background: #666;
+}
+
+.transcript {
+  margin-top: 1.5rem;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.transcript h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: #646cff;
+}
+
+.transcript p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.message.info {
+  background: rgba(33, 150, 243, 0.1);
+  border: 1px solid #2196f3;
+  color: #2196f3;
+}
+
+.info-box {
+  margin-top: 2rem;
+  text-align: left;
+  background: rgba(100, 108, 255, 0.1);
+  border: 1px solid rgba(100, 108, 255, 0.3);
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.info-box p {
+  margin: 0 0 0.5rem 0;
+}
+
+.info-box ul {
+  margin: 0.5rem 0 0 1.5rem;
+  padding: 0;
+}
+
+.info-box li {
+  margin: 0.3rem 0;
+}
+
+@media (prefers-color-scheme: light) {
+  .transcript {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .info-box {
+    background: rgba(100, 108, 255, 0.05);
+    border: 1px solid rgba(100, 108, 255, 0.2);
+  }
+}

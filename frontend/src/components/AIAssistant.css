@@ -1,0 +1,56 @@
+.ai-assistant {
+  width: 100%;
+}
+
+.generated-content {
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.content-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.generated-text {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 1rem;
+  white-space: pre-wrap;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+@media (prefers-color-scheme: light) {
+  .copy-btn {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+  
+  .copy-btn:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+  
+  .generated-text {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
