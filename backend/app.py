@@ -33,9 +33,9 @@ logger = logging.getLogger(__name__)
 
 
 # Import modules
-from backend.security import encrypt_data, decrypt_data
-from backend.email_service import EmailService
-from backend.ai_generator import AIGenerator
+from security import encrypt_data, decrypt_data
+from email_service import EmailService
+from ai_generator import AIGenerator
 
 # Initialize services
 email_service = EmailService()
