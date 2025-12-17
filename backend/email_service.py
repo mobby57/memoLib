@@ -24,7 +24,8 @@ class EmailService:
     def validate_email_address(self, email: str) -> bool:
         """Validate email address format"""
         try:
-            valid = validate_email(email, check_deliverability=False)
+            # validate_email returns EmailInfo object on success, raises on failure
+            validate_email(email, check_deliverability=False)
             return True
         except EmailNotValidError as e:
             logger.error(f"Invalid email address {email}: {str(e)}")

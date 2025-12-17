@@ -32,10 +32,11 @@ class AIGenerator:
             return f"[AI Generated Response to: {prompt[:50]}...]\n\nThis is a mock AI-generated email. Please configure OPENAI_API_KEY environment variable to enable real AI generation.\n\nBest regards,\nIAPosteManager"
         
         try:
-            import openai
-            openai.api_key = self.api_key
+            from openai import OpenAI
             
-            response = openai.ChatCompletion.create(
+            client = OpenAI(api_key=self.api_key)
+            
+            response = client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {"role": "system", "content": "You are a helpful assistant that generates professional email content."},

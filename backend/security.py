@@ -13,7 +13,24 @@ def get_encryption_key():
     """Get or generate encryption key"""
     key = os.getenv('ENCRYPTION_KEY')
     if not key:
-        # Generate a key from a secret phrase for development
+        # In development, warn and use a consistent key for testing
+        # In production, ENCRYPTION_KEY MUST be set
+        import warnings
+        import sys
+        
+        warning_msg = (
+            "SECURITY WARNING: ENCRYPTION_KEY environment variable not set!\n"
+            "Using insecure development key. DO NOT use in production.\n"
+            "Generate a secure key: python -c 'import base64, os; print(base64.b64encode(os.urandom(32)).decode())'\n"
+            "Then set ENCRYPTION_KEY in your .env file."
+        )
+        warnings.warn(warning_msg, UserWarning, stacklevel=2)
+        
+        # Only use development key in non-production environments
+        if os.getenv('FLASK_ENV') == 'production' or os.getenv('ENV') == 'production':
+            raise ValueError("ENCRYPTION_KEY must be set in production environment")
+        
+        # Generate a consistent key from a secret phrase for development only
         key = hashlib.sha256(b'dev-encryption-key-change-in-production').digest()
         return key
     return base64.b64decode(key)
