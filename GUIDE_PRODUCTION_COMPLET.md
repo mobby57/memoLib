@@ -14,6 +14,7 @@ Ce guide centralise **tout** ce dont vous avez besoin pour déployer et mainteni
 - ✅ Configuration email production
 - ✅ Sécurité renforcée (WAF, rate limiting)
 - ✅ PWA avec mode offline
+- ✅ **Provisioning d'emails cloud (SendGrid/AWS SES/Microsoft 365/Google)**
 
 ---
 
@@ -26,10 +27,11 @@ Ce guide centralise **tout** ce dont vous avez besoin pour déployer et mainteni
 5. [Backups](#5-backups)
 6. [Tests](#6-tests)
 7. [Configuration Email](#7-configuration-email)
-8. [Sécurité](#8-sécurité)
-9. [PWA Mobile](#9-pwa-mobile)
-10. [Maintenance](#10-maintenance)
-11. [Troubleshooting](#11-troubleshooting)
+8. [Provisioning Emails Cloud](#8-provisioning-emails-cloud)
+9. [Sécurité](#9-sécurité)
+10. [PWA Mobile](#10-pwa-mobile)
+11. [Maintenance](#11-maintenance)
+12. [Troubleshooting](#12-troubleshooting)
 
 ---
 
@@ -132,14 +134,14 @@ docker-compose -f monitoring/docker-compose.monitoring.yml up -d
 
 # Accès interfaces
 # Prometheus: http://localhost:9090
-# Grafana: http://localhost:3000 (admin/admin)
+# Grafana: http://localhost:3000 (voir variables d'environnement)
 # Alertmanager: http://localhost:9093
 ```
 
 ### Configuration Grafana
 
 1. **Connexion :** http://localhost:3000
-2. **Login :** admin / admin (changez immédiatement!)
+2. **Login :** ${GRAFANA_ADMIN_USER} / ${GRAFANA_ADMIN_PASSWORD}
 3. **Ajouter Prometheus :**
    - Configuration → Data Sources → Add Prometheus
    - URL: `http://prometheus:9090`
@@ -204,6 +206,128 @@ PRODUCTION_USER=deploy
 SLACK_WEBHOOK_URL=https://hooks.slack.com/... (optionnel)
 ```
 
+#### Comment obtenir ces informations :
+
+**1. DOCKER_USERNAME & DOCKER_PASSWORD**
+```bash
+# Créer compte Docker Hub : https://hub.docker.com/signup
+# Username : votre nom d'utilisateur Docker Hub
+
+# Générer Access Token :
+# 1. Docker Hub → Account Settings → Security
+# 2. New Access Token
+# 3. Description : "GitHub Actions CI/CD"
+# 4. Permissions : Read, Write, Delete
+# 5. Copier le token (commence par dckr_pat_...)
+
+# Pour ce projet :
+DOCKER_USERNAME=mooby865
+DOCKER_PASSWORD=dckr_pat_xxxxxxxxxxxxx
+
+# Image sera : mooby865/iapostemanager:latest
+```
+
+**2. SSH_PRIVATE_KEY**
+```bash
+# Générer paire de clés SSH sur votre machine locale
+
+# Windows PowerShell:
+ssh-keygen -t ed25519 -C "github-actions-deploy" -f $env:USERPROFILE\.ssh\github_deploy
+
+# Linux/Mac:
+ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/github_deploy
+
+# Copier la clé PUBLIQUE sur le serveur de production
+
+# Windows PowerShell (méthode manuelle):
+# 1. Afficher la clé publique:
+Get-Content "$env:USERPROFILE\.ssh\github_deploy.pub"
+# 2. Se connecter au serveur et ajouter la clé:
+ssh user@votre-serveur.com "mkdir -p ~/.ssh && echo 'VOTRE_CLÉ_PUBLIQUE' >> ~/.ssh/authorized_keys"
+
+# Linux/Mac:
+ssh-copy-id -i ~/.ssh/github_deploy.pub user@votre-serveur.com
+
+# Ou manuellement :
+# Windows PowerShell:
+Get-Content "$env:USERPROFILE\.ssh\github_deploy.pub" | ssh user@votre-serveur.com "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+
+# Linux/Mac:
+cat ~/.ssh/github_deploy.pub | ssh user@votre-serveur.com "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+
+# Copier la clé PRIVÉE pour GitHub (tout le contenu)
+# Windows PowerShell:
+Get-Content "$env:USERPROFILE\.ssh\github_deploy"
+
+# Linux/Mac:
+cat ~/.ssh/github_deploy
+
+# Copier depuis -----BEGIN jusqu'à -----END inclus
+
+SSH_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+...
+-----END OPENSSH PRIVATE KEY-----
+```
+
+**3. PRODUCTION_HOST**
+```bash
+# Adresse IP ou nom de domaine de votre serveur
+PRODUCTION_HOST=123.45.67.89
+# ou
+PRODUCTION_HOST=monserveur.exemple.com
+```
+
+**4. PRODUCTION_USER**
+```bash
+# Utilisateur SSH sur le serveur (recommandé : créer utilisateur dédié)
+sudo adduser deploy
+sudo usermod -aG docker deploy
+
+PRODUCTION_USER=deploy
+```
+
+**5. SLACK_WEBHOOK_URL (optionnel)**
+```bash
+# 1. Aller sur https://api.slack.com/apps
+# 2. Create New App → From scratch
+# 3. Nom : "iaPosteManager CI/CD"
+# 4. Workspace : sélectionner votre workspace
+# 5. Incoming Webhooks → Activate
+# 6. Add New Webhook to Workspace
+# 7. Choisir le canal (#deployments)
+# 8. Copier l'URL du webhook
+
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX
+```
+
+#### Ajouter les secrets dans GitHub :
+
+```bash
+# 1. Aller sur votre repo GitHub
+# 2. Settings → Secrets and variables → Actions
+# 3. New repository secret
+# 4. Ajouter chaque secret un par un :
+
+Name: DOCKER_USERNAME
+Secret: mooby865
+
+Name: DOCKER_PASSWORD  
+Secret: dckr_pat_xxxxxxxxxxxxx
+
+Name: SSH_PRIVATE_KEY
+Secret: [coller toute la clé privée]
+
+Name: PRODUCTION_HOST
+Secret: 123.45.67.89
+
+Name: PRODUCTION_USER
+Secret: deploy
+
+Name: SLACK_WEBHOOK_URL
+Secret: https://hooks.slack.com/services/...
+```
+
 ### Déclenchement manuel
 
 ```bash
@@ -214,7 +338,7 @@ Actions → CI/CD Pipeline → Run workflow
 curl -X POST \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer $GITHUB_TOKEN" \
-  https://api.github.com/repos/OWNER/REPO/actions/workflows/ci-cd.yml/dispatches \
+  https://api.github.com/repos/mooby865/iapostemanager/actions/workflows/ci-cd.yml/dispatches \
   -d '{"ref":"main"}'
 ```
 
@@ -375,8 +499,8 @@ docker-compose run --rm tests
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USE_TLS=True
-MAIL_USERNAME=votre-email@gmail.com
-MAIL_PASSWORD=votre-app-password
+MAIL_USERNAME=${GMAIL_USERNAME}
+MAIL_PASSWORD=${GMAIL_APP_PASSWORD}
 ```
 
 **Configuration App Password Gmail :**
@@ -390,7 +514,7 @@ MAIL_PASSWORD=votre-app-password
 MAIL_SERVER=smtp.sendgrid.net
 MAIL_PORT=587
 MAIL_USERNAME=apikey
-MAIL_PASSWORD=SG.xxxxxxxxxxxxxxxxxxxxx
+MAIL_PASSWORD=${SENDGRID_API_KEY}
 ```
 
 **Configuration SendGrid :**
@@ -403,8 +527,8 @@ MAIL_PASSWORD=SG.xxxxxxxxxxxxxxxxxxxxx
 ```env
 MAIL_SERVER=email-smtp.eu-west-1.amazonaws.com
 MAIL_PORT=587
-MAIL_USERNAME=AKIAXXXXXXXXXXXXXXXX
-MAIL_PASSWORD=votre-ses-smtp-password
+MAIL_USERNAME=${AWS_SES_USERNAME}
+MAIL_PASSWORD=${AWS_SES_PASSWORD}
 ```
 
 ### Service Email Python
@@ -454,7 +578,390 @@ print(email.send_email(['test@example.com'], 'Test', '<p>Test</p>'))
 
 ---
 
-## 8. Sécurité
+## 8. Provisioning Emails Cloud
+
+### Vue d'ensemble
+
+Le système de provisioning d'emails cloud permet à vos utilisateurs de **créer des adresses emails génériques** (contact@, support@, info@, etc.) directement depuis l'application, sans configuration manuelle complexe.
+
+**✅ Système opérationnel et testé (2/2 tests passent)**
+
+**Providers supportés :**
+- 📧 **SendGrid** - Recommandé pour démarrer (100 emails/jour gratuit)
+- 🚀 **AWS SES** - Production haute capacité (jusqu'à 62,000 emails/mois gratuit)
+- 🏢 **Microsoft 365** - Intégration entreprise
+- 📬 **Google Workspace** - Gmail professionnel
+
+### Endpoints API disponibles
+
+**1. Vérifier disponibilité d'un nom d'utilisateur**
+```bash
+POST /api/email/check-availability
+Content-Type: application/json
+
+{
+  "username": "contact"
+}
+
+# Réponse
+{
+  "available": true,
+  "email": "contact@iapostemanager.com",
+  "suggestions": ["contact1", "contact-support", "contact.info"]
+}
+```
+
+**2. Créer un nouveau compte email**
+```bash
+POST /api/email/create
+Content-Type: application/json
+
+{
+  "username": "support",
+  "display_name": "Support Team"
+}
+
+# Réponse
+{
+  "success": true,
+  "email": "support@iapostemanager.com",
+  "credentials": {
+    "smtp_server": "smtp.sendgrid.net",
+    "smtp_port": 587,
+    "smtp_username": "apikey",
+    "smtp_password": "SG.xxxxx"
+  },
+  "message": "Email support@iapostemanager.com créé avec succès!",
+  "webmail": "https://mail.sendgrid.com"
+}
+```
+
+**3. Lister les comptes emails de l'utilisateur**
+```bash
+GET /api/email/my-accounts
+
+# Réponse
+{
+  "accounts": [
+    {
+      "id": 1,
+      "email": "support@iapostemanager.com",
+      "display_name": "Support Team",
+      "status": "active",
+      "created_at": "2025-12-16 10:30:00",
+      "emails_sent_today": 5,
+      "emails_sent_month": 127
+    }
+  ]
+}
+```
+
+### Configuration des providers
+
+**Fichier :** `email-provisioning.env`
+
+#### Option 1: SendGrid (Recommandé pour démarrer)
+
+```env
+# Provider principal
+EMAIL_PROVIDER=sendgrid
+EMAIL_DOMAIN=iapostemanager.com
+
+# SendGrid
+SENDGRID_API_KEY=SG.votre_cle_api_ici
+SENDGRID_SENDER_EMAIL=noreply@iapostemanager.com
+SENDGRID_SENDER_NAME=iaPosteManager
+```
+
+**Obtenir la clé API SendGrid :**
+1. Créer compte gratuit sur https://sendgrid.com (100 emails/jour gratuit)
+2. Settings → API Keys → Create API Key
+3. Nom : "iaPosteManager Production"
+4. Permissions : Full Access → Mail Send
+5. Copier la clé (commence par `SG.`)
+6. Vérifier domaine : Settings → Sender Authentication
+
+**Limites gratuites SendGrid :**
+- 100 emails/jour
+- 40,000 premiers 30 jours
+- Idéal pour démarrer et tester
+
+#### Option 2: AWS SES (Production haute capacité)
+
+```env
+EMAIL_PROVIDER=aws_ses
+EMAIL_DOMAIN=iapostemanager.com
+
+# AWS SES
+AWS_ACCESS_KEY_ID=${YOUR_AWS_ACCESS_KEY_ID}
+AWS_SECRET_ACCESS_KEY=${YOUR_AWS_SECRET_ACCESS_KEY}
+AWS_REGION=eu-west-1
+AWS_SES_SENDER_EMAIL=noreply@iapostemanager.com
+```
+
+**Configuration AWS SES :**
+1. Créer compte AWS → Console SES
+2. Vérifier domaine : Verified identities → Create identity
+3. Créer SMTP credentials : SMTP settings → Create SMTP credentials
+4. Sortir du sandbox : Request production access (limites augmentées)
+5. Configuration SPF/DKIM/DMARC (console AWS)
+
+**Limites gratuites AWS SES :**
+- 62,000 emails/mois si hébergé sur EC2
+- $0.10 par 1,000 emails au-delà
+- Idéal pour production scalable
+
+#### Option 3: Microsoft 365
+
+```env
+EMAIL_PROVIDER=microsoft365
+EMAIL_DOMAIN=iapostemanager.com
+
+# Microsoft 365
+MICROSOFT_CLIENT_ID=votre_client_id
+MICROSOFT_CLIENT_SECRET=votre_client_secret
+MICROSOFT_TENANT_ID=votre_tenant_id
+```
+
+**Configuration Microsoft 365 :**
+1. Azure Portal → App registrations → New registration
+2. API permissions → Microsoft Graph → Mail.Send
+3. Certificates & secrets → New client secret
+4. Nécessite licence Microsoft 365 Business
+
+#### Option 4: Google Workspace
+
+```env
+EMAIL_PROVIDER=google
+EMAIL_DOMAIN=iapostemanager.com
+
+# Google Workspace
+GOOGLE_CLIENT_ID=votre_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=votre_client_secret
+GOOGLE_SERVICE_ACCOUNT_JSON=/path/to/service-account.json
+```
+
+**Configuration Google Workspace :**
+1. Google Cloud Console → Create Project
+2. Enable Gmail API
+3. Create Service Account → Download JSON key
+4. Domain-wide delegation dans Admin Console
+5. Nécessite Google Workspace (payant)
+
+### Tests de validation
+
+```powershell
+# Windows PowerShell
+
+# Test 1: Vérifier disponibilité
+$body = @{username='contact'} | ConvertTo-Json
+Invoke-RestMethod -Uri 'http://localhost:5000/api/email/check-availability' -Method POST -ContentType 'application/json' -Body $body
+
+# Test 2: Créer email
+$body = @{username='support'; display_name='Support Team'} | ConvertTo-Json
+Invoke-RestMethod -Uri 'http://localhost:5000/api/email/create' -Method POST -ContentType 'application/json' -Body $body
+
+# Test 3: Lister comptes
+Invoke-RestMethod -Uri 'http://localhost:5000/api/email/my-accounts' -Method GET
+```
+
+```bash
+# Linux/Mac
+
+# Test 1: Vérifier disponibilité
+curl -X POST http://localhost:5000/api/email/check-availability \
+  -H "Content-Type: application/json" \
+  -d '{"username":"contact"}'
+
+# Test 2: Créer email
+curl -X POST http://localhost:5000/api/email/create \
+  -H "Content-Type: application/json" \
+  -d '{"username":"support","display_name":"Support Team"}'
+
+# Test 3: Lister comptes
+curl http://localhost:5000/api/email/my-accounts
+```
+
+### Intégration Frontend React
+
+**Composant disponible :** `src/frontend/src/components/EmailProvisioningPanel.jsx`
+
+```jsx
+import EmailProvisioningPanel from './components/EmailProvisioningPanel';
+
+function App() {
+  return (
+    <div>
+      <EmailProvisioningPanel />
+    </div>
+  );
+}
+```
+
+**Fonctionnalités du composant :**
+- ✅ Vérification en temps réel de disponibilité
+- ✅ Suggestions automatiques si nom pris
+- ✅ Création en un clic
+- ✅ Affichage des credentials SMTP
+- ✅ Copie rapide des paramètres
+- ✅ Liste des comptes avec stats
+- ✅ Interface accessible
+
+### Base de données
+
+**Tables créées automatiquement :**
+
+```sql
+-- Table des comptes emails créés
+CREATE TABLE email_accounts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    email_address TEXT UNIQUE NOT NULL,
+    display_name TEXT,
+    provider TEXT NOT NULL,
+    status TEXT DEFAULT 'active',
+    smtp_server TEXT,
+    smtp_port INTEGER,
+    smtp_username TEXT,
+    smtp_password TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    emails_sent_today INTEGER DEFAULT 0,
+    emails_sent_month INTEGER DEFAULT 0,
+    last_email_sent TIMESTAMP
+);
+
+-- Table des logs de provisioning
+CREATE TABLE email_provisioning_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    action TEXT NOT NULL,
+    email_address TEXT,
+    provider TEXT,
+    status TEXT NOT NULL,
+    error_message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Bonnes pratiques
+
+**Sécurité :**
+- 🔐 Stockez les clés API dans variables d'environnement uniquement
+- 🔐 Ne jamais commiter `email-provisioning.env` dans Git
+- 🔐 Utilisez des credentials différents dev/prod
+- 🔐 Activez 2FA sur comptes SendGrid/AWS
+- 🔐 Rotez régulièrement les clés API (tous les 90 jours)
+
+**Limitations :**
+- ⚠️ Respectez les quotas gratuits (SendGrid: 100/jour)
+- ⚠️ Implémentez rate limiting côté application
+- ⚠️ Surveillez consommation dans dashboards providers
+- ⚠️ Configurez alertes si quota atteint
+
+**Monitoring :**
+- 📊 Trackez emails_sent_today/month dans la DB
+- 📊 Logs dans `email_provisioning_logs`
+- 📊 Intégrez métriques dans Grafana
+- 📊 Alertes si taux d'erreur > 5%
+
+**Scalabilité :**
+- 🚀 Démarrez avec SendGrid gratuit
+- 🚀 Migrez vers AWS SES si > 100 emails/jour
+- 🚀 Utilisez plusieurs providers (fallback)
+- 🚀 Considérez CDN pour assets emails
+
+### Documentation complète
+
+**Guide détaillé (60+ pages) :** `GUIDE_EMAIL_PROVISIONING_CLOUD.md`
+
+Contient :
+- Comparaison détaillée des 4 providers
+- Setup complet pour chaque provider
+- Configuration SPF/DKIM/DMARC
+- Gestion des quotas et limites
+- Troubleshooting avancé
+- Exemples de code complets
+- Best practices entreprise
+
+### Dépannage
+
+**Erreur : "Provider API key invalide"**
+```bash
+# Vérifier la clé dans .env
+cat email-provisioning.env | grep API_KEY
+
+# Tester la clé SendGrid
+curl -X POST https://api.sendgrid.com/v3/mail/send \
+  -H "Authorization: Bearer $SENDGRID_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"personalizations":[{"to":[{"email":"test@example.com"}]}],"from":{"email":"test@test.com"},"subject":"Test","content":[{"type":"text/plain","value":"test"}]}'
+```
+
+**Erreur : "Quota dépassé"**
+```bash
+# Vérifier utilisation SendGrid
+curl -X GET https://api.sendgrid.com/v3/stats \
+  -H "Authorization: Bearer $SENDGRID_API_KEY"
+
+# Vérifier DB locale
+sqlite3 data/unified.db "SELECT SUM(emails_sent_today) FROM email_accounts;"
+```
+
+**Erreur : "Email non vérifié"**
+- SendGrid : Vérifier domaine dans Sender Authentication
+- AWS SES : Sortir du sandbox mode
+- Google/Microsoft : Vérifier permissions API
+
+### Fichiers créés
+
+```
+src/backend/
+├── services/
+│   └── email_provisioning_service.py     # Service principal (500+ lignes)
+├── models/
+│   └── email_account.py                  # Modèles SQLAlchemy
+└── data/
+    └── unified.db                        # Tables auto-créées
+
+src/frontend/src/
+└── components/
+    └── EmailProvisioningPanel.jsx        # Interface React
+
+docs/
+├── GUIDE_EMAIL_PROVISIONING_CLOUD.md    # Guide complet (60+ pages)
+└── email-provisioning.env               # Template configuration
+
+tests/
+└── test-email-provisioning.sh           # Tests automatisés
+```
+
+### Script de démarrage
+
+**Windows :** `RUN_SERVER.bat` (déjà créé et testé)
+
+```batch
+@echo off
+chcp 65001 > nul
+cd /d "%~dp0\src\backend"
+echo ====================================
+echo SERVEUR IAPOSTEMANAGER
+echo ====================================
+echo.
+python app.py
+echo.
+echo Serveur arrete.
+pause
+```
+
+**Utilisation :**
+1. Double-cliquer sur `RUN_SERVER.bat`
+2. Serveur démarre sur http://localhost:5000
+3. Endpoints email provisioning disponibles
+4. Ne pas fermer la fenêtre CMD
+
+---
+
+## 9. Sécurité
 
 ### Configuration Nginx sécurisée
 
@@ -536,7 +1043,7 @@ sudo fail2ban-client status nginx-login
 
 ---
 
-## 9. PWA Mobile
+## 10. PWA Mobile
 
 ### Manifest PWA
 
@@ -611,7 +1118,7 @@ Notification.requestPermission().then(permission => {
 
 ---
 
-## 10. Maintenance
+## 11. Maintenance
 
 ### Maintenance quotidienne
 
@@ -687,7 +1194,7 @@ curl http://localhost:5000/api/health
 
 ---
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 ### Application ne démarre pas
 
@@ -750,7 +1257,7 @@ python -c "
 import smtplib
 server = smtplib.SMTP('smtp.gmail.com', 587)
 server.starttls()
-server.login('user', 'pass')
+server.login(os.getenv('SMTP_USER'), os.getenv('SMTP_PASS'))
 print('OK')
 "
 
@@ -819,6 +1326,7 @@ Vous avez maintenant une infrastructure production complète avec :
 ✅ Backups quotidiens  
 ✅ Tests avancés  
 ✅ Configuration email pro  
+✅ **Provisioning emails cloud (SendGrid/AWS/MS365/Google)**  
 ✅ Sécurité renforcée (WAF, rate limiting)  
 ✅ PWA avec mode offline  
 ✅ Documentation complète  
@@ -830,9 +1338,10 @@ Vous avez maintenant une infrastructure production complète avec :
 3. 📊 Lancer monitoring
 4. 🔐 Configurer GitHub Secrets pour CI/CD
 5. 📧 Configurer SMTP production
-6. 🛡️ Installer WAF et Fail2Ban
-7. 📱 Tester PWA sur mobile
-8. ✅ Cocher la checklist sécurité
+6. ☁️ **Configurer provider email cloud (SendGrid/AWS SES)**
+7. 🛡️ Installer WAF et Fail2Ban
+8. 📱 Tester PWA sur mobile
+9. ✅ Cocher la checklist sécurité
 
 **Commande de déploiement complet :**
 ```bash
@@ -855,10 +1364,14 @@ crontab -e
 
 # 6. Tests
 bash tests/test-api.sh https://votre-domaine.com
+
+# 7. Test email provisioning
+$body = @{username='contact'} | ConvertTo-Json
+Invoke-RestMethod -Uri 'http://localhost:5000/api/email/check-availability' -Method POST -ContentType 'application/json' -Body $body
 ```
 
 ---
 
-*Document généré le 15 décembre 2025*  
-*Version: 3.5 Production Ready*  
+*Document généré le 16 décembre 2025*  
+*Version: 3.6 Production Ready + Email Cloud Provisioning*  
 *iaPosteManager - Gestion intelligente des emails*

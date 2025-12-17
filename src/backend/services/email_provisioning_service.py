@@ -320,14 +320,15 @@ def register_email_provisioning_routes(app):
     import sqlite3
     import os
     
+    print("[DEBUG] Registering email provisioning routes...")
     email_service = EmailProvisioningService()
+    print(f"[DEBUG] EmailProvisioningService created, domain={email_service.domain}")
     
     def get_db_connection():
         """Connexion à la base de données SQLite"""
         db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'unified.db')
         return sqlite3.connect(db_path)
     
-    @app.route('/api/email/check-availability', methods=['POST'])
     def check_email_availability():
         """Vérifie si un nom d'utilisateur est disponible"""
         data = request.get_json()
@@ -349,7 +350,6 @@ def register_email_provisioning_routes(app):
             'suggestions': suggestions
         })
     
-    @app.route('/api/email/create', methods=['POST'])
     def create_email_account():
         """Crée un nouveau compte email"""
         data = request.get_json()
@@ -386,7 +386,6 @@ def register_email_provisioning_routes(app):
                 'error': result.get('error', 'Erreur lors de la création')
             }), 500
     
-    @app.route('/api/email/my-accounts', methods=['GET'])
     def list_my_email_accounts():
         """Liste les comptes email de l'utilisateur"""
         user_id = session.get('user_id', 1)
@@ -414,3 +413,14 @@ def register_email_provisioning_routes(app):
             })
         
         return jsonify({'accounts': accounts})
+    
+    # Enregistrer les routes explicitement
+    app.add_url_rule('/api/email/check-availability', 'check_email_availability', check_email_availability, methods=['POST'])
+    app.add_url_rule('/api/email/create', 'create_email_account', create_email_account, methods=['POST'])
+    app.add_url_rule('/api/email/my-accounts', 'list_my_email_accounts', list_my_email_accounts, methods=['GET'])
+    
+    print(f"[DEBUG] Registered {len(app.url_map._rules)} total routes")
+    print("[DEBUG] Email provisioning routes:")
+    for rule in app.url_map.iter_rules():
+        if 'email' in rule.rule and 'provisioning' not in rule.endpoint:
+            print(f"  - {rule.methods} {rule.rule} > {rule.endpoint}")
