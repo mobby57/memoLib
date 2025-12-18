@@ -58,11 +58,11 @@ jobs:
     
     - name: Build Docker image
       run: |
-        docker build -t securevault:${{ github.sha }} .
+        docker build -t iapostemanager:${{ github.sha }} .
     
     - name: Test Docker image
       run: |
-        docker run --rm -d -p 5000:5000 --name test-app securevault:${{ github.sha }}
+        docker run --rm -d -p 5000:5000 --name test-app iapostemanager:${{ github.sha }}
         sleep 10
         curl -f http://localhost:5000/api/health || exit 1
         docker stop test-app
