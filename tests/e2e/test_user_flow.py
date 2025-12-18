@@ -1,10 +1,14 @@
 # Tests E2E Selenium
+import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 
+pytestmark = pytest.mark.e2e  # Mark all tests in this file as e2e
+
+@pytest.mark.e2e
 def test_email_generation_flow():
     options = Options()
     options.add_argument('--headless')
