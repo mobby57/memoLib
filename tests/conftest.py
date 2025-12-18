@@ -2,6 +2,13 @@
 import pytest
 import os
 import tempfile
+
+# Set required environment variables before importing app
+if not os.environ.get('SECRET_KEY'):
+    os.environ['SECRET_KEY'] = 'test-secret-key-for-pytest'
+if not os.environ.get('FLASK_ENV'):
+    os.environ['FLASK_ENV'] = 'testing'
+
 from src.core.database import Database
 from src.web.app import app
 
