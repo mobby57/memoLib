@@ -9,15 +9,16 @@ import os
 def test_auth_manager(client):
     """Test auth manager with Flask context"""
     with client.application.app_context():
-        auth = AuthManager()
-        
-        # Test authentification valide (returns session token)
-        result = auth.authenticate('password123')
-        assert result is not None
-        
-        # Test mot de passe trop court
-        result_short = auth.authenticate('123')
-        assert result_short is False or result_short is None
+        with client.application.test_request_context():
+            auth = AuthManager()
+            
+            # Test authentification valide (returns session token)
+            result = auth.authenticate('password123')
+            assert result is not None
+            
+            # Test mot de passe trop court
+            result_short = auth.authenticate('123')
+            assert result_short is False or result_short is None
 
 def test_session_manager():
     with tempfile.TemporaryDirectory() as temp_dir:
