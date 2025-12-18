@@ -64,7 +64,7 @@ class AuthService:
     def _generate_token(self, password):
         """Générer un token d'authentification"""
         import hashlib
-        return 'token-' + hashlib.md5(password.encode()).hexdigest()[:16]
+        return 'token-' + hashlib.sha256(password.encode()).hexdigest()[:16]
     
     def _get_client_ip(self):
         """Obtenir l'IP du client"""
