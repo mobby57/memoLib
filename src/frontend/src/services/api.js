@@ -274,5 +274,25 @@ if (typeof window !== 'undefined') {
 
 // Export par défaut pour compatibilité
 const emailService = emailAPI;
+
+// Exports pour compatibilité avec les composants
 export const authService = authAPI;
+export const voiceService = voiceAPI;
+export const accessibilityService = accessibilityAPI;
+export const aiService = aiAPI;
+export const emailService = emailAPI;
+
+// Export global apiService pour les composants qui l'utilisent
+export const apiService = {
+  email: emailAPI,
+  ai: aiAPI,
+  voice: voiceAPI,
+  accessibility: accessibilityAPI,
+  auth: authAPI,
+  config: configAPI,
+  template: templateAPI,
+  dashboard: dashboardAPI,
+  batch: batchAPI
+};
+
 export default emailService;
