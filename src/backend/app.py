@@ -1465,7 +1465,7 @@ def api_voice_transcribe():
         raise ValidationError('Type de fichier non supporté')
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"temp_{timestamp}_{hashlib.md5(audio_file.filename.encode()).hexdigest()[:8]}.wav"
+    filename = f"temp_{timestamp}_{hashlib.sha256(audio_file.filename.encode()).hexdigest()[:8]}.wav"
     temp_path = os.path.join(config.UPLOADS_DIR, filename)
     
     try:

@@ -222,7 +222,7 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/... (optionnel)
 
 # Pour ce projet :
 DOCKER_USERNAME=mooby865
-DOCKER_PASSWORD=dckr_pat_xxxxxxxxxxxxx
+DOCKER_PASSWORD=<your-docker-token-here>
 
 # Image sera : mooby865/iapostemanager:latest
 ```
@@ -264,10 +264,7 @@ cat ~/.ssh/github_deploy
 
 # Copier depuis -----BEGIN jusqu'à -----END inclus
 
-SSH_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-...
------END OPENSSH PRIVATE KEY-----
+SSH_PRIVATE_KEY=<your-private-key-here>
 ```
 
 **3. PRODUCTION_HOST**
@@ -298,7 +295,7 @@ PRODUCTION_USER=deploy
 # 7. Choisir le canal (#deployments)
 # 8. Copier l'URL du webhook
 
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX
+SLACK_WEBHOOK_URL=<your-slack-webhook-url>
 ```
 
 #### Ajouter les secrets dans GitHub :
