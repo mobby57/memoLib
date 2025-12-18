@@ -8,13 +8,14 @@ Ce guide centralise **tout** ce dont vous avez besoin pour déployer et mainteni
 - ✅ Application déployée en Docker (5/5 tests passent)
 - ✅ SSL/HTTPS automatisé
 - ✅ Monitoring Prometheus/Grafana
-- ✅ Pipeline CI/CD GitHub Actions
+- ✅ Pipeline CI/CD GitHub Actions (68 tests automatisés)
 - ✅ Système de backup automatique
-- ✅ Tests avancés (API, charge, sécurité)
+- ✅ Tests avancés (API, charge, sécurité) - Mode headless pour CI/CD
 - ✅ Configuration email production
 - ✅ Sécurité renforcée (WAF, rate limiting)
 - ✅ PWA avec mode offline
 - ✅ **Provisioning d'emails cloud (SendGrid/AWS SES/Microsoft 365/Google)**
+- ✅ **Suite de tests complète avec fixtures et mocks (Commit 37c09f1)**
 
 ---
 
@@ -404,27 +405,44 @@ gsutil -m rsync -r backups/ gs://votre-bucket/iapostemanager/
 
 ```bash
 # Installer dépendances
-npm install
-npx playwright install
+pip install -r requirements.txt
 
-# Lancer tous les tests
-npm run test:e2e
+# Lancer tous les tests (68 tests)
+pytest tests/
 
 # Tests spécifiques
-npx playwright test auth.spec.js
-npx playwright test email.spec.js
+pytest tests/test_api.py
+pytest tests/test_auth.py
+pytest tests/test_email_system.py
 
-# Mode debug
-npx playwright test --debug
+# Tests E2E avec Selenium (headless)
+pytest tests/e2e/
+
+# Mode verbose avec couverture
+pytest --cov=src --cov-report=html tests/
 ```
 
-**Tests configurés (39 tests) :**
-- ✅ Authentification (login/logout)
+**✅ Corrections récentes (Commit 37c09f1) :**
+- ✅ Fixtures manquants ajoutés (temp_dir, test_email, test_app_password, etc.)
+- ✅ Selenium configuré en mode headless pour GitHub Actions
+- ✅ Endpoint login corrigé (/api/login)
+- ✅ Tests auth adaptés au contexte Flask
+- ✅ EmailValidator tests corrigés (méthodes d'instance)
+- ✅ Dépendance minio ajoutée (requirements.txt)
+- ✅ Mock AI service corrigé (subscriptability)
+
+**Tests configurés (68 tests) :**
+- ✅ Authentification (login/logout) - Tests unitaires et E2E
 - ✅ Envoi emails (Gmail, SMTP)
 - ✅ Interface vocale (TTS, reconnaissance)
 - ✅ Accessibilité (navigation clavier)
 - ✅ API REST (tous endpoints)
-- ✅ Sécurité (XSS, CSRF)
+- ✅ Sécurité (XSS, CSRF, 2FA)
+- ✅ Validation et sanitisation des données
+- ✅ Email system (classification, priorités)
+- ✅ Services AI et email
+- ✅ Workflows complets
+- ✅ Tests E2E Selenium headless (CI/CD ready)
 
 ### Tests de charge
 
@@ -976,8 +994,9 @@ docker-compose logs -f --tail=100
 ✅ **Monitorée** avec Prometheus/Grafana  
 ✅ **Automatisée** avec CI/CD GitHub Actions  
 ✅ **Sauvegardée** avec backups quotidiens  
-✅ **Testée** avec 39 tests E2E validés  
+✅ **Testée** avec 68 tests automatisés (pytest + Selenium)  
 ✅ **Optimisée** pour mobile avec PWA  
+✅ **CI/CD Ready** avec tests headless configurés  
 ✅ **Prête** pour la production ! 🚀
 
 **Prochaines étapes recommandées :**
@@ -1981,6 +2000,7 @@ Invoke-RestMethod -Uri 'http://localhost:5000/api/email/check-availability' -Met
 
 ---
 
-*Document généré le 16 décembre 2025*  
-*Version: 3.6 Production Ready + Email Cloud Provisioning*  
+*Document généré le 18 décembre 2025*  
+*Version: 3.7 Production Ready + Tests Suite Complète*  
+*Dernière mise à jour: Commit 37c09f1 - Corrections tests CI/CD*  
 *iaPosteManager - Gestion intelligente des emails*
