@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import time
 
+@pytest.mark.e2e
 class TestE2E:
     @pytest.fixture
     def driver(self):

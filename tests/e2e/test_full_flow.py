@@ -6,6 +6,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 
+pytestmark = pytest.mark.e2e  # Mark all tests in this file as e2e
+
 @pytest.fixture
 def driver():
     options = Options()
