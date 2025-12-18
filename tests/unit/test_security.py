@@ -10,23 +10,24 @@ from src.security.key_rotation import KeyRotation
 
 def test_2fa_generer_secret(temp_dir, test_email):
     """Test génération secret 2FA"""
-    tfa = TwoFactorAuth(temp_dir)
-    secret, uri = tfa.generer_secret(test_email)
+    tfa = TwoFactorAuth()
+    secret = tfa.generate_secret(test_email)
+    uri = tfa.get_qr_code(test_email, secret)
     assert secret is not None
     assert len(secret) == 32
-    assert "SecureVault" in uri
+    assert "SecureVault" in uri or "base64" in uri  # QR code is base64 encoded
 
 def test_2fa_verifier_code(temp_dir, test_email):
     """Test vérification code 2FA"""
-    tfa = TwoFactorAuth(temp_dir)
-    secret, uri = tfa.generer_secret(test_email)
+    tfa = TwoFactorAuth()
+    secret = tfa.generate_secret(test_email)
     
     import pyotp
     totp = pyotp.TOTP(secret)
     code = totp.now()
     
-    assert tfa.verifier_code(test_email, code)
-    assert not tfa.verifier_code(test_email, "000000")
+    assert tfa.verify_token(secret, code)
+    assert not tfa.verify_token(secret, "000000")
 
 def test_audit_log_event(temp_dir, test_email):
     """Test enregistrement événement audit"""
