@@ -1,8 +1,16 @@
 #!/bin/bash
-# Start script pour production
+# Start script for production deployment
 
+echo "🚀 Starting iaPosteManager in production mode..."
+
+# Set production environment
 export FLASK_ENV=production
-export PORT=${PORT:-5000}
+export NODE_ENV=production
 
-echo "🚀 Starting IAPosteManager on port $PORT..."
-python src/backend/app.py
+# Create necessary directories
+mkdir -p data logs backups
+
+# Start the application
+echo "🎯 Starting Flask backend on port $PORT..."
+cd src/backend
+python app.py
