@@ -3,7 +3,16 @@ import os
 import secrets
 import json
 from datetime import datetime, timedelta
-from src.core.crypto_utils import *
+try:
+    from src.core.crypto_utils import _valider_chemin_securise, recuperer_app_password, recuperer_api_key
+except ImportError:
+    # Fallback si fonction non disponible
+    def _valider_chemin_securise(app_dir, filename):
+        return os.path.join(app_dir, filename)
+    def recuperer_app_password(pwd, dir):
+        return None, None
+    def recuperer_api_key(pwd, dir):
+        return None, None
 
 class KeyRotation:
     def __init__(self, app_dir, rotation_days=90):

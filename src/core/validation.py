@@ -60,6 +60,32 @@ class Validator:
         # Remove potentially dangerous characters
         sanitized = re.sub(r'[<>"\']', '', text)
         return sanitized.strip()
+    
+    def validate(self, data: Dict[str, Any]) -> bool:
+        """
+        Generic validation method for data dictionaries
+        
+        Args:
+            data: Dictionary containing data to validate
+            
+        Returns:
+            True if all validations pass, False otherwise
+        """
+        if not data:
+            return False
+        
+        # Validate email if present
+        if 'email' in data:
+            if not self.validate_email(data['email']):
+                return False
+        
+        # Validate password if present
+        if 'password' in data:
+            result = self.validate_password(data['password'])
+            if not result['valid']:
+                return False
+        
+        return True
 
 
 class EmailValidator(Validator):
