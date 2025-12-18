@@ -21,6 +21,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY --from=frontend-build /app/frontend/dist ./src/frontend/dist
 
+# Tests directory (needed for pytest in Docker)
+COPY tests/ ./tests/
+COPY pytest.ini ./
+
 # Données persistantes
 VOLUME ["/app/data"]
 
