@@ -73,6 +73,7 @@ jobs:
 
       - name: 🧪 Run tests
         run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
           pytest tests/ --cov=src --cov-report=xml
 
   # Job 3: Tests E2E Playwright
