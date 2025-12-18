@@ -272,9 +272,6 @@ if (typeof window !== 'undefined') {
   }, CACHE_TTL);
 }
 
-// Export par défaut pour compatibilité
-const emailService = emailAPI;
-
 // Exports pour compatibilité avec les composants
 export const authService = authAPI;
 export const voiceService = voiceAPI;
@@ -295,4 +292,5 @@ export const apiService = {
   batch: batchAPI
 };
 
-export default emailService;
+// Export par défaut pour compatibilité
+export default emailAPI;
