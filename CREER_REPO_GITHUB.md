@@ -132,7 +132,7 @@ Password: [Coller votre token, PAS votre mot de passe]
 
 **1. Vérifier sur GitHub:**
 ```
-https://github.com/mooby865/iapostemanager
+https://github.com/mobby57/iapm.com
 ```
 
 **Vous devriez voir:**
@@ -143,7 +143,7 @@ https://github.com/mooby865/iapostemanager
 
 **2. Vérifier workflows:**
 ```
-https://github.com/mooby865/iapostemanager/actions
+https://github.com/mobby57/iapm.com/actions
 ```
 
 **Vous devriez voir:**
@@ -152,7 +152,7 @@ https://github.com/mooby865/iapostemanager/actions
 
 **3. Vérifier secrets (si configurés):**
 ```
-https://github.com/mooby865/iapostemanager/settings/secrets/actions
+https://github.com/mobby57/iapm.com/settings/secrets/actions
 ```
 
 ---
@@ -161,7 +161,7 @@ https://github.com/mooby865/iapostemanager/settings/secrets/actions
 
 ### Le workflow CI/CD se déclenchera automatiquement!
 
-**Étapes visibles sur:** https://github.com/mooby865/iapostemanager/actions
+**Étapes visibles sur:** https://github.com/mobby57/iapm.com/actions
 
 1. ✅ Checkout code
 2. ✅ Setup Python 3.11
@@ -296,6 +296,6 @@ start https://github.com/mooby865/iapostemanager
 ---
 
 **Date:** 18 décembre 2025  
-**Repository:** iapostemanager  
-**Owner:** mooby865  
-**Status:** En attente de création sur GitHub
+**Repository:** iapm.com  
+**Owner:** mobby57  
+**Status:** ✅ Créé et pushé avec succès
