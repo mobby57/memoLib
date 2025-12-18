@@ -13,3 +13,4 @@ qrcode==7.4.2
 gunicorn==21.2.0
 prometheus-client==0.18.0
 Werkzeug==2.3.7
+minio==7.2.0

@@ -40,3 +40,29 @@ def authenticated_client(client):
         sess['master_password'] = 'testpassword123'
         sess['created_at'] = 1234567890
     return client
+
+@pytest.fixture
+def temp_dir():
+    """Répertoire temporaire pour tests"""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
+
+@pytest.fixture
+def test_email():
+    """Email de test"""
+    return 'test@example.com'
+
+@pytest.fixture
+def test_app_password():
+    """Mot de passe app de test"""
+    return 'test-app-password-1234'
+
+@pytest.fixture
+def test_api_key():
+    """Clé API de test"""
+    return 'test-api-key-xyz'
+
+@pytest.fixture
+def master_password():
+    """Mot de passe maître de test"""
+    return 'TestMasterPassword123!'
