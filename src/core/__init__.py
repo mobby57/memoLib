@@ -1,4 +1,6 @@
-# Core module - Updated to fix import issues
-from .validation import Validator
+"""Core module for iaPosteManager"""
 
-__all__ = ['Validator']
+# Import and expose commonly used classes
+from .validation import Validator, EmailValidator
+
+__all__ = ['Validator', 'EmailValidator']
