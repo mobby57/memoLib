@@ -51,6 +51,11 @@ jobs:
     name: 🧪 Backend Tests
     runs-on: ubuntu-latest
     
+    env:
+      SECRET_KEY: test-secret-key-for-ci-cd-pipeline
+      FLASK_ENV: testing
+      DATABASE_URL: sqlite:///test.db
+    
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -67,9 +72,8 @@ jobs:
           pip install pytest pytest-cov
 
       - name: 🧪 Run tests
-        working-directory: ./src/backend
         run: |
-          python -m pytest tests/ --cov=. --cov-report=xml || true
+          pytest tests/ --cov=src --cov-report=xml
 
   # Job 3: Tests E2E Playwright
   e2e-tests:
