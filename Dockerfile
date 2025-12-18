@@ -21,6 +21,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY --from=frontend-build /app/frontend/dist ./src/frontend/dist
 
+# Models directory (needed for workflow tests)
+COPY models/ ./models/
+
 # Tests directory (needed for pytest in Docker)
 COPY tests/ ./tests/
 COPY pytest.ini ./
