@@ -1,13 +1,85 @@
+# Dependencies
 node_modules/
 __pycache__/
 *.pyc
-.env
-data/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Build outputs
 dist/
 build/
-*.log
-.pytest_cache/
+*.tgz
+*.tar.gz
+
+# Docker
+.dockerignore
+
+# Backups
+backups/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+
+# SSH keys
+*.ssh/
+id_rsa*
+github_deploy*
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Package files
+*.deb
+*.rpm
+
+# Monitoring data
+prometheus_data/
+grafana_data/
+
+# Test results
 test-results/
 playwright-report/
-venv/

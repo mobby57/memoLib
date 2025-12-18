@@ -381,6 +381,618 @@ crontab -e
 ./scripts/backup.sh
 
 # Vérifier backups
+ls -la backups/
+
+# Restaurer backup
+./scripts/restore.sh backups/backup-2024-01-15.tar.gz
+```
+
+### Backup cloud (recommandé)
+
+```bash
+# AWS S3
+aws s3 sync backups/ s3://votre-bucket/iapostemanager/
+
+# Google Cloud
+gsutil -m rsync -r backups/ gs://votre-bucket/iapostemanager/
+```
+
+---
+
+## 6. Tests
+
+### Tests E2E Playwright
+
+**Fichier :** `tests/e2e/`
+
+```bash
+# Installer dépendances
+npm install
+npx playwright install
+
+# Lancer tous les tests
+npm run test:e2e
+
+# Tests spécifiques
+npx playwright test auth.spec.js
+npx playwright test email.spec.js
+
+# Mode debug
+npx playwright test --debug
+```
+
+**Tests configurés (39 tests) :**
+- ✅ Authentification (login/logout)
+- ✅ Envoi emails (Gmail, SMTP)
+- ✅ Interface vocale (TTS, reconnaissance)
+- ✅ Accessibilité (navigation clavier)
+- ✅ API REST (tous endpoints)
+- ✅ Sécurité (XSS, CSRF)
+
+### Tests de charge
+
+**Fichier :** `tests/load/locustfile.py`
+
+```bash
+# Installer Locust
+pip install locust
+
+# Lancer test de charge
+locust -f tests/load/locustfile.py --host=http://localhost:5000
+
+# Interface web: http://localhost:8089
+```
+
+**Scénarios testés :**
+- 100 utilisateurs simultanés
+- 1000 requêtes/minute
+- Endpoints critiques (auth, email, API)
+
+### Tests sécurité
+
+**Fichier :** `tests/security/security_scan.py`
+
+```bash
+# Scanner sécurité
+python tests/security/security_scan.py
+
+# Tests OWASP Top 10
+# - Injection SQL
+# - XSS
+# - CSRF
+# - Authentification cassée
+# - Exposition de données
+```
+
+---
+
+## 7. Configuration Email
+
+### Providers supportés
+
+**Gmail/Google Workspace**
+```env
+EMAIL_PROVIDER=gmail
+GMAIL_USER=votre-email@gmail.com
+GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
+```
+
+**Outlook/Microsoft 365**
+```env
+EMAIL_PROVIDER=outlook
+OUTLOOK_USER=votre-email@outlook.com
+OUTLOOK_PASSWORD=votre-mot-de-passe
+```
+
+**SMTP générique**
+```env
+EMAIL_PROVIDER=smtp
+SMTP_HOST=smtp.votre-provider.com
+SMTP_PORT=587
+SMTP_USER=votre-email
+SMTP_PASSWORD=votre-mot-de-passe
+SMTP_TLS=true
+```
+
+**SendGrid**
+```env
+EMAIL_PROVIDER=sendgrid
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxx
+SENDGRID_FROM_EMAIL=noreply@votre-domaine.com
+```
+
+**AWS SES**
+```env
+EMAIL_PROVIDER=aws_ses
+AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXX
+AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxx
+AWS_REGION=us-east-1
+AWS_SES_FROM_EMAIL=noreply@votre-domaine.com
+```
+
+### Configuration production
+
+**Fichier :** `.env.production`
+
+```env
+# Email principal (recommandé: SendGrid ou AWS SES)
+EMAIL_PROVIDER=sendgrid
+SENDGRID_API_KEY=SG.votre-clé-api
+SENDGRID_FROM_EMAIL=noreply@votre-domaine.com
+
+# Fallback SMTP
+SMTP_FALLBACK_HOST=smtp.gmail.com
+SMTP_FALLBACK_PORT=587
+SMTP_FALLBACK_USER=backup@gmail.com
+SMTP_FALLBACK_PASSWORD=mot-de-passe-app
+
+# Limites
+EMAIL_RATE_LIMIT=100  # emails/heure
+EMAIL_DAILY_LIMIT=1000  # emails/jour
+```
+
+---
+
+## 8. Provisioning Emails Cloud
+
+### SendGrid (Recommandé)
+
+**1. Création compte**
+```bash
+# 1. Aller sur https://sendgrid.com/
+# 2. Sign Up (100 emails/jour gratuits)
+# 3. Vérifier email
+```
+
+**2. Configuration API**
+```bash
+# 1. Settings → API Keys
+# 2. Create API Key
+# 3. Full Access ou Mail Send
+# 4. Copier la clé (commence par SG.)
+```
+
+**3. Domaine personnalisé**
+```bash
+# 1. Settings → Sender Authentication
+# 2. Domain Authentication
+# 3. Ajouter votre domaine
+# 4. Configurer DNS (CNAME records)
+# 5. Vérifier
+```
+
+**4. Templates**
+```bash
+# 1. Email API → Dynamic Templates
+# 2. Create Template
+# 3. Design avec éditeur
+# 4. Copier Template ID
+```
+
+### AWS SES
+
+**1. Configuration AWS**
+```bash
+# 1. Console AWS → SES
+# 2. Verify email address
+# 3. Request production access (sortir du sandbox)
+# 4. Create IAM user avec SESFullAccess
+```
+
+**2. Configuration domaine**
+```bash
+# 1. SES → Domains → Verify New Domain
+# 2. Ajouter records DNS (TXT, CNAME)
+# 3. Enable DKIM
+```
+
+**3. Limites**
+```bash
+# Sandbox: 200 emails/jour, 1 email/seconde
+# Production: jusqu'à 200 emails/seconde
+# Coût: $0.10 pour 1000 emails
+```
+
+### Microsoft 365
+
+**1. Configuration**
+```bash
+# 1. Admin Center → Exchange
+# 2. Mail flow → Connectors
+# 3. Create connector (Office 365 to Partner)
+# 4. Configure SMTP relay
+```
+
+**2. Authentification**
+```bash
+# 1. Azure AD → App registrations
+# 2. New registration
+# 3. API permissions → Microsoft Graph
+# 4. Mail.Send permission
+```
+
+### Google Workspace
+
+**1. Configuration SMTP**
+```bash
+# 1. Admin Console → Apps → Google Workspace
+# 2. Gmail → End user access
+# 3. Enable SMTP relay
+# 4. Configure allowed senders
+```
+
+**2. Service Account**
+```bash
+# 1. Google Cloud Console
+# 2. Create Service Account
+# 3. Enable Gmail API
+# 4. Download JSON key
+```
+
+---
+
+## 9. Sécurité
+
+### WAF (Web Application Firewall)
+
+**Fichier :** `security/waf-rules.conf`
+
+```nginx
+# Protection DDoS
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
+
+# Blocage IPs malveillantes
+include /etc/nginx/conf.d/blacklist.conf;
+
+# Headers sécurité
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+```
+
+### Rate Limiting
+
+**Configuration Flask :**
+```python
+# src/backend/security/rate_limiter.py
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["1000 per hour"]
+)
+
+# Endpoints critiques
+@app.route('/api/auth/login')
+@limiter.limit("5 per minute")
+def login():
+    pass
+
+@app.route('/api/email/send')
+@limiter.limit("10 per minute")
+def send_email():
+    pass
+```
+
+### Chiffrement AES-256
+
+**Fichier :** `src/backend/security/encryption.py`
+
+```python
+from cryptography.fernet import Fernet
+import base64
+import os
+
+class AESEncryption:
+    def __init__(self):
+        key = os.environ.get('ENCRYPTION_KEY')
+        if not key:
+            key = Fernet.generate_key()
+        self.cipher = Fernet(key)
+    
+    def encrypt(self, data: str) -> str:
+        return self.cipher.encrypt(data.encode()).decode()
+    
+    def decrypt(self, encrypted_data: str) -> str:
+        return self.cipher.decrypt(encrypted_data.encode()).decode()
+```
+
+### Audit logs
+
+**Configuration :**
+```python
+# src/backend/security/audit.py
+import logging
+from datetime import datetime
+
+audit_logger = logging.getLogger('audit')
+audit_handler = logging.FileHandler('logs/audit.log')
+audit_logger.addHandler(audit_handler)
+
+def log_action(user_id, action, details):
+    audit_logger.info({
+        'timestamp': datetime.utcnow().isoformat(),
+        'user_id': user_id,
+        'action': action,
+        'details': details,
+        'ip': request.remote_addr
+    })
+```
+
+---
+
+## 10. PWA Mobile
+
+### Configuration PWA
+
+**Fichier :** `src/frontend/public/manifest.json`
+
+```json
+{
+  "name": "iaPosteManager",
+  "short_name": "iaPoste",
+  "description": "Gestionnaire d'emails avec IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+### Service Worker
+
+**Fichier :** `src/frontend/public/sw.js`
+
+```javascript
+const CACHE_NAME = 'iaposte-v1';
+const urlsToCache = [
+  '/',
+  '/static/css/main.css',
+  '/static/js/main.js',
+  '/offline.html'
+];
+
+// Installation
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+// Stratégie Cache First
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        return response || fetch(event.request);
+      })
+      .catch(() => caches.match('/offline.html'))
+  );
+});
+```
+
+### Mode offline
+
+**Fonctionnalités offline :**
+- ✅ Interface utilisateur complète
+- ✅ Brouillons sauvegardés localement
+- ✅ Queue d'envoi (sync en ligne)
+- ✅ Historique emails (cache)
+- ✅ Paramètres utilisateur
+
+---
+
+## 11. Maintenance
+
+### Tâches quotidiennes
+
+```bash
+# Vérifier santé application
+curl http://localhost:5000/api/health
+
+# Vérifier logs erreurs
+tail -f logs/error.log
+
+# Vérifier espace disque
+df -h
+
+# Vérifier processus
+docker-compose ps
+```
+
+### Tâches hebdomadaires
+
+```bash
+# Nettoyer logs anciens
+find logs/ -name "*.log" -mtime +7 -delete
+
+# Nettoyer images Docker
+docker system prune -f
+
+# Vérifier backups
+ls -la backups/
+
+# Mettre à jour dépendances
+docker-compose pull
+```
+
+### Tâches mensuelles
+
+```bash
+# Analyser performances
+# Grafana → Dashboards → Performance
+
+# Renouveler certificats SSL (automatique)
+sudo certbot renew --dry-run
+
+# Audit sécurité
+python tests/security/security_scan.py
+
+# Optimiser base de données
+sqlite3 data/production.db "VACUUM;"
+```
+
+### Scripts maintenance
+
+**Fichier :** `scripts/maintenance.sh`
+
+```bash
+#!/bin/bash
+# Script maintenance automatique
+
+echo "🔧 Maintenance iaPosteManager"
+
+# Nettoyer logs
+find logs/ -name "*.log" -mtime +7 -delete
+echo "✅ Logs nettoyés"
+
+# Optimiser DB
+sqlite3 data/production.db "VACUUM;"
+echo "✅ Base optimisée"
+
+# Vérifier santé
+if curl -f http://localhost:5000/api/health > /dev/null 2>&1; then
+    echo "✅ Application OK"
+else
+    echo "❌ Application KO - Redémarrage"
+    docker-compose restart
+fi
+
+echo "🎉 Maintenance terminée"
+```
+
+---
+
+## 12. Troubleshooting
+
+### Problèmes courants
+
+**1. Application ne démarre pas**
+```bash
+# Vérifier logs
+docker-compose logs backend
+
+# Vérifier ports
+netstat -tulpn | grep :5000
+
+# Redémarrer
+docker-compose restart
+```
+
+**2. Emails ne s'envoient pas**
+```bash
+# Vérifier configuration
+grep EMAIL .env.production
+
+# Tester SMTP
+telnet smtp.gmail.com 587
+
+# Vérifier logs
+tail -f logs/email.log
+```
+
+**3. Base de données corrompue**
+```bash
+# Vérifier intégrité
+sqlite3 data/production.db "PRAGMA integrity_check;"
+
+# Restaurer backup
+./scripts/restore.sh backups/backup-latest.tar.gz
+```
+
+**4. Certificat SSL expiré**
+```bash
+# Vérifier expiration
+openssl x509 -in /etc/letsencrypt/live/votre-domaine.com/cert.pem -text -noout | grep "Not After"
+
+# Renouveler manuellement
+sudo certbot renew
+
+# Redémarrer Nginx
+sudo systemctl reload nginx
+```
+
+**5. Monitoring down**
+```bash
+# Redémarrer stack monitoring
+docker-compose -f monitoring/docker-compose.monitoring.yml restart
+
+# Vérifier Prometheus targets
+curl http://localhost:9090/api/v1/targets
+```
+
+### Logs utiles
+
+```bash
+# Application
+tail -f logs/app.log
+
+# Erreurs
+tail -f logs/error.log
+
+# Emails
+tail -f logs/email.log
+
+# Sécurité/Audit
+tail -f logs/audit.log
+
+# Nginx
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+
+# Docker
+docker-compose logs -f --tail=100
+```
+
+### Contacts support
+
+- **Documentation :** Ce guide
+- **Issues GitHub :** https://github.com/mooby865/iapostemanager/issues
+- **Monitoring :** http://localhost:3000 (Grafana)
+- **Logs :** `logs/` directory
+
+---
+
+## 🎉 Conclusion
+
+**Votre infrastructure iaPosteManager est maintenant :**
+
+✅ **Déployée** en production avec Docker  
+✅ **Sécurisée** avec SSL/HTTPS et WAF  
+✅ **Monitorée** avec Prometheus/Grafana  
+✅ **Automatisée** avec CI/CD GitHub Actions  
+✅ **Sauvegardée** avec backups quotidiens  
+✅ **Testée** avec 39 tests E2E validés  
+✅ **Optimisée** pour mobile avec PWA  
+✅ **Prête** pour la production ! 🚀
+
+**Prochaines étapes recommandées :**
+1. Configurer votre domaine personnalisé
+2. Activer les alertes Slack/email
+3. Configurer le provider email cloud
+4. Planifier la maintenance régulière
+
+---
+
+*Guide créé le $(date) - Version 2.2*  
+*Développé avec ❤️ pour automatiser vos communications*érifier backups
 ls -lh backups/
 ```
 

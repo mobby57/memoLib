@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: iapostemanager
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "./start.sh"
+    plan: free
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    healthCheckPath: /api/health
