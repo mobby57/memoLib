@@ -127,6 +127,7 @@ Une fois tous les secrets configurés:
 
 **Déclenchement manuel:**
 - GitHub → Actions → CI/CD Pipeline → Run workflow
+- URL: https://github.com/mobby57/iapm.com/actions
 
 ---
 

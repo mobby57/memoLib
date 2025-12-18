@@ -12,7 +12,7 @@ Vous êtes maintenant prêt à configurer le CI/CD automatique.
 
 **1. Cliquer sur ce lien:**
 ```
-https://github.com/mooby865/iapostemanager/settings/secrets/actions
+https://github.com/mobby57/iapm.com/settings/secrets/actions
 ```
 
 **2. Vous devriez voir:**
@@ -189,7 +189,7 @@ git push origin main
 ```
 
 **Vérifier le déploiement:**
-1. Aller sur: https://github.com/mooby865/iapostemanager/actions
+1. Aller sur: https://github.com/mobby57/iapm.com/actions
 2. Vous devriez voir le workflow "CI/CD Pipeline" en cours
 3. Cliquer dessus pour voir les étapes en détail
 
@@ -256,7 +256,7 @@ git push origin main
 
 **1. Aller sur:**
 ```
-https://github.com/mooby865/iapostemanager/settings/secrets/actions
+https://github.com/mobby57/iapm.com/settings/secrets/actions
 ```
 
 **2. Vous devriez voir:**
@@ -279,7 +279,7 @@ SLACK_WEBHOOK_URL        Updated X minutes ago (optionnel)
 
 **1. Aller sur:**
 ```
-https://github.com/mooby865/iapostemanager/actions
+https://github.com/mobby57/iapm.com/actions
 ```
 
 **2. Si workflow existe:**
@@ -296,7 +296,7 @@ https://github.com/mooby865/iapostemanager/actions
 
 **Après premier déploiement, aller sur:**
 ```
-https://hub.docker.com/r/mooby865/iapostemanager
+https://hub.docker.com/r/mooby865/iapm
 ```
 
 **Vous devriez voir:**
@@ -390,16 +390,16 @@ git push origin main
 - https://docs.docker.com/docker-hub/
 
 **Votre repository:**
-- https://github.com/mooby865/iapostemanager
+- https://github.com/mobby57/iapm.com
 
 **GitHub Actions (workflows):**
-- https://github.com/mooby865/iapostemanager/actions
+- https://github.com/mobby57/iapm.com/actions
 
 **Docker Hub (images):**
-- https://hub.docker.com/r/mooby865/iapostemanager
+- https://hub.docker.com/r/mooby865/iapm
 
 **Secrets GitHub:**
-- https://github.com/mooby865/iapostemanager/settings/secrets/actions
+- https://github.com/mobby57/iapm.com/settings/secrets/actions
 
 ---
 
@@ -446,10 +446,10 @@ git push origin main
    ```
 
 2. **Vérifier déploiement:**
-   - https://github.com/mooby865/iapostemanager/actions
+   - https://github.com/mobby57/iapm.com/actions
 
 3. **Vérifier image Docker:**
-   - https://hub.docker.com/r/mooby865/iapostemanager
+   - https://hub.docker.com/r/mooby865/iapm
 
 4. **Si serveur configuré, vérifier application:**
    ```powershell
