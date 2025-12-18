@@ -27,8 +27,15 @@ def test_ai_service():
     
     # Mock OpenAI
     with patch.object(service, 'client') as mock_client:
+        mock_message = Mock()
+        mock_message.content = "Objet: Test\n\nCorps du message"
+        
+        mock_choice = Mock()
+        mock_choice.message = mock_message
+        
         mock_response = Mock()
-        mock_response.choices[0].message.content = "Objet: Test\n\nCorps du message"
+        mock_response.choices = [mock_choice]
+        
         mock_client.chat.completions.create.return_value = mock_response
         
         success, result = service.generate_email('test context')
