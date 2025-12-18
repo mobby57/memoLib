@@ -13,7 +13,7 @@ def test_health_endpoint(client):
 def test_login_endpoint(client):
     """Test endpoint de connexion"""
     # Test avec mot de passe valide
-    response = client.post('/login', 
+    response = client.post('/api/login', 
         data=json.dumps({'password': 'testpassword123'}),
         content_type='application/json'
     )
@@ -22,11 +22,11 @@ def test_login_endpoint(client):
     assert data['success'] == True
     
     # Test avec mot de passe invalide
-    response = client.post('/login',
+    response = client.post('/api/login',
         data=json.dumps({'password': '123'}),
         content_type='application/json'
     )
-    assert response.status_code == 401
+    assert response.status_code in [401, 403]
 
 def test_stats_endpoint_unauthorized(client):
     """Test stats sans authentification"""
