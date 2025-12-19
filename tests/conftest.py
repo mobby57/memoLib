@@ -34,11 +34,13 @@ def client():
 @pytest.fixture
 def authenticated_client(client):
     """Client authentifié"""
-    # Simuler session authentifiée
-    with client.session_transaction() as sess:
-        sess['authenticated'] = True
-        sess['master_password'] = 'testpassword123'
-        sess['created_at'] = 1234567890
+    # Simuler authentification via API directe
+    with client.application.app_context():
+        from flask import session
+        with client.session_transaction() as sess:
+            sess['authenticated'] = True
+            sess['master_password'] = 'testpassword123'
+            sess['login_time'] = '2024-01-01T00:00:00'
     return client
 
 @pytest.fixture

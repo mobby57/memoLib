@@ -18,6 +18,8 @@ export default function VoiceToTextEditor({
   const [isImproving, setIsImproving] = useState(false);
   const [improvedText, setImprovedText] = useState('');
   const [showComparison, setShowComparison] = useState(false);
+  const [notification, setNotification] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const {
     isListening,
@@ -54,7 +56,8 @@ export default function VoiceToTextEditor({
   // Améliorer le texte avec l'IA
   const improveText = async () => {
     if (!editableText.trim()) {
-      alert('Aucun texte à améliorer');
+      setNotification('Aucun texte à améliorer');
+      setTimeout(() => setNotification(''), 3000);
       return;
     }
 
@@ -71,7 +74,8 @@ export default function VoiceToTextEditor({
       setShowComparison(true);
     } catch (err) {
       console.error('Error improving text:', err);
-      alert('Erreur lors de l\'amélioration du texte');
+      setNotification('Erreur lors de l\'amélioration du texte');
+      setTimeout(() => setNotification(''), 3000);
     } finally {
       setIsImproving(false);
     }
@@ -93,7 +97,8 @@ export default function VoiceToTextEditor({
   // Valider et envoyer le texte
   const handleValidate = () => {
     if (!editableText.trim()) {
-      alert('Le texte est vide');
+      setNotification('Le texte est vide');
+      setTimeout(() => setNotification(''), 3000);
       return;
     }
     
@@ -113,12 +118,19 @@ export default function VoiceToTextEditor({
 
   // Effacer tout
   const handleClear = () => {
-    if (confirm('Effacer tout le texte ?')) {
-      resetTranscript();
-      setEditableText('');
-      setImprovedText('');
-      setShowComparison(false);
-    }
+    setShowConfirm(true);
+  };
+
+  const confirmClear = () => {
+    resetTranscript();
+    setEditableText('');
+    setImprovedText('');
+    setShowComparison(false);
+    setShowConfirm(false);
+  };
+
+  const cancelClear = () => {
+    setShowConfirm(false);
   };
 
   if (!isSupported) {
@@ -134,6 +146,30 @@ export default function VoiceToTextEditor({
 
   return (
     <div className="voice-to-text-editor">
+      {/* Notification */}
+      {notification && (
+        <div className="notification">
+          ⚠️ {notification}
+        </div>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirm && (
+        <div className="confirm-overlay">
+          <div className="confirm-dialog">
+            <h4>Confirmation</h4>
+            <p>Effacer tout le texte ?</p>
+            <div className="confirm-actions">
+              <button className="btn-confirm-yes" onClick={confirmClear}>
+                Oui, effacer
+              </button>
+              <button className="btn-confirm-no" onClick={cancelClear}>
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* En-tête avec contrôles */}
       <div className="editor-header">
         <h3>
