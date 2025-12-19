@@ -17,6 +17,7 @@ services:
       - FLASK_ENV=production
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
+      - OPENAI_API_KEY=sk-votre-cle-openai-ici
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
