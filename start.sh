@@ -17,8 +17,8 @@ echo "   HOST: $HOST"
 echo "   FLASK_ENV: $FLASK_ENV"
 echo "======================================"
 
-# Démarrer l'application avec Gunicorn pour production
-echo "🚀 Lancement avec Gunicorn (production)..."
+# Démarrer l'application directement avec Python
+echo "🚀 Lancement du serveur Flask..."
 cd src/backend
-exec gunicorn --worker-class eventlet --workers 1 --bind $HOST:$PORT --timeout 120 --access-logfile - --error-logfile - app:app
+exec python app.py
 
