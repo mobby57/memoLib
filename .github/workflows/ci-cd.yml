@@ -168,21 +168,60 @@ jobs:
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: 🔧 Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git config --global --add safe.directory /github/workspace
 
       - name: 🔐 SSH Deploy
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PROD_SERVER_HOST }}
-          username: ${{ secrets.PROD_SERVER_USER }}
-          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          timeout: 60s
+          command_timeout: 30m
           script: |
+            # Vérifier si le répertoire existe
+            if [ ! -d "/opt/iapostemanager" ]; then
+              echo "📂 Création du répertoire..."
+              sudo mkdir -p /opt/iapostemanager
+              sudo chown ${{ secrets.PRODUCTION_USER }}:${{ secrets.PRODUCTION_USER }} /opt/iapostemanager
+              cd /opt/iapostemanager
+              git clone https://github.com/${{ github.repository }}.git .
+            fi
+            
+            # Se positionner dans le répertoire
             cd /opt/iapostemanager
+            
+            # Mettre à jour le code
+            echo "🔄 Mise à jour du code..."
+            git config --global --add safe.directory /opt/iapostemanager
+            git fetch origin
+            git reset --hard origin/main
+            
+            # Déployer avec Docker
+            echo "🐳 Déploiement Docker..."
             docker-compose -f docker-compose.prod.yml pull
-            docker-compose -f docker-compose.prod.yml up -d
+            docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+            
+            # Nettoyage
+            echo "🧹 Nettoyage..."
             docker system prune -f
+            
+            # Health check
+            echo "✅ Vérification santé..."
+            sleep 10
+            curl -f http://localhost:5000/api/health || exit 1
 
       - name: ✅ Deployment success
-        run: echo "🎉 Déploiement réussi!"
+        run: echo "🎉 Déploiement réussi sur ${{ secrets.PRODUCTION_HOST }}!"
 
   # Job 6: Notification
   notify:
