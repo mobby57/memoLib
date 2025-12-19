@@ -1,20 +1,33 @@
 #!/bin/bash
-set -e
+# Script de build optimisé pour Render.com
 
-echo "🔧 Building iaPosteManager for Render.com..."
+set -e  # Arrêter en cas d'erreur
 
-# Install Python dependencies
-pip install -r requirements.txt
+echo "🏗️  BUILD IAPOSTEMANAGER POUR RENDER"
+echo "======================================"
 
-# Create necessary directories
-mkdir -p data
-mkdir -p logs
-mkdir -p uploads
+# 1. Mise à jour pip
+echo "📦 Mise à jour de pip..."
+python -m pip install --upgrade pip --no-cache-dir
 
-# Install frontend dependencies and build
-cd src/frontend
-npm ci
-npm run build
-cd ../..
+# 2. Installation dépendances Python
+echo "📚 Installation des dépendances Python..."
+pip install --no-cache-dir -r requirements.txt
 
-echo "✅ Build completed successfully!"
+# 3. Vérification de l'installation
+echo "✅ Vérification de l'installation..."
+python -c "import flask; print(f'Flask {flask.__version__} installé')"
+
+# 4. Création des dossiers nécessaires
+echo "📁 Création des dossiers..."
+mkdir -p src/backend/data
+mkdir -p src/backend/logs
+mkdir -p src/backend/uploads
+
+# 5. Permissions
+echo "🔐 Configuration des permissions..."
+chmod -R 755 src/backend/data
+chmod -R 755 src/backend/logs
+
+echo "✅ Build terminé avec succès!"
+echo "======================================"
