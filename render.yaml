@@ -20,6 +20,8 @@ services:
         value: "1"
       - key: LOG_LEVEL
         value: INFO
+      - key: NODE_VERSION
+        value: "18"
 
 # Configuration optionnelle pour PostgreSQL (si besoin de scaler)
 # databases:

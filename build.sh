@@ -1,41 +1,56 @@
 #!/bin/bash
-# Script de build optimisé pour Render.com
+# Script de build pour Render - Frontend + Backend unifié
 
 set -e  # Arrêter en cas d'erreur
 
-echo "🏗️  BUILD IAPOSTEMANAGER POUR RENDER"
-echo "======================================"
+echo "🏗️ BUILD RENDER - FRONTEND + BACKEND"
+echo "====================================="
 
-# 1. Installation des dépendances système (TTS support)
-echo "📦 Installation des dépendances système..."
-apt-get update -qq && apt-get install -y -qq \
-    espeak \
-    libespeak1 \
-    libespeak-dev \
-    && rm -rf /var/lib/apt/lists/*
+# 1. Installer les dépendances backend
+echo "📦 Installation dépendances backend..."
+pip install -r requirements.txt
 
-# 2. Mise à jour pip
-echo "📦 Mise à jour de pip..."
-python -m pip install --upgrade pip --no-cache-dir
+# 2. Installer Node.js si pas déjà disponible
+if ! command -v npm &> /dev/null; then
+    echo "📥 Installation de Node.js..."
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+    apt-get install -y nodejs || {
+        echo "⚠️ Impossible d'installer Node.js automatiquement"
+        echo "⚠️ Le frontend ne sera pas buildé - utilisation des fichiers statiques du repo"
+        exit 0
+    }
+fi
 
-# 3. Installation dépendances Python
-echo "📚 Installation des dépendances Python..."
-pip install --no-cache-dir -r requirements.txt
+# 3. Builder le frontend React
+echo "📦 Build frontend React..."
+cd src/frontend
 
-# 3. Vérification de l'installation
-echo "✅ Vérification de l'installation..."
-python -c "import flask; print(f'Flask {flask.__version__} installé')"
+echo "✅ npm version: $(npm --version)"
+echo "✅ node version: $(node --version)"
 
-# 4. Création des dossiers nécessaires
-echo "📁 Création des dossiers..."
-mkdir -p src/backend/data
-mkdir -p src/backend/logs
-mkdir -p src/backend/uploads
+# Installer les dépendances
+echo "📥 Installation dépendances frontend..."
+npm install || {
+    echo "❌ Erreur lors de npm install"
+    exit 1
+}
 
-# 5. Permissions
-echo "🔐 Configuration des permissions..."
-chmod -R 755 src/backend/data
-chmod -R 755 src/backend/logs
+# Builder pour production
+echo "🔨 Build production..."
+npm run build || {
+    echo "❌ Erreur lors du build frontend"
+    exit 1
+}
 
-echo "✅ Build terminé avec succès!"
-echo "======================================"
+if [ -d "dist" ]; then
+    echo "✅ Frontend buildé avec succès"
+    ls -la dist/
+else
+    echo "❌ Dossier dist non créé"
+    exit 1
+fi
+
+# 4. Retourner au répertoire racine
+cd ../..
+
+echo "✅ Build terminé - Prêt pour déploiement"
