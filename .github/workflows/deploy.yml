@@ -23,9 +23,23 @@ jobs:
         timeout: 60s
         command_timeout: 30m
         script: |
-          cd /opt/iapostemanager || { mkdir -p /opt/iapostemanager && cd /opt/iapostemanager && git clone https://github.com/mobby57/iapm.com.git .; }
+          # Create directory if not exists
+          if [ ! -d "/opt/iapostemanager" ]; then
+            sudo mkdir -p /opt/iapostemanager
+            sudo chown $USER:$USER /opt/iapostemanager
+            cd /opt/iapostemanager
+            git clone https://github.com/mobby57/iapm.com.git .
+          fi
+          
+          # Update code
+          cd /opt/iapostemanager
+          git config --global --add safe.directory /opt/iapostemanager
           git pull origin main
-          docker-compose -f docker-compose.prod.yml down || true
-          docker-compose -f docker-compose.prod.yml up -d --build
-          sleep 10
+          
+          # Deploy with Docker
+          sudo docker-compose -f docker-compose.prod.yml down || true
+          sudo docker-compose -f docker-compose.prod.yml up -d --build
+          
+          # Health check
+          sleep 15
           curl -f http://localhost:5000/api/health
