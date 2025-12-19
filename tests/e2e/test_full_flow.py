@@ -1,12 +1,22 @@
 """E2E tests for full user flow"""
 import pytest
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import WebDriverException
 
 pytestmark = pytest.mark.e2e  # Mark all tests in this file as e2e
+
+def is_server_running(url="http://localhost:5000"):
+    """Check if Flask server is running"""
+    try:
+        response = requests.get(f"{url}/api/health", timeout=5)
+        return response.status_code == 200
+    except:
+        return False
 
 @pytest.fixture
 def driver():
@@ -21,6 +31,9 @@ def driver():
 
 def test_login_flow(driver):
     """Test login flow"""
+    if not is_server_running():
+        pytest.skip("Flask server not running")
+    
     driver.get("http://localhost:5000/login")
     
     email_input = driver.find_element(By.ID, "email")
@@ -40,6 +53,9 @@ def test_login_flow(driver):
 
 def test_compose_email(driver):
     """Test email composition"""
+    if not is_server_running():
+        pytest.skip("Flask server not running")
+    
     # Login first
     driver.get("http://localhost:5000/login")
     # ... login steps

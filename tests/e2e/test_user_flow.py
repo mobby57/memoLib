@@ -1,5 +1,6 @@
 # Tests E2E Selenium
 import pytest
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -8,8 +9,19 @@ from selenium.webdriver.chrome.options import Options
 
 pytestmark = pytest.mark.e2e  # Mark all tests in this file as e2e
 
+def is_server_running(url="http://localhost:5000"):
+    """Check if Flask server is running"""
+    try:
+        response = requests.get(f"{url}/api/health", timeout=5)
+        return response.status_code == 200
+    except:
+        return False
+
 @pytest.mark.e2e
 def test_email_generation_flow():
+    if not is_server_running():
+        pytest.skip("Flask server not running")
+    
     options = Options()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')

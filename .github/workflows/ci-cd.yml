@@ -71,57 +71,61 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov
 
-      - name: 🧪 Run tests
+      - name: 🧪 Run unit and integration tests
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          pytest tests/ --cov=src --cov-report=xml
+          pytest tests/ -m "not e2e" --cov=src --cov-report=xml
 
-  # Job 3: Tests E2E Playwright
+  # Job 3: Tests E2E Selenium
   e2e-tests:
     name: 🎭 E2E Tests
     runs-on: ubuntu-latest
     needs: [frontend-tests, backend-tests]
     
+    env:
+      SECRET_KEY: test-secret-key-for-ci-cd-pipeline
+      FLASK_ENV: testing
+      DATABASE_URL: sqlite:///test.db
+    
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-
-      - name: 📦 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
 
       - name: 🐍 Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
 
       - name: 📚 Install dependencies
         run: |
-          cd src/frontend && npm ci
-          cd ../..
           pip install -r requirements.txt
+          pip install pytest pytest-cov selenium
 
-      - name: 🎭 Install Playwright
-        working-directory: ./src/frontend
-        run: npx playwright install --with-deps chromium
+      - name: 🌐 Setup Chrome
+        uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
 
-      - name: 🚀 Start backend
+      - name: 🚀 Start Flask server
         run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
           cd src/backend
           python app.py &
-          sleep 5
+          sleep 10
+          curl -f http://localhost:5000/health || exit 1
 
       - name: 🧪 Run E2E tests
-        working-directory: ./src/frontend
-        run: npm run test:e2e
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          pytest tests/ -m "e2e" -v
 
       - name: 📤 Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: e2e-test-results
-          path: src/frontend/test-results/
+          path: test-results/
           retention-days: 7
 
   # Job 4: Build Docker
