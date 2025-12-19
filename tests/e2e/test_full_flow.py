@@ -52,13 +52,16 @@ def test_login_flow(driver):
     submit_btn = driver.find_element(By.ID, "submit")
     submit_btn.click()
     
-    # Wait for redirect to dashboard
-    WebDriverWait(driver, 10).until(
-        EC.url_contains("/")
+    # Wait for the URL to change from /login (React navigation takes time)
+    WebDriverWait(driver, 15).until(
+        EC.url_changes("http://localhost:5000/login")
     )
     
-    # Check if authenticated (may redirect to dashboard or home)
-    assert driver.current_url != "http://localhost:5000/login"
+    # Verify we're no longer on the login page
+    assert driver.current_url != "http://localhost:5000/login", f"Still on login page: {driver.current_url}"
+    
+    # Should be redirected to dashboard (/)
+    assert "/" in driver.current_url or "dashboard" in driver.current_url
 
 def test_compose_email(driver):
     """Test email composition"""
