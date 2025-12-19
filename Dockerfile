@@ -11,6 +11,9 @@ WORKDIR /app
 # Dépendances système
 RUN apt-get update && apt-get install -y \
     gcc \
+    espeak \
+    libespeak1 \
+    libespeak-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Créer utilisateur non-root
