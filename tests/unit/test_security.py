@@ -12,10 +12,14 @@ def test_2fa_generer_secret(temp_dir, test_email):
     """Test génération secret 2FA"""
     tfa = TwoFactorAuth()
     secret = tfa.generate_secret(test_email)
-    uri = tfa.get_qr_code(test_email, secret)
+    qr_code = tfa.get_qr_code(test_email, secret)
     assert secret is not None
     assert len(secret) == 32
-    assert "SecureVault" in uri or "base64" in uri  # QR code is base64 encoded
+    # QR code should be base64 encoded PNG image
+    assert isinstance(qr_code, str)
+    assert len(qr_code) > 100  # Base64 image is long
+    # Check if it's valid base64 (PNG images start with iVBOR in base64)
+    assert qr_code.startswith('iVBOR') or 'iVBOR' in qr_code
 
 def test_2fa_verifier_code(temp_dir, test_email):
     """Test vérification code 2FA"""

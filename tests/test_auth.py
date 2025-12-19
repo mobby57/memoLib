@@ -24,14 +24,18 @@ def test_session_manager():
     with tempfile.TemporaryDirectory() as temp_dir:
         session_mgr = SessionManager(temp_dir)
         
-        # Test création session - returns session ID string
-        result = session_mgr.create_session('testpassword123')
-        assert result  # Should return truthy value (session ID)
-        assert isinstance(result, (str, bool))  # Accept session ID or boolean
+        # Test définir mot de passe maître
+        session_mgr.set_master_password('testpassword123')
         
         # Test récupération mot de passe
         password = session_mgr.get_master_password()
         assert password == 'testpassword123'
+        
+        # Test création session
+        result = session_mgr.create_session('user123')
+        assert result  # Should return truthy value (session ID)
+        assert isinstance(result, str)
+        assert result.startswith('session_')
 
 def test_validator():
     validator = Validator()
