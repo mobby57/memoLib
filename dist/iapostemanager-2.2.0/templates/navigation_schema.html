@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schéma de Navigation - SecureVault</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .legend-box.page { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .legend-box.api { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .legend-box.action { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .legend-box.db { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+        .schema {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .level {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .node {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 200px;
+            max-width: 280px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .node.page {
+            border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
+        }
+
+        .node.api {
+            border-image: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) 1;
+        }
+
+        .node.action {
+            border-image: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) 1;
+        }
+
+        .node.db {
+            border-image: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) 1;
+        }
+
+        .node-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .node-route {
+            color: #666;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            padding: 5px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .node-desc {
+            color: #888;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .node-features {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 5px 0;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .feature::before {
+            content: "→";
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .connection {
+            text-align: center;
+            color: #999;
+            font-size: 2em;
+            margin: -20px 0;
+        }
+
+        .level-title {
+            width: 100%;
+            text-align: center;
+            font-size: 1.3em;
+            color: #1e3c72;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            border-radius: 10px;
+        }
+
+        .flow-chart {
+            margin-top: 60px;
+            padding: 30px;
+            background: #f9f9f9;
+            border-radius: 15px;
+        }
+
+        .flow-title {
+            font-size: 1.5em;
+            color: #1e3c72;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .flow-box.user { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .flow-box.frontend { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .flow-box.backend { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .flow-box.db { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .flow-box.external { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+        .arrow {
+            font-size: 2em;
+            color: #999;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ Schéma de Navigation</h1>
+        <div class="subtitle">SecureVault v2.2 - Architecture Complète</div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box page"></div>
+                <span>Pages HTML</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box api"></div>
+                <span>API Routes</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box action"></div>
+                <span>Actions</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box db"></div>
+                <span>Base de données</span>
+            </div>
+        </div>
+
+        <div class="schema">
+            <!-- Niveau 1: Pages Principales -->
+            <div class="level">
+                <div class="level-title">📱 Pages Principales (Frontend)</div>
+            </div>
+            <div class="level">
+                <div class="node page">
+                    <div class="node-title">🏠 Page d'accueil</div>
+                    <div class="node-route">GET /</div>
+                    <div class="node-desc">Point d'entrée de l'application</div>
+                    <div class="node-features">
+                        <div class="feature">Vue générale</div>
+                        <div class="feature">Liens de navigation</div>
+                    </div>
+                </div>
+
+                <div class="node page">
+                    <div class="node-title">📊 Dashboard</div>
+                    <div class="node-route">GET /dashboard</div>
+                    <div class="node-desc">Tableau de bord avec onglets</div>
+                    <div class="node-features">
+                        <div class="feature">Statistiques temps réel</div>
+                        <div class="feature">Historique emails</div>
+                        <div class="feature">Emails programmés</div>
+                        <div class="feature">Sécurité</div>
+                    </div>
+                </div>
+
+                <div class="node page">
+                    <div class="node-title">🤖 Générateur IA</div>
+                    <div class="node-route">GET /generator</div>
+                    <div class="node-desc">Génération d'emails par IA</div>
+                    <div class="node-features">
+                        <div class="feature">OpenAI GPT-3.5</div>
+                        <div class="feature">Contexte + Ton</div>
+                        <div class="feature">Prévisualisation</div>
+                    </div>
+                </div>
+
+                <div class="node page">
+                    <div class="node-title">📝 Templates</div>
+                    <div class="node-route">GET /templates</div>
+                    <div class="node-desc">8 modèles prédéfinis</div>
+                    <div class="node-features">
+                        <div class="feature">Admin (mairie, impôts)</div>
+                        <div class="feature">Pro (candidature)</div>
+                        <div class="feature">Perso (invitation)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connection">⬇️</div>
+
+            <!-- Niveau 2: API Routes -->
+            <div class="level">
+                <div class="level-title">🔌 API Routes (Backend)</div>
+            </div>
+            <div class="level">
+                <div class="node api">
+                    <div class="node-title">📈 Stats</div>
+                    <div class="node-route">GET /api/stats</div>
+                    <div class="node-desc">Statistiques globales</div>
+                    <div class="node-features">
+                        <div class="feature">Total emails</div>
+                        <div class="feature">Générations IA</div>
+                        <div class="feature">Taux de succès</div>
+                    </div>
+                </div>
+
+                <div class="node api">
+                    <div class="node-title">📧 Liste Emails</div>
+                    <div class="node-route">GET /api/emails</div>
+                    <div class="node-desc">Historique avec pagination</div>
+                    <div class="node-features">
+                        <div class="feature">Limite + Offset</div>
+                        <div class="feature">Recherche</div>
+                        <div class="feature">Filtres statut</div>
+                    </div>
+                </div>
+
+                <div class="node api">
+                    <div class="node-title">⏰ Programmés</div>
+                    <div class="node-route">GET /api/scheduled</div>
+                    <div class="node-desc">Emails en attente</div>
+                    <div class="node-features">
+                        <div class="feature">Liste complète</div>
+                        <div class="feature">Date d'envoi</div>
+                    </div>
+                </div>
+
+                <div class="node api">
+                    <div class="node-title">💚 Health Check</div>
+                    <div class="node-route">GET /health</div>
+                    <div class="node-desc">État du système</div>
+                    <div class="node-features">
+                        <div class="feature">Status OK</div>
+                        <div class="feature">Version</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connection">⬇️</div>
+
+            <!-- Niveau 3: Actions -->
+            <div class="level">
+                <div class="level-title">⚡ Actions (POST/PUT/DELETE)</div>
+            </div>
+            <div class="level">
+                <div class="node action">
+                    <div class="node-title">✉️ Envoyer Email</div>
+                    <div class="node-route">POST /api/send_email</div>
+                    <div class="node-desc">Envoi immédiat SMTP</div>
+                    <div class="node-features">
+                        <div class="feature">Gmail/Outlook</div>
+                        <div class="feature">Pièces jointes (25MB)</div>
+                        <div class="feature">Cryptage mot de passe</div>
+                    </div>
+                </div>
+
+                <div class="node action">
+                    <div class="node-title">🎨 Générer Email IA</div>
+                    <div class="node-route">POST /api/generate_email</div>
+                    <div class="node-desc">OpenAI GPT-3.5-turbo</div>
+                    <div class="node-features">
+                        <div class="feature">Contexte requis</div>
+                        <div class="feature">8 tons disponibles</div>
+                        <div class="feature">Sauvegarde DB</div>
+                    </div>
+                </div>
+
+                <div class="node action">
+                    <div class="node-title">⏱️ Programmer Email</div>
+                    <div class="node-route">POST /api/schedule_email</div>
+                    <div class="node-desc">Envoi différé</div>
+                    <div class="node-features">
+                        <div class="feature">Date/Heure future</div>
+                        <div class="feature">Persistance DB</div>
+                        <div class="feature">Thread scheduler</div>
+                    </div>
+                </div>
+
+                <div class="node action">
+                    <div class="node-title">❌ Annuler Programmé</div>
+                    <div class="node-route">POST /api/cancel_scheduled</div>
+                    <div class="node-desc">Suppression planification</div>
+                    <div class="node-features">
+                        <div class="feature">ID requis</div>
+                        <div class="feature">Mise à jour DB</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connection">⬇️</div>
+
+            <!-- Niveau 4: Base de données -->
+            <div class="level">
+                <div class="level-title">🗄️ Base de Données (SQLite)</div>
+            </div>
+            <div class="level">
+                <div class="node db">
+                    <div class="node-title">📨 Table: emails</div>
+                    <div class="node-route">data/securevault.db</div>
+                    <div class="node-desc">Historique complet</div>
+                    <div class="node-features">
+                        <div class="feature">from_email, to_email</div>
+                        <div class="feature">subject, body</div>
+                        <div class="feature">status, sent_at</div>
+                        <div class="feature">has_attachments</div>
+                        <div class="feature">generated_by_ai</div>
+                    </div>
+                </div>
+
+                <div class="node db">
+                    <div class="node-title">🤖 Table: ai_generations</div>
+                    <div class="node-route">data/securevault.db</div>
+                    <div class="node-desc">Traçabilité IA</div>
+                    <div class="node-features">
+                        <div class="feature">context, tone</div>
+                        <div class="feature">generated_subject</div>
+                        <div class="feature">generated_body</div>
+                        <div class="feature">created_at</div>
+                    </div>
+                </div>
+
+                <div class="node db">
+                    <div class="node-title">⏰ Table: scheduled_emails</div>
+                    <div class="node-route">data/securevault.db</div>
+                    <div class="node-desc">Planning envois</div>
+                    <div class="node-features">
+                        <div class="feature">send_at (datetime)</div>
+                        <div class="feature">status (scheduled/sent)</div>
+                        <div class="feature">metadata (JSON)</div>
+                        <div class="feature">error_message</div>
+                    </div>
+                </div>
+
+                <div class="node db">
+                    <div class="node-title">📊 Table: daily_stats</div>
+                    <div class="node-route">data/securevault.db</div>
+                    <div class="node-desc">Analytics journalières</div>
+                    <div class="node-features">
+                        <div class="feature">date (unique)</div>
+                        <div class="feature">emails_sent</div>
+                        <div class="feature">ai_generations</div>
+                        <div class="feature">success_rate</div>
+                    </div>
+                </div>
+
+                <div class="node db">
+                    <div class="node-title">📝 Table: custom_templates</div>
+                    <div class="node-route">data/securevault.db</div>
+                    <div class="node-desc">Modèles personnalisés</div>
+                    <div class="node-features">
+                        <div class="feature">name, category</div>
+                        <div class="feature">subject_template</div>
+                        <div class="feature">body_template</div>
+                        <div class="feature">created_at</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flow Chart -->
+        <div class="flow-chart">
+            <div class="flow-title">🔄 Flux de Données Principal</div>
+            
+            <div class="flow-row">
+                <div class="flow-box user">👤 Utilisateur</div>
+                <div class="arrow">→</div>
+                <div class="flow-box frontend">📱 Page HTML</div>
+                <div class="arrow">→</div>
+                <div class="flow-box backend">🔌 API Route</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="arrow">⬇️</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="flow-box backend">⚡ Action Flask</div>
+                <div class="arrow">⟷</div>
+                <div class="flow-box db">🗄️ SQLite DB</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="arrow">⬇️</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="flow-box external">📧 SMTP (Gmail/Outlook)</div>
+                <div class="arrow">ou</div>
+                <div class="flow-box external">🤖 OpenAI API</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="arrow">⬇️</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="flow-box backend">✅ Réponse JSON</div>
+                <div class="arrow">→</div>
+                <div class="flow-box frontend">🎨 Mise à jour UI</div>
+                <div class="arrow">→</div>
+                <div class="flow-box user">👁️ Visualisation</div>
+            </div>
+        </div>
+
+        <!-- Exemple de parcours utilisateur -->
+        <div class="flow-chart" style="margin-top: 40px;">
+            <div class="flow-title">👤 Exemple: Envoi d'un email avec IA</div>
+            
+            <div class="flow-row">
+                <div class="flow-box user" style="width: 200px;">1. Accès /generator</div>
+                <div class="arrow">→</div>
+                <div class="flow-box frontend" style="width: 200px;">2. Formulaire IA</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="arrow">⬇️</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="flow-box backend" style="width: 250px;">3. POST /api/generate_email</div>
+                <div class="arrow">→</div>
+                <div class="flow-box external" style="width: 200px;">4. OpenAI GPT-3.5</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="arrow">⬇️</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="flow-box db" style="width: 250px;">5. db.save_ai_generation()</div>
+                <div class="arrow">→</div>
+                <div class="flow-box frontend" style="width: 200px;">6. Affichage résultat</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="arrow">⬇️</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="flow-box user" style="width: 200px;">7. Validation utilisateur</div>
+                <div class="arrow">→</div>
+                <div class="flow-box backend" style="width: 250px;">8. POST /api/send_email</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="arrow">⬇️</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="flow-box external" style="width: 200px;">9. SMTP Gmail/Outlook</div>
+                <div class="arrow">→</div>
+                <div class="flow-box db" style="width: 200px;">10. db.save_email()</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="arrow">⬇️</div>
+            </div>
+
+            <div class="flow-row">
+                <div class="flow-box frontend" style="width: 250px;">11. Notification succès ✅</div>
+                <div class="arrow">→</div>
+                <div class="flow-box user" style="width: 200px;">12. Confirmation reçue</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 60px; padding: 30px; background: #f0f7ff; border-radius: 15px; border-left: 5px solid #667eea;">
+            <h3 style="color: #1e3c72; margin-bottom: 15px;">📋 Résumé Technique</h3>
+            <ul style="color: #555; line-height: 2;">
+                <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript vanilla, Bootstrap 5</li>
+                <li><strong>Backend:</strong> Flask 3.0.0 (Python 3.11.9)</li>
+                <li><strong>Base de données:</strong> SQLite3 (data/securevault.db)</li>
+                <li><strong>IA:</strong> OpenAI GPT-3.5-turbo</li>
+                <li><strong>Email:</strong> SMTP (Gmail port 465 SSL, Outlook port 587 TLS)</li>
+                <li><strong>Sécurité:</strong> Fernet + PBKDF2HMAC (100k iterations)</li>
+                <li><strong>Scheduler:</strong> Thread Python (vérification toutes les 30s)</li>
+                <li><strong>Pièces jointes:</strong> MIME encoding, max 25MB</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

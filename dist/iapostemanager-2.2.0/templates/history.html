@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique - SecureVault</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/navigation.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <svg width="32" height="32" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M20 10 L20 20 L28 20" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+            <span>SecureVault</span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">🏠 Accueil</a>
+            <a href="/composer" class="nav-link">✨ Composer</a>
+            <a href="/send" class="nav-link">📧 Envoyer</a>
+            <a href="/history" class="nav-link active">📊 Historique</a>
+        </div>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+    </nav>
+
+    <div class="container">
+        <header style="text-align: center; margin: 2rem 0;">
+            <h1>📊 Historique des Emails</h1>
+        </header>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>Emails Envoyés</h2>
+                <button onclick="loadHistory()" class="btn btn-secondary">🔄 Actualiser</button>
+            </div>
+            
+            <div id="historyList">
+                <p style="text-align: center; color: #666;">Chargement...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script src="/static/js/navigation.js"></script>
+    <script>
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/email-history');
+                const data = await response.json();
+                
+                const list = document.getElementById('historyList');
+                
+                if (!data.emails || data.emails.length === 0) {
+                    list.innerHTML = '<p style="text-align: center; color: #666;">Aucun email envoyé</p>';
+                    return;
+                }
+                
+                list.innerHTML = data.emails.map(email => `
+                    <div class="email-item" style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong>📧 ${email.recipient}</strong>
+                            <span style="color: #666; font-size: 0.9rem;">${new Date(email.sent_at || email.created_at).toLocaleString()}</span>
+                        </div>
+                        <div style="color: #333; margin-bottom: 0.5rem;">
+                            <strong>Objet:</strong> ${email.subject}
+                        </div>
+                        <div style="color: #666; font-size: 0.9rem; max-height: 60px; overflow: hidden;">
+                            ${email.body.substring(0, 150)}${email.body.length > 150 ? '...' : ''}
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <span class="badge ${email.status === 'sent' ? 'badge-success' : 'badge-warning'}">
+                                ${email.status === 'sent' ? '✅ Envoyé' : '⏳ En attente'}
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                document.getElementById('historyList').innerHTML = 
+                    '<p style="text-align: center; color: #dc3545;">❌ Erreur de chargement</p>';
+            }
+        }
+        
+        loadHistory();
+    </script>
+
+    <style>
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</body>
+</html>

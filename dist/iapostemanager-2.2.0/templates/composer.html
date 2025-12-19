@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Composer Email - SecureVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='composer.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📧 Composer Email avec IA</h1>
+            <nav>
+                <a href="/">Accueil</a>
+                <a href="/config">Configuration</a>
+            </nav>
+        </header>
+
+        <div class="composer-container">
+            <!-- Étape 1: Génération IA -->
+            <div class="step" id="step1">
+                <h2>1. Génération IA</h2>
+                <form id="aiForm">
+                    <div class="form-group">
+                        <label>Sujet/Contexte:</label>
+                        <input type="text" id="context" placeholder="Ex: Réunion équipe demain" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Ton:</label>
+                        <select id="tone">
+                            <option value="professionnel">Professionnel</option>
+                            <option value="amical">Amical</option>
+                            <option value="formel">Formel</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="generateBtn">Générer Email</button>
+                </form>
+                
+                <div id="aiProgress" class="progress hidden">
+                    <div class="progress-bar"></div>
+                    <span>Génération en cours...</span>
+                </div>
+            </div>
+
+            <!-- Étape 2: Validation et édition -->
+            <div class="step hidden" id="step2">
+                <h2>2. Validation et Édition</h2>
+                <form id="emailForm">
+                    <div class="form-group">
+                        <label>Destinataire:</label>
+                        <input type="email" id="recipient" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sujet:</label>
+                        <input type="text" id="subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Corps du message:</label>
+                        <textarea id="body" rows="10" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="regenerateBtn">Régénérer</button>
+                        <button type="submit" id="sendBtn">Envoyer Email</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Étape 3: Envoi et suivi -->
+            <div class="step hidden" id="step3">
+                <h2>3. Envoi en cours</h2>
+                <div id="sendProgress" class="progress">
+                    <div class="progress-bar"></div>
+                    <span id="sendStatus">Préparation...</span>
+                </div>
+            </div>
+
+            <!-- Résultat final -->
+            <div class="step hidden" id="result">
+                <div id="successResult" class="result success hidden">
+                    <h2>✅ Email envoyé avec succès!</h2>
+                    <p>Votre email a été envoyé à <span id="sentTo"></span></p>
+                    <button onclick="resetComposer()">Nouveau Email</button>
+                </div>
+                <div id="errorResult" class="result error hidden">
+                    <h2>❌ Erreur d'envoi</h2>
+                    <p id="errorMessage"></p>
+                    <button onclick="goToStep(2)">Réessayer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let generatedContent = null;
+
+        // Génération IA
+        document.getElementById('aiForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showProgress('aiProgress');
+            
+            const context = document.getElementById('context').value;
+            const tone = document.getElementById('tone').value;
+            
+            try {
+                const response = await fetch('/api/generate-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({context, tone})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    generatedContent = data;
+                    document.getElementById('subject').value = data.subject;
+                    document.getElementById('body').value = data.body;
+                    goToStep(2);
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
+            } catch (error) {
+                alert('Erreur de génération: ' + error.message);
+            } finally {
+                hideProgress('aiProgress');
+            }
+        });
+
+        // Envoi email
+        document.getElementById('emailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            goToStep(3);
+            
+            const emailData = {
+                recipient: document.getElementById('recipient').value,
+                subject: document.getElementById('subject').value,
+                body: document.getElementById('body').value
+            };
+            
+            updateSendStatus('Connexion au serveur...');
+            
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(emailData)
+                });
+                
+                updateSendStatus('Envoi en cours...');
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess(emailData.recipient);
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Erreur de connexion: ' + error.message);
+            }
+        });
+
+        // Régénération
+        document.getElementById('regenerateBtn').addEventListener('click', () => {
+            goToStep(1);
+        });
+
+        function goToStep(step) {
+            document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            currentStep = step;
+        }
+
+        function showProgress(id) {
+            document.getElementById(id).classList.remove('hidden');
+            animateProgress(id);
+        }
+
+        function hideProgress(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function animateProgress(id) {
+            const bar = document.querySelector(`#${id} .progress-bar`);
+            bar.style.width = '0%';
+            setTimeout(() => bar.style.width = '100%', 100);
+        }
+
+        function updateSendStatus(status) {
+            document.getElementById('sendStatus').textContent = status;
+        }
+
+        function showSuccess(recipient) {
+            document.getElementById('sentTo').textContent = recipient;
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('successResult').classList.remove('hidden');
+        }
+
+        function showError(error) {
+            document.getElementById('errorMessage').textContent = error;
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('errorResult').classList.remove('hidden');
+        }
+
+        function resetComposer() {
+            document.getElementById('aiForm').reset();
+            document.getElementById('emailForm').reset();
+            document.querySelectorAll('.result').forEach(r => r.classList.add('hidden'));
+            goToStep(1);
+        }
+    </script>
+</body>
+</html>
