@@ -1812,10 +1812,14 @@ if __name__ == '__main__':
     
     setup_logging()
     
+    # Get port from environment for deployment
+    port = int(os.environ.get('PORT', 5000))
+    host = os.environ.get('HOST', '0.0.0.0')
+    
     print("\n" + "="*60)
     print("IAPosteManager Unified v3.0 - Securise")
     print("="*60)
-    print(f"URL: http://127.0.0.1:5000")
+    print(f"URL: http://{host}:{port}")
     print(f"Data: {config.DATA_DIR}")
     print(f"Logs: logs/app.log")
     print("\nCorrections appliquees:")
@@ -1835,9 +1839,11 @@ if __name__ == '__main__':
     print("      - GET  /api/email/my-accounts")
     
     app.logger.info("Demarrage de l'application")
+    
     try:
-        print("\n[*] LANCEMENT SERVEUR...")
-        socketio.run(app, debug=False, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
+        print(f"\n[*] LANCEMENT SERVEUR sur {host}:{port}...")
+        print(f"[*] PORT environment variable: {os.environ.get('PORT', 'NOT SET')}")
+        socketio.run(app, debug=False, host=host, port=port, allow_unsafe_werkzeug=True)
     except Exception as e:
         print(f"\n[ERROR] ERREUR FATALE AU DEMARRAGE: {e}")
         import traceback
