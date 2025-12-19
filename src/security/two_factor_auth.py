@@ -22,7 +22,7 @@ class TwoFactorAuth:
         
         img = qr.make_image(fill_color="black", back_color="white")
         buf = io.BytesIO()
-        img.save(buf, format='PNG')
+        img.save(buf)  # qrcode library doesn't accept format parameter
         
         return base64.b64encode(buf.getvalue()).decode()
     
