@@ -6,7 +6,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 def test_workflow_email_complet():
     """Test workflow generation + envoi email"""
-    from services.ai_generator import generate_email
+    try:
+        from src.backend.services.ai_generator import generate_email
+    except ImportError:
+        from services.ai_generator import generate_email
     from models.workflow_manager import creer_workflow, maj_workflow
     
     # Creer workflow
@@ -25,7 +28,10 @@ def test_workflow_email_complet():
 
 def test_attachments():
     """Test pieces jointes"""
-    from services.attachment_service import allowed_file
+    try:
+        from src.backend.services.attachment_service import allowed_file
+    except ImportError:
+        from services.attachment_service import allowed_file
     
     assert allowed_file("doc.pdf") == True
     assert allowed_file("image.jpg") == True
