@@ -35,7 +35,7 @@ def driver():
     driver.quit()
 
 def test_login_flow(driver):
-    """Test login flow"""
+    """Test React login flow with proper wait times"""
     if not is_server_running():
         pytest.skip("Flask server not running")
     
