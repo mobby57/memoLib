@@ -46,15 +46,11 @@ mkdir -p src/backend/logs
 mkdir -p src/backend/flask_session
 
 # Démarrer l'application
-echo "🚀 Lancement du serveur Flask (Python 3.13 compatible)..."
+echo "🚀 Lancement du serveur Flask (Python 3.13 compatible - threading mode)..."
 cd src/backend
 
-# Utiliser Gunicorn si disponible, sinon Flask dev server
-if command -v gunicorn &> /dev/null; then
-    echo "📦 Utilisation de Gunicorn..."
-    exec gunicorn --bind $HOST:$PORT --workers 2 --timeout 120 --keep-alive 2 --max-requests 1000 app:app
-else
-    echo "🐍 Utilisation du serveur Flask..."
-    exec python app.py
-fi
+# Utiliser python app.py pour Flask-SocketIO avec mode threading (pas Gunicorn)
+# Gunicorn ne supporte pas correctement Flask-SocketIO avec threading
+echo "🐍 Démarrage avec socketio.run() en mode threading..."
+exec python app.py
 
