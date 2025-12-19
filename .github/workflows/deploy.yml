@@ -1,25 +1,31 @@
-name: Deploy
+name: Deploy to Production
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Build Docker image
-      run: docker build -t iapostemanager:latest .
-    
-    - name: Run tests in Docker
-      run: |
-        docker run --rm iapostemanager:latest pytest tests/ -v
-    
-    - name: Deploy to production
-      if: success()
-      run: |
-        echo "Deploy to production server"
-        # Add deployment commands here
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        timeout: 60s
+        command_timeout: 30m
+        script: |
+          cd /opt/iapostemanager || { mkdir -p /opt/iapostemanager && cd /opt/iapostemanager && git clone https://github.com/mobby57/iapm.com.git .; }
+          git pull origin main
+          docker-compose -f docker-compose.prod.yml down || true
+          docker-compose -f docker-compose.prod.yml up -d --build
+          sleep 10
+          curl -f http://localhost:5000/api/health
