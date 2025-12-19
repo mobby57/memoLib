@@ -3,7 +3,6 @@ services:
   - type: web
     name: iapostemanager
     runtime: python
-    region: frankfurt
     plan: free
     branch: main
     buildCommand: bash build.sh
