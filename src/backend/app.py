@@ -4,7 +4,7 @@ Application complète unifiée avec corrections critiques
 """
 from flask import Flask, render_template, request, jsonify, session, redirect, send_file
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit  # Using threading mode for Python 3.13 compatibility
 from flask_session import Session
 import sys
 import os
@@ -60,7 +60,13 @@ os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
 Session(app)
 
 CORS(app, supports_credentials=True)
-socketio = SocketIO(app, cors_allowed_origins="*", manage_session=False)
+# Use threading mode for Python 3.13 compatibility (eventlet not compatible)
+socketio = SocketIO(app, 
+                    cors_allowed_origins="*", 
+                    manage_session=False,
+                    async_mode='threading',  # Force threading mode instead of eventlet
+                    logger=False,
+                    engineio_logger=False)
 
 # Configuration globale
 class UnifiedConfig:
@@ -1747,47 +1753,72 @@ def api_email_generator_stats():
         'stats': stats
     })
 
-# WebSocket pour transcription temps réel
-@socketio.on('start_recording')
-def handle_start_recording():
-    if not session.get('authenticated'):
-        emit('error', {'message': 'Non autorisé'})
-        return
-    
-    app.logger.info(f"Démarrage enregistrement vocal")
-    emit('recording_started', {'status': 'Enregistrement démarré'})
+# WebSocket disabled for Python 3.13 compatibility
+# Real-time transcription will use polling instead of WebSocket
 
-@socketio.on('stop_recording')
-def handle_stop_recording():
+@app.route('/api/voice/start-recording', methods=['POST'])
+@handle_api_errors
+def api_start_recording():
+    """Start voice recording (REST endpoint replacement for WebSocket)"""
     if not session.get('authenticated'):
-        emit('error', {'message': 'Non autorisé'})
-        return
+        raise AuthenticationError("Session expirée")
     
-    app.logger.info(f"Arrêt enregistrement vocal")
-    emit('recording_stopped', {'status': 'Enregistrement arrêté'})
+    app.logger.info("Démarrage enregistrement vocal")
+    return jsonify({'success': True, 'status': 'Enregistrement démarré'})
 
-@socketio.on('audio_chunk')
-def handle_audio_chunk(data):
+@app.route('/api/voice/stop-recording', methods=['POST'])
+@handle_api_errors
+def api_stop_recording():
+    """Stop voice recording (REST endpoint replacement for WebSocket)"""
     if not session.get('authenticated'):
-        emit('error', {'message': 'Non autorisé'})
-        return
+        raise AuthenticationError("Session expirée")
+    
+    app.logger.info("Arrêt enregistrement vocal")
+    return jsonify({'success': True, 'status': 'Enregistrement arrêté'})
+
+@app.route('/api/voice/transcribe-chunk', methods=['POST'])
+@handle_api_errors
+def api_transcribe_chunk():
+    """Transcribe audio chunk (REST endpoint replacement for WebSocket)"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    audio_b64 = data.get('audio', '')
     
     try:
         # Décoder l'audio base64
-        audio_data = base64.b64decode(data.get('audio', ''))
+        audio_data = base64.b64decode(audio_b64)
         
         if len(audio_data) > 0:
             # Transcrire avec le service vocal
             result = voice_service.transcribe_audio_data(audio_data)
             
             if result['success']:
-                emit('transcription_update', {'text': result['text']})
+                # Sauvegarder la transcription
+                db.add_transcript(result['text'])
+                return jsonify({
+                    'success': True,
+                    'text': result['text'],
+                    'confidence': 1.0
+                })
             else:
-                emit('transcription_error', {'error': result['error']})
+                return jsonify({
+                    'success': False,
+                    'error': result['error']
+                })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Données audio vides'
+            })
         
     except Exception as e:
-        app.logger.error(f"Erreur transcription temps réel: {e}")
-        emit('transcription_error', {'error': 'Erreur de transcription'})
+        app.logger.error(f"Erreur transcription chunk: {e}")
+        return jsonify({
+            'success': False,
+            'error': 'Erreur de transcription'
+        })
 
 # Configuration du logging
 def setup_logging():
@@ -1843,6 +1874,7 @@ if __name__ == '__main__':
     try:
         print(f"\n[*] LANCEMENT SERVEUR sur {host}:{port}...")
         print(f"[*] PORT environment variable: {os.environ.get('PORT', 'NOT SET')}")
+        # Run with SocketIO using threading mode (Python 3.13 compatible)
         socketio.run(app, debug=False, host=host, port=port, allow_unsafe_werkzeug=True)
     except Exception as e:
         print(f"\n[ERROR] ERREUR FATALE AU DEMARRAGE: {e}")

@@ -111,8 +111,8 @@ export function useVoiceInput(options = {}) {
       }
 
       // Optionnel: Enregistrer audio pour backup
-      if (window.MediaRecorder) {
-        const mediaRecorder = new MediaRecorder(stream);
+      if (typeof window !== 'undefined' && window.MediaRecorder) {
+        const mediaRecorder = new window.MediaRecorder(stream);
         audioChunksRef.current = [];
 
         mediaRecorder.ondataavailable = (event) => {

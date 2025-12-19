@@ -6,11 +6,8 @@ try:
     HAS_SOCKETIO = True
 except ImportError:
     HAS_SOCKETIO = False
-try:
-    from flask_session import Session
-    HAS_FLASK_SESSION = True
-except ImportError:
-    HAS_FLASK_SESSION = False
+# Disable Flask-Session for better compatibility
+HAS_FLASK_SESSION = False
 import sys
 import os
 from datetime import datetime
@@ -40,6 +37,8 @@ from src.core.rate_limiter import rate_limiter
 from src.core.cache_manager import cache
 from src.services.smtp_service import SMTPService
 from src.services.openai_service import OpenAIService
+from src.services.email_service import EmailService
+from src.services.ai_service import AIService
 from src.services.inbox_manager import InboxManager
 try:
     from src.services.realtime_transcription import RealtimeTranscriptionWebSocket, RealtimeTranscription
@@ -79,11 +78,8 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = 3600
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 
-if HAS_FLASK_SESSION:
-    app.config['SESSION_TYPE'] = 'filesystem'
-    app.config['SESSION_FILE_DIR'] = os.path.join(Config.APP_DIR, 'flask_session')
-    os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
-    Session(app)
+# Use built-in Flask sessions for better compatibility
+# No additional session configuration needed
 
 CORS(app, origins=['http://localhost:3000', 'http://127.0.0.1:5000'])
 
@@ -112,6 +108,7 @@ app.register_blueprint(email_bp)
 db = Database(os.path.join(Config.APP_DIR, 'app.db'))
 session_manager = SessionManager(Config.APP_DIR)
 smtp_service = SMTPService()
+email_service = EmailService()
 inbox_manager = InboxManager(Config.APP_DIR)
 
 # Service de transcription temps réel
@@ -1285,14 +1282,10 @@ def sync_inbox():
         days_back = data.get('days_back', 30)
         
         # Récupérer les identifiants Gmail
-        password_manager = PasswordManager(Config.APP_DIR)
-        
         if MASTER_PASSWORD_CACHE:
-            gmail_creds = password_manager.get_credentials(MASTER_PASSWORD_CACHE)
+            app_password, email_address = recuperer_app_password(MASTER_PASSWORD_CACHE, Config.APP_DIR)
             
-            if gmail_creds and gmail_creds.get('email') and gmail_creds.get('app_password'):
-                email_address = gmail_creds['email']
-                app_password = gmail_creds['app_password']
+            if app_password and email_address:
                 
                 # Synchroniser
                 fetched = inbox_manager.fetch_emails(email_address, app_password, days_back)
@@ -2173,10 +2166,13 @@ def inject_accessibility_context():
     return context
 
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    host = os.environ.get('HOST', '127.0.0.1')
+    
     print("\n" + "="*50)
     print("IAPosteManager v2.2 - Demarrage")
     print("="*50)
-    print(f"\nURL: http://127.0.0.1:5000")
+    print(f"\nURL: http://{host}:{port}")
     print(f"App directory: {Config.APP_DIR}")
     
     if HAS_ACCESSIBLE_INTEGRATION:
@@ -2206,7 +2202,7 @@ if __name__ == '__main__':
     
     # Utiliser socketio.run() si disponible, sinon app.run()
     if HAS_SOCKETIO and socketio:
-        socketio.run(app, debug=False, host='127.0.0.1', port=5000, allow_unsafe_werkzeug=True)
+        socketio.run(app, debug=False, host=host, port=port, allow_unsafe_werkzeug=True)
     else:
-        app.run(debug=False, host='127.0.0.1', port=5000)
+        app.run(debug=False, host=host, port=port)
 

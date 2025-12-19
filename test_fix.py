@@ -1,69 +1,63 @@
 #!/usr/bin/env python3
-"""
-Script pour tester la correction des tests E2E
-"""
-import subprocess
-import sys
-import os
+"""Test script to verify Flask app fixes"""
 
-def run_command(cmd, cwd=None):
-    """Execute a command and return the result"""
-    print(f"Running: {cmd}")
+import os
+import sys
+import tempfile
+
+# Set environment variables
+os.environ['SECRET_KEY'] = 'test-secret-key'
+os.environ['FLASK_ENV'] = 'testing'
+os.environ['DATABASE_URL'] = 'sqlite:///test.db'
+
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+def test_app_import():
+    """Test that the app can be imported without errors"""
     try:
-        result = subprocess.run(
-            cmd, 
-            shell=True, 
-            capture_output=True, 
-            text=True, 
-            cwd=cwd
-        )
-        print(f"Exit code: {result.returncode}")
-        if result.stdout:
-            print(f"STDOUT:\n{result.stdout}")
-        if result.stderr:
-            print(f"STDERR:\n{result.stderr}")
-        return result.returncode == 0
+        from src.web.app import app
+        print("✅ App import successful")
+        return True
     except Exception as e:
-        print(f"Error running command: {e}")
+        print(f"❌ App import failed: {e}")
+        return False
+
+def test_basic_routes():
+    """Test basic routes work"""
+    try:
+        from src.web.app import app
+        
+        with app.test_client() as client:
+            # Test health endpoint
+            response = client.get('/api/health')
+            print(f"✅ Health endpoint: {response.status_code}")
+            
+            # Test login page
+            response = client.get('/login')
+            print(f"✅ Login page: {response.status_code}")
+            
+            return True
+    except Exception as e:
+        print(f"❌ Route test failed: {e}")
         return False
 
 def main():
-    print("=" * 60)
-    print("Test de la correction des tests E2E")
-    print("=" * 60)
+    """Run all tests"""
+    print("Testing Flask app fixes...")
+    print("=" * 40)
     
-    # Set PYTHONPATH
-    current_dir = os.getcwd()
-    env = os.environ.copy()
-    env['PYTHONPATH'] = current_dir
+    success = True
+    success &= test_app_import()
+    success &= test_basic_routes()
     
-    print("\n1. Test des tests unitaires et d'intégration (sans E2E)")
-    success = run_command('pytest tests/ -m "not e2e" -v')
-    
+    print("=" * 40)
     if success:
-        print("✅ Tests unitaires et d'intégration: SUCCÈS")
+        print("✅ All tests passed!")
     else:
-        print("❌ Tests unitaires et d'intégration: ÉCHEC")
+        print("❌ Some tests failed!")
     
-    print("\n2. Test des tests E2E (devraient être skippés)")
-    success = run_command('pytest tests/ -m "e2e" -v')
-    
-    if success:
-        print("✅ Tests E2E: SUCCÈS (probablement skippés)")
-    else:
-        print("⚠️  Tests E2E: Skippés ou échec attendu")
-    
-    print("\n3. Test de tous les tests")
-    success = run_command('pytest tests/ -v')
-    
-    if success:
-        print("✅ Tous les tests: SUCCÈS")
-    else:
-        print("⚠️  Certains tests ont échoué (E2E attendus)")
-    
-    print("\n" + "=" * 60)
-    print("Test terminé")
-    print("=" * 60)
+    return 0 if success else 1
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

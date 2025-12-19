@@ -18,20 +18,18 @@ const apiRequest = async (url, options = {}) => {
     }
   }
   
+  const controller = typeof window !== 'undefined' && typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timeoutId = controller ? setTimeout(() => controller.abort(), 10000) : null; // 10s timeout
+  
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-    
     const response = await fetch(url, {
       ...options,
-      signal: controller.signal,
+      ...(controller && { signal: controller.signal }),
       headers: {
         'Content-Type': 'application/json',
         ...options.headers
       }
     });
-    
-    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -51,6 +49,8 @@ const apiRequest = async (url, options = {}) => {
     }
     console.error('API Request failed:', error);
     throw error;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
 };
 
@@ -131,7 +131,7 @@ export const aiAPI = {
   }
 };
 
-// Service Vocal optimisé
+// Service Vocal optimisé - REST endpoints au lieu de WebSocket
 export const voiceAPI = {
   transcribe: async (audioData) => {
     return apiRequest(`${API_BASE}/voice/transcribe`, {
@@ -144,6 +144,26 @@ export const voiceAPI = {
     return apiRequest(`${API_BASE}/voice/speak`, {
       method: 'POST',
       body: JSON.stringify({ text, ...options })
+    });
+  },
+  
+  // Nouveaux endpoints REST pour remplacer WebSocket
+  startRecording: async () => {
+    return apiRequest(`${API_BASE}/voice/start-recording`, {
+      method: 'POST'
+    });
+  },
+  
+  stopRecording: async () => {
+    return apiRequest(`${API_BASE}/voice/stop-recording`, {
+      method: 'POST'
+    });
+  },
+  
+  transcribeChunk: async (audioBase64) => {
+    return apiRequest(`${API_BASE}/voice/transcribe-chunk`, {
+      method: 'POST',
+      body: JSON.stringify({ audio: audioBase64 })
     });
   }
 };

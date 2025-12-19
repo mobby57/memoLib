@@ -2,8 +2,10 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from src.core.database import db, Email
+from src.core.database import Database
 import logging
+import os
+from src.core.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -11,10 +13,13 @@ class EmailService:
     def __init__(self, smtp_host='smtp.gmail.com', smtp_port=587):
         self.smtp_host = smtp_host
         self.smtp_port = smtp_port
+        self.db = Database(os.path.join(Config.APP_DIR, 'app.db'))
     
-    def send(self, from_email, to_email, subject, body, password):
+    def send_email(self, credentials, to_email, subject, body):
         """Envoyer un email via SMTP"""
         try:
+            from_email, password = credentials
+            
             msg = MIMEMultipart()
             msg['From'] = from_email
             msg['To'] = to_email
@@ -26,18 +31,16 @@ class EmailService:
                 server.login(from_email, password)
                 server.send_message(msg)
             
-            email = Email(to_email=to_email, subject=subject, body=body, status='sent')
-            db.session.add(email)
-            db.session.commit()
+            # Enregistrer dans la base de données
+            self.db.log_email(to_email, subject, body, 'sent')
             
             logger.info(f"Email envoyé à {to_email}")
-            return True, email.id
+            return {'success': True, 'message': 'Email envoyé avec succès'}
             
         except Exception as e:
             logger.error(f"Erreur envoi email: {e}")
-            return False, str(e)
+            return {'success': False, 'error': str(e)}
     
     def get_history(self, limit=50):
         """Récupérer l'historique des emails"""
-        emails = Email.query.order_by(Email.sent_at.desc()).limit(limit).all()
-        return [email.to_dict() for email in emails]
+        return self.db.get_email_history(limit)
