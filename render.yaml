@@ -8,19 +8,17 @@ services:
     branch: main
     buildCommand: bash build.sh
     startCommand: bash start.sh
-    healthCheckPath: /api/health
-    autoDeployTrigger: commit
     envVars:
       - key: FLASK_ENV
         value: production
       - key: PORT
-        value: 10000
+        value: "10000"
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
         value: sqlite:///data/production.db
       - key: PYTHONUNBUFFERED
-        value: 1
+        value: "1"
       - key: LOG_LEVEL
         value: INFO
     
@@ -29,14 +27,6 @@ services:
       name: iaposte-data
       mountPath: /opt/render/project/src/backend/data
       sizeGB: 1
-    
-    # Health check configuration
-    healthCheck:
-      path: /api/health
-      interval: 30
-      timeout: 10
-      unhealthyThreshold: 3
-      healthyThreshold: 2
 
 # Configuration optionnelle pour PostgreSQL (si besoin de scaler)
 # databases:
