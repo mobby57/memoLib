@@ -1,17 +1,54 @@
 services:
+  # Service Web Principal
   - type: web
     name: iapostemanager
-    env: python
-    buildCommand: "./build.sh"
-    startCommand: "./start.sh"
+    runtime: python
+    region: frankfurt
     plan: free
+    branch: main
+    buildCommand: |
+      echo "📦 Installation des dépendances Python..."
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      echo "✅ Dépendances installées!"
+    startCommand: |
+      echo "🚀 Démarrage de l'application..."
+      cd src/backend && python app.py
+    healthCheckPath: /api/health
     envVars:
       - key: FLASK_ENV
         value: production
+      - key: PORT
+        value: 10000
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
         value: sqlite:///data/production.db
-      - key: PORT
-        value: 5000
-    healthCheckPath: /api/health
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: LOG_LEVEL
+        value: INFO
+    
+    # Disque persistant pour la base de données
+    disk:
+      name: iaposte-data
+      mountPath: /opt/render/project/src/backend/data
+      sizeGB: 1
+    
+    # Auto-deploy on push
+    autoDeploy: true
+    
+    # Health check configuration
+    healthCheck:
+      path: /api/health
+      interval: 30
+      timeout: 10
+      unhealthyThreshold: 3
+      healthyThreshold: 2
+
+# Configuration optionnelle pour PostgreSQL (si besoin de scaler)
+# databases:
+#   - name: iapostemanager-db
+#     databaseName: iapostemanager
+#     user: iaposte_user
+#     plan: free
