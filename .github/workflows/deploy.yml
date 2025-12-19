@@ -1,13 +1,12 @@
 name: Deploy to Production
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger only - configure PRODUCTION_HOST, PRODUCTION_USER, SSH_PRIVATE_KEY secrets first
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: false  # Disabled - set to true and configure secrets to enable
     
     steps:
     - name: Checkout code
