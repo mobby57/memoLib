@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script de démarrage optimisé pour Render.com
+# Script de démarrage optimisé pour Render.com avec Gunicorn
 
 set -e
 
@@ -17,7 +17,8 @@ echo "   HOST: $HOST"
 echo "   FLASK_ENV: $FLASK_ENV"
 echo "======================================"
 
-# Démarrer l'application
-echo "🚀 Lancement du serveur Flask..."
+# Démarrer l'application avec Gunicorn pour production
+echo "🚀 Lancement avec Gunicorn (production)..."
 cd src/backend
-exec python app.py
+exec gunicorn --worker-class eventlet --workers 1 --bind $HOST:$PORT --timeout 120 --access-logfile - --error-logfile - app:app
+
