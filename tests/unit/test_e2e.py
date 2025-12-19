@@ -1,11 +1,20 @@
 """Tests End-to-End avec Selenium"""
 import pytest
+import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import time
+
+def is_server_running(url="http://localhost:5000"):
+    """Check if Flask server is running"""
+    try:
+        response = requests.get(f"{url}/api/health", timeout=5)
+        return response.status_code == 200
+    except:
+        return False
 
 @pytest.mark.e2e
 class TestE2E:
@@ -23,6 +32,9 @@ class TestE2E:
     
     def test_login_flow(self, driver):
         """Test du flux de connexion"""
+        if not is_server_running():
+            pytest.skip("Flask server not running")
+        
         driver.get('http://localhost:5000')
         
         # Attendre chargement page
@@ -47,6 +59,9 @@ class TestE2E:
     
     def test_email_composition(self, driver):
         """Test composition d'email"""
+        if not is_server_running():
+            pytest.skip("Flask server not running")
+        
         # Login d'abord
         self.test_login_flow(driver)
         
@@ -82,6 +97,9 @@ class TestE2E:
     
     def test_ai_generation(self, driver):
         """Test génération IA"""
+        if not is_server_running():
+            pytest.skip("Flask server not running")
+        
         self.test_login_flow(driver)
         
         driver.get('http://localhost:5000/agent')
