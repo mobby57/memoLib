@@ -9,6 +9,7 @@ services:
     buildCommand: bash build.sh
     startCommand: bash start.sh
     healthCheckPath: /api/health
+    autoDeployTrigger: commit
     envVars:
       - key: FLASK_ENV
         value: production
@@ -28,9 +29,6 @@ services:
       name: iaposte-data
       mountPath: /opt/render/project/src/backend/data
       sizeGB: 1
-    
-    # Auto-deploy on push
-    autoDeploy: true
     
     # Health check configuration
     healthCheck:
