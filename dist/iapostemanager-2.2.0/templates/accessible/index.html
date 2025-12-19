@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault Accessible</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/accessible.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header avec synthèse vocale -->
+        <header class="header">
+            <h1>📨 SecureVault Accessible</h1>
+            <button class="voice-btn" onclick="speakPage()" aria-label="Écouter la page">
+                🔊 Écouter
+            </button>
+        </header>
+
+        <!-- Zone principale avec 3 gros boutons -->
+        <main class="main-buttons">
+            
+            <!-- Bouton 1: Créer message -->
+            <div class="big-button" onclick="creerMessage()" tabindex="0" role="button" aria-label="Créer un nouveau message">
+                <div class="button-icon">📝</div>
+                <div class="button-text">Créer un message</div>
+                <div class="button-subtitle">Parler ou écrire</div>
+            </div>
+
+            <!-- Bouton 2: Joindre document -->
+            <div class="big-button" onclick="joindreFichier()" tabindex="0" role="button" aria-label="Joindre un document">
+                <div class="button-icon">📎</div>
+                <div class="button-text">Joindre un document</div>
+                <div class="button-subtitle">Photo, PDF, fichier</div>
+            </div>
+
+            <!-- Bouton 3: Envoyer -->
+            <div class="big-button send-button" onclick="envoyerMessage()" tabindex="0" role="button" aria-label="Envoyer le message">
+                <div class="button-icon">📤</div>
+                <div class="button-text">Envoyer</div>
+                <div class="button-subtitle">Valider et envoyer</div>
+            </div>
+
+        </main>
+
+        <!-- Zone d'état -->
+        <div class="status-zone" id="statusZone">
+            <div class="status-text" id="statusText">Prêt à créer un message</div>
+        </div>
+
+        <!-- Contrôles vocaux -->
+        <div class="voice-controls">
+            <button class="voice-control" onclick="startListening()" aria-label="Commande vocale">
+                🎤 Parler
+            </button>
+            <button class="voice-control" onclick="toggleHelp()" aria-label="Aide">
+                ❓ Aide
+            </button>
+        </div>
+
+        <!-- Modal pour création de message -->
+        <div class="modal" id="messageModal" style="display: none;">
+            <div class="modal-content">
+                <h2>📝 Créer votre message</h2>
+                
+                <!-- Mode vocal -->
+                <div class="mode-section">
+                    <h3>🎤 Mode vocal</h3>
+                    <button class="action-btn" onclick="startVoiceMessage()">
+                        Parler maintenant
+                    </button>
+                    <div id="voiceResult" class="voice-result"></div>
+                </div>
+
+                <!-- Mode modèles -->
+                <div class="mode-section">
+                    <h3>📋 Modèles rapides</h3>
+                    <div class="template-buttons">
+                        <button class="template-btn" onclick="useTemplate('demande')">
+                            📌 Demande d'information
+                        </button>
+                        <button class="template-btn" onclick="useTemplate('plainte')">
+                            ⚠️ Signaler un problème
+                        </button>
+                        <button class="template-btn" onclick="useTemplate('confirmation')">
+                            ✅ Confirmer une prestation
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Aperçu du message -->
+                <div class="message-preview" id="messagePreview" style="display: none;">
+                    <h3>📄 Votre message :</h3>
+                    <div class="preview-text" id="previewText"></div>
+                    <button class="action-btn" onclick="readMessage()">🔊 Écouter</button>
+                </div>
+
+                <!-- Actions -->
+                <div class="modal-actions">
+                    <button class="cancel-btn" onclick="closeModal()">❌ Annuler</button>
+                    <button class="validate-btn" onclick="validateMessage()">✅ Valider</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal pour envoi -->
+        <div class="modal" id="sendModal" style="display: none;">
+            <div class="modal-content">
+                <h2>📤 Envoyer le message</h2>
+                
+                <div class="recipient-section">
+                    <label for="recipient">À qui envoyer ?</label>
+                    <input type="email" id="recipient" placeholder="email@exemple.com" class="big-input">
+                    <button class="voice-btn" onclick="speakRecipient()">🎤 Dicter</button>
+                </div>
+
+                <div class="final-preview" id="finalPreview">
+                    <!-- Contenu du message final -->
+                </div>
+
+                <div class="modal-actions">
+                    <button class="cancel-btn" onclick="closeSendModal()">❌ Annuler</button>
+                    <button class="send-final-btn" onclick="sendFinalMessage()">📤 Envoyer maintenant</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone d'aide -->
+        <div class="help-zone" id="helpZone" style="display: none;">
+            <h3>❓ Comment utiliser l'application</h3>
+            <ul class="help-list">
+                <li>🎤 <strong>Parler :</strong> Cliquez sur "Parler" et décrivez votre message</li>
+                <li>📝 <strong>Modèles :</strong> Choisissez un modèle pré-écrit</li>
+                <li>📎 <strong>Fichiers :</strong> Joignez des photos ou documents</li>
+                <li>📤 <strong>Envoyer :</strong> Validez et envoyez votre message</li>
+            </ul>
+            <button class="action-btn" onclick="readHelp()">🔊 Écouter l'aide</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/accessible.js') }}"></script>
+</body>
+</html>

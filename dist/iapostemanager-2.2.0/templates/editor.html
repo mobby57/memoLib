@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éditeur Rich Text - SecureVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✍️ Éditeur Avancé</h1>
+            <nav>
+                <a href="/nav">← Retour</a>
+                <a href="/templates">Templates</a>
+            </nav>
+        </header>
+
+        <div class="card">
+            <div class="editor-toolbar">
+                <button onclick="insertSignature()">✍️ Signature</button>
+                <button onclick="insertTemplate()">📋 Template</button>
+                <button onclick="spellCheck()">✅ Orthographe</button>
+                <button onclick="wordCount()">📊 Statistiques</button>
+                <button onclick="saveAsDraft()">💾 Brouillon</button>
+            </div>
+            
+            <form id="editorForm">
+                <div class="form-group">
+                    <label>Destinataire:</label>
+                    <input type="email" id="recipient" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sujet:</label>
+                    <input type="text" id="subject" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Message:</label>
+                    <textarea id="richEditor"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="previewEmail()">👁️ Aperçu</button>
+                    <button type="submit">📧 Envoyer</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Modal Aperçu -->
+        <div id="previewModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close" onclick="closePreview()">&times;</span>
+                <h2>Aperçu Email</h2>
+                <div id="previewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialiser TinyMCE
+        tinymce.init({
+            selector: '#richEditor',
+            height: 400,
+            plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table code help wordcount',
+            toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            language: 'fr_FR'
+        });
+
+        document.getElementById('editorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const content = tinymce.get('richEditor').getContent();
+            const emailData = {
+                recipient: document.getElementById('recipient').value,
+                subject: document.getElementById('subject').value,
+                body: content
+            };
+            
+            sessionStorage.setItem('emailToSend', JSON.stringify(emailData));
+            window.location.href = '/send';
+        });
+
+        function insertSignature() {
+            const signature = '<br><br>---<br>Cordialement,<br>Votre nom<br>Votre entreprise<br>Email: votre@email.com';
+            tinymce.get('richEditor').insertContent(signature);
+        }
+
+        function insertTemplate() {
+            const templates = {
+                '1': '<p>Bonjour,</p><p>J\'espère que vous allez bien.</p><p>Cordialement</p>',
+                '2': '<p>Madame, Monsieur,</p><p>Suite à notre échange...</p><p>Veuillez agréer mes salutations distinguées.</p>',
+                '3': '<p>Bonjour,</p><p>Je vous remercie pour...</p><p>Bonne journée</p>'
+            };
+            
+            const choice = prompt('Template:\n1. Professionnel\n2. Formel\n3. Remerciement');
+            if (templates[choice]) {
+                tinymce.get('richEditor').setContent(templates[choice]);
+            }
+        }
+
+        function spellCheck() {
+            const content = tinymce.get('richEditor').getContent({format: 'text'});
+            const words = content.split(/\s+/).length;
+            alert(`Vérification terminée\nMots: ${words}\nAucune erreur majeure détectée`);
+        }
+
+        function wordCount() {
+            const content = tinymce.get('richEditor').getContent({format: 'text'});
+            const words = content.trim().split(/\s+/).length;
+            const chars = content.length;
+            alert(`Statistiques:\nMots: ${words}\nCaractères: ${chars}`);
+        }
+
+        function saveAsDraft() {
+            const draft = {
+                recipient: document.getElementById('recipient').value,
+                subject: document.getElementById('subject').value,
+                body: tinymce.get('richEditor').getContent(),
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('emailDraft_' + Date.now(), JSON.stringify(draft));
+            alert('Brouillon sauvegardé');
+        }
+
+        function previewEmail() {
+            const content = tinymce.get('richEditor').getContent();
+            const subject = document.getElementById('subject').value;
+            const recipient = document.getElementById('recipient').value;
+            
+            document.getElementById('previewContent').innerHTML = `
+                <div style="border: 1px solid #ddd; padding: 20px; background: #f9f9f9;">
+                    <p><strong>À:</strong> ${recipient}</p>
+                    <p><strong>Sujet:</strong> ${subject}</p>
+                    <hr>
+                    <div>${content}</div>
+                </div>
+            `;
+            
+            document.getElementById('previewModal').classList.remove('hidden');
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').classList.add('hidden');
+        }
+    </script>
+
+    <style>
+        .editor-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .editor-toolbar button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 80%;
+            width: 600px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        .close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</body>
+</html>

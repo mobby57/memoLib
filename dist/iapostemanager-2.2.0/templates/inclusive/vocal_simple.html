@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Vocal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .screen {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .title {
+            font-size: 48px;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        
+        .mic-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: none;
+            font-size: 80px;
+            cursor: pointer;
+            margin: 30px auto;
+            display: block;
+            transition: all 0.2s ease;
+        }
+        
+        .mic-inactive {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        .mic-active {
+            background: #f44336;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .status {
+            font-size: 24px;
+            margin: 20px 0;
+            color: #333;
+        }
+        
+        .transcript {
+            background: #f8f9fa;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            font-size: 20px;
+            line-height: 1.6;
+            min-height: 100px;
+            text-align: left;
+        }
+        
+        .big-button {
+            width: 100%;
+            padding: 30px;
+            font-size: 28px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 15px 0;
+        }
+        
+        .green {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .red {
+            background: #f44336;
+            color: white;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Écran vocal -->
+    <div class="screen" id="vocalScreen">
+        <div class="title">🎤 Parlez</div>
+        <div class="status" id="status">Appuyez et parlez</div>
+        
+        <button class="mic-button mic-inactive" id="micButton" onclick="toggleRecording()">
+            🎤
+        </button>
+        
+        <div class="transcript" id="transcript">
+            Votre texte apparaîtra ici...
+        </div>
+        
+        <button class="big-button green hidden" id="createButton" onclick="createEmail()">
+            📧 CRÉER EMAIL
+        </button>
+        
+        <button class="big-button red" onclick="goHome()">
+            🏠 ACCUEIL
+        </button>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let recognition = null;
+        let finalText = '';
+        
+        // Initialiser reconnaissance vocale
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'fr-FR';
+            
+            recognition.onstart = function() {
+                document.getElementById('status').textContent = '🔴 Je vous écoute...';
+            };
+            
+            recognition.onresult = function(event) {
+                let interimText = '';
+                let finalTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimText += transcript;
+                    }
+                }
+                
+                if (finalTranscript) {
+                    finalText = finalTranscript;
+                    document.getElementById('transcript').textContent = finalText;
+                    document.getElementById('createButton').classList.remove('hidden');
+                } else {
+                    document.getElementById('transcript').innerHTML = 
+                        finalText + '<span style="color: #999;">' + interimText + '</span>';
+                }
+            };
+            
+            recognition.onend = function() {
+                isRecording = false;
+                document.getElementById('micButton').className = 'mic-button mic-inactive';
+                document.getElementById('status').textContent = 'Appuyez pour parler à nouveau';
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Erreur:', event.error);
+                isRecording = false;
+                document.getElementById('micButton').className = 'mic-button mic-inactive';
+                document.getElementById('status').textContent = '❌ Erreur - Réessayez';
+            };
+        } else {
+            document.getElementById('status').textContent = '❌ Votre navigateur ne supporte pas la voix';
+        }
+        
+        function toggleRecording() {
+            if (!recognition) return;
+            
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+        
+        function startRecording() {
+            isRecording = true;
+            document.getElementById('micButton').className = 'mic-button mic-active';
+            document.getElementById('status').textContent = '🔴 Parlez maintenant...';
+            recognition.start();
+        }
+        
+        function stopRecording() {
+            isRecording = false;
+            recognition.stop();
+        }
+        
+        function createEmail() {
+            if (!finalText) return;
+            
+            // Sauvegarder le texte et rediriger
+            sessionStorage.setItem('voiceText', finalText);
+            window.location.href = '/inclusive/generate-from-voice';
+        }
+        
+        function goHome() {
+            window.location.href = '/inclusive';
+        }
+    </script>
+</body>
+</html>
