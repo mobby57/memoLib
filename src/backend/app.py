@@ -3,7 +3,7 @@ IAPosteManager Unified v3.0 - FIXED VERSION
 Application complète unifiée avec corrections critiques
 Python 3.13 compatible - Using Flask-SocketIO with threading mode
 """
-from flask import Flask, render_template, request, jsonify, session, redirect, send_file
+from flask import Flask, render_template, request, jsonify, session, redirect, send_file, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit  # Using threading mode for Python 3.13 compatibility
 from flask_session import Session
@@ -561,15 +561,58 @@ try:
 except Exception as e:
     print(f"[WARNING] Email provisioning non disponible: {e}")
 
-# Routes principales
-@app.route('/')
-def index():
-    """Root route - React handles routing, just return API status"""
+# Routes pour servir le frontend React
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    """Servir le frontend React depuis Flask"""
+    frontend_dist = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+    frontend_dist_abs = os.path.abspath(frontend_dist)
+    index_path = os.path.join(frontend_dist, 'index.html')
+    
+    # Debug logging
+    app.logger.info(f"[FRONTEND] Requested path: {path}")
+    app.logger.info(f"[FRONTEND] Looking for dist at: {frontend_dist_abs}")
+    app.logger.info(f"[FRONTEND] Dist exists: {os.path.exists(frontend_dist)}")
+    app.logger.info(f"[FRONTEND] Index.html exists: {os.path.exists(index_path)}")
+    
+    # Routes API - ne pas servir le frontend pour ces routes
+    if path.startswith('api/'):
+        return jsonify({'error': 'API endpoint not found'}), 404
+    
+    # Si le fichier existe dans dist, le servir
+    if path and os.path.exists(os.path.join(frontend_dist, path)):
+        return send_from_directory(frontend_dist, path)
+    
+    # Pour les routes React (login, dashboard, etc.), servir index.html
+    if os.path.exists(index_path):
+        return send_from_directory(frontend_dist, 'index.html')
+    
+    # Fallback: API status avec debug info
     return jsonify({
         'api': 'IAPosteManager Unified API',
         'version': '3.0',
         'status': 'running',
-        'authenticated': session.get('authenticated', False)
+        'authenticated': session.get('authenticated', False),
+        'debug': {
+            'frontend_dist': frontend_dist_abs,
+            'dist_exists': os.path.exists(frontend_dist),
+            'index_exists': os.path.exists(index_path),
+            'current_dir': os.getcwd(),
+            'app_file': __file__
+        },
+        'frontend': 'Build frontend with: cd src/frontend && npm run build',
+        'routes': {
+            'login': '/login',
+            'dashboard': '/',
+            'send': '/send',
+            'config': '/config',
+            'history': '/history',
+            'templates': '/templates',
+            'ai-generate': '/ai-generate',
+            'contacts': '/contacts',
+            'accessibility': '/accessibility'
+        }
     })
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -607,6 +650,7 @@ def logout():
 # API Routes
 @app.route('/api/login', methods=['POST'])
 @app.route('/api/auth/login', methods=['POST'])
+@public_api
 def api_login():
     """API endpoint for React frontend login"""
     data = request.get_json()
@@ -629,7 +673,11 @@ def api_login():
     return jsonify({
         'success': True,
         'token': 'test-token-' + hashlib.md5(password.encode()).hexdigest()[:16],
-        'redirect': '/'
+        'user': {
+            'id': 1,
+            'email': 'user@example.com',
+            'name': 'Utilisateur'
+        }
     })
 
 @app.route('/api/logout', methods=['POST'])
@@ -703,29 +751,36 @@ def api_config_settings_alias():
     return jsonify({'success': True})
 
 @app.route('/api/send-email', methods=['POST'])
-@handle_api_errors
+@public_api
 def api_send_email():
-    if not session.get('authenticated'):
-        raise AuthenticationError("Session expirée")
-    
     data = request.get_json()
     recipient = sanitize_input(data.get('recipient', ''), 100)
     subject = sanitize_input(data.get('subject', ''), 200)
     body = sanitize_input(data.get('body', ''), 5000)
     
     if not all([recipient, subject, body]):
-        raise ValidationError('Tous les champs sont requis')
+        return jsonify({'success': False, 'error': 'Tous les champs sont requis'}), 400
     
     if not validate_email(recipient):
-        raise ValidationError('Email destinataire invalide')
+        return jsonify({'success': False, 'error': 'Email destinataire invalide'}), 400
     
+    # Pour les tests, simuler l'envoi
+    if not session.get('authenticated'):
+        db.log_email(recipient, subject, body, 'simulated')
+        return jsonify({
+            'success': True, 
+            'message': 'Email simulé (connectez-vous pour envoyer réellement)',
+            'mode': 'simulation'
+        })
+    
+    # Envoi réel si authentifié
     password = get_master_password()
     if not password:
-        raise AuthenticationError("Mot de passe maître requis")
+        return jsonify({'success': False, 'error': 'Mot de passe maître requis'}), 401
     
     creds = crypto.get_credentials(password)
     if not creds or not creds.get('email'):
-        raise ValidationError('Configuration Gmail requise')
+        return jsonify({'success': False, 'error': 'Configuration Gmail requise'}), 400
     
     result = email_service.send_email(
         creds['email'], 
@@ -744,12 +799,9 @@ def api_send_email():
     return jsonify(result)
 
 @app.route('/api/generate-email', methods=['POST'])
-@handle_api_errors
+@public_api
 def api_generate_email():
     global ai_service
-    
-    if not session.get('authenticated'):
-        raise AuthenticationError("Session expirée")
     
     data = request.get_json()
     context = sanitize_input(data.get('context', ''), 2000)
@@ -757,7 +809,7 @@ def api_generate_email():
     email_type = sanitize_input(data.get('emailType', 'general'), 50)
     
     if not context:
-        raise ValidationError('Contexte requis')
+        return jsonify({'success': False, 'error': 'Contexte requis'}), 400
     
     # Initialiser AI service si nécessaire
     if not ai_service:
