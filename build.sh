@@ -10,47 +10,41 @@ echo "====================================="
 echo "📦 Installation dépendances backend..."
 pip install -r requirements.txt
 
-# 2. Installer Node.js si pas déjà disponible
-if ! command -v npm &> /dev/null; then
-    echo "📥 Installation de Node.js..."
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-    apt-get install -y nodejs || {
-        echo "⚠️ Impossible d'installer Node.js automatiquement"
-        echo "⚠️ Le frontend ne sera pas buildé - utilisation des fichiers statiques du repo"
-        exit 0
-    }
-fi
-
-# 3. Builder le frontend React
-echo "📦 Build frontend React..."
-cd src/frontend
-
-echo "✅ npm version: $(npm --version)"
-echo "✅ node version: $(node --version)"
-
-# Installer les dépendances
-echo "📥 Installation dépendances frontend..."
-npm install || {
-    echo "❌ Erreur lors de npm install"
-    exit 1
-}
-
-# Builder pour production
-echo "🔨 Build production..."
-npm run build || {
-    echo "❌ Erreur lors du build frontend"
-    exit 1
-}
-
-if [ -d "dist" ]; then
-    echo "✅ Frontend buildé avec succès"
-    ls -la dist/
+# 2. Vérifier si le frontend est déjà buildé (committé dans le repo)
+if [ -d "src/frontend/dist" ] && [ -f "src/frontend/dist/index.html" ]; then
+    echo "✅ Frontend dist trouvé dans le repo Git"
+    echo "📦 Utilisation du build pré-compilé"
+    ls -la src/frontend/dist/
 else
-    echo "❌ Dossier dist non créé"
-    exit 1
+    echo "⚠️ Frontend dist non trouvé - tentative de build..."
+    
+    # Builder le frontend React si npm est disponible
+    if command -v npm &> /dev/null; then
+        echo "📦 Build frontend React..."
+        cd src/frontend
+        
+        echo "✅ npm version: $(npm --version)"
+        echo "✅ node version: $(node --version)"
+        
+        # Installer les dépendances
+        echo "📥 Installation dépendances frontend..."
+        npm install || {
+            echo "❌ Erreur lors de npm install"
+            exit 1
+        }
+        
+        # Builder pour production
+        echo "🔨 Build production..."
+        npm run build || {
+            echo "❌ Erreur lors du build frontend"
+            exit 1
+        }
+        
+        cd ../..
+    else
+        echo "❌ npm non disponible et dist absent - le frontend ne fonctionnera pas"
+        exit 1
+    fi
 fi
-
-# 4. Retourner au répertoire racine
-cd ../..
 
 echo "✅ Build terminé - Prêt pour déploiement"
