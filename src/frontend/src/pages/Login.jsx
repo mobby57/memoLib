@@ -35,25 +35,27 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <h1>🔐 IAPosteManager</h1>
-        <p>Interface unifiée pour l'envoi d'emails</p>
+    <div className="min-h-screen flex items-center justify-center p-4 gradient-mesh">
+      <div className="modern-card glass max-w-md w-full p-8 animate-fade-in">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold mb-3 gradient-text">🔐 IAPosteManager</h1>
+          <p className="text-gray-600 dark:text-gray-300">Interface unifiée pour l'envoi d'emails</p>
+        </div>
 
-        <form onSubmit={handleLogin} className="login-form">
-          <div className="form-group">
-            <label>Mode :</label>
-            <div className="mode-toggle">
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">Mode :</label>
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                className={isNewUser ? 'active' : ''}
+                className={`btn-modern ${isNewUser ? 'gradient-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'}`}
                 onClick={() => setIsNewUser(true)}
               >
                 Nouveau compte
               </button>
               <button
                 type="button"
-                className={!isNewUser ? 'active' : ''}
+                className={`btn-modern ${!isNewUser ? 'gradient-primary text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'}`}
                 onClick={() => setIsNewUser(false)}
               >
                 Compte existant
@@ -61,29 +63,53 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="form-group">
-            <label>Mot de passe maître :</label>
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">Mot de passe maître :</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Votre mot de passe sécurisé"
+              className="input-modern w-full"
               required
             />
           </div>
 
-          <button type="submit" disabled={loading} className="login-button">
-            {loading ? '⏳ Connexion...' : '🚀 Se connecter'}
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="btn-modern gradient-primary text-white w-full text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="spinner" />
+                <span>Connexion...</span>
+              </span>
+            ) : (
+              '🚀 Se connecter'
+            )}
           </button>
         </form>
 
-        <div className="login-features">
-          <h3>✨ Fonctionnalités disponibles :</h3>
-          <ul>
-            <li>📧 Envoi d'emails avec IA</li>
-            <li>🎤 Interface vocale</li>
-            <li>♿ Mode accessible</li>
-            <li>📊 Dashboard unifié</li>
+        <div className="mt-8 p-6 glass-dark rounded-xl animate-slide-in-right">
+          <h3 className="text-lg font-semibold mb-4 gradient-text">✨ Fonctionnalités disponibles :</h3>
+          <ul className="space-y-3">
+            <li className="flex items-center gap-3 text-gray-700 dark:text-gray-200 feature-card">
+              <span className="text-2xl">📧</span>
+              <span>Envoi d'emails avec IA</span>
+            </li>
+            <li className="flex items-center gap-3 text-gray-700 dark:text-gray-200 feature-card">
+              <span className="text-2xl">🎤</span>
+              <span>Interface vocale</span>
+            </li>
+            <li className="flex items-center gap-3 text-gray-700 dark:text-gray-200 feature-card">
+              <span className="text-2xl">♿</span>
+              <span>Mode accessible</span>
+            </li>
+            <li className="flex items-center gap-3 text-gray-700 dark:text-gray-200 feature-card">
+              <span className="text-2xl">📊</span>
+              <span>Dashboard unifié</span>
+            </li>
           </ul>
         </div>
       </div>
