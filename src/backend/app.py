@@ -617,7 +617,7 @@ def serve_frontend(path):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """Legacy login route - redirects GET to React frontend"""
+    """Legacy login route - serves React frontend for GET, handles POST"""
     if request.method == 'POST':
         data = request.get_json()
         password = data.get('password', '')
@@ -638,8 +638,12 @@ def login():
         app.logger.info(f"Connexion réussie depuis {request.remote_addr}")
         return jsonify({'success': True, 'redirect': '/'})
     
-    # GET request - return simple message (React handles UI)
-    return jsonify({'message': 'Please use /api/auth/login endpoint', 'authenticated': session.get('authenticated', False)})
+    # GET request - serve React frontend
+    frontend_dist = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+    index_path = os.path.join(frontend_dist, 'index.html')
+    if os.path.exists(index_path):
+        return send_from_directory(frontend_dist, 'index.html')
+    return jsonify({'message': 'Frontend not found', 'authenticated': session.get('authenticated', False)})
 
 @app.route('/logout')
 def logout():
