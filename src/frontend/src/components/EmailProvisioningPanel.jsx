@@ -14,6 +14,7 @@ export default function EmailProvisioningPanel() {
   const [myAccounts, setMyAccounts] = useState([]);
   const [createdAccount, setCreatedAccount] = useState(null);
   const [error, setError] = useState('');
+  const [copyMessage, setCopyMessage] = useState('');
 
   // Charger mes comptes email au chargement
   useEffect(() => {
@@ -88,7 +89,8 @@ export default function EmailProvisioningPanel() {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    alert('Copié dans le presse-papiers!');
+    setCopyMessage('Copié dans le presse-papiers!');
+    setTimeout(() => setCopyMessage(''), 2000);
   };
 
   return (
@@ -326,7 +328,32 @@ export default function EmailProvisioningPanel() {
           margin: 5px 0;
           color: #0c5460;
         }
+        
+        .copy-message {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #28a745;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 6px;
+          z-index: 1000;
+          animation: fadeInOut 2s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+          0% { opacity: 0; transform: translateY(-20px); }
+          20% { opacity: 1; transform: translateY(0); }
+          80% { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-20px); }
+        }
       `}</style>
+
+      {copyMessage && (
+        <div className="copy-message">
+          ✓ {copyMessage}
+        </div>
+      )}
 
       <div className="panel-header">
         <h2>📧 Créer une Adresse Email Générique</h2>
