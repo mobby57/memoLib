@@ -66,6 +66,8 @@ export default function Login() {
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-200">Mot de passe maître :</label>
             <input
+              id="password"
+              data-testid="password-input"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -76,6 +78,8 @@ export default function Login() {
           </div>
 
           <button 
+            id="submit"
+            data-testid="submit-button"
             type="submit" 
             disabled={loading} 
             className="btn-modern gradient-primary text-white w-full text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
