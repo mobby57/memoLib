@@ -1,6 +1,7 @@
 """
 IAPosteManager Unified v3.0 - FIXED VERSION
 Application complète unifiée avec corrections critiques
+Python 3.13 compatible - Using Flask-SocketIO with threading mode
 """
 from flask import Flask, render_template, request, jsonify, session, redirect, send_file
 from flask_cors import CORS
