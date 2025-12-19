@@ -25,7 +25,12 @@ class TestE2E:
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
-        driver = webdriver.Chrome(options=options)
+        
+        try:
+            driver = webdriver.Chrome(options=options)
+        except WebDriverException as e:
+            pytest.skip(f"Chrome/Chromedriver not available: {e}")
+        
         driver.implicitly_wait(10)
         yield driver
         driver.quit()
