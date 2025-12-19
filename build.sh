@@ -1,24 +1,20 @@
 #!/bin/bash
-# Build script for Render.com deployment
+set -e
 
-echo "🚀 Building iaPosteManager for production..."
+echo "🔧 Building iaPosteManager for Render.com..."
 
-# Install backend dependencies
-echo "📦 Installing Python dependencies..."
+# Install Python dependencies
 pip install -r requirements.txt
 
-# Install frontend dependencies
-echo "📦 Installing Node.js dependencies..."
+# Create necessary directories
+mkdir -p data
+mkdir -p logs
+mkdir -p uploads
+
+# Install frontend dependencies and build
 cd src/frontend
-npm install
+npm ci
 npm run build
 cd ../..
 
-# Create necessary directories
-mkdir -p data logs backups
-
-# Set permissions
-chmod +x start.sh
-
 echo "✅ Build completed successfully!"
-echo "🎯 Ready for production deployment"
