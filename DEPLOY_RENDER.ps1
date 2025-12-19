@@ -42,7 +42,8 @@ try {
         throw "Not a git repository"
     }
     Write-Host "✅ Depot Git valide" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ [ERROR] Ce n'est pas un depot Git valide!" -ForegroundColor Red
     pause
     exit 1
@@ -63,7 +64,8 @@ if ($currentBranch -ne "main") {
             exit 1
         }
         Write-Host "✅ Branche 'main' active" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "ℹ️  Deploiement annule" -ForegroundColor Gray
         pause
         exit 0
@@ -86,7 +88,8 @@ $missingFiles = @()
 foreach ($file in $requiredFiles) {
     if (Test-Path $file) {
         Write-Host "   ✅ $file" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "   ❌ $file (MANQUANT!)" -ForegroundColor Red
         $missingFiles += $file
     }
@@ -105,7 +108,8 @@ Write-Host "══════════════════════�
 
 git add .
 
-$hasChanges = git diff-index --quiet HEAD
+# Check if there are changes to commit
+git diff-index --quiet HEAD 2>&1 | Out-Null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ℹ️  Changements detectes" -ForegroundColor Cyan
     
@@ -125,7 +129,8 @@ if ($LASTEXITCODE -ne 0) {
     # Get commit hash
     $commitHash = git rev-parse --short HEAD
     Write-Host "   Commit: $commitHash" -ForegroundColor Gray
-} else {
+}
+else {
     Write-Host "ℹ️  Aucun changement a committer" -ForegroundColor Gray
 }
 
@@ -140,7 +145,8 @@ try {
         throw "Git push failed"
     }
     Write-Host "✅ Push vers GitHub reussi!" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ [ERROR] Echec du push vers GitHub!" -ForegroundColor Red
     Write-Host "Verifiez vos credentials et votre connexion internet." -ForegroundColor Yellow
     pause
