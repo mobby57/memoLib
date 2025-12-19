@@ -1,16 +1,12 @@
 #!/bin/bash
-# Start script for production deployment
+set -e
 
-echo "🚀 Starting iaPosteManager in production mode..."
+echo "🚀 Starting iaPosteManager on Render.com..."
 
-# Set production environment
+# Set environment variables
 export FLASK_ENV=production
-export NODE_ENV=production
+export PYTHONPATH=$PYTHONPATH:$(pwd)
 
-# Create necessary directories
-mkdir -p data logs backups
-
-# Start the application
-echo "🎯 Starting Flask backend on port $PORT..."
+# Start the Flask application
 cd src/backend
 python app.py
