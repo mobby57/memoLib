@@ -13,9 +13,13 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Dépendances Python
+# Créer utilisateur non-root
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Dépendances Python (en tant que root, avant de changer d'utilisateur)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --no-warn-script-location -r requirements.txt
 
 # Code application
 COPY src/ ./src/
@@ -27,6 +31,15 @@ COPY models/ ./models/
 # Tests directory (needed for pytest in Docker)
 COPY tests/ ./tests/
 COPY pytest.ini ./
+
+# Permissions pour l'utilisateur non-root
+RUN chown -R appuser:appuser /app
+
+# Créer répertoire data avec permissions
+RUN mkdir -p /app/data && chown -R appuser:appuser /app/data
+
+# Basculer vers utilisateur non-root
+USER appuser
 
 # Données persistantes
 VOLUME ["/app/data"]
