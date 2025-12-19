@@ -6,11 +6,19 @@ set -e  # Arrêter en cas d'erreur
 echo "🏗️  BUILD IAPOSTEMANAGER POUR RENDER"
 echo "======================================"
 
-# 1. Mise à jour pip
+# 1. Installation des dépendances système (TTS support)
+echo "📦 Installation des dépendances système..."
+apt-get update -qq && apt-get install -y -qq \
+    espeak \
+    libespeak1 \
+    libespeak-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. Mise à jour pip
 echo "📦 Mise à jour de pip..."
 python -m pip install --upgrade pip --no-cache-dir
 
-# 2. Installation dépendances Python
+# 3. Installation dépendances Python
 echo "📚 Installation des dépendances Python..."
 pip install --no-cache-dir -r requirements.txt
 

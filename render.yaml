@@ -6,14 +6,8 @@ services:
     region: frankfurt
     plan: free
     branch: main
-    buildCommand: |
-      echo "📦 Installation des dépendances Python..."
-      pip install --upgrade pip
-      pip install -r requirements.txt
-      echo "✅ Dépendances installées!"
-    startCommand: |
-      echo "🚀 Démarrage de l'application..."
-      cd src/backend && python app.py
+    buildCommand: bash build.sh
+    startCommand: bash start.sh
     healthCheckPath: /api/health
     envVars:
       - key: FLASK_ENV
