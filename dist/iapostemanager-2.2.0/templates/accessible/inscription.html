@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - SecureVault Accessible</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/accessible.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📝 Inscription SecureVault</h1>
+            <button class="voice-btn" onclick="speakPage()" aria-label="Écouter la page">
+                🔊 Écouter
+            </button>
+        </header>
+
+        <main class="inscription-main">
+            <div class="welcome-message">
+                <h2>Bienvenue ! Inscription en 3 étapes</h2>
+                <p>Dites ou écrivez vos informations</p>
+            </div>
+
+            <!-- Mode vocal -->
+            <div class="mode-section">
+                <h3>🎤 Mode vocal (recommandé)</h3>
+                <p>Cliquez et parlez quand on vous le demande</p>
+                <button class="big-action-btn" onclick="startVocalInscription()">
+                    🎤 Commencer l'inscription vocale
+                </button>
+                <div id="vocalProgress" class="vocal-progress" style="display: none;">
+                    <div class="progress-step" id="stepIndicator">Étape 1/3</div>
+                    <div class="progress-text" id="progressText">Dites votre nom...</div>
+                    <div class="voice-result" id="vocalResult"></div>
+                </div>
+            </div>
+
+            <!-- Séparateur -->
+            <div class="separator">
+                <span>OU</span>
+            </div>
+
+            <!-- Mode texte -->
+            <div class="mode-section">
+                <h3>✍️ Mode texte</h3>
+                <form id="textForm" class="text-form">
+                    <div class="form-group">
+                        <label for="nom">👤 Nom :</label>
+                        <input type="text" id="nom" name="nom" class="big-input" placeholder="Votre nom de famille">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prenom">👤 Prénom :</label>
+                        <input type="text" id="prenom" name="prenom" class="big-input" placeholder="Votre prénom">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">📧 Email personnel :</label>
+                        <input type="email" id="email" name="email" class="big-input" placeholder="votre@email.com">
+                    </div>
+
+                    <button type="submit" class="big-action-btn">
+                        ✅ Valider l'inscription
+                    </button>
+                </form>
+            </div>
+
+            <!-- Zone de résultat -->
+            <div class="result-zone" id="resultZone" style="display: none;">
+                <div class="success-message" id="successMessage"></div>
+                <button class="big-action-btn" onclick="goToApp()">
+                    📨 Accéder à l'application
+                </button>
+            </div>
+        </main>
+
+        <!-- Zone d'aide -->
+        <div class="help-section">
+            <button class="help-btn" onclick="toggleInscriptionHelp()">
+                ❓ Besoin d'aide ?
+            </button>
+            <div class="help-content" id="inscriptionHelp" style="display: none;">
+                <h4>Comment s'inscrire ?</h4>
+                <ul>
+                    <li>🎤 <strong>Mode vocal :</strong> Parlez quand l'application vous le demande</li>
+                    <li>✍️ <strong>Mode texte :</strong> Remplissez les 3 champs</li>
+                    <li>📧 <strong>Email :</strong> Votre vraie adresse email pour recevoir les réponses</li>
+                </ul>
+                <button class="action-btn" onclick="readInscriptionHelp()">🔊 Écouter l'aide</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentStep = 0;
+        let vocalData = {};
+
+        // Inscription vocale
+        async function startVocalInscription() {
+            document.getElementById('vocalProgress').style.display = 'block';
+            currentStep = 1;
+            
+            await speakText("Inscription vocale. Étape 1 sur 3. Dites votre nom de famille.");
+            updateProgress(1, "Dites votre nom de famille...");
+            
+            const nom = await listenForInput();
+            if (nom) {
+                vocalData.nom = nom;
+                document.getElementById('vocalResult').innerHTML = `Nom : ${nom}`;
+                
+                currentStep = 2;
+                await speakText("Parfait. Étape 2 sur 3. Dites votre prénom.");
+                updateProgress(2, "Dites votre prénom...");
+                
+                const prenom = await listenForInput();
+                if (prenom) {
+                    vocalData.prenom = prenom;
+                    document.getElementById('vocalResult').innerHTML += `<br>Prénom : ${prenom}`;
+                    
+                    currentStep = 3;
+                    await speakText("Excellent. Étape 3 sur 3. Dites votre adresse email.");
+                    updateProgress(3, "Dites votre adresse email...");
+                    
+                    const email = await listenForInput();
+                    if (email) {
+                        vocalData.email = email;
+                        document.getElementById('vocalResult').innerHTML += `<br>Email : ${email}`;
+                        
+                        await speakText("Inscription terminée. Validation en cours...");
+                        submitVocalInscription();
+                    }
+                }
+            }
+        }
+
+        function updateProgress(step, text) {
+            document.getElementById('stepIndicator').textContent = `Étape ${step}/3`;
+            document.getElementById('progressText').textContent = text;
+        }
+
+        async function listenForInput() {
+            try {
+                const response = await fetch('/api/listen', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await response.json();
+                return data.success ? data.text : null;
+            } catch (error) {
+                console.error('Erreur reconnaissance vocale:', error);
+                return null;
+            }
+        }
+
+        async function submitVocalInscription() {
+            try {
+                const response = await fetch('/inscription', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        mode: 'vocal',
+                        ...vocalData
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showSuccess(result.message);
+                    await speakText(result.message);
+                } else {
+                    alert('Erreur: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Erreur inscription:', error);
+            }
+        }
+
+        // Inscription texte
+        document.getElementById('textForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                mode: 'texte',
+                nom: document.getElementById('nom').value,
+                prenom: document.getElementById('prenom').value,
+                email: document.getElementById('email').value
+            };
+
+            try {
+                const response = await fetch('/inscription', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showSuccess(result.message);
+                    await speakText(result.message);
+                } else {
+                    alert('Erreur: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Erreur inscription:', error);
+            }
+        });
+
+        function showSuccess(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('resultZone').style.display = 'block';
+        }
+
+        function goToApp() {
+            window.location.href = '/';
+        }
+
+        // Fonctions utilitaires
+        async function speakText(text) {
+            try {
+                await fetch('/api/speak', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: text})
+                });
+            } catch (error) {
+                console.error('Erreur synthèse vocale:', error);
+            }
+        }
+
+        function speakPage() {
+            speakText("Page d'inscription SecureVault Accessible. Choisissez le mode vocal ou remplissez le formulaire texte.");
+        }
+
+        function toggleInscriptionHelp() {
+            const help = document.getElementById('inscriptionHelp');
+            help.style.display = help.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function readInscriptionHelp() {
+            speakText("Aide inscription. Mode vocal : parlez quand l'application vous le demande. Mode texte : remplissez les 3 champs nom, prénom et email.");
+        }
+
+        // Auto-lecture au chargement
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                speakText("Bienvenue sur SecureVault Accessible. Page d'inscription. Choisissez le mode vocal ou remplissez le formulaire.");
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

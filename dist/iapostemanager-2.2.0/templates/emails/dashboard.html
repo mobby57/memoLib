@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Emails - IAPosteManager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/static/images/logo.svg">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Filtres -->
+            <div class="col-md-3 bg-light p-3">
+                <h5><i class="fas fa-filter"></i> Filtres Intelligents</h5>
+                
+                <form id="filterForm">
+                    <div class="mb-3">
+                        <label class="form-label">Période</label>
+                        <input type="date" class="form-control" id="dateFrom" name="date_from">
+                        <input type="date" class="form-control mt-1" id="dateTo" name="date_to">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Domaine</label>
+                        <input type="text" class="form-control" id="domain" name="domain" placeholder="gmail.com">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Expéditeur</label>
+                        <input type="text" class="form-control" id="sender" name="sender">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Sujet contient</label>
+                        <input type="text" class="form-control" id="subject" name="subject_contains">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Catégorie IA</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">Toutes</option>
+                            <option value="finance">Finance</option>
+                            <option value="meeting">Réunions</option>
+                            <option value="urgent">Urgent</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="general">Général</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Priorité IA</label>
+                        <select class="form-select" id="priority" name="priority">
+                            <option value="">Toutes</option>
+                            <option value="high">Haute</option>
+                            <option value="medium">Moyenne</option>
+                            <option value="low">Basse</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="hasAttachments" name="has_attachments">
+                            <label class="form-check-label">Avec pièces jointes</label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Filtrer
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <!-- Suggestions IA -->
+                <div id="suggestions">
+                    <h6><i class="fas fa-lightbulb"></i> Suggestions IA</h6>
+                    <div id="suggestionsList"></div>
+                </div>
+            </div>
+            
+            <!-- Zone principale -->
+            <div class="col-md-9">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>
+                        <img src="/static/images/logo.svg" width="32" height="32" class="me-2" alt="IAPosteManager">
+                        Gestion des Emails
+                    </h3>
+                    <div>
+                        <button class="btn btn-success" onclick="fetchEmails()">
+                            <i class="fas fa-sync"></i> Synchroniser
+                        </button>
+                        <button class="btn btn-info" onclick="autoOrganize()">
+                            <i class="fas fa-magic"></i> Organisation IA
+                        </button>
+                        <button class="btn btn-warning" onclick="createSmartFilters()">
+                            <i class="fas fa-brain"></i> Filtres IA
+                        </button>
+                        <button class="btn btn-secondary" onclick="checkHealth()">
+                            <i class="fas fa-heartbeat"></i> État
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Stats -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 id="totalEmails">0</h5>
+                                <small>Total Emails</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 id="filteredEmails">0</h5>
+                                <small>Filtrés</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 id="highPriority">0</h5>
+                                <small>Priorité Haute</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 id="topDomain">-</h5>
+                                <small>Domaine Principal</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Liste emails -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-list"></i> Emails (<span id="emailCount">0</span>)
+                    </div>
+                    <div class="card-body">
+                        <div id="emailsList" class="table-responsive">
+                            <div class="text-center p-4">
+                                <i class="fas fa-envelope-open fa-3x text-muted"></i>
+                                <p class="mt-2">Cliquez sur "Synchroniser" pour charger vos emails</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Configuration -->
+    <div class="modal fade" id="configModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Configuration Email</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="configForm">
+                        <div class="mb-3">
+                            <label class="form-label">Serveur IMAP</label>
+                            <input type="text" class="form-control" id="imapServer" value="imap.gmail.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="emailAddr" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mot de passe App</label>
+                            <input type="password" class="form-control" id="emailPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Limite emails</label>
+                            <input type="number" class="form-control" id="emailLimit" value="100" min="10" max="1000">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="startFetch()">Synchroniser</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allEmails = [];
+        let currentEmails = [];
+
+        loadSuggestions();
+
+        function fetchEmails() {
+            const modal = new bootstrap.Modal(document.getElementById('configModal'));
+            modal.show();
+        }
+
+        function startFetch() {
+            const config = {
+                imap_server: document.getElementById('imapServer').value,
+                email: document.getElementById('emailAddr').value,
+                password: document.getElementById('emailPassword').value,
+                limit: parseInt(document.getElementById('emailLimit').value),
+                page: 1
+            };
+
+            showProgress('Connexion et récupération des emails...');
+
+            fetch('/api/emails/fetch', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideProgress();
+                if (data.success) {
+                    allEmails = data.emails;
+                    currentEmails = allEmails;
+                    displayEmails(currentEmails);
+                    updateStats(data.suggestions);
+                    
+                    if (data.has_more) {
+                        showInfo(`${data.count} emails chargés sur ${data.total} total`);
+                    }
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
+                } else {
+                    showError('Erreur: ' + data.error);
+                }
+            })
+            .catch(error => {
+                hideProgress();
+                showError('Erreur de connexion: ' + error.message);
+            });
+        }
+
+        function showProgress(message) {
+            document.getElementById('emailsList').innerHTML = `
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">${message}</p>
+                </div>
+            `;
+        }
+
+        function hideProgress() {
+            // Progress will be replaced by email list
+        }
+
+        function showError(message) {
+            document.getElementById('emailsList').innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> ${message}
+                </div>
+            `;
+        }
+
+        function showInfo(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-info alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <i class="fas fa-info-circle"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.row'));
+            
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+
+        function displayEmails(emails) {
+            const container = document.getElementById('emailsList');
+            
+            if (emails.length === 0) {
+                container.innerHTML = '<div class="text-center p-4"><i class="fas fa-inbox fa-3x text-muted"></i><p class="mt-2">Aucun email trouvé</p></div>';
+                return;
+            }
+
+            let html = '<table class="table table-hover"><thead><tr><th>Sujet</th><th>Expéditeur</th><th>Date</th><th>Catégorie</th><th>Priorité</th></tr></thead><tbody>';
+            
+            emails.forEach(email => {
+                const priorityClass = email.priority === 'high' ? 'text-danger' : email.priority === 'medium' ? 'text-warning' : 'text-muted';
+                const categoryBadge = `<span class="badge bg-secondary">${email.category}</span>`;
+                
+                html += `
+                    <tr>
+                        <td><strong>${email.subject}</strong></td>
+                        <td>${email.sender}<br><small class="text-muted">${email.domain}</small></td>
+                        <td>${new Date(email.date).toLocaleDateString()}</td>
+                        <td>${categoryBadge}</td>
+                        <td><i class="fas fa-circle ${priorityClass}"></i> ${email.priority}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            document.getElementById('emailCount').textContent = emails.length;
+        }
+
+        function updateStats(suggestions) {
+            document.getElementById('totalEmails').textContent = allEmails.length;
+            document.getElementById('filteredEmails').textContent = currentEmails.length;
+            
+            const highPriority = allEmails.filter(e => e.priority === 'high').length;
+            document.getElementById('highPriority').textContent = highPriority;
+            
+            if (suggestions.top_domains.length > 0) {
+                document.getElementById('topDomain').textContent = suggestions.top_domains[0][0];
+            }
+        }
+
+        function loadSuggestions() {
+            fetch('/api/emails/suggestions')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displaySuggestions(data.suggestions);
+                }
+            });
+        }
+
+        function displaySuggestions(suggestions) {
+            const container = document.getElementById('suggestionsList');
+            let html = '';
+            
+            suggestions.suggested_filters.forEach(filter => {
+                html += `
+                    <div class="card mb-2">
+                        <div class="card-body p-2">
+                            <small><strong>${filter.name}</strong> (${filter.count})</small>
+                            <button class="btn btn-sm btn-outline-primary float-end" onclick="applySuggestion(${JSON.stringify(filter.filter).replace(/"/g, '&quot;')})">
+                                Appliquer
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function applySuggestion(filterData) {
+            Object.keys(filterData).forEach(key => {
+                const element = document.getElementById(key.replace('_', ''));
+                if (element) element.value = filterData[key];
+            });
+            applyFilters();
+        }
+
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            applyFilters();
+        });
+
+        function applyFilters() {
+            const formData = new FormData(document.getElementById('filterForm'));
+            const filters = Object.fromEntries(formData.entries());
+            
+            fetch('/api/emails/filter', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({filters})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentEmails = data.emails;
+                    displayEmails(currentEmails);
+                    document.getElementById('filteredEmails').textContent = data.count;
+                }
+            });
+        }
+
+        function autoOrganize() {
+            if (confirm('Organiser automatiquement tous les emails par IA ?')) {
+                fetch('/api/emails/auto-organize', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`${data.organized_count} emails organisés en ${data.folders_created} dossiers`);
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        function createSmartFilters() {
+            fetch('/api/emails/smart-filters', {method: 'POST'})
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displaySmartFilters(data.smart_filters, data.organization_suggestions);
+                }
+            });
+        }
+
+        function displaySmartFilters(filters, suggestions) {
+            let html = '<h6><i class="fas fa-brain"></i> Filtres IA Intelligents</h6>';
+            
+            filters.forEach(filter => {
+                html += `
+                    <div class="card mb-2 border-primary">
+                        <div class="card-body p-2">
+                            <small><strong>${filter.name}</strong> (${filter.count})</small>
+                            <button class="btn btn-sm btn-primary float-end" onclick="applySmartFilter('${filter.type}', '${filter.value}')">
+                                Appliquer
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('suggestionsList').innerHTML = html;
+        }
+
+        function applySmartFilter(type, value) {
+            const filterMap = {
+                'domain': 'domain',
+                'priority': 'priority',
+                'date_range': 'dateFrom'
+            };
+            
+            const elementId = filterMap[type];
+            if (elementId) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    if (type === 'date_range') {
+                        const days = JSON.parse(value).days;
+                        const date = new Date();
+                        date.setDate(date.getDate() - days);
+                        element.value = date.toISOString().split('T')[0];
+                    } else {
+                        element.value = value;
+                    }
+                    applyFilters();
+                }
+            }
+        }
+
+        function checkHealth() {
+            fetch('/api/emails/health')
+            .then(response => response.json())
+            .then(data => {
+                displayHealthStatus(data);
+            })
+            .catch(error => {
+                showError('Erreur lors de la vérification: ' + error.message);
+            });
+        }
+
+        function displayHealthStatus(status) {
+            const statusColor = {
+                'healthy': 'success',
+                'warning': 'warning', 
+                'unhealthy': 'danger'
+            };
+            
+            const color = statusColor[status.overall_status] || 'secondary';
+            
+            let html = `
+                <div class="alert alert-${color}" role="alert">
+                    <h6><i class="fas fa-heartbeat"></i> État du Système: ${status.overall_status.toUpperCase()}</h6>
+                    <ul class="mb-0">
+            `;
+            
+            Object.entries(status.components).forEach(([component, info]) => {
+                const icon = info.status === 'healthy' ? 'check-circle' : 
+                           info.status === 'warning' ? 'exclamation-triangle' : 'times-circle';
+                html += `<li><i class="fas fa-${icon}"></i> ${component}: ${info.message}</li>`;
+            });
+            
+            html += '</ul></div>';
+            
+            // Afficher dans une modal ou remplacer temporairement le contenu
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            document.querySelector('.container-fluid').insertBefore(tempDiv.firstElementChild, document.querySelector('.row'));
+            
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 10000);
+        }
+    </script>
+</body>
+</html>

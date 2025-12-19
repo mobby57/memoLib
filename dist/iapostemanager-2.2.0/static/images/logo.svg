@@ -1,0 +1,31 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cercle de base (universel) -->
+  <circle cx="60" cy="60" r="55" fill="#2563eb" stroke="#1e40af" stroke-width="2"/>
+  
+  <!-- Enveloppe (email) -->
+  <rect x="25" y="40" width="70" height="50" rx="5" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <path d="M25 45 L60 70 L95 45" stroke="#6b7280" stroke-width="2" fill="none"/>
+  
+  <!-- Cerveau IA (intelligence) -->
+  <circle cx="45" cy="30" r="8" fill="#10b981" opacity="0.9"/>
+  <circle cx="75" cy="30" r="8" fill="#10b981" opacity="0.9"/>
+  <path d="M37 30 Q60 15 83 30" stroke="#10b981" stroke-width="3" fill="none"/>
+  
+  <!-- Flèches de traitement (automation) -->
+  <path d="M20 60 L35 60" stroke="#f59e0b" stroke-width="3" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M85 60 L100 60" stroke="#f59e0b" stroke-width="3" fill="none" marker-end="url(#arrowhead)"/>
+  
+  <!-- Définition des marqueurs -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b"/>
+    </marker>
+  </defs>
+  
+  <!-- Points de connexion (réseau) -->
+  <circle cx="30" cy="95" r="3" fill="#8b5cf6"/>
+  <circle cx="60" cy="100" r="3" fill="#8b5cf6"/>
+  <circle cx="90" cy="95" r="3" fill="#8b5cf6"/>
+  <line x1="30" y1="95" x2="60" y2="100" stroke="#8b5cf6" stroke-width="1"/>
+  <line x1="60" y1="100" x2="90" y2="95" stroke="#8b5cf6" stroke-width="1"/>
+</svg>

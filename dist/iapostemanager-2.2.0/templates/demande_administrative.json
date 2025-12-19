@@ -1,0 +1,5 @@
+{
+  "subject": "Demande de renseignements administratifs - {numero_dossier}",
+  "body": "Madame, Monsieur,\n\nJe me permets de vous contacter concernant le dossier numéro {numero_dossier} enregistré le {date_depot}.\n\nJe souhaiterais obtenir des informations complémentaires sur l'état d'avancement de ma demande ainsi que sur les délais de traitement prévisionnels.\n\nJe reste à votre entière disposition pour tout complément d'information.\n\nEn vous remerciant par avance de votre retour, je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.\n\n{nom_expediteur}\n{telephone}\n{email_expediteur}",
+  "variables": ["numero_dossier", "date_depot", "nom_expediteur", "telephone", "email_expediteur"]
+}

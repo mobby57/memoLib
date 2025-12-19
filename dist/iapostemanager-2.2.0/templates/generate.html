@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Génération IA - SecureVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Génération IA</h1>
+            <nav>
+                <a href="/nav">← Retour</a>
+                <a href="/compose">Composer →</a>
+            </nav>
+        </header>
+
+        <div class="card">
+            <h2>Paramètres de génération</h2>
+            <form id="generateForm">
+                <div class="form-group">
+                    <label>Contexte/Sujet:</label>
+                    <textarea id="context" rows="3" placeholder="Ex: Relance client pour facture impayée" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Type d'email:</label>
+                    <select id="emailType">
+                        <option value="professionnel">Professionnel</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="relance">Relance</option>
+                        <option value="remerciement">Remerciement</option>
+                        <option value="invitation">Invitation</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Ton:</label>
+                    <select id="tone">
+                        <option value="professionnel">Professionnel</option>
+                        <option value="amical">Amical</option>
+                        <option value="formel">Formel</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Longueur:</label>
+                    <select id="length">
+                        <option value="court">Court</option>
+                        <option value="moyen">Moyen</option>
+                        <option value="long">Long</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="generateBtn">🤖 Générer</button>
+            </form>
+        </div>
+
+        <div class="card hidden" id="resultCard">
+            <h2>Contenu généré</h2>
+            <div class="form-group">
+                <label>Sujet:</label>
+                <input type="text" id="generatedSubject" readonly>
+            </div>
+            <div class="form-group">
+                <label>Corps:</label>
+                <textarea id="generatedBody" rows="10" readonly></textarea>
+            </div>
+            <div class="form-actions">
+                <button onclick="regenerate()">🔄 Régénérer</button>
+                <button onclick="editContent()">✏️ Éditer</button>
+                <button onclick="sendToCompose()">📝 Composer</button>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden">
+            <div class="progress">
+                <div class="progress-bar"></div>
+                <span>Génération en cours...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                context: document.getElementById('context').value,
+                emailType: document.getElementById('emailType').value,
+                tone: document.getElementById('tone').value,
+                length: document.getElementById('length').value
+            };
+
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/generate-content', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(data.subject, data.body);
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
+            } catch (error) {
+                alert('Erreur: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('resultCard').classList.add('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function showResult(subject, body) {
+            document.getElementById('generatedSubject').value = subject;
+            document.getElementById('generatedBody').value = body;
+            document.getElementById('resultCard').classList.remove('hidden');
+        }
+
+        function regenerate() {
+            document.getElementById('generateForm').dispatchEvent(new Event('submit'));
+        }
+
+        function editContent() {
+            document.getElementById('generatedSubject').readOnly = false;
+            document.getElementById('generatedBody').readOnly = false;
+        }
+
+        function sendToCompose() {
+            const subject = document.getElementById('generatedSubject').value;
+            const body = document.getElementById('generatedBody').value;
+            
+            sessionStorage.setItem('draftSubject', subject);
+            sessionStorage.setItem('draftBody', body);
+            
+            window.location.href = '/compose';
+        }
+
+        // Auto-remplir si contexte dans URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('context')) {
+            document.getElementById('context').value = urlParams.get('context');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault - Navigation</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/navigation.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <svg width="32" height="32" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M20 10 L20 20 L28 20" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+            <span>SecureVault v2.2</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button class="theme-toggle" id="themeToggle">🌙</button>
+            <a href="/logout" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); border-radius: 8px;">🚪 Déconnexion</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header style="text-align: center; margin: 2rem 0;">
+            <h1>🔐 Centre de Commande</h1>
+            <p style="color: #666;">Choisissez une fonctionnalité</p>
+        </header>
+
+        <div class="nav-grid">
+            <div class="nav-card" onclick="location.href='/'">
+                <div class="nav-icon">⚙️</div>
+                <div class="nav-title">Configuration</div>
+                <div class="nav-desc">Gmail, OpenAI, Destinataires</div>
+            </div>
+
+            <div class="nav-card" onclick="location.href='/composer'">
+                <div class="nav-icon">✨</div>
+                <div class="nav-title">Composer IA</div>
+                <div class="nav-desc">Génération intelligente d'emails</div>
+            </div>
+
+            <div class="nav-card" onclick="location.href='/send'">
+                <div class="nav-icon">📧</div>
+                <div class="nav-title">Envoi Simple</div>
+                <div class="nav-desc">Envoyer un email rapidement</div>
+            </div>
+
+            <div class="nav-card" onclick="location.href='/history'">
+                <div class="nav-icon">📊</div>
+                <div class="nav-title">Historique</div>
+                <div class="nav-desc">Emails envoyés et statistiques</div>
+            </div>
+
+            <div class="nav-card" onclick="location.href='/templates'">
+                <div class="nav-icon">📋</div>
+                <div class="nav-title">Templates</div>
+                <div class="nav-desc">Modèles d'emails réutilisables</div>
+            </div>
+
+            <div class="nav-card" onclick="location.href='/agent'">
+                <div class="nav-icon">🎤</div>
+                <div class="nav-title">Agent Vocal</div>
+                <div class="nav-desc">Interface vocale IA</div>
+            </div>
+
+            <div class="nav-card" onclick="location.href='/automation'">
+                <div class="nav-icon">🔄</div>
+                <div class="nav-title">Automatisation</div>
+                <div class="nav-desc">Emails programmés</div>
+            </div>
+
+            <div class="nav-card" onclick="location.href='/security'">
+                <div class="nav-icon">🔒</div>
+                <div class="nav-title">Sécurité</div>
+                <div class="nav-desc">Audit et protection</div>
+            </div>
+
+            <div class="nav-card" onclick="location.href='/admin'">
+                <div class="nav-icon">👥</div>
+                <div class="nav-title">Administration</div>
+                <div class="nav-desc">Gestion utilisateurs</div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 2rem;">
+            <h2>🚀 Actions Rapides</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="quickCompose()" class="btn btn-primary">✨ Composer avec IA</button>
+                <button onclick="quickSend()" class="btn btn-secondary">📧 Envoi Rapide</button>
+                <button onclick="checkStatus()" class="btn btn-info">🔍 Vérifier Status</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/navigation.js"></script>
+    <script>
+        function quickCompose() {
+            location.href = '/composer';
+        }
+
+        function quickSend() {
+            location.href = '/send';
+        }
+
+        function checkStatus() {
+            fetch('/api/health')
+                .then(r => r.json())
+                .then(data => {
+                    alert(`✅ Status: ${data.status}\n📦 Version: ${data.version}`);
+                })
+                .catch(() => alert('❌ Erreur de connexion'));
+        }
+    </script>
+</body>
+</html>
