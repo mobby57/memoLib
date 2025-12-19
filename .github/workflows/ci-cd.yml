@@ -113,7 +113,7 @@ jobs:
           cd src/backend
           python app.py &
           sleep 10
-          curl -f http://localhost:5000/health || exit 1
+          curl -f http://localhost:5000/api/health || exit 1
 
       - name: 🧪 Run E2E tests
         run: |
