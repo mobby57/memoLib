@@ -7,6 +7,7 @@ services:
     branch: main
     buildCommand: bash build.sh
     startCommand: bash start.sh
+    healthCheckPath: /health
     envVars:
       - key: FLASK_ENV
         value: production
@@ -14,16 +15,18 @@ services:
         value: "10000"
       - key: SECRET_KEY
         generateValue: true
-      - key: DATABASE_URL
-        value: sqlite:///data/production.db
       - key: PYTHONUNBUFFERED
         value: "1"
       - key: LOG_LEVEL
         value: INFO
       - key: NODE_VERSION
         value: "18"
+      - key: RATE_LIMIT_ENABLED
+        value: "true"
+      - key: HEALTH_CHECK_ENABLED
+        value: "true"
 
-# Configuration optionnelle pour PostgreSQL (si besoin de scaler)
+# PostgreSQL Database (uncomment to use)
 # databases:
 #   - name: iapostemanager-db
 #     databaseName: iapostemanager

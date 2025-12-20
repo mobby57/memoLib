@@ -144,13 +144,140 @@ def set_master_password(password):
 # Services unifiés
 class UnifiedDatabase:
     def __init__(self):
-        self.db_path = os.path.join(config.DATA_DIR, 'unified.db')
+        # Use PostgreSQL in production, SQLite in development
+        database_url = os.environ.get('DATABASE_URL')
+        if database_url:
+            # Production: PostgreSQL
+            if database_url.startswith('postgres://'):
+                database_url = database_url.replace('postgres://', 'postgresql://', 1)
+            self.db_url = database_url
+            self.use_postgres = True
+            app.logger.info(f'Using PostgreSQL: {database_url[:50]}...')
+        else:
+            # Development: SQLite
+            self.db_path = os.path.join(config.DATA_DIR, 'unified.db')
+            self.db_url = f'sqlite:///{self.db_path}'
+            self.use_postgres = False
+            app.logger.info(f'Using SQLite: {self.db_path}')
+        
         self.init_db()
     
     def init_db(self):
+        if self.use_postgres:
+            # PostgreSQL setup
+            import psycopg2
+            from urllib.parse import urlparse
+            
+            try:
+                # Parse DATABASE_URL
+                url = urlparse(self.db_url.replace('postgresql://', 'postgres://'))
+                conn = psycopg2.connect(
+                    host=url.hostname,
+                    port=url.port,
+                    user=url.username,
+                    password=url.password,
+                    database=url.path[1:]
+                )
+                cursor = conn.cursor()
+                
+                # Create tables with PostgreSQL syntax
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS emails (
+                        id SERIAL PRIMARY KEY,
+                        recipient TEXT,
+                        subject TEXT,
+                        body TEXT,
+                        status TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ''')
+                
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS templates (
+                        id SERIAL PRIMARY KEY,
+                        name TEXT,
+                        subject TEXT,
+                        body TEXT,
+                        category TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ''')
+                
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS contacts (
+                        id SERIAL PRIMARY KEY,
+                        name TEXT,
+                        email TEXT UNIQUE,
+                        organization TEXT,
+                        category TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ''')
+                
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS transcripts (
+                        id SERIAL PRIMARY KEY,
+                        text TEXT,
+                        language TEXT DEFAULT 'fr-FR',
+                        confidence REAL DEFAULT 1.0,
+                        duration REAL DEFAULT 0.0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ''')
+                
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS email_accounts (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER DEFAULT 1,
+                        email_address TEXT UNIQUE NOT NULL,
+                        username TEXT NOT NULL,
+                        display_name TEXT,
+                        smtp_server TEXT,
+                        smtp_port INTEGER,
+                        smtp_username TEXT,
+                        provider TEXT,
+                        status TEXT DEFAULT 'active',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        emails_sent_today INTEGER DEFAULT 0,
+                        emails_sent_month INTEGER DEFAULT 0,
+                        daily_limit INTEGER DEFAULT 500,
+                        monthly_limit INTEGER DEFAULT 10000
+                    )
+                ''')
+                
+                cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS email_provisioning_logs (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER DEFAULT 1,
+                        email_account_id INTEGER,
+                        action TEXT,
+                        status TEXT,
+                        error_message TEXT,
+                        ip_address TEXT,
+                        user_agent TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (email_account_id) REFERENCES email_accounts(id)
+                    )
+                ''')
+                
+                conn.commit()
+                conn.close()
+                app.logger.info('PostgreSQL database initialized')
+                
+            except Exception as e:
+                app.logger.error(f'PostgreSQL init error: {e}')
+                # Fallback to SQLite
+                self.use_postgres = False
+                self.db_path = os.path.join(config.DATA_DIR, 'unified.db')
+                self._init_sqlite()
+        else:
+            self._init_sqlite()
+    
+    def _init_sqlite(self):
+        """Initialize SQLite database"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS emails (
                 id INTEGER PRIMARY KEY,
@@ -195,7 +322,6 @@ class UnifiedDatabase:
             )
         ''')
         
-        # Nouvelles tables pour le provisioning d'emails
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS email_accounts (
                 id INTEGER PRIMARY KEY,
@@ -234,14 +360,37 @@ class UnifiedDatabase:
         
         conn.commit()
         conn.close()
+        app.logger.info('SQLite database initialized')
+    
+    def get_connection(self):
+        """Get database connection (PostgreSQL or SQLite)"""
+        if self.use_postgres:
+            import psycopg2
+            from urllib.parse import urlparse
+            url = urlparse(self.db_url.replace('postgresql://', 'postgres://'))
+            return psycopg2.connect(
+                host=url.hostname,
+                port=url.port,
+                user=url.username,
+                password=url.password,
+                database=url.path[1:]
+            )
+        else:
+            return sqlite3.connect(self.db_path)
     
     def log_email(self, recipient, subject, body, status):
-        conn = sqlite3.connect(self.db_path)
+        conn = self.get_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            'INSERT INTO emails (recipient, subject, body, status) VALUES (?, ?, ?, ?)',
-            (recipient, subject, body, status)
-        )
+        if self.use_postgres:
+            cursor.execute(
+                'INSERT INTO emails (recipient, subject, body, status) VALUES (%s, %s, %s, %s)',
+                (recipient, subject, body, status)
+            )
+        else:
+            cursor.execute(
+                'INSERT INTO emails (recipient, subject, body, status) VALUES (?, ?, ?, ?)',
+                (recipient, subject, body, status)
+            )
         conn.commit()
         conn.close()
     
@@ -568,7 +717,55 @@ try:
 except Exception as e:
     print(f"[WARNING] Email provisioning non disponible: {e}")
 
-# Routes pour servir le frontend React
+# Routes pour servir les pages HTML statiques
+@app.route('/dashboard.html')
+def dashboard_page():
+    dashboard_path = os.path.join(os.path.dirname(__file__), '..', '..', 'dashboard.html')
+    dashboard_path = os.path.abspath(dashboard_path)
+    app.logger.info(f"Looking for dashboard at: {dashboard_path}")
+    if os.path.exists(dashboard_path):
+        return send_file(dashboard_path)
+    return f"Dashboard page not found at {dashboard_path}", 404
+
+@app.route('/compose.html')
+def compose_page():
+    compose_path = os.path.join(os.path.dirname(__file__), '..', '..', 'compose.html')
+    compose_path = os.path.abspath(compose_path)
+    if os.path.exists(compose_path):
+        return send_file(compose_path)
+    return f"Compose page not found at {compose_path}", 404
+
+@app.route('/ai-generator.html')
+def ai_generator_page():
+    ai_path = os.path.join(os.path.dirname(__file__), '..', '..', 'ai-generator.html')
+    ai_path = os.path.abspath(ai_path)
+    if os.path.exists(ai_path):
+        return send_file(ai_path)
+    return f"AI Generator page not found at {ai_path}", 404
+
+@app.route('/voice.html')
+def voice_page():
+    voice_path = os.path.join(os.path.dirname(__file__), '..', '..', 'voice.html')
+    voice_path = os.path.abspath(voice_path)
+    if os.path.exists(voice_path):
+        return send_file(voice_path)
+    return f"Voice page not found at {voice_path}", 404
+
+@app.route('/templates.html')
+def templates_page():
+    templates_path = os.path.join(os.path.dirname(__file__), '..', '..', 'templates.html')
+    templates_path = os.path.abspath(templates_path)
+    if os.path.exists(templates_path):
+        return send_file(templates_path)
+    return f"Templates page not found at {templates_path}", 404
+
+@app.route('/batch.html')
+def batch_page():
+    batch_path = os.path.join(os.path.dirname(__file__), '..', '..', 'batch.html')
+    batch_path = os.path.abspath(batch_path)
+    if os.path.exists(batch_path):
+        return send_file(batch_path)
+    return f"Batch page not found at {batch_path}", 404
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_frontend(path):
@@ -579,13 +776,18 @@ def serve_frontend(path):
     
     # Debug logging
     app.logger.info(f"[FRONTEND] Requested path: {path}")
-    app.logger.info(f"[FRONTEND] Looking for dist at: {frontend_dist_abs}")
-    app.logger.info(f"[FRONTEND] Dist exists: {os.path.exists(frontend_dist)}")
-    app.logger.info(f"[FRONTEND] Index.html exists: {os.path.exists(index_path)}")
     
     # Routes API - ne pas servir le frontend pour ces routes
     if path.startswith('api/'):
         return jsonify({'error': 'API endpoint not found'}), 404
+    
+    # Servir les fichiers HTML statiques directement
+    html_files = ['index.html', 'dashboard.html', 'compose.html', 'ai-generator.html', 'voice.html', 'templates.html', 'batch.html']
+    if path in html_files or path == '':
+        html_file = path if path else 'index.html'
+        html_path = os.path.join(os.path.dirname(__file__), '..', '..', html_file)
+        if os.path.exists(html_path):
+            return send_file(html_path)
     
     # Si le fichier existe dans dist, le servir
     if path and os.path.exists(os.path.join(frontend_dist, path)):
@@ -595,30 +797,24 @@ def serve_frontend(path):
     if os.path.exists(index_path):
         return send_from_directory(frontend_dist, 'index.html')
     
-    # Fallback: API status avec debug info
+    # Fallback: servir index.html statique
+    static_index = os.path.join(os.path.dirname(__file__), '..', '..', 'index.html')
+    if os.path.exists(static_index):
+        return send_file(static_index)
+    
+    # Fallback final: API status
     return jsonify({
         'api': 'IAPosteManager Unified API',
         'version': '3.0',
         'status': 'running',
-        'authenticated': session.get('authenticated', False),
-        'debug': {
-            'frontend_dist': frontend_dist_abs,
-            'dist_exists': os.path.exists(frontend_dist),
-            'index_exists': os.path.exists(index_path),
-            'current_dir': os.getcwd(),
-            'app_file': __file__
-        },
-        'frontend': 'Build frontend with: cd src/frontend && npm run build',
-        'routes': {
-            'login': '/login',
-            'dashboard': '/',
-            'send': '/send',
-            'config': '/config',
-            'history': '/history',
-            'templates': '/templates',
-            'ai-generate': '/ai-generate',
-            'contacts': '/contacts',
-            'accessibility': '/accessibility'
+        'message': 'Frontend files not found. Available pages:',
+        'pages': {
+            'dashboard': '/dashboard.html',
+            'compose': '/compose.html', 
+            'ai-generator': '/ai-generator.html',
+            'voice': '/voice.html',
+            'templates': '/templates.html',
+            'batch': '/batch.html'
         }
     })
 
@@ -1028,6 +1224,45 @@ def api_send_email_batch():
         'failed_count': failed_count,
         'results': results
     })
+
+@app.route('/health')
+@app.route('/api/health')
+def health_check():
+    """Health check endpoint for production monitoring"""
+    return jsonify({
+        'status': 'healthy',
+        'version': '3.0',
+        'timestamp': datetime.now().isoformat(),
+        'uptime': 'running',
+        'database': 'connected',
+        'services': {
+            'database': db is not None,
+            'email': email_service is not None,
+            'voice': voice_service is not None,
+            'ai': ai_service is not None
+        }
+    })
+
+# Global error handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    if request.path.startswith('/api/'):
+        return jsonify({'error': 'API endpoint not found', 'path': request.path}), 404
+    # For non-API routes, serve React frontend
+    frontend_dist = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+    index_path = os.path.join(frontend_dist, 'index.html')
+    if os.path.exists(index_path):
+        return send_from_directory(frontend_dist, 'index.html')
+    return jsonify({'error': 'Page not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    app.logger.error(f'Server Error: {error}')
+    return jsonify({'error': 'Internal server error'}), 500
+
+@app.errorhandler(403)
+def forbidden_error(error):
+    return jsonify({'error': 'Access forbidden'}), 403
 
 @app.route('/api/health', methods=['GET'])
 def api_health():
@@ -1884,10 +2119,13 @@ def api_transcribe_chunk():
             'error': 'Erreur de transcription'
         })
 
-# Configuration du logging
+# Configuration du logging production
 def setup_logging():
-    if not app.debug:
-        os.makedirs('logs', exist_ok=True)
+    # Create logs directory
+    os.makedirs('logs', exist_ok=True)
+    
+    # Production logging setup
+    if not app.debug or os.environ.get('FLASK_ENV') == 'production':
         file_handler = RotatingFileHandler('logs/app.log', maxBytes=10240000, backupCount=10)
         file_handler.setFormatter(logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
@@ -1895,7 +2133,18 @@ def setup_logging():
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
         app.logger.setLevel(logging.INFO)
-        app.logger.info('IAPosteManager Unified startup')
+        
+        # Error log file
+        error_handler = RotatingFileHandler('logs/error.log', maxBytes=10240000, backupCount=5)
+        error_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        error_handler.setLevel(logging.ERROR)
+        app.logger.addHandler(error_handler)
+        
+        app.logger.info('IAPosteManager Production startup')
+    else:
+        app.logger.info('IAPosteManager Development startup')
 
 if __name__ == '__main__':
     # Set UTF-8 encoding for console output on Windows
