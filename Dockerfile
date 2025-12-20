@@ -1,8 +1,8 @@
 FROM node:18-alpine AS frontend-build
 WORKDIR /app/frontend
-COPY src/frontend/package*.json ./
+COPY frontend-react/package*.json ./
 RUN npm ci
-COPY src/frontend/ ./
+COPY frontend-react/ ./
 RUN npm run build
 
 FROM python:3.11-slim

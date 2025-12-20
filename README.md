@@ -12,22 +12,27 @@ Application web complète pour automatiser l'envoi d'emails avec génération IA
 
 ## 🌐 Déploiement Rapide
 
-### Option 1: Render (Recommandé)
+### Option 1: Démarrage Local Rapide
+```bash
+# Windows
+QUICK_START.bat
+
+# Linux/Mac
+chmod +x build.sh start.sh deploy.sh
+./build.sh && ./start.sh
+```
+
+### Option 2: Render (Recommandé)
 ```bash
 # 1. Fork ce repo
 # 2. Connecter à render.com
-# 3. Build: ./build.sh
+# 3. Build: ./deploy.sh
 # 4. Start: ./start.sh
 ```
 
-### Option 2: Docker Production
+### Option 3: Docker Production
 ```bash
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-### Option 3: Local Development
-```bash
-python src/backend/app.py
+docker-compose up -d
 ```
 
 ## 🎯 Fonctionnalités Principales

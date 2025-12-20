@@ -17,6 +17,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import openai
+from openai import OpenAI
 
 # Imports optionnels pour fonctionnalités audio (non disponibles en Docker)
 try:
@@ -42,7 +43,7 @@ import re
 load_dotenv()
 
 # Configuration pour servir le frontend React
-frontend_dist = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+frontend_dist = os.path.join(os.path.dirname(__file__), '..', '..', 'frontend-react', 'dist')
 frontend_assets = os.path.join(frontend_dist, 'assets')
 
 app = Flask(__name__, 
@@ -146,7 +147,7 @@ class UnifiedDatabase:
     def __init__(self):
         # Use PostgreSQL in production, SQLite in development
         database_url = os.environ.get('DATABASE_URL')
-        if database_url:
+        if database_url and (database_url.startswith('postgres://') or database_url.startswith('postgresql://')):
             # Production: PostgreSQL
             if database_url.startswith('postgres://'):
                 database_url = database_url.replace('postgres://', 'postgresql://', 1)
@@ -565,49 +566,259 @@ class UnifiedEmailService:
 class UnifiedAIService:
     def __init__(self, api_key=None):
         self.api_key = api_key
+        self.client = None
+        self.organization_id = os.environ.get('OPENAI_ORG_ID')
+        self.project_id = os.environ.get('OPENAI_PROJECT_ID')
+        
         if api_key:
-            openai.api_key = api_key
+            try:
+                # Initialize OpenAI client with proper configuration
+                self.client = OpenAI(
+                    api_key=api_key,
+                    organization=self.organization_id,
+                    project=self.project_id
+                )
+                app.logger.info("OpenAI client initialized successfully")
+            except Exception as e:
+                app.logger.error(f"OpenAI client initialization failed: {e}")
+                self.client = None
+    
+    def _generate_request_id(self):
+        """Generate unique request ID for tracking"""
+        return f"iaposte_{int(datetime.now().timestamp())}_{secrets.token_hex(8)}"
     
     def generate_email(self, context, tone='professionnel', email_type='general'):
-        if not self.api_key:
+        if not self.client:
             return self._fallback_generation(context, tone)
         
         try:
-            prompt = f"""
-            Génère un email {tone} de type {email_type} basé sur ce contexte:
-            {context}
+            request_id = self._generate_request_id()
             
-            Retourne uniquement:
-            SUJET: [sujet de l'email]
-            CORPS: [corps de l'email]
-            """
+            # Improved prompt with better structure
+            system_prompt = f"""
+Tu es un assistant expert en rédaction d'emails professionnels en français.
+Ton rôle est de générer des emails {tone} de type {email_type}.
+
+Règles importantes:
+1. Utilise un ton {tone} adapté au contexte
+2. Structure l'email avec sujet et corps distincts
+3. Sois concis et pertinent
+4. Respecte les conventions françaises
+5. Adapte le niveau de formalité au contexte
+
+Format de réponse requis:
+SUJET: [sujet de l'email]
+CORPS: [corps de l'email complet]
+"""
             
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
+            user_prompt = f"Génère un email basé sur ce contexte: {context}"
+            
+            # Use new OpenAI client with proper error handling
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",  # Use more cost-effective model
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                max_tokens=800,
+                temperature=0.7,
+                presence_penalty=0.1,
+                frequency_penalty=0.1,
+                extra_headers={
+                    "X-Client-Request-Id": request_id
+                }
             )
             
             content = response.choices[0].message.content
-            lines = content.split('\n')
             
-            subject = ""
-            body = ""
+            # Parse response
+            subject, body = self._parse_email_response(content)
             
-            for line in lines:
-                if line.startswith('SUJET:'):
-                    subject = line.replace('SUJET:', '').strip()
-                elif line.startswith('CORPS:'):
-                    body = line.replace('CORPS:', '').strip()
+            # Log request details for debugging
+            app.logger.info(f"OpenAI request {request_id}: {response.usage.total_tokens} tokens used")
             
             return {
                 'success': True,
                 'subject': subject,
                 'body': body,
-                'source': 'openai'
+                'source': 'openai',
+                'model': 'gpt-4o-mini',
+                'tokens_used': response.usage.total_tokens,
+                'request_id': request_id
             }
-        except:
+            
+        except Exception as e:
+            app.logger.error(f"OpenAI API error: {e}")
             return self._fallback_generation(context, tone)
+    
+    def improve_text(self, text, tone='professional', context='email'):
+        """Improve dictated text using OpenAI"""
+        if not self.client:
+            return self._fallback_text_improvement(text)
+        
+        try:
+            request_id = self._generate_request_id()
+            
+            system_prompt = f"""
+Tu es un expert en amélioration de textes français.
+Ton rôle est d'améliorer la qualité d'un texte dicté pour un {context}.
+
+Améliorations à apporter:
+1. Corriger la grammaire et l'orthographe
+2. Améliorer la structure et la fluidité
+3. Adapter le ton ({tone})
+4. Maintenir le sens original
+5. Optimiser la clarté
+
+Retourne uniquement le texte amélioré, sans commentaires.
+"""
+            
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"Améliore ce texte: {text}"}
+                ],
+                max_tokens=min(1500, len(text) * 2),
+                temperature=0.3,
+                extra_headers={
+                    "X-Client-Request-Id": request_id
+                }
+            )
+            
+            improved_text = response.choices[0].message.content.strip()
+            
+            app.logger.info(f"Text improvement {request_id}: {response.usage.total_tokens} tokens")
+            
+            return {
+                'success': True,
+                'content': improved_text,
+                'source': 'openai',
+                'tokens_used': response.usage.total_tokens,
+                'request_id': request_id
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Text improvement error: {e}")
+            return self._fallback_text_improvement(text)
+    
+    def moderate_content(self, text):
+        """Moderate content using OpenAI moderation API"""
+        if not self.client:
+            return {'flagged': False, 'safe': True, 'categories': {}}
+        
+        try:
+            request_id = self._generate_request_id()
+            
+            response = self.client.moderations.create(
+                input=text,
+                model="text-moderation-latest",
+                extra_headers={
+                    "X-Client-Request-Id": request_id
+                }
+            )
+            
+            result = response.results[0]
+            
+            return {
+                'flagged': result.flagged,
+                'safe': not result.flagged,
+                'categories': result.categories.model_dump(),
+                'category_scores': result.category_scores.model_dump(),
+                'request_id': request_id
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Content moderation error: {e}")
+            return {'flagged': False, 'safe': True, 'categories': {}, 'error': str(e)}
+    
+    def _parse_email_response(self, content):
+        """Parse OpenAI response to extract subject and body"""
+        lines = content.split('\n')
+        subject = ""
+        body = ""
+        
+        for i, line in enumerate(lines):
+            line = line.strip()
+            if line.startswith('SUJET:'):
+                subject = line.replace('SUJET:', '').strip()
+            elif line.startswith('CORPS:'):
+                # Take everything after CORPS: as body
+                body = '\n'.join(lines[i:]).replace('CORPS:', '').strip()
+                break
+        
+        # Fallback if parsing fails
+        if not subject and not body:
+            lines = [line.strip() for line in lines if line.strip()]
+            if lines:
+                subject = lines[0][:100]  # First line as subject
+                body = '\n'.join(lines[1:]) if len(lines) > 1 else lines[0]
+        
+        return subject, body
+    
+    def create_conversation(self, items=None, metadata=None):
+        """Create a new conversation using OpenAI Conversations API"""
+        if not self.client:
+            return None
+        
+        try:
+            response = self.client.conversations.create(
+                items=items or [],
+                metadata=metadata or {}
+            )
+            return response
+        except Exception as e:
+            app.logger.error(f"Conversation creation failed: {e}")
+            return None
+    
+    def add_to_conversation(self, conversation_id, message, role='user'):
+        """Add a message to an existing conversation"""
+        if not self.client:
+            return None
+        
+        try:
+            item = {
+                'type': 'message',
+                'role': role,
+                'content': [{'type': 'input_text', 'text': message}]
+            }
+            
+            response = self.client.conversations.items.create(
+                conversation_id=conversation_id,
+                items=[item]
+            )
+            return response
+        except Exception as e:
+            app.logger.error(f"Adding to conversation failed: {e}")
+            return None
+    
+    def get_conversation_history(self, conversation_id, limit=20):
+        """Get conversation history"""
+        if not self.client:
+            return []
+        
+        try:
+            response = self.client.conversations.items.list(
+                conversation_id=conversation_id,
+                limit=limit,
+                order='asc'
+            )
+            
+            messages = []
+            for item in response.data:
+                if item.type == 'message' and hasattr(item, 'content'):
+                    content = item.content[0].text if item.content else ''
+                    if content:
+                        messages.append({
+                            'role': item.role,
+                            'content': content,
+                            'id': item.id
+                        })
+            
+            return messages
+        except Exception as e:
+            app.logger.error(f"Getting conversation history failed: {e}")
+            return []
     
     def _fallback_generation(self, context, tone):
         templates = {
@@ -628,6 +839,2594 @@ class UnifiedAIService:
             'body': template['body'],
             'source': 'template'
         }
+    
+    def create_embedding(self, text, model="text-embedding-ada-002", dimensions=None):
+        """
+        Génère un vecteur d'embedding pour le texte donné.
+        
+        Args:
+            text: Le texte à transformer en embedding (max 8192 tokens)
+            model: Le modèle à utiliser (par défaut: text-embedding-ada-002)
+            dimensions: Nombre de dimensions (optionnel, pour text-embedding-3 models)
+        
+        Returns:
+            dict: {
+                'success': bool,
+                'embedding': list[float],  # Vecteur d'embedding (1536 dimensions)
+                'tokens_used': int,
+                'model': str,
+                'request_id': str,
+                'error': str (si échec)
+            }
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            request_id = f"iaposte_{int(datetime.now().timestamp())}_{secrets.token_hex(8)}"
+            
+            # Préparer les paramètres de la requête
+            params = {
+                'input': text,
+                'model': model
+            }
+            
+            # Ajouter dimensions si spécifié (pour text-embedding-3 models)
+            if dimensions and model.startswith('text-embedding-3'):
+                params['dimensions'] = dimensions
+            
+            # Créer l'embedding
+            response = self.client.embeddings.create(
+                **params,
+                extra_headers={'X-Client-Request-Id': request_id}
+            )
+            
+            # Extraire le vecteur d'embedding
+            embedding_vector = response.data[0].embedding
+            
+            app.logger.info(f"Embedding created successfully - Tokens: {response.usage.total_tokens}, Dimensions: {len(embedding_vector)}")
+            
+            return {
+                'success': True,
+                'embedding': embedding_vector,
+                'tokens_used': response.usage.total_tokens,
+                'model': model,
+                'dimensions': len(embedding_vector),
+                'request_id': request_id
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Embedding creation failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def batch_create_embeddings(self, texts, model="text-embedding-ada-002"):
+        """
+        Génère des embeddings pour plusieurs textes en une seule requête.
+        
+        Args:
+            texts: Liste de textes (max 2048 textes, 300k tokens total)
+            model: Le modèle à utiliser
+        
+        Returns:
+            dict: {
+                'success': bool,
+                'embeddings': list[dict],  # Liste d'objets avec index et embedding
+                'tokens_used': int,
+                'count': int,
+                'error': str (si échec)
+            }
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        if len(texts) > 2048:
+            return {
+                'success': False,
+                'error': f'Too many texts: {len(texts)} (max 2048)'
+            }
+        
+        try:
+            request_id = f"iaposte_{int(datetime.now().timestamp())}_{secrets.token_hex(8)}"
+            
+            # Créer les embeddings en batch
+            response = self.client.embeddings.create(
+                input=texts,
+                model=model,
+                extra_headers={'X-Client-Request-Id': request_id}
+            )
+            
+            # Construire la liste des résultats avec l'index
+            embeddings = [
+                {
+                    'index': item.index,
+                    'embedding': item.embedding
+                }
+                for item in response.data
+            ]
+            
+            app.logger.info(f"Batch embeddings created - Count: {len(embeddings)}, Tokens: {response.usage.total_tokens}")
+            
+            return {
+                'success': True,
+                'embeddings': embeddings,
+                'tokens_used': response.usage.total_tokens,
+                'count': len(embeddings),
+                'model': model,
+                'request_id': request_id
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Batch embedding creation failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def calculate_similarity(self, embedding1, embedding2):
+        """
+        Calcule la similarité cosinus entre deux vecteurs d'embedding.
+        
+        Args:
+            embedding1: Premier vecteur d'embedding
+            embedding2: Deuxième vecteur d'embedding
+        
+        Returns:
+            float: Score de similarité entre -1 et 1 (1 = identique)
+        """
+        import numpy as np
+        
+        # Convertir en arrays numpy
+        vec1 = np.array(embedding1)
+        vec2 = np.array(embedding2)
+        
+        # Calcul de la similarité cosinus
+        dot_product = np.dot(vec1, vec2)
+        norm1 = np.linalg.norm(vec1)
+        norm2 = np.linalg.norm(vec2)
+        
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        
+        return dot_product / (norm1 * norm2)
+    
+    def create_vector_store_file(self, vector_store_id, file_id, attributes=None, chunking_strategy=None):
+        """
+        Attache un fichier à un vector store pour la recherche sémantique.
+        
+        Args:
+            vector_store_id: ID du vector store
+            file_id: ID du fichier à attacher
+            attributes: Métadonnées personnalisées (dict, max 16 clés)
+            chunking_strategy: Stratégie de découpage du fichier
+        
+        Returns:
+            dict: {
+                'success': bool,
+                'id': str,
+                'status': str,
+                'usage_bytes': int,
+                'error': str (si échec)
+            }
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'file_id': file_id
+            }
+            
+            if attributes:
+                params['attributes'] = attributes
+            
+            if chunking_strategy:
+                params['chunking_strategy'] = chunking_strategy
+            
+            # Créer le fichier dans le vector store
+            response = self.client.beta.vector_stores.files.create(
+                vector_store_id=vector_store_id,
+                **params
+            )
+            
+            app.logger.info(f"Vector store file created: {response.id} in {vector_store_id}")
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'status': response.status,
+                'usage_bytes': response.usage_bytes if hasattr(response, 'usage_bytes') else 0,
+                'vector_store_id': response.vector_store_id,
+                'created_at': response.created_at
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Vector store file creation failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def list_vector_store_files(self, vector_store_id, limit=20, order='desc', filter_status=None, after=None, before=None):
+        """
+        Liste les fichiers d'un vector store.
+        
+        Args:
+            vector_store_id: ID du vector store
+            limit: Nombre max de résultats (1-100, défaut 20)
+            order: Ordre de tri ('asc' ou 'desc')
+            filter_status: Filtrer par statut (in_progress, completed, failed, cancelled)
+            after: Curseur de pagination (ID après lequel commencer)
+            before: Curseur de pagination (ID avant lequel commencer)
+        
+        Returns:
+            dict: {
+                'success': bool,
+                'files': list,
+                'has_more': bool,
+                'error': str (si échec)
+            }
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'limit': min(max(limit, 1), 100),
+                'order': order
+            }
+            
+            if filter_status:
+                params['filter'] = filter_status
+            
+            if after:
+                params['after'] = after
+            
+            if before:
+                params['before'] = before
+            
+            # Lister les fichiers
+            response = self.client.beta.vector_stores.files.list(
+                vector_store_id=vector_store_id,
+                **params
+            )
+            
+            files = [
+                {
+                    'id': file.id,
+                    'status': file.status,
+                    'created_at': file.created_at,
+                    'usage_bytes': file.usage_bytes if hasattr(file, 'usage_bytes') else 0
+                }
+                for file in response.data
+            ]
+            
+            return {
+                'success': True,
+                'files': files,
+                'has_more': response.has_more if hasattr(response, 'has_more') else False,
+                'first_id': response.first_id if hasattr(response, 'first_id') else None,
+                'last_id': response.last_id if hasattr(response, 'last_id') else None
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Listing vector store files failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_vector_store_file(self, vector_store_id, file_id):
+        """
+        Récupère les détails d'un fichier dans un vector store.
+        
+        Args:
+            vector_store_id: ID du vector store
+            file_id: ID du fichier
+        
+        Returns:
+            dict: Détails du fichier
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.beta.vector_stores.files.retrieve(
+                vector_store_id=vector_store_id,
+                file_id=file_id
+            )
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'status': response.status,
+                'usage_bytes': response.usage_bytes if hasattr(response, 'usage_bytes') else 0,
+                'vector_store_id': response.vector_store_id,
+                'created_at': response.created_at,
+                'last_error': response.last_error if hasattr(response, 'last_error') else None,
+                'chunking_strategy': response.chunking_strategy if hasattr(response, 'chunking_strategy') else None,
+                'attributes': response.attributes if hasattr(response, 'attributes') else None
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting vector store file failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def delete_vector_store_file(self, vector_store_id, file_id):
+        """
+        Supprime un fichier d'un vector store.
+        Note: Le fichier lui-même n'est pas supprimé, seulement retiré du vector store.
+        
+        Args:
+            vector_store_id: ID du vector store
+            file_id: ID du fichier à retirer
+        
+        Returns:
+            dict: Statut de suppression
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.beta.vector_stores.files.delete(
+                vector_store_id=vector_store_id,
+                file_id=file_id
+            )
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'deleted': response.deleted
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Deleting vector store file failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def create_chat_completion(self, messages, model="gpt-4o", temperature=1.0, max_tokens=None, 
+                               stream=False, store=False, metadata=None, **kwargs):
+        """
+        Crée une completion de chat avec le modèle spécifié.
+        
+        Args:
+            messages: Liste des messages de la conversation
+            model: Modèle à utiliser (gpt-4o, gpt-4-turbo, gpt-3.5-turbo, etc.)
+            temperature: 0-2, contrôle la créativité
+            max_tokens: Nombre max de tokens à générer
+            stream: Activer le streaming
+            store: Stocker la completion pour récupération ultérieure
+            metadata: Métadonnées personnalisées (dict, max 16 clés)
+            **kwargs: Autres paramètres (top_p, frequency_penalty, etc.)
+        
+        Returns:
+            dict: Réponse de completion ou erreur
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'model': model,
+                'messages': messages,
+                'temperature': temperature,
+                'stream': stream
+            }
+            
+            if max_tokens:
+                params['max_completion_tokens'] = max_tokens
+            
+            if store:
+                params['store'] = True
+            
+            if metadata:
+                params['metadata'] = metadata
+            
+            # Ajouter paramètres optionnels
+            optional_params = ['top_p', 'frequency_penalty', 'presence_penalty', 
+                             'stop', 'n', 'logprobs', 'response_format', 'tools', 
+                             'tool_choice', 'seed', 'reasoning_effort']
+            
+            for param in optional_params:
+                if param in kwargs:
+                    params[param] = kwargs[param]
+            
+            # Créer la completion
+            response = self.client.chat.completions.create(**params)
+            
+            if stream:
+                return {
+                    'success': True,
+                    'stream': response
+                }
+            
+            app.logger.info(f"Chat completion created: {response.id}, tokens: {response.usage.total_tokens}")
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'model': response.model,
+                'choices': [
+                    {
+                        'index': choice.index,
+                        'message': {
+                            'role': choice.message.role,
+                            'content': choice.message.content
+                        },
+                        'finish_reason': choice.finish_reason
+                    }
+                    for choice in response.choices
+                ],
+                'usage': {
+                    'prompt_tokens': response.usage.prompt_tokens,
+                    'completion_tokens': response.usage.completion_tokens,
+                    'total_tokens': response.usage.total_tokens
+                },
+                'created': response.created
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Chat completion failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_chat_completion(self, completion_id):
+        """
+        Récupère une completion stockée.
+        
+        Args:
+            completion_id: ID de la completion
+        
+        Returns:
+            dict: Détails de la completion
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.chat.completions.retrieve(completion_id)
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'model': response.model,
+                'created': response.created,
+                'choices': [
+                    {
+                        'index': choice.index,
+                        'message': {
+                            'role': choice.message.role,
+                            'content': choice.message.content
+                        },
+                        'finish_reason': choice.finish_reason
+                    }
+                    for choice in response.choices
+                ],
+                'usage': {
+                    'prompt_tokens': response.usage.prompt_tokens,
+                    'completion_tokens': response.usage.completion_tokens,
+                    'total_tokens': response.usage.total_tokens
+                },
+                'metadata': response.metadata if hasattr(response, 'metadata') else {}
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting chat completion failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def list_chat_completions(self, limit=20, order='asc', after=None, model_filter=None, metadata_filter=None):
+        """
+        Liste les completions stockées.
+        
+        Args:
+            limit: Nombre max de résultats (1-100)
+            order: Ordre de tri ('asc' ou 'desc')
+            after: Curseur de pagination
+            model_filter: Filtrer par modèle
+            metadata_filter: Filtrer par métadonnées
+        
+        Returns:
+            dict: Liste des completions
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'limit': min(max(limit, 1), 100),
+                'order': order
+            }
+            
+            if after:
+                params['after'] = after
+            
+            if model_filter:
+                params['model'] = model_filter
+            
+            if metadata_filter:
+                params['metadata'] = metadata_filter
+            
+            response = self.client.chat.completions.list(**params)
+            
+            completions = [
+                {
+                    'id': comp.id,
+                    'model': comp.model,
+                    'created': comp.created,
+                    'usage': {
+                        'total_tokens': comp.usage.total_tokens if hasattr(comp, 'usage') else 0
+                    }
+                }
+                for comp in response.data
+            ]
+            
+            return {
+                'success': True,
+                'completions': completions,
+                'has_more': response.has_more if hasattr(response, 'has_more') else False,
+                'first_id': response.first_id if hasattr(response, 'first_id') else None,
+                'last_id': response.last_id if hasattr(response, 'last_id') else None
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Listing chat completions failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def update_chat_completion(self, completion_id, metadata):
+        """
+        Met à jour les métadonnées d'une completion.
+        
+        Args:
+            completion_id: ID de la completion
+            metadata: Nouvelles métadonnées
+        
+        Returns:
+            dict: Completion mise à jour
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.chat.completions.update(
+                completion_id=completion_id,
+                metadata=metadata
+            )
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'metadata': response.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Updating chat completion failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def delete_chat_completion(self, completion_id):
+        """
+        Supprime une completion stockée.
+        
+        Args:
+            completion_id: ID de la completion
+        
+        Returns:
+            dict: Statut de suppression
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.chat.completions.delete(completion_id)
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'deleted': response.deleted
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Deleting chat completion failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_chat_messages(self, completion_id, limit=20, order='asc', after=None):
+        """
+        Récupère les messages d'une completion stockée.
+        
+        Args:
+            completion_id: ID de la completion
+            limit: Nombre max de messages
+            order: Ordre de tri
+            after: Curseur de pagination
+        
+        Returns:
+            dict: Liste des messages
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'limit': min(max(limit, 1), 100),
+                'order': order
+            }
+            
+            if after:
+                params['after'] = after
+            
+            response = self.client.chat.completions.messages.list(
+                completion_id=completion_id,
+                **params
+            )
+            
+            messages = [
+                {
+                    'id': msg.id,
+                    'role': msg.role,
+                    'content': msg.content
+                }
+                for msg in response.data
+            ]
+            
+            return {
+                'success': True,
+                'messages': messages,
+                'has_more': response.has_more if hasattr(response, 'has_more') else False
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting chat messages failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    # ===== FILES API =====
+    
+    def upload_file(self, file_path, purpose="assistants"):
+        """
+        Upload un fichier vers OpenAI.
+        
+        Args:
+            file_path: Chemin du fichier à uploader
+            purpose: Usage du fichier (assistants, fine-tune, batch)
+        
+        Returns:
+            dict: Informations du fichier uploadé
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            with open(file_path, 'rb') as f:
+                response = self.client.files.create(
+                    file=f,
+                    purpose=purpose
+                )
+            
+            app.logger.info(f"File uploaded: {response.id}, size: {response.bytes} bytes")
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'filename': response.filename,
+                'bytes': response.bytes,
+                'purpose': response.purpose,
+                'status': response.status,
+                'created_at': response.created_at
+            }
+            
+        except Exception as e:
+            app.logger.error(f"File upload failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def list_files(self, purpose=None):
+        """
+        Liste les fichiers uploadés.
+        
+        Args:
+            purpose: Filtrer par usage (optionnel)
+        
+        Returns:
+            dict: Liste des fichiers
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {}
+            if purpose:
+                params['purpose'] = purpose
+            
+            response = self.client.files.list(**params)
+            
+            files = [
+                {
+                    'id': f.id,
+                    'filename': f.filename,
+                    'bytes': f.bytes,
+                    'purpose': f.purpose,
+                    'status': f.status,
+                    'created_at': f.created_at
+                }
+                for f in response.data
+            ]
+            
+            return {
+                'success': True,
+                'files': files
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Listing files failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_file(self, file_id):
+        """
+        Récupère les infos d'un fichier.
+        
+        Args:
+            file_id: ID du fichier
+        
+        Returns:
+            dict: Informations du fichier
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.files.retrieve(file_id)
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'filename': response.filename,
+                'bytes': response.bytes,
+                'purpose': response.purpose,
+                'status': response.status,
+                'created_at': response.created_at
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting file failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def delete_file(self, file_id):
+        """
+        Supprime un fichier.
+        
+        Args:
+            file_id: ID du fichier
+        
+        Returns:
+            dict: Statut de suppression
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.files.delete(file_id)
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'deleted': response.deleted
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Deleting file failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def download_file_content(self, file_id):
+        """
+        Télécharge le contenu d'un fichier.
+        
+        Args:
+            file_id: ID du fichier
+        
+        Returns:
+            dict: Contenu du fichier
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            content = self.client.files.content(file_id)
+            
+            return {
+                'success': True,
+                'content': content.read()
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Downloading file content failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    # ===== MODERATION API =====
+    
+    def moderate_content(self, text):
+        """
+        Analyse un texte pour détecter du contenu inapproprié.
+        
+        Args:
+            text: Texte à modérer
+        
+        Returns:
+            dict: Résultats de modération
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.moderations.create(input=text)
+            
+            result = response.results[0]
+            
+            return {
+                'success': True,
+                'flagged': result.flagged,
+                'categories': {
+                    'hate': result.categories.hate,
+                    'hate_threatening': result.categories.hate_threatening,
+                    'harassment': result.categories.harassment,
+                    'harassment_threatening': result.categories.harassment_threatening,
+                    'self_harm': result.categories.self_harm,
+                    'self_harm_intent': result.categories.self_harm_intent,
+                    'self_harm_instructions': result.categories.self_harm_instructions,
+                    'sexual': result.categories.sexual,
+                    'sexual_minors': result.categories.sexual_minors,
+                    'violence': result.categories.violence,
+                    'violence_graphic': result.categories.violence_graphic
+                },
+                'category_scores': {
+                    'hate': result.category_scores.hate,
+                    'hate_threatening': result.category_scores.hate_threatening,
+                    'harassment': result.category_scores.harassment,
+                    'harassment_threatening': result.category_scores.harassment_threatening,
+                    'self_harm': result.category_scores.self_harm,
+                    'self_harm_intent': result.category_scores.self_harm_intent,
+                    'self_harm_instructions': result.category_scores.self_harm_instructions,
+                    'sexual': result.category_scores.sexual,
+                    'sexual_minors': result.category_scores.sexual_minors,
+                    'violence': result.category_scores.violence,
+                    'violence_graphic': result.category_scores.violence_graphic
+                }
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Content moderation failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def batch_moderate(self, texts):
+        """
+        Modère plusieurs textes en une seule requête.
+        
+        Args:
+            texts: Liste de textes à modérer
+        
+        Returns:
+            dict: Résultats de modération pour chaque texte
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.moderations.create(input=texts)
+            
+            results = [
+                {
+                    'flagged': r.flagged,
+                    'categories': {
+                        'hate': r.categories.hate,
+                        'harassment': r.categories.harassment,
+                        'sexual': r.categories.sexual,
+                        'violence': r.categories.violence
+                    }
+                }
+                for r in response.results
+            ]
+            
+            return {
+                'success': True,
+                'results': results,
+                'total_flagged': sum(1 for r in results if r['flagged'])
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Batch moderation failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    # ===== RUN STEPS API (Assistants Beta) =====
+    
+    def list_run_steps(self, thread_id, run_id, limit=20, order='desc', after=None, before=None, include=None):
+        """
+        Liste les étapes d'exécution d'un run.
+        
+        Args:
+            thread_id: ID du thread
+            run_id: ID du run
+            limit: Nombre max de résultats (1-100)
+            order: Ordre de tri ('asc' ou 'desc')
+            after: Curseur de pagination (après cet ID)
+            before: Curseur de pagination (avant cet ID)
+            include: Champs additionnels à inclure
+        
+        Returns:
+            dict: Liste des run steps
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'limit': min(max(limit, 1), 100),
+                'order': order
+            }
+            
+            if after:
+                params['after'] = after
+            
+            if before:
+                params['before'] = before
+            
+            if include:
+                params['include'] = include
+            
+            response = self.client.beta.threads.runs.steps.list(
+                thread_id=thread_id,
+                run_id=run_id,
+                **params
+            )
+            
+            steps = [
+                {
+                    'id': step.id,
+                    'object': step.object,
+                    'created_at': step.created_at,
+                    'run_id': step.run_id,
+                    'assistant_id': step.assistant_id,
+                    'thread_id': step.thread_id,
+                    'type': step.type,
+                    'status': step.status,
+                    'cancelled_at': step.cancelled_at,
+                    'completed_at': step.completed_at,
+                    'expired_at': step.expired_at,
+                    'failed_at': step.failed_at,
+                    'last_error': step.last_error.model_dump() if step.last_error else None,
+                    'step_details': step.step_details.model_dump() if step.step_details else None,
+                    'usage': {
+                        'prompt_tokens': step.usage.prompt_tokens,
+                        'completion_tokens': step.usage.completion_tokens,
+                        'total_tokens': step.usage.total_tokens
+                    } if step.usage else None,
+                    'metadata': step.metadata if hasattr(step, 'metadata') else {}
+                }
+                for step in response.data
+            ]
+            
+            return {
+                'success': True,
+                'object': 'list',
+                'data': steps,
+                'first_id': response.first_id if hasattr(response, 'first_id') else None,
+                'last_id': response.last_id if hasattr(response, 'last_id') else None,
+                'has_more': response.has_more if hasattr(response, 'has_more') else False
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Listing run steps failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_run_step(self, thread_id, run_id, step_id, include=None):
+        """
+        Récupère un run step spécifique.
+        
+        Args:
+            thread_id: ID du thread
+            run_id: ID du run
+            step_id: ID du step
+            include: Champs additionnels à inclure
+        
+        Returns:
+            dict: Détails du run step
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {}
+            if include:
+                params['include'] = include
+            
+            step = self.client.beta.threads.runs.steps.retrieve(
+                thread_id=thread_id,
+                run_id=run_id,
+                step_id=step_id,
+                **params
+            )
+            
+            return {
+                'success': True,
+                'id': step.id,
+                'object': step.object,
+                'created_at': step.created_at,
+                'run_id': step.run_id,
+                'assistant_id': step.assistant_id,
+                'thread_id': step.thread_id,
+                'type': step.type,
+                'status': step.status,
+                'cancelled_at': step.cancelled_at,
+                'completed_at': step.completed_at,
+                'expired_at': step.expired_at,
+                'failed_at': step.failed_at,
+                'last_error': step.last_error.model_dump() if step.last_error else None,
+                'step_details': step.step_details.model_dump() if step.step_details else None,
+                'usage': {
+                    'prompt_tokens': step.usage.prompt_tokens,
+                    'completion_tokens': step.usage.completion_tokens,
+                    'total_tokens': step.usage.total_tokens
+                } if step.usage else None,
+                'metadata': step.metadata if hasattr(step, 'metadata') else {}
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting run step failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    # ===== ASSISTANTS API (Assistants Beta) =====
+    
+    def create_assistant(self, model, name=None, description=None, instructions=None, 
+                        tools=None, tool_resources=None, metadata=None, temperature=None, 
+                        top_p=None, response_format=None):
+        """
+        Crée un nouvel assistant OpenAI.
+        
+        Args:
+            model: ID du modèle (ex: 'gpt-4-turbo', 'gpt-3.5-turbo')
+            name: Nom de l'assistant (max 256 caractères)
+            description: Description (max 512 caractères)
+            instructions: Instructions système (max 256000 caractères)
+            tools: Liste d'outils (code_interpreter, file_search, function)
+            tool_resources: Ressources pour outils (vector_store_ids, etc.)
+            metadata: Métadonnées personnalisées (max 16 paires clé-valeur)
+            temperature: Température de sampling (0-2)
+            top_p: Nucleus sampling (0-1)
+            response_format: Format de réponse ('auto', 'json_object', 'text')
+        
+        Returns:
+            dict: Assistant créé avec ID et configuration
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'model': model
+            }
+            
+            if name:
+                params['name'] = name[:256]
+            
+            if description:
+                params['description'] = description[:512]
+            
+            if instructions:
+                params['instructions'] = instructions[:256000]
+            
+            if tools:
+                params['tools'] = tools
+            
+            if tool_resources:
+                params['tool_resources'] = tool_resources
+            
+            if metadata:
+                params['metadata'] = metadata
+            
+            if temperature is not None:
+                params['temperature'] = max(0, min(temperature, 2))
+            
+            if top_p is not None:
+                params['top_p'] = max(0, min(top_p, 1))
+            
+            if response_format:
+                params['response_format'] = response_format
+            
+            assistant = self.client.beta.assistants.create(**params)
+            
+            return {
+                'success': True,
+                'id': assistant.id,
+                'object': assistant.object,
+                'created_at': assistant.created_at,
+                'name': assistant.name,
+                'description': assistant.description,
+                'model': assistant.model,
+                'instructions': assistant.instructions,
+                'tools': [tool.model_dump() for tool in assistant.tools] if assistant.tools else [],
+                'tool_resources': assistant.tool_resources.model_dump() if assistant.tool_resources else None,
+                'metadata': assistant.metadata,
+                'temperature': assistant.temperature,
+                'top_p': assistant.top_p,
+                'response_format': assistant.response_format
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Creating assistant failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def list_assistants(self, limit=20, order='desc', after=None, before=None):
+        """
+        Liste les assistants.
+        
+        Args:
+            limit: Nombre max de résultats (1-100)
+            order: Ordre de tri ('asc' ou 'desc')
+            after: Curseur de pagination (après cet ID)
+            before: Curseur de pagination (avant cet ID)
+        
+        Returns:
+            dict: Liste des assistants
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'limit': min(max(limit, 1), 100),
+                'order': order
+            }
+            
+            if after:
+                params['after'] = after
+            
+            if before:
+                params['before'] = before
+            
+            response = self.client.beta.assistants.list(**params)
+            
+            assistants = [
+                {
+                    'id': asst.id,
+                    'object': asst.object,
+                    'created_at': asst.created_at,
+                    'name': asst.name,
+                    'description': asst.description,
+                    'model': asst.model,
+                    'instructions': asst.instructions,
+                    'tools': [tool.model_dump() for tool in asst.tools] if asst.tools else [],
+                    'tool_resources': asst.tool_resources.model_dump() if asst.tool_resources else None,
+                    'metadata': asst.metadata,
+                    'temperature': asst.temperature,
+                    'top_p': asst.top_p,
+                    'response_format': asst.response_format
+                }
+                for asst in response.data
+            ]
+            
+            return {
+                'success': True,
+                'object': 'list',
+                'data': assistants,
+                'first_id': response.first_id if hasattr(response, 'first_id') else None,
+                'last_id': response.last_id if hasattr(response, 'last_id') else None,
+                'has_more': response.has_more if hasattr(response, 'has_more') else False
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Listing assistants failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_assistant(self, assistant_id):
+        """
+        Récupère un assistant spécifique.
+        
+        Args:
+            assistant_id: ID de l'assistant
+        
+        Returns:
+            dict: Détails de l'assistant
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            assistant = self.client.beta.assistants.retrieve(assistant_id)
+            
+            return {
+                'success': True,
+                'id': assistant.id,
+                'object': assistant.object,
+                'created_at': assistant.created_at,
+                'name': assistant.name,
+                'description': assistant.description,
+                'model': assistant.model,
+                'instructions': assistant.instructions,
+                'tools': [tool.model_dump() for tool in assistant.tools] if assistant.tools else [],
+                'tool_resources': assistant.tool_resources.model_dump() if assistant.tool_resources else None,
+                'metadata': assistant.metadata,
+                'temperature': assistant.temperature,
+                'top_p': assistant.top_p,
+                'response_format': assistant.response_format
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting assistant failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def update_assistant(self, assistant_id, model=None, name=None, description=None, 
+                        instructions=None, tools=None, tool_resources=None, metadata=None, 
+                        temperature=None, top_p=None, response_format=None):
+        """
+        Met à jour un assistant.
+        
+        Args:
+            assistant_id: ID de l'assistant
+            model: Nouveau modèle
+            name: Nouveau nom
+            description: Nouvelle description
+            instructions: Nouvelles instructions
+            tools: Nouveaux outils
+            tool_resources: Nouvelles ressources
+            metadata: Nouvelles métadonnées
+            temperature: Nouvelle température
+            top_p: Nouveau top_p
+            response_format: Nouveau format de réponse
+        
+        Returns:
+            dict: Assistant mis à jour
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {}
+            
+            if model:
+                params['model'] = model
+            
+            if name is not None:
+                params['name'] = name[:256]
+            
+            if description is not None:
+                params['description'] = description[:512]
+            
+            if instructions is not None:
+                params['instructions'] = instructions[:256000]
+            
+            if tools is not None:
+                params['tools'] = tools
+            
+            if tool_resources is not None:
+                params['tool_resources'] = tool_resources
+            
+            if metadata is not None:
+                params['metadata'] = metadata
+            
+            if temperature is not None:
+                params['temperature'] = max(0, min(temperature, 2))
+            
+            if top_p is not None:
+                params['top_p'] = max(0, min(top_p, 1))
+            
+            if response_format is not None:
+                params['response_format'] = response_format
+            
+            assistant = self.client.beta.assistants.update(assistant_id, **params)
+            
+            return {
+                'success': True,
+                'id': assistant.id,
+                'object': assistant.object,
+                'created_at': assistant.created_at,
+                'name': assistant.name,
+                'description': assistant.description,
+                'model': assistant.model,
+                'instructions': assistant.instructions,
+                'tools': [tool.model_dump() for tool in assistant.tools] if assistant.tools else [],
+                'tool_resources': assistant.tool_resources.model_dump() if assistant.tool_resources else None,
+                'metadata': assistant.metadata,
+                'temperature': assistant.temperature,
+                'top_p': assistant.top_p,
+                'response_format': assistant.response_format
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Updating assistant failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def delete_assistant(self, assistant_id):
+        """
+        Supprime un assistant.
+        
+        Args:
+            assistant_id: ID de l'assistant
+        
+        Returns:
+            dict: Confirmation de suppression
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.beta.assistants.delete(assistant_id)
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'object': response.object,
+                'deleted': response.deleted
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Deleting assistant failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    # ===== THREADS API (Assistants Beta) =====
+    
+    def create_thread(self, messages=None, tool_resources=None, metadata=None):
+        """
+        Crée un nouveau thread de conversation.
+        
+        Args:
+            messages: Liste de messages initiaux
+            tool_resources: Ressources pour outils (vector_store_ids, etc.)
+            metadata: Métadonnées personnalisées
+        
+        Returns:
+            dict: Thread créé avec ID
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {}
+            
+            if messages:
+                params['messages'] = messages
+            
+            if tool_resources:
+                params['tool_resources'] = tool_resources
+            
+            if metadata:
+                params['metadata'] = metadata
+            
+            thread = self.client.beta.threads.create(**params)
+            
+            return {
+                'success': True,
+                'id': thread.id,
+                'object': thread.object,
+                'created_at': thread.created_at,
+                'tool_resources': thread.tool_resources.model_dump() if thread.tool_resources else None,
+                'metadata': thread.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Creating thread failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_thread(self, thread_id):
+        """
+        Récupère un thread spécifique.
+        
+        Args:
+            thread_id: ID du thread
+        
+        Returns:
+            dict: Détails du thread
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            thread = self.client.beta.threads.retrieve(thread_id)
+            
+            return {
+                'success': True,
+                'id': thread.id,
+                'object': thread.object,
+                'created_at': thread.created_at,
+                'tool_resources': thread.tool_resources.model_dump() if thread.tool_resources else None,
+                'metadata': thread.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting thread failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def update_thread(self, thread_id, tool_resources=None, metadata=None):
+        """
+        Met à jour un thread.
+        
+        Args:
+            thread_id: ID du thread
+            tool_resources: Nouvelles ressources
+            metadata: Nouvelles métadonnées
+        
+        Returns:
+            dict: Thread mis à jour
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {}
+            
+            if tool_resources is not None:
+                params['tool_resources'] = tool_resources
+            
+            if metadata is not None:
+                params['metadata'] = metadata
+            
+            thread = self.client.beta.threads.update(thread_id, **params)
+            
+            return {
+                'success': True,
+                'id': thread.id,
+                'object': thread.object,
+                'created_at': thread.created_at,
+                'tool_resources': thread.tool_resources.model_dump() if thread.tool_resources else None,
+                'metadata': thread.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Updating thread failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def delete_thread(self, thread_id):
+        """
+        Supprime un thread.
+        
+        Args:
+            thread_id: ID du thread
+        
+        Returns:
+            dict: Confirmation de suppression
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.beta.threads.delete(thread_id)
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'object': response.object,
+                'deleted': response.deleted
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Deleting thread failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    # ===== MESSAGES API (Assistants Beta) =====
+    
+    def create_message(self, thread_id, role, content, attachments=None, metadata=None):
+        """
+        Ajoute un message à un thread.
+        
+        Args:
+            thread_id: ID du thread
+            role: Rôle ('user' ou 'assistant')
+            content: Contenu du message (texte ou liste)
+            attachments: Fichiers attachés
+            metadata: Métadonnées personnalisées
+        
+        Returns:
+            dict: Message créé
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'role': role,
+                'content': content
+            }
+            
+            if attachments:
+                params['attachments'] = attachments
+            
+            if metadata:
+                params['metadata'] = metadata
+            
+            message = self.client.beta.threads.messages.create(
+                thread_id=thread_id,
+                **params
+            )
+            
+            return {
+                'success': True,
+                'id': message.id,
+                'object': message.object,
+                'created_at': message.created_at,
+                'thread_id': message.thread_id,
+                'role': message.role,
+                'content': [content.model_dump() for content in message.content] if message.content else [],
+                'attachments': [att.model_dump() for att in message.attachments] if message.attachments else [],
+                'assistant_id': message.assistant_id,
+                'run_id': message.run_id,
+                'metadata': message.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Creating message failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def list_messages(self, thread_id, limit=20, order='desc', after=None, before=None, run_id=None):
+        """
+        Liste les messages d'un thread.
+        
+        Args:
+            thread_id: ID du thread
+            limit: Nombre max de résultats (1-100)
+            order: Ordre de tri ('asc' ou 'desc')
+            after: Curseur de pagination
+            before: Curseur de pagination
+            run_id: Filtrer par run_id
+        
+        Returns:
+            dict: Liste des messages
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'limit': min(max(limit, 1), 100),
+                'order': order
+            }
+            
+            if after:
+                params['after'] = after
+            
+            if before:
+                params['before'] = before
+            
+            if run_id:
+                params['run_id'] = run_id
+            
+            response = self.client.beta.threads.messages.list(
+                thread_id=thread_id,
+                **params
+            )
+            
+            messages = [
+                {
+                    'id': msg.id,
+                    'object': msg.object,
+                    'created_at': msg.created_at,
+                    'thread_id': msg.thread_id,
+                    'role': msg.role,
+                    'content': [content.model_dump() for content in msg.content] if msg.content else [],
+                    'attachments': [att.model_dump() for att in msg.attachments] if msg.attachments else [],
+                    'assistant_id': msg.assistant_id,
+                    'run_id': msg.run_id,
+                    'metadata': msg.metadata
+                }
+                for msg in response.data
+            ]
+            
+            return {
+                'success': True,
+                'object': 'list',
+                'data': messages,
+                'first_id': response.first_id if hasattr(response, 'first_id') else None,
+                'last_id': response.last_id if hasattr(response, 'last_id') else None,
+                'has_more': response.has_more if hasattr(response, 'has_more') else False
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Listing messages failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_message(self, thread_id, message_id):
+        """
+        Récupère un message spécifique.
+        
+        Args:
+            thread_id: ID du thread
+            message_id: ID du message
+        
+        Returns:
+            dict: Détails du message
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            message = self.client.beta.threads.messages.retrieve(
+                thread_id=thread_id,
+                message_id=message_id
+            )
+            
+            return {
+                'success': True,
+                'id': message.id,
+                'object': message.object,
+                'created_at': message.created_at,
+                'thread_id': message.thread_id,
+                'role': message.role,
+                'content': [content.model_dump() for content in message.content] if message.content else [],
+                'attachments': [att.model_dump() for att in message.attachments] if message.attachments else [],
+                'assistant_id': message.assistant_id,
+                'run_id': message.run_id,
+                'metadata': message.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting message failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def update_message(self, thread_id, message_id, metadata=None):
+        """
+        Met à jour les métadonnées d'un message.
+        
+        Args:
+            thread_id: ID du thread
+            message_id: ID du message
+            metadata: Nouvelles métadonnées
+        
+        Returns:
+            dict: Message mis à jour
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {}
+            
+            if metadata is not None:
+                params['metadata'] = metadata
+            
+            message = self.client.beta.threads.messages.update(
+                thread_id=thread_id,
+                message_id=message_id,
+                **params
+            )
+            
+            return {
+                'success': True,
+                'id': message.id,
+                'object': message.object,
+                'created_at': message.created_at,
+                'thread_id': message.thread_id,
+                'role': message.role,
+                'content': [content.model_dump() for content in message.content] if message.content else [],
+                'attachments': [att.model_dump() for att in message.attachments] if message.attachments else [],
+                'assistant_id': message.assistant_id,
+                'run_id': message.run_id,
+                'metadata': message.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Updating message failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def delete_message(self, thread_id, message_id):
+        """
+        Supprime un message.
+        
+        Args:
+            thread_id: ID du thread
+            message_id: ID du message
+        
+        Returns:
+            dict: Confirmation de suppression
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.beta.threads.messages.delete(
+                thread_id=thread_id,
+                message_id=message_id
+            )
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'object': response.object,
+                'deleted': response.deleted
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Deleting message failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    # ===== RUNS API (Assistants Beta) =====
+    
+    def create_run(self, thread_id, assistant_id, model=None, instructions=None, 
+                   additional_instructions=None, additional_messages=None, tools=None, 
+                   metadata=None, temperature=None, top_p=None, max_prompt_tokens=None, 
+                   max_completion_tokens=None, truncation_strategy=None, tool_choice=None, 
+                   parallel_tool_calls=None, response_format=None):
+        """
+        Crée un run pour exécuter un assistant sur un thread.
+        
+        Args:
+            thread_id: ID du thread
+            assistant_id: ID de l'assistant
+            model: Modèle à utiliser (override)
+            instructions: Instructions (override)
+            additional_instructions: Instructions additionnelles
+            additional_messages: Messages additionnels
+            tools: Outils (override)
+            metadata: Métadonnées
+            temperature: Température
+            top_p: Top P
+            max_prompt_tokens: Max tokens prompt
+            max_completion_tokens: Max tokens complétion
+            truncation_strategy: Stratégie de troncation
+            tool_choice: Choix d'outil
+            parallel_tool_calls: Appels parallèles
+            response_format: Format réponse
+        
+        Returns:
+            dict: Run créé
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'assistant_id': assistant_id
+            }
+            
+            if model:
+                params['model'] = model
+            
+            if instructions:
+                params['instructions'] = instructions
+            
+            if additional_instructions:
+                params['additional_instructions'] = additional_instructions
+            
+            if additional_messages:
+                params['additional_messages'] = additional_messages
+            
+            if tools is not None:
+                params['tools'] = tools
+            
+            if metadata:
+                params['metadata'] = metadata
+            
+            if temperature is not None:
+                params['temperature'] = max(0, min(temperature, 2))
+            
+            if top_p is not None:
+                params['top_p'] = max(0, min(top_p, 1))
+            
+            if max_prompt_tokens:
+                params['max_prompt_tokens'] = max_prompt_tokens
+            
+            if max_completion_tokens:
+                params['max_completion_tokens'] = max_completion_tokens
+            
+            if truncation_strategy:
+                params['truncation_strategy'] = truncation_strategy
+            
+            if tool_choice is not None:
+                params['tool_choice'] = tool_choice
+            
+            if parallel_tool_calls is not None:
+                params['parallel_tool_calls'] = parallel_tool_calls
+            
+            if response_format:
+                params['response_format'] = response_format
+            
+            run = self.client.beta.threads.runs.create(
+                thread_id=thread_id,
+                **params
+            )
+            
+            return {
+                'success': True,
+                'id': run.id,
+                'object': run.object,
+                'created_at': run.created_at,
+                'thread_id': run.thread_id,
+                'assistant_id': run.assistant_id,
+                'status': run.status,
+                'required_action': run.required_action.model_dump() if run.required_action else None,
+                'last_error': run.last_error.model_dump() if run.last_error else None,
+                'expires_at': run.expires_at,
+                'started_at': run.started_at,
+                'cancelled_at': run.cancelled_at,
+                'failed_at': run.failed_at,
+                'completed_at': run.completed_at,
+                'incomplete_details': run.incomplete_details.model_dump() if run.incomplete_details else None,
+                'model': run.model,
+                'instructions': run.instructions,
+                'tools': [tool.model_dump() for tool in run.tools] if run.tools else [],
+                'metadata': run.metadata,
+                'usage': {
+                    'prompt_tokens': run.usage.prompt_tokens,
+                    'completion_tokens': run.usage.completion_tokens,
+                    'total_tokens': run.usage.total_tokens
+                } if run.usage else None,
+                'temperature': run.temperature,
+                'top_p': run.top_p,
+                'max_prompt_tokens': run.max_prompt_tokens,
+                'max_completion_tokens': run.max_completion_tokens,
+                'truncation_strategy': run.truncation_strategy.model_dump() if run.truncation_strategy else None,
+                'tool_choice': run.tool_choice,
+                'parallel_tool_calls': run.parallel_tool_calls,
+                'response_format': run.response_format
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Creating run failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def list_runs(self, thread_id, limit=20, order='desc', after=None, before=None):
+        """
+        Liste les runs d'un thread.
+        
+        Args:
+            thread_id: ID du thread
+            limit: Nombre max de résultats (1-100)
+            order: Ordre de tri
+            after: Curseur pagination
+            before: Curseur pagination
+        
+        Returns:
+            dict: Liste des runs
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'limit': min(max(limit, 1), 100),
+                'order': order
+            }
+            
+            if after:
+                params['after'] = after
+            
+            if before:
+                params['before'] = before
+            
+            response = self.client.beta.threads.runs.list(
+                thread_id=thread_id,
+                **params
+            )
+            
+            runs = [
+                {
+                    'id': run.id,
+                    'object': run.object,
+                    'created_at': run.created_at,
+                    'thread_id': run.thread_id,
+                    'assistant_id': run.assistant_id,
+                    'status': run.status,
+                    'required_action': run.required_action.model_dump() if run.required_action else None,
+                    'last_error': run.last_error.model_dump() if run.last_error else None,
+                    'expires_at': run.expires_at,
+                    'started_at': run.started_at,
+                    'cancelled_at': run.cancelled_at,
+                    'failed_at': run.failed_at,
+                    'completed_at': run.completed_at,
+                    'incomplete_details': run.incomplete_details.model_dump() if run.incomplete_details else None,
+                    'model': run.model,
+                    'instructions': run.instructions,
+                    'tools': [tool.model_dump() for tool in run.tools] if run.tools else [],
+                    'metadata': run.metadata,
+                    'usage': {
+                        'prompt_tokens': run.usage.prompt_tokens,
+                        'completion_tokens': run.usage.completion_tokens,
+                        'total_tokens': run.usage.total_tokens
+                    } if run.usage else None,
+                    'temperature': run.temperature,
+                    'top_p': run.top_p
+                }
+                for run in response.data
+            ]
+            
+            return {
+                'success': True,
+                'object': 'list',
+                'data': runs,
+                'first_id': response.first_id if hasattr(response, 'first_id') else None,
+                'last_id': response.last_id if hasattr(response, 'last_id') else None,
+                'has_more': response.has_more if hasattr(response, 'has_more') else False
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Listing runs failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_run(self, thread_id, run_id):
+        """
+        Récupère un run spécifique.
+        
+        Args:
+            thread_id: ID du thread
+            run_id: ID du run
+        
+        Returns:
+            dict: Détails du run
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            run = self.client.beta.threads.runs.retrieve(
+                thread_id=thread_id,
+                run_id=run_id
+            )
+            
+            return {
+                'success': True,
+                'id': run.id,
+                'object': run.object,
+                'created_at': run.created_at,
+                'thread_id': run.thread_id,
+                'assistant_id': run.assistant_id,
+                'status': run.status,
+                'required_action': run.required_action.model_dump() if run.required_action else None,
+                'last_error': run.last_error.model_dump() if run.last_error else None,
+                'expires_at': run.expires_at,
+                'started_at': run.started_at,
+                'cancelled_at': run.cancelled_at,
+                'failed_at': run.failed_at,
+                'completed_at': run.completed_at,
+                'incomplete_details': run.incomplete_details.model_dump() if run.incomplete_details else None,
+                'model': run.model,
+                'instructions': run.instructions,
+                'tools': [tool.model_dump() for tool in run.tools] if run.tools else [],
+                'metadata': run.metadata,
+                'usage': {
+                    'prompt_tokens': run.usage.prompt_tokens,
+                    'completion_tokens': run.usage.completion_tokens,
+                    'total_tokens': run.usage.total_tokens
+                } if run.usage else None,
+                'temperature': run.temperature,
+                'top_p': run.top_p,
+                'max_prompt_tokens': run.max_prompt_tokens,
+                'max_completion_tokens': run.max_completion_tokens,
+                'truncation_strategy': run.truncation_strategy.model_dump() if run.truncation_strategy else None,
+                'tool_choice': run.tool_choice,
+                'parallel_tool_calls': run.parallel_tool_calls,
+                'response_format': run.response_format
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting run failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def update_run(self, thread_id, run_id, metadata=None):
+        """
+        Met à jour les métadonnées d'un run.
+        
+        Args:
+            thread_id: ID du thread
+            run_id: ID du run
+            metadata: Nouvelles métadonnées
+        
+        Returns:
+            dict: Run mis à jour
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {}
+            
+            if metadata is not None:
+                params['metadata'] = metadata
+            
+            run = self.client.beta.threads.runs.update(
+                thread_id=thread_id,
+                run_id=run_id,
+                **params
+            )
+            
+            return {
+                'success': True,
+                'id': run.id,
+                'object': run.object,
+                'created_at': run.created_at,
+                'thread_id': run.thread_id,
+                'assistant_id': run.assistant_id,
+                'status': run.status,
+                'metadata': run.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Updating run failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def cancel_run(self, thread_id, run_id):
+        """
+        Annule un run en cours.
+        
+        Args:
+            thread_id: ID du thread
+            run_id: ID du run
+        
+        Returns:
+            dict: Run annulé
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            run = self.client.beta.threads.runs.cancel(
+                thread_id=thread_id,
+                run_id=run_id
+            )
+            
+            return {
+                'success': True,
+                'id': run.id,
+                'object': run.object,
+                'created_at': run.created_at,
+                'thread_id': run.thread_id,
+                'assistant_id': run.assistant_id,
+                'status': run.status,
+                'cancelled_at': run.cancelled_at
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Cancelling run failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def submit_tool_outputs(self, thread_id, run_id, tool_outputs):
+        """
+        Soumet les résultats d'appels d'outils.
+        
+        Args:
+            thread_id: ID du thread
+            run_id: ID du run
+            tool_outputs: Liste des résultats d'outils
+        
+        Returns:
+            dict: Run mis à jour
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            run = self.client.beta.threads.runs.submit_tool_outputs(
+                thread_id=thread_id,
+                run_id=run_id,
+                tool_outputs=tool_outputs
+            )
+            
+            return {
+                'success': True,
+                'id': run.id,
+                'object': run.object,
+                'created_at': run.created_at,
+                'thread_id': run.thread_id,
+                'assistant_id': run.assistant_id,
+                'status': run.status,
+                'required_action': run.required_action.model_dump() if run.required_action else None
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Submitting tool outputs failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    # ===== VECTOR STORES API (Assistants Beta) =====
+    
+    def create_vector_store(self, name=None, file_ids=None, expires_after=None, 
+                           chunking_strategy=None, metadata=None):
+        """
+        Crée un nouveau vector store.
+        
+        Args:
+            name: Nom du vector store
+            file_ids: Liste d'IDs de fichiers à ajouter
+            expires_after: Configuration d'expiration
+            chunking_strategy: Stratégie de découpage
+            metadata: Métadonnées personnalisées
+        
+        Returns:
+            dict: Vector store créé
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {}
+            
+            if name:
+                params['name'] = name
+            
+            if file_ids:
+                params['file_ids'] = file_ids
+            
+            if expires_after:
+                params['expires_after'] = expires_after
+            
+            if chunking_strategy:
+                params['chunking_strategy'] = chunking_strategy
+            
+            if metadata:
+                params['metadata'] = metadata
+            
+            vector_store = self.client.beta.vector_stores.create(**params)
+            
+            return {
+                'success': True,
+                'id': vector_store.id,
+                'object': vector_store.object,
+                'created_at': vector_store.created_at,
+                'name': vector_store.name,
+                'usage_bytes': vector_store.usage_bytes,
+                'file_counts': {
+                    'in_progress': vector_store.file_counts.in_progress,
+                    'completed': vector_store.file_counts.completed,
+                    'failed': vector_store.file_counts.failed,
+                    'cancelled': vector_store.file_counts.cancelled,
+                    'total': vector_store.file_counts.total
+                } if vector_store.file_counts else None,
+                'status': vector_store.status,
+                'expires_after': vector_store.expires_after.model_dump() if vector_store.expires_after else None,
+                'expires_at': vector_store.expires_at,
+                'last_active_at': vector_store.last_active_at,
+                'metadata': vector_store.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Creating vector store failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def list_vector_stores(self, limit=20, order='desc', after=None, before=None):
+        """
+        Liste les vector stores.
+        
+        Args:
+            limit: Nombre max de résultats (1-100)
+            order: Ordre de tri
+            after: Curseur pagination
+            before: Curseur pagination
+        
+        Returns:
+            dict: Liste des vector stores
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {
+                'limit': min(max(limit, 1), 100),
+                'order': order
+            }
+            
+            if after:
+                params['after'] = after
+            
+            if before:
+                params['before'] = before
+            
+            response = self.client.beta.vector_stores.list(**params)
+            
+            stores = [
+                {
+                    'id': vs.id,
+                    'object': vs.object,
+                    'created_at': vs.created_at,
+                    'name': vs.name,
+                    'usage_bytes': vs.usage_bytes,
+                    'file_counts': {
+                        'in_progress': vs.file_counts.in_progress,
+                        'completed': vs.file_counts.completed,
+                        'failed': vs.file_counts.failed,
+                        'cancelled': vs.file_counts.cancelled,
+                        'total': vs.file_counts.total
+                    } if vs.file_counts else None,
+                    'status': vs.status,
+                    'expires_after': vs.expires_after.model_dump() if vs.expires_after else None,
+                    'expires_at': vs.expires_at,
+                    'last_active_at': vs.last_active_at,
+                    'metadata': vs.metadata
+                }
+                for vs in response.data
+            ]
+            
+            return {
+                'success': True,
+                'object': 'list',
+                'data': stores,
+                'first_id': response.first_id if hasattr(response, 'first_id') else None,
+                'last_id': response.last_id if hasattr(response, 'last_id') else None,
+                'has_more': response.has_more if hasattr(response, 'has_more') else False
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Listing vector stores failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def get_vector_store(self, vector_store_id):
+        """
+        Récupère un vector store spécifique.
+        
+        Args:
+            vector_store_id: ID du vector store
+        
+        Returns:
+            dict: Détails du vector store
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            vector_store = self.client.beta.vector_stores.retrieve(vector_store_id)
+            
+            return {
+                'success': True,
+                'id': vector_store.id,
+                'object': vector_store.object,
+                'created_at': vector_store.created_at,
+                'name': vector_store.name,
+                'usage_bytes': vector_store.usage_bytes,
+                'file_counts': {
+                    'in_progress': vector_store.file_counts.in_progress,
+                    'completed': vector_store.file_counts.completed,
+                    'failed': vector_store.file_counts.failed,
+                    'cancelled': vector_store.file_counts.cancelled,
+                    'total': vector_store.file_counts.total
+                } if vector_store.file_counts else None,
+                'status': vector_store.status,
+                'expires_after': vector_store.expires_after.model_dump() if vector_store.expires_after else None,
+                'expires_at': vector_store.expires_at,
+                'last_active_at': vector_store.last_active_at,
+                'metadata': vector_store.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Getting vector store failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def update_vector_store(self, vector_store_id, name=None, expires_after=None, metadata=None):
+        """
+        Met à jour un vector store.
+        
+        Args:
+            vector_store_id: ID du vector store
+            name: Nouveau nom
+            expires_after: Nouvelle expiration
+            metadata: Nouvelles métadonnées
+        
+        Returns:
+            dict: Vector store mis à jour
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            params = {}
+            
+            if name is not None:
+                params['name'] = name
+            
+            if expires_after is not None:
+                params['expires_after'] = expires_after
+            
+            if metadata is not None:
+                params['metadata'] = metadata
+            
+            vector_store = self.client.beta.vector_stores.update(
+                vector_store_id=vector_store_id,
+                **params
+            )
+            
+            return {
+                'success': True,
+                'id': vector_store.id,
+                'object': vector_store.object,
+                'created_at': vector_store.created_at,
+                'name': vector_store.name,
+                'usage_bytes': vector_store.usage_bytes,
+                'file_counts': {
+                    'in_progress': vector_store.file_counts.in_progress,
+                    'completed': vector_store.file_counts.completed,
+                    'failed': vector_store.file_counts.failed,
+                    'cancelled': vector_store.file_counts.cancelled,
+                    'total': vector_store.file_counts.total
+                } if vector_store.file_counts else None,
+                'status': vector_store.status,
+                'expires_after': vector_store.expires_after.model_dump() if vector_store.expires_after else None,
+                'expires_at': vector_store.expires_at,
+                'last_active_at': vector_store.last_active_at,
+                'metadata': vector_store.metadata
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Updating vector store failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    def delete_vector_store(self, vector_store_id):
+        """
+        Supprime un vector store.
+        
+        Args:
+            vector_store_id: ID du vector store
+        
+        Returns:
+            dict: Confirmation de suppression
+        """
+        if not self.client:
+            return {
+                'success': False,
+                'error': 'OpenAI client not initialized'
+            }
+        
+        try:
+            response = self.client.beta.vector_stores.delete(vector_store_id)
+            
+            return {
+                'success': True,
+                'id': response.id,
+                'object': response.object,
+                'deleted': response.deleted
+            }
+            
+        except Exception as e:
+            app.logger.error(f"Deleting vector store failed: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
 
 class UnifiedVoiceService:
     def __init__(self):
@@ -706,6 +3505,7 @@ crypto = UnifiedCrypto()
 email_service = UnifiedEmailService()
 voice_service = UnifiedVoiceService()
 ai_service = None
+unified_ai = None  # Alias pour compatibilité avec tests
 # email_generator = EmailGenerator()  # Using UnifiedAIService instead
 forwarding_service = None
 
@@ -716,6 +3516,38 @@ try:
     print("[INIT] Email provisioning routes registered")
 except Exception as e:
     print(f"[WARNING] Email provisioning non disponible: {e}")
+
+# Enregistrer les routes webhook OpenAI
+try:
+    from routes.webhooks import register_webhook_routes
+    register_webhook_routes(app)
+    print("[INIT] Webhook routes registered")
+except Exception as e:
+    print(f"[WARNING] Webhook routes non disponibles: {e}")
+
+# Enregistrer les routes batch OpenAI
+try:
+    from routes.batch import register_batch_routes
+    register_batch_routes(app)
+    print("[INIT] Batch API routes registered")
+except Exception as e:
+    print(f"[WARNING] Batch API routes non disponibles: {e}")
+
+# Enregistrer les routes Vector Stores OpenAI
+try:
+    from routes.vector_stores import register_vector_store_routes
+    register_vector_store_routes(app)
+    print("[INIT] Vector Stores routes registered")
+except Exception as e:
+    print(f"[WARNING] Vector Stores routes non disponibles: {e}")
+
+# Enregistrer les routes Realtime API OpenAI
+try:
+    from routes.realtime import register_realtime_routes
+    register_realtime_routes(app)
+    print("[INIT] Realtime API routes registered")
+except Exception as e:
+    print(f"[WARNING] Realtime API routes non disponibles: {e}")
 
 # Routes pour servir les pages HTML statiques
 @app.route('/dashboard.html')
@@ -766,11 +3598,44 @@ def batch_page():
     if os.path.exists(batch_path):
         return send_file(batch_path)
     return f"Batch page not found at {batch_path}", 404
+
+@app.route('/webhooks.html')
+def webhooks_page():
+    webhooks_path = os.path.join(os.path.dirname(__file__), '..', '..', 'webhooks.html')
+    webhooks_path = os.path.abspath(webhooks_path)
+    if os.path.exists(webhooks_path):
+        return send_file(webhooks_path)
+    return f"Webhooks page not found at {webhooks_path}", 404
+
+@app.route('/batch-api.html')
+def batch_api_page():
+    batch_path = os.path.join(os.path.dirname(__file__), '..', '..', 'batch-api.html')
+    batch_path = os.path.abspath(batch_path)
+    if os.path.exists(batch_path):
+        return send_file(batch_path)
+    return f"Batch API page not found at {batch_path}", 404
+
+@app.route('/vector-stores.html')
+def vector_stores_page():
+    vs_path = os.path.join(os.path.dirname(__file__), '..', '..', 'vector-stores.html')
+    vs_path = os.path.abspath(vs_path)
+    if os.path.exists(vs_path):
+        return send_file(vs_path)
+    return f"Vector Stores page not found at {vs_path}", 404
+
+@app.route('/realtime-api.html')
+def realtime_api_page():
+    rt_path = os.path.join(os.path.dirname(__file__), '..', '..', 'realtime-api.html')
+    rt_path = os.path.abspath(rt_path)
+    if os.path.exists(rt_path):
+        return send_file(rt_path)
+    return f"Realtime API page not found at {rt_path}", 404
+
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_frontend(path):
     """Servir le frontend React depuis Flask"""
-    frontend_dist = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+    frontend_dist = os.path.join(os.path.dirname(__file__), '..', '..', 'frontend-react', 'dist')
     frontend_dist_abs = os.path.abspath(frontend_dist)
     index_path = os.path.join(frontend_dist, 'index.html')
     
@@ -842,7 +3707,7 @@ def login():
         return jsonify({'success': True, 'redirect': '/'})
     
     # GET request - serve React frontend
-    frontend_dist = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+    frontend_dist = os.path.join(os.path.dirname(__file__), '..', '..', 'frontend-react', 'dist')
     index_path = os.path.join(frontend_dist, 'index.html')
     if os.path.exists(index_path):
         return send_from_directory(frontend_dist, 'index.html')
@@ -1029,6 +3894,10 @@ def api_generate_email():
     if not ai_service:
         ai_service = UnifiedAIService()  # Fallback sans OpenAI
     
+    # Assurer la synchronisation avec l'alias unified_ai
+    global unified_ai
+    unified_ai = ai_service
+    
     result = ai_service.generate_email(context, tone, email_type)
     app.logger.info(f"Email généré avec {result.get('source', 'unknown')}")
     return jsonify(result)
@@ -1062,68 +3931,381 @@ def api_improve_text():
     if not ai_service:
         ai_service = UnifiedAIService()  # Fallback sans OpenAI
     
+    # Assurer la synchronisation avec l'alias unified_ai
+    global unified_ai
+    unified_ai = ai_service
+    
     # Améliorer le texte
-    try:
-        if ai_service.api_key:
-            # Utiliser OpenAI si disponible
-            prompt = f"""
-Améliore ce texte pour le rendre plus {tone} et fluide.
-Contexte: {context}
-Langue: {language}
+    result = ai_service.improve_text(text, tone, context)
+    
+    app.logger.info(f"Texte amélioré avec {result.get('source', 'unknown')}")
+    return jsonify({
+        'success': result['success'],
+        'content': result['content'],
+        'text': result['content'],  # Alias pour compatibilité
+        'source': result.get('source', 'unknown'),
+        'original_length': len(text),
+        'improved_length': len(result['content']),
+        'tokens_used': result.get('tokens_used', 0),
+        'request_id': result.get('request_id')
+    })
 
-Ne change pas le sens du message, améliore seulement:
-- La grammaire et l'orthographe
-- La structure et la clarté
-- Le style et le ton
-
-Texte original:
-{text}
-
-Retourne uniquement le texte amélioré, sans commentaires.
-"""
-            
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000,
-                temperature=0.7
-            )
-            
-            improved_text = response.choices[0].message.content.strip()
-            source = 'openai'
-        else:
-            # Fallback: corrections basiques
-            improved_text = text.strip()
-            # Mettre en majuscule la première lettre
-            if improved_text:
-                improved_text = improved_text[0].upper() + improved_text[1:]
-            # Ajouter un point final si manquant
-            if improved_text and not improved_text[-1] in '.!?':
-                improved_text += '.'
-            source = 'basic'
-        
-        app.logger.info(f"Texte amélioré avec {source}")
+# Add new OpenAI-specific endpoints with conversation support
+@app.route('/api/ai/moderate', methods=['POST'])
+@handle_api_errors
+def api_moderate_content():
+    """Moderate content using OpenAI moderation API"""
+    global ai_service
+    
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    text = sanitize_input(data.get('text', ''), 10000)
+    
+    if not text:
+        raise ValidationError('Texte requis')
+    
+    # Initialize AI service if needed
+    if not ai_service:
+        password = get_master_password()
+        if password:
+            creds = crypto.get_credentials(password)
+            if creds and creds.get('openai_key'):
+                ai_service = UnifiedAIService(creds['openai_key'])
+    
+    if not ai_service or not ai_service.client:
         return jsonify({
             'success': True,
-            'content': improved_text,
-            'text': improved_text,  # Alias pour compatibilité
-            'source': source,
-            'original_length': len(text),
-            'improved_length': len(improved_text)
+            'flagged': False,
+            'safe': True,
+            'message': 'Moderation not available - OpenAI key required'
         })
     
-    except Exception as e:
-        app.logger.error(f"Erreur amélioration texte: {e}")
-        # En cas d'erreur, retourner le texte original
+    result = ai_service.moderate_content(text)
+    
+    app.logger.info(f"Content moderation: flagged={result.get('flagged', False)}")
+    return jsonify(result)
+
+@app.route('/api/ai/conversations', methods=['POST'])
+@handle_api_errors
+def api_create_conversation():
+    """Create a new OpenAI conversation"""
+    global ai_service
+    
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    items = data.get('items', [])
+    metadata = data.get('metadata', {})
+    
+    # Add IAPosteManager metadata
+    metadata.update({
+        'created_by': 'iapostemanager',
+        'user_session': session.get('login_time', ''),
+        'version': '3.0'
+    })
+    
+    if not ai_service or not ai_service.client:
+        return jsonify({
+            'success': False,
+            'error': 'OpenAI service not available'
+        }), 400
+    
+    try:
+        response = ai_service.client.conversations.create(
+            items=items,
+            metadata=metadata
+        )
+        
+        app.logger.info(f"Conversation created: {response.id}")
         return jsonify({
             'success': True,
-            'content': text,
-            'text': text,
-            'source': 'fallback',
-            'error': str(e)
+            'conversation': {
+                'id': response.id,
+                'object': response.object,
+                'created_at': response.created_at,
+                'metadata': response.metadata
+            }
         })
+        
+    except Exception as e:
+        app.logger.error(f"Conversation creation failed: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
-@app.route('/api/ai/quick-generate', methods=['POST'])
+@app.route('/api/ai/conversations/<conversation_id>', methods=['GET'])
+@handle_api_errors
+def api_get_conversation(conversation_id):
+    """Get a conversation by ID"""
+    global ai_service
+    
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    if not ai_service or not ai_service.client:
+        return jsonify({
+            'success': False,
+            'error': 'OpenAI service not available'
+        }), 400
+    
+    try:
+        response = ai_service.client.conversations.retrieve(conversation_id)
+        
+        return jsonify({
+            'success': True,
+            'conversation': {
+                'id': response.id,
+                'object': response.object,
+                'created_at': response.created_at,
+                'metadata': response.metadata
+            }
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Conversation retrieval failed: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 404
+
+@app.route('/api/ai/conversations/<conversation_id>/items', methods=['GET', 'POST'])
+@handle_api_errors
+def api_conversation_items(conversation_id):
+    """List or add items to a conversation"""
+    global ai_service
+    
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    if not ai_service or not ai_service.client:
+        return jsonify({
+            'success': False,
+            'error': 'OpenAI service not available'
+        }), 400
+    
+    try:
+        if request.method == 'GET':
+            # List items
+            after = request.args.get('after')
+            limit = min(int(request.args.get('limit', 20)), 100)
+            order = request.args.get('order', 'desc')
+            include = request.args.getlist('include')
+            
+            response = ai_service.client.conversations.items.list(
+                conversation_id=conversation_id,
+                after=after,
+                limit=limit,
+                order=order,
+                include=include
+            )
+            
+            return jsonify({
+                'success': True,
+                'items': {
+                    'object': response.object,
+                    'data': [item.model_dump() for item in response.data],
+                    'first_id': response.first_id,
+                    'last_id': response.last_id,
+                    'has_more': response.has_more
+                }
+            })
+            
+        else:
+            # Add items
+            data = request.get_json()
+            items = data.get('items', [])
+            include = data.get('include', [])
+            
+            if not items:
+                raise ValidationError('Items requis')
+            
+            response = ai_service.client.conversations.items.create(
+                conversation_id=conversation_id,
+                items=items,
+                include=include
+            )
+            
+            app.logger.info(f"Added {len(items)} items to conversation {conversation_id}")
+            return jsonify({
+                'success': True,
+                'items': {
+                    'object': response.object,
+                    'data': [item.model_dump() for item in response.data],
+                    'first_id': response.first_id,
+                    'last_id': response.last_id,
+                    'has_more': response.has_more
+                }
+            })
+            
+    except Exception as e:
+        app.logger.error(f"Conversation items operation failed: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/ai/conversations/<conversation_id>/generate-email', methods=['POST'])
+@handle_api_errors
+def api_generate_email_with_conversation(conversation_id):
+    """Generate email using conversation context"""
+    global ai_service
+    
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    context = sanitize_input(data.get('context', ''), 2000)
+    tone = sanitize_input(data.get('tone', 'professional'), 50)
+    
+    if not context:
+        raise ValidationError('Contexte requis')
+    
+    if not ai_service or not ai_service.client:
+        return jsonify({
+            'success': False,
+            'error': 'OpenAI service not available'
+        }), 400
+    
+    try:
+        # Add user message to conversation
+        user_message = {
+            'type': 'message',
+            'role': 'user',
+            'content': [{
+                'type': 'input_text',
+                'text': f"Génère un email {tone} pour: {context}"
+            }]
+        }
+        
+        ai_service.client.conversations.items.create(
+            conversation_id=conversation_id,
+            items=[user_message]
+        )
+        
+        # Get conversation history for context
+        items_response = ai_service.client.conversations.items.list(
+            conversation_id=conversation_id,
+            limit=10,
+            order='asc'
+        )
+        
+        # Build messages from conversation history
+        messages = []
+        for item in items_response.data:
+            if item.type == 'message' and hasattr(item, 'content'):
+                content = item.content[0].text if item.content else ''
+                if content:
+                    messages.append({
+                        'role': item.role,
+                        'content': content
+                    })
+        
+        # Generate response using conversation context
+        system_prompt = f"Tu es un assistant expert en rédaction d'emails {tone} en français."
+        
+        response = ai_service.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {'role': 'system', 'content': system_prompt},
+                *messages[-5:]  # Last 5 messages for context
+            ],
+            max_tokens=800,
+            temperature=0.7
+        )
+        
+        generated_content = response.choices[0].message.content
+        
+        # Add assistant response to conversation
+        assistant_message = {
+            'type': 'message',
+            'role': 'assistant',
+            'content': [{
+                'type': 'output_text',
+                'text': generated_content
+            }]
+        }
+        
+        ai_service.client.conversations.items.create(
+            conversation_id=conversation_id,
+            items=[assistant_message]
+        )
+        
+        # Parse email content
+        subject, body = ai_service._parse_email_response(generated_content)
+        
+        app.logger.info(f"Email generated with conversation context: {conversation_id}")
+        return jsonify({
+            'success': True,
+            'subject': subject,
+            'body': body,
+            'conversation_id': conversation_id,
+            'source': 'openai_conversation',
+            'tokens_used': response.usage.total_tokens
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Conversation email generation failed: {e}")
+        # Fallback to regular generation
+        return api_generate_email()
+
+@app.route('/api/dashboard/conversation-stats', methods=['GET'])
+@public_api
+def api_conversation_stats():
+    """Get conversation statistics for dashboard"""
+    # Since we can't list all conversations yet, return mock stats
+    # This would be implemented when OpenAI adds conversation listing API
+    
+    stats = {
+        'total_conversations': 0,
+        'active_conversations': 0,
+        'total_messages': 0,
+        'avg_conversation_length': 0,
+        'most_used_tones': ['professional', 'amical'],
+        'conversation_themes': ['email_generation', 'text_improvement'],
+        'note': 'Conversation listing API not yet available from OpenAI'
+    }
+    
+    return jsonify({
+        'success': True,
+        'stats': stats,
+        'timestamp': datetime.now().isoformat()
+    })
+
+@app.route('/api/ai/health', methods=['GET'])
+@public_api
+def api_ai_health():
+    """Check AI service health and capabilities"""
+    global ai_service
+    
+    status = {
+        'ai_service_available': ai_service is not None,
+        'openai_configured': False,
+        'models_available': [],
+        'features': {
+            'text_generation': False,
+            'text_improvement': False,
+            'content_moderation': False
+        }
+    }
+    
+    if ai_service and ai_service.client:
+        status['openai_configured'] = True
+        status['features'] = {
+            'text_generation': True,
+            'text_improvement': True,
+            'content_moderation': True
+        }
+        status['models_available'] = ['gpt-4o-mini', 'text-moderation-latest']
+    
+    return jsonify({
+        'success': True,
+        'status': status,
+        'timestamp': datetime.now().isoformat()
+    })
 @handle_api_errors
 def api_quick_generate():
     """Génération rapide d'email avec template et variables"""
@@ -1249,7 +4431,7 @@ def not_found_error(error):
     if request.path.startswith('/api/'):
         return jsonify({'error': 'API endpoint not found', 'path': request.path}), 404
     # For non-API routes, serve React frontend
-    frontend_dist = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+    frontend_dist = os.path.join(os.path.dirname(__file__), '..', '..', 'frontend-react', 'dist')
     index_path = os.path.join(frontend_dist, 'index.html')
     if os.path.exists(index_path):
         return send_from_directory(frontend_dist, 'index.html')

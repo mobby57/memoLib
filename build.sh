@@ -1,50 +1,34 @@
 #!/bin/bash
-# Script de build pour Render - Frontend + Backend unifié
+# Build script for IAPosteManager v3.6 - Production Ready
+# Includes: Realtime API, Vector Stores, Batch API, Webhooks
 
-set -e  # Arrêter en cas d'erreur
+set -e
 
-echo "🏗️ BUILD RENDER - FRONTEND + BACKEND"
-echo "====================================="
+echo "🏗️  CONSTRUCTION IAPOSTEMANAGER v3.6"
+echo "===================================="
 
-# 1. Installer les dépendances backend
-echo "📦 Installation dépendances backend..."
+# Install Python dependencies
+echo "📦 Installation des dépendances Python..."
 pip install -r requirements.txt
 
-# 2. Vérifier si le frontend est déjà buildé (committé dans le repo)
-if [ -d "src/frontend/dist" ] && [ -f "src/frontend/dist/index.html" ]; then
-    echo "✅ Frontend dist trouvé dans le repo Git"
-    echo "📦 Utilisation du build pré-compilé"
-    ls -la src/frontend/dist/
-else
-    echo "⚠️ Frontend dist non trouvé - tentative de build..."
-    
-    # Builder le frontend React si npm est disponible
-    if command -v npm &> /dev/null; then
-        echo "📦 Build frontend React..."
-        cd src/frontend
-        
-        echo "✅ npm version: $(npm --version)"
-        echo "✅ node version: $(node --version)"
-        
-        # Installer les dépendances
-        echo "📥 Installation dépendances frontend..."
-        npm install || {
-            echo "❌ Erreur lors de npm install"
-            exit 1
-        }
-        
-        # Builder pour production
-        echo "🔨 Build production..."
-        npm run build || {
-            echo "❌ Erreur lors du build frontend"
-            exit 1
-        }
-        
-        cd ../..
-    else
-        echo "❌ npm non disponible et dist absent - le frontend ne fonctionnera pas"
-        exit 1
-    fi
-fi
+# Build React frontend
+echo "⚛️  Construction du frontend React..."
+cd frontend-react
+npm install
+npm run build
+cd ..
 
-echo "✅ Build terminé - Prêt pour déploiement"
+# Copy built frontend to backend static folder
+echo "📁 Copie du frontend vers le backend..."
+mkdir -p src/backend/static
+cp -r frontend-react/dist/* src/backend/static/
+
+# Create necessary directories
+echo "📁 Création des répertoires..."
+mkdir -p src/backend/data
+mkdir -p src/backend/uploads
+mkdir -p src/backend/logs
+mkdir -p src/backend/flask_session
+
+echo "✅ Construction terminée avec succès!"
+echo "🚀 Prêt pour le déploiement"
