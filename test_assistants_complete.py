@@ -10,9 +10,24 @@ import time
 import json
 from datetime import datetime
 
+# Configure UTF-8 encoding for Windows console
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
 # Import API client
 sys.path.insert(0, os.path.dirname(__file__))
-from src.backend.app import app, ai_service
+from src.backend.app import app, UnifiedAIService
+
+# Initialiser ai_service avec la clé OpenAI depuis l'environnement
+openai_key = os.environ.get('OPENAI_API_KEY')
+if not openai_key:
+    print("ERREUR: OPENAI_API_KEY n'est pas definie dans l'environnement")
+    print("   Definissez la variable: $env:OPENAI_API_KEY='sk-...'")
+    sys.exit(1)
+
+ai_service = UnifiedAIService(openai_key)
 
 print("\n" + "="*60)
 print("  TEST COMPLET ASSISTANTS API")
@@ -194,7 +209,7 @@ new_msg = ai_service.create_message(
     thread_id=thread_id,
     role='user',
     content="Le client attend une réponse urgente. Peux-tu me proposer 3 options de réponse?",
-    metadata={'urgent': True}
+    metadata={'urgent': 'true'}
 )
 
 if new_msg['success']:
@@ -216,7 +231,7 @@ run_result = ai_service.create_run(
     assistant_id=assistant_id,
     instructions="Analyse la situation et propose 3 options de réponse adaptées au ton professionnel français.",
     metadata={
-        'test': True,
+        'test': 'true',
         'scenario': 'complaint_handling'
     }
 )
