@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcription Vocale - IAPosteManager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6">🎤 Transcription Vocale</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-center mb-6">
+                <button id="recordBtn" onclick="toggleRecording()" class="bg-red-500 text-white px-8 py-4 rounded-full text-lg hover:bg-red-600">
+                    🎤 Démarrer l'enregistrement
+                </button>
+            </div>
+            
+            <div id="status" class="text-center mb-4 text-gray-600">
+                Cliquez pour commencer l'enregistrement
+            </div>
+            
+            <div id="transcription" class="bg-gray-50 p-4 rounded-lg min-h-32">
+                <div class="text-gray-400">La transcription apparaîtra ici...</div>
+            </div>
+            
+            <div class="mt-4 flex gap-2">
+                <button onclick="clearTranscription()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    Effacer
+                </button>
+                <button onclick="copyTranscription()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Copier
+                </button>
+            </div>
+        </div>
+        
+        <!-- Accessibilité -->
+        <div class="bg-blue-50 rounded-lg p-4 mt-6">
+            <h3 class="font-bold mb-2">♿ Accessibilité</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <label class="flex items-center">
+                    <input type="checkbox" id="ttsEnabled" class="mr-2">
+                    Synthèse vocale (TTS)
+                </label>
+                <label class="flex items-center">
+                    <input type="checkbox" id="visualFeedback" checked class="mr-2">
+                    Retour visuel
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let recognition = null;
+        
+        // Initialiser la reconnaissance vocale si disponible
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'fr-FR';
+            
+            recognition.onresult = function(event) {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                document.getElementById('transcription').innerHTML = transcript || 'La transcription apparaîtra ici...';
+            };
+            
+            recognition.onerror = function(event) {
+                document.getElementById('status').textContent = 'Erreur: ' + event.error;
+            };
+        }
+        
+        function toggleRecording() {
+            const btn = document.getElementById('recordBtn');
+            const status = document.getElementById('status');
+            
+            if (!recognition) {
+                alert('Reconnaissance vocale non supportée par ce navigateur');
+                return;
+            }
+            
+            if (!isRecording) {
+                recognition.start();
+                isRecording = true;
+                btn.textContent = '⏹️ Arrêter l\'enregistrement';
+                btn.className = 'bg-gray-500 text-white px-8 py-4 rounded-full text-lg hover:bg-gray-600';
+                status.textContent = '🎤 Enregistrement en cours... Parlez maintenant';
+            } else {
+                recognition.stop();
+                isRecording = false;
+                btn.textContent = '🎤 Démarrer l\'enregistrement';
+                btn.className = 'bg-red-500 text-white px-8 py-4 rounded-full text-lg hover:bg-red-600';
+                status.textContent = 'Enregistrement arrêté';
+            }
+        }
+        
+        function clearTranscription() {
+            document.getElementById('transcription').innerHTML = '<div class="text-gray-400">La transcription apparaîtra ici...</div>';
+        }
+        
+        function copyTranscription() {
+            const text = document.getElementById('transcription').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Transcription copiée !');
+            });
+        }
+    </script>
+</body>
+</html>

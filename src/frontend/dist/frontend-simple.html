@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📧 Assistant Email - Simple</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function EmailApp() {
+            const [activeTab, setActiveTab] = useState('compose');
+            const [email, setEmail] = useState({ to: '', subject: '', message: '' });
+            const [isLoading, setIsLoading] = useState(false);
+            const [result, setResult] = useState('');
+
+            const sendEmail = async () => {
+                if (!email.to || !email.subject || !email.message) {
+                    alert('Veuillez remplir tous les champs');
+                    return;
+                }
+
+                setIsLoading(true);
+                try {
+                    const response = await fetch('http://localhost:8000/api/mails/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: 1,
+                            to: email.to,
+                            subject: email.subject,
+                            body: email.message
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        setResult('✅ Email envoyé avec succès!');
+                        setEmail({ to: '', subject: '', message: '' });
+                    } else {
+                        setResult('❌ Erreur lors de l\'envoi');
+                    }
+                } catch (error) {
+                    setResult('❌ Problème de connexion');
+                }
+                setIsLoading(false);
+            };
+
+            const generateWithAI = async () => {
+                if (!email.message) {
+                    alert('Décrivez votre demande d\'abord');
+                    return;
+                }
+
+                setIsLoading(true);
+                try {
+                    const response = await fetch('http://localhost:8000/api/ai/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: 1,
+                            prompt: email.message
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (response.ok) {
+                        setEmail(prev => ({
+                            ...prev,
+                            subject: data.subject || prev.subject,
+                            message: data.body || data.message || prev.message
+                        }));
+                        setResult('🤖 Email généré par l\'IA!');
+                    } else {
+                        setResult('❌ Erreur IA');
+                    }
+                } catch (error) {
+                    setResult('❌ Problème IA');
+                }
+                setIsLoading(false);
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+                    <div className="max-w-4xl mx-auto">
+                        {/* Header */}
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl font-bold text-gray-800 mb-2">📧 Assistant Email</h1>
+                            <p className="text-xl text-gray-600">Simple, rapide et intelligent</p>
+                        </div>
+
+                        {/* Navigation */}
+                        <div className="flex justify-center mb-8">
+                            <div className="bg-white rounded-full p-2 shadow-lg">
+                                <button
+                                    onClick={() => setActiveTab('compose')}
+                                    className={`px-6 py-3 rounded-full text-lg font-medium transition-all ${
+                                        activeTab === 'compose' 
+                                            ? 'bg-blue-500 text-white shadow-md' 
+                                            : 'text-gray-600 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    ✍️ Écrire
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('help')}
+                                    className={`px-6 py-3 rounded-full text-lg font-medium transition-all ${
+                                        activeTab === 'help' 
+                                            ? 'bg-blue-500 text-white shadow-md' 
+                                            : 'text-gray-600 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    ❓ Aide
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Content */}
+                        {activeTab === 'compose' ? (
+                            <div className="bg-white rounded-2xl shadow-xl p-8">
+                                <div className="space-y-6">
+                                    {/* Destinataire */}
+                                    <div>
+                                        <label className="block text-lg font-medium text-gray-700 mb-2">
+                                            📮 À qui voulez-vous écrire ?
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={email.to}
+                                            onChange={(e) => setEmail(prev => ({ ...prev, to: e.target.value }))}
+                                            placeholder="exemple@email.com"
+                                            className="w-full p-4 text-lg border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                                        />
+                                    </div>
+
+                                    {/* Sujet */}
+                                    <div>
+                                        <label className="block text-lg font-medium text-gray-700 mb-2">
+                                            📝 Quel est le sujet ?
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={email.subject}
+                                            onChange={(e) => setEmail(prev => ({ ...prev, subject: e.target.value }))}
+                                            placeholder="Sujet de votre email"
+                                            className="w-full p-4 text-lg border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                                        />
+                                    </div>
+
+                                    {/* Message */}
+                                    <div>
+                                        <label className="block text-lg font-medium text-gray-700 mb-2">
+                                            💬 Votre message
+                                        </label>
+                                        <textarea
+                                            value={email.message}
+                                            onChange={(e) => setEmail(prev => ({ ...prev, message: e.target.value }))}
+                                            placeholder="Écrivez votre message ici... ou décrivez ce que vous voulez dire et l'IA vous aidera!"
+                                            rows={8}
+                                            className="w-full p-4 text-lg border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors resize-none"
+                                        />
+                                    </div>
+
+                                    {/* Boutons */}
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <button
+                                            onClick={generateWithAI}
+                                            disabled={isLoading}
+                                            className="flex-1 bg-purple-500 hover:bg-purple-600 text-white text-lg font-medium py-4 px-6 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {isLoading ? '🤖 Génération...' : '🤖 Aide IA'}
+                                        </button>
+                                        <button
+                                            onClick={sendEmail}
+                                            disabled={isLoading}
+                                            className="flex-1 bg-green-500 hover:bg-green-600 text-white text-lg font-medium py-4 px-6 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {isLoading ? '📤 Envoi...' : '📤 Envoyer'}
+                                        </button>
+                                    </div>
+
+                                    {/* Résultat */}
+                                    {result && (
+                                        <div className="p-4 bg-gray-50 rounded-xl text-center text-lg font-medium">
+                                            {result}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <HelpSection />
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        function HelpSection() {
+            return (
+                <div className="bg-white rounded-2xl shadow-xl p-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                        🤝 Comment utiliser l'Assistant Email
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                            <div className="bg-blue-50 p-4 rounded-xl">
+                                <h3 className="text-lg font-semibold text-blue-800 mb-2">
+                                    📝 Écriture Simple
+                                </h3>
+                                <p className="text-blue-700">
+                                    Remplissez les champs et écrivez votre message normalement. 
+                                    L'interface est simple et claire pour tous les âges.
+                                </p>
+                            </div>
+                            
+                            <div className="bg-purple-50 p-4 rounded-xl">
+                                <h3 className="text-lg font-semibold text-purple-800 mb-2">
+                                    🤖 Aide Intelligente
+                                </h3>
+                                <p className="text-purple-700">
+                                    Décrivez simplement ce que vous voulez dire et cliquez sur "Aide IA". 
+                                    L'assistant rédigera un email professionnel pour vous.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div className="bg-green-50 p-4 rounded-xl">
+                                <h3 className="text-lg font-semibold text-green-800 mb-2">
+                                    📤 Envoi Facile
+                                </h3>
+                                <p className="text-green-700">
+                                    Une fois votre email prêt, cliquez sur "Envoyer". 
+                                    Vous recevrez une confirmation immédiate.
+                                </p>
+                            </div>
+                            
+                            <div className="bg-orange-50 p-4 rounded-xl">
+                                <h3 className="text-lg font-semibold text-orange-800 mb-2">
+                                    🎯 Exemples d'usage
+                                </h3>
+                                <ul className="text-orange-700 space-y-1">
+                                    <li>• "Je veux demander un rendez-vous"</li>
+                                    <li>• "Remercier quelqu'un"</li>
+                                    <li>• "Poser une question"</li>
+                                    <li>• "Faire une réclamation"</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-8 p-6 bg-gray-50 rounded-xl text-center">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                            💡 Astuce
+                        </h3>
+                        <p className="text-gray-600 text-lg">
+                            Plus vous décrivez précisément ce que vous voulez, 
+                            meilleur sera le résultat de l'IA !
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<EmailApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>

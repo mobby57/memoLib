@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique - IAPosteManager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .history-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .search-bar select {
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .email-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .email-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .email-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .email-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .email-to {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .email-date {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .email-subject {
+            font-size: 16px;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .email-preview {
+            color: #718096;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .email-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .pagination button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Historique des Emails</h1>
+            <button class="btn-back" onclick="window.location.href='dashboard.html'">← Retour</button>
+        </div>
+
+        <div class="history-card">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher par destinataire ou sujet...">
+                <select id="statusFilter">
+                    <option value="all">Tous les statuts</option>
+                    <option value="success">Réussis</option>
+                    <option value="failed">Échoués</option>
+                    <option value="pending">En attente</option>
+                </select>
+                <select id="periodFilter">
+                    <option value="all">Toutes les périodes</option>
+                    <option value="today">Aujourd'hui</option>
+                    <option value="week">Cette semaine</option>
+                    <option value="month">Ce mois</option>
+                </select>
+            </div>
+
+            <div id="emailList" class="email-list">
+                <!-- Les emails seront chargés ici -->
+            </div>
+
+            <div class="pagination" id="pagination">
+                <!-- Pagination sera générée ici -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allEmails = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/email-history?limit=100');
+                const data = await response.json();
+                allEmails = data.emails || data || [];
+                filterAndDisplay();
+            } catch (error) {
+                console.error('Erreur chargement historique:', error);
+                displayEmpty();
+            }
+        }
+
+        function filterAndDisplay() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const periodFilter = document.getElementById('periodFilter').value;
+
+            let filtered = allEmails.filter(email => {
+                const matchesSearch = 
+                    email.to?.toLowerCase().includes(searchTerm) ||
+                    email.subject?.toLowerCase().includes(searchTerm);
+
+                const matchesStatus = 
+                    statusFilter === 'all' || 
+                    email.status === statusFilter;
+
+                const matchesPeriod = filterByPeriod(email.timestamp, periodFilter);
+
+                return matchesSearch && matchesStatus && matchesPeriod;
+            });
+
+            displayEmails(filtered);
+        }
+
+        function filterByPeriod(timestamp, period) {
+            if (period === 'all') return true;
+            
+            const emailDate = new Date(timestamp);
+            const now = new Date();
+            const dayMs = 24 * 60 * 60 * 1000;
+
+            switch(period) {
+                case 'today':
+                    return emailDate.toDateString() === now.toDateString();
+                case 'week':
+                    return (now - emailDate) < (7 * dayMs);
+                case 'month':
+                    return (now - emailDate) < (30 * dayMs);
+                default:
+                    return true;
+            }
+        }
+
+        function displayEmails(emails) {
+            const emailList = document.getElementById('emailList');
+
+            if (emails.length === 0) {
+                displayEmpty();
+                return;
+            }
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageEmails = emails.slice(start, end);
+
+            emailList.innerHTML = pageEmails.map(email => `
+                <div class="email-item" onclick="viewEmail('${email.id || ''}')">
+                    <div class="email-header">
+                        <span class="email-to">📧 ${email.to || 'Destinataire inconnu'}</span>
+                        <span class="email-date">${formatDate(email.timestamp)}</span>
+                    </div>
+                    <div class="email-subject">${email.subject || 'Sans sujet'}</div>
+                    <div class="email-preview">${truncate(email.body || '', 100)}</div>
+                    <span class="email-status status-${email.status || 'pending'}">
+                        ${getStatusLabel(email.status || 'pending')}
+                    </span>
+                </div>
+            `).join('');
+
+            displayPagination(emails.length);
+        }
+
+        function displayEmpty() {
+            document.getElementById('emailList').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <h3>Aucun email trouvé</h3>
+                    <p>Commencez par envoyer votre premier email !</p>
+                </div>
+            `;
+            document.getElementById('pagination').innerHTML = '';
+        }
+
+        function displayPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let buttons = [];
+            for (let i = 1; i <= totalPages; i++) {
+                buttons.push(`
+                    <button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+                        ${i}
+                    </button>
+                `);
+            }
+
+            pagination.innerHTML = buttons.join('');
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            filterAndDisplay();
+        }
+
+        function viewEmail(id) {
+            // TODO: Ouvrir modal avec détails complets
+            alert('Détails email ID: ' + id);
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Date inconnue';
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR');
+        }
+
+        function truncate(text, length) {
+            return text.length > length ? text.substring(0, length) + '...' : text;
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                success: '✅ Envoyé',
+                failed: '❌ Échec',
+                pending: '⏳ En attente'
+            };
+            return labels[status] || status;
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', filterAndDisplay);
+        document.getElementById('statusFilter').addEventListener('change', filterAndDisplay);
+        document.getElementById('periodFilter').addEventListener('change', filterAndDisplay);
+
+        // Chargement initial
+        loadHistory();
+
+        // Rafraîchir toutes les 30 secondes
+        setInterval(loadHistory, 30000);
+    </script>
+</body>
+</html>

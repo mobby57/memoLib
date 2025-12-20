@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration SMTP - IAPosteManager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .settings-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-test {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .provider-presets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .preset-btn.active {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .info-box {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Configuration SMTP</h1>
+            <button class="btn-back" onclick="window.location.href='dashboard.html'">← Retour</button>
+        </div>
+
+        <div class="settings-card">
+            <div id="message" class="message"></div>
+
+            <div class="info-box">
+                <strong>📌 Important :</strong> Pour Gmail, utilisez un <strong>mot de passe d'application</strong> (pas votre mot de passe normal).
+                <br>Créez-en un sur : <a href="https://myaccount.google.com/apppasswords" target="_blank">https://myaccount.google.com/apppasswords</a>
+            </div>
+
+            <h3 style="margin-bottom: 15px;">Providers Populaires</h3>
+            <div class="provider-presets">
+                <button class="preset-btn" onclick="setProvider('gmail')">📧 Gmail</button>
+                <button class="preset-btn" onclick="setProvider('outlook')">📨 Outlook</button>
+                <button class="preset-btn" onclick="setProvider('yahoo')">📮 Yahoo</button>
+                <button class="preset-btn" onclick="setProvider('custom')">🔧 Personnalisé</button>
+            </div>
+
+            <form id="smtpForm">
+                <div class="form-group">
+                    <label for="email">Adresse Email *</label>
+                    <input type="email" id="email" required placeholder="votre-email@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de Passe / App Password *</label>
+                    <input type="password" id="password" required placeholder="••••••••••••••••">
+                </div>
+
+                <div class="form-group">
+                    <label for="smtp_server">Serveur SMTP *</label>
+                    <input type="text" id="smtp_server" required placeholder="smtp.gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="smtp_port">Port SMTP *</label>
+                    <input type="number" id="smtp_port" required placeholder="587">
+                </div>
+
+                <div class="form-group">
+                    <label for="display_name">Nom d'Affichage</label>
+                    <input type="text" id="display_name" placeholder="Mon Nom">
+                </div>
+
+                <button type="submit" class="btn-save">💾 Sauvegarder Configuration</button>
+                <button type="button" class="btn-test" onclick="testConnection()">🧪 Tester Connexion</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const providers = {
+            gmail: {
+                smtp_server: 'smtp.gmail.com',
+                smtp_port: 587
+            },
+            outlook: {
+                smtp_server: 'smtp-mail.outlook.com',
+                smtp_port: 587
+            },
+            yahoo: {
+                smtp_server: 'smtp.mail.yahoo.com',
+                smtp_port: 587
+            },
+            custom: {
+                smtp_server: '',
+                smtp_port: 587
+            }
+        };
+
+        function setProvider(provider) {
+            const config = providers[provider];
+            document.getElementById('smtp_server').value = config.smtp_server;
+            document.getElementById('smtp_port').value = config.smtp_port;
+
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        document.getElementById('smtpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const config = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                smtp_server: document.getElementById('smtp_server').value,
+                smtp_port: parseInt(document.getElementById('smtp_port').value),
+                display_name: document.getElementById('display_name').value
+            };
+
+            try {
+                const response = await fetch('/api/config/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                if (response.ok) {
+                    showMessage('✅ Configuration sauvegardée avec succès !', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 2000);
+                } else {
+                    showMessage('❌ Erreur lors de la sauvegarde', 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Erreur: ' + error.message, 'error');
+            }
+        });
+
+        async function testConnection() {
+            const config = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                smtp_server: document.getElementById('smtp_server').value,
+                smtp_port: parseInt(document.getElementById('smtp_port').value)
+            };
+
+            if (!config.email || !config.password) {
+                showMessage('⚠️ Veuillez remplir email et mot de passe', 'error');
+                return;
+            }
+
+            try {
+                showMessage('🧪 Test de connexion en cours...', 'success');
+                const response = await fetch('/api/config/test-smtp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                if (response.ok) {
+                    showMessage('✅ Connexion SMTP réussie !', 'success');
+                } else {
+                    showMessage('❌ Échec de connexion. Vérifiez vos identifiants.', 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Erreur: ' + error.message, 'error');
+            }
+        }
+
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config/settings');
+                const data = await response.json();
+
+                if (data.email) {
+                    document.getElementById('email').value = data.email;
+                    document.getElementById('smtp_server').value = data.smtp_server || '';
+                    document.getElementById('smtp_port').value = data.smtp_port || 587;
+                    document.getElementById('display_name').value = data.display_name || '';
+                }
+            } catch (error) {
+                console.error('Erreur chargement config:', error);
+            }
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+            msg.style.display = 'block';
+        }
+
+        loadConfig();
+    </script>
+</body>
+</html>
