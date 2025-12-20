@@ -18,8 +18,9 @@ gunicorn==21.2.0
 prometheus-client==0.18.0
 Werkzeug==2.3.7
 minio==7.2.0
-SpeechRecognition==3.10.0
-pyttsx3==2.90
+# Audio dependencies (optional - may not work in Docker/headless)
+SpeechRecognition==3.10.0; platform_system != "Linux" or platform_machine != "x86_64"
+pyttsx3==2.90; platform_system != "Linux" or platform_machine != "x86_64"
 # Production dependencies
 psycopg2-binary==2.9.7
 SQLAlchemy==2.0.23

@@ -1,61 +1,39 @@
 #!/bin/bash
-# Quick deployment script for IAPosteManager
+# Production deployment script for Render.com
 
-echo "🚀 IAPosteManager Quick Deploy"
-echo "=============================="
+set -e
 
-# Check if we're on the server
-if [ ! -f "/etc/os-release" ]; then
-    echo "❌ This script should run on the server"
-    exit 1
-fi
+echo "🚀 DEPLOYING IAPOSTEMANAGER v2.2 TO PRODUCTION"
+echo "=============================================="
 
-# Create directory
-sudo mkdir -p /opt/iapostemanager
-sudo chown $USER:$USER /opt/iapostemanager
-cd /opt/iapostemanager
+# Install Python dependencies
+echo "📦 Installing Python dependencies..."
+pip install --no-cache-dir -r requirements.txt
 
-# Clone or update
-if [ ! -d ".git" ]; then
-    echo "📥 Cloning repository..."
-    git clone https://github.com/mobby57/iapm.com.git .
-else
-    echo "🔄 Updating code..."
-    git pull origin main
-fi
+# Build React frontend
+echo "⚛️ Building React frontend..."
+cd frontend-react
+npm ci --only=production
+npm run build
+cd ..
 
-# Install Docker if needed
-if ! command -v docker &> /dev/null; then
-    echo "🐳 Installing Docker..."
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
-    sudo usermod -aG docker $USER
-    sudo systemctl start docker
-    sudo systemctl enable docker
-fi
+# Copy built frontend to backend
+echo "📁 Setting up frontend files..."
+mkdir -p src/backend/static
+cp -r frontend-react/dist/* src/backend/static/ 2>/dev/null || true
 
-# Install docker-compose if needed
-if ! command -v docker-compose &> /dev/null; then
-    echo "📦 Installing docker-compose..."
-    sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-fi
+# Create necessary directories
+echo "📁 Creating directories..."
+mkdir -p src/backend/data
+mkdir -p src/backend/uploads  
+mkdir -p src/backend/logs
+mkdir -p src/backend/flask_session
 
-# Deploy
-echo "🚀 Deploying application..."
-sudo docker-compose -f docker-compose.prod.yml down || true
-sudo docker-compose -f docker-compose.prod.yml up -d --build
+# Set permissions
+echo "🔒 Setting permissions..."
+chmod -R 755 src/backend/data
+chmod -R 755 src/backend/uploads
+chmod -R 755 src/backend/logs
 
-# Wait and check
-echo "⏳ Waiting for application to start..."
-sleep 20
-
-# Health check
-echo "✅ Health check..."
-if curl -f http://localhost:5000/api/health; then
-    echo "🎉 Deployment successful!"
-    echo "🌐 Application available at: http://$(curl -s ifconfig.me):5000"
-else
-    echo "❌ Health check failed"
-    sudo docker-compose -f docker-compose.prod.yml logs
-fi
+echo "✅ Deployment preparation complete!"
+echo "🌐 Ready for production server startup"
