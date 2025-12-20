@@ -166,12 +166,37 @@ Dans le dashboard Render :
 
 ---
 
+## 🤖 Bonus : Gestion IA avec MCP
+
+**Pilotez votre infrastructure Render avec l'IA !**
+
+### Setup MCP (2 minutes)
+```bash
+# Linux/Mac
+bash setup_mcp.sh
+
+# Windows
+.\setup_mcp.ps1
+```
+
+### Commandes IA Disponibles
+- `"Deploy IAPosteManager to Render"`
+- `"Show me service logs and metrics"`
+- `"Check why my service is slow"`
+- `"Create a PostgreSQL database"`
+- `"Scale my service if needed"`
+
+📚 **Guide complet :** `RENDER_MCP_SETUP.md`
+
+---
+
 ## 🔗 Liens Utiles
 
 - **Dashboard Render :** https://dashboard.render.com
 - **Documentation :** https://render.com/docs
 - **GitHub Repo :** https://github.com/mobby57/iapm.com
 - **Support Render :** https://render.com/docs/support
+- **MCP Render :** https://mcp.render.com
 
 ---
 
@@ -185,6 +210,11 @@ Avant de déployer :
 - [x] Tests GitHub Actions passent ✅
 
 **👉 Vous êtes prêt ! Allez sur Render.com et créez votre Web Service.**
+
+**🤖 Bonus :** Configurez MCP pour gérer votre infrastructure avec l'IA :
+```bash
+bash setup_mcp.sh  # Puis tapez "Deploy IAPosteManager to Render"
+```
 
 ---
 
