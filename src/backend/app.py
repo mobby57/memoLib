@@ -3182,7 +3182,7 @@ Retourne uniquement le texte amélioré, sans commentaires.
             if metadata:
                 params['metadata'] = metadata
             
-            vector_store = self.client.beta.vector_stores.create(**params)
+            vector_store = self.client.vector_stores.create(**params)
             
             return {
                 'success': True,
@@ -3243,7 +3243,7 @@ Retourne uniquement le texte amélioré, sans commentaires.
             if before:
                 params['before'] = before
             
-            response = self.client.beta.vector_stores.list(**params)
+            response = self.client.vector_stores.list(**params)
             
             stores = [
                 {
@@ -3301,7 +3301,7 @@ Retourne uniquement le texte amélioré, sans commentaires.
             }
         
         try:
-            vector_store = self.client.beta.vector_stores.retrieve(vector_store_id)
+            vector_store = self.client.vector_stores.retrieve(vector_store_id)
             
             return {
                 'success': True,
@@ -3362,7 +3362,7 @@ Retourne uniquement le texte amélioré, sans commentaires.
             if metadata is not None:
                 params['metadata'] = metadata
             
-            vector_store = self.client.beta.vector_stores.update(
+            vector_store = self.client.vector_stores.update(
                 vector_store_id=vector_store_id,
                 **params
             )

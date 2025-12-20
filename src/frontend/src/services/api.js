@@ -1,3 +1,8 @@
+// Import des utilitaires de validation
+import { validateEmailData, validatePrompt, sanitizeString } from '../utils/validation.js';
+import { withErrorHandling } from '../utils/errorHandler.js';
+import CONFIG from '../config/index.js';
+
 // Services API pour communiquer avec le backend unifié
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
@@ -148,30 +153,57 @@ const openaiRequest = async (endpoint, options = {}) => {
   return apiRequest(url, fetchOptions);
 };
 
-// Service Email avec optimisations
+// Service Email avec validation et sécurité améliorées
 export const emailAPI = {
   send: async (emailData) => {
+    // Validation des données
+    const validation = validateEmailData(emailData);
+    if (!validation.isValid) {
+      throw new Error(`Données invalides: ${validation.errors.join(', ')}`);
+    }
+    
     return apiRequest(`${API_BASE}/send-email`, {
       method: 'POST',
-      body: JSON.stringify(emailData)
+      body: JSON.stringify(validation.sanitized)
     });
   },
   
   getHistory: async (limit = 50) => {
+    if (limit > 1000) limit = 1000; // Limite de sécurité
     return apiRequest(`${API_BASE}/email-history?limit=${limit}`);
   },
   
-  // Envoi en lot pour de meilleures performances
   sendBatch: async (emails) => {
+    if (!Array.isArray(emails) || emails.length === 0) {
+      throw new Error('Liste d\'emails invalide');
+    }
+    
+    if (emails.length > 100) {
+      throw new Error('Trop d\'emails (max 100 par lot)');
+    }
+    
+    // Validation de chaque email
+    const validatedEmails = emails.map(email => {
+      const validation = validateEmailData(email);
+      if (!validation.isValid) {
+        throw new Error(`Email invalide: ${validation.errors.join(', ')}`);
+      }
+      return validation.sanitized;
+    });
+    
     return apiRequest(`${API_BASE}/email/send-batch`, {
       method: 'POST',
-      body: JSON.stringify({ emails })
+      body: JSON.stringify({ emails: validatedEmails })
     });
   },
   
-  // Alias pour generateContent (utilise aiAPI en interne)
   generateContent: async (prompt, options = {}) => {
-    return aiAPI.generateContent(prompt, options);
+    const validation = validatePrompt(prompt);
+    if (!validation.isValid) {
+      throw new Error(validation.error);
+    }
+    
+    return aiAPI.generateContent(validation.sanitized, options);
   }
 };
 
@@ -2022,6 +2054,9 @@ export const emailEvalsAPI = {
       return { evalId: eval_.id, interval };
     }
     
+    return { evalId: eval_.id };
+  }
+};
 // Service Uploads pour fichiers volumineux
 export const uploadsAPI = {
   createUpload: async (filename, bytes, mimeType, purpose = 'assistants', expiresAfter = null) => {
@@ -2186,19 +2221,69 @@ export const gradersAPI = {
         role: 'user',
         content: [{
           type: 'input_text',
-          text: 'Rate email tone as "professional" or "casual": {{sample.output_text}}'
+          text: 'Rate grammar quality (0-1): {{sample.output_text}}'
         }]
-      }],
-      ['professional', 'casual'],
-      ['professional']
+      }]
     ),
     
-    grammarCheck: () => gradersAPI.types.scoreModel(
-      'Grammar Check',
-      [{
-        role: 'user',
-        content: [{
-          type: 'input_text',
+    lengthCheck: () => gradersAPI.types.stringCheck(
+      'Length Check',
+      '{{sample.output_text | length}}',
+      '500',
+      'lte'
+    )
+  }
+};
+
+export default {
+  auth,
+  email,
+  ai,
+  accessibility,
+  dashboard,
+  templates,
+  contacts,
+  voice,
+  health,
+  assistantsAPI,
+  threadsAPI,
+  messagesAPI,
+  runsAPI,
+  runStepsAPI,
+  vectorStoresAPI,
+  vectorStoreFilesAPI,
+  filesAPI,
+  chatCompletionsAPI,
+  embeddingsAPI,
+  moderationAPI,
+  batchAPI,
+  evalsAPI,
+  emailEvalsAPI,
+  uploadsAPI,
+  gradersAPI
+};ty,
+  dashboard,
+  templates,
+  contacts,
+  voice,
+  health,
+  assistantsAPI,
+  threadsAPI,
+  messagesAPI,
+  runsAPI,
+  runStepsAPI,
+  vectorStoresAPI,
+  vectorStoreFilesAPI,
+  filesAPI,
+  chatCompletionsAPI,
+  embeddingsAPI,
+  moderationAPI,
+  batchAPI,
+  evalsAPI,
+  emailEvalsAPI,
+  uploadsAPI,
+  gradersAPI
+};      type: 'input_text',
           text: 'Rate grammar 0-1: {{sample.output_text}}'
         }]
       }]
