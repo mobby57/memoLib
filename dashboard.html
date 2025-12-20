@@ -47,10 +47,33 @@
     </div>
 
     <script>
+        // API Service simplifié
+        const API_BASE = '/api';
+        
+        const apiRequest = async (url, options = {}) => {
+            try {
+                const response = await fetch(url, {
+                    method: options.method || 'GET',
+                    headers: { 'Content-Type': 'application/json', ...options.headers },
+                    body: options.body
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        };
+        
+        const api = {
+            dashboard: {
+                getStats: () => apiRequest(`${API_BASE}/dashboard/stats`)
+            }
+        };
+        
         async function loadStats() {
             try {
-                const response = await fetch('/api/dashboard/stats');
-                const data = await response.json();
+                const data = await api.dashboard.getStats();
                 
                 document.getElementById('totalEmails').textContent = data.total_emails || 0;
                 document.getElementById('todayEmails').textContent = data.today_emails || 0;

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche Sémantique - IAPosteManager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .similarity-bar {
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .result-card {
+            transition: all 0.2s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                🔍 Recherche Sémantique Intelligente
+            </h1>
+            <p class="text-gray-600">
+                Utilisez l'IA pour rechercher des emails similaires par le sens, pas seulement par mots-clés
+            </p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Input Panel -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">
+                    💬 Votre Requête
+                </h2>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Décrivez ce que vous cherchez
+                    </label>
+                    <textarea 
+                        id="searchQuery"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows="4"
+                        placeholder="Ex: problème de livraison de colis urgent"
+                    ></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Modèle d'embedding
+                    </label>
+                    <select 
+                        id="modelSelect"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="text-embedding-ada-002">text-embedding-ada-002 (1536 dim)</option>
+                        <option value="text-embedding-3-small">text-embedding-3-small (1536 dim)</option>
+                        <option value="text-embedding-3-large">text-embedding-3-large (3072 dim)</option>
+                    </select>
+                </div>
+
+                <button 
+                    onclick="searchSemantic()"
+                    class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
+                >
+                    🔍 Rechercher
+                </button>
+
+                <div id="searchStatus" class="mt-4 text-sm text-gray-600"></div>
+            </div>
+
+            <!-- Embedding Info Panel -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">
+                    📊 Vecteur d'Embedding
+                </h2>
+                
+                <div id="embeddingInfo" class="text-sm text-gray-600">
+                    <p class="mb-2">Les embeddings sont des représentations vectorielles du texte qui capturent le sens sémantique.</p>
+                    <p class="text-xs bg-blue-50 p-3 rounded-lg mt-3">
+                        💡 <strong>Astuce:</strong> Deux textes similaires auront des vecteurs proches dans l'espace vectoriel, même s'ils utilisent des mots différents.
+                    </p>
+                </div>
+
+                <div id="embeddingVector" class="mt-4 hidden">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium text-gray-700">Dimensions:</span>
+                            <span id="dimensions" class="text-blue-600 font-bold"></span>
+                        </div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-medium text-gray-700">Tokens utilisés:</span>
+                            <span id="tokensUsed" class="text-green-600 font-bold"></span>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-xs text-gray-500 mb-1">Aperçu (10 premières valeurs):</div>
+                            <div id="vectorPreview" class="text-xs font-mono bg-white p-2 rounded overflow-x-auto"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Emails Database (simulation) -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                📧 Base d'Emails (Simulation)
+            </h2>
+            <div id="emailDatabase" class="space-y-2">
+                <!-- Will be populated with sample emails -->
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        <div id="resultsSection" class="mt-6 hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">
+                    🎯 Résultats par Similarité
+                </h2>
+                <div id="searchResults" class="space-y-3">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample email database for demonstration
+        const sampleEmails = [
+            { id: 1, subject: "Suivi de colis urgent", body: "Mon colis n'est toujours pas arrivé et c'est urgent", sender: "client1@example.com" },
+            { id: 2, subject: "Question sur délais", body: "Combien de temps pour la livraison en France ?", sender: "client2@example.com" },
+            { id: 3, subject: "Remboursement colis endommagé", body: "J'ai reçu un colis abîmé, comment obtenir un remboursement ?", sender: "client3@example.com" },
+            { id: 4, subject: "Modification adresse", body: "Je souhaite changer l'adresse de livraison de ma commande", sender: "client4@example.com" },
+            { id: 5, subject: "Mot de passe oublié", body: "Comment réinitialiser mon mot de passe ?", sender: "client5@example.com" },
+            { id: 6, subject: "Problème paiement", body: "Ma carte bancaire a été refusée lors du paiement", sender: "client6@example.com" },
+            { id: 7, subject: "Où est mon colis", body: "Je n'arrive pas à localiser mon colis avec le numéro de suivi", sender: "client7@example.com" },
+            { id: 8, subject: "Service client", body: "Comment contacter le service client par téléphone ?", sender: "client8@example.com" }
+        ];
+
+        // Store embeddings for emails (will be calculated on first search)
+        let emailEmbeddings = [];
+
+        // Display sample emails
+        function displayEmails() {
+            const container = document.getElementById('emailDatabase');
+            container.innerHTML = sampleEmails.map(email => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">${email.subject}</div>
+                        <div class="text-sm text-gray-600 truncate">${email.body}</div>
+                    </div>
+                    <div class="text-xs text-gray-500 ml-4">${email.sender}</div>
+                </div>
+            `).join('');
+        }
+
+        // Create embedding for text
+        async function createEmbedding(text, model = 'text-embedding-ada-002') {
+            try {
+                const response = await fetch('/api/ai/embeddings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer dummy-token' // À remplacer par vrai token
+                    },
+                    body: JSON.stringify({ text, model })
+                });
+
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error creating embedding:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Calculate similarity between embeddings
+        async function calculateSimilarity(embedding1, embedding2) {
+            try {
+                const response = await fetch('/api/ai/similarity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer dummy-token'
+                    },
+                    body: JSON.stringify({ embedding1, embedding2 })
+                });
+
+                const result = await response.json();
+                return result.similarity;
+            } catch (error) {
+                console.error('Error calculating similarity:', error);
+                return 0;
+            }
+        }
+
+        // Main search function
+        async function searchSemantic() {
+            const query = document.getElementById('searchQuery').value.trim();
+            const model = document.getElementById('modelSelect').value;
+            const statusDiv = document.getElementById('searchStatus');
+
+            if (!query) {
+                statusDiv.innerHTML = '<span class="text-red-600">⚠ Veuillez entrer une requête</span>';
+                return;
+            }
+
+            statusDiv.innerHTML = '<span class="text-blue-600">⏳ Création de l\'embedding...</span>';
+
+            // Create embedding for search query
+            const queryResult = await createEmbedding(query, model);
+
+            if (!queryResult.success) {
+                statusDiv.innerHTML = `<span class="text-red-600">❌ Erreur: ${queryResult.error}</span>`;
+                return;
+            }
+
+            // Display embedding info
+            document.getElementById('embeddingVector').classList.remove('hidden');
+            document.getElementById('dimensions').textContent = queryResult.dimensions;
+            document.getElementById('tokensUsed').textContent = queryResult.tokens_used;
+            document.getElementById('vectorPreview').textContent = 
+                queryResult.embedding.slice(0, 10).map(v => v.toFixed(4)).join(', ') + '...';
+
+            statusDiv.innerHTML = '<span class="text-blue-600">⏳ Calcul des similarités...</span>';
+
+            // Create embeddings for sample emails if not already done
+            if (emailEmbeddings.length === 0) {
+                for (const email of sampleEmails) {
+                    const emailText = `${email.subject} ${email.body}`;
+                    const embResult = await createEmbedding(emailText, model);
+                    if (embResult.success) {
+                        emailEmbeddings.push({
+                            ...email,
+                            embedding: embResult.embedding
+                        });
+                    }
+                }
+            }
+
+            // Calculate similarities
+            const results = [];
+            for (const email of emailEmbeddings) {
+                const similarity = await calculateSimilarity(queryResult.embedding, email.embedding);
+                results.push({ ...email, similarity });
+            }
+
+            // Sort by similarity (highest first)
+            results.sort((a, b) => b.similarity - a.similarity);
+
+            // Display results
+            displayResults(results);
+            statusDiv.innerHTML = '<span class="text-green-600">✅ Recherche terminée!</span>';
+        }
+
+        // Display search results
+        function displayResults(results) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContainer = document.getElementById('searchResults');
+
+            resultsSection.classList.remove('hidden');
+
+            resultsContainer.innerHTML = results.map((result, index) => {
+                const percentage = (result.similarity * 100).toFixed(1);
+                const color = result.similarity > 0.8 ? 'bg-green-500' : 
+                             result.similarity > 0.6 ? 'bg-blue-500' : 
+                             result.similarity > 0.4 ? 'bg-yellow-500' : 'bg-gray-400';
+
+                return `
+                    <div class="result-card bg-gray-50 rounded-lg p-4 border-l-4 ${
+                        result.similarity > 0.8 ? 'border-green-500' :
+                        result.similarity > 0.6 ? 'border-blue-500' :
+                        result.similarity > 0.4 ? 'border-yellow-500' : 'border-gray-400'
+                    }">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1">
+                                <div class="font-semibold text-gray-800">${index + 1}. ${result.subject}</div>
+                                <div class="text-sm text-gray-600 mt-1">${result.body}</div>
+                                <div class="text-xs text-gray-500 mt-2">De: ${result.sender}</div>
+                            </div>
+                            <div class="ml-4 text-right">
+                                <div class="text-2xl font-bold ${
+                                    result.similarity > 0.8 ? 'text-green-600' :
+                                    result.similarity > 0.6 ? 'text-blue-600' :
+                                    result.similarity > 0.4 ? 'text-yellow-600' : 'text-gray-600'
+                                }">${percentage}%</div>
+                                <div class="text-xs text-gray-500">similarité</div>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full mt-3">
+                            <div class="similarity-bar ${color}" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize on page load
+        displayEmails();
+    </script>
+</body>
+</html>
