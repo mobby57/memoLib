@@ -41,7 +41,14 @@ import re
 
 load_dotenv()
 
-app = Flask(__name__, template_folder='templates', static_folder='static')
+# Configuration pour servir le frontend React
+frontend_dist = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')
+frontend_assets = os.path.join(frontend_dist, 'assets')
+
+app = Flask(__name__, 
+            template_folder='templates',
+            static_folder=frontend_dist,  # Point to React dist folder
+            static_url_path='')  # Serve at root to match React paths
 
 # Configuration sécurisée
 class Config:
@@ -1900,33 +1907,49 @@ if __name__ == '__main__':
     
     setup_logging()
     
-    # Get port from environment for deployment
-    port = int(os.environ.get('PORT', 5000))
+    # Auto-detect available port (5000 often blocked on Windows)
+    import socket
+    def find_free_port(start_port=5000, max_attempts=10):
+        """Find an available port starting from start_port"""
+        for port in range(start_port, start_port + max_attempts):
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.bind(('0.0.0.0', port))
+                sock.close()
+                return port
+            except OSError:
+                continue
+        return start_port + max_attempts  # Fallback
+    
+    # Get port from environment or find available port
+    port = int(os.environ.get('PORT', 0)) or find_free_port()
     host = os.environ.get('HOST', '0.0.0.0')
     
     print("\n" + "="*60)
-    print("IAPosteManager Unified v3.0 - Securise")
+    print("IAPosteManager Unified v3.0 - OPTIMISÉ")
     print("="*60)
-    print(f"URL: http://{host}:{port}")
+    print(f"URL LOCALE: http://localhost:{port}")
+    print(f"URL RÉSEAU: http://{host}:{port}")
+    print(f"Frontend React: http://localhost:{port}")
+    print(f"Interface Simple: http://localhost:{port}/frontend-simple.html")
     print(f"Data: {config.DATA_DIR}")
     print(f"Logs: logs/app.log")
-    print("\nCorrections appliquees:")
-    print("  - Securite sessions renforcee")
-    print("  - Gestion d'erreurs robuste")
-    print("  - Validation des donnees")
-    print("  - Transcription vocale reelle")
-    print("  - Logging structure")
-    print("  - WebSocket securise")
-    print("  - Email provisioning (3 endpoints)")
+    print("\nAméliorations appliquées:")
+    print("  ✅ Détection automatique de port disponible")
+    print("  ✅ Configuration Flask optimisée pour React")
+    print("  ✅ Routage simplifié frontend/API")
+    print("  ✅ Sécurité sessions renforcée")
+    print("  ✅ Gestion d'erreurs robuste")
+    print("  ✅ Email provisioning (3 endpoints)")
     print("="*60 + "\n")
     
-    print("[OK] Endpoints manquants ajoutes")
-    print("[OK] Email provisioning active (SendGrid/AWS SES/Microsoft365/Google)")
+    print("[OK] Endpoints API disponibles")
+    print("[OK] Email provisioning: SendGrid/AWS SES/Microsoft365/Google")
     print("      - POST /api/email/check-availability")
     print("      - POST /api/email/create")
     print("      - GET  /api/email/my-accounts")
     
-    app.logger.info("Demarrage de l'application")
+    app.logger.info(f"Démarrage sur port {port}")
     
     try:
         print(f"\n[*] LANCEMENT SERVEUR sur {host}:{port}...")
