@@ -14,3 +14,19 @@ backups/
 node_modules/ 
 *.pem 
 *.key 
+
+# Fichiers de configuration sensibles
+src/frontend/.env
+src/frontend/.env.local
+*.enc
+*.bin
+credentials.*
+api_keys.*
+test_direct_openai.py
+*_secret*
+*_key*.py
+
+# Données utilisateur
+flask_session/
+uploads/
+temp_*
