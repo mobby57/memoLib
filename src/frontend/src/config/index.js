@@ -4,6 +4,7 @@
 
 export const API_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_URL || '/api',
+  BACKEND_URL: import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:5000',
   OPENAI_BASE_URL: 'https://api.openai.com/v1',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3
@@ -38,9 +39,20 @@ export const OPENAI_CONFIG = {
   }
 };
 
+// Helper function to get full API URL
+export const getApiUrl = (endpoint) => {
+  // If we're in development and the endpoint starts with /api, use relative URL for proxy
+  if (import.meta.env.DEV && endpoint.startsWith('/api')) {
+    return endpoint;
+  }
+  // Otherwise, use the full backend URL
+  return `${API_CONFIG.BACKEND_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+};
+
 export default {
   API: API_CONFIG,
   SECURITY: SECURITY_CONFIG,
   CACHE: CACHE_CONFIG,
-  OPENAI: OPENAI_CONFIG
+  OPENAI: OPENAI_CONFIG,
+  getApiUrl
 };

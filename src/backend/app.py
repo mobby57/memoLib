@@ -3549,6 +3549,14 @@ try:
 except Exception as e:
     print(f"[WARNING] Realtime API routes non disponibles: {e}")
 
+# Enregistrer les routes SMTP multi-utilisateurs
+try:
+    from routes.smtp_routes import smtp_bp
+    app.register_blueprint(smtp_bp)
+    print("[INIT] SMTP multi-user routes registered")
+except Exception as e:
+    print(f"[WARNING] SMTP routes non disponibles: {e}")
+
 # Routes pour servir les pages HTML statiques
 @app.route('/dashboard.html')
 def dashboard_page():
@@ -3901,6 +3909,104 @@ def api_generate_email():
     result = ai_service.generate_email(context, tone, email_type)
     app.logger.info(f"Email généré avec {result.get('source', 'unknown')}")
     return jsonify(result)
+
+@app.route('/api/ia/analyze-document', methods=['POST'])
+@handle_api_errors
+def api_analyze_document():
+    """Analyser un document avec l'IA"""
+    global ai_service
+    
+    # if not session.get('authenticated'):
+    #     raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    text = sanitize_input(data.get('text', ''), 10000)
+    
+    if not text:
+        raise ValidationError('Texte requis')
+    
+    # Initialiser AI service si nécessaire
+    if not ai_service:
+        password = get_master_password()
+        if password:
+            creds = crypto.get_credentials(password)
+            if creds and creds.get('openai_key'):
+                ai_service = UnifiedAIService(creds['openai_key'])
+    
+    if not ai_service:
+        ai_service = UnifiedAIService()  # Fallback sans OpenAI
+    
+    try:
+        # Analyser le document avec l'IA
+        analysis_prompt = """
+Analyse ce document et détermine:
+1. Le niveau d'urgence (low, medium, high)
+2. La date limite si mentionnée
+3. Les actions requises
+4. Le type de document
+
+Réponds en JSON:
+{
+  "urgency": "low|medium|high",
+  "deadline": "date ou null",
+  "requiredActions": ["action1", "action2"],
+  "documentType": "string",
+  "summary": "résumé"
+}
+"""
+        
+        if ai_service.client:
+            response = ai_service.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": analysis_prompt},
+                    {"role": "user", "content": text}
+                ],
+                max_tokens=500,
+                temperature=0.3
+            )
+            
+            content = response.choices[0].message.content.strip()
+            
+            # Nettoyer le JSON si nécessaire
+            if content.startswith('```'):
+                content = content.split('```')[1]
+                if content.startswith('json'):
+                    content = content[4:]
+                content = content.strip()
+            
+            try:
+                analysis = json.loads(content)
+                return jsonify({
+                    'success': True,
+                    'analysis': analysis,
+                    'tokens_used': response.usage.total_tokens
+                })
+            except json.JSONDecodeError:
+                # Fallback si le JSON est invalide
+                pass
+        
+        # Analyse fallback simple
+        urgency = 'high' if any(word in text.lower() for word in ['urgent', 'immédiat', 'dernier', 'mise en demeure']) else 'medium'
+        
+        return jsonify({
+            'success': True,
+            'analysis': {
+                'urgency': urgency,
+                'deadline': None,
+                'requiredActions': ['Répondre au courrier'],
+                'documentType': 'courrier',
+                'summary': 'Document analysé avec méthode de base'
+            },
+            'source': 'fallback'
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur analyse document: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 @app.route('/api/ai/improve-text', methods=['POST'])
 @handle_api_errors
@@ -4758,6 +4864,267 @@ def api_accessibility_shortcuts():
         {'key': 'Ctrl+H', 'description': 'Activer/désactiver haut contraste'},
         {'key': 'Ctrl+T', 'description': 'Activer/désactiver TTS'},
         {'key': 'Ctrl+K', 'description': 'Focus sur la recherche'},
+        {'key': 'Ctrl+G', 'description': 'Générer email'},
+        {'key': 'Ctrl+S', 'description': 'Envoyer email'}
+    ]
+    return jsonify({'shortcuts': shortcuts})
+
+# =============================================================================
+# NOUVEAUX ENDPOINTS: COURRIERS OFFICIELS (AMENDES, IMPÔTS, ETC.)
+# =============================================================================
+
+@app.route('/api/documents/analyze-official', methods=['POST'])
+@handle_api_errors
+def analyze_official_document():
+    """Analyse un document officiel (amende, impôt, facture, etc.)"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    document_text = data.get('document_text', '')
+    file_data = data.get('file_data')  # Base64 si image/PDF
+    
+    if not document_text and not file_data:
+        return jsonify({'success': False, 'error': 'Aucun document fourni'}), 400
+    
+    # Si c'est une image/PDF, on devrait utiliser Vision API ici
+    # Pour l'instant, on suppose que le texte est déjà extrait
+    
+    analyzer_prompt = """Tu es un expert en analyse de documents administratifs français.
+
+Analyse ce document et extrais:
+1. TYPE de document (amende|impots|facture|courrier_officiel|autre)
+2. ÉMETTEUR (organisme)
+3. RÉFÉRENCE (numéro)
+4. MONTANT (si applicable)
+5. DATE LIMITE (si applicable)
+6. OBJET (résumé)
+7. ACTION REQUISE (ce qu'il faut faire)
+8. URGENCE (faible|moyenne|haute|critique)
+9. QUESTIONS à poser pour collecter infos manquantes
+10. CONSEILS
+
+Réponds en JSON strict:
+{
+  "type_document": "string",
+  "emetteur": "string",
+  "reference": "string",
+  "montant": "string ou null",
+  "date_limite": "YYYY-MM-DD ou null",
+  "objet": "string",
+  "action_requise": "string",
+  "urgence": "string",
+  "questions_collecte": [{
+    "id": "string",
+    "question": "string",
+    "type": "text|number|date|choice|yesno",
+    "required": boolean,
+    "aide": "string",
+    "options": ["..."] ou null
+  }],
+  "conseils": ["string"]
+}
+"""
+    
+    try:
+        response = ai_service.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": analyzer_prompt},
+                {"role": "user", "content": f"Analyse ce document:\n\n{document_text}"}
+            ],
+            temperature=0.3,
+            max_tokens=1500
+        )
+        
+        content = response.choices[0].message.content.strip()
+        
+        # Nettoyer markdown si présent
+        if content.startswith('```'):
+            content = content.split('```')[1]
+            if content.startswith('json'):
+                content = content[4:]
+            content = content.strip()
+        
+        analysis = json.loads(content)
+        
+        # Sauvegarder l'analyse dans la session pour réutilisation
+        session['last_document_analysis'] = analysis
+        
+        return jsonify({
+            'success': True,
+            'analysis': analysis,
+            'tokens_used': response.usage.total_tokens
+        })
+        
+    except json.JSONDecodeError as e:
+        app.logger.error(f"JSON decode error: {e}, content: {content}")
+        return jsonify({'success': False, 'error': 'Erreur de format de réponse'}), 500
+    except Exception as e:
+        app.logger.error(f"Erreur analyse document: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/documents/generate-response', methods=['POST'])
+@handle_api_errors
+def generate_official_response():
+    """Génère une réponse officielle basée sur l'analyse et les données collectées"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    analysis = data.get('analysis') or session.get('last_document_analysis')
+    user_responses = data.get('user_responses', {})
+    response_type = data.get('response_type', 'demande')  # demande|contestation|information
+    
+    if not analysis:
+        return jsonify({'success': False, 'error': 'Aucune analyse disponible'}), 400
+    
+    generator_prompt = """Tu es un expert en rédaction de courriers administratifs français.
+
+Rédige un courrier formel adapté au contexte:
+- Ton respectueux et professionnel
+- Structure: coordonnées, objet, corps, formule de politesse
+- Inclure toutes les informations légales nécessaires
+
+Types de réponses:
+- Demande d'échéancier de paiement
+- Contestation d'amende/décision
+- Réponse aux impôts
+- Demande de délai
+- Demande d'information complémentaire
+
+Réponds en JSON strict:
+{
+  "objet": "string",
+  "corps": "string (avec \\n pour paragraphes)",
+  "pieces_jointes": ["string"],
+  "mode_envoi": "recommande|simple|email",
+  "delai_envoi": "YYYY-MM-DD",
+  "conseils_envoi": ["string"]
+}
+"""
+    
+    contexte = f"""
+Document analysé:
+- Type: {analysis.get('type_document')}
+- Émetteur: {analysis.get('emetteur')}
+- Référence: {analysis.get('reference')}
+- Montant: {analysis.get('montant')}
+- Date limite: {analysis.get('date_limite')}
+- Action requise: {analysis.get('action_requise')}
+
+Type de réponse demandée: {response_type}
+
+Informations collectées:
+{json.dumps(user_responses, indent=2, ensure_ascii=False)}
+
+Génère un courrier officiel complet et professionnel.
+"""
+    
+    try:
+        response = ai_service.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": generator_prompt},
+                {"role": "user", "content": contexte}
+            ],
+            temperature=0.4,
+            max_tokens=1500
+        )
+        
+        content = response.choices[0].message.content.strip()
+        
+        # Nettoyer markdown
+        if content.startswith('```'):
+            content = content.split('```')[1]
+            if content.startswith('json'):
+                content = content[4:]
+            content = content.strip()
+        
+        generated = json.loads(content)
+        
+        # Ajouter l'analyse originale pour contexte
+        generated['analysis'] = analysis
+        
+        return jsonify({
+            'success': True,
+            'response': generated,
+            'tokens_used': response.usage.total_tokens
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur génération réponse: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/documents/save-response', methods=['POST'])
+@handle_api_errors
+def save_official_response():
+    """Sauvegarde une réponse officielle générée"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    data = request.get_json()
+    response_data = data.get('response', {})
+    analysis = data.get('analysis', {})
+    
+    # Créer le dossier si nécessaire
+    save_dir = os.path.join(config.DATA_DIR, 'courriers_generes')
+    os.makedirs(save_dir, exist_ok=True)
+    
+    # Générer nom de fichier
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    type_doc = analysis.get('type_document', 'document')
+    filename = f"reponse_{type_doc}_{timestamp}.txt"
+    filepath = os.path.join(save_dir, filename)
+    
+    # Contenu du fichier
+    file_content = f"""{"="*80}
+COURRIER GÉNÉRÉ - {datetime.now().strftime('%d/%m/%Y %H:%M')}
+{"="*80}
+
+OBJET: {response_data.get('objet', '')}
+{"="*80}
+
+{response_data.get('corps', '')}
+
+{"="*80}
+"""
+    
+    if response_data.get('pieces_jointes'):
+        file_content += "\nPIÈCES À JOINDRE:\n"
+        for piece in response_data['pieces_jointes']:
+            file_content += f"• {piece}\n"
+    
+    file_content += f"\nMODE D'ENVOI: {response_data.get('mode_envoi', '')}\n"
+    file_content += f"DÉLAI: {response_data.get('delai_envoi', '')}\n"
+    
+    try:
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(file_content)
+        
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            'filepath': filepath,
+            'message': 'Réponse sauvegardée avec succès'
+        })
+        
+    except Exception as e:
+        app.logger.error(f"Erreur sauvegarde: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/accessibility/shortcuts', methods=['GET'])
+@handle_api_errors
+def api_accessibility_shortcuts_old():
+    """Get keyboard shortcuts information"""
+    if not session.get('authenticated'):
+        raise AuthenticationError("Session expirée")
+    
+    shortcuts = [
+        {'key': 'Ctrl+/', 'description': 'Afficher les raccourcis'},
+        {'key': 'Ctrl+H', 'description': 'Activer/désactiver haut contraste'},
+        {'key': 'Ctrl+T', 'description': 'Activer/désactiver TTS'},
+        {'key': 'Ctrl+K', 'description': 'Focus sur la recherche'},
         {'key': 'Tab', 'description': 'Navigation au clavier'},
         {'key': 'Esc', 'description': 'Fermer les modals'}
     ]
@@ -5379,6 +5746,10 @@ if __name__ == '__main__':
     print("      - POST /api/email/check-availability")
     print("      - POST /api/email/create")
     print("      - GET  /api/email/my-accounts")
+    print("[OK] Courriers officiels: Analyse & génération")
+    print("      - POST /api/documents/analyze-official")
+    print("      - POST /api/documents/generate-response")
+    print("      - POST /api/documents/save-response")
     
     app.logger.info(f"Démarrage sur port {port}")
     

@@ -1,96 +1,108 @@
+import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { 
-  Home, 
-  Send, 
-  Settings, 
-  Clock, 
-  FileText, 
-  Sparkles,
-  Mail,
-  Users,
-  Inbox,
-  Wand2,
-  Mic,
-  Accessibility as AccessibilityIcon,
-  Globe,
-  Building2
-} from 'lucide-react';
+  HomeIcon, 
+  InboxIcon,
+  PencilIcon, 
+  SparklesIcon, 
+  MicrophoneIcon,
+  DocumentTextIcon,
+  ClockIcon,
+  UserGroupIcon,
+  CogIcon,
+  EyeIcon,
+  Bars3Icon,
+  XMarkIcon
+} from '@heroicons/react/24/outline';
 
 const navigation = [
-  { name: 'nav.dashboard', href: '/', icon: Home },
-  { name: 'nav.send', href: '/send', icon: Send },
-  { name: 'nav.inbox', href: '/inbox', icon: Inbox },
-  { name: 'nav.multimodal', href: '/ai-multimodal', icon: Wand2 },
-  { name: 'nav.contacts', href: '/contacts', icon: Users },
-  { name: 'nav.history', href: '/history', icon: Clock },
-  { name: 'nav.templates', href: '/templates', icon: FileText },
-  { name: 'nav.voice', href: '/voice-transcription', icon: Mic },
-  { name: 'nav.accessibility', href: '/accessibility', icon: AccessibilityIcon },
-  { name: 'admin.title', href: '/french-admin', icon: Building2 },
-  { name: 'nav.config', href: '/config', icon: Settings },
+  { name: 'Tableau de bord', href: '/dashboard', icon: HomeIcon },
+  { name: 'Boîte de réception', href: '/inbox', icon: InboxIcon },
+  { name: 'Composer', href: '/compose', icon: PencilIcon },
+  { name: 'Générateur IA', href: '/email-generator', icon: SparklesIcon },
+  { name: 'Assistant vocal', href: '/voice', icon: MicrophoneIcon },
+  { name: 'Modèles', href: '/templates', icon: DocumentTextIcon },
+  { name: 'Historique', href: '/history', icon: ClockIcon },
+  { name: 'Contacts', href: '/contacts', icon: UserGroupIcon },
+  { name: 'Paramètres', href: '/settings', icon: CogIcon },
+  { name: 'Accessibilité', href: '/accessibility', icon: EyeIcon },
 ];
 
-export default function Sidebar() {
-  const { t, i18n } = useTranslation();
+export default function Sidebar({ isOpen, onToggle }) {
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-      {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-200">
-        <Mail className="w-8 h-8 text-primary-600" />
-        <span className="ml-3 text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-          IAPosteManager
-        </span>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-        {navigation.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            end={item.href === '/'}
-            className={({ isActive }) =>
-              `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
-                isActive
-                  ? 'bg-gradient-to-r from-primary-50 to-secondary-50 text-primary-700 shadow-sm'
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <item.icon className={`w-5 h-5 mr-3 ${isActive ? 'text-primary-600' : ''}`} />
-                {t(item.name)}
-              </>
+    <>
+      {/* Mobile backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-gray-600 bg-opacity-75 z-20 lg:hidden"
+          onClick={onToggle}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`
+        fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-48'}
+        lg:translate-x-0 lg:static lg:inset-0
+      `}>
+        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">IA</span>
+              </div>
+            </div>
+            {isOpen && (
+              <div className="ml-3">
+                <h1 className="text-lg font-semibold text-gray-900">IAPosteManager</h1>
+                <p className="text-xs text-gray-500">v2.2 Production</p>
+              </div>
             )}
-          </NavLink>
-        ))}
-      </nav>
-
-      {/* Language Selector */}
-      <div className="px-4 py-3 border-t border-gray-200">
-        <div className="flex items-center justify-between mb-2">
-          <Globe className="w-4 h-4 text-gray-500" />
-          <select
-            value={i18n.language}
-            onChange={(e) => i18n.changeLanguage(e.target.value)}
-            className="text-xs border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          </div>
+          
+          <button
+            onClick={onToggle}
+            className="p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 lg:hidden"
           >
-            <option value="fr">🇫🇷 Français</option>
-            <option value="en">🇬🇧 English</option>
-            <option value="es">🇪🇸 Español</option>
-            <option value="bm">🇲🇱 Bambara</option>
-          </select>
+            {isOpen ? (
+              <XMarkIcon className="h-6 w-6" />
+            ) : (
+              <Bars3Icon className="h-6 w-6" />
+            )}
+          </button>
         </div>
-      </div>
 
-      {/* Version */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="text-xs text-gray-500 text-center">
-          Version 3.3.0
-        </div>
+        <nav className="mt-5 px-2">
+          <div className="space-y-1">
+            {navigation.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={({ isActive }) =>
+                  `group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+                    isActive
+                      ? 'bg-blue-100 text-blue-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`
+                }
+              >
+                <item.icon className="mr-3 h-5 w-5 flex-shrink-0" />
+                {isOpen && item.name}
+              </NavLink>
+            ))}
+          </div>
+        </nav>
+
+        {/* Status indicator */}
+        {isOpen && (
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span className="ml-2 text-xs text-gray-500">API connectée</span>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }
