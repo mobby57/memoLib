@@ -66,17 +66,26 @@ class EmailForwardingService:
             forward_msg['To'] = to_email
             forward_msg['Subject'] = f"[Transféré de {from_email}] {original_msg.get('Subject', 'Sans sujet')}"
             
-            # Corps du message
-            body = f"""
-Email transféré automatiquement depuis: {from_email}
-Date originale: {original_msg.get('Date', 'Inconnue')}
-Expéditeur original: {original_msg.get('From', 'Inconnu')}
+            # Corps du message avec formatage amélioré
+            forward_body = f"""
+📧 EMAIL TRANSFÉRÉ AUTOMATIQUEMENT
 
---- Message original ---
+📤 Transféré depuis: {from_email}
+📅 Date originale: {original_msg.get('Date', 'Inconnue')}
+👤 Expéditeur original: {original_msg.get('From', 'Inconnu')}
+📋 Sujet: {original_msg.get('Subject', 'Sans sujet')}
+
+{'='*50}
+📝 CONTENU DU MESSAGE:
+{'='*50}
+
 {self.get_email_body(original_msg)}
+
+{'='*50}
+🤖 Message généré automatiquement par iaPosteManager
             """
             
-            forward_msg.attach(MIMEText(body, 'plain'))
+            forward_msg.attach(MIMEText(forward_body, 'plain', 'utf-8'))
             
             # Envoyer
             with smtplib.SMTP(self.smtp_config['server'], self.smtp_config['port']) as server:
@@ -95,14 +104,122 @@ Expéditeur original: {original_msg.get('From', 'Inconnu')}
             return False
     
     def get_email_body(self, msg):
-        """Extraire le corps d'un email"""
+        """Extraire le corps d'un email avec formatage lisible"""
+        body = ""
+        html_body = ""
+        
         if msg.is_multipart():
             for part in msg.walk():
-                if part.get_content_type() == "text/plain":
-                    return part.get_payload(decode=True).decode('utf-8', errors='ignore')
+                content_type = part.get_content_type()
+                
+                if content_type == "text/plain":
+                    try:
+                        body = part.get_payload(decode=True).decode('utf-8', errors='ignore')
+                    except:
+                        continue
+                elif content_type == "text/html":
+                    try:
+                        html_body = part.get_payload(decode=True).decode('utf-8', errors='ignore')
+                    except:
+                        continue
         else:
-            return msg.get_payload(decode=True).decode('utf-8', errors='ignore')
-        return ""
+            try:
+                content_type = msg.get_content_type()
+                payload = msg.get_payload(decode=True)
+                
+                if payload:
+                    decoded_content = payload.decode('utf-8', errors='ignore')
+                    if content_type == "text/html":
+                        html_body = decoded_content
+                    else:
+                        body = decoded_content
+                else:
+                    body = str(msg.get_payload())
+            except:
+                body = str(msg.get_payload())
+        
+        # Préférer le texte brut, sinon convertir HTML
+        if body:
+            return self.format_readable_text(body)
+        elif html_body:
+            return self.html_to_text(html_body)
+        else:
+            return "[Contenu non disponible]"
+    
+    def format_readable_text(self, text):
+        """Formate le texte pour une lecture humaine optimale"""
+        if not text:
+            return ""
+        
+        # Normaliser les sauts de ligne
+        text = text.replace('\r\n', '\n').replace('\r', '\n')
+        
+        # Supprimer les espaces en début/fin de lignes
+        lines = [line.rstrip() for line in text.split('\n')]
+        
+        # Gérer les lignes vides (max 2 consécutives)
+        formatted_lines = []
+        empty_count = 0
+        
+        for line in lines:
+            if not line.strip():
+                empty_count += 1
+                if empty_count <= 2:
+                    formatted_lines.append('')
+            else:
+                empty_count = 0
+                formatted_lines.append(line)
+        
+        # Rejoindre et nettoyer
+        result = '\n'.join(formatted_lines).strip()
+        
+        # Ajouter des séparateurs pour les signatures
+        if '-- ' in result or 'Cordialement' in result or 'Bien à vous' in result:
+            result = result.replace('-- ', '\n--- \n')
+        
+        return result
+    
+    def html_to_text(self, html):
+        """Convertit HTML en texte lisible avec structure préservée"""
+        try:
+            import re
+            
+            # Supprimer scripts et styles
+            html = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', html, flags=re.DOTALL | re.IGNORECASE)
+            
+            # Préserver la structure
+            html = re.sub(r'<h[1-6][^>]*>', '\n\n=== ', html, flags=re.IGNORECASE)
+            html = re.sub(r'</h[1-6]>', ' ===\n', html, flags=re.IGNORECASE)
+            
+            # Paragraphes et divs
+            html = re.sub(r'</(p|div)>', '\n\n', html, flags=re.IGNORECASE)
+            html = re.sub(r'<br[^>]*/?>', '\n', html, flags=re.IGNORECASE)
+            
+            # Listes
+            html = re.sub(r'<li[^>]*>', '\n• ', html, flags=re.IGNORECASE)
+            html = re.sub(r'</li>', '', html, flags=re.IGNORECASE)
+            html = re.sub(r'</?[uo]l[^>]*>', '\n', html, flags=re.IGNORECASE)
+            
+            # Liens (préserver l'URL)
+            html = re.sub(r'<a[^>]*href=["\']([^"\'>]+)["\'][^>]*>([^<]+)</a>', r'\2 (\1)', html, flags=re.IGNORECASE)
+            
+            # Supprimer toutes les autres balises
+            html = re.sub(r'<[^>]+>', '', html)
+            
+            # Décoder les entités HTML courantes
+            entities = {
+                '&nbsp;': ' ', '&amp;': '&', '&lt;': '<', '&gt;': '>',
+                '&quot;': '"', '&#39;': "'", '&euro;': '€', '&copy;': '©'
+            }
+            
+            for entity, char in entities.items():
+                html = html.replace(entity, char)
+            
+            return self.format_readable_text(html)
+            
+        except Exception as e:
+            print(f"Erreur conversion HTML: {e}")
+            return html
     
     def send_auto_reply(self, to_email, from_email, auto_reply_text):
         """Envoyer une réponse automatique"""

@@ -1,91 +1,78 @@
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useAuthStore } from './store';
 
-// Pages
-import Login from './pages/Login';
+// Components
+import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
-import SendEmail from './pages/SendEmail';
-import SendEmailWizard from './pages/SendEmailWizard';
-import Configuration from './pages/Configuration';
-import ConfigurationWizard from './pages/ConfigurationWizard';
-import History from './pages/History';
-import HistoryTimeline from './pages/HistoryTimeline';
+import Compose from './pages/Compose';
+import AIGenerator from './pages/AIGenerator';
+import Voice from './pages/Voice';
 import Templates from './pages/Templates';
-import TemplatesPro from './pages/TemplatesPro';
-import AIGenerate from './pages/AIGenerate';
-import AIMultimodal from './pages/AIMultimodal';
-import DocumentAnalysis from './pages/DocumentAnalysis';
+import History from './pages/History';
 import Contacts from './pages/Contacts';
-import Inbox from './pages/Inbox';
-import VoiceTranscription from './pages/VoiceTranscription';
+import Settings from './pages/Settings';
 import Accessibility from './pages/Accessibility';
-import FrenchAdmin from './pages/FrenchAdmin';
-import EmailGenerator from './pages/EmailGenerator';
 
-// Layout
-import Layout from './components/Layout';
-
-function ProtectedRoute({ children }) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
-}
+// Services
+import { apiService } from './services/api';
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Initialisation rapide
+    const init = async () => {
+      try {
+        // Vérifier la santé de l'API
+        await apiService.health?.check?.() || fetch('/api/health');
+        setIsLoading(false);
+      } catch (error) {
+        console.warn('API non disponible:', error);
+        setIsLoading(false);
+      }
+    };
+    
+    init();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement d'IAPosteManager...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Toaster 
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#fff',
-            color: '#363636',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-            borderRadius: '12px',
-            padding: '16px',
-          },
-          success: {
-            iconTheme: {
-              primary: '#10b981',
-              secondary: '#fff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
-            },
-          },
-        }}
-      />
-      
-      <Routes>
-        <Route path="/login" element={<Login />} />
+      <div className="min-h-screen bg-gray-50 flex">
+        <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
         
-        <Route path="/" element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<Dashboard />} />
-          <Route path="send" element={<SendEmailWizard />} />
-          <Route path="config" element={<ConfigurationWizard />} />
-          <Route path="history" element={<HistoryTimeline />} />
-          <Route path="templates" element={<TemplatesPro />} />
-          <Route path="ai-multimodal" element={<AIMultimodal />} />
-          <Route path="ai-generate" element={<AIGenerate />} />
-          <Route path="document-analysis" element={<DocumentAnalysis />} />
-          <Route path="contacts" element={<Contacts />} />
-          <Route path="inbox" element={<Inbox />} />
-          <Route path="voice-transcription" element={<VoiceTranscription />} />
-          <Route path="accessibility" element={<Accessibility />} />
-          <Route path="french-admin" element={<FrenchAdmin />} />
-          <Route path="email-generator" element={<EmailGenerator />} />
-        </Route>
+        <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+          <div className="p-6">
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/compose" element={<Compose />} />
+              <Route path="/ai-generator" element={<AIGenerator />} />
+              <Route path="/voice" element={<Voice />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/accessibility" element={<Accessibility />} />
+            </Routes>
+          </div>
+        </main>
         
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        <Toaster position="top-right" />
+      </div>
     </Router>
   );
 }
