@@ -37,6 +37,17 @@ export default [
         URLSearchParams: 'readonly',
         Blob: 'readonly',
         File: 'readonly',
+        AbortController: 'readonly',
+        TextDecoder: 'readonly',
+        TextEncoder: 'readonly',
+        atob: 'readonly',
+        btoa: 'readonly',
+        Audio: 'readonly',
+        MediaRecorder: 'readonly',
+        CustomEvent: 'readonly',
+        CompressionStream: 'readonly',
+        PerformanceObserver: 'readonly',
+        process: 'readonly',
       },
     },
     rules: {
@@ -48,6 +59,8 @@ export default [
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-constant-condition': 'off',
+      'no-case-declarations': 'off',
     },
     settings: {
       react: {

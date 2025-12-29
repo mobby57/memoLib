@@ -84,3 +84,28 @@ def track_request(func):
 def metrics_endpoint():
     """Endpoint pour exposer les métriques"""
     return metrics.get_metrics(), 200, {'Content-Type': 'text/plain'}
+
+# Middleware FastAPI simple
+class PrometheusMiddleware:
+    """Middleware Prometheus simple pour FastAPI"""
+    def __init__(self, app):
+        self.app = app
+    
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            start_time = time.time()
+            
+            try:
+                await self.app(scope, receive, send)
+                metrics.increment_counter('http_requests_total', 'success')
+            except Exception as e:
+                metrics.increment_counter('http_requests_total', 'error')
+                raise
+            finally:
+                duration = time.time() - start_time
+                metrics.record_histogram('http_request_duration_seconds', duration)
+        else:
+            await self.app(scope, receive, send)
+
+# Collection metrics
+metrics_collector = metrics

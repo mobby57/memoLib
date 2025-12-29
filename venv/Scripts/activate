@@ -35,7 +35,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="c:\Users\moros\Desktop\iaPostemanage\venv"
+VIRTUAL_ENV="C:\Users\moros\Desktop\iaPostemanage\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

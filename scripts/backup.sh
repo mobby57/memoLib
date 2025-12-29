@@ -1,53 +1,43 @@
 #!/bin/bash
-# Script de backup automatique - iaPosteManager
-# À exécuter quotidiennement via cron: 0 2 * * * /path/to/backup.sh
+#
+# Script de sauvegarde automatique PostgreSQL
+# IAPosteManager - Production Backup
+#
 
 set -e
 
-# Configuration
-BACKUP_DIR="/backups/iapostemanager"
-RETENTION_DAYS=7
+BACKUP_DIR="/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_NAME="iaposte_backup_${TIMESTAMP}"
+BACKUP_FILE="$BACKUP_DIR/iapostemanager_$TIMESTAMP.sql.gz"
 
-echo "🔄 Début du backup: $(date)"
+echo "🔄 Démarrage de la sauvegarde..."
+echo "📅 Date: $(date)"
 
-# 1. Créer dossier backup
-mkdir -p ${BACKUP_DIR}/${BACKUP_NAME}
+# Créer le dossier si nécessaire
+mkdir -p "$BACKUP_DIR"
 
-# 2. Backup base de données
-echo "📦 Backup base de données..."
-docker exec iapostemanager-prod sh -c \
-  "sqlite3 /app/data/production.db .dump" > \
-  ${BACKUP_DIR}/${BACKUP_NAME}/database.sql
+# Sauvegarde PostgreSQL
+PGPASSWORD="$POSTGRES_PASSWORD" pg_dump \
+  -h postgres \
+  -U "$POSTGRES_USER" \
+  -d "$POSTGRES_DB" \
+  --format=plain \
+  --no-owner \
+  --no-acl \
+  | gzip > "$BACKUP_FILE"
 
-# 3. Backup fichiers data
-echo "📁 Backup fichiers data..."
-docker cp iapostemanager-prod:/app/data \
-  ${BACKUP_DIR}/${BACKUP_NAME}/data
+echo "✅ Sauvegarde créée: $BACKUP_FILE"
 
-# 4. Backup configuration
-echo "⚙️  Backup configuration..."
-cp .env.production ${BACKUP_DIR}/${BACKUP_NAME}/
-cp docker-compose.prod.yml ${BACKUP_DIR}/${BACKUP_NAME}/
+# Garder seulement les 7 dernières sauvegardes
+find "$BACKUP_DIR" -name "iapostemanager_*.sql.gz" -type f -mtime +7 -delete
 
-# 5. Backup logs (derniers 1000 lignes)
-echo "📋 Backup logs..."
-docker logs iapostemanager-prod --tail 1000 > \
-  ${BACKUP_DIR}/${BACKUP_NAME}/logs.txt
+echo "🗑️  Anciennes sauvegardes supprimées (>7 jours)"
 
-# 6. Créer archive compressée
-echo "🗜️  Compression..."
-cd ${BACKUP_DIR}
-tar -czf ${BACKUP_NAME}.tar.gz ${BACKUP_NAME}/
-rm -rf ${BACKUP_NAME}
+# Afficher la taille
+SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
+echo "💾 Taille: $SIZE"
 
-# 7. Calcul checksum
-echo "🔐 Checksum..."
-sha256sum ${BACKUP_NAME}.tar.gz > ${BACKUP_NAME}.tar.gz.sha256
-
-# 8. Upload vers cloud (optionnel)
-if [ ! -z "$AWS_S3_BUCKET" ]; then
+echo "✅ Sauvegarde terminée!"
     echo "☁️  Upload vers S3..."
     aws s3 cp ${BACKUP_NAME}.tar.gz s3://${AWS_S3_BUCKET}/backups/
     aws s3 cp ${BACKUP_NAME}.tar.gz.sha256 s3://${AWS_S3_BUCKET}/backups/

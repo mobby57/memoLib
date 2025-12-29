@@ -1,55 +1,52 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { compression } from 'vite-plugin-compression2'
 
-export default defineConfig(({ mode }) => ({
-  plugins: [
-    react(),
-    // Gzip compression for production
-    mode === 'production' && compression({
-      algorithm: 'gzip',
-      exclude: [/\.(br)$/, /\.(gz)$/],
-    }),
-  ].filter(Boolean),
-  
-  build: {
-    // Production optimizations
-    outDir: 'dist',
-    sourcemap: mode !== 'production', // Désactiver sourcemaps en prod
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production', // Enlever console.log en prod
-        drop_debugger: true,
-      },
-    },
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Split vendor code
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['framer-motion', 'lucide-react'],
-          'chart-vendor': ['chart.js', 'react-chartjs-2'],
-          'i18n-vendor': ['i18next', 'react-i18next'],
-        },
-      },
-    },
-    chunkSizeWarningLimit: 1000,
-  },
-  
+export default defineConfig({
+  plugins: [react()],
   server: {
-    port: 3001,
+    port: 3003,
+    host: '0.0.0.0',
+    strictPort: true,
+    open: false,
+    cors: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 3003,
+      clientPort: 3003
+    },
+    watch: {
+      usePolling: true,
+      interval: 100
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:8000',
         changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path
       }
     }
   },
-  
-  // Optimizations
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    minify: 'esbuild',
+    chunkSizeWarningLimit: 500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['@heroicons/react', 'lucide-react'],
+          'api-core': ['axios'],
+          'ai-services': ['./src/services/openai'],
+          'voice-services': ['./src/services/audio']
+        }
+      }
+    }
+  },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'axios'],
-  },
-}))
-
+    exclude: ['@heroicons/react/24/solid']
+  }
+})

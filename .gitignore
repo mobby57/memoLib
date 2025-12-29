@@ -1,32 +1,131 @@
-# Python 
-__pycache__/ 
-*.py[cod] 
-venv/ 
-.env 
-*.db 
-*.sqlite 
-data/ 
-logs/ 
-*.log 
-backups/ 
-.vscode/ 
-.idea/ 
-node_modules/ 
-*.pem 
-*.key 
+# ===========================================
+# IAPosteManager - .gitignore Production
+# ===========================================
 
-# Fichiers de configuration sensibles
-src/frontend/.env
-src/frontend/.env.local
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+venv-linux/
+env/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+*.so
+*.egg
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm
+.eslintcache
+.parcel-cache
+.next/
+out/
+dist/
+build/
+.cache/
+
+# Environnement & Secrets
+.env
+.env.local
+.env.*.local
 *.enc
 *.bin
-credentials.*
+*.pem
+*.key
+credentials/
 api_keys.*
-test_direct_openai.py
 *_secret*
 *_key*.py
+security-keys-backup-*.txt
 
-# Données utilisateur
+# Bases de données
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+iapostemanager.db
+
+# Logs
+logs/
+*.log
+*.log.*
+npm-debug.log*
+lerna-debug.log*
+
+# Backups & Archives
+backups/
+archive/
+*.backup
+*.bak
+
+# Fichiers temporaires
+*.tmp
+*.temp
+temp_*
+diagnostic_*
+temp_recording_*
+coverage/
+.coverage
+.nyc_output/
+*.lcov
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Sessions & Uploads
 flask_session/
 uploads/
-temp_*
+data/
+*.csv
+!exemple_*.csv
+
+# Build & Distribution
+dist/
+build/
+*.tar.gz
+*.zip
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+test-results/
+playwright-report/
+*.test.js.snap
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Certificats SSL
+*.crt
+*.csr
+ssl/
+
+# Monitoring
+prometheus_data/
+grafana_data/

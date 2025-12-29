@@ -1,79 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 
-// Components
-import Sidebar from './components/Sidebar';
-import Dashboard from './pages/Dashboard';
-import Compose from './pages/Compose';
-import AIGenerator from './pages/AIGenerator';
-import Voice from './pages/Voice';
+// Import du nouveau design system
+import './styles/workspace-concept.css';
+import './App.css';
+
+// Pages avec le nouveau design
+import ModernDashboard from './pages/ModernDashboard';
+import EmailGenerator from './pages/EmailGenerator';
 import Templates from './pages/Templates';
 import History from './pages/History';
-import Contacts from './pages/Contacts';
+import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
-import Accessibility from './pages/Accessibility';
+import WorkspaceManager from './components/WorkspaceManager';
 
-// Services
-import { apiService } from './services/api';
+// Configuration React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+    },
+  },
+});
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    // Initialisation rapide
-    const init = async () => {
-      try {
-        // Vérifier la santé de l'API
-        await apiService.health?.check?.() || fetch('/api/health');
-        setIsLoading(false);
-      } catch (error) {
-        console.warn('API non disponible:', error);
-        setIsLoading(false);
-      }
-    };
-    
-    init();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement d'IAPosteManager...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-        
-        <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
-          <div className="p-6">
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/compose" element={<Compose />} />
-              <Route path="/ai-generator" element={<AIGenerator />} />
-              <Route path="/voice" element={<Voice />} />
-              <Route path="/templates" element={<Templates />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/contacts" element={<Contacts />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/accessibility" element={<Accessibility />} />
-            </Routes>
-          </div>
-        </main>
-        
-        <Toaster position="top-right" />
-      </div>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <div className="App">
+          <Routes>
+            {/* Dashboard principal avec nouveau design */}
+            <Route path="/" element={<ModernDashboard />} />
+            
+            {/* Pages principales */}
+            <Route path="/generate" element={<EmailGenerator />} />
+            <Route path="/templates" element={<Templates />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/workspace" element={<WorkspaceManager />} />
+            
+            {/* Fallback vers le dashboard */}
+            <Route path="*" element={<ModernDashboard />} />
+          </Routes>
+
+          {/* Notifications toast */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: 'white',
+                color: '#374151',
+                border: '1px solid #e5e7eb',
+                borderRadius: '12px',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                padding: '16px',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: 'white',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#f43f5e',
+                  secondary: 'white',
+                },
+              },
+            }}
+          />
+        </div>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

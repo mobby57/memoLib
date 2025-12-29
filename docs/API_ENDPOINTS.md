@@ -411,11 +411,11 @@ Response: {
 Sauvegarder credentials
 ```json
 Request: {
-  "smtp_host": "smtp.gmail.com",
+  "smtp_host": "<smtp_server>",
   "smtp_port": 587,
-  "smtp_user": "user@gmail.com",
-  "smtp_password": "app_password",
-  "openai_key": "sk-..."
+  "smtp_user": "<email_address>",
+  "smtp_password": "<app_password>",
+  "openai_key": "<openai_api_key>"
 }
 Response: {
   "success": true,
@@ -464,6 +464,458 @@ const response = await fetch('http://localhost:5000/api/send-email', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
+    to: 'destinataire@example.com',
+    subject: 'Test Email',
+    body: 'Contenu du message'
+  })
+});
+
+const result = await response.json();
+console.log(result);
+```
+
+## 🔄 Webhooks
+
+### POST `/api/webhooks/email-status`
+Webhook pour statut d'email (externe)
+```json
+Request: {
+  "email_id": "12345",
+  "status": "delivered",
+  "timestamp": "2025-12-14T10:00:00",
+  "recipient": "user@example.com"
+}
+Response: { "success": true }
+```
+
+### GET `/api/webhooks/list`
+Liste des webhooks configurés
+```json
+Response: {
+  "success": true,
+  "webhooks": [
+    {
+      "id": 1,
+      "url": "https://example.com/webhook",
+      "events": ["email.sent", "email.failed"],
+      "active": true
+    }
+  ]
+}
+```
+
+## 📈 Analytics
+
+### GET `/api/analytics/overview`
+Vue d'ensemble des analytics
+```json
+Response: {
+  "success": true,
+  "data": {
+    "total_emails": 1247,
+    "success_rate": 96.8,
+    "avg_response_time": 145,
+    "top_recipients": [...],
+    "email_trends": {
+      "daily": [12, 15, 8, 22, 18],
+      "weekly": [89, 102, 95, 134]
+    }
+  }
+}
+```
+
+### GET `/api/analytics/performance`
+Métriques de performance
+```json
+Response: {
+  "success": true,
+  "metrics": {
+    "response_time": 145,
+    "throughput": 2847,
+    "error_rate": 0.03,
+    "availability": 99.97,
+    "cache_hit_rate": 94.2,
+    "active_users": 156
+  }
+}
+```
+
+## 🔍 Search & Filtering
+
+### GET `/api/search/emails?q=query&limit=20`
+Recherche dans les emails
+```json
+Response: {
+  "success": true,
+  "results": [
+    {
+      "id": 1,
+      "subject": "Matching subject",
+      "recipient": "user@example.com",
+      "relevance": 0.95
+    }
+  ],
+  "total": 5,
+  "query": "query"
+}
+```
+
+### GET `/api/search/contacts?q=name&category=client`
+Recherche dans les contacts
+```json
+Response: {
+  "success": true,
+  "results": [...],
+  "filters_applied": ["category=client"]
+}
+```
+
+## 🔐 Security
+
+### POST `/api/security/2fa/enable`
+Activer l'authentification 2FA
+```json
+Request: {
+  "phone": "+33123456789"
+}
+Response: {
+  "success": true,
+  "qr_code": "data:image/png;base64,...",
+  "backup_codes": ["123456", "789012"]
+}
+```
+
+### POST `/api/security/audit-log`
+Journal d'audit
+```json
+Response: {
+  "success": true,
+  "logs": [
+    {
+      "timestamp": "2025-12-14T10:00:00",
+      "action": "email.sent",
+      "user": "admin",
+      "ip": "192.168.1.1",
+      "details": {...}
+    }
+  ]
+}
+```
+
+## 🌍 Internationalization
+
+### GET `/api/i18n/languages`
+Langues disponibles
+```json
+Response: {
+  "success": true,
+  "languages": [
+    { "code": "fr", "name": "Français", "flag": "🇫🇷" },
+    { "code": "en", "name": "English", "flag": "🇺🇸" },
+    { "code": "es", "name": "Español", "flag": "🇪🇸" }
+  ]
+}
+```
+
+### GET `/api/i18n/translations/{lang}`
+Traductions pour une langue
+```json
+Response: {
+  "success": true,
+  "translations": {
+    "common.save": "Sauvegarder",
+    "common.cancel": "Annuler",
+    "email.subject": "Sujet"
+  }
+}
+```
+
+## 📱 Mobile API
+
+### GET `/api/mobile/sync`
+Synchronisation mobile
+```json
+Response: {
+  "success": true,
+  "last_sync": "2025-12-14T10:00:00",
+  "updates": {
+    "emails": 5,
+    "contacts": 2,
+    "templates": 1
+  }
+}
+```
+
+### POST `/api/mobile/push-token`
+Enregistrer token push
+```json
+Request: {
+  "token": "firebase_token_here",
+  "platform": "android"
+}
+Response: { "success": true }
+```
+
+## 🔄 Batch Operations
+
+### POST `/api/batch/contacts/import`
+Import en lot de contacts
+```json
+Request: {
+  "contacts": [
+    { "name": "Jean", "email": "jean@example.com" },
+    { "name": "Marie", "email": "marie@example.com" }
+  ]
+}
+Response: {
+  "success": true,
+  "imported": 2,
+  "failed": 0,
+  "errors": []
+}
+```
+
+### POST `/api/batch/emails/schedule`
+Planifier plusieurs emails
+```json
+Request: {
+  "emails": [...],
+  "schedule_time": "2025-12-15T09:00:00"
+}
+Response: {
+  "success": true,
+  "scheduled_count": 10,
+  "job_id": "batch_123"
+}
+```
+
+## 🎯 AI Advanced
+
+### POST `/api/ai/analyze-sentiment`
+Analyse de sentiment
+```json
+Request: {
+  "text": "Je suis très satisfait de votre service"
+}
+Response: {
+  "success": true,
+  "sentiment": "positive",
+  "confidence": 0.95,
+  "emotions": {
+    "joy": 0.8,
+    "satisfaction": 0.9
+  }
+}
+```
+
+### POST `/api/ai/suggest-improvements`
+Suggestions d'amélioration
+```json
+Request: {
+  "text": "Votre email text here",
+  "context": "professional"
+}
+Response: {
+  "success": true,
+  "suggestions": [
+    {
+      "type": "tone",
+      "original": "Salut",
+      "suggested": "Bonjour",
+      "reason": "Plus professionnel"
+    }
+  ]
+}
+```
+
+## 📊 Reporting
+
+### GET `/api/reports/email-performance`
+Rapport de performance emails
+```json
+Response: {
+  "success": true,
+  "report": {
+    "period": "last_30_days",
+    "total_sent": 1247,
+    "delivery_rate": 98.5,
+    "open_rate": 24.3,
+    "click_rate": 3.2,
+    "bounce_rate": 1.5,
+    "top_performing": [...]
+  }
+}
+```
+
+### POST `/api/reports/generate`
+Générer rapport personnalisé
+```json
+Request: {
+  "type": "email_analytics",
+  "date_range": {
+    "start": "2025-12-01",
+    "end": "2025-12-14"
+  },
+  "format": "pdf"
+}
+Response: {
+  "success": true,
+  "report_id": "rpt_123",
+  "download_url": "/api/reports/download/rpt_123"
+}
+```
+
+## 🔧 System Administration
+
+### GET `/api/admin/system-info`
+Informations système
+```json
+Response: {
+  "success": true,
+  "system": {
+    "version": "3.0.0",
+    "uptime": "7d 14h 32m",
+    "memory_usage": 245,
+    "cpu_usage": 23,
+    "disk_usage": 1.2,
+    "active_connections": 156
+  }
+}
+```
+
+### POST `/api/admin/backup`
+Créer sauvegarde
+```json
+Response: {
+  "success": true,
+  "backup_id": "backup_20251214",
+  "size": "2.4MB",
+  "created_at": "2025-12-14T10:00:00"
+}
+```
+
+### GET `/api/admin/logs?level=error&limit=100`
+Logs système
+```json
+Response: {
+  "success": true,
+  "logs": [
+    {
+      "timestamp": "2025-12-14T10:00:00",
+      "level": "error",
+      "message": "SMTP connection failed",
+      "context": {...}
+    }
+  ]
+}
+```
+
+## 🔌 Plugin System
+
+### GET `/api/plugins/available`
+Plugins disponibles
+```json
+Response: {
+  "success": true,
+  "plugins": [
+    {
+      "id": "gmail-integration",
+      "name": "Gmail Integration",
+      "version": "1.0.0",
+      "description": "Intégration Gmail avancée",
+      "installed": false
+    }
+  ]
+}
+```
+
+### POST `/api/plugins/{id}/install`
+Installer plugin
+```json
+Response: {
+  "success": true,
+  "message": "Plugin installé avec succès",
+  "requires_restart": false
+}
+```
+
+## 🎨 Themes & Customization
+
+### GET `/api/themes/available`
+Thèmes disponibles
+```json
+Response: {
+  "success": true,
+  "themes": [
+    {
+      "id": "dark-pro",
+      "name": "Dark Professional",
+      "preview": "data:image/png;base64,...",
+      "active": false
+    }
+  ]
+}
+```
+
+### POST `/api/themes/apply`
+Appliquer thème
+```json
+Request: {
+  "theme_id": "dark-pro",
+  "custom_colors": {
+    "primary": "#6366f1",
+    "secondary": "#8b5cf6"
+  }
+}
+Response: { "success": true }
+```
+
+---
+
+## 📚 Documentation Complète
+
+- **Base URL**: `http://localhost:5000/api`
+- **Authentication**: Bearer token ou session
+- **Rate Limiting**: 1000 req/hour par IP
+- **Pagination**: `?page=1&limit=50`
+- **Sorting**: `?sort=created_at&order=desc`
+- **Filtering**: `?filter[status]=sent&filter[date]=today`
+
+## 🚀 SDK & Libraries
+
+```javascript
+// JavaScript SDK
+import { IAPosteManager } from '@iapostemanager/sdk';
+
+const client = new IAPosteManager({
+  baseUrl: 'http://localhost:5000/api',
+  apiKey: 'your-api-key'
+});
+
+// Envoyer email
+await client.emails.send({
+  to: 'user@example.com',
+  subject: 'Test',
+  body: 'Hello World'
+});
+```
+
+```python
+# Python SDK
+from iapostemanager import Client
+
+client = Client(
+    base_url='http://localhost:5000/api',
+    api_key='your-api-key'
+)
+
+# Envoyer email
+client.emails.send(
+    to='user@example.com',
+    subject='Test',
+    body='Hello World'
+)
+```ify({
     to: 'destinataire@example.com',
     subject: 'Test',
     body: 'Contenu du message'

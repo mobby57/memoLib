@@ -69,18 +69,23 @@ class InboxManager:
                     # Corps du message
                     body = self.extract_body(email_message)
                     
+                    # Créer un aperçu lisible du contenu
+                    preview = self.create_readable_preview(body)
+                    
                     email_data = {
                         'id': message_id or f"email_{email_id.decode()}",
                         'subject': subject or 'Sans sujet',
                         'sender': sender or 'Expéditeur inconnu',
                         'date': date_str,
-                        'body': body[:1000] + '...' if len(body) > 1000 else body,
+                        'body': body,  # Corps complet
+                        'preview': preview,  # Aperçu formaté
                         'has_attachments': self.has_attachments(email_message),
                         'read': False,
                         'replied': False,
                         'tags': [],
                         'notes': '',
-                        'fetched_at': datetime.now().isoformat()
+                        'fetched_at': datetime.now().isoformat(),
+                        'formatted_date': self.format_date_human(date_str)
                     }
                     
                     fetched_emails.append(email_data)
@@ -123,24 +128,49 @@ class InboxManager:
             return str(value)
     
     def extract_body(self, email_message):
-        """Extrait le corps du message"""
+        """Extrait le corps du message avec formatage lisible"""
         body = ""
+        html_body = ""
         
         if email_message.is_multipart():
             for part in email_message.walk():
-                if part.get_content_type() == "text/plain":
+                content_type = part.get_content_type()
+                
+                if content_type == "text/plain":
                     try:
                         body = part.get_payload(decode=True).decode('utf-8', errors='ignore')
-                        break
+                    except:
+                        continue
+                elif content_type == "text/html":
+                    try:
+                        html_body = part.get_payload(decode=True).decode('utf-8', errors='ignore')
                     except:
                         continue
         else:
             try:
-                body = email_message.get_payload(decode=True).decode('utf-8', errors='ignore')
+                content_type = email_message.get_content_type()
+                payload = email_message.get_payload(decode=True)
+                
+                if payload:
+                    decoded_content = payload.decode('utf-8', errors='ignore')
+                    if content_type == "text/html":
+                        html_body = decoded_content
+                    else:
+                        body = decoded_content
+                else:
+                    body = str(email_message.get_payload())
             except:
                 body = str(email_message.get_payload())
         
-        return body.strip()
+        # Préférer le texte brut, sinon convertir HTML en texte lisible
+        if body:
+            formatted_body = self.format_plain_text(body)
+        elif html_body:
+            formatted_body = self.html_to_readable_text(html_body)
+        else:
+            formatted_body = "[Contenu non disponible]"
+        
+        return formatted_body.strip()
     
     def has_attachments(self, email_message):
         """Vérifie si l'email a des pièces jointes"""
@@ -149,6 +179,56 @@ class InboxManager:
                 if part.get_content_disposition() == 'attachment':
                     return True
         return False
+    
+    def create_readable_preview(self, body, max_length=200):
+        """Crée un aperçu lisible du contenu de l'email"""
+        if not body:
+            return "[Aucun contenu]"
+        
+        # Nettoyer le texte
+        preview = body.strip()
+        
+        # Supprimer les lignes vides au début
+        lines = preview.split('\n')
+        non_empty_lines = [line.strip() for line in lines if line.strip()]
+        
+        if not non_empty_lines:
+            return "[Contenu vide]"
+        
+        # Prendre les premières lignes significatives
+        preview_text = ' '.join(non_empty_lines[:3])  # Max 3 lignes
+        
+        # Tronquer si trop long
+        if len(preview_text) > max_length:
+            preview_text = preview_text[:max_length].rsplit(' ', 1)[0] + '...'
+        
+        return preview_text
+    
+    def format_date_human(self, date_str):
+        """Formate la date de manière lisible"""
+        try:
+            from email.utils import parsedate_to_datetime
+            date_obj = parsedate_to_datetime(date_str)
+            
+            now = datetime.now(date_obj.tzinfo)
+            diff = now - date_obj
+            
+            if diff.days == 0:
+                if diff.seconds < 3600:  # Moins d'1 heure
+                    minutes = diff.seconds // 60
+                    return f"Il y a {minutes} minute{'s' if minutes > 1 else ''}"
+                else:  # Moins d'1 jour
+                    hours = diff.seconds // 3600
+                    return f"Il y a {hours} heure{'s' if hours > 1 else ''}"
+            elif diff.days == 1:
+                return "Hier à " + date_obj.strftime("%H:%M")
+            elif diff.days < 7:
+                return date_obj.strftime("%A à %H:%M")
+            else:
+                return date_obj.strftime("%d/%m/%Y à %H:%M")
+                
+        except Exception:
+            return date_str or "Date inconnue"
     
     def get_statistics(self):
         """Retourne les statistiques de la boîte de réception"""
@@ -218,6 +298,68 @@ class InboxManager:
                 email['notes'] = note
                 break
         self.save_cached_emails()
+    
+    def format_plain_text(self, text):
+        """Formate le texte brut pour une meilleure lisibilité"""
+        if not text:
+            return ""
+        
+        # Nettoyer les caractères indésirables
+        text = text.replace('\r\n', '\n').replace('\r', '\n')
+        
+        # Supprimer les lignes vides excessives
+        lines = text.split('\n')
+        cleaned_lines = []
+        empty_count = 0
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                empty_count += 1
+                if empty_count <= 2:  # Garder max 2 lignes vides consécutives
+                    cleaned_lines.append('')
+            else:
+                empty_count = 0
+                cleaned_lines.append(line)
+        
+        return '\n'.join(cleaned_lines)
+    
+    def html_to_readable_text(self, html_content):
+        """Convertit HTML en texte lisible"""
+        try:
+            import re
+            
+            # Supprimer les balises script et style
+            html_content = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
+            
+            # Remplacer les balises de paragraphe par des sauts de ligne
+            html_content = re.sub(r'</(p|div|br)>', '\n', html_content, flags=re.IGNORECASE)
+            html_content = re.sub(r'<br[^>]*>', '\n', html_content, flags=re.IGNORECASE)
+            
+            # Remplacer les listes
+            html_content = re.sub(r'<li[^>]*>', '• ', html_content, flags=re.IGNORECASE)
+            html_content = re.sub(r'</li>', '\n', html_content, flags=re.IGNORECASE)
+            
+            # Remplacer les titres
+            html_content = re.sub(r'<h[1-6][^>]*>', '\n=== ', html_content, flags=re.IGNORECASE)
+            html_content = re.sub(r'</h[1-6]>', ' ===\n', html_content, flags=re.IGNORECASE)
+            
+            # Supprimer toutes les autres balises HTML
+            html_content = re.sub(r'<[^>]+>', '', html_content)
+            
+            # Décoder les entités HTML
+            html_content = html_content.replace('&nbsp;', ' ')
+            html_content = html_content.replace('&amp;', '&')
+            html_content = html_content.replace('&lt;', '<')
+            html_content = html_content.replace('&gt;', '>')
+            html_content = html_content.replace('&quot;', '"')
+            html_content = html_content.replace('&#39;', "'")
+            
+            return self.format_plain_text(html_content)
+            
+        except Exception as e:
+            print(f"Erreur conversion HTML: {e}")
+            return html_content
     
     def get_thread(self, message_id):
         """Récupère tous les emails d'un fil de discussion"""

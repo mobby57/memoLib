@@ -363,6 +363,480 @@ export default function EmailProvisioningPanel() {
         }
         
         @keyframes fadeInOut {
+          0%, 100% { opacity: 0; }
+          50% { opacity: 1; }
+        }
+      `}</style>
+      
+      <div className="panel-header">
+        <h2>📧 Création d'Adresses Email</h2>
+        <p>Créez des adresses email génériques pour votre organisation</p>
+      </div>
+      
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+      
+      {copyMessage && (
+        <div className="copy-message">
+          {copyMessage}
+        </div>
+      )}
+      
+      {createdAccount && (
+        <div className="success-message">
+          <h3>✅ Adresse email créée avec succès!</h3>
+          <div className="credentials">
+            <div className="credential-row">
+              <span className="credential-label">Email:</span>
+              <span className="credential-value" onClick={() => copyToClipboard(createdAccount.email)}>
+                {createdAccount.email}
+              </span>
+            </div>
+            <div className="credential-row">
+              <span className="credential-label">Mot de passe:</span>
+              <span className="credential-value" onClick={() => copyToClipboard(createdAccount.password)}>
+                {createdAccount.password}
+              </span>
+            </div>
+            <div className="credential-row">
+              <span className="credential-label">Serveur IMAP:</span>
+              <span className="credential-value" onClick={() => copyToClipboard(createdAccount.imap_server)}>
+                {createdAccount.imap_server}
+              </span>
+            </div>
+            <div className="credential-row">
+              <span className="credential-label">Serveur SMTP:</span>
+              <span className="credential-value" onClick={() => copyToClipboard(createdAccount.smtp_server)}>
+                {createdAccount.smtp_server}
+              </span>
+            </div>
+          </div>
+          <div className="info-box">
+            <p>⚠️ Sauvegardez ces informations maintenant!</p>
+            <p>Elles ne seront plus affichées après 30 secondes.</p>
+          </div>
+        </div>
+      )}
+      
+      <form onSubmit={handleCreateEmail} className="create-form">
+        <div className="form-group">
+          <label htmlFor="username">Nom d'utilisateur</label>
+          <div className="input-wrapper">
+            <input
+              type="text"
+              id="username"
+              className="form-control"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="contact, support, info..."
+              required
+            />
+            {username && (
+              <div className="email-preview">
+                📧 {username.toLowerCase()}@tonapp.ai
+                {availability !== null && (
+                  <span className={`availability-badge ${availability ? 'available' : 'unavailable'}`}>
+                    {availability ? '✓ Disponible' : '✗ Non disponible'}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="displayName">Nom d'affichage (optionnel)</label>
+          <input
+            type="text"
+            id="displayName"
+            className="form-control"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Support Client, Contact Commercial..."
+          />
+        </div>
+        
+        {suggestions.length > 0 && (
+          <div className="suggestions">
+            <p>Suggestions alternatives:</p>
+            <div className="suggestion-chips">
+              {suggestions.map((suggestion, index) => (
+                <span
+                  key={index}
+                  className="suggestion-chip"
+                  onClick={() => setUsername(suggestion)}
+                >
+                  {suggestion}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <button
+          type="submit"
+          className="btn-create"
+          disabled={loading || !username || !availability}
+        >
+          {loading ? '⏳ Création en cours...' : '🚀 Créer l\'adresse email'}
+        </button>
+      </form>
+      
+      {myAccounts.length > 0 && (
+        <div className="my-accounts">
+          <h3>📬 Mes Adresses Email</h3>
+          {myAccounts.map((account, index) => (
+            <div key={index} className="account-card">
+              <div className="account-email">{account.email}</div>
+              <div className="account-info">
+                Créée le {new Date(account.created_at).toLocaleDateString('fr-FR')}
+                {account.display_name && ` • ${account.display_name}`}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}   color: #0c5460;
+        }
+        
+        .copy-message {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #28a745;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 6px;
+          z-index: 1000;
+          animation: fadeInOut 2s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+          0%, 100% { opacity: 0; }
+          50% { opacity: 1; }
+        }
+      `}</style>
+      
+      <div className="panel-header">
+        <h2>📧 Création d'Adresses Email</h2>
+        <p>Créez des adresses email génériques pour votre organisation</p>
+      </div>
+      
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+      
+      {copyMessage && (
+        <div className="copy-message">
+          {copyMessage}
+        </div>
+      )}
+      
+      {createdAccount && (
+        <div className="success-message">
+          <h3>✅ Adresse email créée avec succès!</h3>
+          <div className="credentials">
+            <div className="credential-row">
+              <span className="credential-label">Email:</span>
+              <span className="credential-value" onClick={() => copyToClipboard(createdAccount.email)}>
+                {createdAccount.email}
+              </span>
+            </div>
+            <div className="credential-row">
+              <span className="credential-label">Mot de passe:</span>
+              <span className="credential-value" onClick={() => copyToClipboard(createdAccount.password)}>
+                {createdAccount.password}
+              </span>
+            </div>
+            <div className="credential-row">
+              <span className="credential-label">Serveur IMAP:</span>
+              <span className="credential-value" onClick={() => copyToClipboard(createdAccount.imap_server)}>
+                {createdAccount.imap_server}
+              </span>
+            </div>
+            <div className="credential-row">
+              <span className="credential-label">Serveur SMTP:</span>
+              <span className="credential-value" onClick={() => copyToClipboard(createdAccount.smtp_server)}>
+                {createdAccount.smtp_server}
+              </span>
+            </div>
+          </div>
+          <div className="info-box">
+            <p>⚠️ Sauvegardez ces informations maintenant!</p>
+            <p>Elles ne seront plus affichées après 30 secondes.</p>
+          </div>
+        </div>
+      )}
+      
+      <form onSubmit={handleCreateEmail} className="create-form">
+        <div className="form-group">
+          <label htmlFor="username">Nom d'utilisateur</label>
+          <div className="input-wrapper">
+            <input
+              type="text"
+              id="username"
+              className="form-control"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="contact, support, info..."
+              required
+            />
+            {username && (
+              <div className="email-preview">
+                📧 {username.toLowerCase()}@votre-domaine.com
+                {availability !== null && (
+                  <span className={`availability-badge ${availability ? 'available' : 'unavailable'}`}>
+                    {availability ? '✓ Disponible' : '✗ Non disponible'}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="displayName">Nom d'affichage (optionnel)</label>
+          <input
+            type="text"
+            id="displayName"
+            className="form-control"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Support Client, Contact Commercial..."
+          />
+        </div>
+        
+        {suggestions.length > 0 && (
+          <div className="suggestions">
+            <p>Suggestions alternatives:</p>
+            <div className="suggestion-chips">
+              {suggestions.map((suggestion, index) => (
+                <span
+                  key={index}
+                  className="suggestion-chip"
+                  onClick={() => setUsername(suggestion)}
+                >
+                  {suggestion}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <button
+          type="submit"
+          className="btn-create"
+          disabled={loading || !username || !availability}
+        >
+          {loading ? '⏳ Création en cours...' : '🚀 Créer l\'adresse email'}
+        </button>
+      </form>
+      
+      {myAccounts.length > 0 && (
+        <div className="my-accounts">
+          <h3>📬 Mes Adresses Email</h3>
+          {myAccounts.map((account, index) => (
+            <div key={index} className="account-card">
+              <div className="account-email">{account.email}</div>
+              <div className="account-info">
+                Créée le {new Date(account.created_at).toLocaleDateString('fr-FR')}
+                {account.display_name && ` • ${account.display_name}`}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}   color: #0c5460;
+        }
+        
+        .copy-message {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #28a745;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 6px;
+          z-index: 1000;
+        }
+      `}</style>
+
+      <div className="panel-header">
+        <h2>📧 Créer une Adresse Email</h2>
+        <p>Créez des adresses email professionnelles pour votre organisation</p>
+      </div>
+
+      {copyMessage && (
+        <div className="copy-message">
+          {copyMessage}
+        </div>
+      )}
+
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+
+      {createdAccount && (
+        <div className="success-message">
+          <h3>✅ Adresse email créée avec succès !</h3>
+          <div className="credentials">
+            <div className="credential-row">
+              <span className="credential-label">Email :</span>
+              <span 
+                className="credential-value" 
+                onClick={() => copyToClipboard(createdAccount.email_address)}
+              >
+                {createdAccount.email_address}
+              </span>
+            </div>
+            <div className="credential-row">
+              <span className="credential-label">Mot de passe :</span>
+              <span 
+                className="credential-value" 
+                onClick={() => copyToClipboard(createdAccount.password)}
+              >
+                {createdAccount.password}
+              </span>
+            </div>
+            <div className="credential-row">
+              <span className="credential-label">Serveur SMTP :</span>
+              <span 
+                className="credential-value" 
+                onClick={() => copyToClipboard(createdAccount.smtp_server)}
+              >
+                {createdAccount.smtp_server}
+              </span>
+            </div>
+            <div className="credential-row">
+              <span className="credential-label">Port SMTP :</span>
+              <span 
+                className="credential-value" 
+                onClick={() => copyToClipboard(createdAccount.smtp_port?.toString())}
+              >
+                {createdAccount.smtp_port}
+              </span>
+            </div>
+          </div>
+          <div className="info-box">
+            <p><strong>⚠️ Important :</strong> Sauvegardez ces informations maintenant !</p>
+            <p>Pour des raisons de sécurité, le mot de passe ne sera plus affiché.</p>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleCreateEmail} className="create-form">
+        <div className="form-group">
+          <label htmlFor="username">Nom d'utilisateur</label>
+          <div className="input-wrapper">
+            <input
+              type="text"
+              id="username"
+              className="form-control"
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase())}
+              placeholder="contact, support, info..."
+              pattern="[a-z0-9._-]+"
+              minLength="3"
+              maxLength="50"
+              required
+            />
+            {username && (
+              <div className="email-preview">
+                📧 {username}@votre-domaine.com
+                {availability !== null && (
+                  <span className={`availability-badge ${availability ? 'available' : 'unavailable'}`}>
+                    {availability ? '✅ Disponible' : '❌ Non disponible'}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="displayName">Nom d'affichage (optionnel)</label>
+          <input
+            type="text"
+            id="displayName"
+            className="form-control"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Support Client, Contact, etc."
+            maxLength="100"
+          />
+        </div>
+
+        {suggestions.length > 0 && (
+          <div className="suggestions">
+            <p>💡 Suggestions disponibles :</p>
+            <div className="suggestion-chips">
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className="suggestion-chip"
+                  onClick={() => setUsername(suggestion)}
+                >
+                  {suggestion}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="btn-create"
+          disabled={loading || !availability}
+        >
+          {loading ? '⏳ Création en cours...' : '🚀 Créer l\'adresse email'}
+        </button>
+      </form>
+
+      {myAccounts.length > 0 && (
+        <div className="my-accounts">
+          <h3>📬 Mes Adresses Email ({myAccounts.length})</h3>
+          {myAccounts.map((account, index) => (
+            <div key={index} className="account-card">
+              <div className="account-email">{account.email_address}</div>
+              <div className="account-info">
+                📅 Créé le {new Date(account.created_at).toLocaleDateString('fr-FR')}
+                {account.display_name && ` • 👤 ${account.display_name}`}
+                • 📊 {account.emails_sent_today || 0} emails envoyés aujourd'hui
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+          color: #0c5460;
+        }
+        
+        .copy-message {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #28a745;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 6px;
+          z-index: 1000;
+          animation: fadeInOut 2s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
           0% { opacity: 0; transform: translateY(-20px); }
           20% { opacity: 1; transform: translateY(0); }
           80% { opacity: 1; transform: translateY(0); }

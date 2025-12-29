@@ -1,89 +1,34 @@
-# 🚀 IAPosteManager v2.2 - Production Ready
+# 🚀 IA Poste Manager v2.3
 
-Application web complète pour automatiser l'envoi d'emails avec génération IA, interface vocale et sécurité avancée.
+**Système d'automatisation d'emails avec IA pour MS CONSEILS**
 
-## ✅ Status: Production Ready
-- **39/39 tests E2E Playwright** ✅
-- **Frontend React + Vite** ✅  
-- **Backend Flask unifié** ✅
-- **Interface d'accessibilité complète** ✅
-- **Chiffrement AES-256** ✅
-- **API REST documentée** ✅
+## Démarrage Rapide
 
-## 🌐 Déploiement Rapide
+1. **Configurer la clé OpenAI:**
+   - Éditer `.env` et ajouter votre clé OpenAI
 
-### Option 1: Démarrage Local Rapide
-```bash
-# Windows
-QUICK_START.bat
+2. **Lancer l'application:**
+   ```
+   start.bat
+   ```
 
-# Linux/Mac
-chmod +x build.sh start.sh deploy.sh
-./build.sh && ./start.sh
-```
+3. **Accéder à l'interface:**
+   - http://localhost:5000
 
-### Option 2: Render (Recommandé)
-```bash
-# 1. Fork ce repo
-# 2. Connecter à render.com
-# 3. Build: ./deploy.sh
-# 4. Start: ./start.sh
-```
+## Fonctionnalités
 
-### Option 3: Docker Production
-```bash
-docker-compose up -d
-```
+- ✅ Génération d'emails avec IA (GPT-3.5)
+- ✅ Gestion de templates
+- ✅ Interface web intégrée
+- ✅ API REST
 
-## 🎯 Fonctionnalités Principales
+## API Endpoints
 
-- 📧 **Envoi emails multi-providers** (Gmail, Outlook, SMTP, SendGrid, AWS SES)
-- 🤖 **Génération IA** (OpenAI GPT-4)
-- 🎤 **Interface vocale** (TTS, reconnaissance vocale)
-- ♿ **Accessibilité complète** (profils Aveugle/Sourd/Muet)
-- 🔐 **Sécurité avancée** (chiffrement AES-256, WAF, rate limiting)
-- 📊 **Analytics & monitoring** (Prometheus, Grafana)
-- 🌐 **API REST complète** (endpoints documentés)
-- 📱 **PWA mobile** (mode offline)
-
-## 🏗️ Architecture
-
-```
-Frontend React (port 3001) ↔ Backend Flask (port 5000)
-├── Services API unifiés
-├── Base SQLite chiffrée  
-├── Tests E2E Playwright (39 tests)
-├── CI/CD GitHub Actions
-├── Monitoring Prometheus/Grafana
-├── SSL/HTTPS automatisé
-└── Backup automatique
-```
-
-## 🚀 Infrastructure Production
-
-- **SSL/HTTPS** automatisé (Let's Encrypt)
-- **Monitoring** Prometheus + Grafana
-- **CI/CD** GitHub Actions pipeline
-- **Backups** automatiques quotidiens
-- **Tests** avancés (API, charge, sécurité)
-- **WAF** et rate limiting
-- **Docker** multi-stage optimisé
-
-## 📱 URLs d'accès
-- **Frontend:** http://localhost:3001
-- **Backend:** http://localhost:5000
-- **API:** http://localhost:5000/api
-- **Monitoring:** http://localhost:3000 (Grafana)
-
-## 📚 Documentation
-
-- [Guide Production Complet](GUIDE_PRODUCTION_COMPLET.md)
-- [Tests E2E](tests/e2e/)
-- [Configuration SSL](ssl/)
-- [Monitoring](monitoring/)
+- `GET /` - Interface web
+- `POST /api/generate` - Génération IA
+- `GET /api/templates` - Liste templates
+- `POST /api/templates` - Créer template
+- `GET /health` - Status santé
 
 ---
-
-**🎉 Ready for production deployment!**
-
-*Développé avec ❤️ pour automatiser vos communications email*
+**MS CONSEILS - Sarra Boudjellal**
