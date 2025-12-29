@@ -5,6 +5,7 @@ Database configuration for IAPosteManager
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from contextlib import asynccontextmanager
 import os
 
 # Database URL
@@ -24,6 +25,20 @@ Base = declarative_base()
 
 def get_db():
     """Get database session"""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@asynccontextmanager
+async def get_db_connection():
+    """
+    Async context manager for database connections
+    Usage:
+        async with get_db_connection() as db:
+            # use db
+    """
     db = SessionLocal()
     try:
         yield db

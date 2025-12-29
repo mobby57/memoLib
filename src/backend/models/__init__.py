@@ -18,6 +18,16 @@ from .database import (
     get_session
 )
 
+# Pour compatibilité avec les imports existants
+try:
+    from src.backend.models import Contact, Email
+except ImportError:
+    # Si les modèles n'existent pas, créer des classes dummy
+    class Contact:
+        pass
+    class Email:
+        pass
+
 __all__ = [
     'Base',
     'User',

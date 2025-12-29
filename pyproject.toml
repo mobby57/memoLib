@@ -1,14 +1,15 @@
-[tool.black]
-line-length = 100
-target-version = ['py311']
-include = '\.pyi?$'
+[project]
+name = "iapostemanage"
+version = "2.3.0"
+description = "IA Poste Manager - Email automation with AI"
+requires-python = ">=3.8"
+dependencies = [
+    "flask>=2.3.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "openai>=1.0.0"
+]
 
-[tool.isort]
-profile = "black"
-line_length = 100
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

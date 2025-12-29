@@ -49,6 +49,7 @@ class Settings(BaseSettings):
         """Configuration Pydantic"""
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignorer les champs extra du .env
 
 
 @lru_cache()
