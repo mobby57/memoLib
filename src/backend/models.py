@@ -1,85 +1,134 @@
 """
-Modèles SQLAlchemy pour Alembic
+SQLAlchemy Models pour IAPosteManager
 """
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
 Base = declarative_base()
 
+
 class User(Base):
-    """Utilisateurs de l'application"""
-    __tablename__ = 'users'
+    """Modèle utilisateur"""
+    __tablename__ = "users"
     
-    id = Column(Integer, primary_key=True)
-    email = Column(String(255), unique=True, nullable=False)
-    username = Column(String(100), unique=True, nullable=False)
-    password_hash = Column(String(255))
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    name = Column(String(255), nullable=True)
+    hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relations
+    contacts = relationship("Contact", back_populates="user", cascade="all, delete-orphan")
+    emails = relationship("Email", back_populates="user", cascade="all, delete-orphan")
+    templates = relationship("Template", back_populates="user", cascade="all, delete-orphan")
 
 
-class EmailAccount(Base):
-    """Comptes email provisionnés"""
-    __tablename__ = 'email_accounts'
+class Contact(Base):
+    """Modèle contact"""
+    __tablename__ = "contacts"
     
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    email_address = Column(String(255), unique=True, nullable=False)
-    username = Column(String(100), nullable=False)
-    display_name = Column(String(255))
-    
-    # Configuration SMTP
-    smtp_server = Column(String(255))
-    smtp_port = Column(Integer)
-    smtp_username = Column(String(255))
-    
-    # Métadonnées
-    provider = Column(String(50))
-    status = Column(String(20), default='active')
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False, index=True)
+    phone = Column(String(50), nullable=True)
+    company = Column(String(255), nullable=True)
+    notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Quotas
-    emails_sent_today = Column(Integer, default=0)
-    emails_sent_month = Column(Integer, default=0)
-    daily_limit = Column(Integer, default=500)
-    monthly_limit = Column(Integer, default=10000)
-    
     # Relations
-    user = relationship('User', backref='email_accounts')
-
-
-class EmailProvisioningLog(Base):
-    """Log des opérations de provisioning"""
-    __tablename__ = 'email_provisioning_logs'
-    
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    email_account_id = Column(Integer, ForeignKey('email_accounts.id'))
-    action = Column(String(50))
-    status = Column(String(20))
-    error_message = Column(String(500))
-    ip_address = Column(String(45))
-    user_agent = Column(String(255))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    user = relationship("User", back_populates="contacts")
 
 
 class Email(Base):
-    """Emails stockés"""
-    __tablename__ = 'emails'
+    """Modèle email (historique)"""
+    __tablename__ = "emails"
     
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    sender = Column(String(255))
-    recipient = Column(String(255))
-    subject = Column(String(500))
-    body = Column(Text)
-    status = Column(String(20), default='draft')
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    to_email = Column(String(255), nullable=False, index=True)
+    subject = Column(String(500), nullable=False)
+    body = Column(Text, nullable=False)
+    cc = Column(Text, nullable=True)  # JSON array
+    bcc = Column(Text, nullable=True)  # JSON array
+    status = Column(String(50), default="sent")  # sent, failed, draft
+    sent_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    sent_at = Column(DateTime)
     
-    user = relationship('User', backref='emails')
+    # Relations
+    user = relationship("User", back_populates="emails")
+
+
+class Template(Base):
+    """Modèle template email"""
+    __tablename__ = "templates"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    subject = Column(String(500), nullable=False)
+    body = Column(Text, nullable=False)
+    category = Column(String(100), nullable=True)
+    is_default = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relations
+    user = relationship("User", back_populates="templates")
+
+
+class Document(Base):
+    """Modèle document analysé"""
+    __tablename__ = "documents"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    filename = Column(String(255), nullable=False)
+    file_path = Column(String(500), nullable=False)
+    file_type = Column(String(50), nullable=False)  # pdf, docx, image
+    document_type = Column(String(100), nullable=True)  # facture, devis, contrat
+    content_text = Column(Text, nullable=True)
+    analysis_result = Column(Text, nullable=True)  # JSON
+    amount = Column(Float, nullable=True)
+    due_date = Column(DateTime, nullable=True)
+    status = Column(String(50), default="pending")  # pending, processed, archived
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Todo(Base):
+    """Modèle TODO généré automatiquement"""
+    __tablename__ = "todos"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    document_id = Column(Integer, ForeignKey("documents.id"), nullable=True)
+    task = Column(String(500), nullable=False)
+    description = Column(Text, nullable=True)
+    priority = Column(String(20), default="medium")  # low, medium, high, critical
+    status = Column(String(20), default="pending")  # pending, in_progress, completed, cancelled
+    deadline = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Notification(Base):
+    """Modèle notification"""
+    __tablename__ = "notifications"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    todo_id = Column(Integer, ForeignKey("todos.id"), nullable=True)
+    message = Column(Text, nullable=False)
+    type = Column(String(50), default="info")  # info, warning, error, success
+    priority = Column(String(20), default="medium")
+    is_read = Column(Boolean, default=False)
+    read_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

@@ -1,0 +1,367 @@
+# Règles Cursor pour IAPosteManager
+
+Tu es un expert fullstack développant **IAPosteManager**, une plateforme d'automatisation email intelligente avec analyse documentaire IA pour professions libérales (avocats, médecins, architectes, notaires, comptables).
+
+## 🎯 CONTEXTE PROJET
+
+**Objectif :** Automatiser la gestion documentaire (factures, devis, contrats) avec IA locale (Ollama) + génération TODO automatique + notifications multi-canal.
+
+**Clients cibles :** 
+- Cabinets d'avocats (30% CA en impayés)
+- Cabinets médicaux (rendez-vous manqués)
+- Architectes (suivi devis)
+- Notaires (documents manquants)
+- Experts-comptables (délais fiscaux)
+
+**ROI attendu :** -60% impayés, +30% présence RDV, 15h/semaine économisées
+
+---
+
+## 🛠️ STACK TECHNIQUE
+
+### **Frontend**
+- React 18.3 + Vite 5.4
+- TailwindCSS 3.3
+- Lucide-react 0.263
+- React Query (@tanstack/react-query 5.0)
+- React Router DOM 6.20
+- React Hot Toast 2.6
+- Zustand 4.4 (state management)
+
+### **Backend**
+- Python 3.9+
+- FastAPI (API moderne)
+- Flask (services legacy)
+- PostgreSQL + Prisma ORM
+- JWT pour auth
+
+### **IA/ML**
+- Ollama (IA locale) : Llama 3.2
+- OpenAI GPT-4 (fallback)
+- Tesseract OCR (images)
+- PyPDF2 (extraction PDF)
+
+### **Infrastructure**
+- Docker + Docker Compose
+- Azure (déploiement)
+- Prometheus + Grafana (monitoring)
+- SendGrid (emails)
+- Firebase (push notifications)
+
+---
+
+## 📋 CONVENTIONS CODE
+
+### **JavaScript/React**
+```javascript
+// ES6+ obligatoire
+// Functional components + hooks
+// PropTypes ou TypeScript
+// Noms descriptifs
+
+// ✅ BON
+const DocumentUpload = ({ onUpload, maxSize = 50 }) => {
+  const [file, setFile] = useState(null);
+  
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    // ...
+  }, []);
+  
+  return <div onDrop={handleDrop}>...</div>;
+};
+
+// ❌ MAUVAIS
+function comp(p) {
+  var f = null;
+  return <div onclick={() => alert('bad')}></div>;
+}
+```
+
+### **Python**
+```python
+# Type hints obligatoires
+# Docstrings Google style
+# PEP 8
+
+# ✅ BON
+def analyze_document(file_path: str) -> Dict[str, Any]:
+    """
+    Analyse un document avec IA locale.
+    
+    Args:
+        file_path: Chemin absolu du fichier
+    
+    Returns:
+        Dict avec type, montant, échéance, urgence
+    """
+    pass
+
+# ❌ MAUVAIS
+def analyze(f):
+    return None
+```
+
+### **CSS/Styling**
+```css
+/* TailwindCSS prioritaire */
+/* Classes utilitaires */
+/* Mobile-first */
+
+/* ✅ BON */
+<div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+
+/* ❌ MAUVAIS */
+<div style={{display: 'flex', padding: '16px'}}>
+```
+
+---
+
+## 🔒 SÉCURITÉ
+
+### **Obligatoire**
+- JWT avec refresh tokens
+- Validation inputs (Zod frontend, Pydantic backend)
+- Sanitization données utilisateur
+- HTTPS strict
+- CSP headers
+- Rate limiting API
+- Logs audit accès documents
+
+### **Interdit**
+- Secrets dans code
+- console.log en production
+- eval() / innerHTML
+- SQL raw queries
+- Données sensibles en localStorage (utiliser sessionStorage + encryption)
+
+---
+
+## 📁 ARCHITECTURE FICHIERS
+
+```
+src/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx           # Navigation principale
+│   │   │   ├── DocumentUpload.jsx   # Upload drag&drop
+│   │   │   └── ...
+│   │   ├── pages/
+│   │   │   ├── Dashboard.jsx        # Vue d'ensemble
+│   │   │   ├── EmailComposer.jsx    # Composition emails
+│   │   │   ├── DocumentAnalysis.jsx # Analyse IA
+│   │   │   └── ...
+│   │   ├── services/
+│   │   │   ├── authService.js       # Authentification JWT
+│   │   │   ├── apiService.js        # Requêtes API
+│   │   │   └── ...
+│   │   └── App.jsx                  # Point d'entrée
+│   └── package.json
+│
+├── backend/
+│   ├── services/
+│   │   ├── document_analyzer.py     # IA extraction texte
+│   │   ├── todo_generator.py        # Génération TODO auto
+│   │   └── document_access.py       # Auth documents
+│   ├── api_document_analysis.py     # API FastAPI
+│   └── requirements.txt
+│
+└── ...
+```
+
+---
+
+## 🎯 PRIORITÉS DÉVELOPPEMENT
+
+### **P0 - Critique** 🔴
+1. Corriger erreurs compilation frontend
+2. Connecter Ollama (http://localhost:11434)
+3. Tests endpoints API
+4. Auth JWT fonctionnelle
+
+### **P1 - Important** 🟡
+1. Upload documents drag&drop
+2. Analyse IA temps réel
+3. Génération TODO automatique
+4. Notifications email
+
+### **P2 - Nice to have** 🟢
+1. Dashboard analytics
+2. Export données
+3. Thème dark mode
+4. PWA
+
+---
+
+## 🧪 TESTS
+
+### **Obligatoire**
+```javascript
+// Frontend : Jest + React Testing Library
+describe('DocumentUpload', () => {
+  it('should accept PDF files', () => {
+    // ...
+  });
+});
+```
+
+```python
+# Backend : pytest
+def test_document_analyzer():
+    result = analyzer.process_document('test.pdf')
+    assert result['type_document'] == 'facture'
+```
+
+### **Coverage**
+- Frontend : >80%
+- Backend : >90%
+- E2E : scénarios critiques
+
+---
+
+## 📝 GIT
+
+### **Commits**
+```
+type(scope): message
+
+feat(frontend): add document upload drag&drop
+fix(backend): correct JWT expiration handling
+docs(readme): update installation steps
+test(api): add tests for /documents/upload endpoint
+```
+
+### **Branches**
+- `main` : production
+- `develop` : développement
+- `feature/nom-feature` : nouvelles fonctionnalités
+- `fix/nom-bug` : corrections
+
+---
+
+## 🚀 COMMANDES UTILES
+
+```powershell
+# Frontend dev
+cd src/frontend && npm run dev
+
+# Backend dev
+cd src/backend && python api_document_analysis.py
+
+# Ollama
+ollama serve
+ollama run llama3.2
+
+# Tests
+npm run test
+pytest
+
+# Docker
+docker-compose up -d
+
+# Build prod
+npm run build
+docker build -t iapostemanager .
+```
+
+---
+
+## 💡 RÉPONSE TYPE CURSOR
+
+Quand tu génères du code :
+
+1. **Analyser** le contexte existant
+2. **Respecter** les conventions ci-dessus
+3. **Commenter** si logique complexe
+4. **Tester** le code généré
+5. **Documenter** si nouvelle feature
+
+**Format réponse :**
+```
+✅ Modification : [fichier]
+📝 Changements :
+  - Point 1
+  - Point 2
+
+🧪 Tests :
+  - Test X passé
+  - Test Y ajouté
+
+🔍 À vérifier :
+  - Point à valider manuellement
+```
+
+---
+
+## ⚠️ ERREURS COURANTES À ÉVITER
+
+1. **Échappement apostrophes** : Utiliser `"` ou `'` simple, jamais `\'`
+2. **Imports manquants** : Vérifier tous les imports avant génération
+3. **Chemins relatifs** : Toujours relatifs au fichier actuel
+4. **State React** : Immutabilité stricte
+5. **Async/await** : Toujours gérer erreurs avec try/catch
+
+---
+
+## 🎨 UX/UI
+
+### **Principes**
+- Mobile-first
+- Feedback immédiat (loading, success, error)
+- Animations subtiles (transition-all)
+- Accessibilité WCAG AA
+- Performance (Lighthouse >90)
+
+### **Composants réutilisables**
+- Button avec variants (primary, secondary, danger)
+- Input avec validation
+- Modal avec animations
+- Toast notifications
+- Loading skeletons
+
+---
+
+## 📊 MÉTRIQUES À TRACKER
+
+```javascript
+// Analytics events
+analytics.track('document_uploaded', {
+  type: 'facture',
+  size: fileSize,
+  duration: uploadTime
+});
+
+analytics.track('todo_created', {
+  priority: 'high',
+  deadline: daysRemaining
+});
+```
+
+---
+
+## 🔄 WORKFLOW TYPE
+
+1. **User story** → Analyse besoin
+2. **Design** → Composants nécessaires
+3. **Backend** → API endpoints
+4. **Frontend** → UI/UX
+5. **Tests** → Unitaires + E2E
+6. **Review** → Code review
+7. **Deploy** → CI/CD
+
+---
+
+## ✅ CHECKLIST AVANT COMMIT
+
+- [ ] Code compilable (npm run build / pytest)
+- [ ] Pas de console.log/print debug
+- [ ] Tests passent
+- [ ] Lint clean (eslint / black)
+- [ ] Pas de secrets
+- [ ] Documentation à jour
+- [ ] Git message clair
+
+---
+
+🚀 **Prêt à coder efficacement !**

@@ -1,11 +1,16 @@
 @echo off
-chcp 65001 >nul
-cls
-echo ========================================
-echo   SecureVault - Email Automation
-echo ========================================
-echo.
-echo Demarrage de l'application...
-echo.
-python src\web\app.py
-pause
+echo Starting IA Poste Manager v2.3...
+
+if not exist venv (
+    echo Creating virtual environment...
+    python -m venv venv
+)
+
+echo Activating virtual environment...
+call venv\Scripts\activate
+
+echo Installing dependencies...
+pip install -r requirements.txt
+
+echo Starting Flask server...
+python app.py

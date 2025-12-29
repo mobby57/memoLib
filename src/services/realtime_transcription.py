@@ -209,16 +209,41 @@ class RealtimeTranscription:
                         self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
                         audio_data = self.recognizer.record(source)
                         
-                        # Essayer Google d'abord, puis fallback
+                        # Utiliser OpenAI Whisper si API key disponible
                         text = None
-                        try:
-                            text = self.recognizer.recognize_google(audio_data, language='fr-FR')
-                        except (sr.UnknownValueError, sr.RequestError):
-                            # Fallback vers reconnaissance offline si disponible
+                        openai_key = os.environ.get('OPENAI_API_KEY')
+                        
+                        if openai_key and openai_key.startswith('sk-'):
                             try:
-                                text = self.recognizer.recognize_sphinx(audio_data, language='fr-FR')
-                            except:
-                                pass
+                                # Utiliser Whisper API d'OpenAI
+                                import openai
+                                openai.api_key = openai_key
+                                
+                                # Convertir audio_data en fichier pour Whisper
+                                with open(chunk_file, 'rb') as audio_file:
+                                    response = openai.audio.transcriptions.create(
+                                        model="whisper-1",
+                                        file=audio_file,
+                                        language="fr"
+                                    )
+                                    text = response.text
+                            except Exception as whisper_error:
+                                print(f"Whisper API error: {whisper_error}")
+                                # Fallback to Google
+                                try:
+                                    text = self.recognizer.recognize_google(audio_data, language='fr-FR')
+                                except:
+                                    pass
+                        else:
+                            # Pas de clé OpenAI, utiliser Google
+                            try:
+                                text = self.recognizer.recognize_google(audio_data, language='fr-FR')
+                            except (sr.UnknownValueError, sr.RequestError):
+                                # Fallback vers reconnaissance offline si disponible
+                                try:
+                                    text = self.recognizer.recognize_sphinx(audio_data, language='fr-FR')
+                                except:
+                                    pass
                         
                         if text and text.strip():
                             self.full_transcript += " " + text

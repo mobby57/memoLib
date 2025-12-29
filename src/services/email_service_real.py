@@ -13,13 +13,19 @@ class EmailService:
             'outlook': ('smtp-mail.outlook.com', 587)
         }
     
-    def send_email(self, credentials, recipient, subject, body, provider='gmail'):
+    def send_email(self, credentials, recipient, subject, body, provider='gmail', sender_name=None):
         try:
             server_host, port = self.smtp_servers[provider]
             email, app_password = credentials
             
             msg = MIMEMultipart()
-            msg['From'] = email
+            
+            # Formater le champ From avec le nom si fourni
+            if sender_name:
+                msg['From'] = f"{sender_name} <{email}>"
+            else:
+                msg['From'] = email
+                
             msg['To'] = recipient
             msg['Subject'] = subject
             msg.attach(MIMEText(body, 'plain'))

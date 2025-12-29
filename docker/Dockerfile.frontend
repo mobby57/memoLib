@@ -1,0 +1,53 @@
+# Dockerfile multi-stage pour frontend React
+# Propriété: MS CONSEILS - Sarra Boudjellal
+# Version: 2.3 Production Ready
+
+# Stage 1: Builder
+FROM node:18-alpine as builder
+
+WORKDIR /app
+
+# Copie des fichiers de dépendances
+COPY frontend/package*.json ./
+RUN npm ci --only=production
+
+# Copie du code source
+COPY frontend/ .
+
+# Build de production
+RUN npm run build
+
+# Stage 2: Production avec Nginx
+FROM nginx:alpine as production
+
+# Installation de curl pour health check
+RUN apk add --no-cache curl
+
+# Copie de la configuration Nginx
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+
+# Copie des fichiers buildés
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Création utilisateur non-root
+RUN addgroup -g 1001 -S nginx && \
+    adduser -S nginx -u 1001
+
+# Configuration des permissions
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    chown -R nginx:nginx /etc/nginx/conf.d
+
+# Changement vers utilisateur non-root
+USER nginx
+
+# Port d'exposition
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000 || exit 1
+
+# Commande de démarrage
+CMD ["nginx", "-g", "daemon off;"]

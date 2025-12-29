@@ -1,39 +1,11 @@
 global:
   scrape_interval: 15s
-  evaluation_interval: 15s
-  external_labels:
-    monitor: 'iapostemanager-monitor'
 
-# Alerting
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets:
-            - alertmanager:9093
-
-# Rules
-rule_files:
-  - "alerts.yml"
-
-# Scrape configs
 scrape_configs:
-  # Backend Flask application
-  - job_name: 'iapostemanager-backend'
+  - job_name: 'iaposte-backend'
     static_configs:
-      - targets: ['backend:5000']
-    metrics_path: '/metrics'
-
-  # Node Exporter (métriques système)
-  - job_name: 'node-exporter'
+      - targets: ['backend:8000']
+  
+  - job_name: 'iaposte-frontend'
     static_configs:
-      - targets: ['node-exporter:9100']
-
-  # cAdvisor (métriques Docker)
-  - job_name: 'cadvisor'
-    static_configs:
-      - targets: ['cadvisor:8080']
-
-  # Prometheus self-monitoring
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['frontend:3000']

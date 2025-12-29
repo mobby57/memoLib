@@ -1,12 +1,14 @@
 {
   "name": "IAPosteManager",
   "short_name": "IAPoste",
-  "description": "Assistant email intelligent avec IA vocale",
+  "description": "Gestion intelligente de courriers et emails avec IA locale",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e1b4b",
   "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
+  "categories": ["productivity", "business", "utilities"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192.png",
@@ -21,8 +23,22 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "business", "communication"],
+  "categories": ["productivity", "business", "utilities"],
   "shortcuts": [
+    {
+      "name": "Analyser document",
+      "short_name": "Analyser",
+      "description": "Analyser un nouveau document",
+      "url": "/analyze",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mes TODOs",
+      "short_name": "TODOs",
+      "description": "Voir mes tâches",
+      "url": "/todos",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
     {
       "name": "Assistant Vocal",
       "short_name": "Vocal",

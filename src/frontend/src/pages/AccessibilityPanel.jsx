@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { accessibilityService, voiceService } from '../services/api';
+import apiService from '../services/api';
+import logger from '../utils/logger';
 
 export default function AccessibilityPanel() {
   const [userStats, setUserStats] = useState({});
@@ -15,10 +16,12 @@ export default function AccessibilityPanel() {
 
   const loadUserStats = async () => {
     try {
-      const stats = await accessibilityService.getUserStats();
-      setUserStats(stats);
+      // TODO: Implémenter endpoint API pour stats accessibilité
+      // const stats = await apiService.request('/api/accessibility/stats');
+      // setUserStats(stats);
+      setUserStats({}); // Temporaire
     } catch (error) {
-      console.error('Erreur stats:', error);
+      logger.error('Erreur stats accessibilité', error, { action: 'loadUserStats' });
     }
   };
 
@@ -32,12 +35,19 @@ export default function AccessibilityPanel() {
 
   const speakText = async (text) => {
     try {
-      await voiceService.speak(text);
-    } catch (error) {
+      // Utiliser synthèse vocale navigateur
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'fr-FR';
       utterance.rate = 0.8;
       speechSynthesis.speak(utterance);
+      
+      // TODO: Utiliser API TTS quand disponible
+      // await apiService.request('/api/voice/speak', {
+      //   method: 'POST',
+      //   body: JSON.stringify({ text })
+      // });
+    } catch (error) {
+      logger.error('Erreur synthèse vocale', error, { action: 'speakText' });
     }
   };
 

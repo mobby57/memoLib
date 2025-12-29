@@ -1,6 +1,6 @@
 """
 Serveur API - Lancement avec Keep-Alive
-Résolution du problème de terminaison PowerShell
+Compatible Heroku et déploiements cloud
 """
 import os
 import sys
@@ -21,6 +21,12 @@ logger = logging.getLogger(__name__)
 root_dir = Path(__file__).parent
 sys.path.insert(0, str(root_dir / "src"))
 sys.path.insert(0, str(root_dir))
+
+# Importer avant la création de l'app pour Heroku/Gunicorn
+from backend.app_postgres import create_app, db_service
+
+# Créer l'app instance pour Gunicorn
+app = create_app()
 
 # Variable globale pour keep-alive
 keep_running = True

@@ -20,6 +20,7 @@ import dashboardRoutes from './routes/dashboard.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { logger } from './middleware/logger.js';
 import { auth } from './middleware/auth.js';
+import { setupSecurityMiddleware } from './middleware/security.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,17 +31,8 @@ dotenv.config({ path: join(__dirname, '..', '..', '.env') });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 🛡️ Sécurité
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-}));
+// 🛡️ Sécurité avec CSP optimisée pour MCP
+setupSecurityMiddleware(app);
 
 // 🌐 CORS
 app.use(cors({

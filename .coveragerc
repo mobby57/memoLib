@@ -1,0 +1,47 @@
+# Coverage configuration for IAPosteManager
+[run]
+source = .
+omit =
+    */tests/*
+    */venv/*
+    */venv-linux/*
+    */__pycache__/*
+    */migrations/*
+    setup.py
+    conftest.py
+    # Omit untested backend services
+    src/backend/app.py
+    src/backend/api.py
+    src/backend/api_endpoints.py
+    src/backend/config.py
+    src/backend/email_forwarding.py
+    src/backend/email_generator.py
+    src/backend/missing_endpoints.py
+    src/backend/models.py
+    src/backend/monitoring.py
+    src/backend/optimized_prompts.py
+    src/backend/run_server_standalone.py
+    src/backend/security_improvements.py
+    src/backend/services/*
+    # Omit frontend/web files
+    src/web/*
+    src/core/*
+    src/services/*
+    src/security/*
+    src/monitoring/*
+
+[report]
+precision = 2
+show_missing = True
+skip_covered = False
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstract
+
+[html]
+directory = htmlcov

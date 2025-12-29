@@ -25,7 +25,7 @@ class SMTPService:
             return 'yahoo'
         return 'gmail'  # Par défaut
     
-    def send_email(self, sender_email, app_password, recipient, subject, body):
+    def send_email(self, sender_email, app_password, recipient, subject, body, sender_name=None):
         """Envoyer un email via SMTP"""
         try:
             provider = self.detect_provider(sender_email)
@@ -33,7 +33,13 @@ class SMTPService:
             
             # Créer le message
             msg = MIMEMultipart()
-            msg['From'] = sender_email
+            
+            # Formater le champ From avec le nom si fourni
+            if sender_name:
+                msg['From'] = f"{sender_name} <{sender_email}>"
+            else:
+                msg['From'] = sender_email
+                
             msg['To'] = recipient
             msg['Subject'] = subject
             msg.attach(MIMEText(body, 'plain', 'utf-8'))
