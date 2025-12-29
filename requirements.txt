@@ -1,4 +1,4 @@
-# IA Poste Manager - Production Requirements (Vercel optimisé)
+# IA Poste Manager - Production Requirements
 
 # Core Framework
 flask==3.0.0
@@ -20,5 +20,6 @@ python-dateutil==2.8.2
 # Logging
 colorlog==6.8.0
 
-# Production WSGI (optionnel pour tests locaux)
+# Production WSGI Server
+gunicorn==21.2.0
 waitress==2.1.2

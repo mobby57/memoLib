@@ -7,40 +7,56 @@ import {
   ChartBarIcon,
   ArrowUpIcon,
   ArrowDownIcon,
-  PencilIcon
+  PencilIcon,
+  MicrophoneIcon
 } from '@heroicons/react/24/outline';
-import { apiService } from '../services/api';
+import { useEmailStore, useContactsStore, useTemplatesStore } from '../store';
+import apiService from '../services/api';
 
 export default function Dashboard() {
+  const { emails, fetchEmails } = useEmailStore();
+  const { contacts, fetchContacts } = useContactsStore();
+  const { templates, fetchTemplates } = useTemplatesStore();
+  
   const [stats, setStats] = useState({
     emailsSent: 0,
     aiGenerated: 0,
     templates: 0,
     contacts: 0
   });
-  const [recentEmails, setRecentEmails] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        // Charger les statistiques
-        const [statsRes, historyRes] = await Promise.all([
-          apiService.dashboard?.getStats?.() || fetch('/api/dashboard/stats').then(r => r.json()),
-          apiService.email?.getHistory?.(5) || fetch('/api/email-history?limit=5').then(r => r.json())
+        setLoading(true);
+        
+        // Load data using stores
+        await Promise.all([
+          fetchEmails(),
+          fetchContacts(), 
+          fetchTemplates()
         ]);
-
-        setStats(statsRes || stats);
-        setRecentEmails(historyRes?.emails || historyRes || []);
+        
       } catch (error) {
-        console.warn('Erreur chargement dashboard:', error);
+        console.warn('Error loading dashboard:', error);
       } finally {
         setLoading(false);
       }
     };
 
     loadDashboardData();
-  }, []);
+  }, [fetchEmails, fetchContacts, fetchTemplates]);
+  
+  // Update stats when store data changes
+  useEffect(() => {
+    setStats({
+      emailsSent: emails.length,
+      aiGenerated: emails.filter(e => e.ai_generated).length,
+      templates: templates.length,
+      contacts: contacts.length
+    });
+  }, [emails, templates, contacts]);
 
   const statCards = [
     {
@@ -142,13 +158,13 @@ export default function Dashboard() {
             Activité récente
           </h3>
           
-          {recentEmails.length > 0 ? (
+          {emails.length > 0 ? (
             <div className="flow-root">
               <ul className="-mb-8">
-                {recentEmails.slice(0, 5).map((email, idx) => (
+                {emails.slice(0, 5).map((email, idx) => (
                   <li key={email.id || idx}>
                     <div className="relative pb-8">
-                      {idx !== recentEmails.length - 1 && (
+                      {idx !== emails.length - 1 && (
                         <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" />
                       )}
                       <div className="relative flex space-x-3">

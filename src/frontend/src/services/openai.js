@@ -1,6 +1,8 @@
 // Service OpenAI dédié avec gestion avancée
 // Suit les meilleures pratiques de l'API OpenAI
 
+import logger from '../utils/logger';
+
 const OPENAI_API_BASE = 'https://api.openai.com/v1';
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 const ORGANIZATION_ID = import.meta.env.VITE_OPENAI_ORG_ID;
@@ -117,9 +119,8 @@ const openaiRequest = async (endpoint, options = {}) => {
       throw new Error('Requête OpenAI expirée - Veuillez réessayer');
     }
     
-    console.error('OpenAI API Error:', {
+    logger.error('OpenAI API Error', error, {
       requestId,
-      error: error.message,
       status: error.status,
       code: error.code
     });
@@ -461,7 +462,7 @@ export const openaiService = {
                 onComplete(event.data);
               }
             } catch (parseError) {
-              console.warn('Failed to parse image SSE event:', data);
+              logger.warn('Failed to parse image SSE event', { data });
             }
           }
         }
@@ -515,7 +516,7 @@ export const openaiHelpers = {
         return openaiHelpers.generateEmail(context, tone);
       }
     } catch (error) {
-      console.error('Email generation with context failed:', error);
+      logger.error('Email generation with context failed', error, { context, tone, conversationId });
       return openaiHelpers.generateEmail(context, tone);
     }
   },
@@ -623,7 +624,7 @@ export const openaiHelpers = {
         themes: await openaiHelpers.extractThemes(allText)
       };
     } catch (error) {
-      console.error('Conversation analysis failed:', error);
+      logger.error('Conversation analysis failed', error, { conversationId });
       return null;
     }
   },
@@ -654,9 +655,10 @@ export const openaiHelpers = {
       
       return themes;
     } catch (error) {
-      console.error('Theme extraction failed:', error);
+      logger.error('Theme extraction failed', error, { textLength: text.length });
       return [];
     }
   }
+};
 
 export default openaiService;

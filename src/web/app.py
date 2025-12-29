@@ -2200,9 +2200,7 @@ if __name__ == '__main__':
     
     print("="*50 + "\n")
     
-    # Utiliser socketio.run() si disponible, sinon app.run()
-    if HAS_SOCKETIO and socketio:
-        socketio.run(app, debug=False, host=host, port=port, allow_unsafe_werkzeug=True)
-    else:
-        app.run(debug=False, host=host, port=port)
+    # Use standard Flask server for better compatibility
+    print(f"Starting server on {host}:{port}...")
+    app.run(debug=False, host=host, port=port, threaded=True)
 

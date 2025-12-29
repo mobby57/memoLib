@@ -1,76 +1,121 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
-  test:
+  backend-tests:
+    name: Backend Tests
     runs-on: ubuntu-latest
     
     services:
-      redis:
-        image: redis:7-alpine
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: test_iaposte
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
         ports:
-          - 6379:6379
+          - 5432:5432
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install pytest-cov
-    
-    - name: Run tests
-      run: |
-        # Skip E2E tests requiring Flask server (marked with @pytest.mark.e2e)
-        pytest tests/ --cov=src --cov-report=xml -m "not e2e"
-    
-    - name: Upload coverage
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_iaposte
+        run: |
+          pytest tests/ -v --cov=src/backend --cov-report=xml --cov-report=html
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: backend
 
-  security:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Run security scan
-      continue-on-error: true
-      run: |
-        pip install bandit safety
-        bandit -r src/ -ll || true
-        safety check || true
-
-  build:
-    needs: [test, security]
+  frontend-tests:
+    name: Frontend Tests
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: |
+          cd src/frontend
+          npm ci
+      
+      - name: Run linter
+        run: |
+          cd src/frontend
+          npm run lint
+      
+      - name: Run tests
+        run: |
+          cd src/frontend
+          npm run test -- --coverage
+      
+      - name: Build
+        run: |
+          cd src/frontend
+          npm run build
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
     
-    - name: Build Docker image
-      run: |
-        docker build -t iapostemanager:${{ github.sha }} .
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Safety (Python)
+        run: |
+          pip install safety
+          safety check --file requirements.txt
+      
+      - name: Run npm audit (Frontend)
+        run: |
+          cd src/frontend
+          npm audit --audit-level=moderate
+
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
     
-    - name: Test Docker image
-      run: |
-        docker run --rm -d -p 5000:5000 --name test-app iapostemanager:${{ github.sha }}
-        echo "⏰ Waiting 30 seconds for Flask app to start..."
-        sleep 30
-        echo "🔍 Checking container status..."
-        docker ps -a | grep test-app || true
-        echo "📋 Container logs:"
-        docker logs test-app || true
-        echo "🏥 Testing health endpoint..."
-        curl -f http://localhost:5000/api/health || (echo "❌ Health check failed!" && docker logs test-app && exit 1)
-        echo "✅ Health check passed!"
-        docker stop test-app
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build backend image
+        run: |
+          docker build -f Dockerfile.prod -t iaposte-backend:test .
+      
+      - name: Build frontend image
+        run: |
+          cd src/frontend
+          docker build -t iaposte-frontend:test .

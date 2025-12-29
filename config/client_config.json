@@ -1,0 +1,199 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Configuration Multi-Client pour IA Poste Manager",
+  "type": "object",
+  "description": "Configuration par client pour personnalisation du comportement du système",
+  
+  "clients": {
+    "default": {
+      "client_id": "default",
+      "client_name": "Configuration par défaut",
+      "enabled": true,
+      
+      "validation": {
+        "require_human_validation": true,
+        "validation_threshold_score": 7.0,
+        "auto_validate_for_plans": ["PRO"],
+        "always_validate_types": ["mdph", "juridique", "urgent"]
+      },
+      
+      "priorities": {
+        "urgent_keywords": ["urgent", "immédiat", "aujourd'hui", "deadline"],
+        "high_priority_types": ["mdph", "courrier_officiel"],
+        "default_priority": "medium",
+        "boost_for_plans": {
+          "PRO": 2,
+          "PREMIUM": 1,
+          "AIDANT": 0,
+          "FREE": 0
+        }
+      },
+      
+      "ai_processing": {
+        "default_model": "ollama",
+        "fallback_to_gpt4_threshold": 8.0,
+        "enable_gpt4_for_plans": ["PREMIUM", "PRO"],
+        "mdph_always_gpt4": false,
+        "max_tokens": {
+          "ollama": 2000,
+          "gpt4": 3000
+        }
+      },
+      
+      "notifications": {
+        "enabled_channels": ["email", "push"],
+        "email_from": "noreply@iapostemanager.fr",
+        "email_reply_to": "support@iapostemanager.fr",
+        "send_on_workspace_created": true,
+        "send_on_response_ready": true,
+        "send_on_validation_required": true,
+        "notification_language": "fr"
+      },
+      
+      "forms": {
+        "enable_auto_save": true,
+        "auto_save_interval_seconds": 30,
+        "show_progress_bar": true,
+        "enable_accessibility_modes": ["malvoyant", "deficience_motrice", "dyslexie", "deficience_auditive", "deficience_intellectuelle"],
+        "default_accessibility_mode": null,
+        "pre_fill_from_profile": true
+      },
+      
+      "response_generation": {
+        "default_tone": "professional",
+        "allowed_tones": ["formal", "friendly", "empathetic", "professional", "concise", "detailed"],
+        "default_language": "fr",
+        "supported_languages": ["fr", "en", "es", "ar"],
+        "include_signature": true,
+        "signature_text": "Cordialement,\nL'équipe IA Poste Manager"
+      },
+      
+      "quotas": {
+        "enforce_quotas": true,
+        "show_quota_warnings": true,
+        "warning_threshold_percentage": 80,
+        "block_at_quota": true,
+        "show_upgrade_prompts": true
+      },
+      
+      "security": {
+        "encrypt_medical_data": true,
+        "anonymize_logs": true,
+        "enable_2fa": false,
+        "session_timeout_minutes": 60,
+        "max_login_attempts": 5,
+        "rate_limit_per_hour": 100
+      },
+      
+      "branding": {
+        "brand_color": "#0066CC",
+        "logo_url": "/assets/logo.png",
+        "company_name": "IA Poste Manager",
+        "support_email": "support@iapostemanager.fr",
+        "support_phone": null
+      }
+    },
+    
+    "entreprise_sociale": {
+      "client_id": "entreprise_sociale",
+      "client_name": "Entreprise Sociale (MDPH Focus)",
+      "enabled": true,
+      "extends": "default",
+      
+      "validation": {
+        "require_human_validation": true,
+        "always_validate_types": ["mdph"]
+      },
+      
+      "ai_processing": {
+        "mdph_always_gpt4": true,
+        "default_model": "gpt4"
+      },
+      
+      "notifications": {
+        "enabled_channels": ["email", "push", "sms"],
+        "send_sms_for_urgent": true
+      },
+      
+      "response_generation": {
+        "default_tone": "empathetic"
+      },
+      
+      "branding": {
+        "brand_color": "#28A745",
+        "company_name": "Assistant MDPH Pro"
+      }
+    },
+    
+    "cabinet_juridique": {
+      "client_id": "cabinet_juridique",
+      "client_name": "Cabinet Juridique",
+      "enabled": true,
+      "extends": "default",
+      
+      "validation": {
+        "require_human_validation": true,
+        "validation_threshold_score": 9.0
+      },
+      
+      "ai_processing": {
+        "default_model": "gpt4",
+        "max_tokens": {
+          "gpt4": 4000
+        }
+      },
+      
+      "response_generation": {
+        "default_tone": "formal",
+        "allowed_tones": ["formal", "professional"]
+      },
+      
+      "security": {
+        "enable_2fa": true,
+        "encrypt_medical_data": true,
+        "session_timeout_minutes": 30
+      },
+      
+      "branding": {
+        "brand_color": "#1E3A8A",
+        "company_name": "Cabinet Juridique Assisté IA"
+      }
+    },
+    
+    "association_aide": {
+      "client_id": "association_aide",
+      "client_name": "Association d'aide (Gratuit/Aidant focus)",
+      "enabled": true,
+      "extends": "default",
+      
+      "ai_processing": {
+        "default_model": "ollama",
+        "enable_gpt4_for_plans": []
+      },
+      
+      "quotas": {
+        "enforce_quotas": false,
+        "show_upgrade_prompts": false
+      },
+      
+      "response_generation": {
+        "default_tone": "friendly"
+      },
+      
+      "branding": {
+        "brand_color": "#DC2626",
+        "company_name": "Aide Administrative Solidaire"
+      }
+    }
+  },
+  
+  "global_settings": {
+    "api_version": "v1",
+    "max_workspace_per_user": 1000,
+    "data_retention_days": 365,
+    "log_retention_days": 730,
+    "enable_analytics": true,
+    "enable_telemetry": true,
+    "maintenance_mode": false
+  }
+}

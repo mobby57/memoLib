@@ -1,0 +1,36 @@
+{
+  "week1": {
+    "completed": 1,
+    "total": 14,
+    "tasks": [
+      {
+        "name": "Backend API Integration",
+        "completed": true,
+        "date": "2025-12-29"
+      }
+    ]
+  },
+  "week2": {
+    "completed": 0,
+    "total": 14,
+    "tasks": []
+  },
+  "week3": {
+    "completed": 0,
+    "total": 14,
+    "tasks": []
+  },
+  "week4": {
+    "completed": 0,
+    "total": 14,
+    "tasks": []
+  },
+  "daily_logs": [
+    {
+      "date": "2025-12-29",
+      "week": "week1",
+      "task": "Backend API Integration",
+      "status": "completed"
+    }
+  ]
+}

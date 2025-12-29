@@ -1,0 +1,303 @@
+{
+  "client_ms_conseils": {
+    "client_id": "ms_conseils",
+    "name": "MS CONSEILS",
+    "contact": {
+      "email": "contact@msconseils.fr",
+      "phone": "+33123456789",
+      "address": "Paris, France"
+    },
+    "email_settings": {
+      "providers": ["gmail", "outlook", "smtp"],
+      "default_sender": "noreply@msconseils.fr",
+      "signature": "Cordialement,\nÉquipe MS CONSEILS\nCabinet de Conseil et Services\nDirigé par Sarra Boudjellal",
+      "auto_reply": true,
+      "tracking": true,
+      "templates": {
+        "welcome": "Bienvenue chez MS CONSEILS ! Nous sommes ravis de vous accompagner dans vos projets.",
+        "support": "Nous avons bien reçu votre demande de support technique. Notre équipe reviendra vers vous dans les plus brefs délais.",
+        "commercial": "Merci pour votre intérêt pour nos services de conseil. Nous étudions votre demande et reviendrons vers vous rapidement.",
+        "complaint": "Nous prenons votre réclamation très au sérieux et allons enquêter immédiatement sur cette situation.",
+        "followup": "Suite à notre précédent échange, nous souhaitons nous assurer que tout se passe bien."
+      },
+      "smtp_config": {
+        "host": "smtp.gmail.com",
+        "port": 587,
+        "use_tls": true,
+        "username": "noreply@msconseils.fr"
+      }
+    },
+    "ai_settings": {
+      "model": "gpt-4",
+      "temperature": 0.7,
+      "max_tokens": 1000,
+      "tone": "professional",
+      "language": "fr",
+      "custom_prompts": {
+        "email_analysis": "Analyser cet email professionnel pour MS CONSEILS, cabinet de conseil dirigé par Sarra Boudjellal. Identifier le type de demande, l'urgence et les informations manquantes.",
+        "response_generation": "Générer une réponse professionnelle et bienveillante au nom de MS CONSEILS. Maintenir un ton expert tout en restant accessible.",
+        "sentiment_analysis": "Analyser le sentiment de ce message client pour MS CONSEILS et proposer une approche de réponse adaptée.",
+        "urgency_detection": "Évaluer le niveau d'urgence de cette demande pour prioriser le traitement par l'équipe MS CONSEILS."
+      },
+      "fallback_enabled": true,
+      "cache_responses": true,
+      "quality_threshold": 0.8,
+      "auto_improve": true
+    },
+    "form_settings": {
+      "theme": "corporate_blue",
+      "required_fields": ["name", "email", "subject", "company"],
+      "optional_fields": ["phone", "website", "budget", "timeline", "message"],
+      "validation_rules": {
+        "email": "strict",
+        "phone": "international",
+        "website": "url_format",
+        "budget": "numeric_range"
+      },
+      "custom_fields": [
+        {
+          "id": "service_type",
+          "label": "Type de service souhaité",
+          "type": "select",
+          "options": [
+            {"value": "conseil_strategique", "label": "Conseil Stratégique"},
+            {"value": "audit_organisation", "label": "Audit d'Organisation"},
+            {"value": "formation", "label": "Formation"},
+            {"value": "accompagnement_projet", "label": "Accompagnement de Projet"},
+            {"value": "autre", "label": "Autre"}
+          ],
+          "required": true
+        },
+        {
+          "id": "company_size",
+          "label": "Taille de l'entreprise",
+          "type": "select",
+          "options": [
+            {"value": "startup", "label": "Startup (< 10 employés)"},
+            {"value": "pme", "label": "PME (10-250 employés)"},
+            {"value": "eti", "label": "ETI (250-5000 employés)"},
+            {"value": "grand_groupe", "label": "Grand Groupe (> 5000 employés)"}
+          ],
+          "required": false
+        }
+      ],
+      "multi_step": true,
+      "save_progress": true,
+      "conditional_logic": {
+        "service_type": {
+          "conseil_strategique": ["budget", "timeline"],
+          "formation": ["participants_count", "formation_type"]
+        }
+      }
+    },
+    "security_settings": {
+      "encryption_level": "aes_256",
+      "data_retention_days": 1095,
+      "audit_logging": true,
+      "ip_whitelist": ["192.168.1.0/24"],
+      "two_factor_auth": true,
+      "session_timeout": 7200,
+      "password_policy": {
+        "min_length": 12,
+        "require_uppercase": true,
+        "require_lowercase": true,
+        "require_numbers": true,
+        "require_symbols": true,
+        "history_count": 5
+      },
+      "gdpr_compliance": {
+        "data_processing_consent": true,
+        "right_to_be_forgotten": true,
+        "data_portability": true,
+        "breach_notification": true
+      },
+      "backup_settings": {
+        "frequency": "daily",
+        "retention_days": 90,
+        "encryption": true,
+        "offsite_backup": true
+      }
+    },
+    "accessibility_settings": {
+      "screen_reader_support": true,
+      "high_contrast_mode": true,
+      "keyboard_navigation": true,
+      "voice_commands": true,
+      "text_to_speech": true,
+      "font_size_options": [12, 14, 16, 18, 20, 24],
+      "language_options": ["fr", "en", "es"],
+      "wcag_compliance": "AA",
+      "aria_labels": true,
+      "focus_indicators": true,
+      "skip_links": true
+    },
+    "notification_settings": {
+      "email_notifications": true,
+      "sms_notifications": false,
+      "push_notifications": true,
+      "notification_frequency": "immediate",
+      "quiet_hours": {
+        "enabled": true,
+        "start": "20:00",
+        "end": "08:00",
+        "timezone": "Europe/Paris"
+      },
+      "channels": {
+        "email": {
+          "enabled": true,
+          "address": "notifications@msconseils.fr"
+        },
+        "slack": {
+          "enabled": true,
+          "webhook_url": "https://hooks.slack.com/services/...",
+          "channel": "#notifications"
+        },
+        "teams": {
+          "enabled": false
+        },
+        "webhook": {
+          "enabled": true,
+          "url": "https://api.msconseils.fr/webhooks/notifications"
+        }
+      },
+      "alert_types": {
+        "new_workspace": true,
+        "urgent_email": true,
+        "system_error": true,
+        "daily_summary": true,
+        "weekly_report": true
+      }
+    },
+    "branding": {
+      "logo_url": "/assets/logos/ms_conseils.png",
+      "logo_dark_url": "/assets/logos/ms_conseils_dark.png",
+      "primary_color": "#1e40af",
+      "secondary_color": "#3b82f6",
+      "accent_color": "#f59e0b",
+      "success_color": "#10b981",
+      "warning_color": "#f59e0b",
+      "error_color": "#ef4444",
+      "font_family": "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+      "heading_font": "Poppins, sans-serif",
+      "custom_css": "/assets/themes/ms_conseils.css",
+      "favicon": "/assets/favicons/ms_conseils.ico",
+      "company_info": {
+        "full_name": "MS CONSEILS",
+        "tagline": "Cabinet de Conseil et Services",
+        "director": "Sarra Boudjellal",
+        "address": "Paris, France",
+        "phone": "+33 1 23 45 67 89",
+        "email": "contact@msconseils.fr",
+        "website": "https://www.msconseils.fr",
+        "social_media": {
+          "linkedin": "https://linkedin.com/company/ms-conseils",
+          "twitter": "https://twitter.com/msconseils",
+          "facebook": "https://facebook.com/msconseils"
+        },
+        "legal_info": {
+          "siret": "12345678901234",
+          "tva": "FR12345678901",
+          "capital": "10000 EUR"
+        }
+      },
+      "email_template": {
+        "header_color": "#1e40af",
+        "footer_text": "MS CONSEILS - Cabinet de Conseil et Services dirigé par Sarra Boudjellal",
+        "unsubscribe_text": "Si vous ne souhaitez plus recevoir nos emails, cliquez ici pour vous désabonner."
+      }
+    },
+    "analytics_settings": {
+      "google_analytics": {
+        "enabled": true,
+        "tracking_id": "GA-XXXXXXXXX"
+      },
+      "custom_metrics": {
+        "response_time": true,
+        "client_satisfaction": true,
+        "conversion_rate": true,
+        "email_open_rate": true
+      },
+      "reporting": {
+        "daily_reports": true,
+        "weekly_summaries": true,
+        "monthly_analytics": true,
+        "custom_dashboards": true
+      }
+    },
+    "integration_settings": {
+      "crm": {
+        "enabled": false,
+        "provider": "salesforce",
+        "sync_contacts": true,
+        "sync_opportunities": true
+      },
+      "calendar": {
+        "enabled": true,
+        "provider": "google_calendar",
+        "auto_schedule": false
+      },
+      "payment": {
+        "enabled": false,
+        "provider": "stripe",
+        "currency": "EUR"
+      },
+      "storage": {
+        "provider": "aws_s3",
+        "bucket": "ms-conseils-documents",
+        "encryption": true
+      }
+    },
+    "workflow_settings": {
+      "auto_assignment": {
+        "enabled": true,
+        "rules": [
+          {
+            "condition": "urgency == 'critical'",
+            "assign_to": "sarra.boudjellal@msconseils.fr"
+          },
+          {
+            "condition": "category == 'commercial'",
+            "assign_to": "commercial@msconseils.fr"
+          },
+          {
+            "condition": "category == 'support'",
+            "assign_to": "support@msconseils.fr"
+          }
+        ]
+      },
+      "escalation": {
+        "enabled": true,
+        "levels": [
+          {
+            "level": 1,
+            "timeout_hours": 4,
+            "escalate_to": "manager@msconseils.fr"
+          },
+          {
+            "level": 2,
+            "timeout_hours": 24,
+            "escalate_to": "sarra.boudjellal@msconseils.fr"
+          }
+        ]
+      },
+      "sla": {
+        "response_time": {
+          "critical": 1,
+          "high": 4,
+          "normal": 24,
+          "low": 72
+        },
+        "resolution_time": {
+          "critical": 4,
+          "high": 24,
+          "normal": 72,
+          "low": 168
+        }
+      }
+    },
+    "created_at": "2024-12-21T10:00:00Z",
+    "updated_at": "2024-12-21T10:00:00Z",
+    "version": "2.3",
+    "active": true
+  }
+}

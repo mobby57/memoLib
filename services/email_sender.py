@@ -18,7 +18,7 @@ HOTMAIL_SMTP = {
     'use_tls': True
 }
 
-def envoyer_email_hotmail(email_expediteur, app_password, email_destinataire, sujet, message):
+def envoyer_email_hotmail(email_expediteur, app_password, email_destinataire, sujet, message, nom_expediteur=None):
     """
     Envoie un email via Hotmail/Outlook
     
@@ -28,6 +28,7 @@ def envoyer_email_hotmail(email_expediteur, app_password, email_destinataire, su
         email_destinataire: Email du destinataire
         sujet: Sujet de l'email
         message: Corps du message (texte ou HTML)
+        nom_expediteur: Nom complet de l'expéditeur (optionnel)
     
     Returns:
         (bool, str): (succès, message)
@@ -35,7 +36,13 @@ def envoyer_email_hotmail(email_expediteur, app_password, email_destinataire, su
     try:
         # Créer le message
         msg = MIMEMultipart('alternative')
-        msg['From'] = email_expediteur
+        
+        # Formater le champ From avec le nom si fourni
+        if nom_expediteur:
+            msg['From'] = f"{nom_expediteur} <{email_expediteur}>"
+        else:
+            msg['From'] = email_expediteur
+            
         msg['To'] = email_destinataire
         msg['Subject'] = sujet
         msg['Date'] = datetime.now().strftime('%a, %d %b %Y %H:%M:%S %z')

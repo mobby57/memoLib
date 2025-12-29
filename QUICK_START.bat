@@ -1,3 +1,46 @@
 @echo off
-REM Quick Start Script for IAPosteManager v2.2
-echo ========================================\necho IAPosteManager v2.2 - Quick Start\necho ========================================\n\nREM Check if Python is installed\npython --version >nul 2>&1\nif errorlevel 1 (\n    echo ERROR: Python not found. Please install Python 3.11+\n    pause\n    exit /b 1\n)\n\nREM Check if Node.js is installed\nnode --version >nul 2>&1\nif errorlevel 1 (\n    echo ERROR: Node.js not found. Please install Node.js 18+\n    pause\n    exit /b 1\n)\n\necho Installing Python dependencies...\npip install -r requirements.txt\n\necho Installing frontend dependencies...\ncd frontend-react\nnpm install\ncd ..\n\necho Creating necessary directories...\nmkdir src\\backend\\data 2>nul\nmkdir src\\backend\\uploads 2>nul\nmkdir src\\backend\\logs 2>nul\nmkdir src\\backend\\flask_session 2>nul\n\necho ========================================\necho Setup complete! Starting servers...\necho ========================================\necho Frontend: http://localhost:3001\necho Backend: http://localhost:5000\necho ========================================\n\nREM Start backend in background\nstart \"Backend\" cmd /k \"cd src\\backend && python app.py\"\n\nREM Wait a moment then start frontend\ntimeout /t 3 /nobreak >nul\nstart \"Frontend\" cmd /k \"cd frontend-react && npm run dev\"\n\necho Both servers are starting...\necho Check the opened terminal windows for status\npause
+cls
+echo.
+echo ========================================
+echo   IA Poste Manager v2.3 - Quick Start
+echo   MS CONSEILS - Sarra Boudjellal
+echo ========================================
+echo.
+
+REM Check if Python is installed
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo ❌ Python not found. Please install Python 3.8+
+    pause
+    exit /b 1
+)
+
+REM Create virtual environment if it doesn't exist
+if not exist "venv" (
+    echo 📦 Creating virtual environment...
+    python -m venv venv
+)
+
+REM Activate virtual environment
+echo 🔧 Activating virtual environment...
+call venv\Scripts\activate.bat
+
+REM Install dependencies
+echo 📚 Installing dependencies...
+pip install -r requirements.txt --quiet
+
+REM Create data directory
+if not exist "data" mkdir data
+
+REM Check configuration
+echo 🔍 Checking configuration...
+python verify_system.py
+
+echo.
+echo 🚀 Starting IA Poste Manager...
+echo 📱 Access the app at: http://localhost:5000
+echo 🛑 Press Ctrl+C to stop the server
+echo.
+
+REM Start the application
+python app.py

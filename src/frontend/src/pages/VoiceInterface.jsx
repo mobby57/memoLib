@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { voiceService, emailService } from '../services/api';
+import apiService from '../services/api';
+import logger from '../utils/logger';
 
 export default function VoiceInterface() {
   const [isRecording, setIsRecording] = useState(false);
@@ -24,7 +25,7 @@ export default function VoiceInterface() {
       mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (error) {
-      console.error('Erreur microphone:', error);
+      logger.error('Erreur microphone', error, { action: 'startRecording' });
       alert('Microphone non accessible');
     }
   };
@@ -38,14 +39,22 @@ export default function VoiceInterface() {
 
   const transcribeAudio = async (audioBlob) => {
     try {
-      // Simulation - remplacer par vraie transcription
-      const result = await voiceService.transcribe({ audio: 'base64data' });
-      setTranscript(result.text);
+      // TODO: Implémenter vraie transcription via API
+      // Pour l'instant, simulation
+      const formData = new FormData();
+      formData.append('audio', audioBlob);
       
-      // Auto-génération email depuis transcription
-      generateEmailFromTranscript(result.text);
+      // Utiliser l'API réelle quand disponible
+      // const result = await apiService.request('/api/voice/transcribe', {
+      //   method: 'POST',
+      //   body: formData
+      // });
+      
+      // Simulation temporaire
+      setTranscript('Transcription en cours de développement...');
+      generateEmailFromTranscript('Message transcrit');
     } catch (error) {
-      console.error('Erreur transcription:', error);
+      logger.error('Erreur transcription', error, { action: 'transcribeAudio' });
     }
   };
 
@@ -61,12 +70,18 @@ Cordialement,`;
 
   const speakText = async (text) => {
     try {
-      await voiceService.speak(text);
-    } catch (error) {
-      // Fallback synthèse vocale navigateur
+      // Utiliser synthèse vocale navigateur (fallback)
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'fr-FR';
       speechSynthesis.speak(utterance);
+      
+      // TODO: Utiliser API TTS quand disponible
+      // await apiService.request('/api/voice/speak', {
+      //   method: 'POST',
+      //   body: JSON.stringify({ text })
+      // });
+    } catch (error) {
+      console.error('Erreur synthèse vocale:', error);
     }
   };
 
@@ -77,13 +92,13 @@ Cordialement,`;
     }
 
     try {
-      const result = await emailService.send({
+      const result = await apiService.sendEmail({
         to: recipient,
         subject: 'Message vocal',
         body: generatedEmail
       });
 
-      if (result.success) {
+      if (result) {
         await speakText('Email envoyé avec succès');
         setTranscript('');
         setGeneratedEmail('');
@@ -92,6 +107,7 @@ Cordialement,`;
         await speakText('Erreur lors de l\'envoi');
       }
     } catch (error) {
+      logger.error('Erreur envoi email', error, { recipient, action: 'sendVoiceEmail' });
       await speakText('Erreur technique');
     }
   };
