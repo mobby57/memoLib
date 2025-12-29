@@ -1,39 +1,48 @@
+#!/usr/bin/env python3
+"""
+Quick Server Test - Vérifie si le serveur fonctionne
+"""
+import requests
 import sys
-import traceback
-import signal
+import time
 
-sys.path.insert(0, 'src/backend')
-
-def signal_handler(sig, frame):
-    print('\n\nServer stopped by user')
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
-
-try:
-    print("Importing app...")
-    import app
+def test_server(max_retries=5):
+    """Test le serveur avec retry"""
+    base_url = "http://localhost:5000"
     
-    print("Starting server on port 10000...")
-    print("Server URL: http://localhost:10000")
-    print("Press Ctrl+C to stop\n")
+    print("\n🔍 Test du serveur API...")
+    print(f"URL: {base_url}\n")
     
-    app.socketio.run(
-        app.app, 
-        debug=False, 
-        host='0.0.0.0', 
-        port=10000,
-        use_reloader=False
-    )
-except SystemExit as e:
-    print(f"\n[EXIT] SystemExit with code: {e.code}")
-    if e.code != 0:
-        traceback.print_exc()
-    input("\nPress Enter to exit...")
-except KeyboardInterrupt:
-    print("\n\n[STOP] Server stopped by user")
-except Exception as e:
-    print(f"\n[ERROR] {type(e).__name__}: {e}")
-    print("\nFull traceback:")
-    traceback.print_exc()
-    input("\nPress Enter to exit...")
+    for i in range(max_retries):
+        try:
+            # Test health endpoint
+            print(f"Tentative {i+1}/{max_retries}... ", end="")
+            response = requests.get(f"{base_url}/api/v2/health", timeout=5)
+            
+            if response.status_code == 200:
+                data = response.json()
+                print("✅ SUCCÈS")
+                print(f"\nRésultat:")
+                print(f"  Status: {data.get('status')}")
+                print(f"  Database: {data.get('database')}")
+                print(f"  Timestamp: {data.get('timestamp')}")
+                return True
+            else:
+                print(f"❌ Erreur HTTP {response.status_code}")
+                
+        except requests.exceptions.ConnectionError:
+            print("❌ Connexion refusée")
+        except requests.exceptions.Timeout:
+            print("❌ Timeout")
+        except Exception as e:
+            print(f"❌ Erreur: {e}")
+        
+        if i < max_retries - 1:
+            time.sleep(2)
+    
+    print("\n❌ Le serveur ne répond pas après {} tentatives".format(max_retries))
+    return False
+
+if __name__ == '__main__':
+    success = test_server()
+    sys.exit(0 if success else 1)
