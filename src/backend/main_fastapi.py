@@ -1,299 +1,89 @@
-"""
-Point d'entrée FastAPI pour IAPosteManager v4.0
-Architecture unique MCP + Ollama
-"""
-import sys
-import os
-
-# Ajouter le répertoire racine au path Python
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from contextlib import asynccontextmanager
-import asyncio
+import os
+from dotenv import load_dotenv
+import openai
+import json
+from datetime import datetime
 
-try:
-    from src.backend.config_fastapi import settings
-    from src.backend.services.ollama_service import ollama_service
-    from src.backend.database import init_db
-    from src.backend.routes import auth, contacts, emails, document_analysis
-    # 📊 MONITORING: Prometheus metrics
-    from src.monitoring.prometheus import (
-        PrometheusMiddleware, 
-        metrics_endpoint, 
-        metrics_collector
-    )
-    # 📮 POSTAL ROUTES: Gestion postale (optionnel)
-    try:
-        from src.routes.postal_routes import router as postal_router
-        POSTAL_ROUTES_AVAILABLE = True
-    except ImportError:
-        POSTAL_ROUTES_AVAILABLE = False
-    # 🗺️ ROUTES DATA API: CRUD routes (optionnel)
-    try:
-        from src.routes.routes_data_api import router as routes_data_router
-        DATA_ROUTES_AVAILABLE = True
-    except ImportError:
-        DATA_ROUTES_AVAILABLE = False
-except ImportError as e:
-    print(f"❌ Erreur d'import: {e}")
-    print("💡 Assurez-vous d'être dans le répertoire racine du projet")
-    print("💡 Ou utilisez: python -m src.backend.main_fastapi")
-    sys.exit(1)
+load_dotenv()
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Lifecycle events"""
-    # Startup
-    print("🚀 Démarrage IAPosteManager v4.0")
-    print(f"📍 Ollama host: {settings.OLLAMA_HOST}")
-    
-    # Initialiser base de données
-    init_db()
-    print("✅ Base de données initialisée")
-    
-    # 📊 Démarrer collection métriques système en background
-    try:
-        asyncio.create_task(metrics_collector.start_background_collection())
-        print("✅ Prometheus metrics collection démarrée")
-    except Exception as e:
-        print(f"⚠️ Prometheus metrics non disponible: {e}")
-    
-    # Test connexion Ollama
-    status = await ollama_service.test_connexion()
-    if status.get("ollama_running"):
-        print("✅ Ollama connecté")
-        print(f"   llama3: {'✓' if status.get('llama3') else '✗'}")
-        print(f"   whisper: {'✓' if status.get('whisper') else '✗'}")
-        print(f"   embed: {'✓' if status.get('embed') else '✗'}")
-    else:
-        print("⚠️  Ollama non disponible:", status.get("error"))
-    
-    yield
-    
-    # Shutdown
-    print("👋 Arrêt IAPosteManager")
-
-
-# Création app FastAPI
-app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.APP_VERSION,
-    description="Assistant IA pour gestion courriers & emails",
-    lifespan=lifespan
-)
+app = FastAPI(title="IA Poste Manager", version="2.3")
 
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 📊 MONITORING: Prometheus middleware
-try:
-    app.add_middleware(PrometheusMiddleware)
-    print("✅ Prometheus middleware activé")
-except Exception as e:
-    print(f"⚠️ Prometheus middleware non disponible: {e}")
+# OpenAI client
+openai_api_key = os.getenv('OPENAI_API_KEY')
+if openai_api_key:
+    client = openai.OpenAI(api_key=openai_api_key)
+else:
+    client = None
 
-
-# ==================== ROUTES MODULES ====================
-
-# Routes Workspace
-try:
-    from routes.workspace_routes import router as workspace_router
-    app.include_router(workspace_router, prefix="/api/workspace", tags=["workspace"])
-    print("✅ Routes workspace activées")
-except ImportError:
-    print("⚠️ Routes workspace non disponibles")
-
-# Routes AI
-try:
-    from routes.ai_routes import router as ai_router
-    app.include_router(ai_router, prefix="/api/ai", tags=["ai"])
-    print("✅ Routes AI activées")
-except ImportError:
-    print("⚠️ Routes AI non disponibles")
-
-# Routes Authentication
-app.include_router(auth.router)
-
-# Routes Contacts
-app.include_router(contacts.router)
-
-# Routes Emails
-app.include_router(emails.router)
-
-# Routes Document Analysis
-app.include_router(document_analysis.router, prefix=settings.API_PREFIX)
-
-# Routes Postal Management (optional)
-if POSTAL_ROUTES_AVAILABLE:
-    app.include_router(postal_router)
-    print("✅ Routes postales activées")
-
-# Routes Data API (CRUD - optional)
-if DATA_ROUTES_AVAILABLE:
-    app.include_router(routes_data_router)
-    print("✅ API Routes Data activée")
-
-
-# ==================== ROUTES HEALTH ====================
-
-@app.get("/")
-async def root():
-    """Route racine"""
-    return {
-        "app": settings.APP_NAME,
-        "version": settings.APP_VERSION,
-        "status": "running",
-        "message": "Interface unique MCP + Ollama"
-    }
-
-
-@app.get("/health")
-async def health_check():
-    """Health check complet"""
-    ollama_status = await ollama_service.test_connexion()
-    
-    return {
-        "status": "healthy",
-        "ollama": ollama_status,
-        "version": settings.APP_VERSION
-    }
-
-@app.get("/metrics")
-async def metrics():
-    """📊 Prometheus metrics endpoint"""
-    try:
-        return metrics_endpoint()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Metrics unavailable: {e}")
-
-
-# ==================== ROUTES API ====================
-
-@app.get(f"{settings.API_PREFIX}/test")
-async def test_api():
-    """Test API basique"""
-    return {"message": "API v4.0 fonctionnelle"}
-
-
-@app.get(f"{settings.API_PREFIX}/ollama/test")
-async def test_ollama():
-    """Test connexion Ollama"""
-    status = await ollama_service.test_connexion()
-    
-    if not status.get("ollama_running"):
-        raise HTTPException(status_code=503, detail="Ollama non disponible")
-    
-    return status
-
-
-class GenerateRequest(BaseModel):
+# Models
+class EmailRequest(BaseModel):
     prompt: str
 
-class AnalyzeRequest(BaseModel):
-    texte: str
+class EmailSend(BaseModel):
+    to: str
+    subject: str
+    content: str
 
-class EmailRequest(BaseModel):
-    contexte: str
-    instruction: str
+# Storage
+emails = []
+templates = []
+contacts = []
 
+@app.get("/")
+def read_root():
+    return {"message": "IA Poste Manager v2.3", "status": "running"}
 
-@app.post(f"{settings.API_PREFIX}/ollama/generate")
-async def generate_text(request: GenerateRequest):
-    """Test génération de texte"""
+@app.post("/api/generate")
+def generate_email(request: EmailRequest):
+    if not request.prompt or len(request.prompt) > 500:
+        raise HTTPException(status_code=400, detail="Invalid prompt")
+    
     try:
-        response = await ollama_service.generate_text(request.prompt)
-        return {"prompt": request.prompt, "response": response}
+        if client:
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Tu es un assistant IA pour générer des emails professionnels en français."},
+                    {"role": "user", "content": f"Génère un email professionnel pour: {request.prompt}"}
+                ],
+                max_tokens=300
+            )
+            content = response.choices[0].message.content
+        else:
+            content = f"Objet: {request.prompt}\n\nBonjour,\n\nJe vous contacte concernant votre demande.\n\nCordialement,\nMS CONSEILS"
+        
+        return {"content": content}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Failed to generate email")
 
+@app.post("/api/send-email")
+def send_email(email: EmailSend):
+    email_record = {
+        'id': len(emails) + 1,
+        'to': email.to,
+        'subject': email.subject,
+        'content': email.content,
+        'date': datetime.now().isoformat()
+    }
+    emails.append(email_record)
+    return {"success": True, "message": "Email enregistré avec succès!"}
 
-@app.post(f"{settings.API_PREFIX}/analyze")
-async def analyze_document(request: AnalyzeRequest):
-    """Test analyse de document"""
-    try:
-        analyse = await ollama_service.analyze_document(request.texte)
-        return analyse
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@app.get("/api/emails")
+def get_emails():
+    return emails
 
-
-@app.post(f"{settings.API_PREFIX}/generate-email")
-async def generate_email(request: EmailRequest):
-    """Test génération d'emails"""
-    try:
-        variants = await ollama_service.generate_3_email_variants(request.contexte, request.instruction)
-        return {"variants": variants}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-# ==================== ADDITIONAL ENDPOINTS ====================
-
-@app.get(f"{settings.API_PREFIX}/inbox/messages")
-async def get_inbox_messages():
-    """Get inbox messages"""
-    # TODO: Implémenter récupération inbox
-    return {"messages": []}
-
-@app.get(f"{settings.API_PREFIX}/templates")
-async def get_templates():
-    """Get email templates"""
-    # TODO: Implémenter récupération templates
-    return {"templates": []}
-
-@app.post(f"{settings.API_PREFIX}/templates")
-async def create_template(template: dict):
-    """Create email template"""
-    # TODO: Implémenter création template
-    return {"id": "1", "status": "created"}
-
-@app.put(f"{settings.API_PREFIX}/templates/{{template_id}}")
-async def update_template(template_id: str, template: dict):
-    """Update email template"""
-    # TODO: Implémenter mise à jour template
-    return {"id": template_id, "status": "updated"}
-
-@app.delete(f"{settings.API_PREFIX}/templates/{{template_id}}")
-async def delete_template(template_id: str):
-    """Delete email template"""
-    # TODO: Implémenter suppression template
-    return {"id": template_id, "status": "deleted"}
-
-
-# ==================== ERROR HANDLERS ====================
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"error": exc.detail}
-    )
-
-
-@app.exception_handler(Exception)
-async def general_exception_handler(request, exc):
-    return JSONResponse(
-        status_code=500,
-        content={"error": "Erreur interne du serveur", "detail": str(exc)}
-    )
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "src.backend.main_fastapi:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True
-    )
+@app.get("/health")
+def health():
+    return {"status": "healthy", "service": "IA Poste Manager v2.3"}
