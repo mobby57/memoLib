@@ -1,52 +1,51 @@
-# Configuration Render.com
-# Alternative gratuite à Railway
-
-# render.yaml
-version: "1"
 services:
   - type: web
-    name: iapostemanager
+    name: cabinet-dupont
     env: python
+    repo: https://github.com/mobby57/iapostemanager
+    branch: multitenant-render
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
-      - key: FLASK_ENV
-        value: production
+      - key: CLIENT_ID
+        value: cabinet-dupont
+      - key: CLIENT_NAME
+        value: Cabinet Dupont & Associés
+      - key: SUBSCRIPTION_PLAN
+        value: professional
       - key: SECRET_KEY
         generateValue: true
-      - key: DATABASE_URL
-        fromDatabase:
-          name: iaposte-db
-          property: connectionString
 
-databases:
-  - name: iaposte-db
-    databaseName: iapostemanager
-    user: postgres
+  - type: web
+    name: cabinet-martin
+    env: python
+    repo: https://github.com/mobby57/iapostemanager
+    branch: multitenant-render
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: CLIENT_ID
+        value: cabinet-martin
+      - key: CLIENT_NAME
+        value: Cabinet Martin
+      - key: SUBSCRIPTION_PLAN
+        value: starter
+      - key: SECRET_KEY
+        generateValue: true
 
-# Procfile (alternative)
-web: gunicorn app:app --bind 0.0.0.0:$PORT
-
-# Variables d'environnement Render
-FLASK_ENV=production
-SECRET_KEY=auto-generated-by-render
-DATABASE_URL=postgresql://user:pass@host:5432/db
-REDIS_URL=redis://user:pass@host:6379
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-SENTRY_DSN=https://key@sentry.io/project
-
-# Avantages Render vs Railway:
-# - 750h/mois vs 500h/mois
-# - PostgreSQL gratuit inclus
-# - SSL automatique
-# - Logs persistants
-# - Meilleure stabilité
-
-# Déploiement Render:
-# 1. Aller sur render.com
-# 2. New > Web Service
-# 3. Connect GitHub repo
-# 4. Auto-deploy activé
-# 5. Variables configurées
-# 6. Deploy automatique
+  - type: web
+    name: cabinet-bernard
+    env: python
+    repo: https://github.com/mobby57/iapostemanager
+    branch: multitenant-render
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: CLIENT_ID
+        value: cabinet-bernard
+      - key: CLIENT_NAME
+        value: Cabinet Bernard
+      - key: SUBSCRIPTION_PLAN
+        value: enterprise
+      - key: SECRET_KEY
+        generateValue: true
