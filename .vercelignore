@@ -1,74 +1,45 @@
-# Vercel Ignore - Fichiers à ne pas déployer
+# Vercel ignore - Exclure gros fichiers
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-venv/
-ENV/
-env/
-*.egg-info/
+# Dossiers volumineux
+node_modules/
+generated_code/
+data/
+logs/
+backups/
+.git/
 
-# Database
+# Fichiers volumineux
 *.db
 *.sqlite
-*.sqlite3
-data/*.enc
-data/databases/
-
-# Logs
 *.log
-logs/
-*.pid
+*.zip
+*.tar.gz
 
-# Tests
-tests/
+# Cache et temporaires
+__pycache__/
+*.pyc
 .pytest_cache/
 .coverage
-htmlcov/
 
 # Documentation
 docs/
 *.md
-!README.md
+README.md
 
-# Development
+# Tests
+tests/
+test_*
+
+# Environnement
+.env*
+.venv/
+venv/
+
+# IDE
 .vscode/
-.cursor/
 .idea/
+*.swp
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Git
-.git/
-.gitignore
-
-# Config files
-.env
-.env.local
-*.env.*
-
-# Backups
-backups/
-*.backup
-
-# Credentials
-credentials/
-ssl/
-*.pem
-*.key
-
-# Generated
-generated_code/
-data/cache/
-data/uploads/
-
-# Node
-node_modules/
-
-# Frontend (si séparé)
-frontend/
-src/frontend/

@@ -1,54 +1,43 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - SecureVault</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Connexion - MS CONSEILS</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+               display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-box { background: white; padding: 40px; border-radius: 20px; 
+                     box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 400px; width: 100%; }
+        h2 { color: #2c3e50; margin-bottom: 30px; text-align: center; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #e1e8ed; 
+                border-radius: 10px; font-size: 16px; }
+        input:focus { outline: none; border-color: #667eea; }
+        button { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                 color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; }
+        .error { background: #fee; color: #c33; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .info { background: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 20px; color: #2c3e50; }
+    </style>
 </head>
 <body>
-    <div class="container" style="max-width: 500px; margin: 5rem auto;">
-        <div class="card" style="text-align: center;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">🔐</div>
-            <h1>SecureVault v2.2</h1>
-            <p style="color: #666; margin-bottom: 2rem;">Entrez votre mot de passe maître</p>
-            
-            <form id="loginForm">
-                <div class="input-group">
-                    <input type="password" id="password" placeholder="Mot de passe maître" required autofocus>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">🔓 Se connecter</button>
-            </form>
-            
-            <p style="margin-top: 2rem; color: #999; font-size: 0.9rem;">
-                Première visite ? Le mot de passe sera créé lors de la configuration.
-            </p>
+    <div class="login-box">
+        <h2>MS CONSEILS - IA Juridique</h2>
+        
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST">
+            <input type="text" name="username" placeholder="Nom d'utilisateur" required>
+            <input type="password" name="password" placeholder="Mot de passe" required>
+            <button type="submit">Se connecter</button>
+        </form>
+        
+        <div class="info">
+            <strong>Compte demo:</strong><br>
+            admin / admin123
         </div>
     </div>
-
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const password = document.getElementById('password').value;
-            
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({password})
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    location.href = result.redirect || '/';
-                } else {
-                    alert('❌ ' + result.error);
-                }
-            } catch (error) {
-                alert('❌ Erreur: ' + error.message);
-            }
-        });
-    </script>
 </body>
 </html>

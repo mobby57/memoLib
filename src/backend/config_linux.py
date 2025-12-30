@@ -43,8 +43,5 @@ class Settings:
     # File Storage
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
-    
-    # MCP Configuration
-    MCP_SERVERS_DIR: str = "mcp_servers"
 
 settings = Settings()

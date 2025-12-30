@@ -1,31 +1,25 @@
 {
   "version": 2,
-  "name": "iapostemanager",
+  "name": "iaposte-manager-secure",
   "builds": [
     {
-      "src": "api/index.py",
+      "src": "app_secure.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
-      "src": "/api/v2/(.*)",
-      "dest": "api/index.py"
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "api/index.py"
+      "dest": "app_secure.py"
     }
   ],
   "env": {
-    "PYTHONUNBUFFERED": "1",
-    "FLASK_ENV": "production"
-  },
-  "functions": {
-    "api/index.py": {
-      "runtime": "python3.11",
-      "maxDuration": 10
-    }
+    "FLASK_ENV": "production",
+    "FLASK_DEBUG": "False"
   },
   "regions": ["cdg1"]
 }

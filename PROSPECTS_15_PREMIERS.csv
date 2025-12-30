@@ -1,0 +1,16 @@
+Entreprise,SIREN,Contact_Prenom,Contact_Nom,Email,Telephone,Poste,Ville,Code_Postal,Secteur,Taille_Estimee,Priorite,Statut,Notes
+CONSEIL GESTION FORMATION,488770009,À rechercher,À rechercher,direction@cgf-paris.fr,01 XX XX XX XX,Gérant(e),Paris,75008,Conseil gestion,20-50,Très haute,À contacter,Même secteur que MS CONSEILS - Paris 8ème
+CONSEIL GESTION PERFORMANCE,983001660,À rechercher,À rechercher,contact@cgp-strasbourg.fr,03 XX XX XX XX,Directeur,Strasbourg,67100,Conseil gestion,15-30,Très haute,À contacter,Cabinet conseil - Strasbourg
+CONSEIL GESTION & INFORMATIQUE,381862002,À rechercher,À rechercher,contact@cgi-anglet.fr,05 XX XX XX XX,Gérant(e),Anglet,64600,Conseil informatique,10-25,Haute,À contacter,IT + Conseil - Double pain point
+CONSEIL GESTION COMMERCIALE,334668233,À rechercher,À rechercher,direction@cgc-toulon.fr,04 XX XX XX XX,Directeur commercial,Toulon,83000,Conseil commercial,15-40,Haute,À contacter,Conseil commercial - Forte volumétrie emails
+AUDIT CONSEIL GESTION,341186187,À rechercher,À rechercher,info@acg-audit.fr,01 XX XX XX XX,Expert-comptable,Paris,75000,Audit conseil,20-60,Haute,À contacter,Audit + Conseil - Client premium potentiel
+ASSISTANCE CONSEIL GESTION RH,939226296,À rechercher,À rechercher,contact@acg-rh.fr,01 XX XX XX XX,DRH,Île-de-France,75000,Conseil RH,10-30,Moyenne,À contacter,RH - Volumétrie candidats élevée
+CONSEIL GESTION SOCIALE PAYE,797878030,À rechercher,À rechercher,contact@cgsp.fr,01 XX XX XX XX,Responsable paie,Île-de-France,75000,Gestion sociale,15-40,Moyenne,À contacter,Paie - Emails salariés récurrents
+JPC CONSEIL GESTION ADMINISTRATION,498572080,À rechercher,À rechercher,contact@jpc-conseil.fr,01 XX XX XX XX,Directeur général,Île-de-France,75000,Conseil administration,10-25,Moyenne,À contacter,Administration - Courriers officiels
+CONSEIL GESTION REVISION,341623734,À rechercher,À rechercher,contact@cgr-yerres.fr,01 XX XX XX XX,Expert-comptable,Yerres,91330,Expertise comptable,15-35,Moyenne,À contacter,Expert-comptable - Emails clients standardisés
+CONSEIL GESTION FINANCE,520767674,À rechercher,À rechercher,contact@cgf-livry.fr,01 XX XX XX XX,Directeur financier,Livry-Gargan,93190,Conseil financier,10-30,Basse,À contacter,Finance - Reporting automatisable
+CONSEIL GESTION PROMOTION,379228331,À rechercher,À rechercher,contact@cgp-clamart.fr,01 XX XX XX XX,Gérant(e),Clamart,92140,Promotion immobilière,15-40,Basse,À contacter,Immobilier - Relances prospects
+CONSEIL GESTION (Immobilier),428233464,À rechercher,À rechercher,contact@cg-villers.fr,03 XX XX XX XX,Agent immobilier,Villers-Cotterêts,02600,Agence immobilière,5-15,Basse,À contacter,Agence immo - Relances visites
+CONSEIL GESTION BATIMENT,498542653,À rechercher,À rechercher,contact@cgb-villecresnes.fr,01 XX XX XX XX,Gérant BTP,Villecresnes,94440,Conseil BTP,10-25,Basse,À contacter,BTP - Devis/relances chantiers
+CONSEIL GESTION PHARMACIE,352336085,À rechercher,À rechercher,contact@cgp-bordeaux.fr,05 XX XX XX XX,Pharmacien,Bordeaux,33300,Conseil pharmacie,5-20,Basse,À contacter,Pharmacie - Niche spécialisée
+CONSEIL GESTION ASSISTANCE,332308246,À rechercher,À rechercher,contact@cga-livry.fr,01 XX XX XX XX,Directeur,Livry-Gargan,93190,Conseil assistance,10-20,Basse,À contacter,Assistance conseil - Généraliste

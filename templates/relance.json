@@ -1,5 +1,0 @@
-{
-  "subject": "Relance - Dossier {reference}",
-  "body": "Madame, Monsieur,\n\nJe fais suite à mon courrier du {date_premier_contact} concernant le dossier référencé {reference}.\n\nN'ayant pas reçu de réponse à ce jour, je me permets de relancer ma demande.\n\nPouvez-vous me confirmer la bonne réception de mon courrier et me communiquer l'avancement du traitement ?\n\nDans l'attente de votre retour, je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.\n\n{nom_expediteur}",
-  "variables": ["reference", "date_premier_contact", "nom_expediteur"]
-}

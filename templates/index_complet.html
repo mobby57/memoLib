@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Poste Manager v2.3 - MS CONSEILS</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --dark: #343a40;
+            --light: #f8f9fa;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            animation: fadeInDown 1s ease;
+        }
+        
+        .header h1 {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+        
+        .header .company {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+        
+        .status-bar {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .status-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .status-value {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .status-ok { color: var(--success); }
+        .status-warning { color: var(--warning); }
+        .status-error { color: var(--danger); }
+        .status-info { color: var(--info); }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .nav-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 35px;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-card:hover::before {
+            left: 100%;
+        }
+        
+        .nav-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .nav-icon {
+            font-size: 4rem;
+            margin-bottom: 25px;
+            display: block;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .nav-desc {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+        
+        .nav-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+        }
+        
+        .nav-stat {
+            text-align: center;
+        }
+        
+        .nav-stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .nav-stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.3s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .quick-actions {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(15px);
+        }
+        
+        .quick-actions h3 {
+            margin-bottom: 20px;
+            color: var(--dark);
+            text-align: center;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .action-btn {
+            padding: 15px 20px;
+            background: var(--light);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .action-btn:hover {
+            border-color: var(--primary);
+            background: white;
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            opacity: 0.9;
+            padding: 30px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .footer h4 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .footer p {
+            margin-bottom: 5px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .nav-card:nth-child(1) { animation: fadeInUp 0.6s ease 0.1s both; }
+        .nav-card:nth-child(2) { animation: fadeInUp 0.6s ease 0.2s both; }
+        .nav-card:nth-child(3) { animation: fadeInUp 0.6s ease 0.3s both; }
+        .nav-card:nth-child(4) { animation: fadeInUp 0.6s ease 0.4s both; }
+        .nav-card:nth-child(5) { animation: fadeInUp 0.6s ease 0.5s both; }
+        .nav-card:nth-child(6) { animation: fadeInUp 0.6s ease 0.6s both; }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5rem; }
+            .nav-grid { grid-template-columns: 1fr; }
+            .status-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-rocket"></i> IA Poste Manager v2.3</h1>
+            <p class="subtitle">Système professionnel d'automatisation d'emails avec Intelligence Artificielle</p>
+            <p class="company"><strong>MS CONSEILS</strong> - Sarra Boudjellal</p>
+        </div>
+        
+        <div class="status-bar">
+            <h3 style="margin-bottom: 25px; text-align: center; color: var(--dark);">
+                <i class="fas fa-chart-line"></i> État du Système
+            </h3>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-label"><i class="fas fa-robot"></i> Intelligence IA</span>
+                    <span id="openai-status" class="loading"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label"><i class="fas fa-server"></i> Serveur Flask</span>
+                    <span class="status-value status-ok"><i class="fas fa-check-circle"></i> Opérationnel</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label"><i class="fas fa-envelope"></i> Templates</span>
+                    <span id="templates-count" class="loading"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label"><i class="fas fa-users"></i> Contacts</span>
+                    <span id="contacts-count" class="loading"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nav-grid">
+            <div class="nav-card" onclick="window.location.href='/dashboard'">
+                <i class="nav-icon fas fa-chart-pie"></i>
+                <div class="nav-title">Dashboard Analytics</div>
+                <div class="nav-desc">Tableau de bord complet avec métriques avancées, statistiques d'ouverture et analyse des performances</div>
+                <div class="nav-stats">
+                    <div class="nav-stat">
+                        <div class="nav-stat-number" id="total-emails">-</div>
+                        <div class="nav-stat-label">Emails</div>
+                    </div>
+                    <div class="nav-stat">
+                        <div class="nav-stat-number" id="open-rate">-</div>
+                        <div class="nav-stat-label">Taux ouverture</div>
+                    </div>
+                </div>
+                <a href="/dashboard" class="btn"><i class="fas fa-arrow-right"></i> Accéder</a>
+            </div>
+            
+            <div class="nav-card" onclick="window.location.href='/generate'">
+                <i class="nav-icon fas fa-magic"></i>
+                <div class="nav-title">Génération IA Avancée</div>
+                <div class="nav-desc">Créez des emails professionnels avec GPT-3.5 Turbo. IA contextuelle adaptée aux besoins business</div>
+                <div class="nav-stats">
+                    <div class="nav-stat">
+                        <div class="nav-stat-number">GPT-3.5</div>
+                        <div class="nav-stat-label">Modèle IA</div>
+                    </div>
+                    <div class="nav-stat">
+                        <div class="nav-stat-number">600</div>
+                        <div class="nav-stat-label">Tokens max</div>
+                    </div>
+                </div>
+                <a href="/generate" class="btn"><i class="fas fa-wand-magic-sparkles"></i> Générer</a>
+            </div>
+            
+            <div class="nav-card" onclick="window.location.href='/templates'">
+                <i class="nav-icon fas fa-file-alt"></i>
+                <div class="nav-title">Bibliothèque Templates</div>
+                <div class="nav-desc">Collection professionnelle de modèles d'emails personnalisables pour tous vos besoins business</div>
+                <div class="nav-stats">
+                    <div class="nav-stat">
+                        <div class="nav-stat-number" id="template-count">-</div>
+                        <div class="nav-stat-label">Templates</div>
+                    </div>
+                    <div class="nav-stat">
+                        <div class="nav-stat-number" id="template-categories">-</div>
+                        <div class="nav-stat-label">Catégories</div>
+                    </div>
+                </div>
+                <a href="/templates" class="btn"><i class="fas fa-folder-open"></i> Explorer</a>
+            </div>
+            
+            <div class="nav-card" onclick="window.location.href='/contacts'">
+                <i class="nav-icon fas fa-address-book"></i>
+                <div class="nav-title">CRM Contacts Pro</div>
+                <div class="nav-desc">Gestion avancée de votre carnet d'adresses avec segmentation clients, prospects et partenaires</div>
+                <div class="nav-stats">
+                    <div class="nav-stat">
+                        <div class="nav-stat-number" id="contact-count">-</div>
+                        <div class="nav-stat-label">Contacts</div>
+                    </div>
+                    <div class="nav-stat">
+                        <div class="nav-stat-number" id="contact-types">-</div>
+                        <div class="nav-stat-label">Types</div>
+                    </div>
+                </div>
+                <a href="/contacts" class="btn"><i class="fas fa-user-friends"></i> Gérer</a>
+            </div>
+            
+            <div class="nav-card" onclick="window.location.href='/history'">
+                <i class="nav-icon fas fa-history"></i>
+                <div class="nav-title">Historique & Tracking</div>
+                <div class="nav-desc">Suivi complet de tous vos envois avec statistiques d'ouverture, clics et analyse comportementale</div>
+                <div class="nav-stats">
+                    <div class="nav-stat">
+                        <div class="nav-stat-number" id="sent-emails">-</div>
+                        <div class="nav-stat-label">Envoyés</div>
+                    </div>
+                    <div class="nav-stat">
+                        <div class="nav-stat-number" id="delivery-rate">-</div>
+                        <div class="nav-stat-label">Délivrés</div>
+                    </div>
+                </div>
+                <a href="/history" class="btn"><i class="fas fa-chart-line"></i> Analyser</a>
+            </div>
+            
+            <div class="nav-card" onclick="testAPI()">
+                <i class="nav-icon fas fa-flask"></i>
+                <div class="nav-title">Test API Live</div>
+                <div class="nav-desc">Testez la génération IA en temps réel avec diagnostic complet des performances système</div>
+                <div class="nav-stats">
+                    <div class="nav-stat">
+                        <div class="nav-stat-number">Live</div>
+                        <div class="nav-stat-label">Status</div>
+                    </div>
+                    <div class="nav-stat">
+                        <div class="nav-stat-number">API</div>
+                        <div class="nav-stat-label">Test</div>
+                    </div>
+                </div>
+                <button class="btn" id="test-btn"><i class="fas fa-play"></i> Tester Maintenant</button>
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <h3><i class="fas fa-bolt"></i> Actions Rapides</h3>
+            <div class="actions-grid">
+                <div class="action-btn" onclick="window.location.href='/compose'">
+                    <i class="fas fa-edit"></i><br>Composer Email
+                </div>
+                <div class="action-btn" onclick="window.location.href='/api/stats'">
+                    <i class="fas fa-chart-bar"></i><br>Voir Statistiques
+                </div>
+                <div class="action-btn" onclick="window.location.href='/health'">
+                    <i class="fas fa-heartbeat"></i><br>Status Santé
+                </div>
+                <div class="action-btn" onclick="window.location.href='/admin'">
+                    <i class="fas fa-cog"></i><br>Administration
+                </div>
+            </div>
+        </div>
+        
+        <div id="test-result" style="display: none; background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; margin-top: 30px; backdrop-filter: blur(15px);">
+            <h3><i class="fas fa-vial"></i> Résultat du Test API</h3>
+            <div id="test-content" style="background: var(--light); padding: 20px; border-radius: 15px; margin-top: 15px; font-family: 'Courier New', monospace; border-left: 5px solid var(--primary);"></div>
+        </div>
+        
+        <div class="footer">
+            <h4><i class="fas fa-building"></i> MS CONSEILS</h4>
+            <p><strong>Sarra Boudjellal</strong> - Consultante en Solutions Digitales</p>
+            <p>Version 2.3 Professional - Architecture Flask optimisée</p>
+            <p><i class="fas fa-envelope"></i> sarra@msconseils.fr | <i class="fas fa-globe"></i> www.msconseils.fr</p>
+        </div>
+    </div>
+    
+    <script>
+        // Chargement des statistiques
+        async function loadStats() {
+            try {
+                const [healthRes, statsRes, templatesRes, contactsRes] = await Promise.all([
+                    fetch('/health'),
+                    fetch('/api/stats'),
+                    fetch('/api/templates'),
+                    fetch('/api/contacts')
+                ]);
+                
+                const health = await healthRes.json();
+                const stats = await statsRes.json();
+                const templates = await templatesRes.json();
+                const contacts = await contactsRes.json();
+                
+                // Mise à jour des statuts
+                updateStatus('openai-status', health.services.openai, 
+                    health.services.openai ? 'IA Configurée' : 'Mode Simulation');
+                
+                updateStatus('templates-count', true, `${templates.count} disponibles`);
+                updateStatus('contacts-count', true, `${contacts.count} contacts`);
+                
+                // Mise à jour des statistiques dans les cartes
+                document.getElementById('total-emails').textContent = stats.emails.total;
+                document.getElementById('open-rate').textContent = stats.emails.open_rate + '%';
+                document.getElementById('template-count').textContent = templates.count;
+                document.getElementById('template-categories').textContent = templates.categories.length;
+                document.getElementById('contact-count').textContent = contacts.count;
+                document.getElementById('contact-types').textContent = contacts.types.length;
+                document.getElementById('sent-emails').textContent = stats.emails.delivered;
+                document.getElementById('delivery-rate').textContent = '100%';
+                
+            } catch (error) {
+                console.error('Erreur chargement stats:', error);
+                document.querySelectorAll('.loading').forEach(el => {
+                    el.textContent = '❌ Erreur';
+                    el.className = 'status-value status-error';
+                });
+            }
+        }
+        
+        function updateStatus(elementId, isOk, text) {
+            const element = document.getElementById(elementId);
+            element.textContent = (isOk ? '✅ ' : '⚠️ ') + text;
+            element.className = `status-value ${isOk ? 'status-ok' : 'status-warning'}`;
+        }
+        
+        // Test de l'API
+        async function testAPI() {
+            const btn = document.getElementById('test-btn');
+            const result = document.getElementById('test-result');
+            const content = document.getElementById('test-content');
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Test en cours...';
+            btn.disabled = true;
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        prompt: 'Rédigez un email de bienvenue professionnel pour un nouveau client de MS CONSEILS' 
+                    })
+                });
+                
+                const endTime = Date.now();
+                const data = await response.json();
+                
+                if (data.success) {
+                    content.innerHTML = `
+                        <div style="margin-bottom: 15px;">
+                            <strong>✅ Test réussi</strong><br>
+                            <strong>Mode:</strong> ${data.mode}<br>
+                            <strong>Temps de réponse:</strong> ${endTime - startTime}ms<br>
+                            <strong>Mots générés:</strong> ${data.word_count}<br>
+                            <strong>Timestamp:</strong> ${data.timestamp}
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 10px; border-left: 3px solid var(--success);">
+                            <strong>Email généré:</strong><br><br>
+                            ${data.email.replace(/\n/g, '<br>')}
+                        </div>
+                    `;
+                    result.style.display = 'block';
+                    result.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    content.innerHTML = `<div style="color: var(--danger);"><strong>❌ Erreur:</strong> ${data.error}</div>`;
+                    result.style.display = 'block';
+                }
+            } catch (error) {
+                content.innerHTML = `<div style="color: var(--danger);"><strong>❌ Erreur de connexion:</strong> ${error.message}</div>`;
+                result.style.display = 'block';
+            }
+            
+            btn.innerHTML = '<i class="fas fa-play"></i> Tester Maintenant';
+            btn.disabled = false;
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', loadStats);
+        
+        // Actualisation automatique toutes les 30 secondes
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>

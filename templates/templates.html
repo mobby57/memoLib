@@ -3,182 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Templates - SecureVault</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/navigation.css">
+    <title>Templates - IA Poste Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        h1 { color: #333; text-align: center; }
+        .nav { margin: 20px 0; text-align: center; }
+        .nav a { margin: 0 10px; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        .template-card { background: #f8f9fa; margin: 15px 0; padding: 20px; border-radius: 10px; border-left: 4px solid #007bff; }
+        .template-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; }
+        .template-content { background: white; padding: 15px; border-radius: 5px; font-family: monospace; }
+    </style>
 </head>
 <body>
-    <nav class="main-nav">
-        <div class="nav-brand">
-            <svg width="32" height="32" viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
-                <path d="M20 10 L20 20 L28 20" stroke="currentColor" stroke-width="2" fill="none"/>
-            </svg>
-            <span>SecureVault</span>
-        </div>
-        <div class="nav-links">
-            <a href="/" class="nav-link">🏠 Accueil</a>
-            <a href="/composer" class="nav-link">✨ Composer</a>
-            <a href="/templates" class="nav-link active">📋 Templates</a>
-        </div>
-        <button class="theme-toggle" id="themeToggle">🌙</button>
-    </nav>
-
     <div class="container">
-        <header style="text-align: center; margin: 2rem 0;">
-            <h1>📋 Modèles d'Emails</h1>
-        </header>
-
-        <div class="card">
-            <h2>Nouveau Template</h2>
-            <form id="templateForm">
-                <div class="input-group">
-                    <label for="name">Nom du template</label>
-                    <input type="text" id="name" placeholder="Ex: Demande de congés" required>
-                </div>
-                <div class="input-group">
-                    <label for="category">Catégorie</label>
-                    <select id="category">
-                        <option value="general">Général</option>
-                        <option value="professionnel">Professionnel</option>
-                        <option value="administratif">Administratif</option>
-                        <option value="commercial">Commercial</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="subject">Objet</label>
-                    <input type="text" id="subject" placeholder="Objet de l'email" required>
-                </div>
-                <div class="input-group">
-                    <label for="body">Corps du message</label>
-                    <textarea id="body" rows="8" placeholder="Contenu du template..." required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
-            </form>
+        <h1>📝 Gestion des Templates</h1>
+        
+        <div class="nav">
+            <a href="/">🏠 Accueil</a>
+            <a href="/dashboard">📊 Dashboard</a>
+            <a href="/compose">✍️ Composer</a>
+            <a href="/history">📋 Historique</a>
+            <a href="/contacts">👥 Contacts</a>
         </div>
-
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2>Mes Templates</h2>
-                <button onclick="loadTemplates()" class="btn btn-secondary">🔄 Actualiser</button>
+        
+        <div id="templates-list">
+            <div class="template-card">
+                <div class="template-title">📧 Email professionnel</div>
+                <div class="template-content">
+                    Bonjour,<br><br>
+                    J'espère que ce message vous trouve en bonne santé.<br><br>
+                    [Votre message ici]<br><br>
+                    Cordialement,<br>
+                    MS CONSEILS
+                </div>
             </div>
-            <div id="templatesList">
-                <p style="text-align: center; color: #666;">Chargement...</p>
+            
+            <div class="template-card">
+                <div class="template-title">🔄 Relance client</div>
+                <div class="template-content">
+                    Bonjour,<br><br>
+                    Je me permets de revenir vers vous concernant [sujet].<br><br>
+                    [Détails de la relance]<br><br>
+                    Dans l'attente de votre retour.<br><br>
+                    Cordialement,<br>
+                    MS CONSEILS
+                </div>
             </div>
         </div>
+        
+        <p style="margin-top: 30px;"><strong>MS CONSEILS</strong> - Sarra Boudjellal</p>
     </div>
-
-    <div class="notification" id="notification"></div>
-
-    <script src="/static/js/navigation.js"></script>
-    <script>
-        document.getElementById('templateForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const template = {
-                id: Date.now().toString(),
-                name: document.getElementById('name').value,
-                category: document.getElementById('category').value,
-                subject: document.getElementById('subject').value,
-                body: document.getElementById('body').value
-            };
-            
-            try {
-                const response = await fetch('/api/templates', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(template)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showNotification('✅ Template enregistré!', 'success');
-                    document.getElementById('templateForm').reset();
-                    loadTemplates();
-                } else {
-                    showNotification('❌ ' + result.error, 'error');
-                }
-            } catch (error) {
-                showNotification('❌ Erreur: ' + error.message, 'error');
-            }
-        });
-        
-        async function loadTemplates() {
-            try {
-                const response = await fetch('/api/templates');
-                const data = await response.json();
-                
-                const list = document.getElementById('templatesList');
-                
-                if (!data.templates || data.templates.length === 0) {
-                    list.innerHTML = '<p style="text-align: center; color: #666;">Aucun template</p>';
-                    return;
-                }
-                
-                list.innerHTML = data.templates.map(t => `
-                    <div class="template-item" style="border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
-                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <div style="flex: 1;">
-                                <h3 style="margin: 0 0 0.5rem 0;">${t.name}</h3>
-                                <span class="badge" style="background: #e3f2fd; color: #1976d2; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">
-                                    ${t.category}
-                                </span>
-                                <p style="margin: 0.5rem 0; color: #666;"><strong>Objet:</strong> ${t.subject}</p>
-                                <p style="margin: 0; color: #999; font-size: 0.9rem;">${t.body.substring(0, 100)}...</p>
-                            </div>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button onclick="useTemplate('${t.id}')" class="btn btn-sm btn-primary">✨ Utiliser</button>
-                                <button onclick="deleteTemplate('${t.id}')" class="btn btn-sm btn-danger">🗑️</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-            } catch (error) {
-                document.getElementById('templatesList').innerHTML = 
-                    '<p style="text-align: center; color: #dc3545;">❌ Erreur de chargement</p>';
-            }
-        }
-        
-        function useTemplate(id) {
-            showNotification('🚀 Redirection vers le composer...', 'info');
-            setTimeout(() => location.href = '/composer', 1000);
-        }
-        
-        async function deleteTemplate(id) {
-            if (!confirm('Supprimer ce template ?')) return;
-            
-            try {
-                const response = await fetch(`/api/templates/${id}`, {method: 'DELETE'});
-                const result = await response.json();
-                
-                if (result.success) {
-                    showNotification('✅ Template supprimé', 'success');
-                    loadTemplates();
-                } else {
-                    showNotification('❌ Erreur', 'error');
-                }
-            } catch (error) {
-                showNotification('❌ Erreur: ' + error.message, 'error');
-            }
-        }
-        
-        function showNotification(message, type) {
-            const notif = document.getElementById('notification');
-            notif.textContent = message;
-            notif.className = `notification ${type} show`;
-            setTimeout(() => notif.classList.remove('show'), 3000);
-        }
-        
-        loadTemplates();
-    </script>
-
-    <style>
-        .btn-sm {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.85rem;
-        }
-    </style>
 </body>
 </html>

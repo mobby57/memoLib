@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
+import openai
 import json
 from datetime import datetime
 
@@ -19,17 +20,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# OpenAI client (lazy import to avoid blocking on PythonAnywhere)
-_openai_client = None
-
-def get_openai_client():
-    global _openai_client
-    if _openai_client is None:
-        openai_api_key = os.getenv('OPENAI_API_KEY')
-        if openai_api_key:
-            import openai
-            _openai_client = openai.OpenAI(api_key=openai_api_key)
-    return _openai_client
+# OpenAI client
+openai_api_key = os.getenv('OPENAI_API_KEY')
+if openai_api_key:
+    client = openai.OpenAI(api_key=openai_api_key)
+else:
+    client = None
 
 # Models
 class EmailRequest(BaseModel):
@@ -55,7 +51,6 @@ def generate_email(request: EmailRequest):
         raise HTTPException(status_code=400, detail="Invalid prompt")
     
     try:
-        client = get_openai_client()
         if client:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",

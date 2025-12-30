@@ -3,158 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Génération IA - SecureVault</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Composer - IA Poste Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        h1 { color: #333; text-align: center; }
+        .nav { margin: 20px 0; text-align: center; }
+        .nav a { margin: 0 10px; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #218838; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🤖 Génération IA</h1>
-            <nav>
-                <a href="/nav">← Retour</a>
-                <a href="/compose">Composer →</a>
-            </nav>
-        </header>
-
-        <div class="card">
-            <h2>Paramètres de génération</h2>
-            <form id="generateForm">
-                <div class="form-group">
-                    <label>Contexte/Sujet:</label>
-                    <textarea id="context" rows="3" placeholder="Ex: Relance client pour facture impayée" required></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>Type d'email:</label>
-                    <select id="emailType">
-                        <option value="professionnel">Professionnel</option>
-                        <option value="commercial">Commercial</option>
-                        <option value="relance">Relance</option>
-                        <option value="remerciement">Remerciement</option>
-                        <option value="invitation">Invitation</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Ton:</label>
-                    <select id="tone">
-                        <option value="professionnel">Professionnel</option>
-                        <option value="amical">Amical</option>
-                        <option value="formel">Formel</option>
-                        <option value="urgent">Urgent</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Longueur:</label>
-                    <select id="length">
-                        <option value="court">Court</option>
-                        <option value="moyen">Moyen</option>
-                        <option value="long">Long</option>
-                    </select>
-                </div>
-
-                <button type="submit" id="generateBtn">🤖 Générer</button>
-            </form>
+        <h1>✍️ Composer un Email</h1>
+        
+        <div class="nav">
+            <a href="/">🏠 Accueil</a>
+            <a href="/dashboard">📊 Dashboard</a>
+            <a href="/templates">📝 Templates</a>
+            <a href="/history">📋 Historique</a>
+            <a href="/contacts">👥 Contacts</a>
         </div>
-
-        <div class="card hidden" id="resultCard">
-            <h2>Contenu généré</h2>
+        
+        <form>
             <div class="form-group">
-                <label>Sujet:</label>
-                <input type="text" id="generatedSubject" readonly>
+                <label for="prompt">Décrivez votre email :</label>
+                <textarea id="prompt" rows="4" placeholder="Ex: Rédigez un email de relance pour un client qui n'a pas payé sa facture"></textarea>
             </div>
-            <div class="form-group">
-                <label>Corps:</label>
-                <textarea id="generatedBody" rows="10" readonly></textarea>
-            </div>
-            <div class="form-actions">
-                <button onclick="regenerate()">🔄 Régénérer</button>
-                <button onclick="editContent()">✏️ Éditer</button>
-                <button onclick="sendToCompose()">📝 Composer</button>
-            </div>
-        </div>
-
-        <div id="loading" class="hidden">
-            <div class="progress">
-                <div class="progress-bar"></div>
-                <span>Génération en cours...</span>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('generateForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
             
-            const formData = {
-                context: document.getElementById('context').value,
-                emailType: document.getElementById('emailType').value,
-                tone: document.getElementById('tone').value,
-                length: document.getElementById('length').value
-            };
-
-            showLoading();
+            <div class="form-group">
+                <label for="recipient">Destinataire :</label>
+                <input type="email" id="recipient" placeholder="email@example.com">
+            </div>
+            
+            <button type="button" onclick="generateEmail()">🤖 Générer avec IA</button>
+        </form>
+        
+        <div id="result" style="margin-top: 20px; display: none;">
+            <h3>📧 Email généré :</h3>
+            <div id="generated-email" style="background: #f8f9fa; padding: 15px; border-radius: 5px;"></div>
+        </div>
+        
+        <p style="margin-top: 30px;"><strong>MS CONSEILS</strong> - Sarra Boudjellal</p>
+    </div>
+    
+    <script>
+        async function generateEmail() {
+            const prompt = document.getElementById('prompt').value;
+            if (!prompt) {
+                alert('Veuillez décrire votre email');
+                return;
+            }
             
             try {
-                const response = await fetch('/api/generate-content', {
+                const response = await fetch('/api/generate', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(formData)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    showResult(data.subject, data.body);
+                    document.getElementById('generated-email').innerHTML = data.email.replace(/\n/g, '<br>');
+                    document.getElementById('result').style.display = 'block';
                 } else {
                     alert('Erreur: ' + data.error);
                 }
             } catch (error) {
-                alert('Erreur: ' + error.message);
-            } finally {
-                hideLoading();
+                alert('Erreur de connexion');
             }
-        });
-
-        function showLoading() {
-            document.getElementById('loading').classList.remove('hidden');
-            document.getElementById('resultCard').classList.add('hidden');
-        }
-
-        function hideLoading() {
-            document.getElementById('loading').classList.add('hidden');
-        }
-
-        function showResult(subject, body) {
-            document.getElementById('generatedSubject').value = subject;
-            document.getElementById('generatedBody').value = body;
-            document.getElementById('resultCard').classList.remove('hidden');
-        }
-
-        function regenerate() {
-            document.getElementById('generateForm').dispatchEvent(new Event('submit'));
-        }
-
-        function editContent() {
-            document.getElementById('generatedSubject').readOnly = false;
-            document.getElementById('generatedBody').readOnly = false;
-        }
-
-        function sendToCompose() {
-            const subject = document.getElementById('generatedSubject').value;
-            const body = document.getElementById('generatedBody').value;
-            
-            sessionStorage.setItem('draftSubject', subject);
-            sessionStorage.setItem('draftBody', body);
-            
-            window.location.href = '/compose';
-        }
-
-        // Auto-remplir si contexte dans URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('context')) {
-            document.getElementById('context').value = urlParams.get('context');
         }
     </script>
 </body>

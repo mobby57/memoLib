@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Démo Assistant Avocat IA - CESEDA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; text-align: center; }
+        .demo-section { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .demo-title { color: #333; font-size: 1.5em; margin-bottom: 20px; border-left: 4px solid #667eea; padding-left: 15px; }
+        .email-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 15px 0; }
+        .analysis-result { background: #e8f5e8; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; }
+        .urgence-critique { background: #ffe6e6; border-left: 4px solid #dc3545; padding: 15px; color: #721c24; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; }
+        .btn-demo { background: #667eea; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 1em; margin: 10px 5px; }
+        .btn-demo:hover { background: #5a6fd8; }
+        .response-box { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 15px 0; white-space: pre-line; }
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .priority-item { padding: 10px; margin: 5px 0; border-radius: 5px; background: #f8f9fa; border-left: 3px solid #ffc107; }
+        .priority-critique { border-left-color: #dc3545; background: #ffe6e6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 DÉMO ASSISTANT AVOCAT IA</h1>
+            <p>Spécialisé CESEDA - Collaboration Homme-Machine</p>
+            <p><strong>Cabinet Démo | Maître Dupont | 30/12/2025</strong></p>
+        </div>
+
+        <!-- ÉTAPE 1: Analyse Email -->
+        <div class="demo-section">
+            <h2 class="demo-title">🔍 ÉTAPE 1: Analyse Email Automatique</h2>
+            <div class="email-box">
+                <h3>📧 Email Client Reçu:</h3>
+                <p><strong>De:</strong> ahmed.hassan@email.com</p>
+                <p><strong>Objet:</strong> URGENT - OQTF reçue</p>
+                <p><strong>Message:</strong> "Bonjour Maître, j'ai reçu OQTF hier. Que faire? Merci"</p>
+            </div>
+            <button class="btn-demo" onclick="analyserEmail()">⚡ Analyser avec IA (3 sec)</button>
+            <div id="analyse-result" style="display:none;">
+                <div class="analysis-result">
+                    <h3>🤖 ANALYSE IA COMPLÈTE:</h3>
+                    <ul>
+                        <li><strong>Client:</strong> M. Ahmed HASSAN</li>
+                        <li><strong>Nationalité:</strong> Syrie (détectée)</li>
+                        <li><strong>Procédure:</strong> Recours OQTF</li>
+                        <li><strong>Urgence:</strong> 🚨 CRITIQUE</li>
+                        <li><strong>Délai:</strong> 7 jours maximum</li>
+                        <li><strong>Pièces manquantes:</strong> Attestation hébergement, Bulletins salaire</li>
+                        <li><strong>Stratégie suggérée:</strong> Recours suspensif + aide juridictionnelle</li>
+                    </ul>
+                </div>
+                <div class="urgence-critique">
+                    🚨 <strong>ALERTE URGENCE:</strong> Délai critique détecté - Action immédiate requise
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 2: Génération Réponse -->
+        <div class="demo-section">
+            <h2 class="demo-title">📝 ÉTAPE 2: Génération Réponse Personnalisée</h2>
+            <button class="btn-demo" onclick="genererReponse()">🤖 Générer Brouillon IA</button>
+            <div id="reponse-result" style="display:none;">
+                <div class="response-box">Cher M. Ahmed HASSAN,
+
+Suite à votre email concernant votre OQTF, je vous confirme la réception de votre demande.
+
+🚨 URGENCE DÉTECTÉE: Délai critique de 7 jours
+
+Actions immédiates requises:
+• Recours à déposer avant le 06/01/2025
+• Pièces manquantes: Attestation hébergement, Bulletins salaire
+• Rdv urgent à prévoir cette semaine
+
+Stratégie recommandée: Recours suspensif + demande aide juridictionnelle
+
+Je vous recontacte dans l'heure pour organiser notre rendez-vous.
+
+Cordialement,
+Maître Dupont
+Cabinet Démo</div>
+                <p><strong>✅ AVOCAT RÉVISE ET VALIDE</strong> - L'IA propose, l'avocat dispose</p>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 3: Dashboard -->
+        <div class="demo-section">
+            <h2 class="demo-title">📊 ÉTAPE 3: Tableau de Bord Temps Réel</h2>
+            <button class="btn-demo" onclick="afficherDashboard()">📈 Afficher Dashboard</button>
+            <div id="dashboard-result" style="display:none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div>Dossiers Actifs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3</div>
+                        <div>🚨 Urgences</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5</div>
+                        <div>⏰ Délais < 7j</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">8</div>
+                        <div>📋 Pièces Manquantes</div>
+                    </div>
+                </div>
+                <div class="dashboard">
+                    <div>
+                        <h3>🎯 Priorités Suggérées:</h3>
+                        <div class="priority-item priority-critique">🚨 CESEDA-2025-001 - M. HASSAN (7j)</div>
+                        <div class="priority-item priority-critique">🚨 CESEDA-2025-003 - Mme DIALLO (5j)</div>
+                        <div class="priority-item">📋 CESEDA-2025-002 - Mme BENALI (30j)</div>
+                        <div class="priority-item">📋 CESEDA-2025-004 - M. CHEN (45j)</div>
+                    </div>
+                    <div>
+                        <h3>📈 Métriques Performance:</h3>
+                        <p>• Temps moyen/dossier: <strong>36 min</strong> (vs 2h avant)</p>
+                        <p>• Taux succès: <strong>87%</strong> (vs 60% moyenne)</p>
+                        <p>• Satisfaction client: <strong>98%</strong></p>
+                        <p>• Dossiers/jour: <strong>12</strong> (vs 4 avant)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 4: ROI -->
+        <div class="demo-section">
+            <h2 class="demo-title">💰 ÉTAPE 4: Retour sur Investissement</h2>
+            <button class="btn-demo" onclick="calculerROI()">💡 Calculer Gains</button>
+            <div id="roi-result" style="display:none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">70%</div>
+                        <div>Temps Économisé</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">+200%</div>
+                        <div>Dossiers Supplémentaires</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">95%</div>
+                        <div>Erreurs Réduites</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">+2400€</div>
+                        <div>Revenus/Mois</div>
+                    </div>
+                </div>
+                <div class="analysis-result">
+                    <h3>💡 EXEMPLE CONCRET:</h3>
+                    <p>• <strong>Avant IA:</strong> 2h par dossier = 4 dossiers/jour = 1200€/jour</p>
+                    <p>• <strong>Avec IA:</strong> 36min par dossier = 12 dossiers/jour = 3600€/jour</p>
+                    <p>• <strong>Gain net:</strong> +8 dossiers/jour = +2400€/jour = +48000€/mois</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONCLUSION -->
+        <div class="demo-section">
+            <h2 class="demo-title">🎯 Conclusion Démo</h2>
+            <div class="analysis-result">
+                <h3>✅ ASSISTANT IA QUI AUGMENTE L'AVOCAT</h3>
+                <ul>
+                    <li>🤝 <strong>Collaboration vraie:</strong> IA propose, avocat dispose</li>
+                    <li>⚡ <strong>Efficacité x3:</strong> Plus de temps pour clients</li>
+                    <li>🏛️ <strong>Spécialisé CESEDA:</strong> Expertise pointue</li>
+                    <li>🌍 <strong>Multi-langues:</strong> Clients étrangers</li>
+                    <li>💰 <strong>ROI prouvé:</strong> +2400€/mois minimum</li>
+                    <li>⚖️ <strong>Déontologie respectée:</strong> Avocat reste responsable</li>
+                </ul>
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <h2>🤝 PRÊT POUR PARTENARIAT ?</h2>
+                <button class="btn-demo" style="font-size: 1.2em; padding: 15px 30px;">🚀 Test Gratuit 30 Jours</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function analyserEmail() {
+            document.getElementById('analyse-result').style.display = 'block';
+        }
+        
+        function genererReponse() {
+            document.getElementById('reponse-result').style.display = 'block';
+        }
+        
+        function afficherDashboard() {
+            document.getElementById('dashboard-result').style.display = 'block';
+        }
+        
+        function calculerROI() {
+            document.getElementById('roi-result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,1 +1,0 @@
-"""Modules paiement - Stripe, System"""

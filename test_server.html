@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Serveur</title>
+</head>
+<body>
+    <h1>Test des routes</h1>
+    <ul>
+        <li><a href="http://localhost:5000/" target="_blank">Page d'accueil (/) - doit rediriger vers /login</a></li>
+        <li><a href="http://localhost:5000/login" target="_blank">Page de login (/login)</a></li>
+        <li><a href="http://localhost:5000/health" target="_blank">Health check (/health)</a></li>
+        <li><a href="http://localhost:5000/legal/dashboard" target="_blank">Dashboard juridique (nécessite login)</a></li>
+    </ul>
+    
+    <h2>Test JavaScript</h2>
+    <button onclick="testLogin()">Tester /login</button>
+    <button onclick="testHealth()">Tester /health</button>
+    <pre id="result"></pre>
+    
+    <script>
+        async function testLogin() {
+            try {
+                const response = await fetch('http://localhost:5000/login');
+                document.getElementById('result').textContent = 
+                    `Status: ${response.status}\n` +
+                    `OK: ${response.ok}\n` +
+                    `URL: ${response.url}`;
+            } catch(e) {
+                document.getElementById('result').textContent = 'Erreur: ' + e.message;
+            }
+        }
+        
+        async function testHealth() {
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                const data = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            } catch(e) {
+                document.getElementById('result').textContent = 'Erreur: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>
