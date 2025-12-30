@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapports - Cabinet Avocat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/legal/reports.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-balance-scale"></i> Cabinet Avocat</h1>
+                <nav class="nav">
+                    <a href="/legal/dashboard" class="nav-link"><i class="fas fa-home"></i> Tableau de bord</a>
+                    <a href="/legal/deadlines" class="nav-link"><i class="fas fa-calendar-check"></i> Délais</a>
+                    <a href="/legal/billing" class="nav-link"><i class="fas fa-file-invoice-dollar"></i> Facturation</a>
+                    <a href="/legal/compliance" class="nav-link"><i class="fas fa-shield-alt"></i> Conformité</a>
+                    <a href="/legal/reports" class="nav-link active"><i class="fas fa-chart-bar"></i> Rapports</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2><i class="fas fa-chart-bar"></i> Rapports et Statistiques</h2>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="exportAllData()">
+                    <i class="fas fa-download"></i> Exporter tout
+                </button>
+                <button class="btn btn-primary" onclick="generatePDF()">
+                    <i class="fas fa-file-pdf"></i> Générer PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Date Range Filter -->
+        <div class="filter-card">
+            <div class="filter-content">
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar-alt"></i> Période</label>
+                    <select id="periodFilter" onchange="updatePeriod()">
+                        <option value="month">Ce mois</option>
+                        <option value="quarter">Ce trimestre</option>
+                        <option value="year" selected>Cette année</option>
+                        <option value="custom">Personnalisé</option>
+                    </select>
+                </div>
+                <div class="filter-group" id="customDateRange" style="display:none;">
+                    <label>Date début</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="filter-group" id="customDateRangeEnd" style="display:none;">
+                    <label>Date fin</label>
+                    <input type="date" id="endDate">
+                </div>
+                <button class="btn btn-primary" onclick="loadAllReports()">
+                    <i class="fas fa-sync"></i> Actualiser
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card revenue">
+                <div class="card-icon"><i class="fas fa-euro-sign"></i></div>
+                <div class="card-content">
+                    <div class="card-label">Chiffre d'affaires</div>
+                    <div class="card-value" id="totalRevenue">0,00 €</div>
+                    <div class="card-trend positive" id="revenueTrend">
+                        <i class="fas fa-arrow-up"></i> +0%
+                    </div>
+                </div>
+            </div>
+            <div class="summary-card hours">
+                <div class="card-icon"><i class="fas fa-clock"></i></div>
+                <div class="card-content">
+                    <div class="card-label">Heures facturées</div>
+                    <div class="card-value" id="totalHours">0h00</div>
+                    <div class="card-trend positive" id="hoursTrend">
+                        <i class="fas fa-arrow-up"></i> +0%
+                    </div>
+                </div>
+            </div>
+            <div class="summary-card cases">
+                <div class="card-icon"><i class="fas fa-folder-open"></i></div>
+                <div class="card-content">
+                    <div class="card-label">Dossiers actifs</div>
+                    <div class="card-value" id="totalCases">0</div>
+                    <div class="card-trend" id="casesTrend">
+                        0 nouveaux
+                    </div>
+                </div>
+            </div>
+            <div class="summary-card efficiency">
+                <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="card-content">
+                    <div class="card-label">Taux de recouvrement</div>
+                    <div class="card-value" id="recoveryRate">0%</div>
+                    <div class="card-trend positive" id="recoveryTrend">
+                        <i class="fas fa-check-circle"></i> Bon
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <!-- Revenue Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line"></i> Évolution du chiffre d'affaires</h3>
+                    <select id="revenueChartPeriod" onchange="updateRevenueChart()">
+                        <option value="month">Par mois</option>
+                        <option value="quarter">Par trimestre</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Time Distribution Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-pie-chart"></i> Répartition du temps par prestation</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="timeDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Deadlines Status Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-calendar-check"></i> État des délais</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="deadlinesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Invoice Status Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-file-invoice-dollar"></i> État des factures</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="invoicesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Tables -->
+        <div class="tables-section">
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-trophy"></i> Top 10 Clients</h3>
+                </div>
+                <div class="table-container">
+                    <table id="topClientsTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Heures</th>
+                                <th>CA généré</th>
+                                <th>Factures</th>
+                                <th>Taux moyen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Chargé par JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <h3><i class="fas fa-briefcase"></i> Activité par type de prestation</h3>
+                </div>
+                <div class="table-container">
+                    <table id="prestationsTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Prestation</th>
+                                <th>Temps total</th>
+                                <th>Montant</th>
+                                <th>% du CA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Chargé par JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPIs Section -->
+        <div class="kpis-section">
+            <h3><i class="fas fa-tachometer-alt"></i> Indicateurs de performance (KPI)</h3>
+            <div class="kpis-grid">
+                <div class="kpi-item">
+                    <div class="kpi-label">Taux horaire moyen</div>
+                    <div class="kpi-value" id="avgRate">0 €/h</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-label">Délai moyen de paiement</div>
+                    <div class="kpi-value" id="avgPaymentDelay">0 jours</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-label">Taux de facturation</div>
+                    <div class="kpi-value" id="billingRate">0%</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-label">Nouveaux clients</div>
+                    <div class="kpi-value" id="newClients">0</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-label">Délais respectés</div>
+                    <div class="kpi-value" id="deadlinesRespected">0%</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-label">Correspondances enregistrées</div>
+                    <div class="kpi-value" id="totalCorrespondances">0</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/legal/reports.js') }}"></script>
+</body>
+</html>
