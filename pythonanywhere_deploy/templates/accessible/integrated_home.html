@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVault Accessible - Accueil</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/accessible.css') }}">
+    <style>
+        .integration-banner {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #4a5568;
+            font-size: 1.1em;
+        }
+        
+        .switch-interface {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ed8936;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            box-shadow: 0 3px 10px rgba(237, 137, 54, 0.3);
+        }
+        
+        .switch-interface:hover {
+            background: #dd6b20;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Bouton pour basculer vers interface standard -->
+        <button class="switch-interface" onclick="switchToStandard()" title="Basculer vers interface standard">
+            🔄 Interface Standard
+        </button>
+
+        <!-- Bannière d'intégration -->
+        <div class="integration-banner">
+            <h2>✅ Interface Accessible Intégrée</h2>
+            <p>Connecté à votre compte SecureVault principal</p>
+        </div>
+
+        <!-- Header principal -->
+        <header class="header">
+            <h1>🏠 Accueil Accessible</h1>
+            <p>Bienvenue {{ user_name or 'Utilisateur' }} !</p>
+            <button class="voice-btn" onclick="speakWelcome()" aria-label="Écouter le message de bienvenue">
+                🔊 Message de bienvenue
+            </button>
+        </header>
+
+        <!-- Statistiques rapides -->
+        <div class="quick-stats" id="quickStats">
+            <div class="stat-card">
+                <div class="stat-number" id="emailsSent">-</div>
+                <div class="stat-label">Emails envoyés</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="successRate">-</div>
+                <div class="stat-label">Taux de réussite</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="lastEmail">-</div>
+                <div class="stat-label">Dernier envoi</div>
+            </div>
+        </div>
+
+        <!-- Boutons principaux -->
+        <main class="main-buttons">
+            
+            <!-- Bouton 1: Créer message intelligent -->
+            <div class="big-button" onclick="createSmartMessage()" tabindex="0" role="button" aria-label="Créer un nouveau message avec IA intégrée">
+                <div class="button-icon">🧠</div>
+                <div class="button-text">Message Intelligent</div>
+                <div class="button-subtitle">IA intégrée + Vocal</div>
+            </div>
+
+            <!-- Bouton 2: Envoi rapide -->
+            <div class="big-button" onclick="quickSend()" tabindex="0" role="button" aria-label="Envoi rapide avec vos contacts">
+                <div class="button-icon">⚡</div>
+                <div class="button-text">Envoi Rapide</div>
+                <div class="button-subtitle">Contacts + Templates</div>
+            </div>
+
+            <!-- Bouton 3: Historique vocal -->
+            <div class="big-button" onclick="voiceHistory()" tabindex="0" role="button" aria-label="Écouter l'historique de vos emails">
+                <div class="button-icon">📚</div>
+                <div class="button-text">Mon Historique</div>
+                <div class="button-subtitle">Écouter mes emails</div>
+            </div>
+
+        </main>
+
+        <!-- Zone d'état intégrée -->
+        <div class="status-zone" id="statusZone">
+            <div class="status-text" id="statusText">Prêt à utiliser toutes les fonctionnalités</div>
+        </div>
+
+        <!-- Contrôles vocaux améliorés -->
+        <div class="voice-controls">
+            <button class="voice-control" onclick="startVoiceCommand()" aria-label="Commande vocale globale">
+                🎤 Commande Vocale
+            </button>
+            <button class="voice-control" onclick="readMyStats()" aria-label="Lire mes statistiques">
+                📊 Mes Stats
+            </button>
+            <button class="voice-control" onclick="toggleAdvancedHelp()" aria-label="Aide avancée">
+                🎓 Aide Avancée
+            </button>
+        </div>
+
+        <!-- Zone d'aide avancée -->
+        <div class="help-zone" id="advancedHelp" style="display: none;">
+            <h3>🎓 Aide Avancée - Interface Intégrée</h3>
+            <ul class="help-list">
+                <li>🧠 <strong>Message Intelligent :</strong> Utilise l'IA principale + reconnaissance vocale</li>
+                <li>⚡ <strong>Envoi Rapide :</strong> Accès à vos contacts et templates existants</li>
+                <li>📚 <strong>Historique :</strong> Écoute de tous vos emails précédents</li>
+                <li>🔄 <strong>Basculement :</strong> Retour vers interface standard à tout moment</li>
+                <li>📊 <strong>Statistiques :</strong> Données synchronisées avec votre compte</li>
+            </ul>
+            <button class="action-btn" onclick="readAdvancedHelp()">🔊 Écouter l'aide complète</button>
+        </div>
+
+        <!-- Raccourcis d'accessibilité -->
+        <div class="accessibility-shortcuts" style="position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 10px; font-size: 0.8em;">
+            <div><strong>Raccourcis :</strong></div>
+            <div>1 = Message • 2 = Envoi • 3 = Historique</div>
+            <div>H = Aide • Ctrl+Espace = Vocal</div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let userStats = {};
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserStats();
+            setupAccessibilityFeatures();
+            
+            // Message de bienvenue automatique après 2 secondes
+            setTimeout(() => {
+                speakWelcome();
+            }, 2000);
+        });
+
+        // Chargement des statistiques utilisateur
+        async function loadUserStats() {
+            try {
+                const response = await fetch('/accessible/api/user_stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    userStats = data;
+                    updateStatsDisplay(data);
+                }
+            } catch (error) {
+                console.error('Erreur chargement stats:', error);
+                // Afficher des stats par défaut
+                updateStatsDisplay({
+                    emails_sent: 0,
+                    success_rate: '100%',
+                    last_email: 'Jamais'
+                });
+            }
+        }
+
+        function updateStatsDisplay(stats) {
+            document.getElementById('emailsSent').textContent = stats.emails_sent || 0;
+            document.getElementById('successRate').textContent = stats.success_rate || '100%';
+            document.getElementById('lastEmail').textContent = stats.last_email || 'Jamais';
+        }
+
+        // Actions principales
+        async function createSmartMessage() {
+            await speakText("Ouverture du compositeur intelligent avec IA intégrée.");
+            updateStatus("Chargement compositeur intelligent...");
+            window.location.href = '/accessible/compose';
+        }
+
+        async function quickSend() {
+            await speakText("Accès à l'envoi rapide avec vos contacts.");
+            updateStatus("Chargement envoi rapide...");
+            window.location.href = '/accessible/quick-send';
+        }
+
+        async function voiceHistory() {
+            await speakText("Chargement de votre historique d'emails.");
+            updateStatus("Chargement historique...");
+            window.location.href = '/accessible/history';
+        }
+
+        // Commandes vocales avancées
+        async function startVoiceCommand() {
+            try {
+                await speakText("Commande vocale activée. Que voulez-vous faire ?");
+                
+                const response = await fetch('/api/listen', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.text) {
+                    await processAdvancedVoiceCommand(result.text.toLowerCase());
+                } else {
+                    await speakText("Commande non reconnue. Réessayez.");
+                }
+            } catch (error) {
+                console.error('Erreur commande vocale:', error);
+                await speakText("Erreur de reconnaissance vocale.");
+            }
+        }
+
+        async function processAdvancedVoiceCommand(command) {
+            if (command.includes('message') || command.includes('écrire') || command.includes('intelligent')) {
+                await createSmartMessage();
+            } else if (command.includes('rapide') || command.includes('envoyer') || command.includes('contact')) {
+                await quickSend();
+            } else if (command.includes('historique') || command.includes('précédent') || command.includes('ancien')) {
+                await voiceHistory();
+            } else if (command.includes('statistique') || command.includes('stats') || command.includes('nombre')) {
+                await readMyStats();
+            } else if (command.includes('aide') || command.includes('help')) {
+                await toggleAdvancedHelp();
+            } else if (command.includes('standard') || command.includes('normal') || command.includes('classique')) {
+                await switchToStandard();
+            } else {
+                await speakText("Commandes disponibles : message intelligent, envoi rapide, historique, statistiques, aide, ou interface standard.");
+            }
+        }
+
+        // Lecture des statistiques
+        async function readMyStats() {
+            const statsText = `Vos statistiques : ${userStats.emails_sent || 0} emails envoyés, ${userStats.success_rate || '100%'} de réussite, dernier envoi ${userStats.last_email || 'jamais'}.`;
+            await speakText(statsText);
+        }
+
+        // Messages vocaux
+        async function speakWelcome() {
+            const welcomeText = `Bienvenue dans SecureVault Accessible intégré. Vous avez accès à toutes vos données. ${userStats.emails_sent || 0} emails envoyés avec ${userStats.success_rate || '100%'} de réussite. Trois options : Message intelligent, Envoi rapide, ou Historique.`;
+            await speakText(welcomeText);
+        }
+
+        function toggleAdvancedHelp() {
+            const help = document.getElementById('advancedHelp');
+            const isVisible = help.style.display !== 'none';
+            help.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                speakText("Aide avancée affichée. Interface intégrée avec toutes les fonctionnalités de SecureVault.");
+            }
+        }
+
+        async function readAdvancedHelp() {
+            const helpText = `Interface accessible intégrée à SecureVault. Message intelligent utilise l'IA principale et la reconnaissance vocale. Envoi rapide accède à vos contacts existants. Historique permet d'écouter tous vos emails précédents. Vous pouvez basculer vers l'interface standard à tout moment.`;
+            await speakText(helpText);
+        }
+
+        // Basculement d'interface
+        async function switchToStandard() {
+            await speakText("Basculement vers l'interface standard.");
+            window.location.href = '/switch_to_standard';
+        }
+
+        // Fonctions utilitaires
+        async function speakText(text) {
+            try {
+                await fetch('/api/speak', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({text: text})
+                });
+            } catch (error) {
+                console.error('Erreur synthèse vocale:', error);
+            }
+        }
+
+        function updateStatus(message) {
+            const statusElement = document.getElementById('statusText');
+            if (statusElement) {
+                statusElement.textContent = message;
+            }
+        }
+
+        // Configuration accessibilité
+        function setupAccessibilityFeatures() {
+            // Navigation clavier
+            document.addEventListener('keydown', function(e) {
+                switch(e.key) {
+                    case '1':
+                        createSmartMessage();
+                        break;
+                    case '2':
+                        quickSend();
+                        break;
+                    case '3':
+                        voiceHistory();
+                        break;
+                    case 'h':
+                    case 'H':
+                        toggleAdvancedHelp();
+                        break;
+                    case 's':
+                    case 'S':
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            switchToStandard();
+                        }
+                        break;
+                    case ' ':
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            startVoiceCommand();
+                        }
+                        break;
+                }
+            });
+
+            // Focus visible
+            const focusableElements = document.querySelectorAll('button, [tabindex]');
+            focusableElements.forEach(element => {
+                element.addEventListener('focus', function() {
+                    this.style.outline = '3px solid #667eea';
+                    this.style.outlineOffset = '2px';
+                });
+                
+                element.addEventListener('blur', function() {
+                    this.style.outline = 'none';
+                });
+            });
+        }
+
+        // Gestion des erreurs
+        window.addEventListener('error', function(e) {
+            console.error('Erreur JavaScript:', e.error);
+            speakText("Une erreur s'est produite. Fonctionnalités de base disponibles.");
+        });
+    </script>
+</body>
+</html>

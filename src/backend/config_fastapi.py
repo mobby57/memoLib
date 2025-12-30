@@ -42,9 +42,6 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = os.getenv("UPLOAD_FOLDER", "uploads")
     MAX_UPLOAD_SIZE: int = int(os.getenv("MAX_UPLOAD_SIZE_MB", "10")) * 1024 * 1024
     
-    # MCP Configuration
-    MCP_SERVERS_DIR: str = os.getenv("MCP_SERVERS_DIR", "mcp_servers")
-    
     class Config:
         """Configuration Pydantic"""
         env_file = ".env"

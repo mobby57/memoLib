@@ -7,7 +7,7 @@ import sys
 import os
 
 # Remplacer 'yourusername' par votre nom d'utilisateur
-path = '/home/yourusername/iapostemanage'
+path = '/home/yourusername/iapostemanager'
 if path not in sys.path:
     sys.path.insert(0, path)
 

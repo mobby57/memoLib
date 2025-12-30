@@ -3,643 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureVault - Gestionnaire de Credentials</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>IA Poste Manager v2.3 - MS CONSEILS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .nav-tab.active {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 500px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .feature-desc {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-ok {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .status-error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="logo">
-                <svg width="40" height="40" viewBox="0 0 40 40">
-                    <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2"/>
-                    <path d="M20 10 L20 20 L28 20" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-                <h1>SecureVault</h1>
-            </div>
-            <button class="theme-toggle" id="themeToggle">
-                <span class="icon">🌙</span>
-            </button>
-        </header>
-
-        <div class="tabs">
-            <button class="tab active" data-tab="gmail">
-                <span class="icon">📧</span>
-                Gmail
-            </button>
-            <button class="tab" data-tab="openai">
-                <span class="icon">🤖</span>
-                OpenAI
-            </button>
-            <button class="tab" data-tab="recipients">
-                <span class="icon">📋</span>
-                Destinataires
-            </button>
-            <button class="tab" data-tab="voice">
-                <span class="icon">🎤</span>
-                Voix IA
-            </button>
-            <button class="tab" data-tab="requests">
-                <span class="icon">📝</span>
-                Mes Demandes
-            </button>
-            <button class="tab" data-tab="workflow">
-                <span class="icon">🔄</span>
-                Suivi
-            </button>
-            <button class="tab" data-tab="settings">
-                <span class="icon">⚙️</span>
-                Paramètres
-            </button>
-            <button class="tab" data-tab="accessibility">
-                <span class="icon">🦾</span>
-                Accessibilité
-            </button>
+        <div class="header">
+            <h1>🚀 IA Poste Manager v2.3</h1>
+            <p>Système d'automatisation d'emails avec IA pour MS CONSEILS</p>
         </div>
-
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-tab" onclick="showTab('compose')">✍️ Composer</button>
+            <button class="nav-tab" onclick="showTab('templates')">📝 Templates</button>
+            <button class="nav-tab" onclick="showTab('history')">📋 Historique</button>
+            <button class="nav-tab" onclick="showTab('contacts')">👥 Contacts</button>
+        </div>
+        
         <div class="content">
-            <!-- Bandeau d'aide première utilisation -->
-            <div id="firstTimeHelp" class="alert-info" style="display: none; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-                <div style="display: flex; align-items: start; gap: 15px;">
-                    <div style="font-size: 2rem;">👋</div>
-                    <div style="flex: 1;">
-                        <h3 style="margin: 0 0 10px 0; font-size: 1.3rem;">Bienvenue dans SecureVault !</h3>
-                        <p style="margin: 0 0 15px 0; opacity: 0.95; line-height: 1.6;">
-                            C'est votre première utilisation. Suivez ces 3 étapes simples pour commencer à envoyer des emails :
-                        </p>
-                        <ol style="margin: 0; padding-left: 20px; line-height: 1.8;">
-                            <li><strong>Configurez Gmail</strong> : Ajoutez votre email et App Password Gmail</li>
-                            <li><strong>Choisissez un mot de passe maître</strong> : Pour sécuriser vos credentials</li>
-                            <li><strong>Validez</strong> : Et commencez à envoyer des emails !</li>
-                        </ol>
-                        <button onclick="document.getElementById('firstTimeHelp').style.display='none'" style="margin-top: 15px; padding: 8px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                            J'ai compris ✓
-                        </button>
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <h2>📊 Tableau de Bord</h2>
+                <div class="status-card">
+                    <h3>État du Système</h3>
+                    <div class="status-item">
+                        <span>🤖 OpenAI API</span>
+                        <span id="openai-status" class="status-error">❌ Non configuré</span>
+                    </div>
+                    <div class="status-item">
+                        <span>🌐 Serveur Web</span>
+                        <span class="status-ok">✅ Actif</span>
+                    </div>
+                    <div class="status-item">
+                        <span>📧 Service Email</span>
+                        <span class="status-ok">✅ Prêt</span>
+                    </div>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <div class="feature-title">Génération IA</div>
+                        <div class="feature-desc">Créez des emails professionnels avec l'intelligence artificielle GPT-3.5</div>
+                        <a href="/generate" class="btn">Essayer maintenant</a>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📝</div>
+                        <div class="feature-title">Templates</div>
+                        <div class="feature-desc">Gérez vos modèles d'emails pour gagner du temps</div>
+                        <a href="/templates" class="btn">Voir les templates</a>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <div class="feature-title">Contacts</div>
+                        <div class="feature-desc">Organisez votre carnet d'adresses professionnel</div>
+                        <a href="/contacts" class="btn">Gérer les contacts</a>
                     </div>
                 </div>
             </div>
             
-            <!-- Gmail Tab -->
-            <div class="tab-content active" id="gmail">
-                <div class="card">
-                    <div class="header-with-help">
-                        <h2>Configuration Gmail</h2>
-                        <button class="btn-help" id="helpGmail">❓ Comment obtenir l'App Password ?</button>
-                    </div>
-                    <form id="gmailForm">
-                        <div class="input-group">
-                            <label for="gmailEmail">Email Gmail</label>
-                            <input type="email" id="gmailEmail" placeholder="votre@email.com">
-                        </div>
-                        <div class="input-group">
-                            <label for="gmailPassword">App Password Gmail</label>
-                            <div class="password-wrapper">
-                                <input type="password" id="gmailPassword" placeholder="xxxx xxxx xxxx xxxx" required>
-                                <button type="button" class="toggle-password" data-target="gmailPassword">👁️</button>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <label for="gmailMaster">Mot de passe maître</label>
-                            <div class="password-wrapper">
-                                <input type="password" id="gmailMaster" placeholder="Min 8 car., maj, min, chiffre" required>
-                                <button type="button" class="toggle-password" data-target="gmailMaster">👁️</button>
-                            </div>
-                            <div class="password-strength" id="gmailStrength"></div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <span class="icon">🔒</span>
-                            Prévisualiser
-                        </button>
-                    </form>
-                    <div id="gmailPreview" class="preview-box" style="display: none;">
-                        <h4>📧 Vérifiez votre configuration Gmail</h4>
-                        <div id="gmailPreviewContent"></div>
-                        <div class="validation-buttons">
-                            <button id="validateGmailBtn" class="btn btn-success">
-                                <span class="icon">✅</span>
-                                Valider
-                            </button>
-                            <button id="retryGmailBtn" class="btn btn-danger">
-                                <span class="icon">🔄</span>
-                                Recommencer
-                            </button>
-                        </div>
-                    </div>
-                    <div class="status" id="gmailStatus"></div>
-                </div>
+            <!-- Compose Tab -->
+            <div id="compose" class="tab-content">
+                <h2>✍️ Composer un Email</h2>
+                <p>Utilisez l'IA pour rédiger des emails professionnels rapidement et efficacement.</p>
+                <a href="/compose" class="btn">Commencer la rédaction</a>
             </div>
-
-            <!-- OpenAI Tab -->
-            <div class="tab-content" id="openai">
-                <div class="card">
-                    <h2>Configuration OpenAI</h2>
-                    <form id="openaiForm">
-                        <div class="input-group">
-                            <label for="apiKey">Clé API OpenAI</label>
-                            <div class="password-wrapper">
-                                <input type="password" id="apiKey" placeholder="sk-..." required>
-                                <button type="button" class="toggle-password" data-target="apiKey">👁️</button>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <label for="orgId">Organization ID (optionnel)</label>
-                            <input type="text" id="orgId" placeholder="org-...">
-                        </div>
-                        <div class="input-group">
-                            <label for="openaiMaster">Mot de passe maître</label>
-                            <div class="password-wrapper">
-                                <input type="password" id="openaiMaster" placeholder="Min 8 car., maj, min, chiffre" required>
-                                <button type="button" class="toggle-password" data-target="openaiMaster">👁️</button>
-                            </div>
-                            <div class="password-strength" id="openaiStrength"></div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <span class="icon">🔒</span>
-                            Prévisualiser
-                        </button>
-                    </form>
-                    <div id="openaiPreview" class="preview-box" style="display: none;">
-                        <h4>🤖 Vérifiez votre configuration OpenAI</h4>
-                        <div id="openaiPreviewContent"></div>
-                        <div class="validation-buttons">
-                            <button id="validateOpenaiBtn" class="btn btn-success">
-                                <span class="icon">✅</span>
-                                Valider
-                            </button>
-                            <button id="retryOpenaiBtn" class="btn btn-danger">
-                                <span class="icon">🔄</span>
-                                Recommencer
-                            </button>
-                        </div>
-                    </div>
-                    <div class="status" id="openaiStatus"></div>
-                </div>
+            
+            <!-- Templates Tab -->
+            <div id="templates" class="tab-content">
+                <h2>📝 Gestion des Templates</h2>
+                <p>Créez et gérez vos modèles d'emails pour différentes situations.</p>
+                <a href="/templates" class="btn">Voir tous les templates</a>
             </div>
-
-            <!-- Recipients Tab -->
-            <div class="tab-content" id="recipients">
-                <div class="card">
-                    <h2>📋 Gestion des Destinataires</h2>
-                    
-                    <div class="recipients-form">
-                        <h3>Ajouter un destinataire</h3>
-                        <form id="recipientForm">
-                            <div class="form-row">
-                                <div class="input-group">
-                                    <label for="recipientName">Nom</label>
-                                    <input type="text" id="recipientName" placeholder="Jean Dupont" required>
-                                </div>
-                                <div class="input-group">
-                                    <label for="recipientEmail">Email</label>
-                                    <input type="email" id="recipientEmail" placeholder="jean@example.com" required>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="input-group">
-                                    <label for="recipientType">Type</label>
-                                    <select id="recipientType">
-                                        <option value="to">À (TO)</option>
-                                        <option value="cc">CC</option>
-                                        <option value="bcc">CCI (BCC)</option>
-                                    </select>
-                                </div>
-                                <div class="input-group">
-                                    <label for="recipientDate">Date d'envoi prévue</label>
-                                    <input type="datetime-local" id="recipientDate">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                <span class="icon">➕</span>
-                                Prévisualiser
-                            </button>
-                        </form>
-                        <div id="recipientPreview" class="preview-box" style="display: none;">
-                            <h4>📋 Vérifiez le destinataire</h4>
-                            <div id="recipientPreviewContent"></div>
-                            <div class="validation-buttons">
-                                <button id="validateRecipientBtn" class="btn btn-success">
-                                    <span class="icon">✅</span>
-                                    Valider
-                                </button>
-                                <button id="retryRecipientBtn" class="btn btn-danger">
-                                    <span class="icon">🔄</span>
-                                    Recommencer
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="recipients-table">
-                        <h3>Liste des destinataires</h3>
-                        <div class="table-container">
-                            <table id="recipientsTable">
-                                <thead>
-                                    <tr>
-                                        <th>Nom</th>
-                                        <th>Email</th>
-                                        <th>Type</th>
-                                        <th>Date d'envoi</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recipientsBody">
-                                    <tr class="empty-state">
-                                        <td colspan="5">Aucun destinataire. Ajoutez-en un ci-dessus.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="calendar-view">
-                        <h3>📅 Calendrier des envois</h3>
-                        <div id="calendarContainer"></div>
-                    </div>
-                </div>
+            
+            <!-- History Tab -->
+            <div id="history" class="tab-content">
+                <h2>📋 Historique des Emails</h2>
+                <p>Consultez l'historique de tous vos emails envoyés.</p>
+                <a href="/history" class="btn">Voir l'historique</a>
             </div>
-
-            <!-- Voice Tab -->
-            <div class="tab-content" id="voice">
-                <div class="card">
-                    <h2>🎤 Assistant Vocal IA</h2>
-                    
-                    <div class="voice-section">
-                        <h3>🔊 Synthèse vocale (Texte → Parole)</h3>
-                        <form id="ttsForm">
-                            <div class="input-group">
-                                <label for="ttsText">Texte à prononcer</label>
-                                <textarea id="ttsText" rows="4" placeholder="Entrez le texte que l'IA doit prononcer..." required></textarea>
-                            </div>
-                            <div class="form-row">
-                                <div class="input-group">
-                                    <label for="ttsVoice">Voix</label>
-                                    <select id="ttsVoice">
-                                        <option value="alloy">Alloy (Neutre)</option>
-                                        <option value="echo">Echo (Masculin)</option>
-                                        <option value="fable">Fable (Féminin)</option>
-                                        <option value="onyx">Onyx (Grave)</option>
-                                        <option value="nova">Nova (Doux)</option>
-                                        <option value="shimmer">Shimmer (Clair)</option>
-                                    </select>
-                                </div>
-                                <div class="input-group">
-                                    <label for="ttsMaster">Mot de passe maître</label>
-                                    <input type="password" id="ttsMaster" required>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                <span class="icon">🔊</span>
-                                Générer la voix
-                            </button>
-                        </form>
-                        <audio id="audioPlayer" controls style="width: 100%; margin-top: 1rem; display: none;"></audio>
-                        <div id="audioValidation" class="validation-buttons" style="display: none;">
-                            <button id="validateAudioBtn" class="btn btn-success">
-                                <span class="icon">✅</span>
-                                Valider
-                            </button>
-                            <button id="retryAudioBtn" class="btn btn-danger">
-                                <span class="icon">🔄</span>
-                                Recommencer
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="voice-section">
-                        <h3>🎤 Reconnaissance vocale (Parole → Texte)</h3>
-                        <div class="recorder-container">
-                            <button id="recordBtn" class="btn btn-danger">
-                                <span class="icon">⏺</span>
-                                Commencer l'enregistrement
-                            </button>
-                            <div id="recordingStatus" class="recording-status"></div>
-                        </div>
-                        <div class="input-group" style="margin-top: 1rem;">
-                            <label for="sttMaster">Mot de passe maître</label>
-                            <input type="password" id="sttMaster" required>
-                        </div>
-                        <div id="liveTranscript" class="live-transcript" style="display: none;">
-                            <h4>🎬 En direct :</h4>
-                            <p id="liveTranscriptText"></p>
-                        </div>
-                        <div id="transcriptionResult" class="transcription-result"></div>
-                        <div id="transcriptionValidation" class="validation-buttons" style="display: none;">
-                            <button id="validateTranscriptionBtn" class="btn btn-success">
-                                <span class="icon">✅</span>
-                                Valider
-                            </button>
-                            <button id="retryTranscriptionBtn" class="btn btn-danger">
-                                <span class="icon">🔄</span>
-                                Recommencer
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Accessibility Tab -->
-            <div class="tab-content" id="accessibility">
-                <div class="card">
-                    <h2>🦾 Accessibilité</h2>
-                    <div class="settings-section">
-                        <h3>Mode d'accessibilité</h3>
-                        <select id="accessibilityMode" class="form-control">
-                            <option value="standard">Standard</option>
-                            <option value="sourd_muet">Sourd/Muet (Transcription vocale)</option>
-                            <option value="aveugle">Aveugle (Synthèse vocale)</option>
-                            <option value="complet">Complet (TTS + Transcription)</option>
-                        </select>
-                    </div>
-                    <div class="settings-section">
-                        <h3>🔊 Test Synthèse Vocale</h3>
-                        <textarea id="testTTS" rows="3" placeholder="Entrez du texte à lire..."></textarea>
-                        <button class="btn btn-primary" id="testTTSBtn">
-                            <span class="icon">🔊</span>
-                            Lire le texte
-                        </button>
-                    </div>
-                    <div class="settings-section">
-                        <h3>🎤 Test Transcription</h3>
-                        <button class="btn btn-primary" id="testTranscribeBtn">
-                            <span class="icon">🎤</span>
-                            Dicter maintenant
-                        </button>
-                        <div id="testTranscribeResult" style="margin-top: 1rem;"></div>
-                    </div>
-                    <div class="settings-section">
-                        <h3>⌨️ Raccourcis clavier</h3>
-                        <ul>
-                            <li><kbd>Ctrl+Enter</kbd> - Envoyer email</li>
-                            <li><kbd>Ctrl+Shift+V</kbd> - Dicter</li>
-                            <li><kbd>Ctrl+Shift+L</kbd> - Lire contenu</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Requests Tab -->
-            <div class="tab-content" id="requests">
-                <div class="card">
-                    <h2>📝 Mes Demandes</h2>
-                    
-                    <div class="request-form">
-                        <h3>Nouvelle demande</h3>
-                        <form id="requestForm">
-                            <div class="input-group">
-                                <label for="requestText">Texte brut ou vocal</label>
-                                <textarea id="requestText" rows="6" placeholder="Collez votre message brut ici ou enregistrez vocalement..."></textarea>
-                            </div>
-                            <div class="form-row">
-                                <button type="button" id="recordRequestBtn" class="btn btn-secondary">
-                                    <span class="icon">🎤</span>
-                                    Dicter
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <span class="icon">✨</span>
-                                    Générer l'email
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div id="generatedEmail" class="generated-email" style="display: none;">
-                        <h3>📧 Email généré</h3>
-                        <div class="input-group">
-                            <label for="generatedSubject">Objet</label>
-                            <input type="text" id="generatedSubject" readonly>
-                        </div>
-                        <div class="input-group">
-                            <label for="generatedBody">Corps du message</label>
-                            <textarea id="generatedBody" rows="10" readonly></textarea>
-                        </div>
-                        <div class="input-group">
-                            <label for="sendTo">Destinataire</label>
-                            <select id="sendTo">
-                                <option value="">Sélectionnez un destinataire</option>
-                            </select>
-                        </div>
-                        <div class="validation-buttons">
-                            <button id="validateEmailBtn" class="btn btn-success">
-                                <span class="icon">✅</span>
-                                Valider et envoyer
-                            </button>
-                            <button id="retryEmailBtn" class="btn btn-danger">
-                                <span class="icon">🔄</span>
-                                Recommencer
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="requests-history">
-                        <h3>📊 Historique des demandes</h3>
-                        <div id="requestsHistory"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Workflow Tab -->
-            <div class="tab-content" id="workflow">
-                <div class="card">
-                    <h2>🔄 Suivi des Workflows</h2>
-                    
-                    <div class="workflow-stats">
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalWorkflows">0</div>
-                            <div class="stat-label">Total</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="envoyesWorkflows">0</div>
-                            <div class="stat-label">Envoyés</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="enCoursWorkflows">0</div>
-                            <div class="stat-label">En cours</div>
-                        </div>
-                    </div>
-
-                    <div class="workflow-list">
-                        <h3>Historique</h3>
-                        <div id="workflowHistory"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Tab -->
-            <div class="tab-content" id="settings">
-                <div class="card">
-                    <h2>Paramètres</h2>
-                    <div class="settings-section">
-                        <h3>Sécurité</h3>
-                        <button class="btn btn-danger" id="deleteBtn">
-                            <span class="icon">🗑️</span>
-                            Supprimer toutes les credentials
-                        </button>
-                    </div>
-                    <div class="settings-section">
-                        <h3>Informations</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <span class="label">Gmail configuré:</span>
-                                <span class="value" id="gmailConfigured">❌</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="label">OpenAI configuré:</span>
-                                <span class="value" id="openaiConfigured">❌</span>
-                            </div>
-                            <div class="info-item" id="gmailDate" style="display:none;">
-                                <span class="label">Gmail créé le:</span>
-                                <span class="value" id="gmailDateValue"></span>
-                            </div>
-                            <div class="info-item" id="openaiDate" style="display:none;">
-                                <span class="label">OpenAI créé le:</span>
-                                <span class="value" id="openaiDateValue"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="settings-section">
-                        <h3>Backup</h3>
-                        <button class="btn btn-primary" id="exportBtn">
-                            <span class="icon">💾</span>
-                            Exporter les métadonnées
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="notification" id="notification"></div>
-        <div class="voice-indicator" id="voiceIndicator">🔊 L'IA parle...</div>
-        
-        <!-- Modal d'édition destinataire -->
-        <div class="modal" id="editRecipientModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>✏️ Modifier le destinataire</h2>
-                    <button class="modal-close" id="closeEditModal">×</button>
-                </div>
-                <div class="modal-body">
-                    <form id="editRecipientForm">
-                        <input type="hidden" id="editRecipientId">
-                        <div class="input-group">
-                            <label for="editRecipientName">Nom</label>
-                            <input type="text" id="editRecipientName" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="editRecipientEmail">Email</label>
-                            <input type="email" id="editRecipientEmail" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="editRecipientType">Type</label>
-                            <select id="editRecipientType">
-                                <option value="to">À (TO)</option>
-                                <option value="cc">CC</option>
-                                <option value="bcc">CCI (BCC)</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label for="editRecipientDate">Date d'envoi</label>
-                            <input type="datetime-local" id="editRecipientDate">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
-                    </form>
-                </div>
+            
+            <!-- Contacts Tab -->
+            <div id="contacts" class="tab-content">
+                <h2>👥 Gestion des Contacts</h2>
+                <p>Organisez et gérez votre carnet d'adresses professionnel.</p>
+                <a href="/contacts" class="btn">Gérer les contacts</a>
             </div>
         </div>
         
-        <!-- Modal d'aide -->
-        <div class="modal" id="helpModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>🔑 Comment obtenir votre App Password Gmail ?</h2>
-                    <button class="modal-close" id="closeModal">×</button>
-                </div>
-                <div class="modal-body">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h3>Activer la validation en 2 étapes</h3>
-                            <p>Allez sur <a href="https://myaccount.google.com/signinoptions/two-step-verification" target="_blank">myaccount.google.com</a> → Sécurité → Validation en 2 étapes</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h3>Générer un App Password</h3>
-                            <p>Allez sur <a href="https://myaccount.google.com/apppasswords" target="_blank">myaccount.google.com/apppasswords</a></p>
-                            <p>Choisissez "Autre (nom personnalisé)" et tapez "SecureVault"</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h3>Copier le mot de passe</h3>
-                            <p>Google affichera un code de 16 caractères : <code>xxxx xxxx xxxx xxxx</code></p>
-                            <p>⚠️ Copiez-le immédiatement, vous ne pourrez plus le voir après !</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">4</div>
-                        <div class="step-content">
-                            <h3>Coller dans SecureVault</h3>
-                            <p>Collez le mot de passe dans le champ "App Password Gmail" ci-dessus</p>
-                        </div>
-                    </div>
-                    <div class="quick-links">
-                        <h3>🔗 Liens rapides</h3>
-                        <a href="https://myaccount.google.com/apppasswords" target="_blank" class="btn btn-primary">
-                            <span class="icon">🔑</span>
-                            Générer App Password
-                        </a>
-                        <a href="https://myaccount.google.com" target="_blank" class="btn btn-secondary">
-                            <span class="icon">⚙️</span>
-                            Compte Google
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <div class="footer">
+            <p><strong>MS CONSEILS</strong> - Sarra Boudjellal</p>
+            <p>Version 2.3 - Système d'automatisation d'emails avec IA</p>
         </div>
     </div>
-
-    <script src="/static/js/app.js"></script>
-    <script src="/static/js/accessibility.js"></script>
+    
     <script>
-        // Vérifier si c'est la première utilisation
-        async function checkFirstTime() {
+        function showTab(tabName) {
+            // Masquer tous les contenus
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Désactiver tous les onglets
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Afficher le contenu sélectionné
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activer l'onglet sélectionné
+            event.target.classList.add('active');
+        }
+        
+        // Vérifier le statut OpenAI
+        async function checkOpenAIStatus() {
             try {
-                const response = await fetch('/api/check-credentials');
+                const response = await fetch('/health');
                 const data = await response.json();
+                const statusElement = document.getElementById('openai-status');
                 
-                // Si aucun credential n'existe, afficher le bandeau d'aide
-                if (!data.gmail_exists && !data.openai_exists) {
-                    document.getElementById('firstTimeHelp').style.display = 'block';
-                    
-                    // Animation d'entrée
-                    setTimeout(() => {
-                        document.getElementById('firstTimeHelp').style.animation = 'slideInDown 0.5s ease-out';
-                    }, 100);
+                if (data.services && data.services.openai) {
+                    statusElement.textContent = '✅ Configuré';
+                    statusElement.className = 'status-ok';
+                } else {
+                    statusElement.textContent = '❌ Non configuré';
+                    statusElement.className = 'status-error';
                 }
             } catch (error) {
-                console.error('Error checking credentials:', error);
+                console.error('Erreur lors de la vérification du statut:', error);
             }
         }
         
-        // Exécuter au chargement de la page
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', checkFirstTime);
-        } else {
-            checkFirstTime();
-        }
+        // Vérifier le statut au chargement
+        document.addEventListener('DOMContentLoaded', checkOpenAIStatus);
     </script>
-    <style>
-        @keyframes slideInDown {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-    </style>
 </body>
 </html>

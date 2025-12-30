@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturation - Cabinet Avocat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/legal/billing.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-balance-scale"></i> Cabinet Avocat</h1>
+                <nav class="nav">
+                    <a href="/legal/dashboard" class="nav-link"><i class="fas fa-home"></i> Tableau de bord</a>
+                    <a href="/legal/deadlines" class="nav-link"><i class="fas fa-calendar-check"></i> Délais</a>
+                    <a href="/legal/billing" class="nav-link active"><i class="fas fa-file-invoice-dollar"></i> Facturation</a>
+                    <a href="/legal/compliance" class="nav-link"><i class="fas fa-shield-alt"></i> Conformité</a>
+                    <a href="/legal/reports" class="nav-link"><i class="fas fa-chart-bar"></i> Rapports</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Facturation et Temps</h2>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="openTimeEntryModal()">
+                    <i class="fas fa-clock"></i> Saisir du temps
+                </button>
+                <button class="btn btn-primary" onclick="openInvoiceModal()">
+                    <i class="fas fa-file-invoice"></i> Générer facture
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card revenue">
+                <div class="stat-icon"><i class="fas fa-euro-sign"></i></div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalRevenue">0,00 €</div>
+                    <div class="stat-label">Chiffre d'affaires mensuel</div>
+                </div>
+            </div>
+            <div class="stat-card unbilled">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-content">
+                    <div class="stat-value" id="unbilledHours">0h00</div>
+                    <div class="stat-label">Temps non facturé</div>
+                    <div class="stat-amount" id="unbilledAmount">0,00 €</div>
+                </div>
+            </div>
+            <div class="stat-card unpaid">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-content">
+                    <div class="stat-value" id="unpaidInvoices">0</div>
+                    <div class="stat-label">Factures impayées</div>
+                    <div class="stat-amount" id="unpaidAmount">0,00 €</div>
+                </div>
+            </div>
+            <div class="stat-card average">
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-content">
+                    <div class="stat-value" id="averageRate">0 €/h</div>
+                    <div class="stat-label">Taux horaire moyen</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="temps" onclick="switchTab('temps')">
+                <i class="fas fa-clock"></i> Temps saisis
+            </button>
+            <button class="tab-btn" data-tab="factures" onclick="switchTab('factures')">
+                <i class="fas fa-file-invoice"></i> Factures
+            </button>
+            <button class="tab-btn" data-tab="impayes" onclick="switchTab('impayes')">
+                <i class="fas fa-exclamation-circle"></i> Impayés
+            </button>
+        </div>
+
+        <!-- Tab Content: Temps -->
+        <div id="tempsTab" class="tab-content active">
+            <div class="content-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-clock"></i> Temps saisis</h3>
+                    <div class="filter-group">
+                        <select id="tempsFilter" onchange="filterTemps()">
+                            <option value="tous">Tous les temps</option>
+                            <option value="non_facture">Non facturés</option>
+                            <option value="facture">Facturés</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="tempsList" class="list-container">
+                    <!-- Liste des temps chargée par JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Factures -->
+        <div id="facturesTab" class="tab-content">
+            <div class="content-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-file-invoice"></i> Factures émises</h3>
+                    <div class="filter-group">
+                        <select id="facturesFilter" onchange="filterFactures()">
+                            <option value="tous">Toutes les factures</option>
+                            <option value="payee">Payées</option>
+                            <option value="impayee">Impayées</option>
+                            <option value="en_cours">En cours</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="facturesList" class="list-container">
+                    <!-- Liste des factures chargée par JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Impayés -->
+        <div id="impayesTab" class="tab-content">
+            <div class="content-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-exclamation-circle"></i> Factures impayées</h3>
+                    <button class="btn btn-warning" onclick="sendReminderAll()">
+                        <i class="fas fa-paper-plane"></i> Relancer tous
+                    </button>
+                </div>
+                <div id="impayesList" class="list-container">
+                    <!-- Liste des impayés chargée par JS -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Saisie Temps -->
+    <div id="timeEntryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-clock"></i> Saisie de temps</h3>
+                <button class="close-btn" onclick="closeTimeEntryModal()">&times;</button>
+            </div>
+            <form id="timeEntryForm" onsubmit="submitTimeEntry(event)">
+                <div class="form-group">
+                    <label for="dossier">Dossier *</label>
+                    <input type="text" id="dossier" required placeholder="Numéro de dossier">
+                </div>
+                <div class="form-group">
+                    <label for="client">Client *</label>
+                    <input type="text" id="client" required placeholder="Nom du client">
+                </div>
+                <div class="form-group">
+                    <label for="typePrestation">Type de prestation *</label>
+                    <select id="typePrestation" required onchange="updateTauxHoraire()">
+                        <option value="">-- Sélectionner --</option>
+                        <option value="consultation">Consultation (200 €/h)</option>
+                        <option value="audience">Audience (250 €/h)</option>
+                        <option value="plaidoirie">Plaidoirie (300 €/h)</option>
+                        <option value="redaction">Rédaction (150 €/h)</option>
+                        <option value="recherche">Recherche (100 €/h)</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="heures">Heures *</label>
+                        <input type="number" id="heures" min="0" max="23" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="minutes">Minutes *</label>
+                        <input type="number" id="minutes" min="0" max="59" value="0" step="15" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="tauxHoraire">Taux horaire (€/h) *</label>
+                    <input type="number" id="tauxHoraire" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="datePrestation">Date de prestation *</label>
+                    <input type="date" id="datePrestation" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" rows="3" required placeholder="Décrivez le travail effectué..."></textarea>
+                </div>
+                <div class="montant-preview">
+                    <strong>Montant estimé:</strong> <span id="montantPreview">0,00 €</span>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeTimeEntryModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Générer Facture -->
+    <div id="invoiceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-invoice"></i> Générer une facture</h3>
+                <button class="close-btn" onclick="closeInvoiceModal()">&times;</button>
+            </div>
+            <form id="invoiceForm" onsubmit="generateInvoice(event)">
+                <div class="form-group">
+                    <label for="invoiceClient">Client *</label>
+                    <select id="invoiceClient" required onchange="loadClientTimeEntries()">
+                        <option value="">-- Sélectionner un client --</option>
+                    </select>
+                </div>
+                <div id="timeEntriesForInvoice" class="time-entries-selection">
+                    <!-- Temps non facturés du client -->
+                </div>
+                <div class="invoice-summary">
+                    <div class="summary-row">
+                        <span>Sous-total HT:</span>
+                        <span id="invoiceSubtotal">0,00 €</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Frais de recouvrement (40€):</span>
+                        <span>40,00 €</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total HT:</span>
+                        <span id="invoiceTotal">40,00 €</span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeInvoiceModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-pdf"></i> Générer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Détails Facture -->
+    <div id="detailsFactureModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-invoice"></i> Détails facture</h3>
+                <button class="close-btn" onclick="closeDetailsFactureModal()">&times;</button>
+            </div>
+            <div id="factureDetails">
+                <!-- Détails chargés par JS -->
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeDetailsFactureModal()">Fermer</button>
+                <button type="button" class="btn btn-success" onclick="markFacturePaid()">
+                    <i class="fas fa-check"></i> Marquer comme payée
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/legal/billing.js') }}"></script>
+</body>
+</html>

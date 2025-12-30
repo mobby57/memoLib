@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Juridique - IA Poste Manager Avocat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/legal/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-balance-scale"></i>
+                    <h1>IA Poste Manager <span class="edition">Édition Avocat</span></h1>
+                </div>
+                <nav class="nav">
+                    <a href="/dashboard" class="nav-link">
+                        <i class="fas fa-home"></i> Accueil
+                    </a>
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-chart-line"></i> Dashboard Juridique
+                    </a>
+                    <a href="/legal/billing" class="nav-link">
+                        <i class="fas fa-file-invoice-dollar"></i> Facturation
+                    </a>
+                    <a href="/legal/compliance" class="nav-link">
+                        <i class="fas fa-shield-alt"></i> Conformité
+                    </a>
+                </nav>
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Maître Dupont</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Page Title -->
+            <div class="page-header">
+                <h2>
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard Juridique
+                </h2>
+                <div class="refresh-section">
+                    <span class="last-update">Dernière mise à jour: <span id="lastUpdate">--:--</span></span>
+                    <button class="btn btn-refresh" onclick="refreshDashboard()">
+                        <i class="fas fa-sync-alt"></i> Actualiser
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts Banner -->
+            <div id="alertsBanner" class="alerts-banner" style="display: none;">
+                <div class="alert-critical">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>ATTENTION !</strong>
+                    <span id="alertsCount">0</span> délai(s) critique(s) nécessitant une action immédiate
+                    <button class="btn-view-alerts" onclick="scrollToSection('delais-section')">
+                        Voir les délais
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <!-- Délais Critiques -->
+                <div class="stat-card stat-critical">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Délais Critiques</h3>
+                        <div class="stat-number" id="delaisCritiquesCount">--</div>
+                        <p class="stat-label">< 3 jours</p>
+                    </div>
+                    <div class="stat-trend trend-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                </div>
+
+                <!-- Factures Impayées -->
+                <div class="stat-card stat-warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Factures Impayées</h3>
+                        <div class="stat-number" id="facturesImpayeesCount">--</div>
+                        <p class="stat-label"><span id="facturesImpayeesMontant">--</span> € TTC</p>
+                    </div>
+                    <div class="stat-trend trend-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+
+                <!-- Temps Non Facturé -->
+                <div class="stat-card stat-info">
+                    <div class="stat-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Temps Non Facturé</h3>
+                        <div class="stat-number" id="tempsNonFactureHeures">--</div>
+                        <p class="stat-label"><span id="tempsNonFactureMontant">--</span> € HT</p>
+                    </div>
+                    <div class="stat-trend trend-info">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                </div>
+
+                <!-- Alertes Actives -->
+                <div class="stat-card stat-danger">
+                    <div class="stat-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Alertes Actives</h3>
+                        <div class="stat-number" id="alertesCount">--</div>
+                        <p class="stat-label">Actions requises</p>
+                    </div>
+                    <div class="stat-trend trend-danger">
+                        <i class="fas fa-exclamation"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="content-grid">
+                
+                <!-- Délais Section -->
+                <section class="card" id="delais-section">
+                    <div class="card-header">
+                        <h3>
+                            <i class="fas fa-calendar-times"></i>
+                            Délais Critiques & Urgents
+                        </h3>
+                        <a href="/legal/deadlines" class="btn btn-sm btn-outline">
+                            Voir tous les délais
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div id="delaisList" class="list-container">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Chargement des délais...
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Factures Impayées Section -->
+                <section class="card">
+                    <div class="card-header">
+                        <h3>
+                            <i class="fas fa-euro-sign"></i>
+                            Factures Impayées
+                        </h3>
+                        <a href="/legal/billing" class="btn btn-sm btn-outline">
+                            Gestion facturation
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div id="facturesList" class="list-container">
+                            <div class="loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Chargement des factures...
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Secondary Grid -->
+            <div class="content-grid-secondary">
+                
+                <!-- Actions Rapides -->
+                <section class="card">
+                    <div class="card-header">
+                        <h3>
+                            <i class="fas fa-bolt"></i>
+                            Actions Rapides
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="quick-actions">
+                            <button class="action-btn" onclick="openModal('newDeadline')">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span>Nouveau Délai</span>
+                            </button>
+                            <button class="action-btn" onclick="openModal('newTimeEntry')">
+                                <i class="fas fa-clock"></i>
+                                <span>Saisir Temps</span>
+                            </button>
+                            <button class="action-btn" onclick="openModal('newInvoice')">
+                                <i class="fas fa-file-invoice"></i>
+                                <span>Créer Facture</span>
+                            </button>
+                            <button class="action-btn" onclick="openModal('conflictCheck')">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Vérifier Conflit</span>
+                            </button>
+                            <button class="action-btn" onclick="openModal('generateDocument')">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Générer Acte</span>
+                            </button>
+                            <button class="action-btn" onclick="window.location.href='/legal/reports'">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Rapports</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Statistiques du Jour -->
+                <section class="card">
+                    <div class="card-header">
+                        <h3>
+                            <i class="fas fa-calendar-day"></i>
+                            Aujourd'hui
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="today-stats">
+                            <div class="today-stat-item">
+                                <i class="fas fa-clock text-primary"></i>
+                                <div>
+                                    <strong id="todayHours">0h</strong>
+                                    <span>Temps saisi</span>
+                                </div>
+                            </div>
+                            <div class="today-stat-item">
+                                <i class="fas fa-file-invoice text-success"></i>
+                                <div>
+                                    <strong id="todayInvoices">0</strong>
+                                    <span>Factures émises</span>
+                                </div>
+                            </div>
+                            <div class="today-stat-item">
+                                <i class="fas fa-envelope text-info"></i>
+                                <div>
+                                    <strong id="todayCorrespondence">0</strong>
+                                    <span>Correspondances</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 IA Poste Manager - Édition Avocat | Conformité RGPD & Déontologie Avocat</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/legal/dashboard.js') }}"></script>
+</body>
+</html>

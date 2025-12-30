@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant IA Juridique - Votre Avocat 24/7</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        .chat-container { background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; }
+        .chat-header { background: #667eea; color: white; padding: 20px; text-align: center; }
+        .chat-messages { height: 400px; overflow-y: auto; padding: 20px; background: #f8f9fa; }
+        .message { margin-bottom: 15px; }
+        .message.user { text-align: right; }
+        .message.ai { text-align: left; }
+        .message-bubble { display: inline-block; max-width: 70%; padding: 12px 18px; border-radius: 20px; }
+        .message.user .message-bubble { background: #667eea; color: white; }
+        .message.ai .message-bubble { background: white; border: 1px solid #ddd; }
+        .typing { display: none; text-align: left; margin-bottom: 15px; }
+        .typing-bubble { background: white; border: 1px solid #ddd; padding: 12px 18px; border-radius: 20px; display: inline-block; }
+        .typing-dots { display: inline-block; }
+        .typing-dots span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #667eea; margin: 0 2px; animation: typing 1.4s infinite; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+        .input-area { padding: 20px; background: white; display: flex; gap: 10px; }
+        .input-area input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; font-size: 16px; }
+        .input-area button { padding: 12px 20px; background: #667eea; color: white; border: none; border-radius: 25px; cursor: pointer; }
+        .quick-buttons { padding: 0 20px 20px; background: white; }
+        .quick-btn { display: inline-block; margin: 5px; padding: 8px 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .quick-btn:hover { background: #667eea; color: white; }
+        .urgence { background: #dc3545; color: white; padding: 10px; text-align: center; margin-bottom: 20px; border-radius: 10px; }
+        .success { background: #28a745; color: white; padding: 15px; border-radius: 10px; margin: 10px 0; }
+        .warning { background: #ffc107; color: #212529; padding: 15px; border-radius: 10px; margin: 10px 0; }
+        .language-selector { position: absolute; top: 20px; right: 20px; }
+        .language-selector select { padding: 8px; border-radius: 5px; background: white; }
+    </style>
+</head>
+<body>
+    <div class="language-selector">
+        <select onchange="changeLanguage(this.value)">
+            <option value="fr">🇫🇷 Français</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="ar">🇸🇦 العربية</option>
+            <option value="es">🇪🇸 Español</option>
+        </select>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Assistant IA Juridique</h1>
+            <p>Votre avocat personnel 24h/24 - Spécialisé droit des étrangers</p>
+        </div>
+
+        <div class="urgence" id="urgence" style="display:none;">
+            🚨 <strong>URGENCE DÉTECTÉE</strong> - Délai critique identifié - Contact avocat immédiat recommandé
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <h3>💬 Décrivez votre situation juridique</h3>
+                <p>Gratuit • Confidentiel • Instantané</p>
+            </div>
+
+            <div class="chat-messages" id="messages">
+                <div class="message ai">
+                    <div class="message-bubble">
+                        👋 Bonjour ! Je suis votre assistant juridique IA spécialisé dans le droit des étrangers.<br><br>
+                        <strong>Je peux vous aider avec :</strong><br>
+                        • Titre de séjour<br>
+                        • OQTF et recours<br>
+                        • Naturalisation<br>
+                        • Regroupement familial<br>
+                        • Toutes procédures CESEDA<br><br>
+                        Décrivez-moi votre situation en quelques mots...
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing" id="typing">
+                <div class="typing-bubble">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-buttons">
+                <div class="quick-btn" onclick="sendQuickMessage('J\'ai reçu une OQTF')">📋 OQTF reçue</div>
+                <div class="quick-btn" onclick="sendQuickMessage('Ma carte de séjour expire bientôt')">📅 Carte expire</div>
+                <div class="quick-btn" onclick="sendQuickMessage('Je veux faire venir ma famille')">👨‍👩‍👧‍👦 Regroupement familial</div>
+                <div class="quick-btn" onclick="sendQuickMessage('Demande de naturalisation')">🇫🇷 Naturalisation</div>
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Tapez votre message..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Envoyer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const responses = {
+            'oqtf': {
+                message: `🚨 <strong>SITUATION URGENTE DÉTECTÉE</strong><br><br>
+                Une OQTF (Obligation de Quitter le Territoire Français) nécessite une action immédiate :<br><br>
+                <div class="warning">⏰ <strong>Délai critique :</strong> 30 jours pour faire un recours</div>
+                <strong>Actions possibles :</strong><br>
+                • Recours gracieux auprès du préfet<br>
+                • Recours contentieux au tribunal administratif<br>
+                • Demande d'aide juridictionnelle<br><br>
+                <div class="success">✅ <strong>Prédiction IA :</strong> 73% de chances de succès avec un bon dossier</div>
+                <strong>Pièces nécessaires :</strong><br>
+                • Justificatifs de présence en France<br>
+                • Preuves d'intégration<br>
+                • Attestations d'hébergement<br><br>
+                💡 <strong>Conseil :</strong> Contactez un avocat spécialisé dans les 48h`,
+                urgence: true
+            },
+            'carte': {
+                message: `📅 <strong>RENOUVELLEMENT CARTE DE SÉJOUR</strong><br><br>
+                <div class="warning">⚠️ <strong>Attention :</strong> Commencez la procédure 2 mois avant expiration</div>
+                <strong>Étapes à suivre :</strong><br>
+                1. Prendre RDV en préfecture<br>
+                2. Constituer le dossier complet<br>
+                3. Déposer la demande<br><br>
+                <strong>Pièces généralement requises :</strong><br>
+                • Carte actuelle + photocopie<br>
+                • Justificatifs de ressources<br>
+                • Justificatif de domicile<br>
+                • Photos d'identité<br><br>
+                <div class="success">✅ <strong>Prédiction IA :</strong> 89% de chances de renouvellement si dossier complet</div>
+                💡 <strong>Astuce :</strong> Récépissé délivré en cas de dépôt avant expiration`,
+                urgence: false
+            },
+            'famille': {
+                message: `👨‍👩‍👧‍👦 <strong>REGROUPEMENT FAMILIAL</strong><br><br>
+                Procédure pour faire venir votre famille en France :<br><br>
+                <strong>Conditions requises :</strong><br>
+                • Titre de séjour valide depuis 18 mois<br>
+                • Ressources stables (SMIC minimum)<br>
+                • Logement adapté<br>
+                • Assurance maladie<br><br>
+                <strong>Délai de traitement :</strong> 6 à 12 mois<br><br>
+                <div class="success">✅ <strong>Prédiction IA :</strong> 82% de chances de succès si conditions remplies</div>
+                <strong>Première étape :</strong> Dépôt demande à l'OFII<br><br>
+                💡 <strong>Conseil :</strong> Préparez tous les documents traduits et légalisés`,
+                urgence: false
+            },
+            'naturalisation': {
+                message: `🇫🇷 <strong>DEMANDE DE NATURALISATION</strong><br><br>
+                Devenir français par naturalisation :<br><br>
+                <strong>Conditions principales :</strong><br>
+                • 5 ans de résidence régulière (3 ans si marié à français)<br>
+                • Niveau B1 en français<br>
+                • Intégration républicaine<br>
+                • Casier judiciaire vierge<br><br>
+                <strong>Délai de traitement :</strong> 12 à 18 mois<br><br>
+                <div class="success">✅ <strong>Prédiction IA :</strong> 91% de chances de succès si conditions remplies</div>
+                <strong>Étapes :</strong><br>
+                1. Constitution du dossier<br>
+                2. Dépôt en préfecture<br>
+                3. Entretien d'assimilation<br>
+                4. Décision<br><br>
+                💡 <strong>Conseil :</strong> Préparez l'entretien sur les valeurs républicaines`,
+                urgence: false
+            },
+            'default': {
+                message: `🤖 <strong>ANALYSE EN COURS...</strong><br><br>
+                Je comprends votre situation. Voici une analyse personnalisée :<br><br>
+                <div class="success">✅ <strong>Bonne nouvelle :</strong> Votre cas semble avoir des solutions</div>
+                <strong>Prochaines étapes recommandées :</strong><br>
+                • Rassembler les documents nécessaires<br>
+                • Vérifier les délais applicables<br>
+                • Consulter un avocat spécialisé si nécessaire<br><br>
+                💡 <strong>Conseil IA :</strong> Chaque situation est unique, une consultation personnalisée est recommandée<br><br>
+                <strong>Voulez-vous :</strong><br>
+                • Plus d'informations sur une procédure spécifique ?<br>
+                • Être mis en relation avec un avocat ?<br>
+                • Recevoir un guide personnalisé ?`,
+                urgence: false
+            }
+        };
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+            
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                processMessage(message);
+            }, 2000);
+        }
+
+        function sendQuickMessage(message) {
+            addMessage(message, 'user');
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                processMessage(message);
+            }, 2000);
+        }
+
+        function processMessage(message) {
+            let response = responses.default;
+            
+            if (message.toLowerCase().includes('oqtf')) {
+                response = responses.oqtf;
+            } else if (message.toLowerCase().includes('carte') || message.toLowerCase().includes('expire')) {
+                response = responses.carte;
+            } else if (message.toLowerCase().includes('famille') || message.toLowerCase().includes('regroupement')) {
+                response = responses.famille;
+            } else if (message.toLowerCase().includes('naturalisation') || message.toLowerCase().includes('français')) {
+                response = responses.naturalisation;
+            }
+
+            addMessage(response.message, 'ai');
+            
+            if (response.urgence) {
+                document.getElementById('urgence').style.display = 'block';
+            }
+
+            // Proposer contact avocat
+            setTimeout(() => {
+                addMessage(`📞 <strong>BESOIN D'AIDE PERSONNALISÉE ?</strong><br><br>
+                Nos avocats partenaires spécialisés peuvent vous accompagner :<br><br>
+                • Consultation gratuite 15 min<br>
+                • Devis personnalisé<br>
+                • Suivi complet de votre dossier<br><br>
+                <div class="success">🎯 <strong>Taux de succès moyen :</strong> 87% avec accompagnement avocat</div>
+                <button onclick="contactAvocat()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">📞 Contacter un avocat</button>`, 'ai');
+            }, 3000);
+        }
+
+        function addMessage(text, sender) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function showTyping() {
+            document.getElementById('typing').style.display = 'block';
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        }
+
+        function hideTyping() {
+            document.getElementById('typing').style.display = 'none';
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function contactAvocat() {
+            addMessage('📞 Parfait ! Un avocat spécialisé va vous contacter dans les 2h. Vos coordonnées restent confidentielles.', 'ai');
+            setTimeout(() => {
+                addMessage('✅ <strong>DEMANDE ENREGISTRÉE</strong><br><br>Référence : #DEMO-2025-001<br>Avocat assigné : Maître Dupont<br>Spécialité : Droit des étrangers<br><br>📧 Vous recevrez un email de confirmation<br>📱 SMS avec coordonnées avocat<br><br>Merci de votre confiance ! 🙏', 'ai');
+            }, 2000);
+        }
+
+        function changeLanguage(lang) {
+            // Simulation changement langue
+            if (lang === 'en') {
+                document.querySelector('.header h1').textContent = '🤖 Legal AI Assistant';
+                document.querySelector('.header p').textContent = 'Your personal lawyer 24/7 - Immigration law specialist';
+            } else if (lang === 'ar') {
+                document.querySelector('.header h1').textContent = '🤖 مساعد قانوني ذكي';
+                document.querySelector('.header p').textContent = 'محاميك الشخصي 24/7 - متخصص في قانون الأجانب';
+            }
+        }
+    </script>
+</body>
+</html>
