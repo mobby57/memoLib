@@ -6,12 +6,12 @@ echo "Starting IA Poste Manager Complete System..."
 
 # Get the script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+cd "$SCRIPT_DIR" || exit 1
 
 echo "[1/3] Starting Backend Server..."
 # Start backend in background
 if [ -f "backend/app.py" ]; then
-    (cd backend && python app.py) &
+    (cd backend && python3 app.py) &
     BACKEND_PID=$!
     echo "Backend started with PID: $BACKEND_PID"
 else

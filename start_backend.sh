@@ -6,18 +6,18 @@ echo "Starting IA Poste Manager Backend..."
 
 # Get the script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+cd "$SCRIPT_DIR" || exit 1
 
 # Try main backend first
 if [ -f "backend/app.py" ]; then
     echo "Starting main backend..."
-    python backend/app.py
+    python3 backend/app.py
 elif [ -f "src/backend/app.py" ]; then
     echo "Starting src backend..."
-    python src/backend/app.py
+    python3 src/backend/app.py
 elif [ -f "app.py" ]; then
     echo "Starting root app..."
-    python app.py
+    python3 app.py
 else
     echo "No backend found. Creating simple server..."
     python3 -c "

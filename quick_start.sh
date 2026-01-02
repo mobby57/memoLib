@@ -42,7 +42,7 @@ fi
 # Check configuration
 echo "🔍 Checking configuration..."
 if [ -f "verify_system.py" ]; then
-    python verify_system.py
+    python3 verify_system.py
 fi
 
 echo ""
@@ -52,4 +52,4 @@ echo "🛑 Press Ctrl+C to stop the server"
 echo ""
 
 # Start the application
-python app.py
+python3 app.py
