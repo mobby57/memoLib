@@ -14,7 +14,11 @@ echo "Activating virtual environment..."
 source venv/bin/activate
 
 echo "Installing dependencies..."
-pip install -r requirements.txt
+if [ -f "requirements.txt" ]; then
+    pip install -r requirements.txt
+else
+    echo "Warning: requirements.txt not found, skipping dependency installation"
+fi
 
 echo "Starting Flask server..."
 python3 app.py
