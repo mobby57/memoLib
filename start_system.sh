@@ -57,5 +57,8 @@ echo "Frontend: http://localhost:5173"
 echo ""
 echo "Press Ctrl+C to stop all services..."
 
-# Wait for user interrupt
+# Trap Ctrl+C to clean up background processes
+trap 'echo "Stopping services..."; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit 0' INT TERM
+
+# Wait for background processes
 wait

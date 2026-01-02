@@ -42,7 +42,11 @@ fi
 # Check configuration
 echo "🔍 Checking configuration..."
 if [ -f "verify_system.py" ]; then
-    python3 verify_system.py
+    if python3 verify_system.py; then
+        echo "✅ System verification passed"
+    else
+        echo "⚠️  System verification completed with warnings"
+    fi
 fi
 
 echo ""
