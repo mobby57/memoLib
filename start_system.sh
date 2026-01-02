@@ -58,7 +58,13 @@ echo ""
 echo "Press Ctrl+C to stop all services..."
 
 # Trap Ctrl+C to clean up background processes
-trap 'echo "Stopping services..."; [ -n "$BACKEND_PID" ] && kill $BACKEND_PID 2>/dev/null; [ -n "$FRONTEND_PID" ] && kill $FRONTEND_PID 2>/dev/null; exit 0' INT TERM
+cleanup() {
+    echo "Stopping services..."
+    [ -n "$BACKEND_PID" ] && kill "$BACKEND_PID" 2>/dev/null
+    [ -n "$FRONTEND_PID" ] && kill "$FRONTEND_PID" 2>/dev/null
+    exit 0
+}
+trap cleanup INT TERM
 
 # Wait for background processes
 wait
