@@ -4,6 +4,8 @@
 
 ## Démarrage Rapide
 
+### Windows
+
 1. **Configurer la clé OpenAI:**
    - Éditer `.env` et ajouter votre clé OpenAI
 
@@ -14,6 +16,35 @@
 
 3. **Accéder à l'interface:**
    - http://localhost:5000
+
+### Linux / Mac
+
+1. **Configurer la clé OpenAI:**
+   - Éditer `.env` et ajouter votre clé OpenAI
+
+2. **Lancer l'application:**
+   ```bash
+   ./start.sh
+   ```
+
+3. **Accéder à l'interface:**
+   - http://localhost:5000
+
+### Scripts Disponibles
+
+#### Windows
+- `START.bat` - Démarrage simple de l'application
+- `QUICK_START.bat` - Démarrage rapide avec vérifications
+- `start_system.bat` - Démarrage du système complet (backend + frontend)
+- `start_backend.bat` - Démarrage du backend uniquement
+
+#### Linux / Mac
+- `./start.sh` - Démarrage simple de l'application
+- `./quick_start.sh` - Démarrage rapide avec vérifications
+- `./start_system.sh` - Démarrage du système complet (backend + frontend)
+- `./start_backend.sh` - Démarrage du backend uniquement
+
+> **Note:** Les scripts shell (.sh) sont déjà exécutables. Si vous rencontrez des problèmes de permissions, utilisez `chmod +x *.sh`
 
 ## Fonctionnalités
 
