@@ -35,7 +35,11 @@ fi
 
 # Check configuration
 echo "🔍 Checking configuration..."
-python verify_system.py
+if [ -f "verify_system.py" ]; then
+    python verify_system.py
+else
+    echo "⚠️  verify_system.py not found, skipping verification"
+fi
 
 echo ""
 echo "🚀 Starting IA Poste Manager..."

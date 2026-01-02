@@ -8,22 +8,37 @@ echo ""
 cd "$(dirname "$0")"
 
 echo "[1/4] Starting Backend Server..."
-python backend/app.py &
-BACKEND_PID=$!
+if [ -d "backend" ] && [ -f "backend/app.py" ]; then
+    (cd backend && python app.py) &
+    BACKEND_PID=$!
+elif [ -f "app.py" ]; then
+    python app.py &
+    BACKEND_PID=$!
+else
+    echo "❌ Backend not found"
+    exit 1
+fi
 sleep 3
 
 echo "[2/4] Testing API Endpoints..."
-python test_api.py
-if [ $? -ne 0 ]; then
-    echo "❌ API test failed"
-    kill $BACKEND_PID 2>/dev/null
-    exit 1
+if [ -f "test_api.py" ]; then
+    python test_api.py
+    if [ $? -ne 0 ]; then
+        echo "❌ API test failed"
+        kill $BACKEND_PID 2>/dev/null
+        exit 1
+    fi
+else
+    echo "⚠️  test_api.py not found, skipping API tests"
 fi
 
 echo "[3/4] Starting Frontend..."
-cd src/frontend
-npm run dev &
-FRONTEND_PID=$!
+if [ -d "src/frontend" ]; then
+    (cd src/frontend && npm run dev) &
+    FRONTEND_PID=$!
+else
+    echo "⚠️  Frontend not found, skipping"
+fi
 sleep 3
 
 echo "[4/4] System Ready!"

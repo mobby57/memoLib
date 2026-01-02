@@ -3,14 +3,26 @@
 echo "Starting IA Poste Manager Complete System..."
 
 echo "[1/3] Starting Backend Server..."
-cd backend && python app.py &
-BACKEND_PID=$!
+if [ -d "backend" ] && [ -f "backend/app.py" ]; then
+    (cd backend && python app.py) &
+    BACKEND_PID=$!
+elif [ -f "app.py" ]; then
+    python app.py &
+    BACKEND_PID=$!
+else
+    echo "❌ Backend not found"
+    exit 1
+fi
 
 sleep 3
 
 echo "[2/3] Starting Frontend Development Server..."
-cd src/frontend && npm run dev &
-FRONTEND_PID=$!
+if [ -d "src/frontend" ]; then
+    (cd src/frontend && npm run dev) &
+    FRONTEND_PID=$!
+else
+    echo "⚠️  Frontend not found, skipping"
+fi
 
 sleep 2
 
