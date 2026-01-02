@@ -32,7 +32,11 @@ source venv/bin/activate
 
 # Install dependencies
 echo "📚 Installing dependencies..."
-pip install -r requirements.txt --quiet
+if [ -f "requirements.txt" ]; then
+    pip install -r requirements.txt --quiet
+else
+    echo "⚠️  requirements.txt not found, skipping dependency installation"
+fi
 
 # Create data directory
 if [ ! -d "data" ]; then
