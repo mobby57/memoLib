@@ -1,0 +1,22 @@
+{
+  "deno.enable": false,
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.suggest.autoImports": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["class(?:Name)?\\s*[=:]\\s*['\"]([^'\"]*)['\"]", "([^'\"]*)"],
+    ["(?:const|let|var)\\s+\\w+\\s*=\\s*['\"]([^'\"]*)['\"]"]
+  ],
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "sonarlint.pathToNodeExecutable": "${workspaceFolder}/node_modules/.bin/node"
+}
