@@ -1,101 +1,121 @@
-# Fichiers sensibles - NE PAS COMMITER
-.env
-.env.*
-!.env.example
-!.env.template
-.env_pythonanywhere
-.env.production
-.env.local
-
-# Clés API et secrets
-*.key
-secrets.txt
-config_private.py
-credentials/
-
 # Logs
+logs
 *.log
-logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
 *.pid
+*.seed
+*.pid.lock
 
-# Cache Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.so
-.pytest_cache/
+# Directory for instrumented libs
+lib-cov
+
+# Coverage directory
+coverage
+*.lcov
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# dotenv environment variables files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Next.js
+.next/
+out/
+dist/
+
+# Build outputs
+build/
+.vercel
+
+# Testing
 .coverage
-htmlcov/
+test-results/
+playwright-report/
 
-# Virtual Environments
-venv/
-env/
-ENV/
-.venv/
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+*.sqlite
+*.sqlite-journal
 
-# IDE
-.vscode/
-.idea/
+# Temporary files
+.DS_Store
+Thumbs.db
 *.swp
 *.swo
 *~
-.cursor/
 
-# OS
-.DS_Store
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+*.egg-info/
+
+# Build reports
+build-*.txt
+test-report-*.txt
+tsc-output.txt
+
+# OS specific
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
 Thumbs.db
-.vercel
-desktop.ini
-
-# Node
-node_modules/
-npm-debug.log
-yarn-error.log
-package-lock.json
-
-# React/Frontend inutilisé
-frontend-react/
-dist/
-build/
-.next/
-out/
-
-# Deploy folders (garder zip uniquement)
-deploy_*/
-deploy_cabinet_*/
-deploy_secure_*/
-deploy_pythonanywhere/
-*.tar.gz
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
-data/*.json
-!data/.gitkeep
-
-# Backups
-backups/
-*.bak
-*.backup
-
-# Testing
-.tox/
-
-# Temp
-*.tmp
-temp/
-tmp/
-
-# Mobile
-mobile-app/
-
-# Docker
-.dockerignore
-
-# Monitoring
-monitoring/
-
-# SSL
-ssl/
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
