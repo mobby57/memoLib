@@ -13,12 +13,16 @@ export interface ExtractedDeadline {
   dateReference?: Date;
   delaiJours?: number;
   priorite: 'critique' | 'haute' | 'normale' | 'basse';
-  aiConfidence: number; // 0-1
+  aiConfidence: number; // 0-1 (confidence score)
+  confidenceLevel?: 'high' | 'medium' | 'low'; // High: >90%, Medium: 70-90%, Low: <70%
   extractedText: string;
+  autoChecklist?: string[]; // Actions automatiques à effectuer
+  templateMatch?: string; // Template OQTF détecté (48h_sans_delai, 30j_avec_delai, etc.)
   metadata?: {
     juridiction?: string;
     typeRecours?: string;
     article?: string;
+    delaiStandard?: string; // Ex: "48h pour OQTF sans délai de départ"
     [key: string]: any;
   };
 }
@@ -26,13 +30,175 @@ export interface ExtractedDeadline {
 export interface DeadlineExtractionResult {
   success: boolean;
   deadlines: ExtractedDeadline[];
+  templateDetected?: 'OQTF_48H_SANS_DELAI' | 'OQTF_30J_AVEC_DELAI' | 'REFUS_TITRE_2MOIS' | 'AUTRE';
   rawText?: string;
   error?: string;
+  suggestedActions?: string[]; // Actions suggérées globalement
 }
 
 /**
- * Prompt système pour l'extraction de délais CESEDA
+ * Templates OQTF standards - Délais CESEDA
  */
+const OQTF_TEMPLATES = {
+  // Article L.512-1 CESEDA - OQTF sans délai de départ volontaire
+  OQTF_48H_SANS_DELAI: {
+    name: 'OQTF sans délai de départ',
+    delaiRecours: 48, // heures
+    articles: ['L.512-1', 'L.742-3', 'L.213-9'],
+    checklist: [
+      'Référé-liberté au TA (48h)',
+      'Vérifier notification en main propre ou domicile',
+      'Préparer recours référé (violation manifeste)',
+      'Constituer avocat en urgence',
+      'Rassembler preuves présence France',
+      'Vérifier si OQTF peut être exécutée (assignation à résidence?)',
+    ],
+    keywords: ['sans délai', 'immédiatement', 'sans délai de départ volontaire'],
+  },
+  
+  // Article L.511-1 CESEDA - OQTF avec délai de départ volontaire 30 jours
+  OQTF_30J_AVEC_DELAI: {
+    name: 'OQTF avec délai de départ (30 jours)',
+    delaiRecours: 30, // jours
+    delaiDepart: 30,
+    articles: ['L.511-1', 'L.512-1'],
+    checklist: [
+      'Recours contentieux au TA (30 jours)',
+      'Évaluer recours gracieux préfecture',
+      'Préparer départ volontaire si pertinent',
+      'Vérifier possibilité régularisation',
+      'Documents : preuves attaches France, vie privée/familiale',
+      'Consultation juridique CESEDA',
+    ],
+    keywords: ['délai de départ volontaire', '30 jours', 'trente jours'],
+  },
+  
+  // Refus de titre de séjour - 2 mois
+  REFUS_TITRE_2MOIS: {
+    name: 'Refus titre de séjour',
+    delaiRecours: 60, // jours (2 mois)
+    articles: ['L.313-11', 'R.421-1 CJA'],
+    checklist: [
+      'Recours contentieux au TA (2 mois)',
+      'Analyser motivation refus',
+      'Rassembler pièces complémentaires',
+      'Évaluer recours gracieux',
+      'Vérifier maintien récépissé pendant recours',
+    ],
+    keywords: ['refus de titre', 'refus de séjour', 'refuse de vous délivrer'],
+  },
+};
+
+/**
+ * Détecte le template OQTF applicable au document
+ */
+function detectOQTFTemplate(documentText: string): keyof typeof OQTF_TEMPLATES | null {
+  const lowerText = documentText.toLowerCase();
+  
+  // Recherche OQTF sans délai (priorité haute)
+  if (
+    (lowerText.includes('oqtf') || lowerText.includes('obligation de quitter')) &&
+    (lowerText.includes('sans délai') || 
+     lowerText.includes('immédiatement') ||
+     lowerText.includes('sans délai de départ volontaire'))
+  ) {
+    return 'OQTF_48H_SANS_DELAI';
+  }
+  
+  // OQTF avec délai
+  if (
+    (lowerText.includes('oqtf') || lowerText.includes('obligation de quitter')) &&
+    (lowerText.includes('délai de départ volontaire') ||
+     lowerText.includes('30 jours') ||
+     lowerText.includes('trente jours'))
+  ) {
+    return 'OQTF_30J_AVEC_DELAI';
+  }
+  
+  // Refus de titre
+  if (
+    lowerText.includes('refus') &&
+    (lowerText.includes('titre de séjour') || lowerText.includes('séjour'))
+  ) {
+    return 'REFUS_TITRE_2MOIS';
+  }
+  
+  return null;
+}
+
+/**
+ * Génère la checklist automatique selon le template
+ */
+function generateAutoChecklist(
+  template: keyof typeof OQTF_TEMPLATES | null,
+  deadline: Partial<ExtractedDeadline>
+): string[] {
+  if (!template) {
+    // Checklist générique
+    return [
+      'Vérifier date de notification',
+      'Calculer délai de recours',
+      'Consulter avocat spécialisé',
+      'Rassembler documents justificatifs',
+    ];
+  }
+  
+  const templateData = OQTF_TEMPLATES[template];
+  return [...templateData.checklist];
+}
+
+/**
+ * Calcule le niveau de confiance (high/medium/low)
+ */
+function calculateConfidenceLevel(aiConfidence: number): 'high' | 'medium' | 'low' {
+  if (aiConfidence >= 0.9) return 'high';
+  if (aiConfidence >= 0.7) return 'medium';
+  return 'low';
+}
+
+/**
+ * Enrichit le délai avec template OQTF et checklist
+ */
+function enrichDeadlineWithTemplate(
+  deadline: ExtractedDeadline,
+  templateKey: keyof typeof OQTF_TEMPLATES | null,
+  documentText: string
+): ExtractedDeadline {
+  const enriched = { ...deadline };
+  
+  if (templateKey) {
+    const template = OQTF_TEMPLATES[templateKey];
+    
+    // Ajouter template match
+    enriched.templateMatch = templateKey;
+    
+    // Générer checklist automatique
+    enriched.autoChecklist = generateAutoChecklist(templateKey, deadline);
+    
+    // Enrichir métadata
+    enriched.metadata = {
+      ...enriched.metadata,
+      delaiStandard: `${template.delaiRecours}${templateKey.includes('48H') ? 'h' : 'j'} pour ${template.name}`,
+      articlesApplicables: template.articles,
+      templateName: template.name,
+    };
+    
+    // Ajuster la confiance si le template match est fort
+    const hasStrongKeywords = template.keywords.some(kw => 
+      documentText.toLowerCase().includes(kw.toLowerCase())
+    );
+    
+    if (hasStrongKeywords && enriched.aiConfidence < 0.9) {
+      enriched.aiConfidence = Math.min(0.95, enriched.aiConfidence + 0.15);
+    }
+  }
+  
+  // Calculer confidence level
+  enriched.confidenceLevel = calculateConfidenceLevel(enriched.aiConfidence);
+  
+  return enriched;
+}
+
 const DEADLINE_EXTRACTION_PROMPT = `Tu es un assistant juridique expert en droit des étrangers (CESEDA).
 Ta mission est d'analyser des documents administratifs et judiciaires pour extraire TOUS les délais et échéances.
 
@@ -126,7 +292,7 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string>
 }
 
 /**
- * Extrait les délais d'un document texte
+ * Extrait les délais d'un document texte - Version améliorée avec templates
  */
 export async function extractDeadlinesFromText(
   documentText: string,
@@ -141,8 +307,20 @@ export async function extractDeadlinesFromText(
       };
     }
 
+    // Détecter le template OQTF applicable
+    const templateDetected = detectOQTFTemplate(documentText);
+
     // Construire le prompt avec contexte
-    const userPrompt = `Analyse le document suivant${documentType ? ` (type: ${documentType})` : ''} et extrais tous les délais et échéances :
+    let contextHint = '';
+    if (templateDetected) {
+      const template = OQTF_TEMPLATES[templateDetected];
+      contextHint = `\n\nCONTEXTE DÉTECTÉ : ${template.name}
+Délai standard : ${template.delaiRecours}${templateDetected.includes('48H') ? 'h' : 'j'}
+Articles applicables : ${template.articles.join(', ')}
+Assure-toi d'appliquer ce délai standard si mentionné dans le document.`;
+    }
+
+    const userPrompt = `Analyse le document suivant${documentType ? ` (type: ${documentType})` : ''} et extrais tous les délais et échéances :${contextHint}
 
 ---DOCUMENT---
 ${documentText}
@@ -179,9 +357,9 @@ Réponds avec le JSON structuré des délais trouvés.`;
       };
     }
 
-    // Valider et transformer les dates
+    // Valider et transformer les dates + enrichir avec templates
     const deadlines: ExtractedDeadline[] = (parsedResponse.deadlines || []).map((dl: any) => {
-      return {
+      const baseDeadline: ExtractedDeadline = {
         type: dl.type || 'autre',
         titre: dl.titre || 'Échéance',
         description: dl.description,
@@ -193,12 +371,29 @@ Réponds avec le JSON structuré des délais trouvés.`;
         extractedText: dl.extractedText || '',
         metadata: dl.metadata
       };
+      
+      // Enrichir avec template et checklist
+      return enrichDeadlineWithTemplate(baseDeadline, templateDetected, documentText);
     });
+
+    // Générer actions suggérées globales
+    const suggestedActions: string[] = [];
+    if (templateDetected) {
+      const template = OQTF_TEMPLATES[templateDetected];
+      suggestedActions.push(`Template détecté : ${template.name}`);
+      suggestedActions.push(`Délai légal : ${template.delaiRecours}${templateDetected.includes('48H') ? 'h' : 'j'}`);
+      
+      if (deadlines.some(d => d.priorite === 'critique')) {
+        suggestedActions.push('⚠️ URGENCE : Contacter avocat immédiatement');
+      }
+    }
 
     return {
       success: true,
       deadlines,
-      rawText: aiResponse
+      templateDetected,
+      rawText: aiResponse,
+      suggestedActions: suggestedActions.length > 0 ? suggestedActions : undefined,
     };
 
   } catch (error: any) {

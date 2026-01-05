@@ -11,6 +11,23 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testEnvironment: 'jest-environment-jsdom',
+  modulePathIgnorePatterns: [
+    '<rootDir>/node_modules_backup/',
+    '<rootDir>/.next/',
+    '<rootDir>/code-connect/',
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/node_modules_backup/',
+    '/.next/',
+    '/code-connect/',
+  ],
+  watchPathIgnorePatterns: [
+    '/node_modules/',
+    '/node_modules_backup/',
+    '/.next/',
+    '/code-connect/',
+  ],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
