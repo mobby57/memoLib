@@ -47,6 +47,10 @@ async function main() {
   });
   console.log('✅ Tenant created:', tenant.name);
 
+  // Hash password for all users
+  console.log('🔐 Hashing password...');
+  const hashedPassword = await bcrypt.hash('demo123', 12);
+
   // 3. Créer un super admin (sans tenant)
   console.log('👑 Creating super admin user...');
   const superAdmin = await prisma.user.upsert({
@@ -65,7 +69,6 @@ async function main() {
 
   // 4. Créer un admin
   console.log('👤 Creating admin user...');
-  const hashedPassword = await bcrypt.hash('demo123', 12);
   
   const admin = await prisma.user.upsert({
     where: { email: 'admin@demo.com' },

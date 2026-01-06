@@ -1,22 +1,14 @@
-import 'dotenv/config';
-import { defineConfig, env } from 'prisma/config';
-
 /**
- * Configuration Prisma Avancée - Expert Level
+ * Configuration Prisma
  * 
- * Cette configuration utilise l'approche moderne ESM-first avec:
- * - Driver adapter pour meilleures performances
- * - Gestion optimisée des migrations
- * - Configuration centralisée
+ * Ce fichier définit la configuration pour Prisma.
+ * Pour la vraie configuration, voir prisma/schema.prisma
  */
-export default defineConfig({
+
+export default {
   schema: 'prisma/schema.prisma',
   
   migrations: {
     path: 'prisma/migrations',
   },
-  
-  datasource: {
-    url: env('DATABASE_URL'),
-  },
-});
+};

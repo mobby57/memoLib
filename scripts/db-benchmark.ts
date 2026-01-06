@@ -90,7 +90,7 @@ async function runPerformanceTests() {
     await benchmark('Query complexe avec filtres', async () => {
       await prisma.dossier.findMany({
         where: {
-          status: 'OUVERT',
+          statut: 'OUVERT',
         },
         include: {
           client: true,
@@ -104,9 +104,6 @@ async function runPerformanceTests() {
     await benchmark('Aggregations sur Dossiers', async () => {
       await prisma.dossier.aggregate({
         _count: true,
-        _avg: {
-          id: true,
-        },
       });
     });
 
