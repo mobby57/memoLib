@@ -39,6 +39,12 @@ export default function AdminNavigation() {
               💬 Messages
             </Link>
             <Link
+              href="/admin/email-monitoring"
+              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
+            >
+              📧 Emails
+            </Link>
+            <Link
               href="/admin/parametres"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >

@@ -161,7 +161,9 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  searchLogs SearchLog[]
+  searchLogs      SearchLog[]
+  sentMessages    Message[]    @relation("SentMessages")
+  receivedMessages Message[]   @relation("ReceivedMessages")
 
   @@index([tenantId, email])
   @@index([role])
@@ -1350,6 +1352,55 @@ model EmailClassification {
   @@index([priority])
   @@index([confidence])
   @@index([validated])
+}
+
+// ============================================
+// SYSTÈME DE MESSAGERIE INTERNE
+// ============================================
+
+model Message {
+  id        String   @id @default(uuid())
+  
+  // Expéditeur/Destinataire
+  senderId    String
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId String
+  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  
+  // Contexte
+  tenantId  String?
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  
+  // Contenu
+  subject String
+  content String
+  
+  // Type et priorité
+  type     String @default("general") // general, urgent, system, notification
+  priority String @default("normal")  // low, normal, high, urgent
+  
+  // État
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  isArchived Boolean  @default(false)
+  
+  // Pièces jointes (JSON array de paths)
+  attachments String?
+  
+  // Métadonnées
+  metadata String? // JSON pour données additionnelles
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
 }
 
 // ============================================
