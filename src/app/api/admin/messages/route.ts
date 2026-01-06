@@ -16,27 +16,22 @@ export async function GET(request: NextRequest) {
 
     const adminId = session.user.id;
 
-    // TODO: Créer le modèle Message dans Prisma schema
-    // Pour l'instant, retourner un tableau vide
-    return NextResponse.json({ conversations: [] });
-
-    /* DISABLED - Modèle Message n'existe pas encore
     const messages = await prisma.message.findMany({
       where: {
         OR: [
-          { expediteurId: adminId },
-          { destinataireId: adminId },
+          { senderId: adminId },
+          { recipientId: adminId },
         ],
       },
       include: {
-        expediteur: {
+        sender: {
           select: {
             id: true,
             name: true,
             role: true,
           },
         },
-        destinataire: {
+        recipient: {
           select: {
             id: true,
             name: true,
@@ -47,13 +42,13 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
-    }); */
+    });
 
     // Group by client
     const conversationsMap = new Map<string, any>();
 
-    messages.forEach((msg) => {
-      const clientUser = msg.expediteur.role === 'CLIENT' ? msg.expediteur : msg.destinataire;
+    messages.forEach((msg: any) => {
+      const clientUser = msg.sender.role === 'CLIENT' ? msg.sender : msg.recipient;
       const clientId = clientUser.id;
 
       if (!conversationsMap.has(clientId)) {
@@ -71,7 +66,7 @@ export async function GET(request: NextRequest) {
       conv.messages.push(msg);
 
       // Count unread messages from client
-      if (msg.expediteurId === clientId && !msg.lu) {
+      if (msg.senderId === clientId && !msg.isRead) {
         conv.unreadCount++;
       }
     });
@@ -79,7 +74,7 @@ export async function GET(request: NextRequest) {
     // Convert to array and set last message
     const conversations = Array.from(conversationsMap.values()).map((conv) => {
       const lastMsg = conv.messages[0];
-      conv.lastMessage = lastMsg.contenu.substring(0, 50) + (lastMsg.contenu.length > 50 ? '...' : '');
+      conv.lastMessage = lastMsg.content.substring(0, 50) + (lastMsg.content.length > 50 ? '...' : '');
       return conv;
     });
 
@@ -113,20 +108,21 @@ export async function POST(request: NextRequest) {
     const message = await prisma.message.create({
       data: {
         tenantId: session.user.tenantId,
-        expediteurId: session.user.id,
-        destinataireId: clientId,
-        contenu,
-        lu: false,
+        senderId: session.user.id,
+        recipientId: clientId,
+        subject: 'Message de votre cabinet',
+        content: contenu,
+        isRead: false,
       },
       include: {
-        expediteur: {
+        sender: {
           select: {
             id: true,
             name: true,
             role: true,
           },
         },
-        destinataire: {
+        recipient: {
           select: {
             id: true,
             name: true,
