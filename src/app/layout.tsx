@@ -53,11 +53,13 @@ export default function RootLayout({
             <Providers>
               <SidebarLayoutAdjuster />
               <Navigation />
-              <main className="pt-16 lg:pl-64 transition-all duration-300 min-h-screen bg-gray-50 dark:bg-gray-900">
+              <main className="lg:ml-64 min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300">
                 <GlobalCommandPalette />
                 <CommandPalette />
                 <ActivityMonitor />
-                {children}
+                <div className="p-6 lg:p-8">
+                  {children}
+                </div>
               </main>
               <ServiceWorkerRegistration />
             </Providers>
