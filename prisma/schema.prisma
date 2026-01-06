@@ -719,6 +719,7 @@ model Dossier {
   commentaires   CommentaireDossier[]
   echeances      Echeance[]
   emails         Email[]
+  messages       Message[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, statut])

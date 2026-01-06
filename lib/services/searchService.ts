@@ -73,11 +73,11 @@ export class SearchService {
   ): Promise<SearchResult[]> {
     const where: any = {
       OR: [
-        { firstName: { contains: searchTerm, mode: 'insensitive' } },
-        { lastName: { contains: searchTerm, mode: 'insensitive' } },
-        { email: { contains: searchTerm, mode: 'insensitive' } },
-        { phone: { contains: searchTerm, mode: 'insensitive' } },
-        { nationality: { contains: searchTerm, mode: 'insensitive' } },
+        { firstName: { contains: searchTerm } },
+        { lastName: { contains: searchTerm } },
+        { email: { contains: searchTerm } },
+        { phone: { contains: searchTerm } },
+        { nationality: { contains: searchTerm } },
       ],
     };
 
@@ -141,11 +141,11 @@ export class SearchService {
   ): Promise<SearchResult[]> {
     const where: any = {
       OR: [
-        { numero: { contains: searchTerm, mode: 'insensitive' } },
-        { objet: { contains: searchTerm, mode: 'insensitive' } },
-        { typeDossier: { contains: searchTerm, mode: 'insensitive' } },
-        { description: { contains: searchTerm, mode: 'insensitive' } },
-        { articleCeseda: { contains: searchTerm, mode: 'insensitive' } },
+        { numero: { contains: searchTerm } },
+        { objet: { contains: searchTerm } },
+        { typeDossier: { contains: searchTerm } },
+        { description: { contains: searchTerm } },
+        { articleCeseda: { contains: searchTerm } },
       ],
     };
 
@@ -215,10 +215,10 @@ export class SearchService {
   private async searchDocuments(searchTerm: string, tenantId?: string): Promise<SearchResult[]> {
     const where: any = {
       OR: [
-        { filename: { contains: searchTerm, mode: 'insensitive' } },
-        { originalName: { contains: searchTerm, mode: 'insensitive' } },
-        { documentType: { contains: searchTerm, mode: 'insensitive' } },
-        { extractedText: { contains: searchTerm, mode: 'insensitive' } },
+        { filename: { contains: searchTerm } },
+        { originalName: { contains: searchTerm } },
+        { documentType: { contains: searchTerm } },
+        { extractedText: { contains: searchTerm } },
       ],
     };
 
@@ -280,9 +280,9 @@ export class SearchService {
   private async searchEmails(searchTerm: string, tenantId?: string): Promise<SearchResult[]> {
     const where: any = {
       OR: [
-        { subject: { contains: searchTerm, mode: 'insensitive' } },
-        { from: { contains: searchTerm, mode: 'insensitive' } },
-        { bodyText: { contains: searchTerm, mode: 'insensitive' } },
+        { subject: { contains: searchTerm } },
+        { from: { contains: searchTerm } },
+        { bodyText: { contains: searchTerm } },
       ],
     };
 
@@ -436,8 +436,8 @@ export class SearchService {
       where: {
         ...(tenantId && { tenantId }),
         OR: [
-          { firstName: { contains: partial, mode: 'insensitive' } },
-          { lastName: { contains: partial, mode: 'insensitive' } },
+          { firstName: { contains: partial } },
+          { lastName: { contains: partial } },
         ],
       },
       take: limit,
@@ -453,8 +453,8 @@ export class SearchService {
       where: {
         ...(tenantId && { tenantId }),
         OR: [
-          { numero: { contains: partial, mode: 'insensitive' } },
-          { typeDossier: { contains: partial, mode: 'insensitive' } },
+          { numero: { contains: partial } },
+          { typeDossier: { contains: partial } },
         ],
       },
       take: limit,
