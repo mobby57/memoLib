@@ -54,9 +54,11 @@
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
+    "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^5.22.0",
     "@tanstack/react-query": "^5.90.16",
+    "@types/socket.io": "^3.0.1",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "critters": "^0.0.23",
@@ -81,6 +83,7 @@
     "react-icons": "^5.5.0",
     "recharts": "^3.6.0",
     "regression": "^2.0.1",
+    "socket.io": "^4.8.3",
     "tailwind-merge": "^3.4.0",
     "zod": "^3.25.58"
   },

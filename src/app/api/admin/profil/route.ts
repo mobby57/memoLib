@@ -62,8 +62,7 @@ export async function PUT(request: NextRequest) {
         phone: true,
         avatar: true,
         status: true,
-        postalCode: true,
-        country: true,
+        createdAt: true,
       },
     });
 

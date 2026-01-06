@@ -3,7 +3,7 @@
 ## 📋 Prérequis
 
 - Compte GitHub avec droits admin sur le repository
-- ngrok installé (`ngrok version` confirmé ✅)
+- Cloudflare Tunnel configuré (voir [CLOUDFLARE_TUNNEL_SETUP.md](../CLOUDFLARE_TUNNEL_SETUP.md))
 - Application Next.js lancée sur localhost:3000
 
 ## 🔧 Configuration
@@ -20,24 +20,24 @@ Ajouter dans `.env.local` :
 GITHUB_WEBHOOK_SECRET=votre_secret_genere_ici
 ```
 
-### 2. Exposer localhost avec ngrok
+### 2. Exposer localhost avec Cloudflare Tunnel
 
 ```bash
-# Terminal 1: Lancer l'app Next.js
+# Terminal 1: Démarrer Next.js
 npm run dev
 
-# Terminal 2: Exposer avec ngrok
-ngrok http 3000
+# Terminal 2: Lancer Cloudflare Tunnel
+.\cloudflare-start.ps1
 ```
 
-Copier l'URL ngrok (ex: `https://abc123.ngrok.io`)
+Votre URL Cloudflare permanente sera affichée (ex: `https://votes-additional-filed-definitions.trycloudflare.com`)
 
 ### 3. Configurer le webhook sur GitHub
 
 1. Aller sur votre repository GitHub
 2. **Settings** → **Webhooks** → **Add webhook**
 3. Remplir :
-   - **Payload URL** : `https://abc123.ngrok.io/api/webhooks/github`
+   - **Payload URL** : `https://votes-additional-filed-definitions.trycloudflare.com/api/webhooks/github`
    - **Content type** : `application/json`
    - **Secret** : Coller le `GITHUB_WEBHOOK_SECRET`
    - **Events** : 
@@ -183,7 +183,7 @@ if (action === 'opened') {
 ## 🐛 Dépannage
 
 ### Webhook non reçu
-1. Vérifier ngrok : `curl https://abc123.ngrok.io/api/webhooks/github`
+1. Vérifier Cloudflare Tunnel : `curl https://votes-additional-filed-definitions.trycloudflare.com/api/webhooks/github`
 2. Vérifier les logs GitHub : Settings → Webhooks → Recent Deliveries
 3. Vérifier GITHUB_WEBHOOK_SECRET correspond
 
@@ -205,7 +205,7 @@ if (action === 'opened') {
 
 ## ✅ Checklist Production
 
-- [ ] Utiliser URL production (pas ngrok)
+- [ ] Configurer URL Cloudflare Tunnel permanente (ou utiliser domaine production)
 - [ ] Secret fort (32+ caractères aléatoires)
 - [ ] HTTPS obligatoire
 - [ ] Rate limiting activé

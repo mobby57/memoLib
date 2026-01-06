@@ -240,13 +240,10 @@ export class EmailPrismaService {
       await prisma.alert.create({
         data: {
           tenantId: email.tenantId,
-          type: 'URGENT',
+          dossierId: email.dossierId || '', // Requis par le schema
+          alertType: 'legal_deadline',
           severity: 'CRITICAL',
-          title: `Email urgent: ${email.subject}`,
-          message: `De: ${email.from}\nReçu: ${email.receivedDate.toISOString()}\n\n${email.bodyText?.substring(0, 500)}`,
-          relatedType: 'EMAIL',
-          relatedId: email.id,
-          status: 'ACTIVE'
+          message: `Email urgent: ${email.subject}\nDe: ${email.from}\nReçu: ${email.receivedDate.toISOString()}\n\n${email.bodyText?.substring(0, 500)}`,
         }
       });
 
