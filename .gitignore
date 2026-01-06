@@ -58,6 +58,10 @@ jspm_packages/
 .env.production.local
 .env.*.local
 
+# Gmail API credentials
+credentials.json
+token.json
+
 # Next.js
 .next/
 out/

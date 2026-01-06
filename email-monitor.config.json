@@ -1,0 +1,135 @@
+{
+  "monitoring": {
+    "enabled": true,
+    "intervalSeconds": 30,
+    "maxResults": 10,
+    "markAsRead": false
+  },
+  "filters": {
+    "laposte": {
+      "enabled": false,
+      "priority": "high",
+      "keywords": [
+        "laposte",
+        "colissimo",
+        "suivi",
+        "colis",
+        "numéro de suivi"
+      ],
+      "senders": [
+        "@laposte.fr",
+        "@colissimo.fr"
+      ],
+      "notification": true,
+      "autoLabel": "LaPoste"
+    },
+    "nouveauClient": {
+      "enabled": false,
+      "priority": "high",
+      "keywords": [
+        "nouveau",
+        "demande",
+        "réclamation",
+        "aide",
+        "problème"
+      ],
+      "notification": true,
+      "autoLabel": "NouveauClient"
+    },
+    "urgent": {
+      "enabled": false,
+      "priority": "urgent",
+      "keywords": [
+        "urgent",
+        "important",
+        "!!!",
+        "URGENT"
+      ],
+      "notification": true,
+      "autoLabel": "Urgent"
+    },
+    "reponseClient": {
+      "enabled": true,
+      "priority": "medium",
+      "keywords": [
+        "re:",
+        "fwd:",
+        "réponse"
+      ],
+      "notification": false,
+      "autoLabel": "ReponseClient"
+    }
+  },
+  "notifications": {
+    "enabled": false,
+    "desktop": true,
+    "sound": true,
+    "webhook": {
+      "enabled": false,
+      "url": "",
+      "events": [
+        "urgent",
+        "laposte",
+        "nouveauClient"
+      ]
+    },
+    "email": {
+      "enabled": false,
+      "to": "",
+      "conditions": [
+        "urgent"
+      ]
+    }
+  },
+  "labels": {
+    "autoCreate": true,
+    "autoApply": true,
+    "removeAfterProcessed": false
+  },
+  "export": {
+    "enabled": true,
+    "format": "o",
+    "path": "logs/emails",
+    "includeAttachments": true,
+    "exportInterval": "daily"
+  },
+  "statistics": {
+    "enabled": false,
+    "trackMetrics": true,
+    "exportPath": "logs/stats",
+    "metrics": [
+      "emailsPerHour",
+      "emailsByPriority",
+      "emailsBySender",
+      "responseTime",
+      "attachmentCount"
+    ]
+  },
+  "autoResponse": {
+    "enabled": false,
+    "conditions": {
+      "nouveauClient": {
+        "enabled": false,
+        "template": "Bonjour,\n\nNous avons bien reçu votre message et y donnerons suite dans les plus brefs délais.\n\nCordialement,\nL'équipe IA Poste Manager"
+      },
+      "absenceMessage": {
+        "enabled": false,
+        "template": "Message automatique : Nous sommes actuellement absents et reviendrons le [DATE]. Votre message sera traité à notre retour."
+      }
+    }
+  },
+  "advanced": {
+    "batchProcessing": true,
+    "concurrentRequests": 3,
+    "retryFailedRequests": true,
+    "maxRetries": 3,
+    "cacheResults": true,
+    "cacheDuration": 300
+  },
+  "security": {
+    "logSensitiveData": false,
+    "encryptLogs": false,
+    "allowedDomains": [],
+    "blockedSenders": []
+  }
+}

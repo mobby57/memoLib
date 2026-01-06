@@ -8,6 +8,8 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import AdminNavigation from '@/components/AdminNavigation';
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -89,6 +91,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+      <AdminNavigation />
+      
       {/* Header */}
       <header className="bg-white shadow-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-8 py-4">
@@ -115,6 +119,52 @@ export default function AdminDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-8 py-8">
+        {/* Actions rapides */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Link
+            href="/admin/clients"
+            className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
+          >
+            <div className="text-center">
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">👥</span>
+              <p className="font-semibold text-gray-900">Gérer les Clients</p>
+              <p className="text-xs text-gray-500 mt-1">{stats.clients} clients</p>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/dossiers"
+            className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
+          >
+            <div className="text-center">
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">📁</span>
+              <p className="font-semibold text-gray-900">Gérer les Dossiers</p>
+              <p className="text-xs text-gray-500 mt-1">{stats.dossiers} dossiers</p>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/messages"
+            className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
+          >
+            <div className="text-center">
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">💬</span>
+              <p className="font-semibold text-gray-900">Messages</p>
+              <p className="text-xs text-gray-500 mt-1">Conversations clients</p>
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/documents"
+            className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
+          >
+            <div className="text-center">
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">📄</span>
+              <p className="font-semibold text-gray-900">Documents</p>
+              <p className="text-xs text-gray-500 mt-1">Tous les documents</p>
+            </div>
+          </Link>
+        </div>
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
