@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { 
   Building, 
   Users, 
@@ -16,7 +17,9 @@ import {
   Calendar,
   MessageSquare,
   Euro,
-  User
+  User,
+  Menu,
+  X
 } from 'lucide-react';
 
 interface NavItem {
@@ -122,6 +125,7 @@ const navigationItems: NavItem[] = [
 export function Navigation() {
   const { user, isAuthenticated } = useAuth();
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   if (!isAuthenticated || !user) {
     return null;
@@ -140,9 +144,35 @@ export function Navigation() {
   };
 
   return (
-    <nav className="bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 w-64 min-h-screen">
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg"
+      >
+        {mobileMenuOpen ? (
+          <X className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+        ) : (
+          <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+        )}
+      </button>
+
+      {/* Overlay for mobile */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <nav className={`
+        fixed left-0 top-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 
+        w-64 flex flex-col z-40 transition-transform duration-300 ease-in-out
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <Shield className="w-5 h-5 text-white" />
@@ -161,7 +191,7 @@ export function Navigation() {
       </div>
 
       {/* User Info */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
             <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -176,7 +206,8 @@ export function Navigation() {
           </div>
         </div>
         
-        {/* Role Badge */}
+        {/* Role BonClick={() => setMobileMenuOpen(false)}
+                  adge */}
         <div className="mt-3">
           <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
             user.role === 'SUPER_ADMIN' 
@@ -192,8 +223,8 @@ export function Navigation() {
         </div>
       </div>
 
-      {/* Navigation Items */}
-      <div className="p-4">
+      {/* Navigation Items - Scrollable */}
+      <div className="flex-1 overflow-y-auto p-4">
         <ul className="space-y-2">
           {allowedItems.map((item) => {
             const Icon = item.icon;
@@ -223,8 +254,8 @@ export function Navigation() {
         </ul>
       </div>
 
-      {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
+      {/* Footer - Fixed at bottom */}
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700 shrink-0 bg-white dark:bg-gray-900">
         <Link
           href="/api/auth/signout"
           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
@@ -233,6 +264,7 @@ export function Navigation() {
           Se déconnecter
         </Link>
       </div>
-    </nav>
+      </nav>
+    </>
   );
 }

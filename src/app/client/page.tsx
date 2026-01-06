@@ -8,6 +8,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function ClientDashboard() {
   const { data: session, status } = useSession();
@@ -15,6 +16,11 @@ export default function ClientDashboard() {
   const [dossiers, setDossiers] = useState<any[]>([]);
   const [factures, setFactures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const handlePayment = (factureId: string) => {
+    // TODO: Implémenter le paiement (Stripe, PayPal, etc.)
+    alert(`Paiement de la facture ${factureId} - Intégration à venir`);
+  };
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -87,15 +93,36 @@ export default function ClientDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-8 py-8">
-        {/* Bouton Nouveau Dossier */}
-        <div className="mb-8">
-          <a
+        {/* Boutons d'actions rapides */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <Link
             href="/client/nouveau-dossier"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
+            className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
           >
             <span className="text-2xl">➕</span>
-            Créer un Nouveau Dossier
-          </a>
+            <span>Nouveau Dossier</span>
+          </Link>
+          <Link
+            href="/client/documents"
+            className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
+          >
+            <span className="text-2xl">📄</span>
+            <span>Mes Documents</span>
+          </Link>
+          <Link
+            href="/client/messages"
+            className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-green-500 to-teal-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
+          >
+            <span className="text-2xl">💬</span>
+            <span>Messagerie</span>
+          </Link>
+          <Link
+            href="/client/profil"
+            className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
+          >
+            <span className="text-2xl">👤</span>
+            <span>Mon Profil</span>
+          </Link>
         </div>
 
         {/* Stats Rapides */}
@@ -183,9 +210,12 @@ export default function ClientDashboard() {
                         <span>📄 {dossier._count?.documents || 0} documents</span>
                       </div>
                     </div>
-                    <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold">
+                    <Link
+                      href={`/client/dossiers/${dossier.id}`}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+                    >
                       Voir détails →
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -239,9 +269,20 @@ export default function ClientDashboard() {
                       </td>
                       <td className="py-4 px-4 text-right">
                         {facture.statut === 'en_attente' && (
-                          <button className="px-3 py-1 bg-green-500 text-white rounded text-sm font-semibold hover:bg-green-600">
+                          <button 
+                            onClick={() => handlePayment(facture.id)}
+                            className="px-3 py-1 bg-green-500 text-white rounded text-sm font-semibold hover:bg-green-600"
+                          >
                             Payer
                           </button>
+                        )}
+                        {facture.statut === 'payee' && (
+                          <Link
+                            href={`/api/client/factures/${facture.id}/download`}
+                            className="px-3 py-1 bg-blue-500 text-white rounded text-sm font-semibold hover:bg-blue-600 inline-block"
+                          >
+                            Télécharger
+                          </Link>
                         )}
                       </td>
                     </tr>
