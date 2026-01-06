@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             numero: true,
-            titre: true,
+            objet: true,
           },
         },
         client: {
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        dateUpload: 'desc',
+        createdAt: 'desc',
       },
     });
 

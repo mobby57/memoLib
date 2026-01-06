@@ -49,7 +49,7 @@ export async function GET(
     }
 
     // Lire le fichier
-    const fileBuffer = await readFile(document.storagePath);
+    const fileBuffer = await readFile(document.path);
 
     logger.info(`Client ${userId} a téléchargé le document ${document.originalName}`);
 
