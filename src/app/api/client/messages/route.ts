@@ -21,6 +21,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
     }
 
+    // TODO: Modèle Message n'existe pas encore
+    return NextResponse.json({ conversations: [] });
+    
+    /* DISABLED - Modèle Message inexistant
     // Récupérer les messages du client
     const messages = await prisma.message.findMany({
       where: {

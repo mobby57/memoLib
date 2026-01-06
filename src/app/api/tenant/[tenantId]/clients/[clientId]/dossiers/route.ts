@@ -34,7 +34,8 @@ export async function GET(
       include: {
         client: {
           select: {
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true
           }
         },

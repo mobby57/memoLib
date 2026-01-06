@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
         mimeType: file.type,
         size: file.size,
         path: filePath,
-        dossierId: dossierId || undefined,
+        ...(dossierId ? { dossierId } : {}),
       },
     });
 

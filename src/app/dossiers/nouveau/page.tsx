@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/forms/Button'
 import { EtapeTypeDossier } from '@/components/dossiers/EtapeTypeDossier'
+import { CesedaSpecificFields } from '@/components/dossiers/CesedaSpecificFields'
 
 // Schéma de validation Zod
 const dossierSchema = z.object({
@@ -65,6 +66,9 @@ const dossierSchema = z.object({
   dateArrivee: z.string().optional(),
   numeroEtranger: z.string().optional(),
   prefectureRattachement: z.string().optional(),
+  
+  // Métadonnées spécifiques CESEDA (optionnelles, stockées en JSON)
+  metadata: z.record(z.any()).optional(),
 })
 
 type DossierFormData = z.infer<typeof dossierSchema>
@@ -122,6 +126,7 @@ const TYPES_DOSSIER = [
 
 const ETAPES = [
   { id: 'type', label: 'Type de Dossier', icon: FileText },
+  { id: 'ceseda', label: 'Infos Spécifiques', icon: Briefcase },
   { id: 'identite', label: 'Identité', icon: User },
   { id: 'situation', label: 'Situation', icon: Home },
   { id: 'professionnel', label: 'Professionnel', icon: Briefcase },
@@ -323,10 +328,11 @@ export default function NouveauDossierAvance() {
   function getChampsEtape(etape: number): string[] {
     const etapesChamps: Record<number, string[]> = {
       0: ['typeDossier', 'objetDemande', 'priorite'],
-      1: ['nom', 'prenom', 'dateNaissance', 'lieuNaissance', 'nationalite', 'sexe'],
-      2: ['telephone', 'email', 'adresse', 'codePostal', 'ville', 'situationFamiliale'],
-      3: ['situationPro', 'niveauFrancais'],
-      4: ['dateArrivee', 'numeroEtranger', 'prefectureRattachement'],
+      1: [], // CESEDA-specific fields are optional
+      2: ['nom', 'prenom', 'dateNaissance', 'lieuNaissance', 'nationalite', 'sexe'],
+      3: ['telephone', 'email', 'adresse', 'codePostal', 'ville', 'situationFamiliale'],
+      4: ['situationPro', 'niveauFrancais'],
+      5: ['dateArrivee', 'numeroEtranger', 'prefectureRattachement'],
     }
     return etapesChamps[etape] || []
   }
@@ -394,12 +400,13 @@ export default function NouveauDossierAvance() {
             <Card className="p-8 shadow-xl">
               {/* Contenu de l'étape */}
               {etapeActive === 0 && <EtapeTypeDossier />}
-              {etapeActive === 1 && <EtapeIdentite />}
-              {etapeActive === 2 && <EtapeSituation />}
-              {etapeActive === 3 && <EtapeProfessionnel />}
-              {etapeActive === 4 && <EtapeAdministratif />}
-              {etapeActive === 5 && <EtapeDocuments onUpload={handleDocumentUpload} analyzing={documentAnalyzing} />}
-              {etapeActive === 6 && <EtapeValidation />}
+              {etapeActive === 1 && <CesedaSpecificFields />}
+              {etapeActive === 2 && <EtapeIdentite />}
+              {etapeActive === 3 && <EtapeSituation />}
+              {etapeActive === 4 && <EtapeProfessionnel />}
+              {etapeActive === 5 && <EtapeAdministratif />}
+              {etapeActive === 6 && <EtapeDocuments onUpload={handleDocumentUpload} analyzing={documentAnalyzing} />}
+              {etapeActive === 7 && <EtapeValidation />}
 
               {/* Navigation */}
               <div className="flex items-center justify-between mt-8 pt-6 border-t">

@@ -24,26 +24,32 @@
       "autoLabel": "LaPoste"
     },
     "nouveauClient": {
-      "enabled": false,
+      "enabled": true,
       "priority": "high",
       "keywords": [
         "nouveau",
         "demande",
         "réclamation",
         "aide",
-        "problème"
+        "problème",
+        "ceseda",
+        "titre de séjour",
+        "visa"
       ],
       "notification": true,
       "autoLabel": "NouveauClient"
     },
     "urgent": {
-      "enabled": false,
+      "enabled": true,
       "priority": "urgent",
       "keywords": [
         "urgent",
         "important",
         "!!!",
-        "URGENT"
+        "URGENT",
+        "expulsion",
+        "OQTF",
+        "délai"
       ],
       "notification": true,
       "autoLabel": "Urgent"

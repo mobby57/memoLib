@@ -16,7 +16,11 @@ export async function GET(request: NextRequest) {
 
     const adminId = session.user.id;
 
-    // Get all messages involving this admin
+    // TODO: Créer le modèle Message dans Prisma schema
+    // Pour l'instant, retourner un tableau vide
+    return NextResponse.json({ conversations: [] });
+
+    /* DISABLED - Modèle Message n'existe pas encore
     const messages = await prisma.message.findMany({
       where: {
         OR: [
@@ -28,24 +32,22 @@ export async function GET(request: NextRequest) {
         expediteur: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            name: true,
             role: true,
           },
         },
         destinataire: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            name: true,
             role: true,
           },
         },
       },
       orderBy: {
-        dateEnvoi: 'desc',
+        createdAt: 'desc',
       },
-    });
+    }); */
 
     // Group by client
     const conversationsMap = new Map<string, any>();
@@ -57,11 +59,11 @@ export async function GET(request: NextRequest) {
       if (!conversationsMap.has(clientId)) {
         conversationsMap.set(clientId, {
           clientId,
-          clientName: `${clientUser.firstName} ${clientUser.lastName}`,
+          clientName: clientUser.name,
           messages: [],
           unreadCount: 0,
           lastMessage: '',
-          lastMessageDate: msg.dateEnvoi,
+          lastMessageDate: msg.createdAt,
         });
       }
 
@@ -104,28 +106,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Contenu et client requis' }, { status: 400 });
     }
 
+    if (!session.user.id || !session.user.tenantId) {
+      return NextResponse.json({ error: 'Session invalide' }, { status: 401 });
+    }
+
     const message = await prisma.message.create({
       data: {
+        tenantId: session.user.tenantId,
         expediteurId: session.user.id,
         destinataireId: clientId,
         contenu,
         lu: false,
-        dateEnvoi: new Date(),
       },
       include: {
         expediteur: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            name: true,
             role: true,
           },
         },
         destinataire: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            name: true,
             role: true,
           },
         },
