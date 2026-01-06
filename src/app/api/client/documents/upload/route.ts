@@ -92,11 +92,9 @@ export async function POST(request: NextRequest) {
         filename: filename,
         originalName: file.name,
         mimeType: file.type,
-        sizeBytes: file.size,
-        storagePath: filePath,
-        description: description || undefined,
+        size: file.size,
+        path: filePath,
         dossierId: dossierId || undefined,
-        uploadedBy: userId,
       },
     });
 
@@ -108,7 +106,7 @@ export async function POST(request: NextRequest) {
         id: document.id,
         filename: document.filename,
         originalName: document.originalName,
-        size: document.sizeBytes,
+        size: document.size,
       },
     });
   } catch (error) {

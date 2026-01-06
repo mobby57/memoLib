@@ -58,7 +58,7 @@ export async function GET(
       headers: {
         'Content-Type': document.mimeType,
         'Content-Disposition': `attachment; filename="${encodeURIComponent(document.originalName)}"`,
-        'Content-Length': document.sizeBytes.toString(),
+        'Content-Length': document.size.toString(),
       },
     });
   } catch (error) {

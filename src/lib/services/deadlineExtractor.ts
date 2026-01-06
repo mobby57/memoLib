@@ -391,7 +391,7 @@ Réponds avec le JSON structuré des délais trouvés.`;
     return {
       success: true,
       deadlines,
-      templateDetected,
+      templateDetected: templateDetected || undefined,
       rawText: aiResponse,
       suggestedActions: suggestedActions.length > 0 ? suggestedActions : undefined,
     };

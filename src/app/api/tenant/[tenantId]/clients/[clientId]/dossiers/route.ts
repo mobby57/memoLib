@@ -74,14 +74,14 @@ export async function GET(
       return {
         id: dossier.id,
         numero: dossier.numero,
-        titre: dossier.titre,
-        type: dossier.type || 'Réclamation',
+        titre: dossier.objet || 'Sans objet',
+        type: dossier.typeDossier || 'Réclamation',
         statut: dossier.statut,
         priorite,
         progression,
         clientDataComplete,
         lastUpdate: getLastUpdateMessage(dossier, clientDataComplete),
-        clientName: dossier.client?.name || 'Client inconnu'
+        clientName: 'Client'
       };
     });
 
