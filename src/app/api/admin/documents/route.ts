@@ -28,13 +28,13 @@ export async function GET(request: NextRequest) {
             id: true,
             numero: true,
             objet: true,
-          },
-        },
-        client: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
+            client: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         },
       },
