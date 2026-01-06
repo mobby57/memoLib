@@ -38,6 +38,7 @@
     "email:export": "tsx scripts/email-export.ts",
     "email:setup": "tsx scripts/email-setup.ts",
     "email:to-workspace": "tsx scripts/email-to-workspace.ts",
+    "email:to-workspace:ai": "tsx scripts/email-to-workspace-ai.ts",
     "ai:test": "tsx scripts/ai-test.ts",
     "prisma:studio": "prisma studio",
     "prisma:push": "prisma db push",
