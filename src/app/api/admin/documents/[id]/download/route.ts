@@ -39,7 +39,7 @@ export async function GET(
 
     // Read file
     const uploadsDir = path.join(process.cwd(), 'uploads');
-    const filePath = path.join(uploadsDir, document.cheminFichier);
+    const filePath = path.join(uploadsDir, document.path);
 
     if (!fs.existsSync(filePath)) {
       return NextResponse.json({ error: 'Fichier non trouvé sur le serveur' }, { status: 404 });
@@ -49,9 +49,9 @@ export async function GET(
 
     return new NextResponse(fileBuffer, {
       headers: {
-        'Content-Type': document.type,
-        'Content-Disposition': `attachment; filename="${document.nom}"`,
-        'Content-Length': document.taille.toString(),
+        'Content-Type': document.mimeType,
+        'Content-Disposition': `attachment; filename="${document.originalName}"`,
+        'Content-Length': document.size.toString(),
       },
     });
   } catch (error) {
