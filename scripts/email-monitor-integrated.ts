@@ -1,4 +1,4 @@
-import { EmailPrismaService } from '../lib/email/prisma-service';
+import { EmailPrismaService } from '../src/lib/email/prisma-service';
 import { google } from 'googleapis';
 import { authenticate } from '@google-cloud/local-auth';
 import * as fs from 'fs';
@@ -26,7 +26,12 @@ class IntegratedEmailMonitor {
       if (!fs.existsSync(TOKEN_PATH)) return null;
       const content = fs.readFileSync(TOKEN_PATH, 'utf-8');
       const credentials = JSON.parse(content);
-      return google.auth.fromJSON(credentials) as OAuth2Client;
+      const auth = google.auth.fromJSON(credentials);
+      // Type guard: check if it's an OAuth2Client
+      if (auth && 'credentials' in auth && 'getAccessToken' in auth) {
+        return auth as OAuth2Client;
+      }
+      return null;
     } catch (err) {
       return null;
     }

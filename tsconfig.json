@@ -51,6 +51,8 @@
     "dist",
     "code-connect",
     "src/examples/**",
-    "__tests__/**"
+    "__tests__/**",
+    "scripts/**",
+    "prisma/**"
   ]
 }
