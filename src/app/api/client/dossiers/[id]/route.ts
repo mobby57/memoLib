@@ -34,7 +34,7 @@ export async function GET(
       include: {
         documents: {
           orderBy: {
-            uploadedAt: 'desc',
+            createdAt: 'desc',
           },
         },
         echeances: {

@@ -40,7 +40,7 @@ export async function GET(
       take: LIMIT,
       select: {
         id: true,
-        titre: true,
+        objet: true,
         createdAt: true,
         statut: true
       }
@@ -50,7 +50,7 @@ export async function GET(
       activities.push({
         id: `dossier-${dossier.id}`,
         type: 'dossier',
-        title: `Nouveau dossier: ${dossier.titre}`,
+        title: `Nouveau dossier: ${dossier.objet || 'Sans objet'}`,
         date: dossier.createdAt.toISOString(),
         status: dossier.statut === 'en_cours' ? 'success' : 'info'
       });
@@ -87,8 +87,8 @@ export async function GET(
       take: LIMIT,
       select: {
         id: true,
-        nom: true,
-        prenom: true,
+        firstName: true,
+        lastName: true,
         createdAt: true
       }
     });
@@ -97,7 +97,7 @@ export async function GET(
       activities.push({
         id: `client-${client.id}`,
         type: 'client',
-        title: `Nouveau client: ${client.prenom} ${client.nom}`,
+        title: `Nouveau client: ${client.firstName} ${client.lastName}`,
         date: client.createdAt.toISOString(),
         status: 'success'
       });

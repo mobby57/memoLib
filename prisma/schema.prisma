@@ -98,6 +98,9 @@ model Tenant {
   metrics        TenantMetrics[]
   echeances      Echeance[]
   emails         Email[]
+  formSubmissions    FormSubmission[]
+  strategicDecisions StrategicDecision[]
+  riskAssessments    RiskAssessment[]
 
   @@index([planId])
 }
@@ -1346,4 +1349,154 @@ model EmailClassification {
   @@index([priority])
   @@index([confidence])
   @@index([validated])
+}
+
+// ============================================
+// SYSTÈME DE FORMULAIRES INTELLIGENTS
+// ============================================
+
+// Soumissions de formulaires (tous types)
+model FormSubmission {
+  id        String  @id @default(uuid())
+  tenantId  String?
+  tenant    Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  formType      String // resource-request, strategic-decision, risk-assessment
+  submitterId   String // User email or ID
+  submitterName String?
+  
+  status String @default("pending") // pending, approved, rejected, cancelled
+  
+  // Données du formulaire (JSON)
+  data String // JSON string
+  
+  // Analyse d'impact
+  impactScore      Int?
+  impactAreas      String? // JSON Array: Budget, Planning, Team, etc.
+  requiresApproval Boolean @default(false)
+  
+  // IA
+  aiSuggestions String? // JSON: Suggestions fournies par l'IA
+  aiAnalysis    String? // Analyse IA de la soumission
+  aiConfidence  Float?  @default(0)
+  
+  // Métadonnées
+  metadata String? // JSON: Données additionnelles
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  approvalTasks ApprovalTask[]
+  
+  @@index([tenantId])
+  @@index([formType])
+  @@index([status])
+  @@index([submitterId])
+  @@index([createdAt])
+}
+
+// Décisions stratégiques
+model StrategicDecision {
+  id       String  @id @default(uuid())
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  title             String
+  context           String?
+  proposedSolution  String
+  expectedImpact    String? // JSON: Multiple impacts
+  risks             String?
+  timeline          String?
+  kpis              String? // JSON: Key Performance Indicators
+  
+  // Scoring
+  riskScore   Int?
+  impactScore Int?
+  
+  status      String  @default("pending-approval") // pending-approval, approved, rejected, implemented
+  submitterId String
+  
+  // IA Analysis
+  aiStrengths        String? // Points forts identifiés
+  aiConcerns         String? // Points de vigilance
+  aiRecommendations  String? // Recommandations d'amélioration
+  aiConfidence       Float?  @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([tenantId])
+  @@index([status])
+  @@index([riskScore])
+  @@index([createdAt])
+}
+
+// Évaluations de risques
+model RiskAssessment {
+  id       String  @id @default(uuid())
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  category    String // operational, financial, legal, strategic, reputation
+  description String
+  
+  // Matrice de risque
+  probability   String // very-low, low, medium, high, very-high
+  severity      String // negligible, minor, moderate, major, critical
+  riskScore     Int // Calculé: probability × severity (1-25)
+  priorityLevel String // low, medium, high, critical
+  
+  // Plan d'action
+  mitigationPlan     String?
+  responsiblePerson  String?
+  
+  // IA Generated Action Plan
+  aiActionPlan       String? // Plan d'action généré par IA
+  aiImmediateActions String? // Actions 0-7 jours
+  aiMediumActions    String? // Actions 1-3 mois
+  aiLongTermActions  String? // Actions préventives
+  aiKPIs             String? // Indicateurs de suivi
+  aiConfidence       Float?  @default(0)
+  
+  status      String  @default("active") // active, mitigated, closed
+  submitterId String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([tenantId])
+  @@index([category])
+  @@index([priorityLevel])
+  @@index([riskScore])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Tâches d'approbation (workflow)
+model ApprovalTask {
+  id           String         @id @default(uuid())
+  submissionId String
+  submission   FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  
+  approverRole  String // Manager, Director, CEO, etc.
+  approverEmail String?
+  
+  status String @default("pending") // pending, approved, rejected, waiting
+  level  Int    @default(1) // Niveau dans le workflow séquentiel
+  
+  // Décision
+  comments   String?
+  decidedAt  DateTime?
+  decidedBy  String? // Actual person who decided
+  
+  // Délais
+  dueDate   DateTime?
+  createdAt DateTime  @default(now())
+  
+  @@index([submissionId])
+  @@index([approverRole])
+  @@index([status])
+  @@index([level])
+  @@index([dueDate])
 }
