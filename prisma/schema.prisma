@@ -98,9 +98,7 @@ model Tenant {
   metrics        TenantMetrics[]
   echeances      Echeance[]
   emails         Email[]
-  formSubmissions    FormSubmission[]
-  strategicDecisions StrategicDecision[]
-  riskAssessments    RiskAssessment[]
+  systemAlerts   SystemAlert[] @relation("SystemAlerts")
 
   @@index([planId])
 }
@@ -163,8 +161,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  messagesSent     Message[] @relation("MessagesSent")
-  messagesReceived Message[] @relation("MessagesReceived")
+  searchLogs SearchLog[]
 
   @@index([tenantId, email])
   @@index([role])
@@ -1359,174 +1356,244 @@ model EmailClassification {
 // SYSTÈME DE FORMULAIRES INTELLIGENTS
 // ============================================
 
-// Soumissions de formulaires (tous types)
+// Soumissions de formulaires
 model FormSubmission {
-  id        String  @id @default(uuid())
-  tenantId  String?
-  tenant    Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  formType  String // resource-request, strategic-decision, risk-assessment
   
-  formType      String // resource-request, strategic-decision, risk-assessment
-  submitterId   String // User email or ID
-  submitterName String?
+  // Soumetteur
+  submitterId String
+  submitterEmail String
   
+  // État
   status String @default("pending") // pending, approved, rejected, cancelled
   
   // Données du formulaire (JSON)
-  data String // JSON string
+  data String // Contient tous les champs du formulaire
   
   // Analyse d'impact
-  impactScore      Int?
-  impactAreas      String? // JSON Array: Budget, Planning, Team, etc.
-  requiresApproval Boolean @default(false)
+  impactScore Int? // 1-20
+  impactAreas String? // JSON array: ["Budget", "Planning", "Team", etc.]
   
-  // IA
-  aiSuggestions String? // JSON: Suggestions fournies par l'IA
-  aiAnalysis    String? // Analyse IA de la soumission
-  aiConfidence  Float?  @default(0)
+  // Workflow
+  requiresApproval Boolean @default(false)
+  approvalLevel    Int     @default(0) // Niveau actuel dans le workflow
   
   // Métadonnées
-  metadata String? // JSON: Données additionnelles
+  aiAnalysis  String? // Analyse IA (JSON)
+  metadata    String? // Autres métadonnées (JSON)
   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // Suivi
+  submittedAt DateTime  @default(now())
+  decidedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   
   // Relations
   approvalTasks ApprovalTask[]
   
-  @@index([tenantId])
   @@index([formType])
   @@index([status])
   @@index([submitterId])
-  @@index([createdAt])
+  @@index([impactScore])
+  @@index([submittedAt])
 }
 
 // Décisions stratégiques
 model StrategicDecision {
-  id       String  @id @default(uuid())
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id        String @id @default(uuid())
   
-  title             String
-  context           String?
-  proposedSolution  String
-  expectedImpact    String? // JSON: Multiple impacts
-  risks             String?
-  timeline          String?
-  kpis              String? // JSON: Key Performance Indicators
+  // Contenu décision
+  title            String
+  context          String?
+  proposedSolution String
+  expectedImpact   String? // JSON
+  risks            String?
+  timeline         String?
+  kpis             String? // Key Performance Indicators (JSON array)
   
-  // Scoring
-  riskScore   Int?
-  impactScore Int?
+  // Analyse
+  riskScore   Int? // 1-10
+  impactScore Int? // 1-20
   
-  status      String  @default("pending-approval") // pending-approval, approved, rejected, implemented
-  submitterId String
+  // État
+  status String @default("pending-approval") // pending-approval, approved, rejected, implemented, cancelled
   
-  // IA Analysis
-  aiStrengths        String? // Points forts identifiés
-  aiConcerns         String? // Points de vigilance
-  aiRecommendations  String? // Recommandations d'amélioration
-  aiConfidence       Float?  @default(0)
+  // Soumetteur
+  submitterId    String
+  submitterEmail String
+  
+  // Validation
+  approvedBy    String?
+  approvedAt    DateTime?
+  rejectedBy    String?
+  rejectedAt    DateTime?
+  rejectionNote String?
+  
+  // Implémentation
+  implementedAt   DateTime?
+  implementedBy   String?
+  implementStatus String? // on-track, delayed, completed, abandoned
+  
+  // Suivi KPIs
+  kpiResults String? // JSON - Résultats réels vs prévisions
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  @@index([tenantId])
   @@index([status])
+  @@index([submitterId])
   @@index([riskScore])
-  @@index([createdAt])
+  @@index([impactScore])
 }
 
 // Évaluations de risques
 model RiskAssessment {
-  id       String  @id @default(uuid())
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id          String @id @default(uuid())
   
-  category    String // operational, financial, legal, strategic, reputation
+  // Identification risque
+  category    String // legal, operational, financial, reputational, technical, strategic
   description String
   
-  // Matrice de risque
-  probability   String // very-low, low, medium, high, very-high
-  severity      String // negligible, minor, moderate, major, critical
-  riskScore     Int // Calculé: probability × severity (1-25)
+  // Évaluation
+  probability String // very-low, low, medium, high, very-high
+  severity    String // negligible, minor, moderate, major, critical
+  riskScore   Int // Calculé: probability × severity (1-25)
+  
+  // Priorisation
   priorityLevel String // low, medium, high, critical
   
-  // Plan d'action
-  mitigationPlan     String?
-  responsiblePerson  String?
+  // Plan de mitigation
+  mitigationPlan    String?
+  responsiblePerson String?
+  targetDate        DateTime?
   
-  // IA Generated Action Plan
-  aiActionPlan       String? // Plan d'action généré par IA
-  aiImmediateActions String? // Actions 0-7 jours
-  aiMediumActions    String? // Actions 1-3 mois
-  aiLongTermActions  String? // Actions préventives
-  aiKPIs             String? // Indicateurs de suivi
-  aiConfidence       Float?  @default(0)
+  // État
+  status String @default("active") // active, mitigated, accepted, transferred, closed
   
-  status      String  @default("active") // active, mitigated, closed
-  submitterId String
+  // Soumetteur
+  submitterId    String
+  submitterEmail String
+  
+  // Suivi
+  reviewDate   DateTime? // Prochaine revue
+  lastReviewed DateTime?
+  reviewedBy   String?
+  
+  // Plan d'action IA
+  aiActionPlan String? // JSON - Plan généré par l'IA
+  
+  // Impacts réels (si risque s'est matérialisé)
+  materialized   Boolean   @default(false)
+  materializedAt DateTime?
+  actualImpact   String? // Description impact réel
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  @@index([tenantId])
   @@index([category])
   @@index([priorityLevel])
-  @@index([riskScore])
   @@index([status])
-  @@index([createdAt])
+  @@index([riskScore])
+  @@index([submitterId])
+  @@index([targetDate])
 }
 
-// Tâches d'approbation (workflow)
+// Tâches d'approbation
 model ApprovalTask {
-  id           String         @id @default(uuid())
+  id        String @id @default(uuid())
+  
+  // Lien avec soumission
   submissionId String
   submission   FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   
-  approverRole  String // Manager, Director, CEO, etc.
+  // Approbateur
+  approverRole  String // Role ou email de l'approbateur
   approverEmail String?
   
-  status String @default("pending") // pending, approved, rejected, waiting
-  level  Int    @default(1) // Niveau dans le workflow séquentiel
+  // État
+  status String @default("pending") // pending, waiting, approved, rejected
+  
+  // Workflow multi-niveaux
+  level    Int     @default(1) // Niveau dans le workflow (1, 2, 3...)
+  isActive Boolean @default(true) // False si niveau pas encore atteint
   
   // Décision
-  comments   String?
-  decidedAt  DateTime?
-  decidedBy  String? // Actual person who decided
+  decision    String? // approve, reject, request-changes
+  comments    String?
+  decidedAt   DateTime?
+  decidedBy   String? // Email de la personne qui a décidé
   
   // Délais
-  dueDate   DateTime?
-  createdAt DateTime  @default(now())
+  dueDate   DateTime? // Date limite pour décision
+  reminded  Boolean   @default(false)
+  remindedAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
   @@index([submissionId])
-  @@index([approverRole])
   @@index([status])
+  @@index([approverRole])
   @@index([level])
   @@index([dueDate])
 }
 
-// ============================================
-// MESSAGING SYSTEM (PLANNED FEATURE)
-// ============================================
-
-model Message {
-  id        String   @id @default(uuid())
-  tenantId  String
+// Alertes système et formulaires
+model SystemAlert {
+  id       String @id @default(uuid())
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade, name: "SystemAlerts")
   
-  expediteurId   String
-  expediteur     User   @relation("MessagesSent", fields: [expediteurId], references: [id], onDelete: Cascade)
+  // Type & Niveau
+  type     String // risk-critical, decision-pending, deadline-approaching, form-submitted, etc.
+  severity String // info, warning, critical
   
-  destinataireId String
-  destinataire   User   @relation("MessagesReceived", fields: [destinataireId], references: [id], onDelete: Cascade)
+  // Contenu
+  title       String
+  description String?
   
-  contenu   String
-  lu        Boolean  @default(false)
+  // Destinataires
+  targetRole  String? // Role concerné
+  targetEmail String? // Email spécifique
+  
+  // État
+  status String @default("active") // active, acknowledged, resolved
+  
+  // Actions
+  actionUrl   String? // Lien vers l'action à prendre
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+  resolvedBy     String?
+  resolvedAt     DateTime?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  @@index([expediteurId])
-  @@index([destinataireId])
   @@index([tenantId])
-  @@index([lu])
+  @@index([type])
+  @@index([severity])
+  @@index([status])
+}
+
+// ============================================
+// SEARCH ANALYTICS
+// ============================================
+
+model SearchLog {
+  id            String   @id @default(cuid())
+  query         String
+  resultCount   Int
+  executionTime Float
+  types         String?  // JSON array of types searched
+  userId        String
+  tenantId      String?
+  createdAt     DateTime @default(now())
+  
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@index([query])
 }

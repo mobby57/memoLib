@@ -91,20 +91,20 @@ node scripts/test-github-webhook.js star
 node scripts/test-github-webhook.js all
 ```
 
-## 🌐 Avec ngrok (GitHub réel)
+## 🌐 Avec Cloudflare Tunnel (GitHub réel)
 
-### 1. Lancer ngrok
+### 1. Lancer Cloudflare Tunnel
 
-```bash
-ngrok http 3000
+```powershell
+.\cloudflare-start.ps1
 ```
 
-Copier l'URL : `https://abc123.ngrok.io`
+Copier l'URL permanente : `https://votes-additional-filed-definitions.trycloudflare.com`
 
 ### 2. Configurer sur GitHub
 
 1. **Repository** → **Settings** → **Webhooks** → **Add webhook**
-2. **Payload URL** : `https://abc123.ngrok.io/api/webhooks/github`
+2. **Payload URL** : `https://votes-additional-filed-definitions.trycloudflare.com/api/webhooks/github`
 3. **Content type** : `application/json`
 4. **Secret** : `test_secret_123456`
 5. **Events** : Choisir "Send me everything" ou sélectionner individuellement
@@ -134,7 +134,7 @@ GitHub → Settings → Webhooks → Recent Deliveries → Voir le payload et la
 - [x] Documentation complète
 - [ ] Variables .env configurées
 - [ ] Tests exécutés avec succès
-- [ ] Ngrok exposé (optionnel)
+- [ ] Cloudflare Tunnel actif (optionnel pour webhook GitHub)
 - [ ] Webhook GitHub configuré (optionnel)
 
 ## 🎯 Prochaines Étapes

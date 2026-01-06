@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
+import QuickSearch from '@/components/QuickSearch'
 import { FileText, Calendar, Euro, MessageSquare, Upload } from 'lucide-react'
 
 interface ClientDossier {
@@ -65,6 +66,9 @@ export default function ClientDashboard() {
         </Button>
       </div>
 
+      {/* Recherche rapide */}
+      <QuickSearch className="mb-6" />
+      
       {/* Stats client */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
