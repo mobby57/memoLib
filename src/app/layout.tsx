@@ -12,6 +12,7 @@ import { GlobalCommandPalette } from '@/components/GlobalCommandPalette';
 import { SidebarLayoutAdjuster } from '@/components/SidebarLayoutAdjuster';
 import { CommandPalette } from '@/components/CommandPalette';
 import { ActivityMonitor } from '@/components/ActivityMonitor';
+import NotificationCenter from '@/components/NotificationCenter';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -53,6 +54,12 @@ export default function RootLayout({
             <Providers>
               <SidebarLayoutAdjuster />
               <Navigation />
+              
+              {/* Real-time Notification Center - Fixed top-right */}
+              <div className="fixed top-4 right-4 z-50">
+                <NotificationCenter />
+              </div>
+              
               <main className="lg:ml-64 min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300">
                 <GlobalCommandPalette />
                 <CommandPalette />
