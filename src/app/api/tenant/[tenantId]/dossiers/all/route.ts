@@ -33,7 +33,8 @@ export async function GET(
       include: {
         client: {
           select: {
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true
           }
         },
@@ -71,14 +72,14 @@ export async function GET(
       return {
         id: dossier.id,
         numero: dossier.numero,
-        titre: dossier.titre,
-        type: dossier.type || 'Réclamation',
+        titre: dossier.objet || 'Sans objet',
+        type: dossier.typeDossier || 'Réclamation',
         statut: dossier.statut,
         priorite,
         progression,
         clientDataComplete,
         lastUpdate: getTimeSince(dossier.updatedAt),
-        clientName: dossier.client?.name || 'Client inconnu'
+        clientName: `${dossier.client?.firstName || ''} ${dossier.client?.lastName || ''}`.trim() || 'Client inconnu'
       };
     });
 
