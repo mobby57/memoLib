@@ -14,10 +14,6 @@ export interface SearchAnalytics {
  */
 export async function logSearch(analytics: SearchAnalytics): Promise<void> {
   try {
-    // TODO: Créer le modèle SearchLog dans Prisma schema
-    console.log('Search logged:', analytics);
-    return;
-    /* DISABLED - Modèle SearchLog inexistant
     await prisma.searchLog.create({
       data: {
         query: analytics.query,

@@ -37,6 +37,8 @@
     "email:stats": "tsx scripts/email-stats.ts",
     "email:export": "tsx scripts/email-export.ts",
     "email:setup": "tsx scripts/email-setup.ts",
+    "email:to-workspace": "tsx scripts/email-to-workspace.ts",
+    "ai:test": "tsx scripts/ai-test.ts",
     "prisma:studio": "prisma studio",
     "prisma:push": "prisma db push",
     "prisma:generate": "prisma generate",
@@ -84,6 +86,7 @@
     "recharts": "^3.6.0",
     "regression": "^2.0.1",
     "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.4.0",
     "zod": "^3.25.58"
   },

@@ -13,7 +13,9 @@ import {
   TrendingUp,
   Users,
   Shield,
-  Clock
+  Clock,
+  FolderPlus,
+  CheckCircle
 } from 'lucide-react';
 
 interface Email {
@@ -47,6 +49,7 @@ export default function EmailMonitoringPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ type: '', priority: '' });
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+  const [creatingDossier, setCreatingDossier] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -89,6 +92,31 @@ export default function EmailMonitoringPage() {
       fetchEmails();
     } catch (error) {
       console.error('Erreur:', error);
+    }
+  };
+
+  const createDossier = async (emailId: string) => {
+    try {
+      setCreatingDossier(emailId);
+      const response = await fetch('/api/admin/create-dossier-from-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailId }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(`✅ Dossier créé avec succès!\n\nClient: ${data.client.nom} ${data.client.prenom}\nType: ${data.clientInfo.typeDemande}\nDossier ID: ${data.dossier.id}`);
+        fetchEmails();
+      } else {
+        alert('❌ Erreur lors de la création du dossier');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('❌ Erreur serveur');
+    } finally {
+      setCreatingDossier(null);
     }
   };
 
@@ -283,6 +311,21 @@ export default function EmailMonitoringPage() {
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          createDossier(email.id);
+                        }}
+                        disabled={creatingDossier === email.id}
+                        className="p-2 hover:bg-green-100 dark:hover:bg-green-900 rounded-lg disabled:opacity-50"
+                        title="Créer un dossier"
+                      >
+                        {creatingDossier === email.id ? (
+                          <div className="animate-spin h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full"></div>
+                        ) : (
+                          <FolderPlus className="h-5 w-5 text-green-600" />
+                        )}
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

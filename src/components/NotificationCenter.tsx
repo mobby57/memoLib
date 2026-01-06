@@ -1,211 +1,289 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from 'react'
-import { Bell, Check, X } from 'lucide-react'
-import {
-  getNotifications,
-  markNotificationAsRead,
-  markAllNotificationsAsRead,
-  getUnreadNotificationsCount,
-  type Notification,
-} from '@/lib/services/collaborationService'
-import { Button } from './forms/Button'
-import Link from 'next/link'
+/**
+ * Real-Time Notification Center
+ * - Displays WebSocket notifications
+ * - Email arrivals, dossier updates, deadline alerts
+ * - Browser notifications support
+ * - Mark as read / clear functionality
+ */
 
-interface NotificationCenterProps {
-  userId: string
-}
+import { useState } from 'react'
+import { useWebSocket } from '@/hooks/useWebSocket'
+import { Bell, Mail, Briefcase, AlertTriangle, Info, X, Check, Settings } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { fr } from 'date-fns/locale'
 
-export default function NotificationCenter({ userId }: NotificationCenterProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
+export default function NotificationCenter() {
+  const {
+    connected,
+    connecting,
+    notifications,
+    unreadCount,
+    markAsRead,
+    clearNotifications,
+    clearNotificationType,
+    requestNotificationPermission,
+    hasUnread,
+  } = useWebSocket({ debug: true })
+
   const [isOpen, setIsOpen] = useState(false)
-  const [showUnreadOnly, setShowUnreadOnly] = useState(false)
+  const [activeTab, setActiveTab] = useState<'all' | 'emails' | 'dossiers' | 'deadlines' | 'system'>('all')
 
-  useEffect(() => {
-    loadNotifications()
-    
-    // Auto-refresh toutes les 30 secondes
-    const interval = setInterval(loadNotifications, 30000)
-    return () => clearInterval(interval)
-  }, [userId, showUnreadOnly])
+  // Connection status badge
+  const statusBadge = connecting ? (
+    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+      <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+    </span>
+  ) : connected ? (
+    <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-green-500"></span>
+  ) : (
+    <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500"></span>
+  )
 
-  const loadNotifications = () => {
-    const notifs = getNotifications(userId, showUnreadOnly)
-    setNotifications(notifs)
-    setUnreadCount(getUnreadNotificationsCount(userId))
-  }
-
-  const handleMarkAsRead = (notifId: string) => {
-    markNotificationAsRead(notifId)
-    loadNotifications()
-  }
-
-  const handleMarkAllAsRead = () => {
-    markAllNotificationsAsRead(userId)
-    loadNotifications()
-  }
-
-  const getNotificationIcon = (type: Notification['type']) => {
-    const icons = {
-      mention: '💬',
-      comment: '💬',
-      assignment: '👤',
-      status_change: '🔄',
-      deadline: '⏰',
-      system: 'ℹ️',
+  // Get notifications for active tab
+  const getFilteredNotifications = () => {
+    switch (activeTab) {
+      case 'emails':
+        return notifications.emails
+      case 'dossiers':
+        return notifications.dossiers
+      case 'deadlines':
+        return notifications.deadlines
+      case 'system':
+        return notifications.system
+      default:
+        return [
+          ...notifications.emails.map(n => ({ ...n, category: 'email' as const })),
+          ...notifications.dossiers.map(n => ({ ...n, category: 'dossier' as const })),
+          ...notifications.deadlines.map(n => ({ ...n, category: 'deadline' as const })),
+          ...notifications.system.map(n => ({ ...n, category: 'system' as const })),
+        ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     }
-    return icons[type]
   }
 
-  const getNotificationColor = (type: Notification['type']) => {
-    const colors = {
-      mention: 'text-blue-600 dark:text-blue-400',
-      comment: 'text-purple-600 dark:text-purple-400',
-      assignment: 'text-green-600 dark:text-green-400',
-      status_change: 'text-orange-600 dark:text-orange-400',
-      deadline: 'text-red-600 dark:text-red-400',
-      system: 'text-gray-600 dark:text-gray-400',
-    }
-    return colors[type]
-  }
+  const filteredNotifications = getFilteredNotifications()
 
   return (
-    <div className="relative">
-      {/* Bouton de notification */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-      >
-        <Bell className="w-6 h-6" />
-        {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </button>
+    <>
+      {/* Notification Bell Button */}
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Notifications"
+        >
+          <Bell className={`w-5 h-5 ${hasUnread ? 'text-blue-600 animate-bounce' : 'text-gray-600'}`} />
+          {hasUnread && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+          {statusBadge}
+        </button>
+      </div>
 
-      {/* Panel des notifications */}
+      {/* Notification Panel */}
       {isOpen && (
-        <>
-          {/* Overlay */}
+        <div className="fixed inset-0 z-50 lg:absolute lg:inset-auto lg:right-0 lg:top-full lg:mt-2">
+          {/* Backdrop for mobile */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 bg-black/20 lg:hidden"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Panel */}
-          <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 z-50 max-h-[600px] flex flex-col">
+          <div className="fixed inset-x-0 bottom-0 lg:absolute lg:inset-auto lg:w-96 bg-white rounded-t-2xl lg:rounded-lg shadow-2xl border border-gray-200 max-h-[80vh] lg:max-h-[600px] flex flex-col">
             {/* Header */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Notifications
-                </h3>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold">Notifications</h2>
+                <div className={`text-xs px-2 py-0.5 rounded-full ${
+                  connected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                }`}>
+                  {connecting ? 'Connexion...' : connected ? 'En direct' : 'Déconnecté'}
+                </div>
               </div>
-
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setShowUnreadOnly(!showUnreadOnly)}
-                  className={`text-sm px-3 py-1 rounded-full transition-colors ${
-                    showUnreadOnly
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                  }`}
+                  onClick={() => requestNotificationPermission()}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"
+                  title="Activer les notifications navigateur"
                 >
-                  Non lues ({unreadCount})
+                  <Settings className="w-4 h-4" />
                 </button>
-                {unreadCount > 0 && (
-                  <button
-                    onClick={handleMarkAllAsRead}
-                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    Tout marquer comme lu
-                  </button>
-                )}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
-            {/* Liste des notifications */}
+            {/* Tabs */}
+            <div className="flex border-b border-gray-200 overflow-x-auto">
+              {[
+                { id: 'all', label: 'Tout', count: unreadCount },
+                { id: 'emails', label: 'Emails', count: notifications.emails.length },
+                { id: 'dossiers', label: 'Dossiers', count: notifications.dossiers.length },
+                { id: 'deadlines', label: 'Délais', count: notifications.deadlines.length },
+                { id: 'system', label: 'Système', count: notifications.system.length },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex-1 px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                    activeTab === tab.id
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {tab.label}
+                  {tab.count > 0 && (
+                    <span className="ml-1.5 bg-gray-200 text-gray-700 text-xs rounded-full px-2 py-0.5">
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Notifications List */}
             <div className="flex-1 overflow-y-auto">
-              {notifications.length === 0 ? (
-                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                  {showUnreadOnly
-                    ? 'Aucune notification non lue'
-                    : 'Aucune notification'}
+              {filteredNotifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+                  <Bell className="w-12 h-12 mb-2 opacity-20" />
+                  <p className="text-sm">Aucune notification</p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {notifications.map(notif => (
-                    <div
-                      key={notif.id}
-                      className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        !notif.read ? 'bg-blue-50 dark:bg-blue-900/10' : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl flex-shrink-0">
-                          {getNotificationIcon(notif.type)}
-                        </span>
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <p className={`text-sm font-medium ${getNotificationColor(notif.type)}`}>
-                                {notif.title}
-                              </p>
-                              <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
-                                {notif.message}
-                              </p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                                {new Date(notif.createdAt).toLocaleDateString('fr-FR', {
-                                  day: '2-digit',
-                                  month: 'short',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
-                              </p>
-                            </div>
-
-                            {!notif.read && (
-                              <button
-                                onClick={() => handleMarkAsRead(notif.id)}
-                                className="flex-shrink-0 p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
-                                title="Marquer comme lu"
-                              >
-                                <Check className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-
-                          {notif.link && (
-                            <Link
-                              href={notif.link}
-                              onClick={() => {
-                                handleMarkAsRead(notif.id)
-                                setIsOpen(false)
-                              }}
-                              className="inline-block mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                            >
-                              Voir →
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                <div className="divide-y divide-gray-100">
+                  {filteredNotifications.map((notification: any, index) => (
+                    <NotificationItem
+                      key={`${notification.id}-${index}`}
+                      notification={notification}
+                      onMarkRead={() => markAsRead(notification.id)}
+                    />
                   ))}
                 </div>
               )}
             </div>
+
+            {/* Footer Actions */}
+            {filteredNotifications.length > 0 && (
+              <div className="p-3 border-t border-gray-200 flex items-center justify-between bg-gray-50">
+                <button
+                  onClick={() => activeTab === 'all' ? clearNotifications() : clearNotificationType(activeTab)}
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Tout effacer
+                </button>
+                <span className="text-xs text-gray-500">
+                  {filteredNotifications.length} notification{filteredNotifications.length > 1 ? 's' : ''}
+                </span>
+              </div>
+            )}
           </div>
-        </>
+        </div>
       )}
+    </>
+  )
+}
+
+// Individual notification item component
+function NotificationItem({ notification, onMarkRead }: { notification: any; onMarkRead: () => void }) {
+  const getIcon = () => {
+    switch (notification.type || notification.category) {
+      case 'email':
+        return <Mail className="w-5 h-5 text-blue-500" />
+      case 'dossier':
+        return <Briefcase className="w-5 h-5 text-green-500" />
+      case 'deadline':
+        const urgencyColor = {
+          critical: 'text-red-500',
+          urgent: 'text-orange-500',
+          warning: 'text-yellow-500',
+          info: 'text-blue-500',
+        }
+        return <AlertTriangle className={`w-5 h-5 ${urgencyColor[notification.urgency as keyof typeof urgencyColor] || 'text-gray-500'}`} />
+      case 'system':
+        return <Info className="w-5 h-5 text-purple-500" />
+      default:
+        return <Bell className="w-5 h-5 text-gray-500" />
+    }
+  }
+
+  const getContent = () => {
+    switch (notification.type || notification.category) {
+      case 'email':
+        return (
+          <>
+            <div className="font-medium text-sm">{notification.subject}</div>
+            <div className="text-xs text-gray-600">De: {notification.from}</div>
+            {notification.dossierNumber && (
+              <div className="text-xs text-blue-600 mt-1">Dossier #{notification.dossierNumber}</div>
+            )}
+          </>
+        )
+      case 'dossier':
+        return (
+          <>
+            <div className="font-medium text-sm">{notification.dossierTitle}</div>
+            <div className="text-xs text-gray-600">
+              {notification.action === 'created' && 'Nouveau dossier créé'}
+              {notification.action === 'updated' && 'Dossier mis à jour'}
+              {notification.action === 'status_changed' && `Statut: ${notification.status}`}
+              {notification.action === 'document_added' && 'Document ajouté'}
+            </div>
+            <div className="text-xs text-blue-600 mt-1">#{notification.dossierNumber}</div>
+          </>
+        )
+      case 'deadline':
+        return (
+          <>
+            <div className="font-medium text-sm">{notification.message}</div>
+            <div className="text-xs text-gray-600">
+              Dossier #{notification.dossierNumber} • {notification.remainingDays} jour{notification.remainingDays > 1 ? 's' : ''} restant{notification.remainingDays > 1 ? 's' : ''}
+            </div>
+            <div className="text-xs text-orange-600 mt-1">{notification.deadlineType}</div>
+          </>
+        )
+      case 'system':
+        return (
+          <>
+            <div className="font-medium text-sm">{notification.title}</div>
+            <div className="text-xs text-gray-600">{notification.message}</div>
+          </>
+        )
+      default:
+        return <div className="text-sm text-gray-600">Notification</div>
+    }
+  }
+
+  return (
+    <div className="p-4 hover:bg-gray-50 transition-colors group">
+      <div className="flex gap-3">
+        <div className="flex-shrink-0 mt-0.5">
+          {getIcon()}
+        </div>
+        <div className="flex-1 min-w-0">
+          {getContent()}
+          <div className="text-xs text-gray-500 mt-2">
+            {formatDistanceToNow(new Date(notification.timestamp), {
+              addSuffix: true,
+              locale: fr,
+            })}
+          </div>
+        </div>
+        <button
+          onClick={onMarkRead}
+          className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded"
+          title="Marquer comme lu"
+        >
+          <Check className="w-4 h-4 text-gray-600" />
+        </button>
+      </div>
     </div>
   )
 }
