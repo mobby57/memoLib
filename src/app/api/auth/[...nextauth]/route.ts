@@ -1,13 +1,17 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GitHubProvider from 'next-auth/providers/github';
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
-import { logger } from '@/lib/logger';
 
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -16,11 +20,8 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
-          logger.debug('Authentification échouée: identifiants manquants');
           throw new Error('Identifiants requis');
         }
-        
-        logger.debug('Tentative authentification', { email: credentials.email });
         
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
@@ -43,36 +44,15 @@ export const authOptions: NextAuthOptions = {
           },
         });
         
-        if (!user) {
-          logger.debug('Authentification échouée: utilisateur non trouvé', { email: credentials.email });
+        if (!user || !await bcrypt.compare(credentials.password, user.password)) {
           throw new Error('Identifiants invalides');
         }
         
-        logger.debug('Utilisateur trouvé, vérification mot de passe', { email: user.email, role: user.role });
-        
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        
-        if (!isValid) {
-          logger.debug('Authentification échouée: mot de passe incorrect', { email: credentials.email });
-          throw new Error('Identifiants invalides');
+        if (user.role === 'ADMIN' && (!user.tenant || user.tenant.status !== 'active')) {
+          throw new Error('Cabinet inactif');
         }
-        
-        // Vérifications spécifiques par rôle
-        if (user.role === 'SUPER_ADMIN') {
-          // Super admin : accès global, pas de tenant requis
-        } else if (user.role === 'ADMIN') {
-          // Admin : doit avoir un tenant actif
-          if (!user.tenant || user.tenant.status !== 'active') {
-            throw new Error('Cabinet inactif');
-          }
-        } else if (user.role === 'CLIENT') {
-          // Client : doit avoir un tenant ET un client associé
-          if (!user.tenant || user.tenant.status !== 'active') {
-            throw new Error('Cabinet inactif');
-          }
-          if (!user.clientId) {
-            throw new Error('Profil client incomplet');
-          }
+        if (user.role === 'CLIENT' && (!user.tenant || user.tenant.status !== 'active' || !user.clientId)) {
+          throw new Error('Profil client incomplet');
         }
         
         return {
@@ -89,7 +69,45 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      if (account?.provider === 'github') {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+          include: { tenant: { select: { id: true, name: true, status: true, plan: { select: { name: true } } } } }
+        });
+
+        if (existingUser) {
+          await prisma.user.update({
+            where: { id: existingUser.id },
+            data: { name: user.name || existingUser.name, avatar: user.image, lastLogin: new Date() }
+          });
+          
+          (user as any).role = existingUser.role;
+          (user as any).tenantId = existingUser.tenantId;
+          (user as any).tenantName = existingUser.tenant?.name;
+          (user as any).tenantPlan = existingUser.tenant?.plan?.name;
+          (user as any).clientId = existingUser.clientId;
+          (user as any).id = existingUser.id;
+        } else {
+          const newUser = await prisma.user.create({
+            data: {
+              email: user.email!,
+              name: user.name || 'Utilisateur GitHub',
+              password: '',
+              role: 'CLIENT',
+              avatar: user.image,
+              status: 'active',
+              lastLogin: new Date(),
+            }
+          });
+
+          (user as any).role = 'CLIENT';
+          (user as any).id = newUser.id;
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = (user as any).id;
         token.role = (user as any).role;
@@ -97,6 +115,7 @@ export const authOptions: NextAuthOptions = {
         token.tenantName = (user as any).tenantName;
         token.tenantPlan = (user as any).tenantPlan;
         token.clientId = (user as any).clientId;
+        token.provider = account?.provider;
       }
       return token;
     },
@@ -108,8 +127,8 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).tenantName = token.tenantName;
         (session.user as any).tenantPlan = token.tenantPlan;
         (session.user as any).clientId = token.clientId;
+        (session.user as any).provider = token.provider;
         
-        // Calculer les permissions
         (session.user as any).permissions = {
           canManageTenants: token.role === 'SUPER_ADMIN',
           canManageClients: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
@@ -130,38 +149,11 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 2 * 60 * 60, // 2 heures - redemande mot de passe automatique
-    updateAge: 30 * 60, // Rafraîchit le token toutes les 30 minutes si actif
+    maxAge: 2 * 60 * 60,
+    updateAge: 30 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
-
-// Wrapper pour ajouter CORS
-const corsHandler = (method: string) => async (req: Request) => {
-  const response = await handler(req);
-  
-  // Ajouter headers CORS
-  const headers = new Headers(response.headers);
-  headers.set('Access-Control-Allow-Origin', '*');
-  headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  headers.set('Access-Control-Allow-Headers', 'Content-Type');
-  
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers
-  });
-};
-
-export const GET = corsHandler('GET');
-export const POST = corsHandler('POST');
-export const OPTIONS = () => new Response(null, {
-  status: 200,
-  headers: {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type'
-  }
-});
+export { handler as GET, handler as POST };

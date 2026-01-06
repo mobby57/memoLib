@@ -1,6 +1,7 @@
 // Prisma Schema pour Multitenant - Architecture 3 Niveaux
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -96,6 +97,7 @@ model Tenant {
   documents      WorkspaceDocument[]
   metrics        TenantMetrics[]
   echeances      Echeance[]
+  emails         Email[]
 
   @@index([planId])
 }
@@ -581,6 +583,7 @@ model Client {
   dossiers       Dossier[]
   workspaces     ClientWorkspace[]
   primaryWorkspaces Workspace[]
+  emails         Email[]
 
   @@unique([tenantId, email])
   @@index([tenantId, email])
@@ -709,6 +712,7 @@ model Dossier {
   evenements     EvenementDossier[]
   commentaires   CommentaireDossier[]
   echeances      Echeance[]
+  emails         Email[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, statut])
@@ -1248,4 +1252,98 @@ model CommentaireDossier {
   @@index([auteurId])
   @@index([createdAt])
   @@index([important])
+}
+
+// ============================================
+// EMAILS & MONITORING
+// ============================================
+
+model Email {
+  id        String   @id @default(uuid())
+  messageId String   @unique // Gmail message ID
+  threadId  String? // Gmail thread ID
+  
+  // Métadonnées email
+  from      String
+  to        String
+  subject   String
+  bodyText  String?
+  bodyHtml  String?
+  receivedDate DateTime
+  
+  // Classification
+  classification EmailClassification?
+  
+  // Associations
+  tenantId  String?
+  tenant    Tenant? @relation(fields: [tenantId], references: [id])
+  
+  clientId  String?
+  client    Client? @relation(fields: [clientId], references: [id])
+  
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+  
+  // Pièces jointes
+  attachments String? // JSON Array of {filename, size, mimeType}
+  
+  // État
+  isRead      Boolean @default(false)
+  isArchived  Boolean @default(false)
+  isStarred   Boolean @default(false)
+  
+  // Traitement IA
+  needsResponse Boolean @default(false)
+  responseGenerated Boolean @default(false)
+  responseDraft String?
+  
+  // Extraction automatique
+  trackingNumbers String? // Numéros de suivi La Poste (JSON array)
+  extractedDates  String? // Dates importantes détectées (JSON array)
+  extractedPhones String? // Téléphones extraits (JSON array)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([tenantId])
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([receivedDate])
+  @@index([isRead])
+}
+
+model EmailClassification {
+  id       String @id @default(uuid())
+  emailId  String @unique
+  email    Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  
+  // Classification automatique
+  type     String // nouveau_client, reponse_client, laposte_notification, ceseda, urgent, spam, general
+  priority String // critical, high, medium, low
+  
+  // Scoring
+  confidence Float @default(0.5) // 0.0 à 1.0
+  
+  // Tags et catégories
+  tags     String? // JSON Array of tags
+  
+  // Actions suggérées
+  suggestedAction String?
+  actionTaken     String?
+  actionTakenBy   String? // User ID
+  actionTakenAt   DateTime?
+  
+  // Validation humaine
+  validated       Boolean @default(false)
+  validatedBy     String? // User ID
+  validatedAt     DateTime?
+  correctedType   String? // Si classification corrigée
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([type])
+  @@index([priority])
+  @@index([confidence])
+  @@index([validated])
 }
