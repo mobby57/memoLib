@@ -162,6 +162,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relations
+  messagesSent     Message[] @relation("MessagesSent")
+  messagesReceived Message[] @relation("MessagesReceived")
+
   @@index([tenantId, email])
   @@index([role])
 }
@@ -1499,4 +1503,30 @@ model ApprovalTask {
   @@index([status])
   @@index([level])
   @@index([dueDate])
+}
+
+// ============================================
+// MESSAGING SYSTEM (PLANNED FEATURE)
+// ============================================
+
+model Message {
+  id        String   @id @default(uuid())
+  tenantId  String
+  
+  expediteurId   String
+  expediteur     User   @relation("MessagesSent", fields: [expediteurId], references: [id], onDelete: Cascade)
+  
+  destinataireId String
+  destinataire   User   @relation("MessagesReceived", fields: [destinataireId], references: [id], onDelete: Cascade)
+  
+  contenu   String
+  lu        Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([expediteurId])
+  @@index([destinataireId])
+  @@index([tenantId])
+  @@index([lu])
 }
