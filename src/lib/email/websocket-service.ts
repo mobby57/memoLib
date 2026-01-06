@@ -1,4 +1,4 @@
-import { Server as SocketIOServer } from 'socket.io';
+import { Server as SocketIOServer, Socket } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 
 interface EmailNotification {
@@ -25,7 +25,7 @@ export class EmailWebSocketService {
       path: '/api/socket'
     });
 
-    this.io.on('connection', (socket) => {
+    this.io.on('connection', (socket: Socket) => {
       console.log(`🔌 Client connecté: ${socket.id}`);
 
       // Rejoindre une room tenant-specific

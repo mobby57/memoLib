@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import NavigationSearchButton from '@/components/NavigationSearchButton';
 import { 
   Building, 
   Users, 
@@ -173,7 +174,7 @@ export function Navigation() {
       `}>
       {/* Header */}
       <div className="p-6 border-b border-gray-200 dark:border-gray-700 shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <Shield className="w-5 h-5 text-white" />
           </div>
@@ -188,6 +189,8 @@ export function Navigation() {
             </p>
           </div>
         </div>
+        {/* Recherche globale */}
+        <NavigationSearchButton />
       </div>
 
       {/* User Info */}
