@@ -283,11 +283,8 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string>
       });
       throw new Error('IA non disponible (Ollama)');
     }
-  } else if (process.env.OPENAI_API_KEY) {
-    // Appel OpenAI (nécessite installation de openai package)
-    throw new Error('OpenAI non encore implémenté - utilisez Ollama');
   } else {
-    throw new Error('Aucune IA configurée (Ollama ou OpenAI)');
+    throw new Error('Ollama non configuré - définissez OLLAMA_URL dans .env');
   }
 }
 
