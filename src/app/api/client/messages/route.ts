@@ -111,10 +111,12 @@ export async function POST(request: NextRequest) {
     // Créer le message
     const message = await prisma.message.create({
       data: {
+        subject: 'Message client',
         content: content.trim(),
         senderId: userId,
         recipientId: avocat.id,
-        read: false,
+        tenantId: user.tenantId,
+        isRead: false,
       },
       include: {
         sender: {
@@ -137,7 +139,7 @@ export async function POST(request: NextRequest) {
         senderName: message.sender.name,
         senderRole: message.sender.role,
         createdAt: message.createdAt,
-        read: message.read,
+        read: message.isRead,
       },
     });
   } catch (error) {

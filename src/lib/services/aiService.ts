@@ -1,9 +1,7 @@
 /**
- * Service IA - Version Client avec simulation
- * Note: Pour production, déplacer vers /api routes avec OpenAI backend
+ * Service IA - Utilise Llama via Ollama (local)
+ * Configuration: OLLAMA_BASE_URL dans .env
  */
-
-// import OpenAI from 'openai' // À activer côté serveur uniquement
 
 export interface AIUsageStats {
   totalRequests: number

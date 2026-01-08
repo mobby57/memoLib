@@ -98,15 +98,27 @@ export class OllamaClient {
   async generateJSON<T>(prompt: string, system?: string): Promise<T> {
     const response = await this.generate(prompt, system);
     
-    // Extraire le JSON de la réponse (entre ```json et ```)
-    const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/);
-    const jsonStr = jsonMatch ? jsonMatch[1] : response;
+    // Extraire le JSON de la réponse (supporte plusieurs formats)
+    let jsonStr = response.trim();
+    
+    // Format 1: ```json ... ```
+    const jsonMatch1 = jsonStr.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonMatch1) {
+      jsonStr = jsonMatch1[1].trim();
+    } else {
+      // Format 2: ``` ... ```
+      const jsonMatch2 = jsonStr.match(/```\s*([\s\S]*?)\s*```/);
+      if (jsonMatch2) {
+        jsonStr = jsonMatch2[1].trim();
+      }
+    }
     
     try {
       return JSON.parse(jsonStr);
     } catch (error) {
       console.error('Erreur parsing JSON:', error);
       console.error('Réponse brute:', response);
+      console.error('JSON extrait:', jsonStr);
       throw new Error('Impossible de parser la réponse JSON');
     }
   }

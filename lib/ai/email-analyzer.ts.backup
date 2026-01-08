@@ -4,6 +4,7 @@
  */
 
 import { ollama } from './ollama-client';
+import { detectProcedureCESEDA, PROCEDURES_CESEDA, type DocumentType } from './ceseda-reference';
 
 export interface EmailAnalysis {
   // Informations client
@@ -29,6 +30,8 @@ export interface EmailAnalysis {
   documents: {
     mentionnes: string[]; // Documents mentionnés dans l'email
     manquants: string[]; // Documents probablement nécessaires
+    obligatoires: DocumentType[]; // Documents obligatoires pour cette procédure
+    optionnels: DocumentType[]; // Documents optionnels recommandés
   };
   
   // Analyse juridique
@@ -84,7 +87,7 @@ DATE: ${emailData.date}
 BODY:
 ${emailData.body}
 
-Extrais les informations suivantes au format JSON:
+Extrais les informations suivantes au format JSON. IMPORTANT: Les tableaux doivent contenir UNIQUEMENT des strings, pas d'objets.
 
 {
   "clientInfo": {
@@ -99,24 +102,25 @@ Extrais les informations suivantes au format JSON:
     "type": "Type principal (ex: Titre de séjour, Visa, Naturalisation, OQTF, Asile)",
     "categorie": "Catégorie spécifique (ex: Salarié, Vie privée et familiale, Étudiant)",
     "objet": "Description courte de la demande en 1-2 phrases",
-    "urgence": "urgent|normal|faible",
-    "delai": "Date limite si mentionnée (format ISO)"
+    "urgence": "urgent",
+    "delai": "2026-02-07T00:00:00.000Z"
   },
   "documents": {
-    "mentionnes": ["liste des documents mentionnés dans l'email"],
-    "manquants": ["liste des documents probablement nécessaires pour ce type de demande"]
+    "mentionnes": ["Contrat de travail CDI", "Bulletins de salaire"],
+    "manquants": ["Carte d identite", "Justificatif de domicile"]
   },
   "analyse": {
     "situationJuridique": "Résumé de la situation juridique en 2-3 phrases",
-    "risques": ["liste des risques identifiés"],
-    "opportunites": ["liste des opportunités juridiques"],
+    "risques": ["Risque 1 en une phrase", "Risque 2 en une phrase"],
+    "opportunites": ["Opportunité 1", "Opportunité 2"],
     "recoursInformations": "Si OQTF ou refus: informations sur les recours possibles",
-    "actionsRecommandees": ["liste des actions à entreprendre par ordre de priorité"]
+    "actionsRecommandees": ["Action 1 courte", "Action 2 courte", "Action 3 courte"]
   },
   "confidence": 85
 }
 
-Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`;
+CRITIQUE: actionsRecommandees doit être un tableau de STRINGS simples, PAS d'objets avec "action" et "priorité".
+Réponds UNIQUEMENT avec le JSON, sans markdown, sans backticks, sans texte additionnel.`;
 
     try {
       const result = await ollama.generateJSON<EmailAnalysis>(
@@ -131,71 +135,71 @@ Réponds UNIQUEMENT avec le JSON, sans texte additionnel.`;
       if (!result.clientInfo.email) {
         result.clientInfo.email = emailData.from;
       }
+      
+      // Enrichir avec les documents CESEDA
+      const procedure = detectProcedureCESEDA(emailData.subject, emailData.body);
+      if (procedure) {
+        result.documents.obligatoires = procedure.documentsNecessaires.filter(d => d.obligatoire);
+        result.documents.optionnels = procedure.documentsNecessaires.filter(d => !d.obligatoire);
+        
+        // Compléter l'analyse avec les infos de la procédure
+        if (!result.analyse.risques || result.analyse.risques.length === 0) {
+          result.analyse.risques = procedure.risquesJuridiques;
+        }
+        if (!result.analyse.recoursInformations) {
+          result.analyse.recoursInformations = procedure.recoursDisponibles.join('; ');
+        }
+      }
 
       return result;
     } catch (error) {
       console.error('Erreur analyse IA:', error);
       
       // Fallback: analyse basique sans IA
-      return this.basicAnalysis(emailData);
+      // Détection procédure CESEDA
+      const procedure = detectProcedureCESEDA(emailData.subject, emailData.body);
+      
+      const bodyLower = emailData.body.toLowerCase();
+      let type = procedure?.type || 'Demande générale';
+      let urgence = procedure?.urgence || 'normal';
+      let categorie = procedure?.categorie;
+
+      // Détection urgence supplémentaire
+      if (bodyLower.includes('urgent') || bodyLower.includes('délai') || bodyLower.includes('deadline')) {
+        urgence = 'urgent';
+      }
+
+      const analysis: EmailAnalysis = {
+        clientInfo: {
+          email: emailData.from,
+        },
+        demande: {
+          type,
+          categorie,
+          objet: emailData.subject,
+          urgence,
+        },
+        documents: {
+          mentionnes: [],
+          manquants: [],
+          obligatoires: procedure?.documentsNecessaires.filter(d => d.obligatoire) || [],
+          optionnels: procedure?.documentsNecessaires.filter(d => !d.obligatoire) || [],
+        },
+        analyse: {
+          situationJuridique: procedure?.description || 'Analyse IA non disponible. Analyse manuelle nécessaire.',
+          risques: procedure?.risquesJuridiques || [],
+          opportunites: [],
+          recoursInformations: procedure?.recoursDisponibles.join('; '),
+          actionsRecommandees: procedure 
+            ? ['Rassembler les documents obligatoires', 'Vérifier les délais', 'Consulter un avocat']
+            : ['Révision manuelle du dossier'],
+        },
+        confidence: procedure ? 60 : 30,
+        extractedAt: new Date().toISOString(),
+      };
+
+      return analysis;
     }
-  }
-
-  /**
-   * Analyse basique sans IA (fallback)
-   */
-  private basicAnalysis(emailData: {
-    from: string;
-    subject: string;
-    body: string;
-    date: string;
-  }): EmailAnalysis {
-    const text = `${emailData.subject} ${emailData.body}`.toLowerCase();
-    
-    let type = 'Demande générale';
-    let urgence: 'urgent' | 'normal' | 'faible' = 'normal';
-
-    // Détection type
-    if (text.includes('titre de séjour') || text.includes('titre de sejour')) {
-      type = 'Titre de séjour';
-    } else if (text.includes('visa')) {
-      type = 'Visa';
-    } else if (text.includes('naturalisation')) {
-      type = 'Naturalisation';
-    } else if (text.includes('oqtf') || text.includes('expulsion')) {
-      type = 'OQTF / Expulsion';
-      urgence = 'urgent';
-    } else if (text.includes('asile') || text.includes('réfugié')) {
-      type = 'Demande d\'asile';
-    }
-
-    // Détection urgence
-    if (text.includes('urgent') || text.includes('délai') || text.includes('deadline')) {
-      urgence = 'urgent';
-    }
-
-    return {
-      clientInfo: {
-        email: emailData.from,
-      },
-      demande: {
-        type,
-        objet: emailData.subject,
-        urgence,
-      },
-      documents: {
-        mentionnes: [],
-        manquants: ['Pièce d\'identité', 'Justificatif de domicile'],
-      },
-      analyse: {
-        situationJuridique: 'Analyse IA non disponible. Analyse manuelle nécessaire.',
-        risques: [],
-        opportunites: [],
-        actionsRecommandees: ['Révision manuelle du dossier'],
-      },
-      confidence: 30,
-      extractedAt: new Date().toISOString(),
-    };
   }
 
   /**

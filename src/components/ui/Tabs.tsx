@@ -10,6 +10,9 @@ export interface Tab {
   content: ReactNode;
 }
 
+// Radix-like exports for compatibility
+export { Tabs as TabsList, Tabs as TabsTrigger, Tabs as TabsContent }
+
 export interface TabsProps {
   tabs: Tab[];
   defaultTab?: string;
