@@ -84,11 +84,25 @@ export function middleware(request: NextRequest) {
   entry.count++
   rateLimitStore.set(ip, entry)
 
-  // Ajouter les headers de rate limit à la réponse
+  // Créer la réponse avec headers de sécurité
   const response = NextResponse.next()
+  
+  // Headers Rate Limiting
   response.headers.set('X-RateLimit-Limit', MAX_REQUESTS.toString())
   response.headers.set('X-RateLimit-Remaining', (MAX_REQUESTS - entry.count).toString())
   response.headers.set('X-RateLimit-Reset', entry.resetTime.toString())
+  
+  // Headers de sécurité - FORCE L'APPLICATION
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()')
+  response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://vercel.live https://vitals.vercel-insights.com wss://ws-us3.pusher.com https://*.vercel.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;")
+  response.headers.set('X-XSS-Protection', '1; mode=block')
+  response.headers.set('Cross-Origin-Embedder-Policy', 'credentialless')
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin')
+  response.headers.set('Cross-Origin-Resource-Policy', 'same-origin')
 
   return response
 }
