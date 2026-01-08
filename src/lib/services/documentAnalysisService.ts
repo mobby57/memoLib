@@ -27,7 +27,7 @@ export async function analyzeDocumentForDeadlines(
   documentType: string
 ): Promise<DocumentAnalysisResult> {
   try {
-    // Simulation d'analyse IA (à remplacer par un vrai appel OpenAI/Ollama)
+    // Analyse IA via Ollama (Llama 3.2)
     const prompt = `Analyse ce document juridique et extrais:
 1. Tous les délais et échéances (dates limites, audiences, dépôts)
 2. Les parties impliquées

@@ -13,13 +13,20 @@ import readline from 'readline';
 const prisma = new PrismaClient();
 
 interface SavedEmail {
-  id: string;
+  id?: string;
   from: string;
   subject: string;
-  body: string;
-  receivedAt: string;
-  priority: string;
-  type: string;
+  body?: string;
+  preview?: string;
+  date?: string;
+  receivedAt?: string;
+  timestamp?: string;
+  priority?: string;
+  type?: string;
+  classification?: {
+    type?: string;
+    priority?: string;
+  };
 }
 
 const rl = readline.createInterface({
@@ -32,7 +39,7 @@ const question = (query: string): Promise<string> => {
 };
 
 /**
- * Lire tous les emails sauvegardés
+ * Lire tous les emails sauvegardés (FILTRÉS)
  */
 function loadSavedEmails(): SavedEmail[] {
   const emailsDir = path.join(process.cwd(), 'logs', 'emails');
@@ -44,10 +51,31 @@ function loadSavedEmails(): SavedEmail[] {
 
   const files = fs.readdirSync(emailsDir).filter((f) => f.endsWith('.json'));
   
-  return files.map((file) => {
+  const allEmails = files.map((file) => {
     const content = fs.readFileSync(path.join(emailsDir, file), 'utf-8');
     return JSON.parse(content);
   });
+
+  // ⚠️ FILTRER les emails Google système
+  const filteredEmails = allEmails.filter((email) => {
+    const from = email.from.toLowerCase();
+    const subject = email.subject.toLowerCase();
+    
+    // Exclure emails système Google
+    if (from.includes('no-reply@accounts.google.com') && subject.includes('security alert')) {
+      return false;
+    }
+    if (from.includes('platformnotifications-noreply@google.com') && subject.includes('shut down')) {
+      return false;
+    }
+    
+    // Garder uniquement emails potentiellement clients
+    return true;
+  });
+
+  console.log(`📊 ${allEmails.length} emails totaux, ${filteredEmails.length} emails clients après filtrage\n`);
+  
+  return filteredEmails;
 }
 
 /**
@@ -144,16 +172,21 @@ async function createDossierFromAnalysis(
 async function displayUnprocessedEmails(emails: SavedEmail[]): Promise<void> {
   console.log('\n📧 Emails détectés:\n');
 
-  emails.forEach((email, index) => {
-    const date = new Date(email.receivedAt).toLocaleString('fr-FR');
-    const priority = email.priority === 'high' ? '🔴' : '🟢';
+  emails.slice(0, 20).forEach((email, index) => {
+    const date = email.date ? new Date(email.date).toLocaleString('fr-FR') : 'Date inconnue';
+    const priority = email.priority === 'high' || email.classification?.priority === 'high' ? '🔴' : '🟢';
+    const type = email.type || email.classification?.type || 'général';
     
     console.log(`${index + 1}. ${priority} De: ${email.from}`);
     console.log(`   Sujet: ${email.subject}`);
     console.log(`   Date: ${date}`);
-    console.log(`   Type: ${email.type}`);
+    console.log(`   Type: ${type}`);
     console.log('');
   });
+
+  if (emails.length > 20) {
+    console.log(`... et ${emails.length - 20} autres emails\n`);
+  }
 }
 
 /**
@@ -165,19 +198,23 @@ async function main() {
 
   // Charger les emails
   const emails = loadSavedEmails();
-  console.log(`📬 ${emails.length} email(s) trouvé(s)\n`);
-
+  
   if (emails.length === 0) {
-    console.log('💡 Lancez: npm run email:monitor');
+    console.log('✅ Aucun email client trouvé (emails système Google filtrés)');
+    console.log('💡 Lancez: npm run email:monitor pour scanner de nouveaux emails');
+    rl.close();
+    await prisma.$disconnect();
     process.exit(0);
   }
+
+  console.log(`📬 ${emails.length} email(s) client(s) trouvé(s)\n`);
 
   await displayUnprocessedEmails(emails);
 
   // Menu interactif
   console.log('Options:');
-  console.log('  1-N  : Analyser un email spécifique');
-  console.log('  all  : Analyser tous les emails');
+  console.log('  1-20 : Analyser un email spécifique (affichés ci-dessus)');
+  console.log('  all  : Analyser TOUS les emails (peut être long!)');
   console.log('  quit : Quitter\n');
 
   const choice = await question('Votre choix: ');
@@ -209,17 +246,17 @@ async function main() {
   console.log(`\n🔍 Analyse de ${selectedEmails.length} email(s) avec IA locale...\n`);
 
   for (const email of selectedEmails) {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`📧 Email: ${email.subject}`);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
     try {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log(`📧 Email: ${email.subject}`);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
       // Analyse IA
       console.log('🤖 Analyse IA en cours...');
       const analysis = await emailAnalyzer.analyzeEmail({
         from: email.from,
         subject: email.subject,
-        body: email.body,
+        body: email.body || email.preview || 'Aucun contenu',
         date: email.receivedAt,
       });
 

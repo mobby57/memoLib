@@ -1,8 +1,8 @@
-/**
+Ôªø/**
  * Service de Suggestions Intelligentes
- * Propose des actions contextuelles basÈes sur l'historique et les patterns
+ * Propose des actions contextuelles bas√©es sur l'historique et les patterns
  * 
- * Innovation: L'IA devient proactive et suggËre des actions pertinentes
+ * Innovation: L'IA devient proactive et sugg√®re des actions pertinentes
  */
 
 import { prisma } from '@/lib/prisma';
@@ -25,32 +25,32 @@ interface SmartSuggestion {
 
 export class SuggestionService {
   /**
-   * GÈnËre des suggestions intelligentes pour un tenant
+   * G√©n√®re des suggestions intelligentes pour un tenant
    */
   async generateSuggestions(tenantId: string): Promise<SmartSuggestion[]> {
     const suggestions: SmartSuggestion[] = [];
 
-    // 1. Analyser les dossiers sans mise ‡ jour rÈcente
+    // 1. Analyser les dossiers sans mise √† jour r√©cente
     const staleDossiers = await this.findStaleDossiers(tenantId);
     suggestions.push(...staleDossiers);
 
-    // 2. DÈtecter les documents manquants rÈcurrents
+    // 2. D√©tecter les documents manquants r√©currents
     const missingDocs = await this.findRecurringMissingDocuments(tenantId);
     suggestions.push(...missingDocs);
 
-    // 3. SuggÈrer des relances clients
+    // 3. Sugg√©rer des relances clients
     const clientFollowups = await this.suggestClientFollowups(tenantId);
     suggestions.push(...clientFollowups);
 
-    // 4. Identifier les opportunitÈs d'automatisation
+    // 4. Identifier les opportunit√©s d'automatisation
     const automationOpps = await this.findAutomationOpportunities(tenantId);
     suggestions.push(...automationOpps);
 
-    // 5. DÈtecter les anomalies et incohÈrences
+    // 5. D√©tecter les anomalies et incoh√©rences
     const anomalies = await this.detectAnomalies(tenantId);
     suggestions.push(...anomalies);
 
-    // Trier par prioritÈ
+    // Trier par priorit√©
     const priorityOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
     return suggestions.sort((a, b) => 
       priorityOrder[b.priority] - priorityOrder[a.priority]
@@ -58,7 +58,7 @@ export class SuggestionService {
   }
 
   /**
-   * Dossiers sans activitÈ rÈcente
+   * Dossiers sans activit√© r√©cente
    */
   private async findStaleDossiers(tenantId: string): Promise<SmartSuggestion[]> {
     const fourteenDaysAgo = new Date();
@@ -76,11 +76,11 @@ export class SuggestionService {
 
     return staleDossiers.map((dossier: { id: string; numero: string; updatedAt: Date; clientId: string }) => ({
       id: `stale-${dossier.id}`,
-      title: `Dossier sans activitÈ: ${dossier.numero}`,
-      description: `Le dossier ${dossier.numero} n'a pas ÈtÈ mis ‡ jour depuis ${Math.floor((Date.now() - dossier.updatedAt.getTime()) / (1000 * 60 * 60 * 24))} jours`,
+      title: `Dossier sans activit√©: ${dossier.numero}`,
+      description: `Le dossier ${dossier.numero} n'a pas √©t√© mis √† jour depuis ${Math.floor((Date.now() - dossier.updatedAt.getTime()) / (1000 * 60 * 60 * 24))} jours`,
       actionType: 'GENERATE_DRAFT' as AIActionType,
       priority: 'MEDIUM',
-      reasoning: 'Dossier inactif dÈtectÈ. Une relance client pourrait Ítre nÈcessaire.',
+      reasoning: 'Dossier inactif d√©tect√©. Une relance client pourrait √™tre n√©cessaire.',
       suggestedAction: {
         type: 'CREATE_FOLLOWUP_EMAIL',
         data: {
@@ -95,10 +95,10 @@ export class SuggestionService {
   }
 
   /**
-   * Documents manquants rÈcurrents
+   * Documents manquants r√©currents
    */
   private async findRecurringMissingDocuments(tenantId: string): Promise<SmartSuggestion[]> {
-    // Analyser les actions passÈes pour trouver les documents souvent demandÈs
+    // Analyser les actions pass√©es pour trouver les documents souvent demand√©s
     const documentRequests = await prisma.aIAction.findMany({
       where: {
         tenantId,
@@ -108,7 +108,7 @@ export class SuggestionService {
       orderBy: { createdAt: 'desc' }
     });
 
-    // Compter les documents les plus demandÈs
+    // Compter les documents les plus demand√©s
     const documentCounts = new Map<string, number>();
     
     for (const action of documentRequests) {
@@ -123,7 +123,7 @@ export class SuggestionService {
       });
     }
 
-    // CrÈer des suggestions pour les documents frÈquents
+    // Cr√©er des suggestions pour les documents fr√©quents
     const suggestions: SmartSuggestion[] = [];
     const threshold = 3; // Au moins 3 occurrences
 
@@ -131,11 +131,11 @@ export class SuggestionService {
       if (count >= threshold) {
         suggestions.push({
           id: `recurring-doc-${doc.replace(/\s+/g, '-')}`,
-          title: `Document frÈquemment manquant: ${doc}`,
-          description: `Le document "${doc}" a ÈtÈ demandÈ ${count} fois rÈcemment`,
+          title: `Document fr√©quemment manquant: ${doc}`,
+          description: `Le document "${doc}" a √©t√© demand√© ${count} fois r√©cemment`,
           actionType: 'GENERATE_FORM' as AIActionType,
           priority: 'LOW',
-          reasoning: 'CrÈer un formulaire de collecte automatique pourrait rÈduire les demandes manuelles.',
+          reasoning: 'Cr√©er un formulaire de collecte automatique pourrait r√©duire les demandes manuelles.',
           suggestedAction: {
             type: 'CREATE_AUTO_COLLECTION_FORM',
             data: {
@@ -153,13 +153,13 @@ export class SuggestionService {
   }
 
   /**
-   * SuggÈrer des relances clients
+   * Sugg√©rer des relances clients
    */
   private async suggestClientFollowups(tenantId: string): Promise<SmartSuggestion[]> {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    // Trouver les dossiers avec ÈchÈance proche
+    // Trouver les dossiers avec √©ch√©ance proche
     const dossiersNeedingFollowup = await prisma.dossier.findMany({
       where: {
         tenantId,
@@ -184,10 +184,10 @@ export class SuggestionService {
       return {
         id: `followup-${dossier.id}`,
         title: `Relance client: ${clientName}`,
-        description: `…chÈance dans ${daysUntilDeadline} jours pour le dossier ${dossier.numero}`,
+        description: `√âch√©ance dans ${daysUntilDeadline} jours pour le dossier ${dossier.numero}`,
         actionType: 'GENERATE_DRAFT' as AIActionType,
         priority: daysUntilDeadline <= 7 ? 'HIGH' : 'MEDIUM',
-        reasoning: `…chÈance proche (${daysUntilDeadline}j). Relance recommandÈe.`,
+        reasoning: `√âch√©ance proche (${daysUntilDeadline}j). Relance recommand√©e.`,
         suggestedAction: {
           type: 'SEND_REMINDER',
           data: {
@@ -203,10 +203,10 @@ export class SuggestionService {
   }
 
   /**
-   * Identifier les opportunitÈs d'automatisation
+   * Identifier les opportunit√©s d'automatisation
    */
   private async findAutomationOpportunities(tenantId: string): Promise<SmartSuggestion[]> {
-    // Analyser les actions manuelles rÈpÈtitives
+    // Analyser les actions manuelles r√©p√©titives
     const recentActions = await prisma.aIAction.findMany({
       where: {
         tenantId,
@@ -224,15 +224,15 @@ export class SuggestionService {
 
     const suggestions: SmartSuggestion[] = [];
 
-    // Si beaucoup d'emails triÈs manuellement
+    // Si beaucoup d'emails tri√©s manuellement
     if ((actionTypeCounts.get('EMAIL_TRIAGE' as AIActionType) || 0) > 20) {
       suggestions.push({
         id: 'auto-email-triage',
         title: 'Activer le triage automatique d\'emails',
-        description: `${actionTypeCounts.get('EMAIL_TRIAGE' as AIActionType)} emails triÈs manuellement ce mois`,
+        description: `${actionTypeCounts.get('EMAIL_TRIAGE' as AIActionType)} emails tri√©s manuellement ce mois`,
         actionType: 'EMAIL_TRIAGE' as AIActionType,
         priority: 'LOW',
-        reasoning: 'Volume ÈlevÈ de triage manuel. L\'automatisation pourrait Èconomiser du temps.',
+        reasoning: 'Volume √©lev√© de triage manuel. L\'automatisation pourrait √©conomiser du temps.',
         suggestedAction: {
           type: 'ENABLE_AUTO_TRIAGE',
           data: { actionType: 'EMAIL_TRIAGE' }
@@ -246,12 +246,12 @@ export class SuggestionService {
   }
 
   /**
-   * DÈtecter les anomalies
+   * D√©tecter les anomalies
    */
   private async detectAnomalies(tenantId: string): Promise<SmartSuggestion[]> {
     const suggestions: SmartSuggestion[] = [];
 
-    // 1. Dossiers avec dÈlai anormalement long
+    // 1. Dossiers avec d√©lai anormalement long
     const oldDossiers = await prisma.dossier.findMany({
       where: {
         tenantId,
@@ -262,49 +262,57 @@ export class SuggestionService {
     });
 
     oldDossiers.forEach((dossier: { id: string; numero: string; createdAt: Date }) => {
+      const daysOld = Math.floor(
+        (Date.now() - dossier.createdAt.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       suggestions.push({
         id: `anomaly-old-${dossier.id}`,
-        title: `Dossier anormalement long: ${dossier.numero}`,
-        description: `Dossier ouvert depuis ${Math.floor((Date.now() - dossier.createdAt.getTime()) / (1000 * 60 * 60 * 24))} jours`,
-        actionType: 'GENERATE_DRAFT' as AIActionType,
+        title: `‚ö†Ô∏è Dossier anormalement ancien: ${dossier.numero}`,
+        description: `Dossier en cours depuis ${daysOld} jours sans cl√¥ture`,
+        actionType: 'DETECT_ALERT' as AIActionType,
         priority: 'HIGH',
-        reasoning: 'DÈlai anormalement long. VÈrification recommandÈe.',
+        reasoning: 'Dur√©e de traitement inhabituelle. V√©rification recommand√©e.',
         suggestedAction: {
-          type: 'REVIEW_DOSSIER',
-          data: { dossierId: dossier.id }
+          type: 'REVIEW_CASE_STATUS',
+          data: { dossierId: dossier.id, daysOld }
         },
-        confidence: 0.85,
+        confidence: 0.91,
         estimatedTimeMinutes: 10
       });
     });
 
-    // 2. Factures impayÈes depuis longtemps
-    const overdueInvoices = await prisma.facture.findMany({
+    // 2. Factures impay√©es depuis longtemps
+    const oldInvoices = await prisma.facture.findMany({
       where: {
         tenantId,
-        statut: 'EN_ATTENTE',
-        dateEcheance: { lt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) } // 60 jours
+        statut: 'IMPAYEE',
+        dateEmission: { lt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) } // 60 jours
       },
       take: 3
     });
 
-    overdueInvoices.forEach((facture: { id: string; numero: string; dateEcheance: Date | null }) => {
-      const daysPastDue = facture.dateEcheance 
-        ? Math.floor((Date.now() - facture.dateEcheance.getTime()) / (1000 * 60 * 60 * 24))
-        : 0;
+    oldInvoices.forEach((facture: { id: string; numero: string; montant: number; dateEmission: Date }) => {
+      const daysOverdue = Math.floor(
+        (Date.now() - facture.dateEmission.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
       suggestions.push({
         id: `anomaly-invoice-${facture.id}`,
-        title: `Facture impayÈe: ${facture.numero}`,
-        description: `Facture en retard de ${daysPastDue} jours`,
+        title: `üí∞ Facture impay√©e: ${facture.numero}`,
+        description: `Facture de ${facture.montant}‚Ç¨ impay√©e depuis ${daysOverdue} jours`,
         actionType: 'GENERATE_DRAFT' as AIActionType,
         priority: 'CRITICAL',
-        reasoning: 'Facture en retard significatif. Action urgente requise.',
+        reasoning: 'Retard de paiement significatif. Action de recouvrement n√©cessaire.',
         suggestedAction: {
           type: 'SEND_PAYMENT_REMINDER',
-          data: { factureId: facture.id }
+          data: { 
+            factureId: facture.id, 
+            amount: facture.montant,
+            daysOverdue 
+          }
         },
-        confidence: 0.92,
+        confidence: 0.94,
         estimatedTimeMinutes: 5
       });
     });
@@ -313,52 +321,41 @@ export class SuggestionService {
   }
 
   /**
-   * Marquer une suggestion comme appliquÈe
+   * Accepter une suggestion et cr√©er l'action correspondante
    */
-  async markSuggestionApplied(suggestionId: string, tenantId: string): Promise<void> {
-    // Log l'application de la suggestion pour l'apprentissage
-    await prisma.aIAction.create({
-      data: {
-        tenantId,
-        actionType: 'SUGGESTION_APPLIED',
-        autonomyLevel: 'GREEN',
-        confidence: 1.0,
-        requiresValidation: false,
-        validationLevel: 'NONE',
-        content: JSON.stringify({ applied: true }),
-        rationale: 'Suggestion acceptÈe par utilisateur',
-        metadata: JSON.stringify({ suggestionId })
-      }
-    });
-  }
+  async acceptSuggestion(
+    tenantId: string,
+    suggestionId: string,
+    userId: string
+  ): Promise<{ success: boolean; actionId?: string; error?: string }> {
+    try {
+      // Dans une vraie impl√©mentation, on ex√©cuterait l'action sugg√©r√©e
+      // Pour l'instant, on log juste l'acceptation
+      const metadataStr = JSON.stringify({
+        suggestionId,
+        acceptedAt: new Date()
+      });
+      
+      await prisma.auditLog.create({
+        data: {
+          tenantId,
+          userId,
+          action: 'ACCEPT_SUGGESTION',
+          objectType: 'Suggestion',
+          objectId: suggestionId,
+          metadata: metadataStr,
+          hash: require('crypto').createHash('sha256').update(metadataStr + suggestionId + Date.now()).digest('hex'),
+          success: true
+        }
+      });
 
-  /**
-   * Obtenir les statistiques des suggestions
-   */
-  async getSuggestionStats(tenantId: string): Promise<{
-    totalGenerated: number;
-    totalApplied: number;
-    averageConfidence: number;
-    topActionTypes: Array<{ type: string; count: number }>;
-  }> {
-    const appliedSuggestions = await prisma.aIAction.count({
-      where: {
-        tenantId,
-        actionType: 'SUGGESTION_APPLIED'
-      }
-    });
-
-    // Simuler les stats pour l'exemple
-    return {
-      totalGenerated: 42,
-      totalApplied: appliedSuggestions,
-      averageConfidence: 0.84,
-      topActionTypes: [
-        { type: 'GENERATE_DRAFT', count: 15 },
-        { type: 'EMAIL_TRIAGE', count: 12 },
-        { type: 'GENERATE_FORM', count: 8 }
-      ]
-    };
+      return { success: true, actionId: suggestionId };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Erreur inconnue' 
+      };
+    }
   }
 }
 
@@ -368,7 +365,6 @@ let suggestionServiceInstance: SuggestionService | null = null;
 export function getSuggestionService(): SuggestionService {
   if (!suggestionServiceInstance) {
     suggestionServiceInstance = new SuggestionService();
-  }  return suggestionServiceInstance;
+  }
+  return suggestionServiceInstance;
 }
-
-

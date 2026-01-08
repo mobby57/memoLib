@@ -11,6 +11,12 @@ export const authOptions: NextAuthOptions = {
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          // Scopes pour agir au nom de l'utilisateur
+          scope: 'read:user user:email repo write:org',
+        },
+      },
     }),
     CredentialsProvider({
       name: 'Credentials',
@@ -117,6 +123,14 @@ export const authOptions: NextAuthOptions = {
         token.clientId = (user as any).clientId;
         token.provider = account?.provider;
       }
+      
+      // Sauvegarder le token GitHub pour user-to-server auth
+      if (account?.provider === 'github') {
+        token.githubAccessToken = account.access_token;
+        token.githubRefreshToken = account.refresh_token;
+        token.githubTokenExpiry = account.expires_at;
+      }
+      
       return token;
     },
     async session({ session, token }) {
@@ -128,6 +142,11 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).tenantPlan = token.tenantPlan;
         (session.user as any).clientId = token.clientId;
         (session.user as any).provider = token.provider;
+        
+        // Tokens GitHub pour user-to-server auth
+        (session as any).githubAccessToken = token.githubAccessToken;
+        (session as any).githubRefreshToken = token.githubRefreshToken;
+        (session as any).githubTokenExpiry = token.githubTokenExpiry;
         
         (session.user as any).permissions = {
           canManageTenants: token.role === 'SUPER_ADMIN',
