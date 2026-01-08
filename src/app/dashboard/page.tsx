@@ -204,6 +204,14 @@ export default function DashboardPage() {
       color: 'bg-indigo-500 hover:bg-indigo-600' 
     });
     
+    // Nouveau: Fonctionnalités IA Avancées
+    actions.push({ 
+      label: '🚀 IA Avancée', 
+      href: '/lawyer/advanced', 
+      icon: Shield, 
+      color: 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg' 
+    });
+    
     return actions;
   };
 

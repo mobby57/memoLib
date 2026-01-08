@@ -84,17 +84,17 @@ export default function AdminDashboard() {
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Dossiers Actifs</CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalDossiers}</div>
-          </CardContent>
-        </Card>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalDossiers}</div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dossiers Urgents</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-500" />
-          </CardHeader>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Dossiers Urgents</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-red-500" />
+              </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{stats.dossiersUrgents}</div>
           </CardContent>
@@ -119,6 +119,7 @@ export default function AdminDashboard() {
             <div className="text-2xl font-bold">{stats.facturesEnAttente}</div>
           </CardContent>
         </Card>
+      </div>
       </div>
 
       {/* Dossiers urgents */}
@@ -162,6 +163,7 @@ export default function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }
