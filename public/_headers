@@ -1,0 +1,31 @@
+# Cloudflare Pages Headers Configuration
+# Fonctionne nativement sur Cloudflare (contrairement a Vercel)
+
+/*
+  # Security Headers - OWASP 2026 Best Practices
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()
+  
+  # Content Security Policy (adapte pour Cloudflare)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://*.cloudflare.com wss://*.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;
+  
+  # Additional Security
+  X-XSS-Protection: 1; mode=block
+  Cross-Origin-Embedder-Policy: credentialless
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  X-Permitted-Cross-Domain-Policies: none
+  X-Download-Options: noopen
+  
+  # Cache Control
+  Cache-Control: no-store, max-age=0
+
+# Static Assets - Cache agressif
+/static/*
+  Cache-Control: public, max-age=31536000, immutable
+  
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
