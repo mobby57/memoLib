@@ -27,6 +27,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          DATABASE_URL: "file:./dev.db"
           NEXTAUTH_URL: https://iapostemanager.pages.dev
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
       
@@ -35,4 +36,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .next --project-name=iapostemanager
+          command: pages deploy out --project-name=iapostemanager
