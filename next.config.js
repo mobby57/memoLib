@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-});
+// Bundle analyzer désactivé pour build Cloudflare
+// const withBundleAnalyzer = require('@next/bundle-analyzer')({
+//   enabled: process.env.ANALYZE === 'true',
+// });
 
 const nextConfig = {
   reactStrictMode: true,
@@ -135,4 +136,6 @@ const nextConfig = {
   },
 }
 
-module.exports = withBundleAnalyzer(nextConfig)
+// Bundle analyzer wrapper désactivé pour Cloudflare
+module.exports = nextConfig;
+// module.exports = withBundleAnalyzer(nextConfig);
