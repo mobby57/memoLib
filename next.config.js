@@ -7,8 +7,8 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Standalone output for optimal deployment
-  output: 'standalone',
+  // Export statique pour Cloudflare Pages
+  output: 'export',
   
   // Ignore TypeScript errors for build
   typescript: {
