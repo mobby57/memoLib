@@ -1,34 +1,133 @@
-# Cloudflare Pages Configuration
-# Pour IA Poste Manager
+# ============================================
+# CLOUDFLARE PAGES - CONFIGURATION AVANCÉE
+# IA Poste Manager - Production Ready
+# ============================================
 
 name = "iaposte-manager"
 compatibility_date = "2025-01-07"
 pages_build_output_dir = "out"
 
-# Node.js compatibility (v4 syntax)
-compatibility_flags = ["nodejs_compat"]
+# ============================================
+# COMPATIBILITY FLAGS
+# ============================================
+compatibility_flags = [
+  "nodejs_compat",           # Node.js API compatibility
+  "streams_enable_constructors", # Streams API
+]
 
-# D1 Database binding
+# ============================================
+# D1 DATABASE (SQLite Edge)
+# ============================================
 [[d1_databases]]
-binding = "iaposte_production_db"
+binding = "DB"
 database_name = "iaposte-production-db"
 database_id = "a86c51c6-2031-4ae6-941c-db4fc917826c"
 
-# Environment variables
-[vars]
-NODE_ENV = "production"
-NEXT_TELEMETRY_DISABLED = "1"
-
-# KV Namespaces (optionnel - décommenter si besoin)
+# ============================================
+# KV NAMESPACES (Cache & Sessions)
+# ============================================
+# Créer via: wrangler kv:namespace create CACHE
 # [[kv_namespaces]]
 # binding = "CACHE"
 # id = "your-kv-namespace-id"
 
-# R2 Buckets (optionnel - décommenter si besoin)
+# Sessions KV (pour NextAuth)
+# [[kv_namespaces]]
+# binding = "SESSIONS"
+# id = "your-sessions-kv-id"
+
+# ============================================
+# R2 BUCKETS (Object Storage)
+# ============================================
+# Créer via: wrangler r2 bucket create iaposte-documents
 # [[r2_buckets]]
 # binding = "DOCUMENTS"
 # bucket_name = "iaposte-documents"
 
-# Workers AI (optionnel - décommenter avec token valide)
+# Bucket pour backups
+# [[r2_buckets]]
+# binding = "BACKUPS"
+# bucket_name = "iaposte-backups"
+
+# ============================================
+# DURABLE OBJECTS (WebSocket/Real-time)
+# ============================================
+# [[durable_objects.bindings]]
+# name = "WEBSOCKET"
+# class_name = "WebSocketDurableObject"
+# script_name = "websocket-worker"
+
+# ============================================
+# WORKERS AI (LLM à la Edge)
+# ============================================
+# Activer via: wrangler ai enable
 # [ai]
 # binding = "AI"
+
+# ============================================
+# ENVIRONMENT VARIABLES
+# ============================================
+[vars]
+NODE_ENV = "production"
+NEXT_TELEMETRY_DISABLED = "1"
+APP_VERSION = "2.0.0"
+APP_NAME = "IA Poste Manager"
+
+# ============================================
+# ANALYTICS ENGINE
+# ============================================
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+
+# ============================================
+# RATE LIMITING (via KV)
+# ============================================
+# [[kv_namespaces]]
+# binding = "RATE_LIMITER"
+# id = "your-rate-limiter-kv-id"
+
+# ============================================
+# SECRETS (À configurer via Dashboard)
+# ============================================
+# wrangler secret put NEXTAUTH_SECRET
+# wrangler secret put DATABASE_URL (si external DB)
+# wrangler secret put OPENAI_API_KEY (si external AI)
+# wrangler secret put STRIPE_SECRET_KEY (si paiements)
+
+# ============================================
+# BUILD CONFIGURATION
+# ============================================
+[build]
+command = "npm run build"
+cwd = "."
+
+[build.upload]
+format = "modules"
+
+# ============================================
+# OBSERVABILITY
+# ============================================
+# [observability]
+# enabled = true
+# head_sampling_rate = 1.0
+
+# ============================================
+# LIMITS & QUOTAS
+# ============================================
+# [limits]
+# cpu_ms = 50  # Max CPU time per request (ms)
+
+# ============================================
+# CUSTOM DOMAINS
+# ============================================
+# Configurer via Dashboard: Pages > Custom domains
+# Exemples:
+# - iaposte-manager.com
+# - app.iaposte-manager.com
+# - cabinet.iaposte-manager.com
+
+# ============================================
+# PREVIEW DEPLOYMENTS
+# ============================================
+# Chaque branche GitHub = preview deployment automatique
+# URL: https://<branch>.<project>.pages.dev
