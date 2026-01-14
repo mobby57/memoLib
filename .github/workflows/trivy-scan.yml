@@ -57,6 +57,7 @@ jobs:
   scan-docker:
     name: Scan Docker Image
     runs-on: ubuntu-latest
+    if: false  # Désactivé pour Cloudflare (pas de Docker)
     permissions:
       contents: read
       security-events: write
@@ -142,7 +143,7 @@ jobs:
   summary:
     name: Security Summary
     runs-on: ubuntu-latest
-    needs: [scan-dependencies, scan-docker, scan-config, scan-secrets]
+    needs: [scan-dependencies, scan-config, scan-secrets]
     if: always()
     
     steps:
