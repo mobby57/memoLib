@@ -18,17 +18,26 @@ const rateLimitStore = new Map<string, RateLimitEntry>()
 const WINDOW_MS = 60 * 1000 // 1 minute
 const MAX_REQUESTS = 100
 
-// Nettoyage automatique toutes les 5 minutes
-setInterval(() => {
-  const now = Date.now()
-  for (const [ip, entry] of rateLimitStore.entries()) {
-    if (now > entry.resetTime) {
-      rateLimitStore.delete(ip)
-    }
+// Nettoyage automatique (uniquement en runtime)
+let cleanupInterval: NodeJS.Timeout | null = null
+
+function initCleanup() {
+  if (typeof window === 'undefined' && !cleanupInterval) {
+    cleanupInterval = setInterval(() => {
+      const now = Date.now()
+      for (const [ip, entry] of rateLimitStore.entries()) {
+        if (now > entry.resetTime) {
+          rateLimitStore.delete(ip)
+        }
+      }
+    }, 5 * 60 * 1000)
   }
-}, 5 * 60 * 1000)
+}
 
 export function middleware(request: NextRequest) {
+  // Initialiser le nettoyage si nécessaire
+  initCleanup()
+  
   // Exemption pour les assets statiques
   if (
     request.nextUrl.pathname.startsWith('/_next') ||
