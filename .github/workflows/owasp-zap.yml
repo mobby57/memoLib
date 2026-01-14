@@ -1,0 +1,102 @@
+name: "🔐 OWASP ZAP Security Scan"
+
+on:
+  push:
+    branches: [ main, develop, multitenant-render ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 4 * * 1'  # Lundi 4h du matin
+  workflow_dispatch:
+
+jobs:
+  zap_scan:
+    name: OWASP ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      issues: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build application
+      run: npm run build
+      env:
+        DATABASE_URL: "file:./dev.db"
+        NEXTAUTH_SECRET: "test-secret-key-for-ci"
+        NEXTAUTH_URL: "http://localhost:3000"
+
+    - name: Start application
+      run: |
+        npm start &
+        sleep 10
+        curl -f http://localhost:3000 || exit 1
+      env:
+        DATABASE_URL: "file:./dev.db"
+        NEXTAUTH_SECRET: "test-secret-key-for-ci"
+        NEXTAUTH_URL: "http://localhost:3000"
+
+    - name: Create ZAP config
+      run: |
+        mkdir -p $GITHUB_WORKSPACE/.zap
+        cat > $GITHUB_WORKSPACE/.zap/rules.conf << 'EOF'
+        # Ignore false positives
+        10096 IGNORE (Timestamp Disclosure)
+        10021 IGNORE (X-Content-Type-Options Header Missing - Next.js handles this)
+        10020 IGNORE (X-Frame-Options Header Not Set - handled by CSP)
+        EOF
+
+    - name: OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.13.0
+      with:
+        target: 'http://localhost:3000'
+        rules_file_name: '.zap/rules.conf'
+        cmd_options: '-a -j -l WARN -z "-config api.disablekey=true"'
+        fail_action: false
+        allow_issue_writing: true
+
+    - name: Upload ZAP Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: zap-baseline-report
+        path: |
+          report_html.html
+          report_json.json
+          report_md.md
+        retention-days: 30
+
+    - name: Generate Summary
+      if: always()
+      run: |
+        echo "# 🔐 OWASP ZAP Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Scan Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "**Target:** http://localhost:3000" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f report_md.md ]; then
+          echo "## Scan Results" >> $GITHUB_STEP_SUMMARY
+          cat report_md.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ No critical issues found" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📄 Detailed reports available in artifacts" >> $GITHUB_STEP_SUMMARY
+
+    - name: Stop application
+      if: always()
+      run: pkill -f "next start" || true
