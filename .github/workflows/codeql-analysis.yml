@@ -19,11 +19,6 @@ jobs:
       security-events: write
       pull-requests: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'javascript', 'typescript' ]
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -31,7 +26,7 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
-        languages: ${{ matrix.language }}
+        languages: javascript-typescript
         config-file: ./.github/codeql/codeql-config.yml
         queries: security-and-quality
 
@@ -53,7 +48,7 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
-        category: "/language:${{matrix.language}}"
+        category: "/language:javascript-typescript"
         upload: true
 
     - name: Comment PR with results
@@ -61,22 +56,15 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          const fs = require('fs');
-          const results = {
-            language: '${{ matrix.language }}',
-            status: 'completed',
-            timestamp: new Date().toISOString()
-          };
-          
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
             body: `## 🔍 CodeQL Analysis Complete
             
-**Language:** ${results.language}
+**Language:** JavaScript/TypeScript
 **Status:** ✅ Analysis completed
-**Time:** ${results.timestamp}
+**Time:** ${new Date().toISOString()}
 
 Results have been uploaded to the Security tab.`
           });
