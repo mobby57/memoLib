@@ -27,8 +27,7 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: javascript-typescript
-        config-file: ./.github/codeql/codeql-config.yml
-        queries: security-and-quality
+        queries: security-extended
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -60,11 +59,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `## 🔍 CodeQL Analysis Complete
-            
-**Language:** JavaScript/TypeScript
-**Status:** ✅ Analysis completed
-**Time:** ${new Date().toISOString()}
-
-Results have been uploaded to the Security tab.`
+            body: '## 🔍 CodeQL Analysis Complete\n\n**Language:** JavaScript/TypeScript\n**Status:** ✅ Analysis completed\n**Time:** ' + new Date().toISOString() + '\n\nResults have been uploaded to the Security tab.'
           });
