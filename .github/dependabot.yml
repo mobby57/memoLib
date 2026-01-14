@@ -1,0 +1,23 @@
+# Dependabot configuration for automated security updates
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "moros"
+    assignees:
+      - "moros"
+    commit-message:
+      prefix: "security"
+      include: "scope"
+    # Auto-merge minor and patch updates for dev dependencies
+    allow:
+      - dependency-type: "development"
+        update-type: "version-update:semver-patch"
+      - dependency-type: "development"  
+        update-type: "version-update:semver-minor"

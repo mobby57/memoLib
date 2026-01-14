@@ -1,0 +1,163 @@
+name: Docker Security Scan & Fix
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'Dockerfile'
+      - 'package*.json'
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * 1' # Lundi 2h du matin
+
+jobs:
+  scan-and-fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      security-events: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Build Docker Image
+        run: |
+          docker build -t iapostemanage:${{ github.sha }} .
+          docker tag iapostemanage:${{ github.sha }} iapostemanage:latest
+
+      - name: Run Trivy Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: iapostemanage:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Trivy JSON Report
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: iapostemanage:${{ github.sha }}
+          format: 'json'
+          output: 'trivy-report.json'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Audit npm Dependencies
+        run: |
+          npm audit --json > npm-audit.json || true
+          npm audit fix --force || true
+
+      - name: Check for Outdated Packages
+        run: |
+          npm outdated --json > outdated.json || true
+
+      - name: Auto-fix Dependencies
+        id: autofix
+        run: |
+          # Mettre à jour les dépendances avec vulnérabilités
+          npm audit fix --force
+          
+          # Mettre à jour les packages critiques
+          npm update --save
+          
+          # Vérifier si des changements ont été faits
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Fix PR
+        if: steps.autofix.outputs.changes == 'true' && github.event_name == 'schedule'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'fix(deps): auto-fix security vulnerabilities'
+          title: '🔒 Security: Auto-fix dependencies vulnerabilities'
+          body: |
+            ## 🔒 Automated Security Fix
+            
+            This PR automatically fixes security vulnerabilities found in dependencies.
+            
+            ### Changes
+            - Updated vulnerable packages
+            - Applied `npm audit fix`
+            - Updated outdated dependencies
+            
+            ### Scan Results
+            - Trivy scan completed
+            - npm audit completed
+            
+            Please review the changes before merging.
+          branch: security/auto-fix-${{ github.run_number }}
+          labels: security, dependencies, automated
+
+      - name: Comment PR with Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const triviaReport = JSON.parse(fs.readFileSync('trivy-report.json', 'utf8'));
+            const npmAudit = JSON.parse(fs.readFileSync('npm-audit.json', 'utf8'));
+            
+            const vulnCount = triviaReport.Results?.[0]?.Vulnerabilities?.length || 0;
+            const npmVulnCount = npmAudit.metadata?.vulnerabilities?.total || 0;
+            
+            const comment = `## 🔒 Security Scan Results
+            
+            ### Docker Image (Trivy)
+            - **Vulnerabilities Found:** ${vulnCount}
+            - **Critical:** ${triviaReport.Results?.[0]?.Vulnerabilities?.filter(v => v.Severity === 'CRITICAL').length || 0}
+            - **High:** ${triviaReport.Results?.[0]?.Vulnerabilities?.filter(v => v.Severity === 'HIGH').length || 0}
+            
+            ### npm Dependencies
+            - **Total Vulnerabilities:** ${npmVulnCount}
+            - **Critical:** ${npmAudit.metadata?.vulnerabilities?.critical || 0}
+            - **High:** ${npmAudit.metadata?.vulnerabilities?.high || 0}
+            - **Medium:** ${npmAudit.metadata?.vulnerabilities?.medium || 0}
+            
+            ${vulnCount > 0 || npmVulnCount > 0 ? '⚠️ **Action Required:** Please review and fix vulnerabilities before merging.' : '✅ **No vulnerabilities found!**'}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Fail on Critical Vulnerabilities
+        run: |
+          CRITICAL=$(jq '.Results[0].Vulnerabilities | map(select(.Severity == "CRITICAL")) | length' trivy-report.json)
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "❌ Found $CRITICAL critical vulnerabilities!"
+            exit 1
+          fi
+          echo "✅ No critical vulnerabilities found"
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            trivy-results.sarif
+            trivy-report.json
+            npm-audit.json
+            outdated.json
+          retention-days: 30
