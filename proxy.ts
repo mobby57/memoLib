@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 /**
- * Rate Limiting Middleware
- * Limite : 100 requêtes/minute par IP
- * Protection DDoS et brute force
+ * Proxy Handler (Next.js 16+ Convention)
+ * Remplace l'ancien middleware.ts
+ * 
+ * Fonctionnalités:
+ * - Rate Limiting (100 req/min par IP)
+ * - Headers de sécurité
+ * - Protection DDoS et brute force
  */
 
 interface RateLimitEntry {
@@ -34,7 +38,7 @@ function initCleanup() {
   }
 }
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   // Initialiser le nettoyage si nécessaire
   initCleanup()
   
@@ -116,7 +120,7 @@ export function middleware(request: NextRequest) {
   return response
 }
 
-// Appliquer sur toutes les routes API
+// Configuration du proxy - appliqué sur toutes les routes API
 export const config = {
   matcher: [
     '/api/:path*',
