@@ -95,14 +95,10 @@ APP_NAME = "IA Poste Manager"
 # wrangler secret put STRIPE_SECRET_KEY (si paiements)
 
 # ============================================
-# BUILD CONFIGURATION
+# BUILD CONFIGURATION (GitHub Actions only)
 # ============================================
-[build]
-command = "npm run build"
-cwd = "."
-
-[build.upload]
-format = "modules"
+# [build] section not supported for Pages CLI deployment
+# Build via: npm run build (local) or GitHub Actions
 
 # ============================================
 # OBSERVABILITY
