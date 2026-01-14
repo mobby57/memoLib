@@ -6,13 +6,10 @@ RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
-# Copier les fichiers de configuration
-COPY package*.json ./
-COPY prisma ./prisma/
-
 # Stage 1: Installer les dépendances
 FROM base AS deps
-RUN npm ci --only=production && \
+COPY package*.json ./
+RUN npm ci --legacy-peer-deps && \
     npm cache clean --force
 
 # Stage 2: Builder
@@ -28,7 +25,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Stage 3: Runner (production)
-FROM node:20-alpine AS runner
+FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -38,12 +35,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copier les fichiers nécessaires
+# Copier les fichiers nécessaires depuis le builder
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/prisma ./prisma
 
 USER nextjs
 
