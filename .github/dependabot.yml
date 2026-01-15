@@ -1,23 +1,48 @@
-# Dependabot configuration for automated security updates
 version: 2
 updates:
-  # Enable version updates for npm
+  # NPM dependencies
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
+      time: "09:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "mobby57"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    versioning-strategy: increase
+    allow:
+      - dependency-type: "all"
+    ignore:
+      # Ignore major version updates for stable packages
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Paris"
     open-pull-requests-limit: 5
     reviewers:
-      - "moros"
-    assignees:
-      - "moros"
+      - "mobby57"
+    labels:
+      - "github-actions"
+      - "dependencies"
     commit-message:
-      prefix: "security"
+      prefix: "chore(ci)"
       include: "scope"
-    # Auto-merge minor and patch updates for dev dependencies
-    allow:
-      - dependency-type: "development"
-        update-type: "version-update:semver-patch"
-      - dependency-type: "development"  
-        update-type: "version-update:semver-minor"
