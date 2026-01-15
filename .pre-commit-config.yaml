@@ -1,9 +1,0 @@
-# Simplified pre-commit config for deployment
-repos:
-  - repo: local
-    hooks:
-      - id: basic-checks
-        name: Basic file checks
-        entry: python -c "print('Pre-commit check passed')"
-        language: system
-        pass_filenames: false

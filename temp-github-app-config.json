@@ -1,0 +1,25 @@
+{
+  "name": "IA Poste Manager",
+  "description": "Assistant juridique digital CESEDA - Gestion sécurisée multi-tenant",
+  "url": "https://your-domain.com",
+  "callback_urls": [
+    "https://your-domain.com/api/auth/callback/github"
+  ],
+  "webhook_url": "https://your-domain.com/api/webhooks/github",
+  "webhook_secret": "whsec_6be5a4e647cb4d59552674bc3ccec3245334a501f9775654687d953367273876",
+  "public": true,
+  "default_permissions": {
+    "contents": "write",
+    "issues": "write",
+    "metadata": "read",
+    "pull_requests": "write"
+  },
+  "default_events": [
+    "issues",
+    "issue_comment",
+    "pull_request",
+    "pull_request_review",
+    "push",
+    "repository"
+  ]
+}

@@ -1,9 +1,0 @@
-{
-  "build": {
-    "builder": "DOCKERFILE"
-  },
-  "deploy": {
-    "startCommand": "python src/backend/app.py",
-    "healthcheckPath": "/api/health"
-  }
-}

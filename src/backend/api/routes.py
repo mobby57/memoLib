@@ -5,12 +5,13 @@ Endpoints JSON pour architecture séparée Frontend/Backend.
 Coexiste avec les routes Flask HTML existantes.
 """
 
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 from datetime import timedelta, datetime
 import os
 
-api_bp = Blueprint('api', __name__, url_prefix='/api/v1')
+# Le Blueprint est créé dans __init__.py pour éviter circular import
+from . import api_bp
 
 
 # ==================== AUTH ENDPOINTS ====================
