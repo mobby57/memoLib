@@ -1,0 +1,238 @@
+/**
+ * Email Analyzer - IA Locale
+ * Analyse avancée des emails avec Ollama pour extraction d'informations juridiques CESEDA
+ */
+
+import { ollama } from './ollama-client';
+import { detectProcedureCESEDA, PROCEDURES_CESEDA, type DocumentType } from './ceseda-reference';
+
+export interface EmailAnalysis {
+  // Informations client
+  clientInfo: {
+    nom?: string;
+    prenom?: string;
+    email: string;
+    telephone?: string;
+    nationalite?: string;
+    dateNaissance?: string;
+  };
+  
+  // Demande juridique
+  demande: {
+    type: string; // "Titre de séjour", "Visa", "Naturalisation", etc.
+    categorie?: string; // "Salarié", "Vie privée et familiale", etc.
+    objet: string; // Description courte
+    urgence: 'urgent' | 'normal' | 'faible';
+    delai?: string; // Date limite si mentionnée
+  };
+  
+  // Documents
+  documents: {
+    mentionnes: string[]; // Documents mentionnés dans l'email
+    manquants: string[]; // Documents probablement nécessaires
+    obligatoires: DocumentType[]; // Documents obligatoires pour cette procédure
+    optionnels: DocumentType[]; // Documents optionnels recommandés
+  };
+  
+  // Analyse juridique
+  analyse: {
+    situationJuridique: string;
+    risques: string[];
+    opportunites: string[];
+    recoursInformations?: string;
+    actionsRecommandees: string[];
+  };
+  
+  // Métadonnées
+  confidence: number; // 0-100
+  extractedAt: string;
+}
+
+const CESEDA_SYSTEM_PROMPT = `Tu es un assistant juridique expert en droit des étrangers (CESEDA - Code de l'entrée et du séjour des étrangers et du droit d'asile).
+
+Tu analyses les emails de demandes de clients pour extraire des informations structurées.
+
+Types de demandes CESEDA:
+- Titre de séjour (salarié, vie privée et familiale, étudiant, etc.)
+- Visa (court séjour, long séjour)
+- Naturalisation
+- Regroupement familial
+- Demande d'asile
+- OQTF (Obligation de Quitter le Territoire Français)
+- Recours administratifs et judiciaires
+
+Réponds UNIQUEMENT en JSON valide, sans texte supplémentaire.`;
+
+export class EmailAnalyzer {
+  /**
+   * Analyser un email avec IA locale
+   */
+  async analyzeEmail(emailData: {
+    from: string;
+    subject: string;
+    body: string;
+    date: string;
+  }): Promise<EmailAnalysis> {
+    // Vérifier disponibilité Ollama
+    const available = await ollama.isAvailable();
+    if (!available) {
+      throw new Error('Ollama n\'est pas disponible. Lancez: ollama serve');
+    }
+
+    const prompt = `Analyse cet email d'un client qui demande une assistance juridique CESEDA:
+
+FROM: ${emailData.from}
+SUBJECT: ${emailData.subject}
+DATE: ${emailData.date}
+BODY:
+${emailData.body}
+
+Extrais les informations suivantes au format JSON. IMPORTANT: Les tableaux doivent contenir UNIQUEMENT des strings, pas d'objets.
+
+{
+  "clientInfo": {
+    "nom": "nom du client (si mentionné)",
+    "prenom": "prénom du client (si mentionné)",
+    "email": "email extrait",
+    "telephone": "téléphone (si mentionné)",
+    "nationalite": "nationalité (si mentionnée)",
+    "dateNaissance": "date de naissance (format ISO si mentionnée)"
+  },
+  "demande": {
+    "type": "Type principal (ex: Titre de séjour, Visa, Naturalisation, OQTF, Asile)",
+    "categorie": "Catégorie spécifique (ex: Salarié, Vie privée et familiale, Étudiant)",
+    "objet": "Description courte de la demande en 1-2 phrases",
+    "urgence": "urgent",
+    "delai": "2026-02-07T00:00:00.000Z"
+  },
+  "documents": {
+    "mentionnes": ["Contrat de travail CDI", "Bulletins de salaire"],
+    "manquants": ["Carte d identite", "Justificatif de domicile"]
+  },
+  "analyse": {
+    "situationJuridique": "Résumé de la situation juridique en 2-3 phrases",
+    "risques": ["Risque 1 en une phrase", "Risque 2 en une phrase"],
+    "opportunites": ["Opportunité 1", "Opportunité 2"],
+    "recoursInformations": "Si OQTF ou refus: informations sur les recours possibles",
+    "actionsRecommandees": ["Action 1 courte", "Action 2 courte", "Action 3 courte"]
+  },
+  "confidence": 85
+}
+
+CRITIQUE: actionsRecommandees doit être un tableau de STRINGS simples, PAS d'objets avec "action" et "priorité".
+Réponds UNIQUEMENT avec le JSON, sans markdown, sans backticks, sans texte additionnel.`;
+
+    try {
+      const result = await ollama.generateJSON<EmailAnalysis>(
+        prompt,
+        CESEDA_SYSTEM_PROMPT
+      );
+
+      // Ajouter métadonnées
+      result.extractedAt = new Date().toISOString();
+      
+      // Garantir l'email
+      if (!result.clientInfo.email) {
+        result.clientInfo.email = emailData.from;
+      }
+      
+      // Enrichir avec les documents CESEDA
+      const procedure = detectProcedureCESEDA(emailData.subject, emailData.body);
+      if (procedure) {
+        result.documents.obligatoires = procedure.documentsNecessaires.filter(d => d.obligatoire);
+        result.documents.optionnels = procedure.documentsNecessaires.filter(d => !d.obligatoire);
+        
+        // Compléter l'analyse avec les infos de la procédure
+        if (!result.analyse.risques || result.analyse.risques.length === 0) {
+          result.analyse.risques = procedure.risquesJuridiques;
+        }
+        if (!result.analyse.recoursInformations) {
+          result.analyse.recoursInformations = procedure.recoursDisponibles.join('; ');
+        }
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Erreur analyse IA:', error);
+      
+      // Fallback: analyse basique sans IA
+      // Détection procédure CESEDA
+      const procedure = detectProcedureCESEDA(emailData.subject, emailData.body);
+      
+      const bodyLower = emailData.body.toLowerCase();
+      let type = procedure?.type || 'Demande générale';
+      let urgence = procedure?.urgence || 'normal';
+      let categorie = procedure?.categorie;
+
+      // Détection urgence supplémentaire
+      if (bodyLower.includes('urgent') || bodyLower.includes('délai') || bodyLower.includes('deadline')) {
+        urgence = 'urgent';
+      }
+
+      const analysis: EmailAnalysis = {
+        clientInfo: {
+          email: emailData.from,
+        },
+        demande: {
+          type,
+          categorie,
+          objet: emailData.subject,
+          urgence,
+        },
+        documents: {
+          mentionnes: [],
+          manquants: [],
+          obligatoires: procedure?.documentsNecessaires.filter(d => d.obligatoire) || [],
+          optionnels: procedure?.documentsNecessaires.filter(d => !d.obligatoire) || [],
+        },
+        analyse: {
+          situationJuridique: procedure?.description || 'Analyse IA non disponible. Analyse manuelle nécessaire.',
+          risques: procedure?.risquesJuridiques || [],
+          opportunites: [],
+          recoursInformations: procedure?.recoursDisponibles.join('; '),
+          actionsRecommandees: procedure 
+            ? ['Rassembler les documents obligatoires', 'Vérifier les délais', 'Consulter un avocat']
+            : ['Révision manuelle du dossier'],
+        },
+        confidence: procedure ? 60 : 30,
+        extractedAt: new Date().toISOString(),
+      };
+
+      return analysis;
+    }
+  }
+
+  /**
+   * Générer une réponse automatique (brouillon)
+   */
+  async generateDraftResponse(
+    analysis: EmailAnalysis,
+    context?: string
+  ): Promise<string> {
+    const prompt = `En tant qu'avocat spécialisé en droit CESEDA, rédige un email de réponse professionnel pour ce client:
+
+DEMANDE DU CLIENT:
+Type: ${analysis.demande.type}
+Objet: ${analysis.demande.objet}
+Urgence: ${analysis.demande.urgence}
+
+ANALYSE:
+${analysis.analyse.situationJuridique}
+
+${context ? `CONTEXTE ADDITIONNEL:\n${context}\n` : ''}
+
+Rédige un email professionnel qui:
+1. Accuse réception de la demande
+2. Confirme la compréhension de la situation
+3. Liste les documents nécessaires
+4. Explique brièvement les prochaines étapes
+5. Propose un rendez-vous
+
+Ton professionnel, rassurant et clair. Maximum 300 mots.`;
+
+    return await ollama.generate(prompt, CESEDA_SYSTEM_PROMPT);
+  }
+}
+
+// Instance singleton
+export const emailAnalyzer = new EmailAnalyzer();

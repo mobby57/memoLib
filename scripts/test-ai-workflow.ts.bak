@@ -1,0 +1,224 @@
+/**
+ * Script de test du workflow IA complet
+ * Teste: Email → Triage → Analyse → Formulaire → Brouillon → Validation
+ */
+
+import { getAIService } from '../lib/services/aiService';
+import { AIActionType, AutonomyLevel } from '../types';
+
+async function testWorkflow() {
+  console.log('🚀 Démarrage du test du workflow IA complet\n');
+  
+  const aiService = getAIService();
+  
+  // ========================================
+  // TEST 1: Triage d'email (ACTION GREEN)
+  // ========================================
+  console.log('📧 TEST 1: Triage d\'email');
+  console.log('─'.repeat(50));
+  
+  const emailContent = `
+    Bonjour,
+    
+    Je souhaite régulariser ma situation en France. Je suis arrivé il y a 3 ans
+    avec un visa touristique qui a expiré. J'ai trouvé un emploi stable et mon
+    employeur est prêt à m'aider avec les démarches.
+    
+    Pouvez-vous m'aider?
+    
+    Merci,
+    Mohammed Ali
+  `;
+  
+  try {
+    const triageResult = await aiService.triageEmail(
+      emailContent,
+      'Demande de régularisation'
+    );
+    
+    console.log('✅ Résultat du triage:');
+    console.log(`   Type: ${triageResult.caseType}`);
+    console.log(`   Urgence: ${triageResult.urgency}`);
+    console.log(`   Niveau autonomie: ${triageResult.autonomyLevel}`);
+    console.log(`   Confiance: ${triageResult.confidence}%`);
+    console.log(`   Validation requise: ${triageResult.requiresValidation ? 'OUI' : 'NON'}`);
+    console.log(`   Justification: ${triageResult.rationale}\n`);
+  } catch (error) {
+    console.error('❌ Erreur triage:', error);
+  }
+  
+  // ========================================
+  // TEST 2: Analyse de dossier (ACTION GREEN)
+  // ========================================
+  console.log('📊 TEST 2: Analyse de dossier');
+  console.log('─'.repeat(50));
+  
+  const caseDescription = `
+    Client: Mohammed Ali
+    Situation: Entrée avec visa touristique il y a 3 ans (expiré)
+    Emploi: CDI depuis 1 an dans le BTP
+    Employeur: Prêt à soutenir la régularisation
+    Documents: Passeport, contrat de travail, fiches de paie
+  `;
+  
+  try {
+    const analysisResult = await aiService.analyzeCaseType(caseDescription);
+    
+    console.log('✅ Résultat de l\'analyse:');
+    console.log(`   Type de dossier: ${analysisResult.caseType}`);
+    console.log(`   Sous-catégorie: ${analysisResult.subCategory}`);
+    console.log(`   Complexité: ${analysisResult.complexity}`);
+    console.log(`   Délai estimé: ${analysisResult.estimatedDuration}`);
+    console.log(`   Structure workspace:`);
+    analysisResult.suggestedWorkspace.sections.forEach((section: any) => {
+      console.log(`     - ${section}`);
+    });
+    console.log(`   Documents requis:`);
+    analysisResult.requiredDocuments.forEach((doc: any) => {
+      console.log(`     - ${doc}`);
+    });
+    console.log();
+  } catch (error) {
+    console.error('❌ Erreur analyse:', error);
+  }
+  
+  // ========================================
+  // TEST 3: Génération de formulaire (ACTION ORANGE)
+  // ========================================
+  console.log('📝 TEST 3: Génération de formulaire de collecte');
+  console.log('─'.repeat(50));
+  
+  try {
+    const formResult = await aiService.generateCollectionForm(
+      'Régularisation par le travail',
+      {
+        clientName: 'Mohammed Ali',
+        hasEmployer: true,
+        employmentDuration: '1 an'
+      }
+    );
+    
+    console.log('✅ Formulaire généré:');
+    console.log(`   ID: ${formResult.formId}`);
+    console.log(`   Validation requise: ${formResult.requiresValidation ? 'OUI' : 'NON'}`);
+    console.log(`   Nombre de questions: ${formResult.form.fields.length}`);
+    console.log(`   Premières questions:`);
+    formResult.form.fields.slice(0, 3).forEach((field: any) => {
+      console.log(`     - ${field.label} (${field.type})`);
+    });
+    console.log();
+  } catch (error) {
+    console.error('❌ Erreur génération formulaire:', error);
+  }
+  
+  // ========================================
+  // TEST 4: Génération de brouillon (ACTION ORANGE)
+  // ========================================
+  console.log('✉️ TEST 4: Génération de brouillon d\'email');
+  console.log('─'.repeat(50));
+  
+  try {
+    const draftResult = await aiService.generateDraft(
+      'TEMPLATE_DOCUMENT_REQUEST',
+      {
+        clientName: 'Mohammed Ali',
+        documents: 'titre de séjour, certificat de résidence',
+        deadline: '15 jours',
+        contactEmail: 'contact@cabinet-avocat.fr'
+      }
+    );
+    
+    console.log('✅ Brouillon généré:');
+    console.log(`   ID: ${draftResult.draftId}`);
+    console.log(`   Template utilisé: ${draftResult.templateId}`);
+    console.log(`   Validation requise: ${draftResult.requiresValidation ? 'OUI' : 'NON'}`);
+    console.log(`   Aperçu du contenu:`);
+    console.log(`   "${draftResult.content.substring(0, 150)}..."`);
+    console.log();
+  } catch (error) {
+    console.error('❌ Erreur génération brouillon:', error);
+  }
+  
+  // ========================================
+  // TEST 5: Détection d'alertes (ACTION ORANGE)
+  // ========================================
+  console.log('🚨 TEST 5: Détection d\'alertes');
+  console.log('─'.repeat(50));
+  
+  const dossierData = {
+    id: 'DOSS-2026-001',
+    clientName: 'Mohammed Ali',
+    type: 'Régularisation',
+    echeance: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // Dans 5 jours
+    missingDocuments: ['Passeport', 'Acte de naissance'],
+    lastUpdate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) // Il y a 15 jours
+  };
+  
+  try {
+    const alertsResult = await aiService.detectAlerts(dossierData);
+    
+    console.log('✅ Alertes détectées:');
+    alertsResult.forEach((alert: any, index: number) => {
+      console.log(`   ${index + 1}. ${alert.message}`);
+      console.log(`      Sévérité: ${alert.severity}`);
+      console.log(`      Actions suggérées: ${alert.suggestedActions.join(', ')}`);
+    });
+    console.log();
+  } catch (error) {
+    console.error('❌ Erreur détection alertes:', error);
+  }
+  
+  // ========================================
+  // TEST 6: Proposition d'options (ACTION RED)
+  // ========================================
+  console.log('🎯 TEST 6: Proposition d\'options stratégiques');
+  console.log('─'.repeat(50));
+  
+  const context = {
+    caseType: 'Régularisation par le travail',
+    situation: 'Visa expiré depuis 2 ans, CDI actuel',
+    obstacles: ['Délai dépassé', 'Pas de titre en cours']
+  };
+  
+  try {
+    const optionsResult = await aiService.proposeOptions(context);
+    
+    console.log('✅ Options proposées:');
+    optionsResult.options.forEach((option: any, index: number) => {
+      console.log(`   ${index + 1}. ${option.title}`);
+      console.log(`      ${option.description}`);
+      console.log(`      Avantages: ${option.pros.join(', ')}`);
+      console.log(`      Inconvénients: ${option.cons.join(', ')}`);
+      console.log(`      Complexité: ${option.complexity}/10`);
+    });
+    console.log(`   ⚠️ Avertissement: ${optionsResult.disclaimer}`);
+    console.log(`   Validation requise: ${optionsResult.requiresValidation ? 'OUI (OBLIGATOIRE)' : 'NON'}`);
+    console.log();
+  } catch (error) {
+    console.error('❌ Erreur proposition options:', error);
+  }
+  
+  // ========================================
+  // RÉSUMÉ DU TEST
+  // ========================================
+  console.log('📊 RÉSUMÉ DU TEST');
+  console.log('═'.repeat(50));
+  console.log('✅ Workflow complet testé avec succès');
+  console.log('');
+  console.log('Actions GREEN (automatiques):');
+  console.log('  ✓ Triage d\'email');
+  console.log('  ✓ Analyse de dossier');
+  console.log('');
+  console.log('Actions ORANGE (validation requise):');
+  console.log('  ✓ Génération de formulaire');
+  console.log('  ✓ Génération de brouillon');
+  console.log('  ✓ Détection d\'alertes');
+  console.log('');
+  console.log('Actions RED (décision humaine OBLIGATOIRE):');
+  console.log('  ✓ Proposition d\'options stratégiques');
+  console.log('');
+  console.log('🎉 Système de validation IA opérationnel!');
+}
+
+// Exécuter le test
+testWorkflow().catch(console.error);

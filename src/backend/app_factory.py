@@ -2,24 +2,48 @@
 """
 🚀 IA POSTE MANAGER - Application Factory
 Première IA juridique CESEDA au monde
+Architecture v4.0 - API REST + Frontend séparés
 """
 
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from werkzeug.security import check_password_hash, generate_password_hash
 import os
 import json
-from datetime import datetime
-from ceseda_expert_ai import CESEDAExpert
+from datetime import datetime, timedelta
+# from ceseda_expert_ai import CESEDAExpert  # TODO: Activer après install numpy
 
 def create_app():
     """Factory pattern pour créer l'application Flask"""
     app = Flask(__name__)
     app.secret_key = os.environ.get('SECRET_KEY', 'dev-key-change-in-production')
     
-    # Initialize CESEDA AI Expert
-    ceseda_ai = CESEDAExpert()
+    # ✅ PHASE 1 - Configuration API REST v4.0
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-change-in-production')
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
     
-    # Routes principales
+    # Initialisation JWT
+    jwt = JWTManager(app)
+    
+    # Configuration CORS pour frontend séparé
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": ["http://localhost:3000", "https://votre-frontend.vercel.app"],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
+    
+    # Initialize CESEDA AI Expert
+    # ceseda_ai = CESEDAExpert()  # TODO: Activer après install numpy
+    
+    # ✅ Enregistrement Blueprint API v4.0
+    from src.backend.api import api_bp
+    app.register_blueprint(api_bp, url_prefix='/api/v1')
+    
+    # Routes principales (v3.0 - templates HTML - coexistence)
     @app.route('/')
     def index():
         if 'user_id' not in session:

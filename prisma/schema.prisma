@@ -1,339 +1,1651 @@
-
+// Prisma Schema pour Multitenant - Architecture 3 Niveaux
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
+// ============================================
+// NIVEAU 1 : SUPER ADMIN - GESTION PLATEFORME
+// ============================================
+
+// Plans tarifaires (Basic, Premium, Enterprise)
+model Plan {
+  id          String  @id @default(uuid())
+  name        String  @unique // BASIC, PREMIUM, ENTERPRISE
+  displayName String
+  description String?
+
+  // Tarification
+  priceMonthly Float
+  priceYearly  Float
+  currency     String @default("EUR")
+
+  // Limites
+  maxDossiers  Int @default(100)
+  maxClients   Int @default(20)
+  maxStorageGb Int @default(5)
+  maxUsers     Int @default(5)
+
+  // Capacités IA
+  aiAutonomyLevel   Int     @default(1) // 1 à 4
+  humanValidation   Boolean @default(true)
+  advancedAnalytics Boolean @default(false)
+  externalAiAccess  Boolean @default(false)
+
+  // Support & Services
+  prioritySupport Boolean @default(false)
+  customBranding  Boolean @default(false)
+  apiAccess       Boolean @default(false)
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tenants Tenant[]
+}
+
+// ============================================
+// NIVEAU 2 : TENANT (CABINET D'AVOCAT)
+// ============================================
+
+model Tenant {
+  id        String  @id @default(uuid())
+  name      String
+  subdomain String  @unique
+  domain    String? @unique
+
+  // Association au Plan
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  // État du cabinet
+  status      String    @default("active") // active, suspended, trial, cancelled
+  trialEndsAt DateTime?
+
+  // Facturation
+  billingEmail   String?
+  billingAddress String?
+  vatNumber      String?
+
+  // Usage actuel (pour vérifier les limites)
+  currentDossiers  Int   @default(0)
+  currentClients   Int   @default(0)
+  currentStorageGb Float @default(0)
+  currentUsers     Int   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users          User[]
+  clients        Client[]
+  dossiers       Dossier[]
+  factures       Facture[]
+  settings       TenantSettings?
+  AIAction       AIAction[]
+  Alert          Alert[]
+  DocumentDraft  DocumentDraft[]
+  CollectionForm CollectionForm[]
+  AIMetrics      AIMetrics[]
+  workspaces     Workspace[]
+  documents      WorkspaceDocument[]
+  metrics        TenantMetrics[]
+  echeances      Echeance[]
+  emails         Email[]
+  systemAlerts   SystemAlert[] @relation("SystemAlerts")
+
+  @@index([planId])
+}
+
+// Configuration Tenant
+model TenantSettings {
+  id       String @id @default(uuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // IA Configuration
+  ollamaEnabled Boolean @default(true)
+  ollamaUrl     String  @default("http://localhost:11434")
+  ollamaModel   String  @default("llama3.2:latest")
+
+  // Email
+  emailEnabled Boolean @default(false)
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUser     String?
+  smtpPass     String?
+
+  // Features
+  maxDossiers  Int @default(100)
+  maxUsers     Int @default(5)
+  storageLimit Int @default(1000) // MB
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Utilisateurs (3 niveaux de rôles)
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  avatar    String?
-  role      Role     @default(USER)
-  profile   Profile?
-  
-  emails    Email[]
-  templates Template[]
-  contacts  Contact[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@map("users")
-}
-
-model Profile {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  accessibility AccessibilitySettings?
-  preferences   UserPreferences?
-  
-  @@map("profiles")
-}
-
-model AccessibilitySettings {
-  id        String  @id @default(cuid())
-  profileId String  @unique
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  
-  screenReader    Boolean @default(false)
-  highContrast    Boolean @default(false)
-  largeText       Boolean @default(false)
-  ttsEnabled      Boolean @default(false)
-  ttsSpeed        Float   @default(1.0)
-  voiceControl    Boolean @default(false)
-  
-  @@map("accessibility_settings")
-}
-
-model UserPreferences {
-  id        String  @id @default(cuid())
-  profileId String  @unique
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  
-  theme           String  @default("light")
-  language        String  @default("fr")
-  emailProvider   String  @default("gmail")
-  autoSave        Boolean @default(true)
-  notifications   Boolean @default(true)
-  
-  @@map("user_preferences")
-}
-
-model Email {
-  id        String      @id @default(cuid())
-  userId    String
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  recipient String
-  subject   String
-  body      String      @db.Text
-  status    EmailStatus @default(DRAFT)
-  
-  templateId String?
-  template   Template? @relation(fields: [templateId], references: [id])
-  
-  sentAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
-  @@map("emails")
-}
-
-model Template {
-  id       String @id @default(cuid())
-  userId   String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id       String @id @default(uuid())
+  email    String @unique
   name     String
-  subject  String
-  body     String @db.Text
-  category String @default("general")
+  password String
+
+  // Rôle hiérarchique
+  role String // SUPER_ADMIN, ADMIN, CLIENT
+
+  // Association au Tenant (null pour SUPER_ADMIN)
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Association au Client (pour rôle CLIENT uniquement)
+  clientId String? @unique
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  avatar    String?
+  phone     String?
+  status    String    @default("active") // active, inactive, suspended
+  lastLogin DateTime?
+
+  // Préférences
+  language String @default("fr")
+  timezone String @default("Europe/Paris")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  searchLogs      SearchLog[]
+  sentMessages    Message[]    @relation("SentMessages")
+  receivedMessages Message[]   @relation("ReceivedMessages")
+
+  @@index([tenantId, email])
+  @@index([role])
+}
+
+// ============================================
+// WORKSPACES CESDA (NOUVEAU SYSTÈME)
+// ============================================
+
+// Workspace CESDA - Remplacement progressif de Dossier
+model Workspace {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Type procédure CESDA
+  procedureType String // OQTF, REFUS_TITRE, RETRAIT_TITRE, ASILE, REGROUPEMENT_FAMILIAL, NATURALISATION
   
-  emails Email[]
+  // Informations générales
+  title       String // "OQTF - M. DUBOIS"
+  description String?
+  reference   String? @unique // Référence cabinet (auto-générée ou manuelle)
+  
+  // Statut
+  status String @default("active") // active, pending, closed, archived
+  
+  // Urgence (calculée automatiquement)
+  urgencyLevel String @default("moyen") // faible, moyen, eleve, critique
+  
+  // Délais
+  notificationDate DateTime? // Date notification décision administrative
+  deadlineDate     DateTime? // Date limite action (calculée)
+  closedAt         DateTime?
+  
+  // Affectation
+  createdById  String
+  assignedToId String?
+  
+  // Métadonnées CESDA spécifiques (JSON flexible)
+  metadata String? // {oqtfType: "sans_delai", mode_notification: "main_propre", etc.}
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("templates")
+
+  // Relations
+  checklist       ChecklistItem[]
+  documents       WorkspaceDocument[]
+  alerts          WorkspaceAlert[]
+  documentDrafts  WorkspaceDraft[]
+  timeline        TimelineEvent[]
+  clientWorkspace ClientWorkspace[]
+
+  @@index([tenantId])
+  @@index([clientId])
+  @@index([procedureType])
+  @@index([status])
+  @@index([urgencyLevel])
+  @@index([deadlineDate])
 }
 
-model Contact {
-  id           String  @id @default(cuid())
-  userId       String
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  name         String
-  email        String
-  organization String?
-  category     String  @default("general")
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([userId, email])
-  @@map("contacts")
-}
+// Checklist items pour workspaces
+model ChecklistItem {
+  id          String    @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
-enum Role {
-  USER
-  ADMIN
-}
-
-enum EmailStatus {
-  DRAFT
-  SENT
-  FAILED
-  SCHEDULED
-}
-
-// ===== POSTAL SERVICE MODELS =====
-
-model Postman {
-  id            String   @id @default(cuid())
-  employeeId    String   @unique
-  name          String
-  email         String   @unique
-  phone         String?
-  status        PostmanStatus @default(ACTIVE)
-  
-  // Performance metrics
-  totalDeliveries     Int      @default(0)
-  successfulDeliveries Int     @default(0)
-  averageRating       Float    @default(0)
-  
-  deliveries    Delivery[]
-  shifts        PostmanShift[]
-  incidents     Incident[]
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  @@map("postmen")
-}
-
-model Route {
-  id          String   @id @default(cuid())
-  routeCode   String   @unique
-  areaCode    String
-  areaName    String
+  // Item
+  category    String // "verifications", "pieces", "actions"
+  label       String
   description String?
   
-  // Waze integration
-  wazeRouteId String?
-  estimatedDuration Int?  // minutes
-  distance    Float?   // km
+  // État
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  required    Boolean   @default(false) // Si true, bloque certaines actions
   
-  // GeoJSON polygon for route area
-  geoJson     String?  @db.Text
+  // Ordre affichage
+  order Int @default(0)
   
-  deliveries  Delivery[]
-  incidents   Incident[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("routes")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@index([category])
 }
 
-model Delivery {
-  id            String   @id @default(cuid())
-  trackingNumber String  @unique
+// Documents workspace (séparé de l'ancien système)
+model WorkspaceDocument {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  // Fichier
+  filename     String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  storagePath  String // Chemin S3, Azure Blob, ou local
   
-  postmanId     String
-  postman       Postman  @relation(fields: [postmanId], references: [id])
+  // Métadonnées
+  documentType String // "decision_administrative", "passeport", "justificatif_domicile", etc.
+  description  String?
   
-  routeId       String
-  route         Route    @relation(fields: [routeId], references: [id])
+  // Extraction IA
+  aiProcessed     Boolean @default(false)
+  aiExtractedData String? // Données extraites (dates, noms, etc.) - JSON
+  aiConfidence    Float? // Score confiance 0-1
   
-  // Delivery details
-  recipientName    String
-  recipientAddress String
-  recipientPhone   String?
+  // Validation humaine
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
   
-  packageType      String   @default("letter")
-  priority         Priority @default(NORMAL)
-  status           DeliveryStatus @default(PENDING)
-  
-  // Timing
-  deliveryDate     DateTime
-  startedAt        DateTime?
-  completedAt      DateTime?
-  
-  // Performance
-  customerRating   Float?
-  deliveryNotes    String?  @db.Text
-  
-  // Coordinates
-  latitude         Float?
-  longitude        Float?
-  
-  incidents        Incident[]
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
-  @@index([postmanId, deliveryDate])
-  @@index([status, deliveryDate])
-  @@map("deliveries")
+  uploadedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([workspaceId])
+  @@index([documentType])
 }
 
-model Incident {
-  id          String   @id @default(cuid())
+// Brouillons générés par IA pour workspaces
+model WorkspaceDraft {
+  id          String    @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  // Type
+  draftType String // "recours_contentieux", "recours_gracieux", "courrier_client", "memoire"
+  title     String
   
-  postmanId   String
-  postman     Postman  @relation(fields: [postmanId], references: [id])
+  // Contenu
+  content  String // Markdown ou HTML
+  metadata String? // Sources jurisprudence, moyens utilisés, etc. - JSON
   
-  deliveryId  String?
-  delivery    Delivery? @relation(fields: [deliveryId], references: [id])
+  // Statut validation
+  status       String    @default("draft") // draft, reviewed, approved, rejected
+  reviewedById String?
+  reviewedAt   DateTime?
   
-  routeId     String?
-  route       Route?   @relation(fields: [routeId], references: [id])
+  // Utilisation
+  exported   Boolean   @default(false)
+  exportedAt DateTime?
   
-  // Incident details
-  type        IncidentType
-  severity    IncidentSeverity @default(MEDIUM)
-  status      IncidentStatus @default(OPEN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@index([status])
+}
+
+// Alertes workspace
+model WorkspaceAlert {
+  id          String    @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  // Type & Niveau
+  alertType String // "deadline_critical", "document_missing", "incoherence_detected"
+  level     String // "info", "warning", "critical"
   
+  // Message
+  title   String
+  message String
+  
+  // État
+  read       Boolean   @default(false)
+  readAt     DateTime?
+  resolved   Boolean   @default(false)
+  resolvedAt DateTime?
+  
+  createdAt DateTime @default(now())
+
+  @@index([workspaceId])
+  @@index([level])
+  @@index([read])
+}
+
+// Timeline (historique workspace)
+model TimelineEvent {
+  id          String    @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  // Événement
+  eventType   String // "created", "document_added", "deadline_updated", "status_changed", "ai_suggestion", "human_validation"
   title       String
-  description String   @db.Text
+  description String?
   
-  // Resolution
-  resolvedAt  DateTime?
-  resolution  String?  @db.Text
-  rerouteApplied Boolean @default(false)
+  // Acteur
+  actorType String // "user", "ai", "system"
+  actorId   String? // userId si user
   
-  // Location
-  latitude    Float?
-  longitude   Float?
+  // Métadonnées
+  metadata String? // JSON
   
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([status, severity])
-  @@index([postmanId, createdAt])
-  @@map("incidents")
+  createdAt DateTime @default(now())
+
+  @@index([workspaceId])
+  @@index([createdAt])
 }
 
-model PostmanShift {
-  id          String   @id @default(cuid())
-  
-  postmanId   String
-  postman     Postman  @relation(fields: [postmanId], references: [id])
-  
-  shiftDate   DateTime
-  startTime   DateTime
-  endTime     DateTime?
+// Métriques tenant CESDA
+model TenantMetrics {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  period String // "2026-01" (mois)
+
+  // Volumes
+  workspacesCreated Int @default(0)
+  workspacesClosed  Int @default(0)
+  documentsUploaded Int @default(0)
+  aiCallsTotal      Int @default(0)
   
   // Performance
-  plannedHours    Float
-  actualHours     Float?
-  overtimeHours   Float    @default(0)
+  averageTimeToClose Float? // Jours moyen clôture dossier
+  deadlinesRespected Int    @default(0)
+  deadlinesMissed    Int    @default(0)
   
-  breakMinutes    Int      @default(0)
-  deliveriesCount Int      @default(0)
+  // Répartition procédures
+  oqtfCount           Int @default(0)
+  asileCount          Int @default(0)
+  titreCount          Int @default(0)
+  regroupementCount   Int @default(0)
+  naturalisationCount Int @default(0)
   
-  notes       String?  @db.Text
+  // IA
+  aiSuggestionsAccepted Int @default(0)
+  aiSuggestionsRejected Int @default(0)
+  aiDraftsUsed          Int @default(0)
   
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  // Coûts IA (si API externe)
+  aiCostEur Float @default(0)
   
-  @@index([postmanId, shiftDate])
-  @@map("postman_shifts")
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, period])
+  @@index([tenantId, period])
 }
 
-enum PostmanStatus {
-  ACTIVE
-  ON_LEAVE
-  INACTIVE
-  SUSPENDED
+// Jurisprudence (optionnel Premium)
+model Jurisprudence {
+  id String @id @default(uuid())
+
+  // Identification
+  jurisdiction   String // "CE", "CAA_PARIS", "TA_PARIS"
+  decisionNumber String?
+  decisionDate   DateTime
+  
+  // Référencement
+  title   String
+  summary String
+  url     String?
+  
+  // Classification CESDA
+  procedureTypes String // ["OQTF", "ASILE"] - JSON array
+  articles       String // ["L.511-1 CESEDA", "Art. 8 CEDH"] - JSON array
+  keywords       String // JSON array
+  
+  // Contenu
+  fullText String? // Optionnel (très lourd)
+  
+  // Pertinence
+  priority Int @default(0) // Arrêts de principe = haute priorité
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jurisdiction])
+  @@index([decisionDate])
 }
 
-enum DeliveryStatus {
-  PENDING
-  IN_PROGRESS
-  DELIVERED
-  FAILED
-  RETURNED
-  CANCELLED
+// Relation client-workspace (many-to-many si nécessaire)
+model ClientWorkspace {
+  clientId    String
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  role        String    @default("primary") // primary, secondary
+
+  @@id([clientId, workspaceId])
+  @@index([clientId])
+  @@index([workspaceId])
 }
 
-enum Priority {
-  LOW
-  NORMAL
-  HIGH
-  URGENT
+// ============================================
+// NIVEAU 3 : CLIENT (CLIENT DE L'AVOCAT)
+// ============================================
+
+model Client {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Informations personnelles
+  civilite    String? // M., Mme, Autre
+  firstName   String
+  lastName    String
+  nomNaissance String? // Nom de naissance si différent
+  prenomUsuel String? // Prénom d'usage si différent
+  
+  email       String
+  emailSecondaire String?
+  phone       String?
+  phoneSecondaire String?
+  telephoneUrgence String?
+  
+  dateOfBirth DateTime?
+  lieuNaissance String? // Ville et pays
+  nationality String?
+  nationaliteOrigine String? // Si différente de la nationalité actuelle
+  
+  // Adresse principale
+  address     String?
+  codePostal  String?
+  ville       String?
+  pays        String @default("France")
+  
+  // Adresse de correspondance (si différente)
+  adresseCorrespondance String?
+  codePostalCorrespondance String?
+  villeCorrespondance String?
+  paysCorrespondance String?
+
+  // Compte utilisateur associé (optionnel)
+  user User?
+
+  // Documents d'identité
+  passportNumber String?
+  passportExpiry DateTime?
+  passportCountry String?
+  
+  idCardNumber   String?
+  idCardExpiry   DateTime?
+  
+  titreSejourNumber String?
+  titreSejourType   String? // VPF, Salarié, Etudiant, etc.
+  titreSejourExpiry DateTime?
+  
+  numeroOFII        String?
+  numeroAgrefe      String?
+  
+  // Situation personnelle
+  situationFamiliale String? // celibataire, marie, pacse, divorce, veuf
+  nombreEnfants      Int? @default(0)
+  personneACharge    Int? @default(0)
+  
+  // Situation professionnelle
+  profession         String?
+  employeur          String?
+  secteurActivite    String?
+  situationPro       String? // emploi_cdi, emploi_cdd, chomage, etudiant, retraite, sans_emploi
+  revenusAnnuels     Float?
+  
+  // Informations bancaires
+  iban               String?
+  bic                String?
+  titulaireBancaire  String?
+  
+  // Contact d'urgence
+  contactUrgenceNom      String?
+  contactUrgenceLien     String? // conjoint, parent, ami, etc.
+  contactUrgenceTel      String?
+  
+  // Préférences de communication
+  languePrincipale       String @default("fr")
+  languesSecondaires     String? // JSON array
+  prefCommunication      String @default("email") // email, telephone, courrier, sms
+  accepteNotifications   Boolean @default(true)
+  accepteNewsletter      Boolean @default(false)
+  
+  // Statut et classification
+  status          String @default("active") // active, inactive, archived, prospect
+  categorie       String? // particulier, entreprise, association
+  source          String? // recommandation, site_web, publicite, autre
+  qualite         String? // vip, standard, risque
+  scoreRisque     Int? // 0-100
+  
+  // Gestion financière
+  tarifHoraire    Float? // Taux horaire spécifique ce client
+  plafondHoraire  Float? // Plafond honoraires
+  modeFacturation String? // forfait, horaire, resultat
+  delaiPaiement   Int? @default(30) // Jours
+  
+  // Suivi relationnel
+  origineClient      String? // Comment le client nous a trouvé
+  datePremiereVisite DateTime?
+  dateDernierContact DateTime?
+  frequenceContact   String? // hebdomadaire, mensuelle, trimestrielle
+  satisfactionScore  Int? // 1-5
+  
+  // Confidentialité
+  niveauConfidentialite String @default("normal") // public, normal, confidentiel
+  consentementRGPD      Boolean @default(false)
+  dateConsentementRGPD  DateTime?
+  
+  // Métadonnées
+  notes              String?
+  notesPrivees       String? // Notes internes non partagées
+  tags               String? // JSON array
+  couleurEtiquette   String? // Code couleur
+  emoji              String? // Emoji d'identification
+  
+  // Archivage
+  dateArchivage      DateTime?
+  raisonArchivage    String?
+  
+  // Champs personnalisés
+  champsPersonnalises String? // JSON pour données métier spécifiques
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastActivityAt DateTime @default(now())
+
+  // Relations
+  dossiers       Dossier[]
+  workspaces     ClientWorkspace[]
+  primaryWorkspaces Workspace[]
+  emails         Email[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId, email])
+  @@index([tenantId, status])
+  @@index([lastName, firstName])
+  @@index([lastActivityAt])
 }
 
-enum IncidentType {
-  ROAD_CLOSURE
-  TRAFFIC_JAM
-  MISSING_PACKAGE
-  WRONG_ADDRESS
-  RECIPIENT_ABSENT
-  VEHICLE_ISSUE
-  WEATHER_DELAY
-  SAFETY_CONCERN
-  OTHER
+// Dossiers CESEDA
+model Dossier {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Référence numérique
+  numero String // Ex: D-2026-001
+
+  // Client associé
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Type de dossier CESEDA
+  typeDossier   String // OQTF, Naturalisation, Asile, TitreSejour, CartResident
+  articleCeseda String? // Ex: Art. L313-11
+  categorieJuridique String? // Droit des étrangers, Droit de la famille, Contentieux administratif
+
+  // Statut et priorité
+  statut   String @default("en_cours") // en_cours, en_attente, urgent, termine, archive, suspendu
+  priorite String @default("normale") // critique, haute, normale, basse
+  phase    String @default("instruction") // instruction, recours, audience, decision, execution
+
+  // Dates importantes
+  dateCreation     DateTime  @default(now())
+  dateOuverture    DateTime? // Date officielle d'ouverture du dossier
+  dateEcheance     DateTime?
+  dateProchaineEtape DateTime? // Prochaine échéance/action
+  dateCloture      DateTime?
+  dateArchivage    DateTime?
+
+  // Juridiction et procédure
+  juridiction      String? // Préfecture, Tribunal administratif, Cour administrative d'appel, CNDA, Conseil d'État
+  numeroJuridiction String? // Numéro attribué par la juridiction
+  typeRecours      String? // Gracieux, Contentieux, Référé
+  instanceRecours  String? // Première instance, Appel, Cassation
+  
+  // Affectation et responsabilité
+  responsableId String? // Avocat/Collaborateur principal
+  collaborateurs String? // JSON array des IDs collaborateurs secondaires
+  avocatAdverse  String? // Coordonnées partie adverse
+  
+  // Détails du dossier
+  objet           String?
+  description     String?
+  contexteLegal   String? // Contexte juridique détaillé
+  notes           String?
+  notesPrivees    String? // Notes internes non visibles par le client
+  
+  // Éléments financiers
+  honorairesEstimes Float? // Honoraires estimés
+  honorairesReel    Float? // Honoraires réels facturés
+  avanceSurFrais    Float? // Provision versée
+  fraisDossier      Float? // Frais administratifs
+  tauxHoraire       Float? // Taux horaire applicable
+  tempsEstime       Int? // Temps estimé en heures
+  tempsReel         Int? // Temps réel passé en heures
+  modeFacturation   String? // forfait, horaire, resultat, mixte
+
+  // Confidentialité et sécurité
+  niveauConfidentialite String @default("normal") // public, normal, confidentiel, secret
+  accessRestreint       Boolean @default(false)
+  autorisationsAcces    String? // JSON des autorisations spécifiques
+  
+  // Archivage et conservation
+  dureeConservation Int? // Durée en années
+  dateDestructionPrevue DateTime?
+  archivePhysique   String? // Localisation archive physique
+  archiveNumerique  String? // Chemin/référence archive numérique
+
+  // Suivi et workflow
+  etapesWorkflow String? // JSON des étapes du workflow
+  checklistItems String? // JSON checklist tâches
+  jalons         String? // JSON des jalons importants
+  
+  // Analyse IA (si plan le permet)
+  aiAnalysis        String? // JSON - Analyse complète IA
+  riskScore         Int? // 0-100 - Score de risque
+  successProbability Int? // 0-100 - Probabilité de succès
+  aiRecommendations String? // JSON - Recommandations stratégiques
+  aiSummary         String? // Résumé généré par IA
+  predictedOutcome  String? // Issue probable prédite
+  
+  // Métriques et KPI
+  tempsReponseJuridiction Int? // Jours de délai moyen
+  tauxReussite            Float? // Pour statistiques globales
+  scoreComplexite         Int? // 1-10 complexité du dossier
+  
+  // Références et liens
+  dossiersPrecedents String? // JSON - Références dossiers similaires/liés
+  jurisprudence      String? // JSON - Jurisprudence pertinente
+  dossiersLies       String? // JSON - IDs dossiers liés
+  
+  // Communication client
+  dernierContactClient DateTime?
+  prochaineRelance     DateTime?
+  frequenceRelance     String? // hebdomadaire, mensuelle, trimestrielle
+  canalContact         String? // email, telephone, courrier, visio
+
+  // Métadonnées
+  tags             String? // JSON - Tags personnalisés
+  couleurEtiquette String? // Code couleur pour identification visuelle
+  emoji            String? // Emoji pour identification rapide
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastActivityAt DateTime @default(now()) // Dernière activité sur le dossier
+
+  // Relations
+  factures       Facture[]
+  documents      Document[]
+  rendezVous     RendezVous[]
+  AIAction       AIAction[]
+  Alert          Alert[]
+  DocumentDraft  DocumentDraft[]
+  CollectionForm CollectionForm[]
+  taches         TacheDossier[]
+  evenements     EvenementDossier[]
+  commentaires   CommentaireDossier[]
+  echeances      Echeance[]
+  emails         Email[]
+  messages       Message[]
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, statut])
+  @@index([tenantId, priorite])
+  @@index([tenantId, phase])
+  @@index([clientId])
+  @@index([responsableId])
+  @@index([dateEcheance])
+  @@index([dateProchaineEtape])
+  @@index([lastActivityAt])
 }
 
-enum IncidentSeverity {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
+// Échéances et délais automatisés
+model Echeance {
+  id String @id @default(uuid())
+
+  // Relations
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  // Type d'échéance CESEDA
+  type String // delai_recours_contentieux, delai_recours_gracieux, audience, prescription, depot_memoire, reponse_prefecture, expiration_titre, oqtf_execution, cnda, ta, caa, ce, autre
+
+  // Informations
+  titre       String // "Délai recours contentieux OQTF" 
+  description String? // Détails complémentaires
+  
+  // Dates
+  dateEcheance  DateTime
+  dateReference DateTime? // Date à partir de laquelle le délai court (ex: notification)
+  delaiJours    Int? // Nombre de jours de délai (ex: 48h = 2, 30 jours = 30)
+
+  // Statut
+  statut String @default("a_venir") // a_venir, proche (< 7j), urgent (< 3j), depasse, termine, annule
+
+  // Priorité (calculée automatiquement ou manuelle)
+  priorite String @default("normale") // critique, haute, normale, basse
+
+  // Source et IA
+  source        String  @default("manuel") // manuel, ia_auto, ia_valide, import, system
+  aiConfidence  Float? // Score de confiance IA (0-1) pour extraction auto
+  extractedText String? // Texte extrait du document source
+  documentId    String? // ID du document source WorkspaceDocument
+
+  // Validation humaine
+  validePar String? // userId qui a validé l'extraction IA
+  valideAt  DateTime?
+
+  // Rappels
+  rappelAvant          Int     @default(7) // Nombre de jours avant pour rappeler
+  rappelEnvoye         Boolean @default(false)
+  dateRappel           DateTime?
+  notificationEnvoyee  Boolean @default(false)
+  rappelJ7             Boolean @default(false) // Rappel 7 jours avant
+  rappelJ3             Boolean @default(false) // Rappel 3 jours avant  
+  rappelJ1             Boolean @default(false) // Rappel veille
+
+  // Métadonnées juridiques
+  metadata String? // JSON - Informations supplémentaires (lieu, heure, juridiction, magistrat, etc.)
+
+  // Dates de traçabilité
+  completedAt DateTime?
+  cancelledAt DateTime?
+  
+  createdBy String // userId créateur
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([dateEcheance])
+  @@index([statut])
+  @@index([priorite])
+  @@index([type])
+  @@index([source])
 }
 
-enum IncidentStatus {
-  OPEN
-  IN_PROGRESS
-  RESOLVED
-  CLOSED
+// Factures
+model Facture {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Référence
+  numero String // Ex: F-2026-001
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+
+  clientName String
+  montant    Float
+  devise     String @default("EUR")
+
+  statut String @default("brouillon") // brouillon, en_attente, payee, en_retard, annulee
+
+  dateEmission DateTime  @default(now())
+  dateEcheance DateTime
+  datePaiement DateTime?
+
+  description String?
+  notes       String?
+
+  // Paiement
+  methodePaiement   String? // virement, carte, cheque, especes
+  referencePaiement String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, statut])
+  @@index([tenantId, dateEcheance])
+}
+
+// Rendez-vous
+model RendezVous {
+  id        String  @id @default(uuid())
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  titre       String
+  description String?
+  type        String // consultation, audience, signature, visio
+
+  dateDebut DateTime
+  dateFin   DateTime
+
+  lieu      String?
+  lienVisio String?
+
+  statut String @default("planifie") // planifie, confirme, annule, termine
+
+  rappelEnvoye Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([dateDebut])
+}
+
+// Documents
+model Document {
+  id        String  @id @default(uuid())
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  path         String
+
+  // AI Metadata
+  documentType    String? // passport, oqtf, payslip, etc.
+  extractedText   String?
+  aiAnalysis      String? // JSON
+  confidenceScore Float?
+
+  uploadedBy String?
+
+  // Intégrité & Sécurité
+  hash String? // SHA-256 du fichier pour vérification intégrité
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  versions DocumentVersion[]
+
+  @@index([dossierId])
+}
+
+// Versioning des documents (intégrité juridique)
+model DocumentVersion {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  version Int // Numéro de version incrémental
+  hash    String // SHA-256 du fichier (immuable)
+
+  filename String
+  path     String
+  size     Int
+  mimeType String
+
+  uploadedBy String // userId
+  uploadedAt DateTime @default(now())
+
+  changeReason String? // Pourquoi cette version
+  metadata     String? // JSON avec détails additionnels
+
+  @@unique([documentId, version])
+  @@index([documentId, version])
+}
+
+// Journal d'audit (append-only, inaltérable)
+model AuditLog {
+  id String @id @default(uuid())
+
+  // Isolation tenant
+  tenantId String? // null pour actions SUPER_ADMIN globales
+
+  // Acteur
+  userId   String? // Qui a fait l'action (null = système)
+  userRole String? // Rôle au moment de l'action
+
+  // Action
+  action     String // CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, EXPORT, etc.
+  objectType String // Document, Dossier, User, Tenant, etc.
+  objectId   String? // ID de la ressource concernée
+
+  // Contexte
+  metadata  String? // JSON avec détails (ex: champs modifiés)
+  ipAddress String?
+  userAgent String?
+
+  // Intégrité
+  hash String // SHA-256 de l'événement complet
+
+  // Résultat
+  success      Boolean @default(true)
+  errorMessage String?
+
+  timestamp  DateTime  @default(now())
+  AIAction   AIAction? @relation(fields: [aIActionId], references: [id])
+  aIActionId String?
+
+  @@index([tenantId, timestamp])
+  @@index([userId, timestamp])
+  @@index([action, timestamp])
+  @@index([objectType, objectId])
+}
+
+// ============================================
+// SYSTÈME DE VALIDATION & TRAÇABILITÉ IA
+// Basé sur CHARTE_IA_JURIDIQUE.md v1.0
+// ============================================
+
+// Actions IA avec traçabilité complète
+model AIAction {
+  id String @id @default(uuid())
+
+  // Type et niveau d'action
+  actionType    String // EMAIL_TRIAGE, DRAFT_GENERATION, etc.
+  autonomyLevel String // GREEN, ORANGE, RED
+
+  // Confiance et validation
+  confidence         Float // 0.0 - 1.0
+  requiresValidation Boolean
+  validationLevel    String // NONE, QUICK, STANDARD, REINFORCED
+  validationStatus   String  @default("PENDING") // PENDING, APPROVED, REJECTED, MODIFIED_APPROVED, AUTO_APPROVED
+
+  // Contenu de l'action (JSON)
+  content   String // JSON stringifié
+  rationale String // Justification de l'action
+
+  // Associations
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Traçabilité création
+  createdBy String   @default("IA_POSTE_MANAGER")
+  createdAt DateTime @default(now())
+
+  // Traçabilité validation
+  validatedBy       String?
+  validatedAt       DateTime?
+  validationComment String?
+
+  // Métadonnées
+  metadata String? // JSON additionnel
+
+  // Relations
+  auditLogs AuditLog[]
+
+  @@index([tenantId, actionType])
+  @@index([tenantId, validationStatus])
+  @@index([dossierId])
+  @@index([createdAt])
+}
+
+// Alertes intelligentes
+model Alert {
+  id String @id @default(uuid())
+
+  alertType String // legal_deadline, inconsistency, blocked_case, missing_document
+  severity  String // INFO, WARNING, ALERT, CRITICAL
+
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  message         String
+  deadline        DateTime?
+  suggestedAction String?
+
+  // Canaux de notification (JSON array)
+  notificationChannels String // ["email", "push", "sms"]
+
+  read   Boolean   @default(false)
+  readAt DateTime?
+
+  snoozedUntil DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, severity])
+  @@index([dossierId])
+  @@index([read])
+}
+
+// Brouillons de documents
+model DocumentDraft {
+  id String @id @default(uuid())
+
+  documentType String // ACKNOWLEDGMENT, DOCUMENT_REQUEST, etc.
+  status       String @default("DRAFT") // DRAFT, READY_TO_SEND, SENT
+
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Contenu du document
+  content String // Markdown ou HTML
+
+  // Zones à compléter (JSON array)
+  placeholders String // [{"marker": "...", "reason": "...", "resolved": false}]
+
+  // Validation
+  validationLevel  String // NONE, QUICK, STANDARD, REINFORCED
+  validationStatus String @default("PENDING")
+
+  // Destinataire (JSON)
+  recipient String? // {"name": "...", "email": "...", "type": "client"}
+
+  // Pièces jointes (JSON array)
+  attachments String? // [{"filename": "...", "path": "...", "size": 123}]
+
+  // Traçabilité
+  createdBy String   @default("IA_POSTE_MANAGER")
+  createdAt DateTime @default(now())
+
+  validatedBy String?
+  validatedAt DateTime?
+
+  sentBy String?
+  sentAt DateTime?
+
+  @@index([tenantId, status])
+  @@index([dossierId])
+}
+
+// Formulaires de collecte d'informations
+model CollectionForm {
+  id String @id @default(uuid())
+
+  formType String // initial_intake, document_request, clarification
+  caseType String // divorce, succession, etc.
+
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Questions (JSON array)
+  questions String // [{"id": "q1", "type": "text", "label": "...", ...}]
+
+  estimatedTime String // "5 minutes"
+
+  // Réponses (JSON)
+  responses String? // {"q1": "answer1", ...}
+
+  status String @default("SENT") // SENT, IN_PROGRESS, COMPLETED, ABANDONED
+
+  sentAt      DateTime  @default(now())
+  completedAt DateTime?
+
+  // Relances (JSON array)
+  reminders String? // [{"sentAt": "...", "attempt": 1}]
+
+  @@index([tenantId, status])
+  @@index([dossierId])
+}
+
+// Métriques de supervision IA
+model AIMetrics {
+  id String @id @default(uuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  period      String // daily, weekly, monthly
+  periodStart DateTime
+  periodEnd   DateTime
+
+  // Métriques clés
+  draftRejectionRate      Float // %
+  classificationErrorRate Float // %
+  avgValidationTime       Float // heures
+  untreatedEscalations    Int
+
+  // Actions par type (JSON)
+  actionsByType String // {"EMAIL_TRIAGE": 123, ...}
+
+  avgConfidence Float // 0-1
+
+  calculatedAt DateTime @default(now())
+
+  @@unique([tenantId, period, periodStart])
+  @@index([tenantId, period])
+  @@index([periodStart])
+}
+// ============================================
+// GESTION AVANCÉE DES DOSSIERS
+// ============================================
+
+// Tâches liées aux dossiers
+model TacheDossier {
+  id        String  @id @default(uuid())
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  titre        String
+  description  String?
+  type         String // administrative, juridique, client, interne
+  priorite     String @default("normale") // critique, haute, normale, basse
+  statut       String @default("a_faire") // a_faire, en_cours, bloquee, terminee, annulee
+  
+  assigneA     String? // User ID
+  dateEcheance DateTime?
+  dateDebut    DateTime?
+  dateFin      DateTime?
+  
+  tempsEstime  Int? // en minutes
+  tempsReel    Int? // en minutes
+  
+  dependances  String? // JSON - IDs des tâches dont celle-ci dépend
+  sousCategorie String? // Pour classification fine
+  
+  rappelEnvoye Boolean @default(false)
+  rappelDate   DateTime?
+  
+  pieceJointes String? // JSON - Références documents
+  commentaires String? // JSON - Commentaires/notes
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  completedAt  DateTime?
+  completedBy  String? // User ID
+
+  @@index([dossierId])
+  @@index([assigneA])
+  @@index([statut])
+  @@index([dateEcheance])
+}
+
+// Événements chronologiques du dossier
+model EvenementDossier {
+  id        String  @id @default(uuid())
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  type         String // action, decision, courrier, appel, email, reunion, audience, depot
+  titre        String
+  description  String?
+  
+  dateEvenement DateTime @default(now())
+  dateSaisie    DateTime @default(now())
+  
+  auteur       String? // User ID ou nom externe
+  participants String? // JSON - Liste participants
+  
+  importance   String @default("normale") // critique, importante, normale, mineure
+  categorie    String? // procedure, communication, finance, administratif
+  
+  localisation String? // Lieu physique si pertinent
+  duree        Int? // Durée en minutes
+  
+  documentsLies String? // JSON - IDs documents liés
+  resultats     String? // Résultat/issue de l'événement
+  suitesDonner  String? // Actions à entreprendre suite à cet événement
+  
+  visible      Boolean @default(true) // Visible par le client
+  
+  metadata     String? // JSON - Données supplémentaires
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([dateEvenement])
+  @@index([type])
+  @@index([importance])
+}
+
+// Commentaires et notes sur dossier
+model CommentaireDossier {
+  id        String  @id @default(uuid())
+  dossierId String
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  auteurId     String // User ID
+  auteurNom    String // Nom affiché
+  
+  contenu      String
+  type         String @default("note") // note, analyse, remarque, question, reponse
+  
+  important    Boolean @default(false)
+  prive        Boolean @default(false) // Non visible par le client
+  
+  reponseA     String? // ID du commentaire parent si c'est une réponse
+  mentions     String? // JSON - IDs users mentionnés
+  
+  pieceJointes String? // JSON - Documents attachés
+  tags         String? // JSON - Tags pour catégorisation
+  
+  modifie      Boolean @default(false)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  editedAt     DateTime?
+
+  @@index([dossierId])
+  @@index([auteurId])
+  @@index([createdAt])
+  @@index([important])
+}
+
+// ============================================
+// EMAILS & MONITORING
+// ============================================
+
+model Email {
+  id        String   @id @default(uuid())
+  messageId String   @unique // Gmail message ID
+  threadId  String? // Gmail thread ID
+  
+  // Métadonnées email
+  from      String
+  to        String
+  subject   String
+  bodyText  String?
+  bodyHtml  String?
+  receivedDate DateTime
+  
+  // Classification
+  classification EmailClassification?
+  
+  // Associations
+  tenantId  String?
+  tenant    Tenant? @relation(fields: [tenantId], references: [id])
+  
+  clientId  String?
+  client    Client? @relation(fields: [clientId], references: [id])
+  
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+  
+  // Pièces jointes
+  attachments String? // JSON Array of {filename, size, mimeType}
+  
+  // État
+  isRead      Boolean @default(false)
+  isArchived  Boolean @default(false)
+  isStarred   Boolean @default(false)
+  
+  // Traitement IA
+  needsResponse Boolean @default(false)
+  responseGenerated Boolean @default(false)
+  responseDraft String?
+  
+  // Extraction automatique
+  trackingNumbers String? // Numéros de suivi La Poste (JSON array)
+  extractedDates  String? // Dates importantes détectées (JSON array)
+  extractedPhones String? // Téléphones extraits (JSON array)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([tenantId])
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([receivedDate])
+  @@index([isRead])
+}
+
+model EmailClassification {
+  id       String @id @default(uuid())
+  emailId  String @unique
+  email    Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  
+  // Classification automatique
+  type     String // nouveau_client, reponse_client, laposte_notification, ceseda, urgent, spam, general
+  priority String // critical, high, medium, low
+  
+  // Scoring
+  confidence Float @default(0.5) // 0.0 à 1.0
+  
+  // Tags et catégories
+  tags     String? // JSON Array of tags
+  
+  // Actions suggérées
+  suggestedAction String?
+  actionTaken     String?
+  actionTakenBy   String? // User ID
+  actionTakenAt   DateTime?
+  
+  // Validation humaine
+  validated       Boolean @default(false)
+  validatedBy     String? // User ID
+  validatedAt     DateTime?
+  correctedType   String? // Si classification corrigée
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([type])
+  @@index([priority])
+  @@index([confidence])
+  @@index([validated])
+}
+
+// ============================================
+// SYSTÈME DE MESSAGERIE INTERNE
+// ============================================
+
+model Message {
+  id        String   @id @default(uuid())
+  
+  // Expéditeur/Destinataire
+  senderId    String
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId String
+  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  
+  // Contexte
+  tenantId  String?
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  
+  // Contenu
+  subject String
+  content String
+  
+  // Type et priorité
+  type     String @default("general") // general, urgent, system, notification
+  priority String @default("normal")  // low, normal, high, urgent
+  
+  // État
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  isArchived Boolean  @default(false)
+  
+  // Pièces jointes (JSON array de paths)
+  attachments String?
+  
+  // Métadonnées
+  metadata String? // JSON pour données additionnelles
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ============================================
+// SYSTÈME DE FORMULAIRES INTELLIGENTS
+// ============================================
+
+// Soumissions de formulaires
+model FormSubmission {
+  id        String   @id @default(uuid())
+  formType  String // resource-request, strategic-decision, risk-assessment
+  
+  // Soumetteur
+  submitterId String
+  submitterEmail String
+  
+  // État
+  status String @default("pending") // pending, approved, rejected, cancelled
+  
+  // Données du formulaire (JSON)
+  data String // Contient tous les champs du formulaire
+  
+  // Analyse d'impact
+  impactScore Int? // 1-20
+  impactAreas String? // JSON array: ["Budget", "Planning", "Team", etc.]
+  
+  // Workflow
+  requiresApproval Boolean @default(false)
+  approvalLevel    Int     @default(0) // Niveau actuel dans le workflow
+  
+  // Métadonnées
+  aiAnalysis  String? // Analyse IA (JSON)
+  metadata    String? // Autres métadonnées (JSON)
+  
+  // Suivi
+  submittedAt DateTime  @default(now())
+  decidedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  approvalTasks ApprovalTask[]
+  
+  @@index([formType])
+  @@index([status])
+  @@index([submitterId])
+  @@index([impactScore])
+  @@index([submittedAt])
+}
+
+// Décisions stratégiques
+model StrategicDecision {
+  id        String @id @default(uuid())
+  
+  // Contenu décision
+  title            String
+  context          String?
+  proposedSolution String
+  expectedImpact   String? // JSON
+  risks            String?
+  timeline         String?
+  kpis             String? // Key Performance Indicators (JSON array)
+  
+  // Analyse
+  riskScore   Int? // 1-10
+  impactScore Int? // 1-20
+  
+  // État
+  status String @default("pending-approval") // pending-approval, approved, rejected, implemented, cancelled
+  
+  // Soumetteur
+  submitterId    String
+  submitterEmail String
+  
+  // Validation
+  approvedBy    String?
+  approvedAt    DateTime?
+  rejectedBy    String?
+  rejectedAt    DateTime?
+  rejectionNote String?
+  
+  // Implémentation
+  implementedAt   DateTime?
+  implementedBy   String?
+  implementStatus String? // on-track, delayed, completed, abandoned
+  
+  // Suivi KPIs
+  kpiResults String? // JSON - Résultats réels vs prévisions
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([status])
+  @@index([submitterId])
+  @@index([riskScore])
+  @@index([impactScore])
+}
+
+// Évaluations de risques
+model RiskAssessment {
+  id          String @id @default(uuid())
+  
+  // Identification risque
+  category    String // legal, operational, financial, reputational, technical, strategic
+  description String
+  
+  // Évaluation
+  probability String // very-low, low, medium, high, very-high
+  severity    String // negligible, minor, moderate, major, critical
+  riskScore   Int // Calculé: probability × severity (1-25)
+  
+  // Priorisation
+  priorityLevel String // low, medium, high, critical
+  
+  // Plan de mitigation
+  mitigationPlan    String?
+  responsiblePerson String?
+  targetDate        DateTime?
+  
+  // État
+  status String @default("active") // active, mitigated, accepted, transferred, closed
+  
+  // Soumetteur
+  submitterId    String
+  submitterEmail String
+  
+  // Suivi
+  reviewDate   DateTime? // Prochaine revue
+  lastReviewed DateTime?
+  reviewedBy   String?
+  
+  // Plan d'action IA
+  aiActionPlan String? // JSON - Plan généré par l'IA
+  
+  // Impacts réels (si risque s'est matérialisé)
+  materialized   Boolean   @default(false)
+  materializedAt DateTime?
+  actualImpact   String? // Description impact réel
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([category])
+  @@index([priorityLevel])
+  @@index([status])
+  @@index([riskScore])
+  @@index([submitterId])
+  @@index([targetDate])
+}
+
+// Tâches d'approbation
+model ApprovalTask {
+  id        String @id @default(uuid())
+  
+  // Lien avec soumission
+  submissionId String
+  submission   FormSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  
+  // Approbateur
+  approverRole  String // Role ou email de l'approbateur
+  approverEmail String?
+  
+  // État
+  status String @default("pending") // pending, waiting, approved, rejected
+  
+  // Workflow multi-niveaux
+  level    Int     @default(1) // Niveau dans le workflow (1, 2, 3...)
+  isActive Boolean @default(true) // False si niveau pas encore atteint
+  
+  // Décision
+  decision    String? // approve, reject, request-changes
+  comments    String?
+  decidedAt   DateTime?
+  decidedBy   String? // Email de la personne qui a décidé
+  
+  // Délais
+  dueDate   DateTime? // Date limite pour décision
+  reminded  Boolean   @default(false)
+  remindedAt DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([submissionId])
+  @@index([status])
+  @@index([approverRole])
+  @@index([level])
+  @@index([dueDate])
+}
+
+// Alertes système et formulaires
+model SystemAlert {
+  id       String @id @default(uuid())
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade, name: "SystemAlerts")
+  
+  // Type & Niveau
+  type     String // risk-critical, decision-pending, deadline-approaching, form-submitted, etc.
+  severity String // info, warning, critical
+  
+  // Contenu
+  title       String
+  description String?
+  
+  // Destinataires
+  targetRole  String? // Role concerné
+  targetEmail String? // Email spécifique
+  
+  // État
+  status String @default("active") // active, acknowledged, resolved
+  
+  // Actions
+  actionUrl   String? // Lien vers l'action à prendre
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+  resolvedBy     String?
+  resolvedAt     DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([tenantId])
+  @@index([type])
+  @@index([severity])
+  @@index([status])
+}
+
+// ============================================
+// SEARCH ANALYTICS
+// ============================================
+
+model SearchLog {
+  id            String   @id @default(cuid())
+  query         String
+  resultCount   Int
+  executionTime Float
+  types         String?  // JSON array of types searched
+  userId        String
+  tenantId      String?
+  createdAt     DateTime @default(now())
+  
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@index([query])
 }
