@@ -1,102 +1,42 @@
 {
-  "name": "iaPosteManager",
-  "short_name": "iaPM",
-  "description": "Gestionnaire d'emails intelligent avec IA et commande vocale",
+  "name": "IA Poste Manager",
+  "short_name": "IA Poste",
+  "description": "Système intelligent de gestion juridique multi-tenant",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#667eea",
+  "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
-  "categories": ["productivity", "business", "utilities"],
-  "lang": "fr-FR",
-  "dir": "ltr",
+  "categories": ["business", "productivity"],
+  "lang": "fr",
   "icons": [
     {
-      "src": "/static/icons/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/static/icons/icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/static/icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/static/icons/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/static/icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/static/icons/icon-192x192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/static/icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "maskable any"
-    },
-    {
-      "src": "/static/icons/icon-512x512.png",
+      "src": "/icon-512.png", 
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable any"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/static/screenshots/desktop-1.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/static/screenshots/mobile-1.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow"
+      "purpose": "any maskable"
     }
   ],
   "shortcuts": [
     {
-      "name": "Nouveau message",
-      "short_name": "Nouveau",
-      "description": "Créer un nouveau message",
-      "url": "/compose",
-      "icons": [{ "src": "/static/icons/new-message-96x96.png", "sizes": "96x96" }]
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Accéder au tableau de bord",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Boîte de réception",
-      "short_name": "Inbox",
-      "description": "Voir les messages reçus",
-      "url": "/inbox",
-      "icons": [{ "src": "/static/icons/inbox-96x96.png", "sizes": "96x96" }]
+      "name": "Dossiers",
+      "short_name": "Dossiers", 
+      "description": "Gérer les dossiers",
+      "url": "/dossiers",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
-  ],
-  "related_applications": [],
-  "prefer_related_applications": false,
-  "scope": "/",
-  "iapm_features": {
-    "voice_input": true,
-    "ai_generation": true,
-    "offline_mode": true,
-    "push_notifications": true
-  }
+  ]
 }
