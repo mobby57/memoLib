@@ -1,0 +1,15 @@
+/* Classe pour ajuster le padding du contenu selon l'état de la sidebar */
+.sidebar-collapsed {
+  padding-left: 5rem; /* 20 / 4 = 5rem (80px) */
+}
+
+.sidebar-expanded {
+  padding-left: 16rem; /* 64 / 4 = 16rem (256px) */
+}
+
+/* Animation smooth pour les transitions */
+@media (min-width: 1024px) {
+  main {
+    transition: padding-left 300ms ease-in-out;
+  }
+}
