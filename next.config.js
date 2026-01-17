@@ -7,7 +7,7 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Standalone pour Cloudflare Workers
+  // Standalone pour Cloudflare Workers (pas pour Vercel)
   output: 'standalone',
   
   // Ignore TypeScript errors for build
@@ -80,12 +80,12 @@ const nextConfig = {
             value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()'
           },
           
-          // CSP - Content Security Policy RENFORCÉ
+          // CSP - Content Security Policy RENFORCÉ + SENTRY
           {
             key: 'Content-Security-Policy',
             value: isDev 
-              ? "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ws: wss:; frame-ancestors 'self';"
-              : "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://vercel.live https://vitals.vercel-insights.com wss://ws-us3.pusher.com https://*.vercel.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
+              ? "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ws: wss: https://*.ingest.sentry.io https://*.sentry.io; frame-ancestors 'self';"
+              : "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://vercel.live https://vitals.vercel-insights.com wss://ws-us3.pusher.com https://*.vercel.app https://*.ingest.sentry.io https://*.sentry.io https://o4510691517464576.ingest.de.sentry.io; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
           },
           
           // Cross-Origin Policies
@@ -125,14 +125,17 @@ const nextConfig = {
     ]
   },
   
-  // Proxy API vers backend Flask
+  // Proxy API vers backend Flask (dev uniquement)
   async rewrites() {
-    return [
-      {
-        source: '/api/backend/:path*',
-        destination: 'http://localhost:5005/api/:path*',
-      },
-    ]
+    if (process.env.NODE_ENV === 'development') {
+      return [
+        {
+          source: '/api/backend/:path*',
+          destination: 'http://localhost:5005/api/:path*',
+        },
+      ]
+    }
+    return []
   },
 }
 
@@ -166,6 +169,12 @@ module.exports = withSentryConfig(module.exports, {
   // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
   // side errors will fail.
   tunnelRoute: "/monitoring",
+
+  // Hide source maps from generated client bundles (security)
+  hideSourceMaps: true,
+
+  // Disable Sentry SDK debug logs in production
+  disableLogger: process.env.NODE_ENV === 'production',
 
   webpack: {
     // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
