@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
+import EmailProvider from 'next-auth/providers/email';
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 
@@ -8,6 +9,13 @@ const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    // Email Provider pour authentification par lien magique
+    ...(process.env.EMAIL_SERVER ? [
+      EmailProvider({
+        server: process.env.EMAIL_SERVER,
+        from: process.env.EMAIL_FROM || 'noreply@iapostemanager.com',
+      })
+    ] : []),
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
