@@ -132,6 +132,8 @@ prisma.$use(async (params, next) => {
 });
 
 // Exclure automatiquement les enregistrements supprimés (soft delete)
+// DÉSACTIVÉ TEMPORAIREMENT - Le modèle Dossier n'a pas de champ deletedAt
+/* 
 prisma.$use(async (params, next) => {
   if (params.action === 'findUnique' || params.action === 'findFirst') {
     params.action = 'findFirst';
@@ -150,6 +152,7 @@ prisma.$use(async (params, next) => {
 
   return next(params);
 });
+*/
 
 // ============================================
 // 📈 EXTENSIONS - FONCTIONNALITÉS AVANCÉES
