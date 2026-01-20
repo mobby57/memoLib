@@ -85,7 +85,7 @@
     "docx": "^9.5.1",
     "exceljs": "^4.4.0",
     "googleapis": "^169.0.0",
-    "ioredis": "^5.9.1",
+    "ioredis": "^5.9.2",
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.562.0",
