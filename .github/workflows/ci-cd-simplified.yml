@@ -170,28 +170,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: 📥 Download Build
-        uses: actions/download-artifact@v4
+      - uses: actions/setup-node@v4
         with:
-          name: build-${{ github.sha }}
-          path: .next/
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: 📦 Install Dependencies
+        run: npm ci --legacy-peer-deps
+      
+      - name: 🔧 Generate Prisma Client
+        run: npx prisma generate
+      
+      - name: 🏗️ Build for Production
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: https://iapostemanager.pages.dev
       
       - name: 🚀 Deploy to Cloudflare Pages
         id: deploy
         run: |
-          # Installer Wrangler si pas disponible
+          # Installer Wrangler
           npm install -g wrangler@latest
           
-          # Déployer
+          # Déployer avec Wrangler
           echo "🚀 Deploying to Cloudflare Pages..."
-          wrangler pages deploy .next/static \
+          npx wrangler pages deploy .next \
             --project-name=iapostemanager \
             --branch=main \
-            --commit-dirty=true || echo "Deployment completed with warnings"
+            --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        continue-on-error: true
       
       - name: 🧪 Basic Health Check
         run: |
