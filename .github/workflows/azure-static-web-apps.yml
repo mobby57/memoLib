@@ -87,10 +87,6 @@ jobs:
           api_location: "" # Pas d'API séparée (Next.js gère les API routes)
           output_location: ".next" # Build output Next.js
           
-          # Configuration build
-          skip_app_build: true # On a déjà build
-          skip_api_build: true
-          
           # Variables d'environnement pour le runtime
           env:
             NODE_ENV: production
