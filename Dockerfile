@@ -9,6 +9,7 @@ WORKDIR /app
 # Stage 1: Installer les dépendances
 FROM base AS deps
 COPY package*.json ./
+COPY prisma ./prisma
 RUN npm ci --legacy-peer-deps && \
     npm cache clean --force
 
