@@ -49,6 +49,18 @@
 
 ### STEP 1: Configure Cloudflare Environment Variables (⏱️ 5 minutes)
 
+**Two Options Available:**
+
+#### **OPTION A: Wrangler Config (Faster for Development)**
+✅ **File created:** `wrangler.json` (already in your project)  
+📘 **Full guide:** [CLOUDFLARE_WRANGLER_GUIDE.md](CLOUDFLARE_WRANGLER_GUIDE.md)
+
+```bash
+# Deploy with automatic secret injection
+npx wrangler pages deploy --branch production
+```
+
+#### **OPTION B: Dashboard (Recommended for Production)**
 **Go to:** https://dash.cloudflare.com
 
 **Navigate to:**
