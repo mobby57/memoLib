@@ -86,14 +86,6 @@ jobs:
           app_location: "/" # Racine du projet
           api_location: "" # Pas d'API séparée (Next.js gère les API routes)
           output_location: ".next" # Build output Next.js
-          
-          # Variables d'environnement pour le runtime
-          env:
-            NODE_ENV: production
-            DATABASE_URL: ${{ secrets.DATABASE_URL }}
-            NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
-            NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-            OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
 
       # ============================================
       # DEPLOYMENT SUCCESS
