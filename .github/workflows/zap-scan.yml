@@ -1,15 +1,25 @@
 name: OWASP ZAP Security Scan
 
+# ⚠️ DÉSACTIVÉ - Utiliser owasp-zap.yml qui scanne la production Cloudflare
+# Ce workflow nécessite un serveur local qui ne peut pas démarrer en CI
+
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
-  schedule:
-    - cron: '0 2 * * 0'  # Weekly Sunday 02:00 UTC
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'URL to scan (default: production)'
+        required: false
+        default: 'https://iapostemanager.pages.dev'
+  # push:
+  #   branches: [main, develop]
+  # pull_request:
+  #   branches: [main, develop]
+  # schedule:
+  #   - cron: '0 2 * * 0'  # Weekly Sunday 02:00 UTC
 
 jobs:
   zap-scan:
+    if: false  # Désactivé - utiliser owasp-zap.yml à la place
     runs-on: ubuntu-latest
     timeout-minutes: 30
     
