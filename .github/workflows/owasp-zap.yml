@@ -57,68 +57,45 @@ jobs:
         NEXTAUTH_SECRET: "test-secret-key-for-ci"
         NEXTAUTH_URL: "http://localhost:3000"
 
-    - name: Create ZAP config
-      run: |
-        mkdir -p $GITHUB_WORKSPACE/.zap
-        cat > $GITHUB_WORKSPACE/.zap/rules.conf << 'EOF'
-        # Ignore false positives
-        10096 IGNORE (Timestamp Disclosure)
-        10021 IGNORE (X-Content-Type-Options Header Missing - Next.js handles this)
-        10020 IGNORE (X-Frame-Options Header Not Set - handled by CSP)
-        EOF
-
     - name: OWASP ZAP Baseline Scan
       uses: zaproxy/action-baseline@v0.13.0
-      continue-on-error: true
       with:
         target: 'http://localhost:3000'
         rules_file_name: '.zap/rules.conf'
-        cmd_options: '-a -j -l WARN -z "-config api.disablekey=true"'
-        fail_action: false
+        cmd_options: '-I -r zap-report.html -J zap-report.json'
+        fail_action: true
         allow_issue_writing: false
+      continue-on-error: false
 
-    - name: Create reports directory
-      if: always()
-      run: |
-        mkdir -p zap-reports
-        # Copier les rapports s'ils existent
-        [ -f report_html.html ] && cp report_html.html zap-reports/ || echo "No HTML report"
-        [ -f report_json.json ] && cp report_json.json zap-reports/ || echo "No JSON report"
-        [ -f report_md.md ] && cp report_md.md zap-reports/ || echo "No MD report"
-        # Créer un rapport minimal si aucun fichier
-        if [ ! -f zap-reports/report_md.md ]; then
-          echo "# ZAP Scan Report" > zap-reports/report_md.md
-          echo "Scan completed at $(date)" >> zap-reports/report_md.md
-          echo "No critical vulnerabilities detected." >> zap-reports/report_md.md
-        fi
-
-    - name: Upload ZAP Results
+    - name: Upload ZAP Reports (HTML + JSON)
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: zap-baseline-report
-        path: zap-reports/
+        name: zap-security-report
+        path: |
+          zap-report.html
+          zap-report.json
         retention-days: 30
         if-no-files-found: warn
 
-    - name: Generate Summary
+    - name: Generate ZAP Summary
       if: always()
       run: |
-        echo "# 🔐 OWASP ZAP Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "# 🔐 OWASP ZAP Security Scan" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Scan Date:** $(date)" >> $GITHUB_STEP_SUMMARY
         echo "**Target:** http://localhost:3000" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** $([ -f zap-report.html ] && echo '✅ Scan completed' || echo '❌ Scan failed')" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
-        if [ -f zap-reports/report_md.md ]; then
-          echo "## Scan Results" >> $GITHUB_STEP_SUMMARY
-          cat zap-reports/report_md.md >> $GITHUB_STEP_SUMMARY
-        else
-          echo "✅ No critical issues found" >> $GITHUB_STEP_SUMMARY
-        fi
-        
+        echo "## Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "1. Download `zap-security-report` artifact" >> $GITHUB_STEP_SUMMARY
+        echo "2. Open `zap-report.html` in browser" >> $GITHUB_STEP_SUMMARY
+        echo "3. Review alerts and determine policy (see README)" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "📄 Detailed reports available in artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "**Policy Options:**" >> $GITHUB_STEP_SUMMARY
+        echo "- **Option A (Strict):** Fix all alerts" >> $GITHUB_STEP_SUMMARY
+        echo "- **Option B (Pragmatic):** Approve known low-risk alerts + `-I` flag" >> $GITHUB_STEP_SUMMARY
+        echo "- **Option C (Temporary):** Dev-only bypass with `continue-on-error: true`" >> $GITHUB_STEP_SUMMARY
 
     - name: Stop application
       if: always()
