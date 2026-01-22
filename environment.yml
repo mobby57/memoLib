@@ -1,0 +1,88 @@
+# Configuration Conda pour IA Poste Manager
+# Environnement Python pour services backend IA/ML
+name: iapostemanager
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Python version
+  - python=3.11
+
+  # Web Frameworks
+  - fastapi>=0.109.0
+  - uvicorn>=0.27.0
+  - flask>=3.0.3
+  - flask-cors>=4.0.0
+  - gunicorn>=21.2.0
+
+  # Data Science & ML
+  - numpy>=1.26.0
+  - pandas>=2.1.0
+  - scikit-learn>=1.4.0
+
+  # Utilities
+  - python-dateutil>=2.8.2
+  - cryptography>=42.0.0
+  - httpx>=0.26.0
+  - python-multipart>=0.0.6
+  - pydantic>=2.5.0
+  - python-dotenv>=1.0.0
+
+  # PDF Generation
+  - reportlab>=4.0.0
+  - pypdf2>=3.0.0
+
+  # Email
+  - google-auth>=2.26.0
+  - google-auth-oauthlib>=1.2.0
+  - google-auth-httplib2>=0.2.0
+  - google-api-python-client>=2.110.0
+
+  # NLP & Text Processing (pour recherche sémantique)
+  - spacy>=3.7.0
+  - beautifulsoup4>=4.12.0
+  - lxml>=5.1.0
+
+  # Database
+  - sqlalchemy>=2.0.0
+  - psycopg2>=2.9.0  # PostgreSQL
+  - redis-py>=5.0.0  # Cache (optionnel)
+
+  # Testing
+  - pytest>=7.4.0
+  - pytest-asyncio>=0.23.0
+  - pytest-cov>=4.1.0
+  - httpx>=0.26.0  # Pour tests API
+
+  # Development Tools
+  - black>=23.12.0  # Formatage code
+  - flake8>=7.0.0   # Linting
+  - mypy>=1.8.0     # Type checking
+  - ipython>=8.20.0
+  - jupyter>=1.0.0
+
+  # Monitoring & Logging
+  - prometheus-client>=0.19.0
+  - sentry-sdk>=1.40.0
+
+  # pip dependencies (si pas disponibles sur conda)
+  - pip
+  - pip:
+    # IA Locale (Ollama client)
+    - ollama>=0.1.0
+    
+    # FastAPI extensions
+    - fastapi-cors>=0.0.6
+    - python-jose[cryptography]>=3.3.0
+    - passlib[bcrypt]>=1.7.4
+    
+    # Email advanced
+    - html2text>=2020.1.16
+    
+    # PDF advanced
+    - weasyprint>=60.0
+    
+    # Monitoring
+    - prometheus-fastapi-instrumentator>=6.1.0
