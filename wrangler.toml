@@ -4,6 +4,7 @@
 # ============================================
 
 name = "iaposte-manager"
+account_id = "b8fe52a9c1217b3bb71b53c26d0acfab"
 compatibility_date = "2025-01-07"
 pages_build_output_dir = "out"
 
