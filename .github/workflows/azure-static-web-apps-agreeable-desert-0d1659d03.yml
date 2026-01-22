@@ -1,17 +1,12 @@
 name: Azure Static Web Apps CI/CD
 
+# WORKFLOW DÉSACTIVÉ - Utiliser azure-static-web-apps-green-stone-023c52610.yml
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: false # Désactivé - SWA agreeable-desert supprimée
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
