@@ -31,11 +31,12 @@ jobs:
         severity: 'CRITICAL,HIGH,MEDIUM'
 
     - name: Upload Trivy results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       if: always()
       with:
         sarif_file: 'trivy-results-fs.sarif'
         category: 'trivy-dependencies'
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Generate readable report
       uses: aquasecurity/trivy-action@master
@@ -78,11 +79,12 @@ jobs:
         severity: 'CRITICAL,HIGH'
 
     - name: Upload Trivy results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       if: always()
       with:
         sarif_file: 'trivy-results-docker.sarif'
         category: 'trivy-docker'
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   scan-config:
     name: Scan Configuration Files
@@ -105,11 +107,12 @@ jobs:
         severity: 'CRITICAL,HIGH,MEDIUM'
 
     - name: Upload Trivy results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       if: always()
       with:
         sarif_file: 'trivy-results-config.sarif'
         category: 'trivy-config'
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   scan-secrets:
     name: Scan for Secrets
@@ -134,11 +137,12 @@ jobs:
         output: 'trivy-results-secrets.sarif'
 
     - name: Upload Trivy results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       if: always()
       with:
         sarif_file: 'trivy-results-secrets.sarif'
         category: 'trivy-secrets'
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   summary:
     name: Security Summary
