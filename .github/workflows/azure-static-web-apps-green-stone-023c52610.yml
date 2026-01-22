@@ -46,7 +46,9 @@ jobs:
           app_location: "/"
           api_location: ""
           output_location: ".next"
+          skip_api_build: true
         env:
+          IS_STATIC_EXPORT: true
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: 'https://green-stone-023c52610.6.azurestaticapps.net'
