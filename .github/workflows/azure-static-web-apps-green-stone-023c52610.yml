@@ -37,7 +37,7 @@ jobs:
         run: npx prisma generate
       
       - name: Deploy to Azure SWA (generic token)
-        if: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN != '' }}
+        if: secrets.AZURE_STATIC_WEB_APPS_API_TOKEN != ''
         id: builddeploy_generic
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -55,7 +55,7 @@ jobs:
           OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
 
       - name: Deploy to Azure SWA (resource token)
-        if: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN == '' && secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_STONE_023C52610 != '' }}
+        if: secrets.AZURE_STATIC_WEB_APPS_API_TOKEN == '' && secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_STONE_023C52610 != ''
         id: builddeploy_resource
         uses: Azure/static-web-apps-deploy@v1
         with:
