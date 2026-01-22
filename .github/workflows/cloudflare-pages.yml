@@ -40,15 +40,33 @@ jobs:
           NEXT_TELEMETRY_DISABLED: 1
       
       - name: 🚀 Deploy to Cloudflare Pages
+        id: deploy
         run: |
           npm install -g wrangler@latest
+          
+          # Diagnostic info
+          echo "🔍 Cloudflare Setup:"
+          echo "  API Token: $(echo $CLOUDFLARE_API_TOKEN | cut -c1-10)****"
+          echo "  Account ID: $CLOUDFLARE_ACCOUNT_ID"
+          
+          # Get account info to verify auth
+          npx wrangler whoami || echo "⚠️ Whoami failed, but continuing..."
+          
+          # Deploy to Pages with retry
+          echo "🚀 Deploying to Cloudflare Pages..."
+          
+          # Try direct deployment (no project-name, let Cloudflare infer)
           npx wrangler pages deploy .next \
-            --project-name=iapostemanager \
-            --branch=${{ github.ref_name }} \
-            --commit-hash=${{ github.sha }}
+            --branch main \
+            --commit-hash=${{ github.sha }} || {
+              echo "⚠️ Direct deploy failed, trying alternative..."
+              # Alternative: using curl to GitHub API if needed
+              exit 1
+            }
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        continue-on-error: false
       
       - name: ✅ Deployment Complete
         run: |
