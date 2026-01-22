@@ -1,13 +1,7 @@
-name: Azure Static Web Apps - Production Deployment
-
+# WORKFLOW DÉSACTIVÉ - Utiliser azure-static-web-apps-green-stone-023c52610.yml (auto-généré par Azure)
+# Ce workflow utilisait AZURE_STATIC_WEB_APPS_API_TOKEN (ancien token agreeable-desert)
+# Le nouveau workflow utilise AZURE_STATIC_WEB_APPS_API_TOKEN_GREEN_STONE_023C52610
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
   workflow_dispatch:
 
 env:
@@ -21,7 +15,7 @@ permissions:
 
 jobs:
   build_and_deploy:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'
+    if: false # Désactivé - Utiliser azure-static-web-apps-green-stone-023c52610.yml
     runs-on: ubuntu-latest
     name: 🚀 Build and Deploy
     
@@ -85,7 +79,9 @@ jobs:
           # Configuration Next.js
           app_location: "/" # Racine du projet
           api_location: "" # Pas d'API séparée (Next.js gère les API routes)
-          output_location: ".next" # Build output Next.js
+          output_location: "" # Let Azure SWA auto-detect Next.js output
+        env:
+          IS_STATIC_EXPORT: true # Enable static site generation mode
 
       # ============================================
       # DEPLOYMENT SUCCESS
