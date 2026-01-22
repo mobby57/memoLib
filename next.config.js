@@ -7,8 +7,9 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Standalone pour Cloudflare Workers (pas pour Vercel)
-  output: 'standalone',
+  // Standalone pour Cloudflare Workers - DÉSACTIVÉ sur Windows (bug node:inspector)
+  // output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
+  output: undefined,  // ✅ Fix for Windows EINVAL copyfile issue
   
   // Ignore TypeScript errors for build
   typescript: {
@@ -84,8 +85,8 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value: isDev 
-              ? "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ws: wss: https://*.ingest.sentry.io https://*.sentry.io; frame-ancestors 'self';"
-              : "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://vercel.live https://vitals.vercel-insights.com wss://ws-us3.pusher.com https://*.vercel.app https://*.ingest.sentry.io https://*.sentry.io https://o4510691517464576.ingest.de.sentry.io; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
+              ? "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' ws: wss: https://*.ingest.sentry.io https://*.sentry.io; worker-src 'self' blob:; frame-ancestors 'self';"
+              : "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://vercel.live https://vitals.vercel-insights.com wss://ws-us3.pusher.com https://*.vercel.app https://*.ingest.sentry.io https://*.sentry.io https://o4510691517464576.ingest.de.sentry.io; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
           },
           
           // Cross-Origin Policies
@@ -144,49 +145,11 @@ module.exports = nextConfig;
 // module.exports = withBundleAnalyzer(nextConfig);
 
 
-// Injected content via Sentry wizard below
+// ⚠️  Sentry disabled for Cloudflare Pages (Windows build issue with node:inspector colons)
+// TODO: Re-enable after Next.js / Turbopack fix for Windows path issues
+// const { withSentryConfig } = require("@sentry/nextjs");
+// 
+// module.exports = withSentryConfig(module.exports, { ... })
 
-const { withSentryConfig } = require("@sentry/nextjs");
-
-module.exports = withSentryConfig(module.exports, {
-  // For all available options, see:
-  // https://www.npmjs.com/package/@sentry/webpack-plugin#options
-
-  org: "ms-conseils",
-  project: "iapostemanage-nextjs",
-
-  // Only print logs for uploading source maps in CI
-  silent: !process.env.CI,
-
-  // For all available options, see:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-  // Upload a larger set of source maps for prettier stack traces (increases build time)
-  widenClientFileUpload: true,
-
-  // Route browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers.
-  // This can increase your server load as well as your hosting bill.
-  // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
-  // side errors will fail.
-  tunnelRoute: "/monitoring",
-
-  // Hide source maps from generated client bundles (security)
-  hideSourceMaps: true,
-
-  // Disable Sentry SDK debug logs in production
-  disableLogger: process.env.NODE_ENV === 'production',
-
-  webpack: {
-    // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-    // See the following for more information:
-    // https://docs.sentry.io/product/crons/
-    // https://vercel.com/docs/cron-jobs
-    automaticVercelMonitors: true,
-
-    // Tree-shaking options for reducing bundle size
-    treeshake: {
-      // Automatically tree-shake Sentry logger statements to reduce bundle size
-      removeDebugLogging: true,
-    },
-  },
-});
+// Fallback: export config without Sentry for now
+// module.exports = nextConfig;
