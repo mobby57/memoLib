@@ -76,6 +76,9 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@azure/identity": "^4.5.0",
+    "@azure/keyvault-secrets": "^4.9.0",
+    "@azure/storage-blob": "^12.24.0",
     "@google-cloud/local-auth": "^3.0.1",
     "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",
