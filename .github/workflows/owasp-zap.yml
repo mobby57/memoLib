@@ -81,5 +81,3 @@ jobs:
         echo "- **Option A (Strict):** Fix all alerts" >> $GITHUB_STEP_SUMMARY
         echo "- **Option B (Pragmatic):** Configure .zap/rules.conf for accepted risks" >> $GITHUB_STEP_SUMMARY
         echo "- **Option C (Monitor):** Track trends over time" >> $GITHUB_STEP_SUMMARY
-      if: always()
-      run: pkill -f "next start" || true
