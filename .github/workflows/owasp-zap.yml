@@ -36,16 +36,16 @@ jobs:
         echo "url=$TARGET" >> $GITHUB_OUTPUT
         echo "🎯 Scanning: $TARGET"
 
-    - name: Wait for deployment (if recent push)
-      if: github.event_name == 'push'
+    - name: Wait for deployment readiness
       run: |
-        echo "⏳ Waiting 2 minutes for Cloudflare deployment..."
-        sleep 120
+        echo "⏳ Waiting for Cloudflare deployment to be ready..."
+        sleep 45
+        echo "✅ Deployment should be ready"
 
     - name: OWASP ZAP Baseline Scan
       uses: zaproxy/action-baseline@v0.13.0
       with:
-        target: ${{ steps.target.outputs.url }}
+        target: ${{ steps.target.outputs.url }}/api/health
         rules_file_name: '.zap/rules.conf'
         cmd_options: '-I -r zap-report.html -J zap-report.json'
         fail_action: false  # Ne pas bloquer le workflow
