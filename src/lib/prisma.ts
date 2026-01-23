@@ -46,30 +46,42 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // ============================================
-// ⚙️ OPTIMISATIONS SQLITE AUTOMATIQUES
+// ⚙️ OPTIMISATIONS DATABASE AUTOMATIQUES
 // ============================================
 
-async function optimizeSQLite() {
+async function optimizeDatabase() {
   try {
-    // Activer WAL mode pour meilleures performances
-    await prisma.$queryRawUnsafe('PRAGMA journal_mode = WAL');
-    await prisma.$queryRawUnsafe('PRAGMA synchronous = NORMAL');
-    await prisma.$queryRawUnsafe('PRAGMA cache_size = -64000'); // 64MB
-    await prisma.$queryRawUnsafe('PRAGMA temp_store = MEMORY');
-    await prisma.$queryRawUnsafe('PRAGMA mmap_size = 30000000000');
-    
-    if (process.env.NODE_ENV === 'development') {
-      console.log('✅ SQLite optimizations applied');
+    // Détecter le type de base de données
+    const databaseUrl = process.env.DATABASE_URL || '';
+    const isPostgreSQL = databaseUrl.includes('postgresql') || databaseUrl.includes('postgres') || databaseUrl.includes('neon');
+    const isSQLite = databaseUrl.includes('sqlite') || databaseUrl.includes('file:');
+
+    if (isSQLite) {
+      // Optimisations SQLite
+      await prisma.$queryRawUnsafe('PRAGMA journal_mode = WAL');
+      await prisma.$queryRawUnsafe('PRAGMA synchronous = NORMAL');
+      await prisma.$queryRawUnsafe('PRAGMA cache_size = -64000'); // 64MB
+      await prisma.$queryRawUnsafe('PRAGMA temp_store = MEMORY');
+      await prisma.$queryRawUnsafe('PRAGMA mmap_size = 30000000000');
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ SQLite optimizations applied');
+      }
+    } else if (isPostgreSQL) {
+      // PostgreSQL - pas besoin d'optimisations PRAGMA
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ PostgreSQL connection ready');
+      }
     }
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.warn('⚠️  Could not apply all SQLite optimizations');
+      console.warn('⚠️  Could not apply database optimizations:', error);
     }
   }
 }
 
 // Appliquer les optimisations au démarrage
-optimizeSQLite();
+optimizeDatabase();
 
 // ============================================
 // 📊 LOGGING AVANCÉ AVEC METRICS
