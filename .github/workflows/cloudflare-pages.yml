@@ -55,8 +55,9 @@ jobs:
           # Deploy to Pages with retry
           echo "🚀 Deploying to Cloudflare Pages..."
           
-          # Try direct deployment (no project-name, let Cloudflare infer)
+          # Deploy to existing project
           npx wrangler pages deploy .next \
+            --project-name=iapostemanage \
             --branch main \
             --commit-hash=${{ github.sha }} || {
               echo "⚠️ Direct deploy failed, trying alternative..."
