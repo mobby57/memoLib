@@ -47,6 +47,14 @@ jobs:
           NEXTAUTH_URL: "https://green-stone-023c52610.6.azurestaticapps.net"
           NEXTAUTH_SECRET: "build-time-placeholder"
 
+      - name: Prepare static files for Azure SWA
+        run: |
+          mkdir -p out
+          cp -r .next/static out/_next/static
+          cp -r public/* out/ 2>/dev/null || true
+          cp staticwebapp.config.json out/ 2>/dev/null || true
+          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/auth/login"></head></html>' > out/index.html
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
