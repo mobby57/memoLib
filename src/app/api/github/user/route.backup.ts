@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Route: Obtenir les informations du compte GitHub de l'utilisateur
  * GET /api/github/user
  */

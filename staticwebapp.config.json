@@ -1,5 +1,20 @@
 {
+  "platform": {
+    "apiRuntime": "node:20"
+  },
   "routes": [
+    {
+      "route": "/api/*",
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
+      "route": "/admin/*",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/dashboard/*", 
+      "allowedRoles": ["authenticated"]
+    },
     {
       "route": "/*",
       "allowedRoles": ["anonymous"]
@@ -7,21 +22,25 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/_next/*", "/api/*"]
+    "exclude": ["/_next/*", "/api/*", "/*.ico", "/*.svg", "/*.png", "/*.json"]
   },
   "responseOverrides": {
+    "401": {
+      "statusCode": 302,
+      "redirect": "/auth/login"
+    },
     "404": {
       "rewrite": "/index.html",
       "statusCode": 200
     }
   },
   "globalHeaders": {
-    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; worker-src 'self' blob:;",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "X-XSS-Protection": "1; mode=block",
     "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Permissions-Policy": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload"
   },
   "mimeTypes": {
     ".json": "application/json",
@@ -32,8 +51,5 @@
     ".svg": "image/svg+xml",
     ".woff": "font/woff",
     ".woff2": "font/woff2"
-  },
-  "platform": {
-    "apiRuntime": "node:20"
   }
 }

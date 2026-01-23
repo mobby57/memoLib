@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TEMPLATES DE DOCUMENTS PRÉ-VALIDÉS
  * Basé sur CHARTE_IA_JURIDIQUE.md - Section 2.5
  * 

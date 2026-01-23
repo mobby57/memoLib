@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'état ACTION_PROPOSED
  * Proposer UNE SEULE action utile pour réduire l'incertitude
  */

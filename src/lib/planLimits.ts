@@ -1,8 +1,8 @@
 ﻿/**
  * Plan Limits & AI Guards - IA Poste Manager
  * 
- * Système de vérification des limites par plan et garde-fous IA
- * Implémente la Charte IA et les niveaux d'autonomie
+ * Syst�me de v�rification des limites par plan et garde-fous IA
+ * Impl�mente la Charte IA et les niveaux d'autonomie
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -51,7 +51,7 @@ export interface AIActionResult {
 // ============================================
 
 export enum AIAction {
-  // Actions autorisées (niveau 1+)
+  // Actions autoris�es (niveau 1+)
   SORT_MESSAGES = 'SORT_MESSAGES',
   PRIORITIZE = 'PRIORITIZE',
   REQUEST_DOCUMENTS = 'REQUEST_DOCUMENTS',
@@ -104,11 +104,11 @@ const AI_ACTION_LEVELS: Record<AIAction, number> = {
 };
 
 // ============================================
-// VÉRIFICATION DES LIMITES
+// V�RIFICATION DES LIMITES
 // ============================================
 
 /**
- * Vérifie si un tenant peut créer un nouveau dossier
+ * V�rifie si un tenant peut cr�er un nouveau dossier
  */
 export async function canCreateDossier(tenantId: string): Promise<LimitCheckResult> {
   const tenant = await prisma.tenant.findUnique({
@@ -133,7 +133,7 @@ export async function canCreateDossier(tenantId: string): Promise<LimitCheckResu
 }
 
 /**
- * Vérifie si un tenant peut ajouter un nouveau client
+ * V�rifie si un tenant peut ajouter un nouveau client
  */
 export async function canAddClient(tenantId: string): Promise<LimitCheckResult> {
   const tenant = await prisma.tenant.findUnique({
@@ -158,7 +158,7 @@ export async function canAddClient(tenantId: string): Promise<LimitCheckResult> 
 }
 
 /**
- * Vérifie si un tenant peut ajouter un nouvel utilisateur
+ * V�rifie si un tenant peut ajouter un nouvel utilisateur
  */
 export async function canAddUser(tenantId: string): Promise<LimitCheckResult> {
   const tenant = await prisma.tenant.findUnique({
@@ -183,7 +183,7 @@ export async function canAddUser(tenantId: string): Promise<LimitCheckResult> {
 }
 
 /**
- * Vérifie si un tenant peut uploader un fichier
+ * V�rifie si un tenant peut uploader un fichier
  */
 export async function canUploadFile(
   tenantId: string,
@@ -217,7 +217,7 @@ export async function canUploadFile(
 // ============================================
 
 /**
- * Vérifie si une action IA est autorisée selon le plan
+ * V�rifie si une action IA est autoris�e selon le plan
  */
 export async function canPerformAIAction(
   tenantId: string,
@@ -244,12 +244,12 @@ export async function canPerformAIAction(
     return {
       allowed: false,
       requiresValidation: true,
-      reason: 'Cette action nécessite TOUJOURS une validation humaine (Charte IA)',
+      reason: 'Cette action n�cessite TOUJOURS une validation humaine (Charte IA)',
       autonomyLevel: tenantLevel,
     };
   }
 
-  // Vérifier le niveau d'autonomie
+  // V�rifier le niveau d'autonomie
   if (tenantLevel < requiredLevel) {
     return {
       allowed: false,
@@ -259,7 +259,7 @@ export async function canPerformAIAction(
     };
   }
 
-  // Vérifier si validation humaine est forcée par le plan
+  // V�rifier si validation humaine est forc�e par le plan
   const requiresValidation = tenant.plan.humanValidation;
 
   return {
@@ -270,7 +270,7 @@ export async function canPerformAIAction(
 }
 
 /**
- * Vérifie si l'accès aux analytics avancés est autorisé
+ * V�rifie si l'acc�s aux analytics avanc�s est autoris�
  */
 export async function canAccessAdvancedAnalytics(tenantId: string): Promise<boolean> {
   const tenant = await prisma.tenant.findUnique({
@@ -282,7 +282,7 @@ export async function canAccessAdvancedAnalytics(tenantId: string): Promise<bool
 }
 
 /**
- * Vérifie si l'accès aux IA externes est autorisé
+ * V�rifie si l'acc�s aux IA externes est autoris�
  */
 export async function canAccessExternalAI(tenantId: string): Promise<boolean> {
   const tenant = await prisma.tenant.findUnique({
@@ -294,7 +294,7 @@ export async function canAccessExternalAI(tenantId: string): Promise<boolean> {
 }
 
 /**
- * Vérifie si le support prioritaire est activé
+ * V�rifie si le support prioritaire est activ�
  */
 export async function hasPrioritySupport(tenantId: string): Promise<boolean> {
   const tenant = await prisma.tenant.findUnique({
@@ -310,7 +310,7 @@ export async function hasPrioritySupport(tenantId: string): Promise<boolean> {
 // ============================================
 
 /**
- * Récupère les limites du plan d'un tenant
+ * R�cup�re les limites du plan d'un tenant
  */
 export async function getTenantLimits(tenantId: string): Promise<PlanLimits | null> {
   const tenant = await prisma.tenant.findUnique({
@@ -334,7 +334,7 @@ export async function getTenantLimits(tenantId: string): Promise<PlanLimits | nu
 }
 
 /**
- * Récupère l'usage actuel d'un tenant
+ * R�cup�re l'usage actuel d'un tenant
  */
 export async function getTenantUsage(tenantId: string): Promise<TenantUsage | null> {
   const tenant = await prisma.tenant.findUnique({
@@ -352,7 +352,7 @@ export async function getTenantUsage(tenantId: string): Promise<TenantUsage | nu
 }
 
 /**
- * Incrémente le compteur de dossiers d'un tenant
+ * Incr�mente le compteur de dossiers d'un tenant
  */
 export async function incrementDossierCount(tenantId: string): Promise<void> {
   await prisma.tenant.update({
@@ -362,7 +362,7 @@ export async function incrementDossierCount(tenantId: string): Promise<void> {
 }
 
 /**
- * Incrémente le compteur de clients d'un tenant
+ * Incr�mente le compteur de clients d'un tenant
  */
 export async function incrementClientCount(tenantId: string): Promise<void> {
   await prisma.tenant.update({
@@ -372,7 +372,7 @@ export async function incrementClientCount(tenantId: string): Promise<void> {
 }
 
 /**
- * Incrémente le compteur d'utilisateurs d'un tenant
+ * Incr�mente le compteur d'utilisateurs d'un tenant
  */
 export async function incrementUserCount(tenantId: string): Promise<void> {
   await prisma.tenant.update({
@@ -382,7 +382,7 @@ export async function incrementUserCount(tenantId: string): Promise<void> {
 }
 
 /**
- * Ajoute du stockage utilisé pour un tenant
+ * Ajoute du stockage utilis� pour un tenant
  */
 export async function addStorageUsage(tenantId: string, sizeGb: number): Promise<void> {
   await prisma.tenant.update({
@@ -392,7 +392,7 @@ export async function addStorageUsage(tenantId: string, sizeGb: number): Promise
 }
 
 /**
- * Log une action IA (pour traçabilité - Charte IA)
+ * Log une action IA (pour tra�abilit� - Charte IA)
  */
 export async function logAIAction(data: {
   tenantId: string;
@@ -402,6 +402,6 @@ export async function logAIAction(data: {
   metadata?: any;
 }): Promise<void> {
   // Utiliser logger au lieu de console.log
-  // TODO: Implémenter table AuditLog dans Prisma
+  // TODO: Impl�menter table AuditLog dans Prisma
   // await prisma.auditLog.create({ data: { ...data, timestamp: new Date() } });
 }

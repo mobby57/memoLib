@@ -1,11 +1,11 @@
-/**
+﻿/**
  * GitHub User Client - Authentication User-to-Server
  * Permet à l'application d'agir pour le compte d'un utilisateur GitHub
  */
 
 import { Octokit } from '@octokit/rest';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 
 export interface GitHubUserClient {

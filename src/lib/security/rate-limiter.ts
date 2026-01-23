@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Advanced Rate Limiting & DDoS Protection
  * - Per-user rate limits
  * - Per-IP rate limits

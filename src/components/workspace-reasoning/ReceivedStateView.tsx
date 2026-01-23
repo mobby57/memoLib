@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'état RECEIVED
  * Objectif: Confirmer ce qui est reçu, rien de plus
  */

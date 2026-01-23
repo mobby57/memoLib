@@ -1,13 +1,13 @@
 ﻿/**
- * EXEMPLE D'INTÉGRATION - Route API sécurisée avec audit
+ * EXEMPLE D'INT�GRATION - Route API s�curis�e avec audit
  * 
- * Ce fichier montre comment intégrer le système d'audit
- * dans une route API réelle de IA Poste Manager
+ * Ce fichier montre comment int�grer le syst�me d'audit
+ * dans une route API r�elle de IA Poste Manager
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import { logAudit, AuditHelpers } from '@/lib/audit';
 import { hashFile } from '@/lib/crypto';
@@ -27,24 +27,24 @@ export async function POST_UploadDocument(
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
-    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    return NextResponse.json({ error: 'Non authentifi�' }, { status: 401 });
   }
 
   const tenantId = params.id;
   const dossierId = params.dossierId;
 
-  // 1. VÉRIFICATION AUTORISATION
+  // 1. V�RIFICATION AUTORISATION
   if (session.user.role !== 'SUPER_ADMIN' && session.user.tenantId !== tenantId) {
-    // Log tentative d'accès non autorisé
+    // Log tentative d'acc�s non autoris�
     await AuditHelpers.logUnauthorizedAccess(
       session.user.id,
       tenantId,
       'Document',
       'upload',
-      'Tentative accès cross-tenant',
+      'Tentative acc�s cross-tenant',
       req.ip
     );
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+    return NextResponse.json({ error: 'Non autoris�' }, { status: 403 });
   }
 
   try {
@@ -65,10 +65,10 @@ export async function POST_UploadDocument(
     const filename = `${Date.now()}-${file.name}`;
     const filepath = join(uploadDir, filename);
     
-    // Créer le répertoire si nécessaire
+    // Cr�er le r�pertoire si n�cessaire
     await writeFile(filepath, buffer);
 
-    // 4. CRÉATION DOCUMENT EN BASE
+    // 4. CR�ATION DOCUMENT EN BASE
     const document = await prisma.Document.create({
       data: {
         dossierId,
@@ -82,7 +82,7 @@ export async function POST_UploadDocument(
       }
     });
 
-    // 5. CRÉATION VERSION INITIALE
+    // 5. CR�ATION VERSION INITIALE
     await prisma.DocumentVersion.create({
       data: {
         documentId: document.id,
@@ -136,7 +136,7 @@ export async function POST_UploadDocument(
 }
 
 // ============================================
-// EXEMPLE 2 : Téléchargement de document avec audit
+// EXEMPLE 2 : T�l�chargement de document avec audit
 // ============================================
 
 export async function GET_DownloadDocument(
@@ -144,13 +144,13 @@ export async function GET_DownloadDocument(
   { params }: { params: { id: string; documentId: string } }
 ) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!session) return NextResponse.json({ error: 'Non authentifi�' }, { status: 401 });
 
   const tenantId = params.id;
   const documentId = params.documentId;
 
   try {
-    // Récupérer le document
+    // R�cup�rer le document
     const document = await prisma.Document.findFirst({
       where: {
         id: documentId,
@@ -161,10 +161,10 @@ export async function GET_DownloadDocument(
     });
 
     if (!document) {
-      return NextResponse.json({ error: 'Document non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Document non trouv�' }, { status: 404 });
     }
 
-    // Vérification autorisation (le middleware devrait déjà avoir fait ça)
+    // V�rification autorisation (le middleware devrait d�j� avoir fait �a)
     // Mais double-check pour les actions critiques
     if (session.user.tenantId !== tenantId) {
       await AuditHelpers.logUnauthorizedAccess(
@@ -172,13 +172,13 @@ export async function GET_DownloadDocument(
         tenantId,
         'Document',
         documentId,
-        'Tentative téléchargement cross-tenant',
+        'Tentative t�l�chargement cross-tenant',
         req.ip
       );
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+      return NextResponse.json({ error: 'Non autoris�' }, { status: 403 });
     }
 
-    // LOG DU TÉLÉCHARGEMENT
+    // LOG DU T�L�CHARGEMENT
     await AuditHelpers.logDocumentDownload(
       tenantId,
       session.user.id,
@@ -187,7 +187,7 @@ export async function GET_DownloadDocument(
     );
 
     // Retourner le fichier
-    // (Implémentation complète nécessite fs.readFile + stream)
+    // (Impl�mentation compl�te n�cessite fs.readFile + stream)
     return NextResponse.json({
       success: true,
       document: {
@@ -208,7 +208,7 @@ export async function GET_DownloadDocument(
       errorMessage: (error as Error).message
     });
 
-    return NextResponse.json({ error: 'Erreur téléchargement' }, { status: 500 });
+    return NextResponse.json({ error: 'Erreur t�l�chargement' }, { status: 500 });
   }
 }
 
@@ -221,13 +221,13 @@ export async function POST_AnalyzeDossier(
   { params }: { params: { id: string; dossierId: string } }
 ) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!session) return NextResponse.json({ error: 'Non authentifi�' }, { status: 401 });
 
   const tenantId = params.id;
   const dossierId = params.dossierId;
 
   try {
-    // Récupérer le dossier
+    // R�cup�rer le dossier
     const dossier = await prisma.Dossier.findFirst({
       where: {
         id: dossierId,
@@ -240,10 +240,10 @@ export async function POST_AnalyzeDossier(
     });
 
     if (!dossier) {
-      return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Dossier non trouv�' }, { status: 404 });
     }
 
-    // 1. PRÉPARATION SÉCURISÉE POUR IA
+    // 1. PR�PARATION S�CURIS�E POUR IA
     const safeDossier = prepareDossierForAI(dossier);
 
     if (!safeDossier) {
@@ -255,18 +255,18 @@ export async function POST_AnalyzeDossier(
         objectId: dossierId,
         metadata: { aiAnalysis: 'failed', reason: 'Impossible d\'anonymiser' },
         success: false,
-        errorMessage: 'Données sensibles détectées'
+        errorMessage: 'Donn�es sensibles d�tect�es'
       });
 
       return NextResponse.json({
-        error: 'Impossible d\'analyser ce dossier (données sensibles)'
+        error: 'Impossible d\'analyser ce dossier (donn�es sensibles)'
       }, { status: 400 });
     }
 
-    // 2. APPEL IA SÉCURISÉ
+    // 2. APPEL IA S�CURIS�
     const analysis = await secureAICall(
       async (input) => {
-        // Appel à Ollama
+        // Appel � Ollama
         const response = await fetch('http://localhost:11434/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -289,7 +289,7 @@ export async function POST_AnalyzeDossier(
         where: { id: dossierId },
         data: {
           aiAnalysis: JSON.stringify(analysis)
-          // analysis contient déjà __aiGenerated, __requiresHumanValidation
+          // analysis contient d�j� __aiGenerated, __requiresHumanValidation
         }
       });
 
@@ -311,11 +311,11 @@ export async function POST_AnalyzeDossier(
       return NextResponse.json({ 
         success: true, 
         analysis,
-        warning: 'Cette analyse IA nécessite une validation humaine'
+        warning: 'Cette analyse IA n�cessite une validation humaine'
       });
     }
 
-    return NextResponse.json({ error: 'Échec analyse IA' }, { status: 500 });
+    return NextResponse.json({ error: '�chec analyse IA' }, { status: 500 });
 
   } catch (error) {
     await logAudit({
@@ -343,14 +343,14 @@ export async function POST_Login(req: NextRequest) {
     const { email, password } = body;
 
     // Tentative de connexion
-    // (NextAuth gère déjà l'authentification, ceci est un exemple)
+    // (NextAuth g�re d�j� l'authentification, ceci est un exemple)
     
     const user = await prisma.User.findUnique({
       where: { email }
     });
 
     if (!user) {
-      // Log échec connexion
+      // Log �chec connexion
       await AuditHelpers.logLoginFailed(
         email,
         req.ip,
@@ -360,7 +360,7 @@ export async function POST_Login(req: NextRequest) {
       return NextResponse.json({ error: 'Identifiants invalides' }, { status: 401 });
     }
 
-    // Vérification password (bcrypt)
+    // V�rification password (bcrypt)
     const bcrypt = require('bcryptjs');
     const isValid = await bcrypt.compare(password, user.password);
 
@@ -374,7 +374,7 @@ export async function POST_Login(req: NextRequest) {
       return NextResponse.json({ error: 'Identifiants invalides' }, { status: 401 });
     }
 
-    // Succès - Log connexion
+    // Succ�s - Log connexion
     await AuditHelpers.logLogin(
       user.id,
       user.tenantId,
@@ -382,7 +382,7 @@ export async function POST_Login(req: NextRequest) {
       req.headers.get('user-agent') || undefined
     );
 
-    // Mettre à jour lastLogin
+    // Mettre � jour lastLogin
     await prisma.User.update({
       where: { id: user.id },
       data: { lastLogin: new Date() }
@@ -412,33 +412,33 @@ export async function DELETE_Dossier(
   { params }: { params: { id: string; dossierId: string } }
 ) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  if (!session) return NextResponse.json({ error: 'Non authentifi�' }, { status: 401 });
 
   const tenantId = params.id;
   const dossierId = params.dossierId;
 
-  // Vérification autorisation
+  // V�rification autorisation
   if (session.user.role !== 'ADMIN' || session.user.tenantId !== tenantId) {
     await AuditHelpers.logUnauthorizedAccess(
       session.user.id,
       tenantId,
       'Dossier',
       dossierId,
-      'Tentative suppression non autorisée',
+      'Tentative suppression non autoris�e',
       req.ip
     );
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+    return NextResponse.json({ error: 'Non autoris�' }, { status: 403 });
   }
 
   try {
-    // Récupérer infos avant suppression (pour audit)
+    // R�cup�rer infos avant suppression (pour audit)
     const dossier = await prisma.Dossier.findUnique({
       where: { id: dossierId },
       include: { client: true }
     });
 
     if (!dossier) {
-      return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Dossier non trouv�' }, { status: 404 });
     }
 
     // Suppression
@@ -446,7 +446,7 @@ export async function DELETE_Dossier(
       where: { id: dossierId }
     });
 
-    // AUDIT CRITIQUE (suppression = action irréversible)
+    // AUDIT CRITIQUE (suppression = action irr�versible)
     await logAudit({
       tenantId,
       userId: session.user.id,
@@ -467,7 +467,7 @@ export async function DELETE_Dossier(
 
     return NextResponse.json({ 
       success: true,
-      message: 'Dossier supprimé'
+      message: 'Dossier supprim�'
     });
 
   } catch (error) {

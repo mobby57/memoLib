@@ -1,4 +1,4 @@
-
+﻿
 
 export interface IconLogoutProps extends React.SVGProps<SVGSVGElement> {
   size?: number;

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Mappers pour convertir les données entre DB et UI
  * Centralise toute la logique de transformation
  */

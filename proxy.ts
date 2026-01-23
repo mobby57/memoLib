@@ -39,6 +39,11 @@ function initCleanup() {
 }
 
 export default function proxy(request: NextRequest) {
+  // ⚡ BYPASS complet en mode développement pour les performances
+  if (process.env.NODE_ENV === 'development') {
+    return NextResponse.next()
+  }
+
   // Initialiser le nettoyage si nécessaire
   initCleanup()
   

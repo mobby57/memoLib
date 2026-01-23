@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ⚙️ Moteur de Workflows Intelligents
  * Orchestration des workflows automatisés contextuels
  */

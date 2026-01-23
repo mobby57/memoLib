@@ -1,4 +1,4 @@
-import { useAuth } from './useAuth';
+﻿import { useAuth } from './useAuth';
 
 export function useTenant() {
   const { user } = useAuth();
