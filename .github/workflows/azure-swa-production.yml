@@ -44,7 +44,7 @@ jobs:
           NODE_ENV: production
           # These are build-time only - runtime vars are in Azure config
           DATABASE_URL: "file:./dev.db"
-          NEXTAUTH_URL: "https://agreeable-desert-0d1659d03.5.azurestaticapps.net"
+          NEXTAUTH_URL: "https://green-stone-023c52610.6.azurestaticapps.net"
           NEXTAUTH_SECRET: "build-time-placeholder"
 
       - name: Deploy to Azure Static Web Apps
