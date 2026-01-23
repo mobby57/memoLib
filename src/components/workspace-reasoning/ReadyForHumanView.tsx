@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'état READY_FOR_HUMAN
  * Synthèse exécutive + Handoff à l'humain
  */

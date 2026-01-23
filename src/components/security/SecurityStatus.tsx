@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Shield, CheckCircle, AlertTriangle, Lock } from 'lucide-react';
 import { Card } from '@/components/ui/Card';

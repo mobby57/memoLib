@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'état RISK_EVALUATED
  * Évaluer les risques de se tromper - Impact × Probabilité
  */

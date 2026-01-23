@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * 🆕 Nouveau Workspace - Création d'un espace de raisonnement

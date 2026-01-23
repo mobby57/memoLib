@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🔍 SYSTÈME DE LOGGING AVANCÉ POUR DÉVELOPPEMENT
  * Traçabilité complète, métriques temps réel, debugging IA
  */

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autoris�' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     const activities: any[] = [];
 
-    // Récupérer les dossiers récents
+    // R�cup�rer les dossiers r�cents
     let dossiersWhere: any = {};
     if (userRole === 'CLIENT') {
       dossiersWhere = { clientId: userId };
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Récupérer les factures récentes
+    // R�cup�rer les factures r�centes
     let facturesWhere: any = {};
     if (userRole === 'CLIENT') {
       const clientDossiers = await prisma.dossier.findMany({
@@ -72,14 +72,14 @@ export async function GET(request: NextRequest) {
       activities.push({
         id: `facture-${facture.id}`,
         type: 'facture',
-        title: `Facture #${facture.numero} - ${facture.montant}€`,
+        title: `Facture #${facture.numero} - ${facture.montant}�`,
         date: facture.createdAt.toISOString(),
         status: facture.statut === 'PAYEE' ? 'success' : 
                 facture.statut === 'EN_ATTENTE' ? 'warning' : 'info',
       });
     }
 
-    // Récupérer les clients récents (seulement pour avocats)
+    // R�cup�rer les clients r�cents (seulement pour avocats)
     if (userRole === 'AVOCAT' && tenantId) {
       const recentClients = await prisma.client.findMany({
         where: { tenantId },
@@ -98,15 +98,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Trier toutes les activités par date décroissante
+    // Trier toutes les activit�s par date d�croissante
     activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    // Limiter à 5 activités
+    // Limiter � 5 activit�s
     const finalActivities = activities.slice(0, 5);
 
     return NextResponse.json(finalActivities);
   } catch (error) {
-    console.error('Erreur lors de la récupération des activités récentes:', error);
+    console.error('Erreur lors de la r�cup�ration des activit�s r�centes:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

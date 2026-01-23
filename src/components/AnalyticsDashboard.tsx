@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant Dashboard Analytique Avancé
  * Visualisation des métriques IA et tendances
  * 

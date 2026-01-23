@@ -1,0 +1,252 @@
+// Prisma Schema pour PostgreSQL - Version Temporaire pour Migration
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// NIVEAU 1 : SUPER ADMIN - GESTION PLATEFORME
+// ============================================
+
+model Plan {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  displayName String
+  description String?
+
+  priceMonthly Float
+  priceYearly  Float
+  currency     String @default("EUR")
+
+  maxWorkspaces Int @default(1)
+  maxDossiers  Int @default(100)
+  maxClients   Int @default(20)
+  maxStorageGb Int @default(5)
+  maxUsers     Int @default(5)
+
+  aiAutonomyLevel   Int     @default(1)
+  humanValidation   Boolean @default(true)
+  advancedAnalytics Boolean @default(false)
+  externalAiAccess  Boolean @default(false)
+
+  prioritySupport Boolean @default(false)
+  customBranding  Boolean @default(false)
+  apiAccess       Boolean @default(false)
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenants       Tenant[]
+  subscriptions Subscription[]
+}
+
+model Tenant {
+  id        String  @id @default(uuid())
+  name      String
+  subdomain String  @unique
+  domain    String? @unique
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  status      String    @default("active")
+  trialEndsAt DateTime?
+
+  billingEmail   String?
+  billingAddress String?
+  vatNumber      String?
+
+  currentWorkspaces Int   @default(0)
+  currentDossiers  Int   @default(0)
+  currentClients   Int   @default(0)
+  currentStorageGb Float @default(0)
+  currentUsers     Int   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  clients   Client[]
+  dossiers  Dossier[]
+  settings  TenantSettings?
+
+  @@index([planId])
+}
+
+model TenantSettings {
+  id       String @id @default(uuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  ollamaEnabled Boolean @default(true)
+  ollamaUrl     String  @default("http://localhost:11434")
+  ollamaModel   String  @default("llama3.2:latest")
+
+  emailEnabled Boolean @default(false)
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUser     String?
+  smtpPass     String?
+
+  maxDossiers  Int @default(100)
+  maxUsers     Int @default(5)
+  storageLimit Int @default(1000)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  name     String
+  password String
+
+  role String
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  clientId String? @unique
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  avatar    String?
+  phone     String?
+  status    String    @default("active")
+  lastLogin DateTime?
+
+  language String @default("fr")
+  timezone String @default("Europe/Paris")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, email])
+  @@index([role])
+}
+
+model Client {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  civilite     String?
+  firstName    String
+  lastName     String
+  nomNaissance String?
+  prenomUsuel  String?
+
+  email            String
+  emailSecondaire  String?
+  phone            String?
+  phoneSecondaire  String?
+  telephoneUrgence String?
+
+  dateOfBirth        DateTime?
+  lieuNaissance      String?
+  nationality        String?
+  nationaliteOrigine String?
+
+  address    String?
+  codePostal String?
+  ville      String?
+  pays       String  @default("France")
+
+  user User?
+
+  passportNumber  String?
+  passportExpiry  DateTime?
+  passportCountry String?
+
+  status String @default("actif")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dossiers Dossier[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId, email])
+  @@index([tenantId, status])
+}
+
+model Dossier {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  numero String
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  typeDossier        String
+  articleCeseda      String?
+  categorieJuridique String?
+
+  statut   String @default("en_cours")
+  priorite String @default("normale")
+  phase    String @default("instruction")
+
+  dateCreation       DateTime  @default(now())
+  dateOuverture      DateTime?
+  dateEcheance       DateTime?
+  dateProchaineEtape DateTime?
+  dateCloture        DateTime?
+
+  juridiction       String?
+  numeroJuridiction String?
+  typeRecours       String?
+
+  responsableId  String?
+  collaborateurs String?
+
+  objet       String?
+  description String?
+  notes       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, statut])
+  @@index([clientId])
+}
+
+model Subscription {
+  id       String @id @default(uuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  status String @default("active")
+
+  billingCycle String @default("monthly")
+
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  trialEnd           DateTime?
+  canceledAt         DateTime?
+  endedAt            DateTime?
+
+  pricePerMonth Float
+  currency      String @default("EUR")
+
+  autoRenew Boolean @default(true)
+
+  metadata String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+}

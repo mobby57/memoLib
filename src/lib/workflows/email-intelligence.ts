@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🤖 Système d'Intelligence Email
  * Analyse automatique des emails et génération de workflows contextuels
  */

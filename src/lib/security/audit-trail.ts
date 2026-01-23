@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Comprehensive Audit Trail System
  * - RGPD/GDPR compliant logging
  * - Track all sensitive data access

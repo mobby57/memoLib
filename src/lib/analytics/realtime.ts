@@ -1,4 +1,4 @@
-// Real-Time Analytics Service
+﻿// Real-Time Analytics Service
 interface LiveMetrics {
   activeUsers: number;
   currentCaseload: number;

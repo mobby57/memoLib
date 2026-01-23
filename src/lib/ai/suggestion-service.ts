@@ -11,7 +11,7 @@ export interface Suggestion {
 }
 
 export class SuggestionService {
-  // Générer toutes les suggestions pour un tenant
+  // G�n�rer toutes les suggestions pour un tenant
   static async generateSuggestions(tenantId: string): Promise<Suggestion[]> {
     const suggestions: Suggestion[] = []
     
@@ -19,15 +19,15 @@ export class SuggestionService {
     const inactiveSuggestions = await this.detectInactiveDossiers(tenantId)
     suggestions.push(...inactiveSuggestions)
     
-    // 2. Documents manquants récurrents
+    // 2. Documents manquants r�currents
     const documentSuggestions = await this.detectMissingDocuments(tenantId)
     suggestions.push(...documentSuggestions)
     
-    // 3. Échéances critiques
+    // 3. �ch�ances critiques
     const deadlineSuggestions = await this.detectCriticalDeadlines(tenantId)
     suggestions.push(...deadlineSuggestions)
     
-    // 4. Opportunités d'automatisation
+    // 4. Opportunit�s d'automatisation
     const automationSuggestions = await this.detectAutomationOpportunities(tenantId)
     suggestions.push(...automationSuggestions)
     
@@ -38,7 +38,7 @@ export class SuggestionService {
     return suggestions.sort((a, b) => b.confidence - a.confidence)
   }
 
-  // Détecter dossiers inactifs (> 14 jours)
+  // D�tecter dossiers inactifs (> 14 jours)
   static async detectInactiveDossiers(tenantId: string): Promise<Suggestion[]> {
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - 14)
@@ -56,7 +56,7 @@ export class SuggestionService {
       id: `inactive_${dossier.id}`,
       type: 'INACTIVE_DOSSIER',
       title: `Dossier inactif: ${dossier.numero}`,
-      description: `Le dossier de ${dossier.client ? `${dossier.client.firstName} ${dossier.client.lastName}` : 'Client'} n'a pas été mis à jour depuis ${Math.ceil((Date.now() - dossier.updatedAt.getTime()) / (1000 * 60 * 60 * 24))} jours`,
+      description: `Le dossier de ${dossier.client ? `${dossier.client.firstName} ${dossier.client.lastName}` : 'Client'} n'a pas �t� mis � jour depuis ${Math.ceil((Date.now() - dossier.updatedAt.getTime()) / (1000 * 60 * 60 * 24))} jours`,
       confidence: 0.85,
       dossierId: dossier.id,
       actionData: {
@@ -66,7 +66,7 @@ export class SuggestionService {
     }))
   }
 
-  // Détecter documents manquants récurrents
+  // D�tecter documents manquants r�currents
   static async detectMissingDocuments(tenantId: string): Promise<Suggestion[]> {
     // Analyser les patterns de documents manquants
     const dossiers = await prisma.dossier.findMany({
@@ -93,7 +93,7 @@ export class SuggestionService {
       .map(([docType, count]) => ({
         id: `missing_doc_${docType}`,
         type: 'MISSING_DOCUMENT_PATTERN',
-        title: `Document manquant récurrent: ${docType}`,
+        title: `Document manquant r�current: ${docType}`,
         description: `${count} dossiers n'ont pas de ${docType}. Automatiser la demande?`,
         confidence: Math.min(0.9, count / 10),
         actionData: {
@@ -103,7 +103,7 @@ export class SuggestionService {
       }))
   }
 
-  // Détecter échéances critiques
+  // D�tecter �ch�ances critiques
   static async detectCriticalDeadlines(tenantId: string): Promise<Suggestion[]> {
     const in14Days = new Date()
     in14Days.setDate(in14Days.getDate() + 14)
@@ -123,7 +123,7 @@ export class SuggestionService {
       return {
         id: `deadline_${dossier.id}`,
         type: 'CRITICAL_DEADLINE',
-        title: `Échéance critique: ${dossier.numero}`,
+        title: `�ch�ance critique: ${dossier.numero}`,
         description: `${daysLeft} jours restants pour ${dossier.client ? `${dossier.client.firstName} ${dossier.client.lastName}` : 'Client'}`,
         confidence: daysLeft <= 7 ? 0.95 : 0.8,
         dossierId: dossier.id,
@@ -135,7 +135,7 @@ export class SuggestionService {
     })
   }
 
-  // Détecter opportunités d'automatisation
+  // D�tecter opportunit�s d'automatisation
   static async detectAutomationOpportunities(tenantId: string): Promise<Suggestion[]> {
     const lastMonth = new Date()
     lastMonth.setMonth(lastMonth.getMonth() - 1)
@@ -157,7 +157,7 @@ export class SuggestionService {
       .map(([actionType, count]) => ({
         id: `automation_${actionType}`,
         type: 'AUTOMATION_OPPORTUNITY',
-        title: `Opportunité d'automatisation: ${actionType}`,
+        title: `Opportunit� d'automatisation: ${actionType}`,
         description: `${count} actions de ce type le mois dernier. Augmenter l'autonomie?`,
         confidence: Math.min(0.9, count / 50),
         actionData: {
@@ -168,11 +168,11 @@ export class SuggestionService {
       }))
   }
 
-  // Détecter anomalies
+  // D�tecter anomalies
   static async detectAnomalies(tenantId: string): Promise<Suggestion[]> {
     const suggestions: Suggestion[] = []
     
-    // Dossiers très anciens
+    // Dossiers tr�s anciens
     const oldDate = new Date()
     oldDate.setDate(oldDate.getDate() - 90)
     
@@ -188,7 +188,7 @@ export class SuggestionService {
       suggestions.push({
         id: 'anomaly_old_dossiers',
         type: 'ANOMALY',
-        title: `${oldDossiers} dossiers très anciens`,
+        title: `${oldDossiers} dossiers tr�s anciens`,
         description: `Des dossiers sont en cours depuis plus de 90 jours`,
         confidence: 0.7,
         actionData: {
@@ -197,7 +197,7 @@ export class SuggestionService {
       })
     }
     
-    // Factures impayées anciennes
+    // Factures impay�es anciennes
     const oldInvoiceDate = new Date()
     oldInvoiceDate.setDate(oldInvoiceDate.getDate() - 60)
     
@@ -213,8 +213,8 @@ export class SuggestionService {
       suggestions.push({
         id: 'anomaly_old_invoices',
         type: 'ANOMALY',
-        title: `${oldInvoices} factures impayées anciennes`,
-        description: `Des factures sont impayées depuis plus de 60 jours`,
+        title: `${oldInvoices} factures impay�es anciennes`,
+        description: `Des factures sont impay�es depuis plus de 60 jours`,
         confidence: 0.8,
         actionData: {
           action: 'REVIEW_OLD_INVOICES'
@@ -238,7 +238,7 @@ export class SuggestionService {
     return requirements[type as keyof typeof requirements] || []
   }
 
-  // Marquer suggestion comme traitée
+  // Marquer suggestion comme trait�e
   static async markSuggestionAsHandled(suggestionId: string) {
     // Note: Suggestions are generated on-the-fly, not stored in DB
     // This would require adding a Suggestion model to schema if persistence is needed

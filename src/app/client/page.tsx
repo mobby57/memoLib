@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Dashboard Client - Vue personnelle
  * Niveau 3 : Accès uniquement aux propres dossiers du client
  */

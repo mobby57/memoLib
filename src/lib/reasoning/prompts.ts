@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🤖 PROMPTS SYSTÈME - Moteur de Raisonnement IA
  * 
  * Prompts structurés pour guider l'IA (Ollama llama3.2) à travers

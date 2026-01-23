@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 /**
  * React Hook for WebSocket Real-Time Notifications

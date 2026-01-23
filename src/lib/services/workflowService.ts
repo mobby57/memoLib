@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 /**
  * Service d'automatisation des workflows
