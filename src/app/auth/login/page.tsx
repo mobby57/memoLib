@@ -125,17 +125,17 @@ export default function LoginPage() {
               <span>Comptes de démonstration:</span>
             </h3>
             <div className="space-y-2 text-xs">
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border-2 border-blue-200">
-                <p className="font-bold text-blue-900">👤 Admin:</p>
-                <p className="text-blue-700 mt-1 font-mono">admin@demo.com | demo123</p>
-              </div>
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border-2 border-purple-200">
-                <p className="font-bold text-purple-900">⚖️ Avocat:</p>
-                <p className="text-purple-700 mt-1 font-mono">avocat@demo.com | demo123</p>
+                <p className="font-bold text-purple-900">👑 Super Admin:</p>
+                <p className="text-purple-700 mt-1 font-mono">superadmin@iapostemanager.com | SuperAdmin2026!</p>
+              </div>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border-2 border-blue-200">
+                <p className="font-bold text-blue-900">⚖️ Avocat (Dupont):</p>
+                <p className="text-blue-700 mt-1 font-mono">avocat@cabinet-dupont.fr | Avocat2026!</p>
               </div>
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg border-2 border-green-200">
-                <p className="font-bold text-green-900">🏢 Cabinet Rousseau:</p>
-                <p className="text-green-700 mt-1 font-mono">admin@rousseau.fr | rousseau2026</p>
+                <p className="font-bold text-green-900">🏢 Client:</p>
+                <p className="text-green-700 mt-1 font-mono">client@example.fr | Client2026!</p>
               </div>
             </div>
           </div>

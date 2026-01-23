@@ -5,6 +5,19 @@ import { logger } from '@/lib/logger';
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
+    // TEMPORARILY DISABLED - causing CSP caching issues
+    // TODO: Re-enable after cache issues are resolved
+    if ('serviceWorker' in navigator) {
+      // Unregister all existing service workers to clear cache
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
+          registration.unregister();
+          logger.debug('Service Worker désactivé temporairement');
+        }
+      });
+    }
+    
+    /* ORIGINAL CODE - DISABLED
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker
         .register('/sw.js')
@@ -30,6 +43,7 @@ export function ServiceWorkerRegistration() {
           logger.error('Échec enregistrement Service Worker', { error });
         });
     }
+    */
   }, []);
 
   return null;

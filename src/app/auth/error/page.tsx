@@ -23,11 +23,11 @@ const errorMessages: { [key: string]: string } = {
 
 function AuthErrorContent() {
   const searchParams = useSearchParams();
-  const error = searchParams?.get('error') || null;
+  const error = searchParams?.get('error');
 
-  const errorMessage = error && errorMessages[error] 
-    ? errorMessages[error] 
-    : errorMessages.Default;
+  // Handle undefined/null error codes
+  const errorCode = error || 'Default';
+  const errorMessage = errorMessages[errorCode] || errorMessages.Default;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
@@ -60,11 +60,11 @@ function AuthErrorContent() {
             {errorMessage}
           </p>
 
-          {/* Code d'erreur technique (si présent) */}
-          {error && error !== 'Default' && (
+          {/* Code d'erreur technique (si présent et pas Default) */}
+          {error && errorCode !== 'Default' && (
             <div className="mb-6 p-3 bg-gray-100 rounded-lg">
               <p className="text-xs font-mono text-gray-500">
-                Code: <span className="text-red-600">{error}</span>
+                Code: <span className="text-red-600">{errorCode}</span>
               </p>
             </div>
           )}

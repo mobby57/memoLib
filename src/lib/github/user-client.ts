@@ -5,7 +5,7 @@
 
 import { Octokit } from '@octokit/rest';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 
 export interface GitHubUserClient {

@@ -1,6 +1,6 @@
 {
   "codeConnectConfig": {
-    "figmaFile": "https://www.figma.com/file/YOUR_FIGMA_FILE_ID/IA-Poste-Manager",
+    "figmaFile": "https://www.figma.com/file/LyclcReoP9C79Egwmva6UB/SaaS-Dashboard-Design",
     "sourceDirectory": "./src",
     "outputDirectory": "./figma-exports",
     "autoGenerate": true,
