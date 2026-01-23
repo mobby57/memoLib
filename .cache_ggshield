@@ -1,1 +1,1 @@
-{"last_found_secrets": [{"name": "PostgreSQL URI - commit://staged/DEPLOY_NOW.md", "match": "c85a87e60977743bf9dd8f85e321e9be857c22c2f6ad1da10c8e4c293c2e61f4"}]}
+{"last_found_secrets": [{"name": "Generic High Entropy Secret - commit://staged/setup-azure-services.ps1", "match": "e33b8770f7863bb10dc0da4152a92cf32ca506326987720e415226d16dbb0641"}]}

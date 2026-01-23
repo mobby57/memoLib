@@ -20,8 +20,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
     }
 
+    // Parse query params
+    const { searchParams } = new URL(request.url);
+    const limit = parseInt(searchParams.get('limit') || '50');
+
     // Récupérer tous les tenants avec leurs statistiques
     const tenants = await prisma.tenant.findMany({
+      take: limit,
       include: {
         plan: {
           select: {
@@ -32,37 +37,24 @@ export async function GET(request: NextRequest) {
         _count: {
           select: {
             users: true,
-            dossiers: true,
-            factures: true
+            dossiers: true
           }
         }
       },
       orderBy: { createdAt: 'desc' }
     });
 
-    // Calculer les revenus par tenant
-    const tenantsWithStats = await Promise.all(
-      tenants.map(async (tenant) => {
-        const revenus = await prisma.facture.aggregate({
-          where: { 
-            tenantId: tenant.id,
-            statut: 'payee'
-          },
-          _sum: { montant: true }
-        });
-
-        return {
-          id: tenant.id,
-          name: tenant.name,
-          plan: tenant.plan.name,
-          status: tenant.status,
-          userCount: tenant._count.users,
-          dossierCount: tenant._count.dossiers,
-          revenue: revenus._sum.montant || 0,
-          createdAt: tenant.createdAt.toISOString()
-        };
-      })
-    );
+    // Format response without factures (model not yet implemented)
+    const tenantsWithStats = tenants.map((tenant) => ({
+      id: tenant.id,
+      name: tenant.name,
+      plan: tenant.plan.name,
+      status: tenant.status,
+      userCount: tenant._count.users,
+      dossierCount: tenant._count.dossiers,
+      revenue: 0, // Facture model not yet implemented
+      createdAt: tenant.createdAt.toISOString()
+    }));
 
     return NextResponse.json(tenantsWithStats);
 
