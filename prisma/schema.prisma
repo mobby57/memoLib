@@ -78,6 +78,9 @@ model Tenant {
   Subscription       Subscription?
   emails             Email[]
   workflowExecutions WorkflowExecution[]
+  factures           Facture[]
+  calendarEvents     CalendarEvent[]
+  documents          Document[]
 
   @@index([planId])
 }
@@ -130,6 +133,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  notifications   Notification[]
+  calendarEvents  CalendarEvent[]
+  documents       Document[]
+
   @@index([tenantId, email])
   @@index([role])
 }
@@ -172,8 +179,11 @@ model Client {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  dossiers Dossier[]
-  emails   Email[]
+  dossiers       Dossier[]
+  emails         Email[]
+  factures       Facture[]
+  calendarEvents CalendarEvent[]
+  documents      Document[]
 
   @@unique([tenantId, email])
   @@index([tenantId, email])
@@ -218,10 +228,213 @@ model Dossier {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  emails Email[]
+  emails         Email[]
+  factures       Facture[]
+  calendarEvents CalendarEvent[]
+  documents      Document[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, statut])
+  @@index([clientId])
+}
+
+// ============================================
+// FACTURATION
+// ============================================
+
+model Facture {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  numero        String
+  reference     String?
+  description   String?
+
+  montantHT     Float
+  tauxTVA       Float    @default(20)
+  montantTVA    Float
+  montantTTC    Float
+
+  statut        String   @default("brouillon") // brouillon, envoyee, payee, en_retard, annulee
+  
+  dateEmission  DateTime @default(now())
+  dateEcheance  DateTime
+  datePaiement  DateTime?
+
+  modePaiement  String?  // virement, cheque, carte, especes
+  referencePayment String?
+
+  notes         String?
+  conditions    String?
+
+  pdfUrl        String?
+  stripeInvoiceId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lignes    LigneFacture[]
+  paiements Paiement[]
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, statut])
+  @@index([clientId])
+  @@index([dateEcheance])
+}
+
+model LigneFacture {
+  id        String  @id @default(uuid())
+  factureId String
+  facture   Facture @relation(fields: [factureId], references: [id], onDelete: Cascade)
+
+  description String
+  quantite    Float   @default(1)
+  prixUnitaire Float
+  montantHT   Float
+
+  ordre       Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([factureId])
+}
+
+model Paiement {
+  id        String   @id @default(uuid())
+  factureId String
+  facture   Facture  @relation(fields: [factureId], references: [id], onDelete: Cascade)
+
+  montant   Float
+  date      DateTime @default(now())
+  mode      String   // virement, cheque, carte, especes
+  reference String?
+  notes     String?
+
+  stripePaymentId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([factureId])
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      String   // email, workflow, facture, dossier, system
+  title     String
+  message   String
+  data      String?  // JSON avec données additionnelles
+
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+
+  priority  String   @default("normal") // low, normal, high, urgent
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+// ============================================
+// CALENDAR & EVENTS
+// ============================================
+
+model CalendarEvent {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+
+  title     String
+  description String?
+  location  String?
+
+  startDate DateTime
+  endDate   DateTime
+  allDay    Boolean  @default(false)
+
+  type      String   @default("rdv") // rdv, audience, deadline, rappel, autre
+  status    String   @default("confirmed") // confirmed, tentative, cancelled
+
+  googleEventId String?
+  outlookEventId String?
+
+  reminders String?  // JSON array [{minutes: 30, type: 'email'}]
+  
+  isRecurring Boolean @default(false)
+  recurrenceRule String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, startDate])
+  @@index([userId])
+  @@index([dossierId])
+}
+
+// ============================================
+// DOCUMENTS & OCR
+// ============================================
+
+model Document {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  storageKey  String
+
+  category    String?  // contrat, facture, identite, courrier, autre
+  description String?
+
+  ocrProcessed Boolean @default(false)
+  ocrText      String?
+  ocrConfidence Float?
+  extractedData String? // JSON avec données extraites
+
+  aiAnalyzed  Boolean @default(false)
+  aiSummary   String?
+  aiMetadata  String?  // JSON
+
+  uploadedBy  String
+  uploader    User     @relation(fields: [uploadedBy], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([dossierId])
   @@index([clientId])
 }
 
