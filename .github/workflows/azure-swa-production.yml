@@ -1,0 +1,119 @@
+name: Azure Static Web Apps - Production
+
+on:
+  push:
+    branches:
+      - main
+      - deploy/azure-swa-fix
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  build_and_deploy:
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    name: Build and Deploy
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "file:./dev.db"
+
+      - name: Build Next.js (Static Export)
+        run: npm run build
+        env:
+          NODE_ENV: production
+          # These are build-time only - runtime vars are in Azure config
+          DATABASE_URL: "file:./dev.db"
+          NEXTAUTH_URL: "https://green-stone-023c52610.6.azurestaticapps.net"
+          NEXTAUTH_SECRET: "build-time-placeholder"
+
+      - name: Prepare static files for Azure SWA
+        run: |
+          mkdir -p out/_next
+          mkdir -p out/auth/login
+          cp -r .next/static out/_next/static
+          cp -r public/* out/ 2>/dev/null || true
+          cp staticwebapp.config.json out/ 2>/dev/null || true
+          
+          # Page d'accueil - redirige vers Vercel (qui supporte SSR)
+          cat > out/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="fr">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>IA Poste Manager - Redirection</title>
+            <meta http-equiv="refresh" content="0;url=https://iapostemanage.vercel.app">
+            <style>
+              body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f5f5f5; }
+              .container { text-align: center; padding: 2rem; }
+              a { color: #0070f3; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>IA Poste Manager</h1>
+              <p>Redirection vers l'application...</p>
+              <p><a href="https://iapostemanage.vercel.app">Cliquez ici si la redirection ne fonctionne pas</a></p>
+            </div>
+          </body>
+          </html>
+          EOF
+          
+          # Page login - redirige vers Vercel
+          cat > out/auth/login/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="fr">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Connexion - IA Poste Manager</title>
+            <meta http-equiv="refresh" content="0;url=https://iapostemanage.vercel.app/auth/login">
+          </head>
+          <body>
+            <p>Redirection vers la page de connexion...</p>
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "out"
+          output_location: ""
+          skip_app_build: true
+          skip_api_build: true
+
+  close_pull_request:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close PR
+    steps:
+      - name: Close Pull Request
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "close"

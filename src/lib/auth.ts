@@ -1,1 +1,1 @@
-export { authOptions } from '@/app/api/auth/[...nextauth]/route';
+﻿export { authOptions } from '@/app/api/auth/[...nextauth]/route';

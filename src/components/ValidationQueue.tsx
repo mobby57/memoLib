@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant ValidationQueue
  * Affiche et gère les actions IA en attente de validation
  */

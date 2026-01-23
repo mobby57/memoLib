@@ -12,7 +12,7 @@ export interface CreateDossierData {
 }
 
 export class CesedaService {
-  // Créer un nouveau dossier
+  // Cr�er un nouveau dossier
   static async createDossier(tenantId: string, data: CreateDossierData) {
     const numero = await this.generateNumero(tenantId)
     
@@ -35,7 +35,7 @@ export class CesedaService {
     })
   }
 
-  // Générer numéro de dossier unique
+  // G�n�rer num�ro de dossier unique
   static async generateNumero(tenantId: string): Promise<string> {
     const year = new Date().getFullYear()
     const count = await prisma.dossier.count({
@@ -51,14 +51,14 @@ export class CesedaService {
     return `D-${year}-${String(count + 1).padStart(3, '0')}`
   }
 
-  // Calculer priorité automatique selon type et échéance
+  // Calculer priorit� automatique selon type et �ch�ance
   static calculatePriorite(type: string, echeance?: Date): string {
     if (!echeance) return 'normale'
     
     const now = new Date()
     const daysUntilDeadline = Math.ceil((echeance.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     
-    // Règles spécifiques CESEDA
+    // R�gles sp�cifiques CESEDA
     switch (type) {
       case 'OQTF':
         if (daysUntilDeadline <= 7) return 'critique'
@@ -76,7 +76,7 @@ export class CesedaService {
     }
   }
 
-  // Mettre à jour statut dossier
+  // Mettre � jour statut dossier
   static async updateStatut(dossierId: string, statut: string, userId?: string) {
     return prisma.dossier.update({
       where: { id: dossierId },
@@ -139,7 +139,7 @@ export class CesedaService {
     }
   }
 
-  // Vérifier échéances et mettre à jour priorités
+  // V�rifier �ch�ances et mettre � jour priorit�s
   static async updatePriorites(tenantId: string) {
     const dossiers = await prisma.dossier.findMany({
       where: {

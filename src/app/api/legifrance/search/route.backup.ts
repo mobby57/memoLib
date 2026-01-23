@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Routes Légifrance pour Next.js
  * 
  * Endpoints pour exposer les fonctionnalités Légifrance

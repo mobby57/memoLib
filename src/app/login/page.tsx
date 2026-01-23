@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Redirection vers la véritable page de login
 import { useEffect } from 'react';

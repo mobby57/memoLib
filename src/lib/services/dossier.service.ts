@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service métier centralisé pour la gestion des dossiers
  * Logique réutilisable par toutes les routes API
  */

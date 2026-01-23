@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Timeline Visuelle - Machine à États Workspace

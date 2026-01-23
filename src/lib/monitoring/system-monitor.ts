@@ -45,7 +45,7 @@ export class SystemMonitor {
   };
 
   /**
-   * Effectue un contrôle de santé complet du système
+   * Effectue un contr�le de sant� complet du syst�me
    */
   async performHealthCheck(): Promise<SystemHealth> {
     const startTime = Date.now();
@@ -83,7 +83,7 @@ export class SystemMonitor {
     const criticalIssues = healthChecks.filter(c => c.status === 'CRITICAL' || c.status === 'ERROR');
     const warningIssues = healthChecks.filter(c => c.status === 'WARNING');
 
-    // Déterminer l'état global
+    // D�terminer l'�tat global
     let overall: 'HEALTHY' | 'DEGRADED' | 'CRITICAL';
     if (criticalIssues.length > 0) {
       overall = 'CRITICAL';
@@ -93,7 +93,7 @@ export class SystemMonitor {
       overall = 'HEALTHY';
     }
 
-    // Calculer les métriques de performance
+    // Calculer les m�triques de performance
     const performance = await this.calculatePerformanceMetrics();
 
     const systemHealth: SystemHealth = {
@@ -103,19 +103,19 @@ export class SystemMonitor {
       performance
     };
 
-    // Envoyer des alertes si nécessaire
+    // Envoyer des alertes si n�cessaire
     if (criticalIssues.length > 0) {
       await this.sendCriticalAlert(criticalIssues);
     }
 
-    // Sauvegarder le rapport de santé
+    // Sauvegarder le rapport de sant�
     await this.saveHealthReport(systemHealth);
 
     return systemHealth;
   }
 
   /**
-   * Vérifie la santé de la base de données
+   * V�rifie la sant� de la base de donn�es
    */
   private async checkDatabase(): Promise<{ status: string; responseTime: number; details: any }> {
     const startTime = Date.now();
@@ -149,7 +149,7 @@ export class SystemMonitor {
   }
 
   /**
-   * Vérifie la santé d'Ollama
+   * V�rifie la sant� d'Ollama
    */
   private async checkOllama(): Promise<{ status: string; responseTime: number; details: any }> {
     const startTime = Date.now();
@@ -157,7 +157,7 @@ export class SystemMonitor {
     try {
       const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
       
-      // Vérifier la disponibilité
+      // V�rifier la disponibilit�
       const response = await fetch(`${ollamaUrl}/api/tags`, {
         signal: AbortSignal.timeout(5000)
       });
@@ -169,7 +169,7 @@ export class SystemMonitor {
       const data = await response.json();
       const responseTime = Date.now() - startTime;
       
-      // Vérifier les modèles requis
+      // V�rifier les mod�les requis
       const requiredModels = ['llama3.2:latest', 'nomic-embed-text:latest'];
       const availableModels = data.models?.map((m: any) => m.name) || [];
       const missingModels = requiredModels.filter(model => !availableModels.includes(model));
@@ -193,7 +193,7 @@ export class SystemMonitor {
   }
 
   /**
-   * Vérifie l'espace disque et le système de fichiers
+   * V�rifie l'espace disque et le syst�me de fichiers
    */
   private async checkFileSystem(): Promise<{ status: string; responseTime: number; details: any }> {
     const startTime = Date.now();
@@ -202,10 +202,10 @@ export class SystemMonitor {
       const fs = await import('fs/promises');
       const path = await import('path');
       
-      // Vérifier l'espace disque (simulation - en production, utiliser des outils système)
+      // V�rifier l'espace disque (simulation - en production, utiliser des outils syst�me)
       const stats = await fs.stat(process.cwd());
       
-      // Vérifier les répertoires critiques
+      // V�rifier les r�pertoires critiques
       const criticalDirs = [
         'uploads',
         'backups',
@@ -231,7 +231,7 @@ export class SystemMonitor {
         status: missingDirs.length > 0 ? 'WARNING' : 'OK',
         responseTime: Date.now() - startTime,
         details: {
-          diskUsage: '75%', // Simulation - en production, calculer réellement
+          diskUsage: '75%', // Simulation - en production, calculer r�ellement
           missingDirectories: missingDirs.map(d => d.dir),
           lastBackup: await this.getLastBackupTime()
         }
@@ -246,7 +246,7 @@ export class SystemMonitor {
   }
 
   /**
-   * Vérifie l'utilisation mémoire
+   * V�rifie l'utilisation m�moire
    */
   private async checkMemoryUsage(): Promise<{ status: string; responseTime: number; details: any }> {
     const startTime = Date.now();
@@ -284,7 +284,7 @@ export class SystemMonitor {
   }
 
   /**
-   * Vérifie les endpoints API critiques
+   * V�rifie les endpoints API critiques
    */
   private async checkAPIEndpoints(): Promise<{ status: string; responseTime: number; details: any }> {
     const startTime = Date.now();
@@ -342,18 +342,18 @@ export class SystemMonitor {
   }
 
   /**
-   * Vérifie les tâches en arrière-plan
+   * V�rifie les t�ches en arri�re-plan
    */
   private async checkBackgroundJobs(): Promise<{ status: string; responseTime: number; details: any }> {
     const startTime = Date.now();
     
     try {
-      // Vérifier les tâches IA en cours
+      // V�rifier les t�ches IA en cours
       const pendingAIActions = await prisma.aIAction.count({
         where: { validationStatus: 'PENDING' }
       });
       
-      // Vérifier les tâches de maintenance
+      // V�rifier les t�ches de maintenance
       const lastMaintenance = await this.getLastMaintenanceTime();
       const hoursSinceLastMaintenance = (Date.now() - lastMaintenance.getTime()) / (1000 * 60 * 60);
       
@@ -384,7 +384,7 @@ export class SystemMonitor {
   }
 
   /**
-   * Calcule les métriques de performance
+   * Calcule les m�triques de performance
    */
   private async calculatePerformanceMetrics(): Promise<{
     avgResponseTime: number;
@@ -392,12 +392,12 @@ export class SystemMonitor {
     throughput: number;
   }> {
     try {
-      // En production, ces métriques viendraient d'un système de monitoring
-      // Pour l'instant, on simule avec des données de base
+      // En production, ces m�triques viendraient d'un syst�me de monitoring
+      // Pour l'instant, on simule avec des donn�es de base
       
       const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
       
-      // Calculer le taux d'erreur basé sur les logs d'audit
+      // Calculer le taux d'erreur bas� sur les logs d'audit
       const totalActions = await prisma.aIAction.count({
         where: { createdAt: { gte: last24h } }
       });
@@ -431,7 +431,7 @@ export class SystemMonitor {
     const alertObj: Alert = {
       id: `alert-${Date.now()}`,
       severity: 'CRITICAL',
-      title: `Problème critique détecté - ${issues.length} service(s) affecté(s)`,
+      title: `Probl�me critique d�tect� - ${issues.length} service(s) affect�(s)`,
       description: issues.map(issue => 
         `${issue.name}: ${issue.details?.error || 'Service indisponible'}`
       ).join('\n'),
@@ -442,15 +442,15 @@ export class SystemMonitor {
       // Sauvegarder l'alerte
       await this.saveAlert(alertObj);
 
-      // Envoyer par email (si configuré)
+      // Envoyer par email (si configur�)
       await this.sendEmailAlert(alertObj);
 
-      // Envoyer sur Slack (si configuré)
+      // Envoyer sur Slack (si configur�)
       await this.sendSlackAlert(alertObj);
 
-      logger.critical('ALERTE SYSTÈME CRITIQUE', { title: alertObj.title, severity: alertObj.severity, description: alertObj.description });
+      logger.critical('ALERTE SYST�ME CRITIQUE', { title: alertObj.title, severity: alertObj.severity, description: alertObj.description });
     } catch (error: any) {
-      logger.error('Erreur envoi alerte système', { error, alertTitle: alertObj.title });
+      logger.error('Erreur envoi alerte syst�me', { error, alertTitle: alertObj.title });
     }
   }
 
@@ -469,25 +469,25 @@ export class SystemMonitor {
         }
       };
 
-      if (!emailConfig.host) return; // Email non configuré
+      if (!emailConfig.host) return; // Email non configur�
 
       const transporter = nodemailer.createTransport(emailConfig);
 
       await transporter.sendMail({
         from: process.env.ALERT_FROM_EMAIL || 'alerts@iapostemanager.com',
         to: process.env.ALERT_TO_EMAIL || 'admin@iapostemanager.com',
-        subject: `🚨 ${alert.title}`,
+        subject: `?? ${alert.title}`,
         html: `
-          <h2>Alerte Système - IA Poste Manager</h2>
-          <p><strong>Sévérité:</strong> ${alert.severity}</p>
+          <h2>Alerte Syst�me - IA Poste Manager</h2>
+          <p><strong>S�v�rit�:</strong> ${alert.severity}</p>
           <p><strong>Heure:</strong> ${alert.timestamp.toLocaleString()}</p>
           <p><strong>Description:</strong></p>
           <pre>${alert.description}</pre>
-          <p>Veuillez vérifier le système immédiatement.</p>
+          <p>Veuillez v�rifier le syst�me imm�diatement.</p>
         `
       });
     } catch (error: any) {
-      logger.error('Erreur envoi email alerte système', { error, alert: alert.title });
+      logger.error('Erreur envoi email alerte syst�me', { error, alert: alert.title });
     }
   }
 
@@ -497,17 +497,17 @@ export class SystemMonitor {
   private async sendSlackAlert(alert: Alert): Promise<void> {
     try {
       const webhookUrl = process.env.SLACK_WEBHOOK_URL;
-      if (!webhookUrl) return; // Slack non configuré
+      if (!webhookUrl) return; // Slack non configur�
 
       await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: `🚨 *${alert.title}*`,
+          text: `?? *${alert.title}*`,
           attachments: [{
             color: alert.severity === 'CRITICAL' ? 'danger' : 'warning',
             fields: [
-              { title: 'Sévérité', value: alert.severity, short: true },
+              { title: 'S�v�rit�', value: alert.severity, short: true },
               { title: 'Heure', value: alert.timestamp.toLocaleString(), short: true },
               { title: 'Description', value: alert.description, short: false }
             ]
@@ -515,24 +515,24 @@ export class SystemMonitor {
         })
       });
     } catch (error: any) {
-      logger.error('Erreur envoi Slack alerte système', { error, alert: alert.title });
+      logger.error('Erreur envoi Slack alerte syst�me', { error, alert: alert.title });
     }
   }
 
   /**
-   * Sauvegarde le rapport de santé
+   * Sauvegarde le rapport de sant�
    */
   private async saveHealthReport(health: SystemHealth): Promise<void> {
     try {
-      // En production, sauvegarder dans une table dédiée ou un système de monitoring
-      logger.info('Rapport santé système', {
+      // En production, sauvegarder dans une table d�di�e ou un syst�me de monitoring
+      logger.info('Rapport sant� syst�me', {
         status: health.overall,
         uptimeMinutes: Math.round(health.uptime / 60),
         checksCount: health.checks.length,
         performance: health.performance
       });
     } catch (error: any) {
-      logger.error('Erreur sauvegarde rapport santé', { error });
+      logger.error('Erreur sauvegarde rapport sant�', { error });
     }
   }
 
@@ -541,10 +541,10 @@ export class SystemMonitor {
    */
   private async saveAlert(alert: Alert): Promise<void> {
     try {
-      // En production, sauvegarder dans une table dédiée
-      logger.info('Alerte système sauvegardée', { alertId: alert.id, title: alert.title, severity: alert.severity });
+      // En production, sauvegarder dans une table d�di�e
+      logger.info('Alerte syst�me sauvegard�e', { alertId: alert.id, title: alert.title, severity: alert.severity });
     } catch (error: any) {
-      logger.error('Erreur sauvegarde alerte système', { error, alertId: alert.id });
+      logger.error('Erreur sauvegarde alerte syst�me', { error, alertId: alert.id });
     }
   }
 
@@ -552,15 +552,15 @@ export class SystemMonitor {
    * Obtient l'heure du dernier backup
    */
   private async getLastBackupTime(): Promise<Date> {
-    // En production, vérifier réellement les fichiers de backup
+    // En production, v�rifier r�ellement les fichiers de backup
     return new Date(Date.now() - 6 * 60 * 60 * 1000); // Simulation: il y a 6h
   }
 
   /**
-   * Obtient l'heure de la dernière maintenance
+   * Obtient l'heure de la derni�re maintenance
    */
   private async getLastMaintenanceTime(): Promise<Date> {
-    // En production, vérifier les logs de maintenance
+    // En production, v�rifier les logs de maintenance
     return new Date(Date.now() - 12 * 60 * 60 * 1000); // Simulation: il y a 12h
   }
 }

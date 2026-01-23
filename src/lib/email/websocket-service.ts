@@ -1,4 +1,4 @@
-import { Server as SocketIOServer, Socket } from 'socket.io';
+﻿import { Server as SocketIOServer, Socket } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 
 interface EmailNotification {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service d'extraction automatique des délais (échéances) depuis les documents CESEDA
  * Utilise l'IA (OpenAI/Ollama) pour analyser les documents et extraire les dates clés
  */

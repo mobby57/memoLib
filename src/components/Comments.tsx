@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Smile, AtSign, Paperclip, ThumbsUp, Heart, Trash2 } from 'lucide-react'

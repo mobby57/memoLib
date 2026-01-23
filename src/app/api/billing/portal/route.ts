@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Portail Client Stripe
  * Redirige vers le portail de gestion d'abonnement
  */

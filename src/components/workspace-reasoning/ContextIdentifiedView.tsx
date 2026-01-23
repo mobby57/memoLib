@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'état CONTEXT_IDENTIFIED
  * Présenter des cadres possibles, jamais une vérité
  */

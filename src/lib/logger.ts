@@ -1,4 +1,4 @@
-/**
+﻿/**
  * IA POSTE MANAGER - Système de Logging Juridique Professionnel
  * 
  * Logging spécialisé pour cabinet d'avocats CESEDA avec:

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { safeLocalStorage } from '@/lib/localStorage';
 import { logger } from '@/lib/logger';

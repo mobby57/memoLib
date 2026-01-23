@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * 📋 Liste des Workspaces - Vue d'ensemble du raisonnement

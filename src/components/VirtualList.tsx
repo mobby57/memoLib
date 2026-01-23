@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { memo, useCallback, useMemo, useRef, useState, useEffect } from 'react';
 import { useIntersectionObserver } from '@/hooks/usePerformance';

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Advanced Encryption System for Sensitive Data
  * - AES-256-GCM encryption for documents and personal data
  * - Field-level encryption (passport, identity docs, financial)
