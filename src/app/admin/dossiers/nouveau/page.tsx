@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 /**
  * Formulaire Avocat - Création de Dossier pour un Client

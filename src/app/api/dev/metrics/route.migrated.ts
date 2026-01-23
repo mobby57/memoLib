@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/withAuth';
 import { logger } from '@/lib/dev/advanced-logger';
 

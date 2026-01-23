@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Client API Légifrance (PISTE)
  * 
  * Service pour interroger l'API Légifrance avec authentification OAuth

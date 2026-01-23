@@ -1,6 +1,6 @@
-const CACHE_NAME = 'iaposte-v1';
-const STATIC_CACHE = 'iaposte-static-v1';
-const DYNAMIC_CACHE = 'iaposte-dynamic-v1';
+const CACHE_NAME = 'iaposte-v3';
+const STATIC_CACHE = 'iaposte-static-v3';
+const DYNAMIC_CACHE = 'iaposte-dynamic-v3';
 
 const STATIC_ASSETS = [
   '/',
@@ -38,6 +38,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // NEVER cache auth API routes - let them go directly to network
+  if (url.pathname.startsWith('/api/auth/')) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   // Cache des assets statiques
   if (STATIC_ASSETS.includes(url.pathname)) {
@@ -83,7 +89,14 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         } catch (error) {
-          return cachedResponse || new Response('Offline', { status: 503 });
+          // Return cached response if available, otherwise return a proper JSON error
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return new Response(JSON.stringify({ error: 'Offline', message: 'Network unavailable' }), { 
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+          });
         }
       })
     );

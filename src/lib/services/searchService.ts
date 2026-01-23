@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+﻿import { prisma } from '@/lib/prisma';
 
 export type SearchResultType = 'client' | 'dossier' | 'document' | 'email' | 'user';
 

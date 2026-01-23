@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel Contextes - Hypothèses de cadrage

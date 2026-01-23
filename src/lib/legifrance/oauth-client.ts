@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Client OAuth2.0 pour API Légifrance (PISTE)
  * 
  * Gestion des tokens OAuth avec flux Client Credentials
@@ -24,39 +24,52 @@ interface PisteConfig {
 export class LegifranceOAuthClient {
   private config: PisteConfig;
   private token: OAuthToken | null = null;
+  private isConfigured: boolean = false;
 
   constructor(environment: 'sandbox' | 'production' = 'sandbox') {
     const isSandbox = environment === 'sandbox';
     
     this.config = {
       clientId: isSandbox 
-        ? process.env.PISTE_SANDBOX_CLIENT_ID! 
-        : process.env.PISTE_PROD_CLIENT_ID!,
+        ? process.env.PISTE_SANDBOX_CLIENT_ID || '' 
+        : process.env.PISTE_PROD_CLIENT_ID || '',
       clientSecret: isSandbox 
-        ? process.env.PISTE_SANDBOX_CLIENT_SECRET! 
-        : process.env.PISTE_PROD_CLIENT_SECRET!,
+        ? process.env.PISTE_SANDBOX_CLIENT_SECRET || '' 
+        : process.env.PISTE_PROD_CLIENT_SECRET || '',
       oauthUrl: isSandbox 
-        ? process.env.PISTE_SANDBOX_OAUTH_URL! 
-        : process.env.PISTE_PROD_OAUTH_URL!,
+        ? process.env.PISTE_SANDBOX_OAUTH_URL || 'https://sandbox-oauth.piste.gouv.fr/api/oauth/token' 
+        : process.env.PISTE_PROD_OAUTH_URL || '',
       apiUrl: isSandbox 
-        ? process.env.PISTE_SANDBOX_API_URL! 
-        : process.env.PISTE_PROD_API_URL!,
+        ? process.env.PISTE_SANDBOX_API_URL || 'https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app' 
+        : process.env.PISTE_PROD_API_URL || '',
       environment,
     };
 
-    // Validation configuration
-    if (!this.config.clientId || !this.config.clientSecret) {
-      throw new Error(
-        `Configuration PISTE manquante pour l'environnement ${environment}. ` +
-        `Vérifiez vos variables d'environnement.`
+    // Validation configuration - juste un warning, pas d'erreur
+    this.isConfigured = !!(this.config.clientId && this.config.clientSecret);
+    if (!this.isConfigured) {
+      console.warn(
+        `⚠️ Configuration PISTE manquante pour l'environnement ${environment}. ` +
+        `L'API Legifrance sera désactivée.`
       );
     }
+  }
+
+  /**
+   * Vérifie si le client est configuré
+   */
+  isAvailable(): boolean {
+    return this.isConfigured;
   }
 
   /**
    * Obtenir un token OAuth valide (récupère ou renouvelle)
    */
   async getValidToken(): Promise<string> {
+    if (!this.isConfigured) {
+      throw new Error('API Legifrance non configurée');
+    }
+    
     // Si token existant et encore valide (avec marge de 5 minutes)
     if (this.token && this.token.expires_at > Date.now() + 5 * 60 * 1000) {
       return this.token.access_token;

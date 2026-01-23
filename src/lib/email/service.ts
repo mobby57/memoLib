@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+﻿import { google } from 'googleapis';
 import { authenticate } from '@google-cloud/local-auth';
 import { simpleParser, ParsedMail } from 'mailparser';
 import * as fs from 'fs';

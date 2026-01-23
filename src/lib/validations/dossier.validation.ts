@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Schémas de validation Zod centralisés
  * Utilisés côté client ET serveur
  */

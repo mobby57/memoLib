@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service de journalisation d'audit (append-only)
  * Zero-Trust Architecture - IA Poste Manager
  */

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { PrismaClient } from '@prisma/client';
@@ -25,19 +25,12 @@ export async function GET(request: NextRequest) {
       totalTenants,
       activeTenants,
       totalUsers,
-      totalDossiers,
-      totalFactures,
-      revenus
+      totalDossiers
     ] = await Promise.all([
       prisma.tenant.count(),
       prisma.tenant.count({ where: { status: 'active' } }),
       prisma.user.count({ where: { role: { not: 'SUPER_ADMIN' } } }),
-      prisma.dossier.count(),
-      prisma.facture.count(),
-      prisma.facture.aggregate({
-        where: { statut: 'payee' },
-        _sum: { montant: true }
-      })
+      prisma.dossier.count()
     ]);
 
     // Calcul de la croissance mensuelle
@@ -54,12 +47,12 @@ export async function GET(request: NextRequest) {
       totalTenants,
       activeTenants,
       totalUsers,
-      totalRevenue: revenus._sum.montant || 0,
+      totalRevenue: 0, // Facture model not yet implemented
       monthlyGrowth: newTenantsThisMonth,
       // Métriques supplémentaires
       totalDossiers,
-      totalFactures,
-      averageRevenuePerTenant: activeTenants > 0 ? (revenus._sum.montant || 0) / activeTenants : 0
+      totalFactures: 0, // Facture model not yet implemented
+      averageRevenuePerTenant: 0
     });
 
   } catch (error) {
