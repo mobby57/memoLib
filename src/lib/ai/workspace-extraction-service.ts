@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WORKSPACE EXTRACTION SERVICE
  * 
  * Service d'extraction automatique IA pour WorkspaceReasoning

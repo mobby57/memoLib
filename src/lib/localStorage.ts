@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Helper pour localStorage avec support SSR
  */
 

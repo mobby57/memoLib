@@ -1,10 +1,6 @@
-import { Metadata } from 'next';
-import Link from 'next/link';
+﻿'use client';
 
-export const metadata: Metadata = {
-  title: 'Fonctionnalités IA Avancées - IA Poste Manager',
-  description: 'Accès aux fonctionnalités avancées: Analyse IA CESEDA, WebSocket, RGPD',
-};
+import Link from 'next/link';
 
 export default function LawyerAdvancedPage() {
   return (

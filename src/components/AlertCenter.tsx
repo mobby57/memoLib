@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant AlertCenter
  * Centre d'alertes intelligent avec gestion des priorités
  */

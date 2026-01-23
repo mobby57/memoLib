@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Hook pour gérer les validations IA côté client
  * Basé sur CHARTE_IA_JURIDIQUE.md
  */

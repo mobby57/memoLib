@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Composant d'extraction automatique de délais par IA

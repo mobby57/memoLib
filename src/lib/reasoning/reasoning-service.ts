@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🧠 SERVICE DE RAISONNEMENT IA
  * 
  * Exécute le raisonnement structuré à travers les 8 états

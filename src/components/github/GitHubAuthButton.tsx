@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant: Bouton de connexion GitHub
  * Permet aux utilisateurs d'autoriser l'application à agir en leur nom
  */
