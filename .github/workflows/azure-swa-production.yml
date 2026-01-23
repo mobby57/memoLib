@@ -49,7 +49,7 @@ jobs:
 
       - name: Prepare static files for Azure SWA
         run: |
-          mkdir -p out
+          mkdir -p out/_next
           cp -r .next/static out/_next/static
           cp -r public/* out/ 2>/dev/null || true
           cp staticwebapp.config.json out/ 2>/dev/null || true
