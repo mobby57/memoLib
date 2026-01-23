@@ -39,6 +39,11 @@ function initCleanup() {
 }
 
 export default function proxy(request: NextRequest) {
+  // ⚡ BYPASS complet en mode développement pour les performances
+  if (process.env.NODE_ENV === 'development') {
+    return NextResponse.next()
+  }
+
   // Initialiser le nettoyage si nécessaire
   initCleanup()
   
@@ -111,7 +116,7 @@ export default function proxy(request: NextRequest) {
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=()')
-  response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://vercel.live https://vitals.vercel-insights.com wss://ws-us3.pusher.com https://*.vercel.app; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;")
+  response.headers.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com https://*.sentry.io; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https: wss:; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;")
   response.headers.set('X-XSS-Protection', '1; mode=block')
   response.headers.set('Cross-Origin-Embedder-Policy', 'credentialless')
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin')

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Icônes pour l'application iaPostemanage
  */
 

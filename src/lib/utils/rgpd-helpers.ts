@@ -1,4 +1,4 @@
-/**
+﻿/**
  * RGPD Helper Utilities
  * 
  * Utilities for RGPD-compliant data handling:

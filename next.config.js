@@ -4,12 +4,22 @@
 //   enabled: process.env.ANALYZE === 'true',
 // });
 
+// 🔥 STATIC EXPORT pour Azure Static Web Apps
+// Note: headers() and rewrites() are NOT supported with output: 'export'
+// Configure them in staticwebapp.config.json or platform-specific config instead
+const isStaticExport = true;
+
 const nextConfig = {
   reactStrictMode: true,
   
-  // Standalone pour Cloudflare Workers - DÉSACTIVÉ sur Windows (bug node:inspector)
-  // output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
-  output: undefined,  // ✅ Fix for Windows EINVAL copyfile issue
+  // 🔥 STANDALONE pour Azure Static Web Apps (hybride SSR/Static)
+  output: 'standalone',
+  
+  // Image optimization
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000,
+  },
   
   // Ignore TypeScript errors for build
   typescript: {
@@ -22,17 +32,19 @@ const nextConfig = {
     optimizePackageImports: ['react-icons', '@tanstack/react-query'],
   },
   
-  // Compression
-  compress: true,
+  // Compression (only works with server mode)
+  compress: !isStaticExport,
   
-  // Image optimization
-  images: {
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 31536000,
-  },
+  // ⚠️ headers() and rewrites() are NOT supported with output: 'export'
+  // Security headers must be configured in:
+  // - Azure: staticwebapp.config.json
+  // - Cloudflare: _headers file or wrangler.toml
+  // - Vercel: vercel.json
   
-  // Security & Performance headers - BEST PRACTICES 2026
-  async headers() {
+  // Only include headers/rewrites when NOT using static export
+  ...(isStaticExport ? {} : {
+    // Security & Performance headers - BEST PRACTICES 2026
+    async headers() {
     const isDev = process.env.NODE_ENV === 'development';
     
     return [
@@ -138,6 +150,7 @@ const nextConfig = {
     }
     return []
   },
+  }), // End of conditional headers/rewrites block
 }
 
 // Bundle analyzer wrapper désactivé pour Cloudflare

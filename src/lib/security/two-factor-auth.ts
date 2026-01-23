@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Two-Factor Authentication (2FA) System
  * - TOTP (Time-based One-Time Password)
  * - QR code generation for authenticator apps

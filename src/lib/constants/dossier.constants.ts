@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Constantes centralisées pour les dossiers
  * Mapping entre valeurs DB (snake_case) et UI (SCREAMING_CASE)
  */

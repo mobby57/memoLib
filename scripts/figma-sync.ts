@@ -13,7 +13,7 @@ config();
 
 // Configuration
 const FIGMA_ACCESS_TOKEN = process.env.FIGMA_ACCESS_TOKEN;
-const FIGMA_FILE_KEY = 'auVG69j7QrCFGBt5svFre0'; // Extrait de votre URL Figma
+const FIGMA_FILE_KEY = 'IgHnffsThxBgtv2LHdqHaG'; // Team Library
 const OUTPUT_DIR = path.join(__dirname, '../src/styles/tokens');
 
 interface FigmaFile {

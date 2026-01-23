@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 /**
  * Dashboard Avocat - Gestion de TOUS les dossiers

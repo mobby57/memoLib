@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant: Synchronisation Dossier ↔ GitHub
  * Permet de créer/synchroniser des issues GitHub pour les dossiers
  */

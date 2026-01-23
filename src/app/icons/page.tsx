@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { 
   Menu, X, Search, User, FileText, LayoutDashboard, Settings, 

@@ -1,4 +1,4 @@
-
+﻿
 
 export interface IconSearchProps extends React.SVGProps<SVGSVGElement> {
   size?: number;

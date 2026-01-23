@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { createContextualNotification } from '@/lib/workflows/notification-engine';
 import { executeWorkflow, ALL_WORKFLOWS } from '@/lib/workflows/workflow-engine';

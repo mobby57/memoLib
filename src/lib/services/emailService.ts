@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service de notifications par email
  * Gère l'envoi automatique d'emails pour rappels, résumés et alertes
  */

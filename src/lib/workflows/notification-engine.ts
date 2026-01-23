@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🔔 Moteur de Notifications Contextuelles
  * Génère des notifications interactives obligatoires avec actions
  */

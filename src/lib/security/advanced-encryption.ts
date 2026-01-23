@@ -1,4 +1,4 @@
-// Advanced Encryption Service
+﻿// Advanced Encryption Service
 import crypto from 'crypto';
 
 interface EncryptedData {

@@ -1,18 +1,13 @@
-import type { Metadata, Viewport } from 'next';
+﻿import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import '@/styles/tokens/tokens.css';
 import '@/styles/sidebar.css';
 import { Providers } from './providers';
-import { Navigation } from '@/components/Navigation';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ToastProvider } from '@/components/ui';
-import { GlobalCommandPalette } from '@/components/GlobalCommandPalette';
-import { SidebarLayoutAdjuster } from '@/components/SidebarLayoutAdjuster';
-import { CommandPalette } from '@/components/CommandPalette';
-import { ActivityMonitor } from '@/components/ActivityMonitor';
-import NotificationCenter from '@/components/NotificationCenter';
+import { LayoutWrapper } from '@/components/LayoutWrapper';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -52,22 +47,9 @@ export default function RootLayout({
         <ThemeProvider>
           <ToastProvider>
             <Providers>
-              <SidebarLayoutAdjuster />
-              <Navigation />
-              
-              {/* Real-time Notification Center - Fixed top-right */}
-              <div className="fixed top-4 right-4 z-50">
-                <NotificationCenter />
-              </div>
-              
-              <main className="lg:ml-64 min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300">
-                <GlobalCommandPalette />
-                <CommandPalette />
-                <ActivityMonitor />
-                <div className="p-6 lg:p-8">
-                  {children}
-                </div>
-              </main>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
               <ServiceWorkerRegistration />
             </Providers>
           </ToastProvider>

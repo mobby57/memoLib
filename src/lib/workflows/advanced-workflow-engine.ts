@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🔄 MOTEUR DE WORKFLOW CONDITIONNEL AVANCÉ
  * 
  * Système complet de workflows avec déclenchements en cascade :
