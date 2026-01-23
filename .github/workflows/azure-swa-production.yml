@@ -50,10 +50,51 @@ jobs:
       - name: Prepare static files for Azure SWA
         run: |
           mkdir -p out/_next
+          mkdir -p out/auth/login
           cp -r .next/static out/_next/static
           cp -r public/* out/ 2>/dev/null || true
           cp staticwebapp.config.json out/ 2>/dev/null || true
-          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/auth/login"></head></html>' > out/index.html
+          
+          # Page d'accueil - redirige vers Vercel (qui supporte SSR)
+          cat > out/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="fr">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>IA Poste Manager - Redirection</title>
+            <meta http-equiv="refresh" content="0;url=https://iapostemanage.vercel.app">
+            <style>
+              body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f5f5f5; }
+              .container { text-align: center; padding: 2rem; }
+              a { color: #0070f3; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>IA Poste Manager</h1>
+              <p>Redirection vers l'application...</p>
+              <p><a href="https://iapostemanage.vercel.app">Cliquez ici si la redirection ne fonctionne pas</a></p>
+            </div>
+          </body>
+          </html>
+          EOF
+          
+          # Page login - redirige vers Vercel
+          cat > out/auth/login/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="fr">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Connexion - IA Poste Manager</title>
+            <meta http-equiv="refresh" content="0;url=https://iapostemanage.vercel.app/auth/login">
+          </head>
+          <body>
+            <p>Redirection vers la page de connexion...</p>
+          </body>
+          </html>
+          EOF
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
