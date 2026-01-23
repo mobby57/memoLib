@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { role?: string };
 
     // Seul le super admin peut accéder à ces statistiques
     if (user.role !== 'SUPER_ADMIN') {
@@ -25,12 +25,23 @@ export async function GET(request: NextRequest) {
       totalTenants,
       activeTenants,
       totalUsers,
-      totalDossiers
+      totalDossiers,
+      totalFactures,
+      facturesStats,
+      totalEmails,
+      totalWorkflows
     ] = await Promise.all([
       prisma.tenant.count(),
       prisma.tenant.count({ where: { status: 'active' } }),
       prisma.user.count({ where: { role: { not: 'SUPER_ADMIN' } } }),
-      prisma.dossier.count()
+      prisma.dossier.count(),
+      prisma.facture.count(),
+      prisma.facture.aggregate({
+        _sum: { montantTTC: true },
+        where: { statut: 'payee' }
+      }),
+      prisma.email.count(),
+      prisma.workflowExecution.count()
     ]);
 
     // Calcul de la croissance mensuelle
@@ -43,16 +54,20 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    const totalRevenue = facturesStats._sum.montantTTC || 0;
+    const averageRevenuePerTenant = totalTenants > 0 ? totalRevenue / totalTenants : 0;
+
     return NextResponse.json({
       totalTenants,
       activeTenants,
       totalUsers,
-      totalRevenue: 0, // Facture model not yet implemented
+      totalRevenue,
       monthlyGrowth: newTenantsThisMonth,
-      // Métriques supplémentaires
       totalDossiers,
-      totalFactures: 0, // Facture model not yet implemented
-      averageRevenuePerTenant: 0
+      totalFactures,
+      totalEmails,
+      totalWorkflows,
+      averageRevenuePerTenant
     });
 
   } catch (error) {
