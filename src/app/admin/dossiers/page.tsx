@@ -280,9 +280,13 @@ export default function DossiersAvocatPage() {
         ) : (
           <div className="space-y-4">
             {filteredDossiers.map((dossier) => (
-              <Card key={dossier.id} className="p-6 hover:shadow-lg transition-shadow">
+              <Card 
+                key={dossier.id} 
+                className="p-6 hover:shadow-lg transition-all cursor-pointer border-l-4 border-transparent hover:border-l-blue-600 hover:bg-blue-50/50"
+                onClick={() => router.push(`/admin/dossiers/${dossier.id}`)}
+              >
                 <div className="flex items-start justify-between">
-                  {/* Infos principales */}
+                  {/* Infos principales - Cliquable pour ouvrir le dossier */}
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
                       <h3 className="text-xl font-semibold text-gray-900">
@@ -325,21 +329,14 @@ export default function DossiersAvocatPage() {
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex flex-col gap-2 ml-4">
-                    <Button
-                      onClick={() => router.push(`/admin/dossiers/${dossier.id}`)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
-                    >
-                      <Eye size={16} />
-                      Voir
-                    </Button>
+                  {/* Actions - stopPropagation pour éviter navigation lors du clic */}
+                  <div className="flex flex-col gap-2 ml-4" onClick={(e) => e.stopPropagation()}>
                     <Button
                       onClick={() => router.push(`/admin/dossiers/${dossier.id}/edit`)}
                       className="bg-gray-600 hover:bg-gray-700 text-white flex items-center gap-2"
                     >
                       <Edit size={16} />
-                      editer
+                      Modifier
                     </Button>
                     <Button
                       onClick={() => deleteDossier(dossier.id)}
