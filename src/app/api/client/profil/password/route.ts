@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
 
 export async function PUT(request: NextRequest) {
   try {
@@ -72,7 +70,5 @@ export async function PUT(request: NextRequest) {
       { error: 'Erreur serveur lors de la modification' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -115,7 +113,5 @@ export async function POST(request: NextRequest) {
       { error: 'Erreur serveur lors de l\'upload' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

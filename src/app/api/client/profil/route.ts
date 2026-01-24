@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // GET: Recuperer le profil
 export async function GET(request: NextRequest) {
@@ -40,8 +38,6 @@ export async function GET(request: NextRequest) {
       { error: 'Erreur serveur' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -113,7 +109,5 @@ export async function PUT(request: NextRequest) {
       { error: 'Erreur serveur lors de la mise a jour' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
