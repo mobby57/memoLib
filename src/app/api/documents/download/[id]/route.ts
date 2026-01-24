@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { readFile, stat } from 'fs/promises';
-import path from 'path';
-
-const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const maxDuration = 30;
 
 /**
  * GET /api/documents/download/[id]
- * Telecharge un document par son ID
+ * Telecharge un document par son ID depuis la base de donnees
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -23,79 +22,52 @@ export async function GET(
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { tenantId?: string };
     const tenantId = user.tenantId;
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json({ error: 'ID document requis' }, { status: 400 });
     }
 
-    // Chercher le fichier dans le repertoire du tenant
-    // Note: En production, chercher en base de donnees d'abord
-    const fs = await import('fs');
-    const glob = await import('path');
-    
-    // Recherche recursive dans le dossier du tenant
-    const tenantDir = path.join(UPLOAD_DIR, tenantId);
-    
-    const findFile = async (dir: string, fileId: string): Promise<string | null> => {
-      try {
-        const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-        
-        for (const entry of entries) {
-          const fullPath = path.join(dir, entry.name);
-          
-          if (entry.isDirectory()) {
-            const found = await findFile(fullPath, fileId);
-            if (found) return found;
-          } else if (entry.name.startsWith(fileId)) {
-            return fullPath;
-          }
+    // Chercher le document en base de donnees
+    const document = await prisma.document.findFirst({
+      where: {
+        id,
+        dossier: {
+          tenantId
         }
-      } catch {
-        return null;
+      },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        url: true,
+        size: true,
       }
-      return null;
-    };
+    });
 
-    const filePath = await findFile(tenantDir, id);
-
-    if (!filePath) {
+    if (!document) {
       return NextResponse.json({ error: 'Document non trouve' }, { status: 404 });
     }
 
-    // Lire le fichier
-    const fileBuffer = await readFile(filePath);
-    const fileStat = await stat(filePath);
-    
-    // Determiner le type MIME
-    const ext = path.extname(filePath).toLowerCase();
-    const mimeTypes: Record<string, string> = {
-      '.pdf': 'application/pdf',
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.png': 'image/png',
-      '.webp': 'image/webp',
-      '.doc': 'application/msword',
-      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      '.xls': 'application/vnd.ms-excel',
-      '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      '.txt': 'text/plain',
-    };
+    // Si c'est une URL externe (Vercel Blob, S3, etc.)
+    if (document.url?.startsWith('http')) {
+      return NextResponse.redirect(document.url);
+    }
 
-    const contentType = mimeTypes[ext] || 'application/octet-stream';
-    const fileName = path.basename(filePath);
-
-    // Retourner le fichier
-    return new NextResponse(fileBuffer, {
-      headers: {
-        'Content-Type': contentType,
-        'Content-Length': fileStat.size.toString(),
-        'Content-Disposition': `attachment; filename="${fileName}"`,
-        'Cache-Control': 'private, max-age=3600',
+    // Pour l'instant, retourner les metadonnees
+    // TODO: Integrer Vercel Blob ou autre stockage gratuit
+    return NextResponse.json({
+      message: 'Stockage fichiers non configure',
+      document: {
+        id: document.id,
+        name: document.name,
+        type: document.type,
+        size: document.size,
       },
-    });
+      suggestion: 'Configurez BLOB_READ_WRITE_TOKEN pour Vercel Blob (1GB gratuit)'
+    }, { status: 501 });
 
   } catch (error) {
     console.error('[DOWNLOAD] Erreur:', error);
