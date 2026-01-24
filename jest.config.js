@@ -14,9 +14,14 @@ const customJestConfig = {
     '<rootDir>/node_modules/',
     '<rootDir>/node_modules_backup/',
     '<rootDir>/coverage/',
+    '<rootDir>/venv/',
+    '<rootDir>/frontend-node/',
   ],
   modulePathIgnorePatterns: [
     '<rootDir>/node_modules_backup/',
+    '<rootDir>/.next/standalone/',
+    '<rootDir>/venv/',
+    '<rootDir>/frontend-node/',
   ],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',

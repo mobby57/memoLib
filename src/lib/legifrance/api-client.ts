@@ -1,8 +1,8 @@
-﻿/**
- * Client API Légifrance (PISTE)
+/**
+ * Client API Legifrance (PISTE)
  * 
- * Service pour interroger l'API Légifrance avec authentification OAuth
- * Spécialisé pour les besoins CESEDA de l'application
+ * Service pour interroger l'API Legifrance avec authentification OAuth
+ * Specialise pour les besoins CESEDA de l'application
  */
 
 import { legifranceOAuth } from './oauth-client';
@@ -25,7 +25,7 @@ export class LegifranceApiClient {
   }
 
   /**
-   * Requête générique à l'API Légifrance
+   * Requete generique a l'API Legifrance
    */
   private async request<T>(endpoint: string, body: any): Promise<T> {
     try {
@@ -44,30 +44,30 @@ export class LegifranceApiClient {
       if (!response.ok) {
         const errorText = await response.text();
         
-        // Si 401, invalider le token et réessayer une fois
+        // Si 401, invalider le token et reessayer une fois
         if (response.status === 401) {
           legifranceOAuth.invalidateToken();
           return this.request<T>(endpoint, body);
         }
 
         throw new Error(
-          `Erreur API Légifrance (${response.status}): ${errorText}`
+          `Erreur API Legifrance (${response.status}): ${errorText}`
         );
       }
 
       return await response.json();
     } catch (error) {
-      console.error(`❌ Erreur requête Légifrance ${endpoint}:`, error);
+      console.error(` Erreur requete Legifrance ${endpoint}:`, error);
       throw error;
     }
   }
 
   // ============================================
-  // RECHERCHE GÉNÉRIQUE
+  // RECHERCHE GeNeRIQUE
   // ============================================
 
   /**
-   * Recherche générique dans Légifrance
+   * Recherche generique dans Legifrance
    */
   async search(searchRequest: SearchRequest): Promise<SearchResult> {
     return this.request<SearchResult>('/search', searchRequest);
@@ -78,7 +78,7 @@ export class LegifranceApiClient {
   // ============================================
 
   /**
-   * Récupérer un article par son ID
+   * Recuperer un article par son ID
    */
   async getArticle(articleId: string): Promise<Article> {
     return this.request<Article>('/consult/getArticle', {
@@ -87,7 +87,7 @@ export class LegifranceApiClient {
   }
 
   /**
-   * Récupérer une partie de texte législatif (loi, ordonnance)
+   * Recuperer une partie de texte legislatif (loi, ordonnance)
    */
   async getTextePart(textId: string, date?: number | string): Promise<TexteComplet> {
     return this.request<TexteComplet>('/consult/legiPart', {
@@ -97,7 +97,7 @@ export class LegifranceApiClient {
   }
 
   // ============================================
-  // SPÉCIALISATIONS CESEDA
+  // SPeCIALISATIONS CESEDA
   // ============================================
 
   /**
@@ -110,7 +110,7 @@ export class LegifranceApiClient {
   }
 
   /**
-   * Récupérer un article CESEDA spécifique
+   * Recuperer un article CESEDA specifique
    * 
    * @example
    * // Article L313-11 en vigueur aujourd'hui
@@ -124,7 +124,7 @@ export class LegifranceApiClient {
     date?: Date | string | number
   ): Promise<Article | null> {
     try {
-      // Étape 1: Rechercher l'article
+      // etape 1: Rechercher l'article
       const dateVersion = date 
         ? (typeof date === 'string' ? date : date instanceof Date ? date.getTime() : date)
         : undefined;
@@ -140,17 +140,17 @@ export class LegifranceApiClient {
         return null;
       }
 
-      // Étape 2: Récupérer le contenu complet
+      // etape 2: Recuperer le contenu complet
       const articleId = searchResult.results[0].id;
       return await this.getArticle(articleId);
     } catch (error) {
-      console.error(`Erreur récupération article CESEDA ${numeroArticle}:`, error);
+      console.error(`Erreur recuperation article CESEDA ${numeroArticle}:`, error);
       throw error;
     }
   }
 
   /**
-   * Rechercher dans le CESEDA par mots-clés
+   * Rechercher dans le CESEDA par mots-cles
    * 
    * @example
    * // Recherche "regroupement familial"
@@ -179,7 +179,7 @@ export class LegifranceApiClient {
    * Rechercher dans la jurisprudence administrative (CESEDA)
    * 
    * @example
-   * // Recherche arrêts CESEDA des 6 derniers mois
+   * // Recherche arrets CESEDA des 6 derniers mois
    * const sixMonthsAgo = new Date();
    * sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
    * 
@@ -210,7 +210,7 @@ export class LegifranceApiClient {
   }
 
   /**
-   * Rechercher arrêts CESEDA récents (6 derniers mois par défaut)
+   * Rechercher arrets CESEDA recents (6 derniers mois par defaut)
    */
   async getCesedaRecentCaseLaw(
     options: {
@@ -238,11 +238,11 @@ export class LegifranceApiClient {
   // ============================================
 
   /**
-   * Récupérer les derniers JO
+   * Recuperer les derniers JO
    */
   async getLastJournalOfficiel(nbElements: number = 5): Promise<any> {
     if (nbElements > 2500) {
-      throw new Error('Le nombre d\'éléments ne peut pas dépasser 2500');
+      throw new Error('Le nombre d\'elements ne peut pas depasser 2500');
     }
 
     return this.request('/consult/lastNJo', {
@@ -251,7 +251,7 @@ export class LegifranceApiClient {
   }
 
   /**
-   * Récupérer le contenu d'un conteneur JO
+   * Recuperer le contenu d'un conteneur JO
    */
   async getJorfContent(jorfContId: string, options: {
     pageNumber?: number;
@@ -271,7 +271,7 @@ export class LegifranceApiClient {
   // ============================================
 
   /**
-   * Vérifier la disponibilité de l'API
+   * Verifier la disponibilite de l'API
    */
   async ping(): Promise<boolean> {
     try {

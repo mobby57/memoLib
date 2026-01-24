@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,10 +9,10 @@ export default function ClientNavigation() {
 
   const navItems = [
     { href: '/client', label: 'Tableau de bord', icon: '🏠' },
-    { href: '/client/dossiers', label: 'Mes Dossiers', icon: '📁' },
-    { href: '/client/documents', label: 'Documents', icon: '📄' },
-    { href: '/client/messages', label: 'Messagerie', icon: '💬' },
-    { href: '/client/profil', label: 'Profil', icon: '👤' },
+    { href: '/client/dossiers', label: 'Mes Dossiers', icon: '[emoji]' },
+    { href: '/client/documents', label: 'Documents', icon: '[emoji]' },
+    { href: '/client/messages', label: 'Messagerie', icon: '[emoji]' },
+    { href: '/client/profil', label: 'Profil', icon: '[emoji]' },
   ];
 
   return (
@@ -44,7 +44,7 @@ export default function ClientNavigation() {
             onClick={() => signOut({ callbackUrl: '/auth/login' })}
             className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold transition-colors"
           >
-            Déconnexion
+            Deconnexion
           </button>
         </div>
       </div>

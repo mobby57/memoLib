@@ -1,4 +1,8 @@
-// Prisma Schema pour PostgreSQL - Version Temporaire pour Migration
+// ============================================
+// PRISMA SCHEMA FINAL — WORKSPACE JURIDIQUE
+// Version fondatrice — Figée et opposable
+// ============================================
+
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
@@ -10,7 +14,120 @@ datasource db {
 }
 
 // ============================================
-// NIVEAU 1 : SUPER ADMIN - GESTION PLATEFORME
+// ENUMS
+// ============================================
+
+enum InformationUnitStatus {
+  RECEIVED                // Information reçue, non traitée
+  CLASSIFIED              // Catégorisée (client, dossier, type)
+  ANALYZED                // Analysée par IA ou humain
+  INCOMPLETE              // Manque des éléments
+  AMBIGUOUS               // Nécessite clarification
+  HUMAN_ACTION_REQUIRED   // Escalade obligatoire
+  RESOLVED                // Traitée complètement
+  CLOSED                  // Archivée
+}
+
+enum InformationUnitSource {
+  EMAIL
+  UPLOAD
+  API
+  MANUAL
+  SCAN
+  FAX
+}
+
+enum DeadlineType {
+  RECOURS_GRACIEUX       // 2 mois
+  RECOURS_HIERARCHIQUE   // 2 mois
+  RECOURS_CONTENTIEUX    // 2 mois TA
+  APPEL                  // 1 mois CAA
+  CASSATION              // 2 mois CE
+  REPONSE_PREFECTURE     // Variable
+  CONVOCATION_AUDIENCE   // Variable
+  PRODUCTION_PIECES      // Fixé par juge
+  EXECUTION_DECISION     // Variable
+  OQTF                   // 30/90 jours
+  RETENTION              // 48h/28j/45j/90j
+  CUSTOM                 // Personnalisé
+}
+
+enum DeadlineStatus {
+  PENDING      // En attente
+  APPROACHING  // J-7
+  URGENT       // J-3
+  CRITICAL     // J-1
+  OVERDUE      // Dépassé
+  COMPLETED    // Respecté
+  CANCELLED    // Annulé
+}
+
+enum ProofType {
+  DOCUMENT_RECEPTION
+  DOCUMENT_ENVOI
+  ACCUSE_RECEPTION
+  DEPOT_RECOURS
+  NOTIFICATION_DECISION
+  AUDIENCE_PRESENCE
+  SIGNATURE_ELECTRONIQUE
+  HORODATAGE_CERTIFIE
+  CAPTURE_EMAIL
+  SCREENSHOT
+  RAPPORT_IA
+  AUTRE
+}
+
+enum ProofStatus {
+  PENDING_VALIDATION
+  VALIDATED
+  REJECTED
+  ARCHIVED
+}
+
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  IMPORT
+  APPROVE
+  REJECT
+  ESCALATE
+  ARCHIVE
+}
+
+enum ArchiveStatus {
+  ACTIVE
+  PENDING_ARCHIVE
+  ARCHIVED
+  PENDING_DELETION
+  DELETED
+}
+
+enum ReportType {
+  DOSSIER_SUMMARY
+  CLIENT_PORTFOLIO
+  DEADLINE_STATUS
+  FINANCIAL_STATEMENT
+  AUDIT_TRAIL
+  COMPLIANCE_CHECK
+  AI_ANALYSIS
+  CUSTOM
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+  ARCHIVED
+}
+
+// ============================================
+// NIVEAU 1 : PLATEFORME
 // ============================================
 
 model Plan {
@@ -44,6 +161,8 @@ model Plan {
 
   tenants       Tenant[]
   subscriptions Subscription[]
+
+  @@index([isActive])
 }
 
 model Tenant {
@@ -75,14 +194,21 @@ model Tenant {
   clients            Client[]
   dossiers           Dossier[]
   settings           TenantSettings?
-  Subscription       Subscription?
+  subscription       Subscription?
   emails             Email[]
   workflowExecutions WorkflowExecution[]
   factures           Facture[]
   calendarEvents     CalendarEvent[]
   documents          Document[]
+  informationUnits   InformationUnit[]
+  legalDeadlines     LegalDeadline[]
+  proofs             Proof[]
+  auditLogs          AuditLog[]
+  archivePolicies    ArchivePolicy[]
+  reports            Report[]
 
   @@index([planId])
+  @@index([status])
 }
 
 model TenantSettings {
@@ -107,6 +233,42 @@ model TenantSettings {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Subscription {
+  id       String @id @default(uuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  status String @default("active")
+
+  billingCycle String @default("monthly")
+
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  trialEnd           DateTime?
+  canceledAt         DateTime?
+  endedAt            DateTime?
+
+  pricePerMonth Float
+  currency      String @default("EUR")
+
+  autoRenew Boolean @default(true)
+
+  metadata String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+}
+
+// ============================================
+// NIVEAU 2 : UTILISATEURS
+// ============================================
 
 model User {
   id       String @id @default(uuid())
@@ -133,13 +295,18 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  notifications   Notification[]
-  calendarEvents  CalendarEvent[]
-  documents       Document[]
+  notifications  Notification[]
+  calendarEvents CalendarEvent[]
+  documents      Document[]
 
   @@index([tenantId, email])
   @@index([role])
+  @@index([status])
 }
+
+// ============================================
+// NIVEAU 3 : OPÉRATIONNEL
+// ============================================
 
 model Client {
   id       String @id @default(uuid())
@@ -184,6 +351,7 @@ model Client {
   factures       Facture[]
   calendarEvents CalendarEvent[]
   documents      Document[]
+  legalDeadlines LegalDeadline[]
 
   @@unique([tenantId, email])
   @@index([tenantId, email])
@@ -232,14 +400,58 @@ model Dossier {
   factures       Facture[]
   calendarEvents CalendarEvent[]
   documents      Document[]
+  legalDeadlines LegalDeadline[]
+  proofs         Proof[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, statut])
   @@index([clientId])
 }
 
+model Document {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  storageKey  String
+
+  category    String?
+  description String?
+
+  ocrProcessed Boolean @default(false)
+  ocrText      String?
+  ocrConfidence Float?
+  extractedData String?
+
+  aiAnalyzed  Boolean @default(false)
+  aiSummary   String?
+  aiMetadata  String?
+
+  uploadedBy  String
+  uploader    User     @relation(fields: [uploadedBy], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  proofs Proof[]
+
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([clientId])
+}
+
 // ============================================
-// FACTURATION
+// NIVEAU 4 : FACTURATION
 // ============================================
 
 model Facture {
@@ -262,13 +474,13 @@ model Facture {
   montantTVA    Float
   montantTTC    Float
 
-  statut        String   @default("brouillon") // brouillon, envoyee, payee, en_retard, annulee
+  statut        String   @default("brouillon")
   
   dateEmission  DateTime @default(now())
   dateEcheance  DateTime
   datePaiement  DateTime?
 
-  modePaiement  String?  // virement, cheque, carte, especes
+  modePaiement  String?
   referencePayment String?
 
   notes         String?
@@ -313,7 +525,7 @@ model Paiement {
 
   montant   Float
   date      DateTime @default(now())
-  mode      String   // virement, cheque, carte, especes
+  mode      String
   reference String?
   notes     String?
 
@@ -325,152 +537,7 @@ model Paiement {
 }
 
 // ============================================
-// NOTIFICATIONS
-// ============================================
-
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  type      String   // email, workflow, facture, dossier, system
-  title     String
-  message   String
-  data      String?  // JSON avec données additionnelles
-
-  isRead    Boolean  @default(false)
-  readAt    DateTime?
-
-  priority  String   @default("normal") // low, normal, high, urgent
-
-  createdAt DateTime @default(now())
-
-  @@index([userId, isRead])
-  @@index([createdAt])
-}
-
-// ============================================
-// CALENDAR & EVENTS
-// ============================================
-
-model CalendarEvent {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-
-  dossierId String?
-  dossier   Dossier? @relation(fields: [dossierId], references: [id])
-
-  clientId  String?
-  client    Client?  @relation(fields: [clientId], references: [id])
-
-  title     String
-  description String?
-  location  String?
-
-  startDate DateTime
-  endDate   DateTime
-  allDay    Boolean  @default(false)
-
-  type      String   @default("rdv") // rdv, audience, deadline, rappel, autre
-  status    String   @default("confirmed") // confirmed, tentative, cancelled
-
-  googleEventId String?
-  outlookEventId String?
-
-  reminders String?  // JSON array [{minutes: 30, type: 'email'}]
-  
-  isRecurring Boolean @default(false)
-  recurrenceRule String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId, startDate])
-  @@index([userId])
-  @@index([dossierId])
-}
-
-// ============================================
-// DOCUMENTS & OCR
-// ============================================
-
-model Document {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  dossierId String?
-  dossier   Dossier? @relation(fields: [dossierId], references: [id])
-
-  clientId  String?
-  client    Client?  @relation(fields: [clientId], references: [id])
-
-  filename    String
-  originalName String
-  mimeType    String
-  size        Int
-  storageKey  String
-
-  category    String?  // contrat, facture, identite, courrier, autre
-  description String?
-
-  ocrProcessed Boolean @default(false)
-  ocrText      String?
-  ocrConfidence Float?
-  extractedData String? // JSON avec données extraites
-
-  aiAnalyzed  Boolean @default(false)
-  aiSummary   String?
-  aiMetadata  String?  // JSON
-
-  uploadedBy  String
-  uploader    User     @relation(fields: [uploadedBy], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId])
-  @@index([dossierId])
-  @@index([clientId])
-}
-
-model Subscription {
-  id       String @id @default(uuid())
-  tenantId String @unique
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  planId String
-  plan   Plan   @relation(fields: [planId], references: [id])
-
-  status String @default("active")
-
-  billingCycle String @default("monthly")
-
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  trialEnd           DateTime?
-  canceledAt         DateTime?
-  endedAt            DateTime?
-
-  pricePerMonth Float
-  currency      String @default("EUR")
-
-  autoRenew Boolean @default(true)
-
-  metadata String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId])
-  @@index([status])
-}
-// ============================================
-// EMAIL & WORKFLOW MANAGEMENT
+// NIVEAU 5 : EMAIL & WORKFLOW
 // ============================================
 
 model Email {
@@ -495,8 +562,8 @@ model Email {
   isArchived  Boolean  @default(false)
   isProcessed Boolean  @default(false)
 
-  aiAnalysis  String?  // JSON stockant l'analyse IA
-  tags        String?  // JSON array de tags
+  aiAnalysis  String?
+  tags        String?
 
   clientId    String?
   client      Client?  @relation(fields: [clientId], references: [id])
@@ -545,15 +612,15 @@ model WorkflowExecution {
   emailId      String?
   email        Email?   @relation(fields: [emailId], references: [id])
 
-  status       String   @default("pending") // pending, running, completed, failed, cancelled
+  status       String   @default("pending")
   currentStep  String?
   progress     Int      @default(0)
 
-  triggerType  String   @default("email") // email, manual, scheduled, api
-  triggerData  String?  // JSON
+  triggerType  String   @default("email")
+  triggerData  String?
 
-  steps        String?  // JSON array des étapes exécutées
-  result       String?  // JSON résultat final
+  steps        String?
+  result       String?
   error        String?
 
   startedAt    DateTime?
@@ -565,4 +632,390 @@ model WorkflowExecution {
   @@index([tenantId, status])
   @@index([workflowId])
   @@index([emailId])
+}
+
+// ============================================
+// NIVEAU 6 : CALENDAR & NOTIFICATIONS
+// ============================================
+
+model CalendarEvent {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+
+  title     String
+  description String?
+  location  String?
+
+  startDate DateTime
+  endDate   DateTime
+  allDay    Boolean  @default(false)
+
+  type      String   @default("rdv")
+  status    String   @default("confirmed")
+
+  googleEventId String?
+  outlookEventId String?
+
+  reminders String?
+  
+  isRecurring Boolean @default(false)
+  recurrenceRule String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, startDate])
+  @@index([userId])
+  @@index([dossierId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      String
+  title     String
+  message   String
+  data      String?
+
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+
+  priority  String   @default("normal")
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+// ============================================
+// NIVEAU 7 : JURIDIQUE (CŒUR DU SYSTÈME)
+// ============================================
+
+model LegalDeadline {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  dossierId String
+  dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  
+  type      DeadlineType
+  label     String
+  description String?
+  
+  referenceDate DateTime
+  dueDate       DateTime
+  
+  status    DeadlineStatus @default(PENDING)
+  
+  legalBasis    String?
+  legalDays     Int?
+  
+  alertJ7Sent   Boolean @default(false)
+  alertJ3Sent   Boolean @default(false)
+  alertJ1Sent   Boolean @default(false)
+  
+  completedAt   DateTime?
+  completedBy   String?
+  completionNote String?
+  
+  proofId       String?
+  
+  createdBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  alerts        DeadlineAlert[]
+
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([status, dueDate])
+}
+
+model DeadlineAlert {
+  id          String   @id @default(uuid())
+  deadlineId  String
+  deadline    LegalDeadline @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
+  
+  alertType   String
+  sentAt      DateTime @default(now())
+  sentTo      String
+  channel     String
+  
+  acknowledged Boolean @default(false)
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+
+  @@index([deadlineId])
+}
+
+model LegalReference {
+  id        String   @id @default(uuid())
+  
+  code      String
+  article   String
+  version   String?
+  
+  title     String
+  content   String
+  summary   String?
+  
+  category  String
+  keywords  String?
+  
+  defaultDeadlineDays Int?
+  deadlineType        String?
+  
+  legifrance_url String?
+  eurlex_url     String?
+  
+  isActive  Boolean  @default(true)
+  validFrom DateTime?
+  validUntil DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code, article, version])
+  @@index([code])
+  @@index([category])
+  @@index([isActive])
+}
+
+// ============================================
+// NIVEAU 8 : TRAÇABILITÉ (IMMUABLE)
+// ============================================
+
+model InformationUnit {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  source        InformationUnitSource
+  content       String
+  contentHash   String   @unique
+  
+  currentStatus InformationUnitStatus @default(RECEIVED)
+  
+  sourceMetadata    String?
+  linkedWorkspaceId String?
+  metadata          String?
+  
+  lastStatusChangeBy String?
+  lastStatusChangeAt DateTime?
+  
+  receivedAt    DateTime @default(now())
+  classifiedAt  DateTime?
+  analyzedAt    DateTime?
+  resolvedAt    DateTime?
+  closedAt      DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  statusHistory InformationStatusHistory[]
+  proofs        Proof[]
+
+  @@index([tenantId])
+  @@index([currentStatus])
+  @@index([contentHash])
+  @@index([tenantId, currentStatus])
+}
+
+model InformationStatusHistory {
+  id          String   @id @default(uuid())
+  unitId      String
+  unit        InformationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  fromStatus  InformationUnitStatus?
+  toStatus    InformationUnitStatus
+  reason      String?
+  
+  changedBy   String
+  changedAt   DateTime @default(now())
+  
+  timestampHash String?
+  
+  @@index([unitId])
+  @@index([changedAt])
+}
+
+model Proof {
+  id                String   @id @default(uuid())
+  tenantId          String
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  type              ProofType
+  title             String
+  description       String?
+  
+  dossierId         String?
+  dossier           Dossier? @relation(fields: [dossierId], references: [id])
+  
+  clientId          String?
+  
+  documentId        String?
+  document          Document? @relation(fields: [documentId], references: [id])
+  
+  informationUnitId String?
+  informationUnit   InformationUnit? @relation(fields: [informationUnitId], references: [id])
+  
+  fileStorageKey    String?
+  fileHash          String?
+  fileMimeType      String?
+  fileSize          Int?
+  
+  proofDate         DateTime
+  capturedAt        DateTime @default(now())
+  capturedBy        String
+  
+  status            ProofStatus @default(PENDING_VALIDATION)
+  validatedBy       String?
+  validatedAt       DateTime?
+  rejectionReason   String?
+  
+  timestampHash     String?
+  chainPreviousId   String?
+  
+  metadata          String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([type])
+  @@index([status])
+  @@index([proofDate])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  userEmail String
+  userRole  String
+  
+  action    AuditAction
+  entityType String
+  entityId  String
+  
+  oldValue  String?
+  newValue  String?
+  
+  ipAddress String?
+  userAgent String?
+  
+  timestamp DateTime @default(now())
+  timestampHash String?
+  previousLogId String?
+  
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@index([action])
+}
+
+// ============================================
+// NIVEAU 9 : CONFORMITÉ & ARCHIVAGE
+// ============================================
+
+model ArchivePolicy {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  entityType String
+  entityId   String
+  
+  status     ArchiveStatus @default(ACTIVE)
+  
+  retentionDays    Int
+  retentionReason  String?
+  
+  lastAccessAt     DateTime?
+  archiveAt        DateTime?
+  deleteAt         DateTime?
+  
+  archivedAt       DateTime?
+  archivedBy       String?
+  deletedAt        DateTime?
+  deletedBy        String?
+  
+  holdUntil        DateTime?
+  holdReason       String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([entityType, entityId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([archiveAt])
+  @@index([deleteAt])
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  type      ReportType
+  title     String
+  description String?
+  
+  parameters String?
+  
+  dossierId String?
+  clientId  String?
+  
+  periodStart DateTime?
+  periodEnd   DateTime?
+  
+  status    ReportStatus @default(PENDING)
+  fileStorageKey String?
+  fileMimeType   String?
+  fileSize       Int?
+  
+  generatedAt DateTime?
+  generatedBy String
+  
+  isPublic    Boolean @default(false)
+  accessCount Int     @default(0)
+  lastAccessAt DateTime?
+  
+  expiresAt   DateTime?
+  
+  error       String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([type])
+  @@index([status])
+  @@index([dossierId])
 }

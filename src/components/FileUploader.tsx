@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useRef } from 'react'
 import { Upload, X, File, Check, AlertCircle } from 'lucide-react'
@@ -29,7 +29,7 @@ export default function FileUploader({
     const selectedFiles = Array.from(e.target.files || [])
     
     if (files.length + selectedFiles.length > maxFiles) {
-      showToast(`Maximum ${maxFiles} fichiers autorisés`, 'error')
+      showToast(`Maximum ${maxFiles} fichiers autorises`, 'error')
       return
     }
 
@@ -41,7 +41,7 @@ export default function FileUploader({
     const droppedFiles = Array.from(e.dataTransfer.files)
     
     if (files.length + droppedFiles.length > maxFiles) {
-      showToast(`Maximum ${maxFiles} fichiers autorisés`, 'error')
+      showToast(`Maximum ${maxFiles} fichiers autorises`, 'error')
       return
     }
 
@@ -83,13 +83,13 @@ export default function FileUploader({
         results.push(result.id)
       }
 
-      showToast(`${files.length} fichier(s) uploadé(s) avec succès`, 'success')
+      showToast(`${files.length} fichier(s) uploade(s) avec succes`, 'success')
       
       if (onUploadComplete && results.length > 0) {
         results.forEach(id => onUploadComplete(id))
       }
 
-      // Réinitialiser
+      // Reinitialiser
       setFiles([])
       setUploadProgress({})
       if (fileInputRef.current) {
@@ -114,10 +114,10 @@ export default function FileUploader({
       >
         <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
         <p className="text-gray-700 dark:text-gray-300 mb-2">
-          Glissez-déposez vos fichiers ici ou cliquez pour parcourir
+          Glissez-deposez vos fichiers ici ou cliquez pour parcourir
         </p>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Maximum {maxFiles} fichiers • Types acceptés: {accept}
+          Maximum {maxFiles} fichiers - Types acceptes: {accept}
         </p>
         <input
           ref={fileInputRef}
@@ -129,11 +129,11 @@ export default function FileUploader({
         />
       </div>
 
-      {/* Liste des fichiers sélectionnés */}
+      {/* Liste des fichiers selectionnes */}
       {files.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            Fichiers sélectionnés ({files.length}/{maxFiles})
+            Fichiers selectionnes ({files.length}/{maxFiles})
           </h3>
           {files.map((file, index) => (
             <div

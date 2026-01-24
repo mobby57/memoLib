@@ -1,6 +1,6 @@
-﻿/**
- * Webhook Stripe - Gestion des événements de paiement
- * IMPORTANT: Cette route doit être en mode RAW body (pas de parsing JSON automatique)
+/**
+ * Webhook Stripe - Gestion des evenements de paiement
+ * IMPORTANT: Cette route doit etre en mode RAW body (pas de parsing JSON automatique)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -20,16 +20,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Pas de signature' }, { status: 400 });
     }
 
-    // Vérifier la signature du webhook
+    // Verifier la signature du webhook
     let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err) {
-      console.error('Erreur vérification webhook:', err);
+      console.error('Erreur verification webhook:', err);
       return NextResponse.json({ error: 'Signature invalide' }, { status: 400 });
     }
 
-    // Traiter l'événement
+    // Traiter l'evenement
     switch (event.type) {
       case 'invoice.paid':
         await handleInvoicePaid(event.data.object as Stripe.Invoice);
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        console.log(`Événement non géré: ${event.type}`);
+        console.log(`evenement non gere: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
@@ -67,13 +67,13 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Facture payée - Mettre à jour dans la base
+ * Facture payee - Mettre a jour dans la base
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const subscriptionId = invoice.subscription as string;
   if (!subscriptionId) return;
 
-  // Récupérer la subscription Stripe
+  // Recuperer la subscription Stripe
   const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
   const tenantId = stripeSubscription.metadata.tenantId;
 
@@ -82,7 +82,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     return;
   }
 
-  // Mettre à jour la subscription dans la base
+  // Mettre a jour la subscription dans la base
   await prisma.subscription.updateMany({
     where: { 
       tenantId,
@@ -93,7 +93,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     }
   });
 
-  // Créer la facture dans notre base
+  // Creer la facture dans notre base
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
     select: { name: true }
@@ -125,11 +125,11 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     }
   });
 
-  console.log(`✅ Facture payée pour tenant ${tenant?.name || tenantId}`);
+  console.log(` Facture payee pour tenant ${tenant?.name || tenantId}`);
 }
 
 /**
- * Échec de paiement - Marquer comme past_due
+ * echec de paiement - Marquer comme past_due
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const subscriptionId = invoice.subscription as string;
@@ -147,18 +147,18 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
   // TODO: Envoyer email d'alerte au tenant
 
-  console.log(`❌ Échec paiement pour tenant ${tenantId}`);
+  console.log(` echec paiement pour tenant ${tenantId}`);
 }
 
 /**
- * Subscription créée
+ * Subscription creee
  */
 async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   const tenantId = subscription.metadata.tenantId;
   if (!tenantId) return;
 
-  // La subscription devrait déjà exister (créée lors du checkout)
-  // On met juste à jour le statut
+  // La subscription devrait deja exister (creee lors du checkout)
+  // On met juste a jour le statut
   await prisma.subscription.updateMany({
     where: { tenantId },
     data: {
@@ -166,11 +166,11 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
     }
   });
 
-  console.log(`✅ Subscription créée pour tenant ${tenantId}`);
+  console.log(` Subscription creee pour tenant ${tenantId}`);
 }
 
 /**
- * Subscription mise à jour (upgrade/downgrade)
+ * Subscription mise a jour (upgrade/downgrade)
  */
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const tenantId = subscription.metadata.tenantId;
@@ -185,11 +185,11 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     }
   });
 
-  console.log(`🔄 Subscription mise à jour pour tenant ${tenantId}`);
+  console.log(`[emoji] Subscription mise a jour pour tenant ${tenantId}`);
 }
 
 /**
- * Subscription annulée
+ * Subscription annulee
  */
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const tenantId = subscription.metadata.tenantId;
@@ -203,11 +203,11 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     }
   });
 
-  console.log(`🛑 Subscription annulée pour tenant ${tenantId}`);
+  console.log(`[emoji] Subscription annulee pour tenant ${tenantId}`);
 }
 
 /**
- * Checkout complété - Créer la subscription dans la base
+ * Checkout complete - Creer la subscription dans la base
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const subscriptionId = session.subscription as string;
@@ -218,5 +218,5 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   if (!tenantId) return;
 
-  console.log(`✅ Checkout complété pour tenant ${tenantId}`);
+  console.log(` Checkout complete pour tenant ${tenantId}`);
 }

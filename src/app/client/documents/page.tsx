@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -60,7 +60,7 @@ export default function DocumentsClient() {
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('description', 'Document téléversé par le client');
+    formData.append('description', 'Document televerse par le client');
 
     try {
       const res = await fetch('/api/client/documents/upload', {
@@ -70,9 +70,9 @@ export default function DocumentsClient() {
 
       if (res.ok) {
         await fetchDocuments();
-        alert('Document téléversé avec succès !');
+        alert('Document televerse avec succes !');
       } else {
-        alert('Erreur lors du téléversement');
+        alert('Erreur lors du televersement');
       }
     } catch (err) {
       alert('Erreur de connexion');
@@ -88,11 +88,11 @@ export default function DocumentsClient() {
   };
 
   const getFileIcon = (mimeType: string) => {
-    if (mimeType.includes('pdf')) return '📕';
-    if (mimeType.includes('image')) return '🖼️';
-    if (mimeType.includes('word') || mimeType.includes('document')) return '📘';
-    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊';
-    return '📄';
+    if (mimeType.includes('pdf')) return '[emoji]';
+    if (mimeType.includes('image')) return '[emoji]️';
+    if (mimeType.includes('word') || mimeType.includes('document')) return '[emoji]';
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '[emoji]';
+    return '[emoji]';
   };
 
   const filteredDocuments = documents.filter(doc => {
@@ -126,13 +126,13 @@ export default function DocumentsClient() {
                 href="/client"
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <span className="text-2xl">←</span>
+                <span className="text-2xl">[Back]</span>
               </Link>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Mes Documents
                 </h1>
-                <p className="text-gray-600 mt-1">Gérez tous vos documents juridiques</p>
+                <p className="text-gray-600 mt-1">Gerez tous vos documents juridiques</p>
               </div>
             </div>
             <div className="text-right">
@@ -157,9 +157,9 @@ export default function DocumentsClient() {
             />
             <label htmlFor="file-upload" className="cursor-pointer">
               <div className="flex flex-col items-center gap-3">
-                <span className="text-6xl">{uploading ? '⏳' : '📤'}</span>
+                <span className="text-6xl">{uploading ? '' : '[emoji]'}</span>
                 <span className="font-semibold text-gray-900 text-lg">
-                  {uploading ? 'Téléversement en cours...' : 'Cliquez pour ajouter un fichier'}
+                  {uploading ? 'Televersement en cours...' : 'Cliquez pour ajouter un fichier'}
                 </span>
                 <span className="text-sm text-gray-500">
                   PDF, JPEG, PNG, DOCX (max 10 MB)
@@ -175,7 +175,7 @@ export default function DocumentsClient() {
             <div className="flex-1">
               <input
                 type="text"
-                placeholder="🔍 Rechercher un document..."
+                placeholder="[emoji] Rechercher un document..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
@@ -200,7 +200,7 @@ export default function DocumentsClient() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                📕 PDF
+                [emoji] PDF
               </button>
               <button
                 onClick={() => setFilter('image')}
@@ -210,7 +210,7 @@ export default function DocumentsClient() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                🖼️ Images
+                [emoji]️ Images
               </button>
               <button
                 onClick={() => setFilter('word')}
@@ -220,7 +220,7 @@ export default function DocumentsClient() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                📘 Word
+                [emoji] Word
               </button>
             </div>
           </div>
@@ -234,10 +234,10 @@ export default function DocumentsClient() {
 
           {filteredDocuments.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-6xl mb-4 block">📁</span>
+              <span className="text-6xl mb-4 block">[emoji]</span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filter !== 'all'
-                  ? 'Aucun document ne correspond à votre recherche'
+                  ? 'Aucun document ne correspond a votre recherche'
                   : 'Aucun document pour le moment'}
               </p>
             </div>
@@ -256,9 +256,9 @@ export default function DocumentsClient() {
                       href={`/api/client/documents/${doc.id}/download`}
                       className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                       download
-                      title="Télécharger"
+                      title="Telecharger"
                     >
-                      ⬇️
+                      ️
                     </a>
                   </div>
                   
@@ -278,7 +278,7 @@ export default function DocumentsClient() {
                         href={`/client/dossiers/${doc.dossier}`}
                         className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                       >
-                        📁 {doc.dossier.typeDossier}
+                        [emoji] {doc.dossier.typeDossier}
                       </Link>
                     </div>
                   )}
@@ -296,14 +296,14 @@ export default function DocumentsClient() {
         {/* Conseils */}
         <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg mt-8">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">💡</span>
+            <span className="text-2xl">[emoji]</span>
             <div>
               <p className="font-semibold text-blue-900 mb-2">Conseils pour vos documents</p>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Privilégiez le format PDF pour les documents officiels</li>
-                <li>• Nommez vos fichiers de manière claire et descriptive</li>
-                <li>• Assurez-vous que les documents sont lisibles et complets</li>
-                <li>• Les documents seront accessibles à votre avocat</li>
+                <li>- Privilegiez le format PDF pour les documents officiels</li>
+                <li>- Nommez vos fichiers de maniere claire et descriptive</li>
+                <li>- Assurez-vous que les documents sont lisibles et complets</li>
+                <li>- Les documents seront accessibles a votre avocat</li>
               </ul>
             </div>
           </div>

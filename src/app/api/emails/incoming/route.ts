@@ -1,6 +1,6 @@
 /**
- * API Route - Réception Email Entrant (Webhook)
- * POST /api/emails/incoming - Reçoit un email et déclenche le workflow
+ * API Route - Reception Email Entrant (Webhook)
+ * POST /api/emails/incoming - Recoit un email et declenche le workflow
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Trouver le tenant destinataire basé sur l'email "to"
+    // Trouver le tenant destinataire base sur l'email "to"
     const tenant = await prisma.tenant.findFirst({
       where: {
         users: {
@@ -32,14 +32,14 @@ export async function POST(request: NextRequest) {
     });
 
     if (!tenant) {
-      console.log(`[EMAIL] Aucun tenant trouvé pour: ${to}`);
+      console.log(`[EMAIL] Aucun tenant trouve pour: ${to}`);
       return NextResponse.json(
-        { error: 'Destinataire non trouvé' },
+        { error: 'Destinataire non trouve' },
         { status: 404 }
       );
     }
 
-    // Chercher si l'expéditeur est un client connu
+    // Chercher si l'expediteur est un client connu
     const client = await prisma.client.findFirst({
       where: {
         tenantId: tenant.id,
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       // Continuer sans analyse IA
     }
 
-    // Créer l'email dans la base
+    // Creer l'email dans la base
     const email = await prisma.email.create({
       data: {
         tenantId: tenant.id,
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Créer les pièces jointes si présentes
+    // Creer les pieces jointes si presentes
     if (attachments && attachments.length > 0) {
       await prisma.emailAttachment.createMany({
         data: attachments.map((att: any) => ({
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Déclencher le workflow approprié
+    // Declencher le workflow approprie
     const workflow = await prisma.workflowExecution.create({
       data: {
         tenantId: tenant.id,
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Simuler l'exécution du workflow (étapes)
+    // Simuler l'execution du workflow (etapes)
     await executeWorkflowSteps(workflow.id, email, category, urgency);
 
     return NextResponse.json({
@@ -136,11 +136,11 @@ export async function POST(request: NextRequest) {
       workflowId: workflow.id,
       category,
       urgency,
-      message: 'Email reçu et workflow déclenché'
+      message: 'Email recu et workflow declenche'
     });
 
   } catch (error) {
-    console.error('[EMAIL] Erreur réception email:', error);
+    console.error('[EMAIL] Erreur reception email:', error);
     return NextResponse.json(
       { error: 'Erreur serveur', details: String(error) },
       { status: 500 }
@@ -152,14 +152,14 @@ function getWorkflowName(category: string): string {
   const names: Record<string, string> = {
     'client-urgent': 'Traitement Email Urgent',
     'new-case': 'Ouverture Nouveau Dossier',
-    'deadline-reminder': 'Gestion Échéance',
+    'deadline-reminder': 'Gestion echeance',
     'invoice': 'Traitement Facture',
-    'legal-question': 'Réponse Question Juridique',
+    'legal-question': 'Reponse Question Juridique',
     'court-document': 'Document Judiciaire',
-    'client-complaint': 'Réclamation Client',
+    'client-complaint': 'Reclamation Client',
     'document-request': 'Demande Document',
     'appointment-request': 'Demande Rendez-vous',
-    'general-inquiry': 'Demande Générale'
+    'general-inquiry': 'Demande Generale'
   };
   return names[category] || 'Traitement Email';
 }
@@ -178,7 +178,7 @@ async function executeWorkflowSteps(
     { name: 'completed', progress: 100 }
   ];
 
-  // Simuler l'exécution progressive des étapes
+  // Simuler l'execution progressive des etapes
   for (const step of steps) {
     await prisma.workflowExecution.update({
       where: { id: workflowId },
@@ -196,7 +196,7 @@ async function executeWorkflowSteps(
     });
   }
 
-  // Marquer le workflow comme terminé
+  // Marquer le workflow comme termine
   await prisma.workflowExecution.update({
     where: { id: workflowId },
     data: {
@@ -206,12 +206,12 @@ async function executeWorkflowSteps(
         emailProcessed: true,
         category,
         urgency,
-        actions: ['Email classifié', 'Notification envoyée']
+        actions: ['Email classifie', 'Notification envoyee']
       })
     }
   });
 
-  // Marquer l'email comme traité
+  // Marquer l'email comme traite
   await prisma.email.update({
     where: { id: email.id },
     data: {

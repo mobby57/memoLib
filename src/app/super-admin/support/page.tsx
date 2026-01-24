@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -84,7 +84,7 @@ export default function SupportPage() {
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="text-sm text-gray-600">Résolus</div>
+            <div className="text-sm text-gray-600">Resolus</div>
             <div className="text-2xl font-bold text-gray-900 mt-1">
               {tickets.filter((t) => t.status === 'resolved').length}
             </div>
@@ -107,8 +107,8 @@ export default function SupportPage() {
             <option value="all">Tous les statuts</option>
             <option value="open">Ouverts</option>
             <option value="in_progress">En cours</option>
-            <option value="resolved">Résolus</option>
-            <option value="closed">Fermés</option>
+            <option value="resolved">Resolus</option>
+            <option value="closed">Fermes</option>
           </select>
         </div>
 
@@ -125,13 +125,13 @@ export default function SupportPage() {
                     Tenant
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Priorité
+                    Priorite
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Statut
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Créé le
+                    Cree le
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                     Actions

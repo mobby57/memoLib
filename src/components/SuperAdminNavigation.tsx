@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -8,12 +8,12 @@ export default function SuperAdminNavigation() {
   const pathname = usePathname();
 
   const navItems = [
-    { href: '/super-admin', label: 'Dashboard', icon: '📊' },
+    { href: '/super-admin', label: 'Dashboard', icon: '[emoji]' },
     { href: '/super-admin/tenants', label: 'Tenants', icon: '🏢' },
-    { href: '/super-admin/plans', label: 'Plans', icon: '💎' },
-    { href: '/super-admin/users', label: 'Users', icon: '👥' },
+    { href: '/super-admin/plans', label: 'Plans', icon: '[emoji]' },
+    { href: '/super-admin/users', label: 'Users', icon: '[emoji]' },
     { href: '/super-admin/support', label: 'Support', icon: '🎫' },
-    { href: '/super-admin/settings', label: 'Settings', icon: '⚙️' },
+    { href: '/super-admin/settings', label: 'Settings', icon: '️' },
   ];
 
   const isActive = (href: string) => pathname === href;
@@ -53,7 +53,7 @@ export default function SuperAdminNavigation() {
             onClick={() => signOut({ callbackUrl: '/auth/login' })}
             className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
           >
-            Déconnexion
+            Deconnexion
           </button>
         </div>
       </div>

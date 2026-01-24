@@ -1,6 +1,6 @@
-﻿/**
- * Service d'extraction automatique des délais (échéances) depuis les documents CESEDA
- * Utilise l'IA (OpenAI/Ollama) pour analyser les documents et extraire les dates clés
+/**
+ * Service d'extraction automatique des delais (echeances) depuis les documents CESEDA
+ * Utilise l'IA (OpenAI/Ollama) pour analyser les documents et extraire les dates cles
  */
 
 import { logger } from '@/lib/logger';
@@ -16,13 +16,13 @@ export interface ExtractedDeadline {
   aiConfidence: number; // 0-1 (confidence score)
   confidenceLevel?: 'high' | 'medium' | 'low'; // High: >90%, Medium: 70-90%, Low: <70%
   extractedText: string;
-  autoChecklist?: string[]; // Actions automatiques à effectuer
-  templateMatch?: string; // Template OQTF détecté (48h_sans_delai, 30j_avec_delai, etc.)
+  autoChecklist?: string[]; // Actions automatiques a effectuer
+  templateMatch?: string; // Template OQTF detecte (48h_sans_delai, 30j_avec_delai, etc.)
   metadata?: {
     juridiction?: string;
     typeRecours?: string;
     article?: string;
-    delaiStandard?: string; // Ex: "48h pour OQTF sans délai de départ"
+    delaiStandard?: string; // Ex: "48h pour OQTF sans delai de depart"
     [key: string]: any;
   };
 }
@@ -33,82 +33,82 @@ export interface DeadlineExtractionResult {
   templateDetected?: 'OQTF_48H_SANS_DELAI' | 'OQTF_30J_AVEC_DELAI' | 'REFUS_TITRE_2MOIS' | 'AUTRE';
   rawText?: string;
   error?: string;
-  suggestedActions?: string[]; // Actions suggérées globalement
+  suggestedActions?: string[]; // Actions suggerees globalement
 }
 
 /**
- * Templates OQTF standards - Délais CESEDA
+ * Templates OQTF standards - Delais CESEDA
  */
 const OQTF_TEMPLATES = {
-  // Article L.512-1 CESEDA - OQTF sans délai de départ volontaire
+  // Article L.512-1 CESEDA - OQTF sans delai de depart volontaire
   OQTF_48H_SANS_DELAI: {
-    name: 'OQTF sans délai de départ',
+    name: 'OQTF sans delai de depart',
     delaiRecours: 48, // heures
     articles: ['L.512-1', 'L.742-3', 'L.213-9'],
     checklist: [
-      'Référé-liberté au TA (48h)',
-      'Vérifier notification en main propre ou domicile',
-      'Préparer recours référé (violation manifeste)',
+      'Refere-liberte au TA (48h)',
+      'Verifier notification en main propre ou domicile',
+      'Preparer recours refere (violation manifeste)',
       'Constituer avocat en urgence',
-      'Rassembler preuves présence France',
-      'Vérifier si OQTF peut être exécutée (assignation à résidence?)',
+      'Rassembler preuves presence France',
+      'Verifier si OQTF peut etre executee (assignation a residence?)',
     ],
-    keywords: ['sans délai', 'immédiatement', 'sans délai de départ volontaire'],
+    keywords: ['sans delai', 'immediatement', 'sans delai de depart volontaire'],
   },
   
-  // Article L.511-1 CESEDA - OQTF avec délai de départ volontaire 30 jours
+  // Article L.511-1 CESEDA - OQTF avec delai de depart volontaire 30 jours
   OQTF_30J_AVEC_DELAI: {
-    name: 'OQTF avec délai de départ (30 jours)',
+    name: 'OQTF avec delai de depart (30 jours)',
     delaiRecours: 30, // jours
     delaiDepart: 30,
     articles: ['L.511-1', 'L.512-1'],
     checklist: [
       'Recours contentieux au TA (30 jours)',
-      'Évaluer recours gracieux préfecture',
-      'Préparer départ volontaire si pertinent',
-      'Vérifier possibilité régularisation',
-      'Documents : preuves attaches France, vie privée/familiale',
+      'evaluer recours gracieux prefecture',
+      'Preparer depart volontaire si pertinent',
+      'Verifier possibilite regularisation',
+      'Documents : preuves attaches France, vie privee/familiale',
       'Consultation juridique CESEDA',
     ],
-    keywords: ['délai de départ volontaire', '30 jours', 'trente jours'],
+    keywords: ['delai de depart volontaire', '30 jours', 'trente jours'],
   },
   
-  // Refus de titre de séjour - 2 mois
+  // Refus de titre de sejour - 2 mois
   REFUS_TITRE_2MOIS: {
-    name: 'Refus titre de séjour',
+    name: 'Refus titre de sejour',
     delaiRecours: 60, // jours (2 mois)
     articles: ['L.313-11', 'R.421-1 CJA'],
     checklist: [
       'Recours contentieux au TA (2 mois)',
       'Analyser motivation refus',
-      'Rassembler pièces complémentaires',
-      'Évaluer recours gracieux',
-      'Vérifier maintien récépissé pendant recours',
+      'Rassembler pieces complementaires',
+      'evaluer recours gracieux',
+      'Verifier maintien recepisse pendant recours',
     ],
-    keywords: ['refus de titre', 'refus de séjour', 'refuse de vous délivrer'],
+    keywords: ['refus de titre', 'refus de sejour', 'refuse de vous delivrer'],
   },
 };
 
 /**
- * Détecte le template OQTF applicable au document
+ * Detecte le template OQTF applicable au document
  */
 function detectOQTFTemplate(documentText: string): keyof typeof OQTF_TEMPLATES | null {
   const lowerText = documentText.toLowerCase();
   
-  // Recherche OQTF sans délai (priorité haute)
+  // Recherche OQTF sans delai (priorite haute)
   if (
     (lowerText.includes('oqtf') || lowerText.includes('obligation de quitter')) &&
-    (lowerText.includes('sans délai') || 
-     lowerText.includes('immédiatement') ||
-     lowerText.includes('sans délai de départ volontaire'))
+    (lowerText.includes('sans delai') || 
+     lowerText.includes('immediatement') ||
+     lowerText.includes('sans delai de depart volontaire'))
   ) {
     return 'OQTF_48H_SANS_DELAI';
   }
   
-  // OQTF avec délai
+  // OQTF avec delai
   if (
     (lowerText.includes('oqtf') || lowerText.includes('obligation de quitter')) &&
-    (lowerText.includes('délai de départ volontaire') ||
+    (lowerText.includes('delai de depart volontaire') ||
      lowerText.includes('30 jours') ||
      lowerText.includes('trente jours'))
   ) {
@@ -118,7 +118,7 @@ function detectOQTFTemplate(documentText: string): keyof typeof OQTF_TEMPLATES |
   // Refus de titre
   if (
     lowerText.includes('refus') &&
-    (lowerText.includes('titre de séjour') || lowerText.includes('séjour'))
+    (lowerText.includes('titre de sejour') || lowerText.includes('sejour'))
   ) {
     return 'REFUS_TITRE_2MOIS';
   }
@@ -127,18 +127,18 @@ function detectOQTFTemplate(documentText: string): keyof typeof OQTF_TEMPLATES |
 }
 
 /**
- * Génère la checklist automatique selon le template
+ * Genere la checklist automatique selon le template
  */
 function generateAutoChecklist(
   template: keyof typeof OQTF_TEMPLATES | null,
   deadline: Partial<ExtractedDeadline>
 ): string[] {
   if (!template) {
-    // Checklist générique
+    // Checklist generique
     return [
-      'Vérifier date de notification',
-      'Calculer délai de recours',
-      'Consulter avocat spécialisé',
+      'Verifier date de notification',
+      'Calculer delai de recours',
+      'Consulter avocat specialise',
       'Rassembler documents justificatifs',
     ];
   }
@@ -157,7 +157,7 @@ function calculateConfidenceLevel(aiConfidence: number): 'high' | 'medium' | 'lo
 }
 
 /**
- * Enrichit le délai avec template OQTF et checklist
+ * Enrichit le delai avec template OQTF et checklist
  */
 function enrichDeadlineWithTemplate(
   deadline: ExtractedDeadline,
@@ -172,10 +172,10 @@ function enrichDeadlineWithTemplate(
     // Ajouter template match
     enriched.templateMatch = templateKey;
     
-    // Générer checklist automatique
+    // Generer checklist automatique
     enriched.autoChecklist = generateAutoChecklist(templateKey, deadline);
     
-    // Enrichir métadata
+    // Enrichir metadata
     enriched.metadata = {
       ...enriched.metadata,
       delaiStandard: `${template.delaiRecours}${templateKey.includes('48H') ? 'h' : 'j'} pour ${template.name}`,
@@ -199,31 +199,31 @@ function enrichDeadlineWithTemplate(
   return enriched;
 }
 
-const DEADLINE_EXTRACTION_PROMPT = `Tu es un assistant juridique expert en droit des étrangers (CESEDA).
-Ta mission est d'analyser des documents administratifs et judiciaires pour extraire TOUS les délais et échéances.
+const DEADLINE_EXTRACTION_PROMPT = `Tu es un assistant juridique expert en droit des etrangers (CESEDA).
+Ta mission est d'analyser des documents administratifs et judiciaires pour extraire TOUS les delais et echeances.
 
-Types de délais à rechercher :
-- delai_recours_contentieux : recours devant le tribunal administratif (généralement 48h pour OQTF, 2 mois standard)
-- delai_recours_gracieux : recours gracieux auprès de la préfecture
+Types de delais a rechercher :
+- delai_recours_contentieux : recours devant le tribunal administratif (generalement 48h pour OQTF, 2 mois standard)
+- delai_recours_gracieux : recours gracieux aupres de la prefecture
 - audience : dates d'audience devant CNDA, TA, CAA, CE
-- depot_memoire : dépôt de mémoires complémentaires
-- reponse_prefecture : délai de réponse de la préfecture
-- expiration_titre : expiration titre de séjour, récépissé, APS
-- oqtf_execution : délai d'exécution volontaire OQTF
-- prescription : délais de prescription
-- convocation : convocations préfecture, police
-- autre : autres types de délais
+- depot_memoire : depot de memoires complementaires
+- reponse_prefecture : delai de reponse de la prefecture
+- expiration_titre : expiration titre de sejour, recepisse, APS
+- oqtf_execution : delai d'execution volontaire OQTF
+- prescription : delais de prescription
+- convocation : convocations prefecture, police
+- autre : autres types de delais
 
-Pour chaque délai trouvé, extrais :
+Pour chaque delai trouve, extrais :
 1. Le type exact
-2. La date d'échéance (format ISO 8601)
-3. La date de référence (notification, décision) si mentionnée
-4. Le nombre de jours du délai
-5. La priorité (critique si < 7j, haute si < 30j, normale sinon)
-6. Le texte exact où tu as trouvé cette information
+2. La date d'echeance (format ISO 8601)
+3. La date de reference (notification, decision) si mentionnee
+4. Le nombre de jours du delai
+5. La priorite (critique si < 7j, haute si < 30j, normale sinon)
+6. Le texte exact ou tu as trouve cette information
 7. Le niveau de confiance (0-1) dans ton extraction
 
-Réponds UNIQUEMENT avec un JSON valide suivant ce format :
+Reponds UNIQUEMENT avec un JSON valide suivant ce format :
 {
   "deadlines": [
     {
@@ -235,24 +235,24 @@ Réponds UNIQUEMENT avec un JSON valide suivant ce format :
       "delaiJours": 2,
       "priorite": "critique",
       "aiConfidence": 0.95,
-      "extractedText": "Vous disposez d'un délai de 48 heures à compter de la notification...",
+      "extractedText": "Vous disposez d'un delai de 48 heures a compter de la notification...",
       "metadata": {
         "juridiction": "Tribunal administratif de Paris",
-        "typeRecours": "référé-liberté",
+        "typeRecours": "refere-liberte",
         "article": "L.512-1 CESEDA"
       }
     }
   ]
 }
 
-Si aucun délai n'est trouvé, réponds : {"deadlines": []}`;
+Si aucun delai n'est trouve, reponds : {"deadlines": []}`;
 
 /**
- * Appel à l'IA pour analyser le document
+ * Appel a l'IA pour analyser le document
  * Utilise Ollama en local ou OpenAI selon la configuration
  */
 async function callAI(systemPrompt: string, userPrompt: string): Promise<string> {
-  // Vérifier la configuration IA
+  // Verifier la configuration IA
   const ollamaEnabled = process.env.OLLAMA_ENABLED === 'true';
   const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
   const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2:latest';
@@ -277,19 +277,19 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string>
       const data = await response.json();
       return data.response || '';
     } catch (error) {
-      logger.error('Erreur appel Ollama pour extraction délais', error, {
+      logger.error('Erreur appel Ollama pour extraction delais', error, {
         ollamaUrl: process.env.OLLAMA_URL,
         model: 'llama3.2:3b'
       });
       throw new Error('IA non disponible (Ollama)');
     }
   } else {
-    throw new Error('Ollama non configuré - définissez OLLAMA_URL dans .env');
+    throw new Error('Ollama non configure - definissez OLLAMA_URL dans .env');
   }
 }
 
 /**
- * Extrait les délais d'un document texte - Version améliorée avec templates
+ * Extrait les delais d'un document texte - Version amelioree avec templates
  */
 export async function extractDeadlinesFromText(
   documentText: string,
@@ -304,37 +304,37 @@ export async function extractDeadlinesFromText(
       };
     }
 
-    // Détecter le template OQTF applicable
+    // Detecter le template OQTF applicable
     const templateDetected = detectOQTFTemplate(documentText);
 
     // Construire le prompt avec contexte
     let contextHint = '';
     if (templateDetected) {
       const template = OQTF_TEMPLATES[templateDetected];
-      contextHint = `\n\nCONTEXTE DÉTECTÉ : ${template.name}
-Délai standard : ${template.delaiRecours}${templateDetected.includes('48H') ? 'h' : 'j'}
+      contextHint = `\n\nCONTEXTE DeTECTe : ${template.name}
+Delai standard : ${template.delaiRecours}${templateDetected.includes('48H') ? 'h' : 'j'}
 Articles applicables : ${template.articles.join(', ')}
-Assure-toi d'appliquer ce délai standard si mentionné dans le document.`;
+Assure-toi d'appliquer ce delai standard si mentionne dans le document.`;
     }
 
-    const userPrompt = `Analyse le document suivant${documentType ? ` (type: ${documentType})` : ''} et extrais tous les délais et échéances :${contextHint}
+    const userPrompt = `Analyse le document suivant${documentType ? ` (type: ${documentType})` : ''} et extrais tous les delais et echeances :${contextHint}
 
 ---DOCUMENT---
 ${documentText}
 ---FIN DOCUMENT---
 
-Réponds avec le JSON structuré des délais trouvés.`;
+Reponds avec le JSON structure des delais trouves.`;
 
-    // Appel à l'IA
+    // Appel a l'IA
     const aiResponse = await callAI(
       DEADLINE_EXTRACTION_PROMPT,
       userPrompt
     );
 
-    // Parser la réponse JSON
+    // Parser la reponse JSON
     let parsedResponse;
     try {
-      // Nettoyer la réponse (enlever markdown code blocks si présents)
+      // Nettoyer la reponse (enlever markdown code blocks si presents)
       const cleanedResponse = aiResponse
         .replace(/```json\n?/g, '')
         .replace(/```\n?/g, '')
@@ -342,7 +342,7 @@ Réponds avec le JSON structuré des délais trouvés.`;
       
       parsedResponse = JSON.parse(cleanedResponse);
     } catch (parseError) {
-      logger.error('Erreur parsing réponse JSON de l\'IA', parseError, {
+      logger.error('Erreur parsing reponse JSON de l\'IA', parseError, {
         aiResponse: aiResponse.substring(0, 200),
         documentType
       });
@@ -350,7 +350,7 @@ Réponds avec le JSON structuré des délais trouvés.`;
         success: false,
         deadlines: [],
         rawText: aiResponse,
-        error: 'Format de réponse IA invalide'
+        error: 'Format de reponse IA invalide'
       };
     }
 
@@ -358,7 +358,7 @@ Réponds avec le JSON structuré des délais trouvés.`;
     const deadlines: ExtractedDeadline[] = (parsedResponse.deadlines || []).map((dl: any) => {
       const baseDeadline: ExtractedDeadline = {
         type: dl.type || 'autre',
-        titre: dl.titre || 'Échéance',
+        titre: dl.titre || 'echeance',
         description: dl.description,
         dateEcheance: new Date(dl.dateEcheance),
         dateReference: dl.dateReference ? new Date(dl.dateReference) : undefined,
@@ -373,15 +373,15 @@ Réponds avec le JSON structuré des délais trouvés.`;
       return enrichDeadlineWithTemplate(baseDeadline, templateDetected, documentText);
     });
 
-    // Générer actions suggérées globales
+    // Generer actions suggerees globales
     const suggestedActions: string[] = [];
     if (templateDetected) {
       const template = OQTF_TEMPLATES[templateDetected];
-      suggestedActions.push(`Template détecté : ${template.name}`);
-      suggestedActions.push(`Délai légal : ${template.delaiRecours}${templateDetected.includes('48H') ? 'h' : 'j'}`);
+      suggestedActions.push(`Template detecte : ${template.name}`);
+      suggestedActions.push(`Delai legal : ${template.delaiRecours}${templateDetected.includes('48H') ? 'h' : 'j'}`);
       
       if (deadlines.some(d => d.priorite === 'critique')) {
-        suggestedActions.push('⚠️ URGENCE : Contacter avocat immédiatement');
+        suggestedActions.push('️ URGENCE : Contacter avocat immediatement');
       }
     }
 
@@ -394,7 +394,7 @@ Réponds avec le JSON structuré des délais trouvés.`;
     };
 
   } catch (error: any) {
-    logger.error('Erreur lors de l\'extraction automatique des délais', error, {
+    logger.error('Erreur lors de l\'extraction automatique des delais', error, {
       documentType,
       textLength: documentText?.length
     });
@@ -407,7 +407,7 @@ Réponds avec le JSON structuré des délais trouvés.`;
 }
 
 /**
- * Extrait les délais depuis un fichier uploadé
+ * Extrait les delais depuis un fichier uploade
  * Supporte PDF, DOCX, TXT
  */
 export async function extractDeadlinesFromFile(
@@ -420,10 +420,10 @@ export async function extractDeadlinesFromFile(
     let documentText: string;
 
     if (mimeType === 'application/pdf') {
-      // TODO: Intégrer un parser PDF (pdf-parse)
+      // TODO: Integrer un parser PDF (pdf-parse)
       documentText = await extractTextFromPDF(fileBuffer);
     } else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      // TODO: Intégrer un parser DOCX (mammoth)
+      // TODO: Integrer un parser DOCX (mammoth)
       documentText = await extractTextFromDOCX(fileBuffer);
     } else if (mimeType === 'text/plain') {
       documentText = fileBuffer.toString('utf-8');
@@ -431,18 +431,18 @@ export async function extractDeadlinesFromFile(
       return {
         success: false,
         deadlines: [],
-        error: `Type de fichier non supporté: ${mimeType}`
+        error: `Type de fichier non supporte: ${mimeType}`
       };
     }
 
-    // Détecter le type de document par le nom de fichier
+    // Detecter le type de document par le nom de fichier
     const documentType = detectDocumentType(fileName);
 
-    // Extraire les délais du texte
+    // Extraire les delais du texte
     return await extractDeadlinesFromText(documentText, documentType);
 
   } catch (error: any) {
-    logger.error('Erreur extraction délais depuis fichier', error, {
+    logger.error('Erreur extraction delais depuis fichier', error, {
       fileName,
       mimeType
     });
@@ -455,19 +455,19 @@ export async function extractDeadlinesFromFile(
 }
 
 /**
- * Détecte le type de document CESEDA par le nom de fichier
+ * Detecte le type de document CESEDA par le nom de fichier
  */
 function detectDocumentType(fileName: string): string | undefined {
   const lowerName = fileName.toLowerCase();
   
   if (lowerName.includes('oqtf')) return 'OQTF';
   if (lowerName.includes('arrete')) return 'ARRETE_PREFECTORAL';
-  if (lowerName.includes('decision') || lowerName.includes('décision')) return 'DECISION_ADMINISTRATIVE';
+  if (lowerName.includes('decision') || lowerName.includes('decision')) return 'DECISION_ADMINISTRATIVE';
   if (lowerName.includes('convocation')) return 'CONVOCATION';
   if (lowerName.includes('audience')) return 'CONVOCATION_AUDIENCE';
   if (lowerName.includes('jugement')) return 'JUGEMENT';
   if (lowerName.includes('ordonnance')) return 'ORDONNANCE';
-  if (lowerName.includes('titre') || lowerName.includes('recepisse') || lowerName.includes('récépissé')) return 'TITRE_SEJOUR';
+  if (lowerName.includes('titre') || lowerName.includes('recepisse') || lowerName.includes('recepisse')) return 'TITRE_SEJOUR';
   
   return undefined;
 }
@@ -505,7 +505,7 @@ async function extractTextFromDOCX(buffer: Buffer): Promise<string> {
 }
 
 /**
- * Calcule le statut d'une échéance en fonction de la date
+ * Calcule le statut d'une echeance en fonction de la date
  */
 export function calculateDeadlineStatus(dateEcheance: Date): string {
   const now = new Date();
@@ -520,25 +520,25 @@ export function calculateDeadlineStatus(dateEcheance: Date): string {
 }
 
 /**
- * Calcule la priorité automatique en fonction du délai restant
+ * Calcule la priorite automatique en fonction du delai restant
  */
 export function calculateDeadlinePriority(dateEcheance: Date, type: string): string {
   const now = new Date();
   const diffMs = dateEcheance.getTime() - now.getTime();
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-  // Délais OQTF/expulsion sont toujours critiques
+  // Delais OQTF/expulsion sont toujours critiques
   if (type.includes('oqtf') || type.includes('expulsion')) {
     return 'critique';
   }
 
-  // Délais de recours contentieux courts = critique
+  // Delais de recours contentieux courts = critique
   if (type === 'delai_recours_contentieux' && diffDays <= 7) {
     return 'critique';
   }
 
   // Calcul standard
-  if (diffDays < 0) return 'critique'; // Dépassé
+  if (diffDays < 0) return 'critique'; // Depasse
   if (diffDays <= 3) return 'critique';
   if (diffDays <= 7) return 'haute';
   if (diffDays <= 30) return 'normale';

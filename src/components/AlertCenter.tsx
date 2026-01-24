@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Composant AlertCenter
- * Centre d'alertes intelligent avec gestion des priorités
+ * Centre d'alertes intelligent avec gestion des priorites
  */
 
 'use client';
@@ -47,23 +47,23 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return '🚨';
+        return '[emoji]';
       case 'ALERT':
-        return '⚠️';
+        return '️';
       case 'WARNING':
-        return '⚡';
+        return '';
       case 'INFO':
         return 'ℹ️';
       default:
-        return '📌';
+        return '[emoji]';
     }
   };
 
   const getAlertTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      legal_deadline: 'Délai légal',
-      inconsistency: 'Incohérence',
-      blocked_case: 'Dossier bloqué',
+      legal_deadline: 'Delai legal',
+      inconsistency: 'Incoherence',
+      blocked_case: 'Dossier bloque',
       missing_document: 'Document manquant'
     };
     return labels[type] || type;
@@ -107,14 +107,14 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">❌ {error}</p>
+        <p className="text-red-800"> {error}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-semibold text-gray-900">
@@ -157,8 +157,8 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
           <p className="text-gray-600">
             {filter === 'unread' 
-              ? '✅ Aucune alerte non lue' 
-              : '📭 Aucune alerte'}
+              ? ' Aucune alerte non lue' 
+              : '[emoji] Aucune alerte'}
           </p>
         </div>
       ) : (
@@ -172,7 +172,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  {/* En-tête de l'alerte */}
+                  {/* En-tete de l'alerte */}
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">{getSeverityIcon(alert.severity)}</span>
                     <span className="font-semibold text-xs uppercase tracking-wide">
@@ -194,10 +194,10 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                   {/* Message */}
                   <p className="font-medium mb-2">{alert.message}</p>
 
-                  {/* Deadline si présent */}
+                  {/* Deadline si present */}
                   {alert.deadline && (
                     <div className="flex items-center gap-2 text-sm mb-2">
-                      <span className="font-medium">⏰ Échéance:</span>
+                      <span className="font-medium"> echeance:</span>
                       <span>
                         {new Date(alert.deadline).toLocaleDateString('fr-FR', {
                           weekday: 'long',
@@ -209,10 +209,10 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                     </div>
                   )}
 
-                  {/* Action suggérée */}
+                  {/* Action suggeree */}
                   {alert.suggestedAction && (
                     <div className="bg-white bg-opacity-50 rounded p-2 text-sm mt-2">
-                      <span className="font-medium">💡 Action suggérée:</span>{' '}
+                      <span className="font-medium">[emoji] Action suggeree:</span>{' '}
                       {alert.suggestedAction}
                     </div>
                   )}
@@ -220,7 +220,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                   {/* Dossier - TODO: Load dossier data if needed */}
                   {/* {alert.dossierId && (
                     <div className="text-xs mt-2 opacity-75">
-                      📁 Dossier ID: {alert.dossierId}
+                      [emoji] Dossier ID: {alert.dossierId}
                     </div>
                   )} */}
                 </div>
@@ -233,7 +233,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                       className="px-3 py-1 bg-white bg-opacity-70 hover:bg-opacity-100 rounded text-sm font-medium transition-colors"
                       title="Marquer comme lue"
                     >
-                      ✓ Lu
+                      [Check] Lu
                     </button>
                   )}
                   
@@ -245,7 +245,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                     className="px-3 py-1 bg-white bg-opacity-70 hover:bg-opacity-100 rounded text-sm font-medium transition-colors"
                     title="Reporter"
                   >
-                    ⏰ Snooze
+                     Snooze
                   </button>
 
                   {alert.dossierId && (
@@ -254,7 +254,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                       className="px-3 py-1 bg-white bg-opacity-70 hover:bg-opacity-100 rounded text-sm font-medium transition-colors"
                       title="Voir le dossier"
                     >
-                      👁️ Voir
+                      [emoji]️ Voir
                     </button>
                   )}
                 </div>
@@ -281,21 +281,21 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                 onClick={() => handleSnooze(selectedAlert.id, 1)}
                 className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-left font-medium transition-colors"
               >
-                ⏰ 1 heure
+                 1 heure
               </button>
               
               <button
                 onClick={() => handleSnooze(selectedAlert.id, 3)}
                 className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-left font-medium transition-colors"
               >
-                ⏰ 3 heures
+                 3 heures
               </button>
               
               <button
                 onClick={() => handleSnooze(selectedAlert.id, 24)}
                 className="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-lg text-left font-medium transition-colors"
               >
-                ⏰ Demain (24h)
+                 Demain (24h)
               </button>
 
               <button
@@ -305,7 +305,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                 }}
                 className="w-full px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium transition-colors"
               >
-                ❌ Annuler
+                 Annuler
               </button>
             </div>
           </div>

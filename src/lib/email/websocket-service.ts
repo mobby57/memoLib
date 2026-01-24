@@ -1,4 +1,4 @@
-﻿import { Server as SocketIOServer, Socket } from 'socket.io';
+import { Server as SocketIOServer, Socket } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 
 interface EmailNotification {
@@ -26,26 +26,26 @@ export class EmailWebSocketService {
     });
 
     this.io.on('connection', (socket: Socket) => {
-      console.log(`🔌 Client connecté: ${socket.id}`);
+      console.log(`[emoji] Client connecte: ${socket.id}`);
 
       // Rejoindre une room tenant-specific
       socket.on('join-tenant', (tenantId: string) => {
         socket.join(`tenant:${tenantId}`);
-        console.log(`👤 Client ${socket.id} rejoint tenant: ${tenantId}`);
+        console.log(`[emoji] Client ${socket.id} rejoint tenant: ${tenantId}`);
       });
 
       // Rejoindre une room avocat-specific
       socket.on('join-lawyer', (lawyerId: string) => {
         socket.join(`lawyer:${lawyerId}`);
-        console.log(`⚖️  Avocat ${lawyerId} connecté`);
+        console.log(`️  Avocat ${lawyerId} connecte`);
       });
 
       socket.on('disconnect', () => {
-        console.log(`🔌 Client déconnecté: ${socket.id}`);
+        console.log(`[emoji] Client deconnecte: ${socket.id}`);
       });
     });
 
-    console.log('✅ WebSocket service initialisé');
+    console.log(' WebSocket service initialise');
   }
 
   /**
@@ -53,7 +53,7 @@ export class EmailWebSocketService {
    */
   notifyNewEmail(tenantId: string, email: EmailNotification): void {
     if (!this.io) {
-      console.warn('⚠️  WebSocket non initialisé');
+      console.warn('️  WebSocket non initialise');
       return;
     }
 
@@ -63,14 +63,14 @@ export class EmailWebSocketService {
       timestamp: new Date()
     };
 
-    // Envoyer à tous les clients du tenant
+    // Envoyer a tous les clients du tenant
     this.io.to(`tenant:${tenantId}`).emit('email:new', notification);
 
-    console.log(`📨 Notification envoyée au tenant ${tenantId}`);
+    console.log(`[emoji] Notification envoyee au tenant ${tenantId}`);
   }
 
   /**
-   * Notifier email urgent (priorité critical/high)
+   * Notifier email urgent (priorite critical/high)
    */
   notifyUrgentEmail(tenantId: string, lawyerId: string, email: EmailNotification): void {
     if (!this.io) return;
@@ -89,19 +89,19 @@ export class EmailWebSocketService {
     // Notification sonore et visuelle
     this.io.to(`lawyer:${lawyerId}`).emit('email:urgent', notification);
     
-    // Notification système (pour notifications browser)
+    // Notification systeme (pour notifications browser)
     this.io.to(`lawyer:${lawyerId}`).emit('system:notification', {
       title: notification.alert.title,
       body: notification.alert.message,
-      icon: email.priority === 'critical' ? '🚨' : '⚠️',
+      icon: email.priority === 'critical' ? '[emoji]' : '️',
       requireInteraction: true
     });
 
-    console.log(`🚨 Notification urgente envoyée à l'avocat ${lawyerId}`);
+    console.log(`[emoji] Notification urgente envoyee a l'avocat ${lawyerId}`);
   }
 
   /**
-   * Notifier nouveau client créé depuis email
+   * Notifier nouveau client cree depuis email
    */
   notifyNewClient(tenantId: string, client: { id: string; firstName: string; lastName: string; email: string }): void {
     if (!this.io) return;
@@ -112,11 +112,11 @@ export class EmailWebSocketService {
       timestamp: new Date()
     });
 
-    console.log(`👤 Nouveau client notifié: ${client.firstName} ${client.lastName}`);
+    console.log(`[emoji] Nouveau client notifie: ${client.firstName} ${client.lastName}`);
   }
 
   /**
-   * Notifier extraction de numéro de suivi La Poste
+   * Notifier extraction de numero de suivi La Poste
    */
   notifyTrackingExtracted(tenantId: string, data: { emailId: string; trackingNumbers: string[] }): void {
     if (!this.io) return;
@@ -127,11 +127,11 @@ export class EmailWebSocketService {
       timestamp: new Date()
     });
 
-    console.log(`📦 Numéros de suivi notifiés: ${data.trackingNumbers.join(', ')}`);
+    console.log(`[emoji] Numeros de suivi notifies: ${data.trackingNumbers.join(', ')}`);
   }
 
   /**
-   * Mettre à jour statistiques emails en temps réel
+   * Mettre a jour statistiques emails en temps reel
    */
   updateEmailStats(tenantId: string, stats: {
     total: number;
@@ -148,7 +148,7 @@ export class EmailWebSocketService {
   }
 
   /**
-   * Notifier action effectuée sur email
+   * Notifier action effectuee sur email
    */
   notifyEmailAction(tenantId: string, action: {
     emailId: string;
@@ -165,7 +165,7 @@ export class EmailWebSocketService {
   }
 
   /**
-   * Broadcast à tous les clients connectés
+   * Broadcast a tous les clients connectes
    */
   broadcast(event: string, data: any): void {
     if (!this.io) return;
@@ -173,7 +173,7 @@ export class EmailWebSocketService {
   }
 
   /**
-   * Obtenir nombre de clients connectés
+   * Obtenir nombre de clients connectes
    */
   getConnectedClientsCount(): number {
     if (!this.io) return 0;

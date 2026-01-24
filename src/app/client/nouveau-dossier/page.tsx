@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Formulaire Complet - Client remplit son dossier
- * Toutes informations + documents + listes déroulantes
+ * Toutes informations + documents + listes deroulantes
  */
 
 'use client';
@@ -11,77 +11,77 @@ import { useEffect, useState, FormEvent } from 'react';
 
 // Types de dossiers CESEDA
 const TYPES_DOSSIER = [
-  { value: 'TITRE_SEJOUR', label: '📄 Demande Titre de Séjour' },
-  { value: 'RECOURS_OQTF', label: '⚠️ Recours OQTF' },
+  { value: 'TITRE_SEJOUR', label: '[emoji] Demande Titre de Sejour' },
+  { value: 'RECOURS_OQTF', label: '️ Recours OQTF' },
   { value: 'NATURALISATION', label: '🇫🇷 Demande Naturalisation' },
-  { value: 'REGROUPEMENT_FAMILIAL', label: '👨‍👩‍👧 Regroupement Familial' },
+  { value: 'REGROUPEMENT_FAMILIAL', label: '[emoji]‍[emoji]‍[emoji] Regroupement Familial' },
   { value: 'ASILE', label: '🏠 Demande Asile' },
-  { value: 'VISA', label: '✈️ Demande Visa' },
-  { value: 'AUTRE', label: '📋 Autre' },
+  { value: 'VISA', label: '️ Demande Visa' },
+  { value: 'AUTRE', label: '[emoji] Autre' },
 ];
 
 const NATIONALITES = [
-  'Afghane', 'Albanaise', 'Algérienne', 'Allemande', 'Américaine', 'Britannique',
-  'Camerounaise', 'Chinoise', 'Congolaise', 'Égyptienne', 'Espagnole', 'Irakienne',
-  'Iranienne', 'Italienne', 'Ivoirienne', 'Marocaine', 'Nigériane', 'Portugaise',
-  'Russe', 'Sénégalaise', 'Syrienne', 'Tunisienne', 'Turque', 'Ukrainienne', 'Autre'
+  'Afghane', 'Albanaise', 'Algerienne', 'Allemande', 'Americaine', 'Britannique',
+  'Camerounaise', 'Chinoise', 'Congolaise', 'egyptienne', 'Espagnole', 'Irakienne',
+  'Iranienne', 'Italienne', 'Ivoirienne', 'Marocaine', 'Nigeriane', 'Portugaise',
+  'Russe', 'Senegalaise', 'Syrienne', 'Tunisienne', 'Turque', 'Ukrainienne', 'Autre'
 ];
 
 const SITUATIONS_FAMILIALES = [
-  { value: 'CELIBATAIRE', label: 'Célibataire' },
-  { value: 'MARIE', label: 'Marié(e)' },
-  { value: 'PACSE', label: 'Pacsé(e)' },
+  { value: 'CELIBATAIRE', label: 'Celibataire' },
+  { value: 'MARIE', label: 'Marie(e)' },
+  { value: 'PACSE', label: 'Pacse(e)' },
   { value: 'CONCUBINAGE', label: 'En concubinage' },
-  { value: 'DIVORCE', label: 'Divorcé(e)' },
+  { value: 'DIVORCE', label: 'Divorce(e)' },
   { value: 'VEUF', label: 'Veuf/Veuve' },
 ];
 
 const NIVEAUX_FRANCAIS = [
-  { value: 'A1', label: 'A1 - Débutant' },
-  { value: 'A2', label: 'A2 - Élémentaire' },
-  { value: 'B1', label: 'B1 - Intermédiaire' },
-  { value: 'B2', label: 'B2 - Avancé' },
+  { value: 'A1', label: 'A1 - Debutant' },
+  { value: 'A2', label: 'A2 - elementaire' },
+  { value: 'B1', label: 'B1 - Intermediaire' },
+  { value: 'B2', label: 'B2 - Avance' },
   { value: 'C1', label: 'C1 - Autonome' },
-  { value: 'C2', label: 'C2 - Maîtrise' },
+  { value: 'C2', label: 'C2 - Maitrise' },
   { value: 'LANGUE_MATERNELLE', label: 'Langue maternelle' },
 ];
 
 const SITUATIONS_PROFESSIONNELLES = [
-  { value: 'SALARIE_CDI', label: 'Salarié(e) en CDI' },
-  { value: 'SALARIE_CDD', label: 'Salarié(e) en CDD' },
-  { value: 'INTERIM', label: 'Intérimaire' },
-  { value: 'INDEPENDANT', label: 'Travailleur indépendant' },
-  { value: 'CHOMAGE', label: 'Au chômage' },
-  { value: 'ETUDIANT', label: 'Étudiant(e)' },
-  { value: 'RETRAITE', label: 'Retraité(e)' },
+  { value: 'SALARIE_CDI', label: 'Salarie(e) en CDI' },
+  { value: 'SALARIE_CDD', label: 'Salarie(e) en CDD' },
+  { value: 'INTERIM', label: 'Interimaire' },
+  { value: 'INDEPENDANT', label: 'Travailleur independant' },
+  { value: 'CHOMAGE', label: 'Au chomage' },
+  { value: 'ETUDIANT', label: 'etudiant(e)' },
+  { value: 'RETRAITE', label: 'Retraite(e)' },
   { value: 'SANS_EMPLOI', label: 'Sans emploi' },
 ];
 
 const TYPES_LOGEMENT = [
-  { value: 'PROPRIETAIRE', label: 'Propriétaire' },
+  { value: 'PROPRIETAIRE', label: 'Proprietaire' },
   { value: 'LOCATAIRE', label: 'Locataire' },
-  { value: 'HERBERGE', label: 'Hébergé(e) gratuitement' },
-  { value: 'FOYER', label: 'Foyer/Résidence sociale' },
+  { value: 'HERBERGE', label: 'Heberge(e) gratuitement' },
+  { value: 'FOYER', label: 'Foyer/Residence sociale' },
   { value: 'SANS_DOMICILE', label: 'Sans domicile fixe' },
 ];
 
 const TYPES_DOCUMENTS = [
-  { type: 'IDENTITE' as const, label: 'Pièce d\'identité (passeport, carte nationale)', required: true },
+  { type: 'IDENTITE' as const, label: 'Piece d\'identite (passeport, carte nationale)', required: true },
   { type: 'ACTE_NAISSANCE', label: 'Acte de naissance', required: true },
   { type: 'JUSTIFICATIF_DOMICILE', label: 'Justificatif de domicile (-3 mois)', required: true },
-  { type: 'PHOTOS', label: 'Photos d\'identité (format e-photo)', required: true },
-  { type: 'TITRE_SEJOUR', label: 'Titre de séjour actuel (si renouvellement)', required: false },
+  { type: 'PHOTOS', label: 'Photos d\'identite (format e-photo)', required: true },
+  { type: 'TITRE_SEJOUR', label: 'Titre de sejour actuel (si renouvellement)', required: false },
   { type: 'CONTRAT_TRAVAIL', label: 'Contrat de travail', required: false },
   { type: 'BULLETINS_SALAIRE', label: 'Bulletins de salaire (3 derniers mois)', required: false },
   { type: 'AVIS_IMPOSITION', label: 'Avis d\'imposition', required: false },
-  { type: 'CERTIFICAT_FRANCAIS', label: 'Certificat niveau français (DELF/TCF)', required: false },
-  { type: 'DIPLOMES', label: 'Diplômes', required: false },
+  { type: 'CERTIFICAT_FRANCAIS', label: 'Certificat niveau francais (DELF/TCF)', required: false },
+  { type: 'DIPLOMES', label: 'Diplomes', required: false },
   { type: 'ACTE_MARIAGE', label: 'Acte de mariage', required: false },
   { type: 'LIVRET_FAMILLE', label: 'Livret de famille', required: false },
-  { type: 'BAIL', label: 'Bail ou attestation hébergement', required: false },
-  { type: 'RELEVES_BANCAIRES', label: 'Relevés bancaires (3 mois)', required: false },
+  { type: 'BAIL', label: 'Bail ou attestation hebergement', required: false },
+  { type: 'RELEVES_BANCAIRES', label: 'Releves bancaires (3 mois)', required: false },
   { type: 'CASIER_JUDICIAIRE', label: 'Casier judiciaire', required: false },
-  { type: 'CERTIFICAT_MEDICAL', label: 'Certificat médical', required: false },
+  { type: 'CERTIFICAT_MEDICAL', label: 'Certificat medical', required: false },
   { type: 'AUTRES', label: 'Autres documents', required: false },
 ];
 
@@ -92,7 +92,7 @@ export default function NouveauDossierClient() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Formulaire - Informations Générales
+  // Formulaire - Informations Generales
   const [typeDossier, setTypeDossier] = useState('');
   const [objetDemande, setObjetDemande] = useState('');
   const [urgence, setUrgence] = useState(false);
@@ -153,14 +153,14 @@ export default function NouveauDossierClient() {
   const [mesuresEloignement, setMesuresEloignement] = useState(false);
   const [detailsMesures, setDetailsMesures] = useState('');
 
-  // Informations Complémentaires
+  // Informations Complementaires
   const [motivations, setMotivations] = useState('');
   const [attachementFrance, setAttachementFrance] = useState('');
   const [problemeSante, setProblemeSante] = useState(false);
   const [detailsSante, setDetailsSante] = useState('');
   const [autresInfos, setAutresInfos] = useState('');
 
-  // Documents uploadés
+  // Documents uploades
   const [documents, setDocuments] = useState<{[key: string]: File[]}>({});
 
   useEffect(() => {
@@ -186,7 +186,7 @@ export default function NouveauDossierClient() {
     setLoading(true);
 
     try {
-      // Vérifier documents obligatoires
+      // Verifier documents obligatoires
       const docsObligatoires = TYPES_DOCUMENTS.filter(d => d.required);
       const missingDocs = docsObligatoires.filter(d => !documents[d.type]?.length);
       
@@ -196,10 +196,10 @@ export default function NouveauDossierClient() {
         return;
       }
 
-      // Préparer FormData pour upload
+      // Preparer FormData pour upload
       const formData = new FormData();
       
-      // Informations générales
+      // Informations generales
       formData.append('typeDossier', typeDossier);
       formData.append('objetDemande', objetDemande);
       formData.append('urgence', urgence.toString());
@@ -261,10 +261,10 @@ export default function NouveauDossierClient() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
         <div className="bg-white rounded-2xl shadow-2xl p-12 text-center max-w-md">
-          <div className="text-6xl mb-6">✅</div>
-          <h2 className="text-3xl font-bold text-green-600 mb-4">Dossier Envoyé !</h2>
+          <div className="text-6xl mb-6"></div>
+          <h2 className="text-3xl font-bold text-green-600 mb-4">Dossier Envoye !</h2>
           <p className="text-gray-600 mb-6">
-            Votre dossier a été transmis à votre avocat. Vous serez contacté sous 48h.
+            Votre dossier a ete transmis a votre avocat. Vous serez contacte sous 48h.
           </p>
           <div className="text-sm text-gray-500">Redirection en cours...</div>
         </div>
@@ -278,19 +278,19 @@ export default function NouveauDossierClient() {
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <span className="text-5xl">📋</span>
+            <span className="text-5xl">[emoji]</span>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Nouveau Dossier
               </h1>
-              <p className="text-gray-600">Remplissez toutes les informations nécessaires</p>
+              <p className="text-gray-600">Remplissez toutes les informations necessaires</p>
             </div>
           </div>
           
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
             <p className="text-sm text-blue-800">
-              <strong>Important :</strong> Remplissez ce formulaire avec le maximum de détails. 
-              Tous les champs marqués d'un <span className="text-red-500">*</span> sont obligatoires.
+              <strong>Important :</strong> Remplissez ce formulaire avec le maximum de details. 
+              Tous les champs marques d'un <span className="text-red-500">*</span> sont obligatoires.
             </p>
           </div>
         </div>
@@ -300,7 +300,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 1 : Type de Dossier */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>📄</span>
+              <span>[emoji]</span>
               Type de Demande
             </h2>
             
@@ -315,7 +315,7 @@ export default function NouveauDossierClient() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   required
                 >
-                  <option value="">Sélectionnez...</option>
+                  <option value="">Selectionnez...</option>
                   {TYPES_DOSSIER.map(type => (
                     <option key={type.value} value={type.value}>{type.label}</option>
                   ))}
@@ -324,7 +324,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Date d'échéance (si connue)
+                  Date d'echeance (si connue)
                 </label>
                 <input
                   type="date"
@@ -343,7 +343,7 @@ export default function NouveauDossierClient() {
                   onChange={(e) => setObjetDemande(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   rows={3}
-                  placeholder="Ex: Renouvellement titre de séjour salarié arrivant à échéance..."
+                  placeholder="Ex: Renouvellement titre de sejour salarie arrivant a echeance..."
                   required
                 />
               </div>
@@ -357,17 +357,17 @@ export default function NouveauDossierClient() {
                   className="w-5 h-5"
                 />
                 <label htmlFor="urgence" className="font-semibold">
-                  ⚠️ Dossier urgent (OQTF, deadline proche)
+                  ️ Dossier urgent (OQTF, deadline proche)
                 </label>
               </div>
             </div>
           </div>
 
-          {/* SECTION 2 : Identité */}
+          {/* SECTION 2 : Identite */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>👤</span>
-              Identité
+              <span>[emoji]</span>
+              Identite
             </h2>
             
             <div className="grid md:grid-cols-2 gap-6">
@@ -386,7 +386,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Prénom <span className="text-red-500">*</span>
+                  Prenom <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -399,7 +399,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Nom de naissance (si différent)
+                  Nom de naissance (si different)
                 </label>
                 <input
                   type="text"
@@ -419,9 +419,9 @@ export default function NouveauDossierClient() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   required
                 >
-                  <option value="">Sélectionnez...</option>
+                  <option value="">Selectionnez...</option>
                   <option value="M">Masculin</option>
-                  <option value="F">Féminin</option>
+                  <option value="F">Feminin</option>
                 </select>
               </div>
 
@@ -466,7 +466,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Nationalité <span className="text-red-500">*</span>
+                  Nationalite <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={nationalite}
@@ -474,7 +474,7 @@ export default function NouveauDossierClient() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   required
                 >
-                  <option value="">Sélectionnez...</option>
+                  <option value="">Selectionnez...</option>
                   {NATIONALITES.map(nat => (
                     <option key={nat} value={nat}>{nat}</option>
                   ))}
@@ -484,7 +484,7 @@ export default function NouveauDossierClient() {
               {nationalite === 'Autre' && (
                 <div>
                   <label className="block font-semibold mb-2">
-                    Précisez la nationalité <span className="text-red-500">*</span>
+                    Precisez la nationalite <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -501,14 +501,14 @@ export default function NouveauDossierClient() {
           {/* SECTION 3 : Contact */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>📞</span>
+              <span>[emoji]</span>
               Contact
             </h2>
             
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block font-semibold mb-2">
-                  Téléphone principal <span className="text-red-500">*</span>
+                  Telephone principal <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -522,7 +522,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Téléphone secondaire
+                  Telephone secondaire
                 </label>
                 <input
                   type="tel"
@@ -558,14 +558,14 @@ export default function NouveauDossierClient() {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
                 <label className="block font-semibold mb-2">
-                  Adresse complète <span className="text-red-500">*</span>
+                  Adresse complete <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={adresse}
                   onChange={(e) => setAdresse(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-                  placeholder="123 rue de la République"
+                  placeholder="123 rue de la Republique"
                   required
                 />
               </div>
@@ -606,7 +606,7 @@ export default function NouveauDossierClient() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   required
                 >
-                  <option value="">Sélectionnez...</option>
+                  <option value="">Selectionnez...</option>
                   {TYPES_LOGEMENT.map(type => (
                     <option key={type.value} value={type.value}>{type.label}</option>
                   ))}
@@ -631,7 +631,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 5 : Situation Familiale */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>👨‍👩‍👧‍👦</span>
+              <span>[emoji]‍[emoji]‍[emoji]‍[emoji]</span>
               Situation Familiale
             </h2>
             
@@ -646,7 +646,7 @@ export default function NouveauDossierClient() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   required
                 >
-                  <option value="">Sélectionnez...</option>
+                  <option value="">Selectionnez...</option>
                   {SITUATIONS_FAMILIALES.map(sit => (
                     <option key={sit.value} value={sit.value}>{sit.label}</option>
                   ))}
@@ -669,7 +669,7 @@ export default function NouveauDossierClient() {
               {parseInt(nombreEnfants) > 0 && (
                 <div>
                   <label className="block font-semibold mb-2">
-                    Enfants résidant en France
+                    Enfants residant en France
                   </label>
                   <input
                     type="number"
@@ -698,7 +698,7 @@ export default function NouveauDossierClient() {
 
                   <div>
                     <label className="block font-semibold mb-2">
-                      Prénom du conjoint
+                      Prenom du conjoint
                     </label>
                     <input
                       type="text"
@@ -710,14 +710,14 @@ export default function NouveauDossierClient() {
 
                   <div>
                     <label className="block font-semibold mb-2">
-                      Nationalité du conjoint
+                      Nationalite du conjoint
                     </label>
                     <select
                       value={conjointNationalite}
                       onChange={(e) => setConjointNationalite(e.target.value)}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                     >
-                      <option value="">Sélectionnez...</option>
+                      <option value="">Selectionnez...</option>
                       {NATIONALITES.map(nat => (
                         <option key={nat} value={nat}>{nat}</option>
                       ))}
@@ -731,7 +731,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 6 : Situation Professionnelle */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>💼</span>
+              <span>[emoji]</span>
               Situation Professionnelle
             </h2>
             
@@ -746,7 +746,7 @@ export default function NouveauDossierClient() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   required
                 >
-                  <option value="">Sélectionnez...</option>
+                  <option value="">Selectionnez...</option>
                   {SITUATIONS_PROFESSIONNELLES.map(sit => (
                     <option key={sit.value} value={sit.value}>{sit.label}</option>
                   ))}
@@ -807,7 +807,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Numéro de sécurité sociale
+                  Numero de securite sociale
                 </label>
                 <input
                   type="text"
@@ -830,7 +830,7 @@ export default function NouveauDossierClient() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block font-semibold mb-2">
-                  Date d'arrivée en France <span className="text-red-500">*</span>
+                  Date d'arrivee en France <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -843,16 +843,16 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Mode d'entrée
+                  Mode d'entree
                 </label>
                 <select
                   value={modeEntree}
                   onChange={(e) => setModeEntree(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Sélectionnez...</option>
+                  <option value="">Selectionnez...</option>
                   <option value="VISA_TOURISME">Visa tourisme</option>
-                  <option value="VISA_ETUDIANT">Visa étudiant</option>
+                  <option value="VISA_ETUDIANT">Visa etudiant</option>
                   <option value="VISA_TRAVAIL">Visa travail</option>
                   <option value="VISA_FAMILLE">Visa famille</option>
                   <option value="DEMANDE_ASILE">Demande d'asile</option>
@@ -863,7 +863,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Numéro de visa (si applicable)
+                  Numero de visa (si applicable)
                 </label>
                 <input
                   type="text"
@@ -875,14 +875,14 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Niveau de français
+                  Niveau de francais
                 </label>
                 <select
                   value={niveauFrancais}
                   onChange={(e) => setNiveauFrancais(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                 >
-                  <option value="">Sélectionnez...</option>
+                  <option value="">Selectionnez...</option>
                   {NIVEAUX_FRANCAIS.map(niv => (
                     <option key={niv.value} value={niv.value}>{niv.label}</option>
                   ))}
@@ -891,14 +891,14 @@ export default function NouveauDossierClient() {
 
               <div className="md:col-span-2">
                 <label className="block font-semibold mb-2">
-                  Titres de séjour antérieurs (types et dates)
+                  Titres de sejour anterieurs (types et dates)
                 </label>
                 <textarea
                   value={titresSejour}
                   onChange={(e) => setTitresSejour(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   rows={3}
-                  placeholder="Ex: Étudiant (2020-2023), Salarié (2023-2025)..."
+                  placeholder="Ex: etudiant (2020-2023), Salarie (2023-2025)..."
                 />
               </div>
             </div>
@@ -907,14 +907,14 @@ export default function NouveauDossierClient() {
           {/* SECTION 8 : Situation Administrative */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>📋</span>
+              <span>[emoji]</span>
               Situation Administrative
             </h2>
             
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block font-semibold mb-2">
-                  Numéro étranger (AGDREF)
+                  Numero etranger (AGDREF)
                 </label>
                 <input
                   type="text"
@@ -926,14 +926,14 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Préfecture de rattachement
+                  Prefecture de rattachement
                 </label>
                 <input
                   type="text"
                   value={prefectureRattachement}
                   onChange={(e) => setPrefectureRattachement(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-                  placeholder="Ex: Préfecture de Paris"
+                  placeholder="Ex: Prefecture de Paris"
                 />
               </div>
 
@@ -945,14 +945,14 @@ export default function NouveauDossierClient() {
                     onChange={(e) => setRecusAnterieur(e.target.checked)}
                     className="w-5 h-5"
                   />
-                  <span className="font-semibold">Avez-vous déjà eu des refus de titre de séjour ?</span>
+                  <span className="font-semibold">Avez-vous deja eu des refus de titre de sejour ?</span>
                 </label>
               </div>
 
               {recusAnterieur && (
                 <div className="md:col-span-2">
                   <label className="block font-semibold mb-2">
-                    Précisez les motifs et dates
+                    Precisez les motifs et dates
                   </label>
                   <textarea
                     value={motifRecusAnterieur}
@@ -971,14 +971,14 @@ export default function NouveauDossierClient() {
                     onChange={(e) => setMesuresEloignement(e.target.checked)}
                     className="w-5 h-5"
                   />
-                  <span className="font-semibold">Avez-vous fait l'objet de mesures d'éloignement (OQTF, ITF, etc.) ?</span>
+                  <span className="font-semibold">Avez-vous fait l'objet de mesures d'eloignement (OQTF, ITF, etc.) ?</span>
                 </label>
               </div>
 
               {mesuresEloignement && (
                 <div className="md:col-span-2">
                   <label className="block font-semibold mb-2">
-                    Détails des mesures <span className="text-red-500">*</span>
+                    Details des mesures <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={detailsMesures}
@@ -992,11 +992,11 @@ export default function NouveauDossierClient() {
             </div>
           </div>
 
-          {/* SECTION 9 : Informations Complémentaires */}
+          {/* SECTION 9 : Informations Complementaires */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>💡</span>
-              Informations Complémentaires
+              <span>[emoji]</span>
+              Informations Complementaires
             </h2>
             
             <div className="space-y-6">
@@ -1015,14 +1015,14 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Liens avec la France (famille, travail, études, associations...)
+                  Liens avec la France (famille, travail, etudes, associations...)
                 </label>
                 <textarea
                   value={attachementFrance}
                   onChange={(e) => setAttachementFrance(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   rows={4}
-                  placeholder="Décrivez vos attaches en France..."
+                  placeholder="Decrivez vos attaches en France..."
                 />
               </div>
 
@@ -1034,14 +1034,14 @@ export default function NouveauDossierClient() {
                     onChange={(e) => setProblemeSante(e.target.checked)}
                     className="w-5 h-5"
                   />
-                  <span className="font-semibold">Avez-vous des problèmes de santé nécessitant un traitement en France ?</span>
+                  <span className="font-semibold">Avez-vous des problemes de sante necessitant un traitement en France ?</span>
                 </label>
               </div>
 
               {problemeSante && (
                 <div>
                   <label className="block font-semibold mb-2">
-                    Détails de l'état de santé
+                    Details de l'etat de sante
                   </label>
                   <textarea
                     value={detailsSante}
@@ -1061,7 +1061,7 @@ export default function NouveauDossierClient() {
                   onChange={(e) => setAutresInfos(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   rows={4}
-                  placeholder="Toute autre information qui pourrait être utile à votre dossier..."
+                  placeholder="Toute autre information qui pourrait etre utile a votre dossier..."
                 />
               </div>
             </div>
@@ -1070,14 +1070,14 @@ export default function NouveauDossierClient() {
           {/* SECTION 10 : Documents */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>📎</span>
-              Documents à Fournir
+              <span>[emoji]</span>
+              Documents a Fournir
             </h2>
 
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
               <p className="text-sm text-yellow-800">
                 <strong>Important :</strong> Scannez tous vos documents en PDF ou JPG. 
-                Les documents marqués <span className="text-red-500">*</span> sont obligatoires.
+                Les documents marques <span className="text-red-500">*</span> sont obligatoires.
               </p>
             </div>
             
@@ -1096,7 +1096,7 @@ export default function NouveauDossierClient() {
                   />
                   {documents[doc.type]?.length > 0 && (
                     <div className="mt-2 text-sm text-green-600">
-                      ✅ {documents[doc.type].length} fichier(s) sélectionné(s)
+                       {documents[doc.type].length} fichier(s) selectionne(s)
                     </div>
                   )}
                 </div>
@@ -1118,11 +1118,11 @@ export default function NouveauDossierClient() {
               disabled={loading}
               className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xl font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? '⏳ Envoi en cours...' : '📤 Envoyer le Dossier à mon Avocat'}
+              {loading ? ' Envoi en cours...' : '[emoji] Envoyer le Dossier a mon Avocat'}
             </button>
 
             <p className="text-center text-sm text-gray-500 mt-4">
-              Vos données sont protégées et ne seront partagées qu'avec votre avocat.
+              Vos donnees sont protegees et ne seront partagees qu'avec votre avocat.
             </p>
           </div>
         </form>

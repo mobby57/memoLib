@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -36,7 +36,7 @@ function SearchContent() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* En-tête */}
+        {/* En-tete */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <Sparkles className="w-8 h-8 text-blue-600" />
@@ -69,13 +69,13 @@ function SearchContent() {
               }`}
             >
               <SlidersHorizontal className="w-4 h-4" />
-              <span className="text-sm font-medium">Filtres avancés</span>
+              <span className="text-sm font-medium">Filtres avances</span>
             </button>
 
             {searchStats.totalResults > 0 && (
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                <span className="font-semibold">{searchStats.totalResults}</span> résultats
-                <span className="mx-2">•</span>
+                <span className="font-semibold">{searchStats.totalResults}</span> resultats
+                <span className="mx-2">-</span>
                 <span>{searchStats.executionTime}ms</span>
               </div>
             )}
@@ -91,11 +91,11 @@ function SearchContent() {
           </div>
         </div>
 
-        {/* Filtres avancés */}
+        {/* Filtres avances */}
         {showAdvancedFilters && (
           <div className="mb-6 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-              Filtres avancés
+              Filtres avances
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -103,15 +103,15 @@ function SearchContent() {
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Calendar className="w-4 h-4" />
-                  Période
+                  Periode
                 </label>
                 <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                   <option>Toutes les dates</option>
                   <option>Aujourd'hui</option>
                   <option>Cette semaine</option>
                   <option>Ce mois</option>
-                  <option>Cette année</option>
-                  <option>Personnalisé</option>
+                  <option>Cette annee</option>
+                  <option>Personnalise</option>
                 </select>
               </div>
 
@@ -124,7 +124,7 @@ function SearchContent() {
                 <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                   <option>Tous les statuts</option>
                   <option>En cours</option>
-                  <option>Terminé</option>
+                  <option>Termine</option>
                   <option>En attente</option>
                   <option>Urgent</option>
                 </select>
@@ -146,7 +146,7 @@ function SearchContent() {
 
             <div className="flex justify-end gap-2 mt-4">
               <button className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                Réinitialiser
+                Reinitialiser
               </button>
               <button className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 Appliquer les filtres
@@ -158,7 +158,7 @@ function SearchContent() {
         {/* Guide de recherche */}
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-3 text-blue-900 dark:text-blue-100">
-            💡 Conseils de recherche
+            [emoji] Conseils de recherche
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800 dark:text-blue-200">
             <div>
@@ -174,10 +174,10 @@ function SearchContent() {
               <strong>Recherche par date :</strong> date:2024-01 ou after:2024-01-01
             </div>
             <div>
-              <strong>Opérateur OU :</strong> mot1 OR mot2
+              <strong>Operateur OU :</strong> mot1 OR mot2
             </div>
             <div>
-              <strong>Wildcards :</strong> Utilisez * pour remplacer plusieurs caractères
+              <strong>Wildcards :</strong> Utilisez * pour remplacer plusieurs caracteres
             </div>
           </div>
         </div>

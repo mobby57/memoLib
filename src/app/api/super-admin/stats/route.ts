@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { PrismaClient } from '@prisma/client';
@@ -10,14 +10,14 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as { role?: string };
 
-    // Seul le super admin peut accéder à ces statistiques
+    // Seul le super admin peut acceder a ces statistiques
     if (user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
     }
 
     // Statistiques globales de la plateforme

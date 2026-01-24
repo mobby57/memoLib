@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { useState, useMemo } from 'react';
@@ -26,14 +26,14 @@ interface Facture {
 }
 
 const factureSchema = z.object({
-  numero: z.string().min(1, 'Numéro requis'),
+  numero: z.string().min(1, 'Numero requis'),
   client: z.string().min(1, 'Client requis'),
   dossier: z.string().optional(),
   montantHT: z.string().min(1, 'Montant HT requis'),
   tauxTVA: z.string().min(1, 'Taux TVA requis'),
   statut: z.enum(['brouillon', 'envoyee', 'payee', 'en_retard', 'annulee']),
-  dateEmission: z.string().min(1, 'Date d\'émission requise'),
-  dateEcheance: z.string().min(1, 'Date d\'échéance requise'),
+  dateEmission: z.string().min(1, 'Date d\'emission requise'),
+  dateEcheance: z.string().min(1, 'Date d\'echeance requise'),
   datePaiement: z.string().optional(),
 });
 
@@ -52,10 +52,10 @@ const mockFactures: Facture[] = [
 
 const STATUT_LABELS = {
   brouillon: 'Brouillon',
-  envoyee: 'Envoyée',
-  payee: 'Payée',
+  envoyee: 'Envoyee',
+  payee: 'Payee',
   en_retard: 'En retard',
-  annulee: 'Annulée',
+  annulee: 'Annulee',
 };
 
 const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 'default'> = {
@@ -181,8 +181,8 @@ export default function FacturesPage() {
       );
       addToast({
         variant: 'success',
-        title: 'Facture modifiée',
-        message: `La facture ${data.numero} a été modifiée avec succès.`,
+        title: 'Facture modifiee',
+        message: `La facture ${data.numero} a ete modifiee avec succes.`,
       });
     } else {
       const newFacture: Facture = {
@@ -194,8 +194,8 @@ export default function FacturesPage() {
       setFactures(prev => [newFacture, ...prev]);
       addToast({
         variant: 'success',
-        title: 'Facture créée',
-        message: `La facture ${data.numero} a été créée avec succès.`,
+        title: 'Facture creee',
+        message: `La facture ${data.numero} a ete creee avec succes.`,
       });
     }
     setIsCreateModalOpen(false);
@@ -203,12 +203,12 @@ export default function FacturesPage() {
 
   const deleteFacture = (id: string) => {
     const facture = factures.find(f => f.id === id);
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer la facture ${facture?.numero} ?`)) {
+    if (window.confirm(`etes-vous sur de vouloir supprimer la facture ${facture?.numero} ?`)) {
       setFactures(prev => prev.filter(f => f.id !== id));
       addToast({
         variant: 'info',
-        title: 'Facture supprimée',
-        message: `La facture ${facture?.numero} a été supprimée.`,
+        title: 'Facture supprimee',
+        message: `La facture ${facture?.numero} a ete supprimee.`,
       });
     }
   };
@@ -217,7 +217,7 @@ export default function FacturesPage() {
     addToast({
       variant: 'info',
       title: 'Export en cours',
-      message: 'Votre fichier CSV sera téléchargé dans quelques instants.',
+      message: 'Votre fichier CSV sera telecharge dans quelques instants.',
     });
   };
 
@@ -230,14 +230,14 @@ export default function FacturesPage() {
       );
       addToast({
         variant: 'success',
-        title: 'Facture envoyée',
-        message: `La facture ${facture.numero} a été envoyée au client.`,
+        title: 'Facture envoyee',
+        message: `La facture ${facture.numero} a ete envoyee au client.`,
       });
     }
   };
 
   const columns = [
-    { accessor: 'numero' as const, header: 'Numéro' },
+    { accessor: 'numero' as const, header: 'Numero' },
     { accessor: 'client' as const, header: 'Client' },
     { accessor: 'dossier' as const, header: 'Dossier', render: (value: string | undefined) => value || '-' },
     { 
@@ -257,8 +257,8 @@ export default function FacturesPage() {
         <Badge variant={STATUT_COLORS[value]}>{STATUT_LABELS[value]}</Badge>
       ),
     },
-    { accessor: 'dateEmission' as const, header: 'Date émission' },
-    { accessor: 'dateEcheance' as const, header: 'Date échéance' },
+    { accessor: 'dateEmission' as const, header: 'Date emission' },
+    { accessor: 'dateEcheance' as const, header: 'Date echeance' },
     {
       accessor: 'id' as const,
       header: 'Actions',
@@ -314,7 +314,7 @@ export default function FacturesPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des factures</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gérez vos factures et suivez les paiements
+            Gerez vos factures et suivez les paiements
           </p>
         </div>
         <div className="flex gap-2">
@@ -344,7 +344,7 @@ export default function FacturesPage() {
           trend={{ value: 15, isPositive: true }}
         />
         <StatCard
-          title="Montant payé"
+          title="Montant paye"
           value={`${stats.montantPaye.toFixed(2)} €`}
           icon={CheckCircle}
         />
@@ -363,7 +363,7 @@ export default function FacturesPage() {
       {/* Alert */}
       {stats.enRetard > 0 && (
         <Alert variant="warning" title="Factures en retard">
-          Vous avez {stats.enRetard} facture(s) en retard de paiement. Pensez à relancer vos clients.
+          Vous avez {stats.enRetard} facture(s) en retard de paiement. Pensez a relancer vos clients.
         </Alert>
       )}
 
@@ -374,7 +374,7 @@ export default function FacturesPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Rechercher par numéro, client ou dossier..."
+              placeholder="Rechercher par numero, client ou dossier..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -393,7 +393,7 @@ export default function FacturesPage() {
         </div>
         {(searchTerm || filterStatut !== 'all') && (
           <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-            {filteredFactures.length} résultat(s) trouvé(s)
+            {filteredFactures.length} resultat(s) trouve(s)
           </div>
         )}
       </Card>
@@ -418,13 +418,13 @@ export default function FacturesPage() {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title={editingFacture ? 'Modifier la facture' : 'Créer une facture'}
+        title={editingFacture ? 'Modifier la facture' : 'Creer une facture'}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Numéro *
+                Numero *
               </label>
               <input
                 {...register('numero')}
@@ -451,7 +451,7 @@ export default function FacturesPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Dossier associé
+              Dossier associe
             </label>
             <input
               {...register('dossier')}
@@ -520,7 +520,7 @@ export default function FacturesPage() {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Date émission *
+                Date emission *
               </label>
               <input
                 type="date"
@@ -534,7 +534,7 @@ export default function FacturesPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Date échéance *
+                Date echeance *
               </label>
               <input
                 type="date"
@@ -570,7 +570,7 @@ export default function FacturesPage() {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              {editingFacture ? 'Modifier' : 'Créer'}
+              {editingFacture ? 'Modifier' : 'Creer'}
             </button>
           </div>
         </form>

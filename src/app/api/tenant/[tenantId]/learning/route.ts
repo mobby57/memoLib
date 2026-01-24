@@ -75,9 +75,9 @@ export async function POST(
     return NextResponse.json(prediction);
 
   } catch (error) {
-    logger.error('Erreur prédiction learning', { error, tenantId: params.tenantId });
+    logger.error('Erreur prediction learning', { error, tenantId: params.tenantId });
     return NextResponse.json(
-      { error: 'Erreur lors de la prédiction' },
+      { error: 'Erreur lors de la prediction' },
       { status: 500 }
     );
   }

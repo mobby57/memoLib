@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import {
   loadWorkflowConfig,
@@ -10,13 +10,13 @@ import {
 
 /**
  * GET /api/workflows/config
- * Récupère la configuration actuelle
+ * Recupere la configuration actuelle
  */
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const config = await loadWorkflowConfig();
@@ -39,7 +39,7 @@ export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession();
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const newConfig = await request.json();
@@ -58,7 +58,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Configuration sauvegardée avec succès',
+      message: 'Configuration sauvegardee avec succes',
     });
   } catch (error) {
     console.error('Erreur PUT config:', error);

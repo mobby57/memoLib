@@ -1,6 +1,6 @@
-﻿/**
+/**
  * API Route: POST /api/workspace-reasoning/create
- * Crée un nouveau workspace reasoning
+ * Cree un nouveau workspace reasoning
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'Non authentifié' },
+        { error: 'Non authentifie' },
         { status: 401 }
       );
     }
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const userId = (session.user as any).id;
     const tenantId = (session.user as any).tenantId;
 
-    // Créer le workspace
+    // Creer le workspace
     const workspace = await prisma.workspaceReasoning.create({
       data: {
         tenantId,
@@ -60,8 +60,8 @@ export async function POST(request: NextRequest) {
         dossierId,
         emailId,
         
-        uncertaintyLevel: 1.0, // Maximum au départ
-        reasoningQuality: 0.0, // Minimum au départ
+        uncertaintyLevel: 1.0, // Maximum au depart
+        reasoningQuality: 0.0, // Minimum au depart
         confidenceScore: 0.0,
         
         locked: false,
@@ -78,12 +78,12 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Créer trace de création
+    // Creer trace de creation
     await prisma.reasoningTrace.create({
       data: {
         workspaceId: workspace.id,
         step: 'WORKSPACE_CREATED',
-        explanation: `Workspace créé à partir de ${sourceType}`,
+        explanation: `Workspace cree a partir de ${sourceType}`,
         metadata: JSON.stringify({ sourceId, procedureType }),
         createdBy: userId
       }

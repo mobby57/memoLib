@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -91,7 +91,7 @@ export default function UsersPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Rôle
+                Role
               </label>
               <select
                 value={roleFilter}
@@ -117,7 +117,7 @@ export default function UsersPage() {
                     Utilisateur
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Rôle
+                    Role
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Tenant
@@ -126,7 +126,7 @@ export default function UsersPage() {
                     Statut
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Créé le
+                    Cree le
                   </th>
                 </tr>
               </thead>
@@ -134,7 +134,7 @@ export default function UsersPage() {
                 {filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                      Aucun utilisateur trouvé
+                      Aucun utilisateur trouve
                     </td>
                   </tr>
                 ) : (
@@ -160,7 +160,7 @@ export default function UsersPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-gray-900">
-                        {user.tenantName || <span className="text-gray-400">—</span>}
+                        {user.tenantName || <span className="text-gray-400">-</span>}
                       </td>
                       <td className="px-6 py-4">
                         <span

@@ -1,6 +1,6 @@
-﻿/**
- * 🤖 Système d'Intelligence Email
- * Analyse automatique des emails et génération de workflows contextuels
+/**
+ * [emoji] Systeme d'Intelligence Email
+ * Analyse automatique des emails et generation de workflows contextuels
  */
 
 import { prisma } from '@/lib/prisma';
@@ -45,7 +45,7 @@ export interface Action {
 }
 
 /**
- * Analyse un email avec l'IA et détermine le workflow approprié
+ * Analyse un email avec l'IA et determine le workflow approprie
  */
 export async function analyzeEmail(emailContent: {
   subject: string;
@@ -58,19 +58,19 @@ export async function analyzeEmail(emailContent: {
   // Appeler Ollama pour analyse contextuelle
   const aiAnalysis = await callOllamaForEmailAnalysis(emailContent);
   
-  // Extraire les entités
+  // Extraire les entites
   const entities = extractEntities(emailContent.body);
   
-  // Détecter l'urgence
+  // Detecter l'urgence
   const urgency = detectUrgency(emailContent, aiAnalysis);
   
-  // Catégoriser l'email
+  // Categoriser l'email
   const category = categorizeEmail(emailContent, aiAnalysis);
   
-  // Générer les questions pertinentes
+  // Generer les questions pertinentes
   const questions = generateContextualQuestions(category, emailContent, aiAnalysis);
   
-  // Suggérer les actions
+  // Suggerer les actions
   const suggestedActions = generateActions(category, urgency, entities);
   
   return {
@@ -101,14 +101,14 @@ CORPS:
 ${email.body}
 
 Analyse requise:
-1. Catégorie (client-urgent, new-case, deadline-reminder, invoice, legal-question, etc.)
+1. Categorie (client-urgent, new-case, deadline-reminder, invoice, legal-question, etc.)
 2. Niveau d'urgence (low, medium, high, critical)
 3. Sentiment (positive, neutral, negative)
-4. Questions clés à poser pour traiter cette demande (3-5 questions)
-5. Informations manquantes nécessaires
-6. Actions recommandées
+4. Questions cles a poser pour traiter cette demande (3-5 questions)
+5. Informations manquantes necessaires
+6. Actions recommandees
 
-Fournis une réponse structurée JSON.`;
+Fournis une reponse structuree JSON.`;
 
     const response = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',
@@ -140,16 +140,16 @@ Fournis une réponse structurée JSON.`;
 }
 
 /**
- * Détecte l'urgence de l'email
+ * Detecte l'urgence de l'email
  */
 function detectUrgency(email: any, aiAnalysis: any): 'low' | 'medium' | 'high' | 'critical' {
-  const urgentWords = ['urgent', 'immédiat', 'asap', 'rapidement', 'aujourd\'hui', 'critique'];
+  const urgentWords = ['urgent', 'immediat', 'asap', 'rapidement', 'aujourd\'hui', 'critique'];
   const text = `${email.subject} ${email.body}`.toLowerCase();
   
-  // Urgence basée sur mots-clés
+  // Urgence basee sur mots-cles
   const urgentWordCount = urgentWords.filter(word => text.includes(word)).length;
   
-  // Urgence basée sur IA
+  // Urgence basee sur IA
   if (aiAnalysis.urgency) return aiAnalysis.urgency;
   
   // Heuristique
@@ -161,7 +161,7 @@ function detectUrgency(email: any, aiAnalysis: any): 'low' | 'medium' | 'high' |
 }
 
 /**
- * Catégorise l'email
+ * Categorise l'email
  */
 function categorizeEmail(email: any, aiAnalysis: any): EmailCategory {
   if (aiAnalysis.category) return aiAnalysis.category;
@@ -173,7 +173,7 @@ function categorizeEmail(email: any, aiAnalysis: any): EmailCategory {
   if (subject.includes('rendez-vous') || subject.includes('appointment')) return 'appointment-request';
   if (subject.includes('urgent') || subject.includes('plainte')) return 'client-urgent';
   if (subject.includes('nouveau dossier') || subject.includes('new case')) return 'new-case';
-  if (subject.includes('délai') || subject.includes('deadline')) return 'deadline-reminder';
+  if (subject.includes('delai') || subject.includes('deadline')) return 'deadline-reminder';
   if (subject.includes('question') || body.includes('question')) return 'legal-question';
   if (subject.includes('tribunal') || subject.includes('court')) return 'court-document';
   
@@ -181,7 +181,7 @@ function categorizeEmail(email: any, aiAnalysis: any): EmailCategory {
 }
 
 /**
- * Génère des questions contextuelles
+ * Genere des questions contextuelles
  */
 function generateContextualQuestions(
   category: EmailCategory,
@@ -193,67 +193,67 @@ function generateContextualQuestions(
     return aiAnalysis.questions;
   }
   
-  // Questions par défaut selon la catégorie
+  // Questions par defaut selon la categorie
   const questionsByCategory: Record<EmailCategory, string[]> = {
     'client-urgent': [
       'Quelle est la nature exacte de l\'urgence?',
-      'Quel est le délai pour agir?',
-      'Y a-t-il des parties adverses impliquées?',
-      'Avez-vous des documents à fournir?',
+      'Quel est le delai pour agir?',
+      'Y a-t-il des parties adverses impliquees?',
+      'Avez-vous des documents a fournir?',
     ],
     'new-case': [
       'Quel type de dossier juridique s\'agit-il?',
-      'Qui sont les parties impliquées?',
-      'Quelle est la date de début souhaitée?',
-      'Quel est votre budget estimé?',
+      'Qui sont les parties impliquees?',
+      'Quelle est la date de debut souhaitee?',
+      'Quel est votre budget estime?',
     ],
     'deadline-reminder': [
       'Quelle est la date limite exacte?',
-      'Quel document doit être produit?',
+      'Quel document doit etre produit?',
       'Qui doit valider avant soumission?',
-      'Y a-t-il des conséquences si dépassement?',
+      'Y a-t-il des consequences si depassement?',
     ],
     'invoice': [
       'Le montant correspond-il aux services rendus?',
-      'Quel est le mode de paiement préféré?',
-      'Faut-il émettre un avoir?',
-      'Y a-t-il des conditions de paiement spécifiques?',
+      'Quel est le mode de paiement prefere?',
+      'Faut-il emettre un avoir?',
+      'Y a-t-il des conditions de paiement specifiques?',
     ],
     'legal-question': [
       'Dans quel domaine juridique se situe la question?',
       'Y a-t-il un contexte factuel particulier?',
-      'Avez-vous consulté d\'autres sources?',
-      'Quelle est l\'échéance pour la réponse?',
+      'Avez-vous consulte d\'autres sources?',
+      'Quelle est l\'echeance pour la reponse?',
     ],
     'court-document': [
-      'De quelle juridiction émane le document?',
+      'De quelle juridiction emane le document?',
       'Y a-t-il une date d\'audience?',
-      'Faut-il préparer des pièces en réponse?',
+      'Faut-il preparer des pieces en reponse?',
       'Qui sont les avocats adverses?',
     ],
     'client-complaint': [
       'Quelle est la nature de la plainte?',
-      'Depuis quand le problème existe-t-il?',
+      'Depuis quand le probleme existe-t-il?',
       'Quelle solution attendez-vous?',
-      'Y a-t-il eu des échanges préalables?',
+      'Y a-t-il eu des echanges prealables?',
     ],
     'document-request': [
-      'Quels documents sont demandés exactement?',
-      'Quel est le format souhaité?',
-      'Y a-t-il une échéance pour transmission?',
-      'À qui doivent être adressés les documents?',
+      'Quels documents sont demandes exactement?',
+      'Quel est le format souhaite?',
+      'Y a-t-il une echeance pour transmission?',
+      'a qui doivent etre adresses les documents?',
     ],
     'appointment-request': [
       'Quel est l\'objet du rendez-vous?',
-      'Quelle est votre disponibilité?',
+      'Quelle est votre disponibilite?',
       'Rendez-vous en personne ou visio?',
-      'Combien de temps estimez-vous nécessaire?',
+      'Combien de temps estimez-vous necessaire?',
     ],
     'general-inquiry': [
-      'Pouvez-vous préciser votre demande?',
+      'Pouvez-vous preciser votre demande?',
       'Y a-t-il un contexte particulier?',
       'Quelle est l\'urgence de votre demande?',
-      'Souhaitez-vous un suivi téléphonique?',
+      'Souhaitez-vous un suivi telephonique?',
     ],
   };
   
@@ -261,7 +261,7 @@ function generateContextualQuestions(
 }
 
 /**
- * Génère les actions suggérées
+ * Genere les actions suggerees
  */
 function generateActions(
   category: EmailCategory,
@@ -270,7 +270,7 @@ function generateActions(
 ): Action[] {
   const actions: Action[] = [];
   
-  // Action 1: Toujours créer un formulaire contextuel
+  // Action 1: Toujours creer un formulaire contextuel
   actions.push({
     type: 'form',
     priority: 1,
@@ -282,7 +282,7 @@ function generateActions(
     },
   });
   
-  // Action 2: Si urgent, créer une alerte
+  // Action 2: Si urgent, creer une alerte
   if (urgency === 'high' || urgency === 'critical') {
     actions.push({
       type: 'alert',
@@ -292,7 +292,7 @@ function generateActions(
     });
   }
   
-  // Action 3: Si rendez-vous, intégrer calendrier
+  // Action 3: Si rendez-vous, integrer calendrier
   if (category === 'appointment-request' || entities.dates.length > 0) {
     actions.push({
       type: 'calendar',
@@ -302,21 +302,21 @@ function generateActions(
     });
   }
   
-  // Action 4: Si nouveau dossier, créer tâches
+  // Action 4: Si nouveau dossier, creer taches
   if (category === 'new-case') {
     actions.push({
       type: 'task',
       priority: 2,
-      description: 'Créer les tâches d\'ouverture de dossier',
+      description: 'Creer les taches d\'ouverture de dossier',
       data: { workflow: 'new-case-intake' },
     });
   }
   
-  // Action 5: Préparer réponse automatique
+  // Action 5: Preparer reponse automatique
   actions.push({
     type: 'email',
     priority: 3,
-    description: 'Générer un brouillon de réponse',
+    description: 'Generer un brouillon de reponse',
     data: { autoReply: true },
   });
   
@@ -324,7 +324,7 @@ function generateActions(
 }
 
 /**
- * Extrait les entités du texte
+ * Extrait les entites du texte
  */
 function extractEntities(text: string): {
   people: string[];
@@ -346,7 +346,7 @@ function extractEntities(text: string): {
     entities.amounts = amounts.map(a => parseFloat(a.replace(/[^\d.,]/g, '').replace(',', '.')));
   }
   
-  // Extraction des dates (formats français)
+  // Extraction des dates (formats francais)
   const dateRegex = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g;
   const dates = text.match(dateRegex);
   if (dates) {

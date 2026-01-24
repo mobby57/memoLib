@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -64,7 +64,7 @@ export default function AdminDashboard() {
         <div className="flex space-x-2">
           <Button variant="outline">
             <Brain className="w-4 h-4 mr-2" />
-            IA Avancée
+            IA Avancee
           </Button>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
                   <div>
                     <h3 className="font-semibold">{dossier.numero}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {dossier.client} • {dossier.type}
+                      {dossier.client} - {dossier.type}
                     </p>
                   </div>
                 </div>
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
                     {dossier.priorite}
                   </Badge>
                   <span className="text-sm font-medium text-red-600">
-                    Échéance: {dossier.echeance}
+                    echeance: {dossier.echeance}
                   </span>
                   <Button variant="outline" size="sm">
                     Traiter

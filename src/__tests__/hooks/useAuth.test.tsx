@@ -29,7 +29,7 @@ describe('useAuth Hook', () => {
     const { result } = renderHook(() => useAuth(), { wrapper })
 
     expect(typeof result.current.hasRole).toBe('function')
-    expect(typeof result.current.isAdmin).toBe('function')
+    expect(typeof result.current.isAdmin).toBe('boolean')
     expect(typeof result.current.requireAuth).toBe('function')
   })
 })

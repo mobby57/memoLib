@@ -1,6 +1,6 @@
-﻿/**
- * 🔍 SYSTÈME DE LOGGING AVANCÉ POUR DÉVELOPPEMENT
- * Traçabilité complète, métriques temps réel, debugging IA
+/**
+ * [emoji] SYSTeME DE LOGGING AVANCe POUR DeVELOPPEMENT
+ * Tracabilite complete, metriques temps reel, debugging IA
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -60,7 +60,7 @@ class AdvancedLogger {
   private isEnabled = process.env.NODE_ENV === 'development';
 
   private constructor() {
-    // Auto-flush périodique
+    // Auto-flush periodique
     if (this.isEnabled) {
       setInterval(() => this.flushLogs(), this.flushInterval);
     }
@@ -100,7 +100,7 @@ class AdvancedLogger {
 
     this.logs.push(entry);
 
-    // Console colorée en dev
+    // Console coloree en dev
     this.logToConsole(entry);
 
     // Flush si trop de logs
@@ -123,7 +123,7 @@ class AdvancedLogger {
     let result: T;
 
     try {
-      this.log(LogLevel.DEBUG, category, `🚀 Début: ${operation}`, details);
+      this.log(LogLevel.DEBUG, category, `[emoji] Debut: ${operation}`, details);
       result = await fn();
       return result;
     } catch (error) {
@@ -131,7 +131,7 @@ class AdvancedLogger {
       this.log(
         LogLevel.ERROR,
         category,
-        `❌ Erreur: ${operation}`,
+        ` Erreur: ${operation}`,
         { ...details, error: error instanceof Error ? error.message : String(error) }
       );
       throw error;
@@ -149,8 +149,8 @@ class AdvancedLogger {
 
       this.metrics.push(metric);
 
-      const emoji = success ? '✅' : '❌';
-      const color = duration < 100 ? '🟢' : duration < 500 ? '🟡' : '🔴';
+      const emoji = success ? '' : '';
+      const color = duration < 100 ? '[emoji]' : duration < 500 ? '[emoji]' : '[emoji]';
       this.log(
         LogLevel.INFO,
         category,
@@ -161,7 +161,7 @@ class AdvancedLogger {
   }
 
   /**
-   * Logging spécialisé pour analyse IA
+   * Logging specialise pour analyse IA
    */
   logAIAnalysis(
     model: string,
@@ -170,7 +170,7 @@ class AdvancedLogger {
     duration: number,
     tokens?: { prompt: number; completion: number; total: number }
   ): void {
-    this.log(LogLevel.INFO, LogCategory.AI, '🤖 Analyse IA complétée', {
+    this.log(LogLevel.INFO, LogCategory.AI, '[emoji] Analyse IA completee', {
       model,
       promptLength: prompt.length,
       responseLength: response.length,
@@ -179,12 +179,12 @@ class AdvancedLogger {
       timestamp: new Date().toISOString(),
     });
 
-    // Détection d'anomalies
+    // Detection d'anomalies
     if (duration > 10000) {
       this.log(
         LogLevel.WARN,
         LogCategory.PERFORMANCE,
-        '⚠️ Analyse IA lente détectée',
+        '️ Analyse IA lente detectee',
         { model, duration }
       );
     }
@@ -193,14 +193,14 @@ class AdvancedLogger {
       this.log(
         LogLevel.WARN,
         LogCategory.AI,
-        '⚠️ Réponse IA suspecte (trop courte)',
+        '️ Reponse IA suspecte (trop courte)',
         { model, responseLength: response.length }
       );
     }
   }
 
   /**
-   * Logging workflow avec états
+   * Logging workflow avec etats
    */
   logWorkflowExecution(
     workflowId: string,
@@ -208,7 +208,7 @@ class AdvancedLogger {
     status: 'started' | 'completed' | 'failed',
     data?: Record<string, any>
   ): void {
-    const emoji = status === 'completed' ? '✅' : status === 'failed' ? '❌' : '🔄';
+    const emoji = status === 'completed' ? '' : status === 'failed' ? '' : '[emoji]';
     const level = status === 'failed' ? LogLevel.ERROR : LogLevel.INFO;
 
     this.log(
@@ -227,7 +227,7 @@ class AdvancedLogger {
     action: string,
     metadata?: Record<string, any>
   ): void {
-    this.log(LogLevel.INFO, LogCategory.EMAIL, `📧 Email ${action}`, {
+    this.log(LogLevel.INFO, LogCategory.EMAIL, `[emoji] Email ${action}`, {
       emailId,
       action,
       ...metadata,
@@ -235,7 +235,7 @@ class AdvancedLogger {
   }
 
   /**
-   * Sécurité - détection d'anomalies
+   * Securite - detection d'anomalies
    */
   logSecurityEvent(
     eventType: string,
@@ -243,7 +243,7 @@ class AdvancedLogger {
     details: Record<string, any>
   ): void {
     const level = severity === 'critical' ? LogLevel.CRITICAL : LogLevel.WARN;
-    this.log(level, LogCategory.SECURITY, `🔒 Événement sécurité: ${eventType}`, {
+    this.log(level, LogCategory.SECURITY, `[emoji] evenement securite: ${eventType}`, {
       severity,
       ...details,
     });
@@ -262,15 +262,15 @@ class AdvancedLogger {
     };
 
     const categoryEmojis = {
-      [LogCategory.AI]: '🤖',
-      [LogCategory.WORKFLOW]: '🔄',
-      [LogCategory.EMAIL]: '📧',
-      [LogCategory.NOTIFICATION]: '🔔',
-      [LogCategory.FORM]: '📝',
-      [LogCategory.CALENDAR]: '📅',
-      [LogCategory.DATABASE]: '💾',
-      [LogCategory.SECURITY]: '🔒',
-      [LogCategory.PERFORMANCE]: '⚡',
+      [LogCategory.AI]: '[emoji]',
+      [LogCategory.WORKFLOW]: '[emoji]',
+      [LogCategory.EMAIL]: '[emoji]',
+      [LogCategory.NOTIFICATION]: '[emoji]',
+      [LogCategory.FORM]: '[emoji]',
+      [LogCategory.CALENDAR]: '[emoji]',
+      [LogCategory.DATABASE]: '[emoji]',
+      [LogCategory.SECURITY]: '[emoji]',
+      [LogCategory.PERFORMANCE]: '',
       [LogCategory.API]: '🌐',
     };
 
@@ -293,7 +293,7 @@ class AdvancedLogger {
 
     try {
       // TODO: Sauvegarder en DB ou fichier
-      console.log(`📝 Flush de ${this.logs.length} logs`);
+      console.log(`[emoji] Flush de ${this.logs.length} logs`);
       
       // Garder seulement les derniers logs
       if (this.logs.length > this.maxLogsInMemory) {
@@ -305,7 +305,7 @@ class AdvancedLogger {
   }
 
   /**
-   * Récupération des logs filtrés
+   * Recuperation des logs filtres
    */
   getLogs(filters?: {
     level?: LogLevel;
@@ -335,7 +335,7 @@ class AdvancedLogger {
   }
 
   /**
-   * Métriques de performance agrégées
+   * Metriques de performance agregees
    */
   getPerformanceMetrics(category?: string): {
     averageDuration: number;
@@ -394,7 +394,7 @@ class AdvancedLogger {
   }
 
   /**
-   * Génération trace ID unique
+   * Generation trace ID unique
    */
   private generateTraceId(): string {
     return `trace-${Date.now()}-${Math.random().toString(36).substring(7)}`;

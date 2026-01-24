@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { useState, useMemo } from 'react';
@@ -27,10 +27,10 @@ interface Client {
 }
 
 const clientSchema = z.object({
-  nom: z.string().min(2, 'Nom requis (min 2 caractères)'),
+  nom: z.string().min(2, 'Nom requis (min 2 caracteres)'),
   type: z.enum(['particulier', 'entreprise']),
   email: z.string().email('Email invalide'),
-  telephone: z.string().min(10, 'Téléphone invalide'),
+  telephone: z.string().min(10, 'Telephone invalide'),
   adresse: z.string().min(5, 'Adresse requise'),
   ville: z.string().min(2, 'Ville requise'),
   codePostal: z.string().min(5, 'Code postal requis'),
@@ -45,10 +45,10 @@ const mockClients: Client[] = [
   { id: '2', nom: 'SAS TechCorp', type: 'entreprise', email: 'info@techcorp.com', telephone: '0198765432', adresse: '45 Avenue des Champs', ville: 'Lyon', codePostal: '69001', siret: '98765432109876', nbDossiers: 5, dateCreation: '2023-08-20', statut: 'actif' },
   { id: '3', nom: 'M. Dupont Jean', type: 'particulier', email: 'jean.dupont@email.com', telephone: '0612345678', adresse: '8 Rue Victor Hugo', ville: 'Marseille', codePostal: '13001', nbDossiers: 1, dateCreation: '2024-01-10', statut: 'actif' },
   { id: '4', nom: 'SCI Investissement', type: 'entreprise', email: 'sci@invest.fr', telephone: '0478901234', adresse: '23 Boulevard Haussmann', ville: 'Paris', codePostal: '75009', siret: '11122233344455', nbDossiers: 2, dateCreation: '2023-11-05', statut: 'actif' },
-  { id: '5', nom: 'Mme Bernard Sophie', type: 'particulier', email: 'sophie.bernard@mail.com', telephone: '0623456789', adresse: '15 Allée des Roses', ville: 'Toulouse', codePostal: '31000', nbDossiers: 1, dateCreation: '2023-12-01', statut: 'actif' },
+  { id: '5', nom: 'Mme Bernard Sophie', type: 'particulier', email: 'sophie.bernard@mail.com', telephone: '0623456789', adresse: '15 Allee des Roses', ville: 'Toulouse', codePostal: '31000', nbDossiers: 1, dateCreation: '2023-12-01', statut: 'actif' },
   { id: '6', nom: 'EURL Conseil Plus', type: 'entreprise', email: 'contact@conseil-plus.fr', telephone: '0467890123', adresse: '7 Place Bellecour', ville: 'Lyon', codePostal: '69002', siret: '55566677788899', nbDossiers: 0, dateCreation: '2024-01-20', statut: 'prospect' },
   { id: '7', nom: 'M. Lefebvre Marc', type: 'particulier', email: 'marc.lefebvre@mail.fr', telephone: '0634567890', adresse: '22 Rue Nationale', ville: 'Lille', codePostal: '59000', nbDossiers: 2, dateCreation: '2023-10-12', statut: 'actif' },
-  { id: '8', nom: 'SAS Innovation Tech', type: 'entreprise', email: 'contact@innovation-tech.fr', telephone: '0456789012', adresse: '88 Avenue de la République', ville: 'Bordeaux', codePostal: '33000', siret: '77788899900011', nbDossiers: 4, dateCreation: '2023-07-08', statut: 'actif' },
+  { id: '8', nom: 'SAS Innovation Tech', type: 'entreprise', email: 'contact@innovation-tech.fr', telephone: '0456789012', adresse: '88 Avenue de la Republique', ville: 'Bordeaux', codePostal: '33000', siret: '77788899900011', nbDossiers: 4, dateCreation: '2023-07-08', statut: 'actif' },
   { id: '9', nom: 'Mme Moreau Claire', type: 'particulier', email: 'claire.moreau@email.com', telephone: '0645678901', adresse: '5 Impasse du Parc', ville: 'Nantes', codePostal: '44000', nbDossiers: 0, dateCreation: '2024-01-15', statut: 'prospect' },
   { id: '10', nom: 'SARL Digital Services', type: 'entreprise', email: 'info@digital-services.fr', telephone: '0423456789', adresse: '31 Boulevard Saint-Michel', ville: 'Nice', codePostal: '06000', siret: '22233344455566', nbDossiers: 3, dateCreation: '2023-09-25', statut: 'actif' },
 ];
@@ -152,8 +152,8 @@ export default function ClientsPage() {
       );
       addToast({
         variant: 'success',
-        title: 'Client modifié',
-        message: `Le client ${data.nom} a été modifié avec succès.`,
+        title: 'Client modifie',
+        message: `Le client ${data.nom} a ete modifie avec succes.`,
       });
     } else {
       const newClient: Client = {
@@ -165,8 +165,8 @@ export default function ClientsPage() {
       setClients(prev => [newClient, ...prev]);
       addToast({
         variant: 'success',
-        title: 'Client créé',
-        message: `Le client ${data.nom} a été créé avec succès.`,
+        title: 'Client cree',
+        message: `Le client ${data.nom} a ete cree avec succes.`,
       });
     }
     setIsCreateModalOpen(false);
@@ -178,17 +178,17 @@ export default function ClientsPage() {
       addToast({
         variant: 'error',
         title: 'Suppression impossible',
-        message: `Le client ${client.nom} a ${client.nbDossiers} dossier(s) associé(s).`,
+        message: `Le client ${client.nom} a ${client.nbDossiers} dossier(s) associe(s).`,
       });
       return;
     }
 
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer le client ${client?.nom} ?`)) {
+    if (window.confirm(`etes-vous sur de vouloir supprimer le client ${client?.nom} ?`)) {
       setClients(prev => prev.filter(c => c.id !== id));
       addToast({
         variant: 'info',
-        title: 'Client supprimé',
-        message: `Le client ${client?.nom} a été supprimé.`,
+        title: 'Client supprime',
+        message: `Le client ${client?.nom} a ete supprime.`,
       });
     }
   };
@@ -250,7 +250,7 @@ export default function ClientsPage() {
         </span>
       )
     },
-    { accessor: 'dateCreation' as const, header: 'Date création' },
+    { accessor: 'dateCreation' as const, header: 'Date creation' },
     {
       accessor: 'id' as const,
       header: 'Actions',
@@ -298,7 +298,7 @@ export default function ClientsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des clients</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gérez votre portefeuille de clients
+            Gerez votre portefeuille de clients
           </p>
         </div>
         <button
@@ -338,7 +338,7 @@ export default function ClientsPage() {
       {/* Alert */}
       {stats.prospects > 0 && (
         <Alert variant="info">
-          Vous avez {stats.prospects} prospect(s) à convertir en clients actifs.
+          Vous avez {stats.prospects} prospect(s) a convertir en clients actifs.
         </Alert>
       )}
 
@@ -380,7 +380,7 @@ export default function ClientsPage() {
         </div>
         {(searchTerm || filterType !== 'all' || filterStatut !== 'all') && (
           <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-            {filteredClients.length} résultat(s) trouvé(s)
+            {filteredClients.length} resultat(s) trouve(s)
           </div>
         )}
       </Card>
@@ -405,7 +405,7 @@ export default function ClientsPage() {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title={editingClient ? 'Modifier le client' : 'Créer un client'}
+        title={editingClient ? 'Modifier le client' : 'Creer un client'}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -483,7 +483,7 @@ export default function ClientsPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Téléphone *
+                Telephone *
               </label>
               <input
                 type="tel"
@@ -550,7 +550,7 @@ export default function ClientsPage() {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              {editingClient ? 'Modifier' : 'Créer'}
+              {editingClient ? 'Modifier' : 'Creer'}
             </button>
           </div>
         </form>

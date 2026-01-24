@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useEffect, useState } from "react"
 import { UrgencyLevel } from "@/types/cesda"
@@ -63,10 +63,10 @@ export default function DeadlineTimer({
     return (
       <div className="bg-red-50 border-2 border-red-600 rounded-lg p-4">
         <div className="flex items-center gap-3">
-          <span className="text-3xl" aria-label="warning">⚠</span>
+          <span className="text-3xl" aria-label="warning"></span>
           <div>
-            <p className="font-bold text-red-900 text-lg">Délai expiré</p>
-            <p className="text-red-700 text-sm">Action immédiate requise</p>
+            <p className="font-bold text-red-900 text-lg">Delai expire</p>
+            <p className="text-red-700 text-sm">Action immediate requise</p>
           </div>
         </div>
       </div>
@@ -85,11 +85,11 @@ export default function DeadlineTimer({
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-2xl" aria-label="timer">⏱</span>
+          <span className="text-2xl" aria-label="timer"></span>
           <div>
             <p className="font-semibold text-gray-700 text-sm">Temps restant</p>
             <p className="text-xs text-gray-500">
-              Échéance: {new Date(deadlineDate).toLocaleDateString("fr-FR", {
+              echeance: {new Date(deadlineDate).toLocaleDateString("fr-FR", {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
@@ -148,7 +148,7 @@ export default function DeadlineTimer({
       {showProgress && notificationDate && (
         <div className="space-y-1">
           <div className="flex justify-between text-xs text-gray-600">
-            <span>Progression du délai</span>
+            <span>Progression du delai</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
@@ -168,7 +168,7 @@ export default function DeadlineTimer({
 
       {isCritical && (
         <div className="mt-3 p-2 bg-red-100 border border-red-300 rounded text-xs text-red-800">
-          <span aria-label="warning">⚠</span> <strong>Attention :</strong> Ce délai est critique. Une action immédiate est requise.
+          <span aria-label="warning"></span> <strong>Attention :</strong> Ce delai est critique. Une action immediate est requise.
         </div>
       )}
     </div>

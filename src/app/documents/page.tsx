@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from 'react'
 import { Card } from '@/components/ui/Card'
@@ -22,12 +22,12 @@ export default function DocumentsPage() {
   }
 
   const handleDelete = async (fileId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')) return
+    if (!confirm('etes-vous sur de vouloir supprimer ce fichier ?')) return
     
     try {
       await deleteFile(fileId)
       refreshFiles()
-      showToast('Fichier supprimé avec succès', 'success')
+      showToast('Fichier supprime avec succes', 'success')
     } catch (error) {
       showToast('Erreur lors de la suppression', 'error')
     }
@@ -35,7 +35,7 @@ export default function DocumentsPage() {
 
   const handleDownload = (file: StoredFile) => {
     downloadFile(file)
-    showToast('Téléchargement démarré', 'info')
+    showToast('Telechargement demarre', 'info')
   }
 
   const handleViewVersions = (file: StoredFile) => {
@@ -51,8 +51,8 @@ export default function DocumentsPage() {
 
   const categories = [
     { value: 'all', label: 'Tous', count: files.length },
-    { value: 'piece_jointe', label: 'Pièces jointes', count: stats.byCategory['piece_jointe'] || 0 },
-    { value: 'document_genere', label: 'Documents générés', count: stats.byCategory['document_genere'] || 0 },
+    { value: 'piece_jointe', label: 'Pieces jointes', count: stats.byCategory['piece_jointe'] || 0 },
+    { value: 'document_genere', label: 'Documents generes', count: stats.byCategory['document_genere'] || 0 },
     { value: 'template', label: 'Templates', count: stats.byCategory['template'] || 0 },
     { value: 'autre', label: 'Autres', count: stats.byCategory['autre'] || 0 },
   ]
@@ -86,7 +86,7 @@ export default function DocumentsPage() {
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Espace utilisé</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Espace utilise</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
             {formatFileSize(stats.totalSize)}
           </p>
@@ -113,7 +113,7 @@ export default function DocumentsPage() {
         <FileUploader
           options={{
             category: 'piece_jointe',
-            description: 'Document uploadé via l\'interface',
+            description: 'Document uploade via l\'interface',
           }}
           onUploadComplete={() => refreshFiles()}
         />
@@ -145,7 +145,7 @@ export default function DocumentsPage() {
         {filteredFiles.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400">
-              Aucun fichier trouvé
+              Aucun fichier trouve
             </p>
           </div>
         ) : (
@@ -163,13 +163,13 @@ export default function DocumentsPage() {
                     </p>
                     <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
                       <span>{formatFileSize(file.size)}</span>
-                      <span>•</span>
+                      <span>-</span>
                       <span>v{file.version}</span>
-                      <span>•</span>
+                      <span>-</span>
                       <span>{new Date(file.uploadedAt).toLocaleDateString('fr-FR')}</span>
                       {file.tags.length > 0 && (
                         <>
-                          <span>•</span>
+                          <span>-</span>
                           <span className="flex items-center gap-1">
                             <Tag className="w-3 h-3" />
                             {file.tags.join(', ')}

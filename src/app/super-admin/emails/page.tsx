@@ -75,16 +75,16 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  'client-urgent': '🚨 Urgent Client',
-  'new-case': '📁 Nouveau Dossier',
-  'deadline-reminder': '⏰ Échéance',
-  'invoice': '💰 Facture',
-  'legal-question': '⚖️ Question Juridique',
+  'client-urgent': '[emoji] Urgent Client',
+  'new-case': '[emoji] Nouveau Dossier',
+  'deadline-reminder': ' echeance',
+  'invoice': '[emoji] Facture',
+  'legal-question': '️ Question Juridique',
   'court-document': '🏛️ Document Judiciaire',
-  'client-complaint': '😠 Réclamation',
-  'document-request': '📄 Demande Document',
-  'appointment-request': '📅 Rendez-vous',
-  'general-inquiry': '📧 Demande Générale'
+  'client-complaint': '[emoji] Reclamation',
+  'document-request': '[emoji] Demande Document',
+  'appointment-request': '[emoji] Rendez-vous',
+  'general-inquiry': '[emoji] Demande Generale'
 };
 
 export default function EmailWorkflowMonitoringPage() {
@@ -117,7 +117,7 @@ export default function EmailWorkflowMonitoringPage() {
         setWorkflowStats(data.stats);
       }
     } catch (error) {
-      console.error('Erreur chargement données:', error);
+      console.error('Erreur chargement donnees:', error);
     } finally {
       setLoading(false);
     }
@@ -128,7 +128,7 @@ export default function EmailWorkflowMonitoringPage() {
     
     let interval: NodeJS.Timeout;
     if (autoRefresh) {
-      interval = setInterval(fetchData, 5000); // Rafraîchir toutes les 5 secondes
+      interval = setInterval(fetchData, 5000); // Rafraichir toutes les 5 secondes
     }
 
     return () => {
@@ -156,7 +156,7 @@ export default function EmailWorkflowMonitoringPage() {
               Monitoring Email & Workflows
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Suivi en temps réel des emails et workflows de la plateforme
+              Suivi en temps reel des emails et workflows de la plateforme
             </p>
           </div>
           
@@ -200,7 +200,7 @@ export default function EmailWorkflowMonitoringPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Non traités</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Non traites</p>
                 <p className="text-3xl font-bold text-orange-600">
                   {emailStats?.unprocessed || 0}
                 </p>
@@ -332,7 +332,7 @@ export default function EmailWorkflowMonitoringPage() {
               {selectedEmail ? (
                 <div>
                   <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-4">
-                    Détails Email
+                    Details Email
                   </h3>
                   <div className="space-y-3 text-sm">
                     <div>
@@ -340,7 +340,7 @@ export default function EmailWorkflowMonitoringPage() {
                       <p className="font-medium">{selectedEmail.from}</p>
                     </div>
                     <div>
-                      <span className="text-gray-500">À:</span>
+                      <span className="text-gray-500">a:</span>
                       <p className="font-medium">{selectedEmail.to}</p>
                     </div>
                     <div>
@@ -348,7 +348,7 @@ export default function EmailWorkflowMonitoringPage() {
                       <p className="font-medium">{selectedEmail.subject}</p>
                     </div>
                     <div>
-                      <span className="text-gray-500">Catégorie:</span>
+                      <span className="text-gray-500">Categorie:</span>
                       <p>{CATEGORY_LABELS[selectedEmail.category]}</p>
                     </div>
                     <div>
@@ -364,7 +364,7 @@ export default function EmailWorkflowMonitoringPage() {
                     <div>
                       <span className="text-gray-500">Statut:</span>
                       <p className={selectedEmail.isProcessed ? 'text-green-600' : 'text-orange-600'}>
-                        {selectedEmail.isProcessed ? 'Traité' : 'En attente'}
+                        {selectedEmail.isProcessed ? 'Traite' : 'En attente'}
                       </p>
                     </div>
                     {selectedEmail.workflow && (
@@ -389,7 +389,7 @@ export default function EmailWorkflowMonitoringPage() {
               ) : (
                 <div className="text-center text-gray-500 py-12">
                   <Mail className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Sélectionnez un email pour voir les détails</p>
+                  <p>Selectionnez un email pour voir les details</p>
                 </div>
               )}
             </div>
@@ -408,7 +408,7 @@ export default function EmailWorkflowMonitoringPage() {
                       Cabinet
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                      Email Déclencheur
+                      Email Declencheur
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                       Statut
@@ -417,7 +417,7 @@ export default function EmailWorkflowMonitoringPage() {
                       Progression
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                      Démarré
+                      Demarre
                     </th>
                   </tr>
                 </thead>
@@ -426,7 +426,7 @@ export default function EmailWorkflowMonitoringPage() {
                     <tr>
                       <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                         <Workflow className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                        Aucun workflow exécuté
+                        Aucun workflow execute
                       </td>
                     </tr>
                   ) : (

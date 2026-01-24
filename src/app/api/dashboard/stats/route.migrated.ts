@@ -1,11 +1,11 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/auth';
 import { logger, LogCategory } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
 // ============================================
 // GET /api/dashboard/stats
-// Récupère les statistiques globales du dashboard
+// Recupere les statistiques globales du dashboard
 // ============================================
 
 export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
@@ -17,7 +17,7 @@ export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
 
     logger.log(LogCategory.API, `Fetching dashboard stats`, { tenantId });
 
-    // Requêtes en parallèle pour optimiser la performance
+    // Requetes en parallele pour optimiser la performance
     const [
       totalDossiers,
       dossiersActifs,
@@ -41,7 +41,7 @@ export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
 
     const revenus = revenusData._sum?.montant || 0;
 
-    // Calculer les tendances (comparaison avec le mois précédent)
+    // Calculer les tendances (comparaison avec le mois precedent)
     const now = new Date();
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -92,7 +92,7 @@ export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
       trends,
     };
 
-    logger.log(LogCategory.API, `✅ Dashboard stats fetched`, {
+    logger.log(LogCategory.API, ` Dashboard stats fetched`, {
       tenantId,
       totalDossiers,
       revenus,

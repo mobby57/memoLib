@@ -1,9 +1,9 @@
-﻿'use client';
+'use client';
 
 import { TrendingUp, TrendingDown, Clock, Target, DollarSign, Users, FileCheck, AlertTriangle, Calendar, Percent } from 'lucide-react';
 
 export interface MetricsData {
-  completionRate: number; // % de dossiers traités
+  completionRate: number; // % de dossiers traites
   avgResponseTime: number; // heures
   avgProcessingTime: number; // jours
   clientSatisfaction: number; // score sur 5
@@ -12,7 +12,7 @@ export interface MetricsData {
   activeClients: number;
   pendingValidations: number;
   overdueFiles: number; // dossiers en retard
-  successRate: number; // % de dossiers gagnés
+  successRate: number; // % de dossiers gagnes
   trends: {
     completionRate: number; // variation en %
     avgResponseTime: number;
@@ -156,18 +156,18 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            📊 Tableau de bord métriques
+            [emoji] Tableau de bord metriques
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Suivi en temps réel de vos indicateurs clés de performance
+            Suivi en temps reel de vos indicateurs cles de performance
           </p>
         </div>
         <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-          Rapport détaillé →
+          Rapport detaille [Next]
         </button>
       </div>
 
-      {/* Métriques principales - 4 colonnes */}
+      {/* Metriques principales - 4 colonnes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricWidget
           title="Taux de traitement"
@@ -176,11 +176,11 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
           color={data.completionRate >= 80 ? 'green' : data.completionRate >= 60 ? 'orange' : 'red'}
           trend={data.trends.completionRate}
           trendLabel={`${Math.abs(data.trends.completionRate)}% vs mois dernier`}
-          badge={data.completionRate >= 90 ? 'Excellent' : data.completionRate >= 70 ? 'Bon' : 'À améliorer'}
+          badge={data.completionRate >= 90 ? 'Excellent' : data.completionRate >= 70 ? 'Bon' : 'a ameliorer'}
         />
 
         <MetricWidget
-          title="Temps de réponse moyen"
+          title="Temps de reponse moyen"
           value={data.avgResponseTime}
           subtitle="heures"
           icon={<Clock className="w-6 h-6" />}
@@ -190,7 +190,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
         />
 
         <MetricWidget
-          title="Délai de traitement moyen"
+          title="Delai de traitement moyen"
           value={data.avgProcessingTime}
           subtitle="jours"
           icon={<Calendar className="w-6 h-6" />}
@@ -200,16 +200,16 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
         />
 
         <MetricWidget
-          title="Taux de succès"
+          title="Taux de succes"
           value={`${data.successRate}%`}
           icon={<Target className="w-6 h-6" />}
           color={data.successRate >= 85 ? 'green' : data.successRate >= 70 ? 'orange' : 'red'}
-          badge={`${data.successRate}% gagnés`}
-          trendLabel="Dossiers finalisés favorablement"
+          badge={`${data.successRate}% gagnes`}
+          trendLabel="Dossiers finalises favorablement"
         />
       </div>
 
-      {/* Métriques secondaires - 3 colonnes */}
+      {/* Metriques secondaires - 3 colonnes */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <MetricWidget
           title="Chiffre d'affaires mensuel"
@@ -235,8 +235,8 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
           value={data.pendingValidations}
           icon={<AlertTriangle className="w-6 h-6" />}
           color={data.pendingValidations === 0 ? 'green' : data.pendingValidations <= 5 ? 'orange' : 'red'}
-          badge={data.pendingValidations === 0 ? '✅ À jour' : '⚠️ Action requise'}
-          trendLabel={data.pendingValidations === 0 ? 'Tous les dossiers à jour' : `${data.pendingValidations} dossiers nécessitent une validation`}
+          badge={data.pendingValidations === 0 ? ' a jour' : '️ Action requise'}
+          trendLabel={data.pendingValidations === 0 ? 'Tous les dossiers a jour' : `${data.pendingValidations} dossiers necessitent une validation`}
         />
       </div>
 
@@ -249,13 +249,13 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
               <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400 flex-shrink-0" />
               <div>
                 <h3 className="text-lg font-bold text-red-900 dark:text-red-200 mb-2">
-                  🚨 {data.overdueFiles} Dossier{data.overdueFiles > 1 ? 's' : ''} en retard
+                  [emoji] {data.overdueFiles} Dossier{data.overdueFiles > 1 ? 's' : ''} en retard
                 </h3>
                 <p className="text-sm text-red-800 dark:text-red-300 mb-3">
-                  Ces dossiers dépassent le délai de traitement standard (14 jours)
+                  Ces dossiers depassent le delai de traitement standard (14 jours)
                 </p>
                 <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">
-                  Voir les dossiers en retard →
+                  Voir les dossiers en retard [Next]
                 </button>
               </div>
             </div>
@@ -310,29 +310,29 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
         </div>
       </div>
 
-      {/* Mini graphiques de tendance (placeholder pour future implémentation) */}
+      {/* Mini graphiques de tendance (placeholder pour future implementation) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          📈 Tendances sur 30 jours
+          [emoji] Tendances sur 30 jours
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Dossiers traités</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Dossiers traites</p>
             <p className={`text-2xl font-bold ${
               data.trends.completionRate >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
             }`}>
               {data.trends.completionRate >= 0 ? '+' : ''}{data.trends.completionRate}%
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">vs période précédente</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">vs periode precedente</p>
           </div>
           <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Temps de réponse</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Temps de reponse</p>
             <p className={`text-2xl font-bold ${
               data.trends.avgResponseTime <= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
             }`}>
               {data.trends.avgResponseTime >= 0 ? '+' : ''}{data.trends.avgResponseTime}h
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">vs période précédente</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">vs periode precedente</p>
           </div>
           <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Revenus</p>
@@ -341,7 +341,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
             }`}>
               {data.trends.monthlyRevenue >= 0 ? '+' : ''}{data.trends.monthlyRevenue}%
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">vs période précédente</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">vs periode precedente</p>
           </div>
         </div>
       </div>

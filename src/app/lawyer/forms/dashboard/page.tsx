@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 
 /**
- * 📊 Dashboard de Gestion des Formulaires & Décisions
+ * [emoji] Dashboard de Gestion des Formulaires & Decisions
  */
 
 interface Stats {
@@ -68,7 +68,7 @@ export default function FormsDashboardPage() {
       const statsData = await statsRes.json();
       setStats(statsData);
 
-      // Charger les soumissions récentes
+      // Charger les soumissions recentes
       const submissionsRes = await fetch('/api/forms/submissions?limit=10');
       const submissionsData = await submissionsRes.json();
       setSubmissions(submissionsData);
@@ -85,7 +85,7 @@ export default function FormsDashboardPage() {
 
       setLoading(false);
     } catch (error) {
-      console.error('Erreur chargement données:', error);
+      console.error('Erreur chargement donnees:', error);
       setLoading(false);
     }
   };
@@ -103,20 +103,20 @@ export default function FormsDashboardPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">📊 Dashboard Décisionnel</h1>
+          <h1 className="text-3xl font-bold">[emoji] Dashboard Decisionnel</h1>
           <p className="text-gray-600">
-            Gestion centralisée des formulaires et décisions organisationnelles
+            Gestion centralisee des formulaires et decisions organisationnelles
           </p>
         </div>
         <Button onClick={() => window.location.href = '/lawyer/forms'}>
-          ➕ Nouveau Formulaire
+           Nouveau Formulaire
         </Button>
       </div>
 
-      {/* Statistiques Clés */}
+      {/* Statistiques Cles */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
@@ -136,7 +136,7 @@ export default function FormsDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-600">Nécessite action</p>
+            <p className="text-sm text-gray-600">Necessite action</p>
           </CardContent>
         </Card>
 
@@ -148,7 +148,7 @@ export default function FormsDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-red-600">Attention immédiate</p>
+            <p className="text-sm text-red-600">Attention immediate</p>
           </CardContent>
         </Card>
 
@@ -168,7 +168,7 @@ export default function FormsDashboardPage() {
       {/* Tabs principales */}
       <Tabs defaultValue="submissions" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="submissions">Soumissions Récentes</TabsTrigger>
+          <TabsTrigger value="submissions">Soumissions Recentes</TabsTrigger>
           <TabsTrigger value="approvals">
             Mes Approbations ({approvals.length})
           </TabsTrigger>
@@ -178,13 +178,13 @@ export default function FormsDashboardPage() {
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
-        {/* Soumissions Récentes */}
+        {/* Soumissions Recentes */}
         <TabsContent value="submissions" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Dernières Soumissions</CardTitle>
+              <CardTitle>Dernieres Soumissions</CardTitle>
               <CardDescription>
-                Historique des formulaires soumis récemment
+                Historique des formulaires soumis recemment
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -222,7 +222,7 @@ export default function FormsDashboardPage() {
                         {formatStatus(sub.status)}
                       </Badge>
                       <Button variant="outline" size="sm">
-                        Voir Détails
+                        Voir Details
                       </Button>
                     </div>
                   </div>
@@ -238,7 +238,7 @@ export default function FormsDashboardPage() {
             <CardHeader>
               <CardTitle>Approbations Requises</CardTitle>
               <CardDescription>
-                Décisions en attente de votre validation
+                Decisions en attente de votre validation
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -259,7 +259,7 @@ export default function FormsDashboardPage() {
                         </span>
                       </div>
                       <p className="text-sm text-orange-600 mt-1">
-                        ⏰ Échéance: {new Date(approval.dueDate).toLocaleDateString('fr-FR')}
+                         echeance: {new Date(approval.dueDate).toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                     <div className="flex gap-2">
@@ -267,10 +267,10 @@ export default function FormsDashboardPage() {
                         Examiner
                       </Button>
                       <Button variant="default" size="sm" className="bg-green-600">
-                        ✓ Approuver
+                        [Check] Approuver
                       </Button>
                       <Button variant="destructive" size="sm">
-                        ✗ Rejeter
+                        [X] Rejeter
                       </Button>
                     </div>
                   </div>
@@ -289,9 +289,9 @@ export default function FormsDashboardPage() {
         <TabsContent value="risks" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Risques Identifiés</CardTitle>
+              <CardTitle>Risques Identifies</CardTitle>
               <CardDescription>
-                Risques critiques et élevés nécessitant attention
+                Risques critiques et eleves necessitant attention
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -338,7 +338,7 @@ export default function FormsDashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Analytics & Tendances</CardTitle>
-              <CardDescription>Analyse des décisions organisationnelles</CardDescription>
+              <CardDescription>Analyse des decisions organisationnelles</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
@@ -348,14 +348,14 @@ export default function FormsDashboardPage() {
                     {stats?.approvalRate || 0}%
                   </div>
                   <p className="text-sm text-gray-600 mt-2">
-                    Basé sur les 90 derniers jours
+                    Base sur les 90 derniers jours
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-3">Délai Moyen d'Approbation</h3>
+                  <h3 className="font-semibold mb-3">Delai Moyen d'Approbation</h3>
                   <div className="text-4xl font-bold">4.2 jours</div>
                   <p className="text-sm text-gray-600 mt-2">
-                    -15% vs mois précédent
+                    -15% vs mois precedent
                   </p>
                 </div>
               </div>
@@ -370,9 +370,9 @@ export default function FormsDashboardPage() {
 // Helpers pour le formatage
 function formatFormType(type: string): string {
   const types: Record<string, string> = {
-    'resource-request': '💼 Demande de Ressources',
-    'strategic-decision': '🎯 Décision Stratégique',
-    'risk-assessment': '⚠️ Évaluation de Risque',
+    'resource-request': '[emoji] Demande de Ressources',
+    'strategic-decision': '🎯 Decision Strategique',
+    'risk-assessment': '️ evaluation de Risque',
   };
   return types[type] || type;
 }
@@ -380,9 +380,9 @@ function formatFormType(type: string): string {
 function formatStatus(status: string): string {
   const statuses: Record<string, string> = {
     pending: 'En Attente',
-    approved: 'Approuvé',
-    rejected: 'Rejeté',
-    cancelled: 'Annulé',
+    approved: 'Approuve',
+    rejected: 'Rejete',
+    cancelled: 'Annule',
   };
   return statuses[status] || status;
 }

@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Service de notifications par email
- * Gère l'envoi automatique d'emails pour rappels, résumés et alertes
+ * Gere l'envoi automatique d'emails pour rappels, resumes et alertes
  */
 
 import { logger } from '@/lib/logger';
@@ -30,12 +30,12 @@ export interface EmailNotification {
  * Types de notifications automatiques
  */
 export type NotificationType = 
-  | 'echeance_reminder'      // Rappel d'échéance
+  | 'echeance_reminder'      // Rappel d'echeance
   | 'facture_overdue'        // Facture en retard
-  | 'facture_paid'           // Facture payée
-  | 'weekly_summary'         // Résumé hebdomadaire
+  | 'facture_paid'           // Facture payee
+  | 'weekly_summary'         // Resume hebdomadaire
   | 'new_client'             // Nouveau client
-  | 'dossier_update';        // Mise à jour dossier
+  | 'dossier_update';        // Mise a jour dossier
 
 /**
  * Configuration des rappels automatiques
@@ -45,7 +45,7 @@ export interface ReminderConfig {
   triggers: {
     echeances: {
       enabled: boolean;
-      daysBefore: number[];  // Ex: [7, 3, 1] pour rappels à 7j, 3j, 1j
+      daysBefore: number[];  // Ex: [7, 3, 1] pour rappels a 7j, 3j, 1j
     };
     facturesOverdue: {
       enabled: boolean;
@@ -60,7 +60,7 @@ export interface ReminderConfig {
 }
 
 /**
- * Génère un email de rappel d'échéance
+ * Genere un email de rappel d'echeance
  */
 export function generateEcheanceReminderEmail(
   echeance: {
@@ -71,10 +71,10 @@ export function generateEcheanceReminderEmail(
   },
   daysUntil: number
 ): EmailTemplate {
-  const urgencyLevel = daysUntil <= 1 ? 'URGENT' : daysUntil <= 3 ? 'Important' : 'À venir';
+  const urgencyLevel = daysUntil <= 1 ? 'URGENT' : daysUntil <= 3 ? 'Important' : 'a venir';
   const urgencyColor = daysUntil <= 1 ? '#dc2626' : daysUntil <= 3 ? '#f59e0b' : '#3b82f6';
 
-  const subject = `${urgencyLevel}: Échéance dans ${daysUntil} jour${daysUntil > 1 ? 's' : ''} - ${echeance.titre}`;
+  const subject = `${urgencyLevel}: echeance dans ${daysUntil} jour${daysUntil > 1 ? 's' : ''} - ${echeance.titre}`;
 
   const htmlBody = `
     <!DOCTYPE html>
@@ -87,12 +87,12 @@ export function generateEcheanceReminderEmail(
       <div style="max-width: 600px; margin: 0 auto; background-color: white;">
         <!-- Header -->
         <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">Rappel d'Échéance</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">Rappel d'echeance</h1>
         </div>
 
         <!-- Alert Banner -->
         <div style="background-color: ${urgencyColor}; color: white; padding: 15px; text-align: center; font-weight: bold;">
-          ⚠️ ${urgencyLevel}: ${daysUntil} jour${daysUntil > 1 ? 's' : ''} restant${daysUntil > 1 ? 's' : ''}
+          ️ ${urgencyLevel}: ${daysUntil} jour${daysUntil > 1 ? 's' : ''} restant${daysUntil > 1 ? 's' : ''}
         </div>
 
         <!-- Content -->
@@ -102,7 +102,7 @@ export function generateEcheanceReminderEmail(
           <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; width: 30%;">📅 Date:</td>
+                <td style="padding: 8px 0; color: #6b7280; width: 30%;">[emoji] Date:</td>
                 <td style="padding: 8px 0; color: #1f2937; font-weight: bold;">
                   ${echeance.date.toLocaleDateString('fr-FR', { 
                     weekday: 'long', 
@@ -113,14 +113,14 @@ export function generateEcheanceReminderEmail(
                 </td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #6b7280;">📁 Dossier:</td>
+                <td style="padding: 8px 0; color: #6b7280;">[emoji] Dossier:</td>
                 <td style="padding: 8px 0; color: #1f2937; font-weight: bold;">${echeance.dossier}</td>
               </tr>
               ${echeance.description ? `
               <tr>
                 <td colspan="2" style="padding: 8px 0; color: #6b7280;">
                   <br>
-                  📝 Description:<br>
+                  [emoji] Description:<br>
                   <span style="color: #1f2937;">${echeance.description}</span>
                 </td>
               </tr>
@@ -131,7 +131,7 @@ export function generateEcheanceReminderEmail(
           <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0;">
             <strong style="color: #92400e;">Action requise:</strong>
             <p style="color: #78350f; margin: 8px 0 0 0;">
-              N'oubliez pas de traiter cette échéance avant la date limite.
+              N'oubliez pas de traiter cette echeance avant la date limite.
             </p>
           </div>
 
@@ -146,8 +146,8 @@ export function generateEcheanceReminderEmail(
         <!-- Footer -->
         <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 12px; margin: 0;">
-            Cet email a été généré automatiquement par IA Poste Manager<br>
-            Pour modifier vos préférences de notification, rendez-vous dans les paramètres.
+            Cet email a ete genere automatiquement par IA Poste Manager<br>
+            Pour modifier vos preferences de notification, rendez-vous dans les parametres.
           </p>
         </div>
       </div>
@@ -156,7 +156,7 @@ export function generateEcheanceReminderEmail(
   `;
 
   const textBody = `
-${urgencyLevel}: Échéance dans ${daysUntil} jour${daysUntil > 1 ? 's' : ''}
+${urgencyLevel}: echeance dans ${daysUntil} jour${daysUntil > 1 ? 's' : ''}
 
 ${echeance.titre}
 
@@ -164,7 +164,7 @@ Date: ${echeance.date.toLocaleDateString('fr-FR')}
 Dossier: ${echeance.dossier}
 ${echeance.description ? `\nDescription: ${echeance.description}` : ''}
 
-N'oubliez pas de traiter cette échéance avant la date limite.
+N'oubliez pas de traiter cette echeance avant la date limite.
 
 Voir le calendrier: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/calendrier
   `.trim();
@@ -173,7 +173,7 @@ Voir le calendrier: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 }
 
 /**
- * Génère un email pour facture en retard
+ * Genere un email pour facture en retard
  */
 export function generateFactureOverdueEmail(
   facture: {
@@ -196,7 +196,7 @@ export function generateFactureOverdueEmail(
     <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
       <div style="max-width: 600px; margin: 0 auto; background-color: white;">
         <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">⚠️ Facture Impayée</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">️ Facture Impayee</h1>
         </div>
 
         <div style="padding: 30px;">
@@ -209,7 +209,7 @@ export function generateFactureOverdueEmail(
           <div style="background-color: #fee2e2; padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626; margin: 20px 0;">
             <table style="width: 100%;">
               <tr>
-                <td style="color: #6b7280; padding: 5px 0;">Numéro:</td>
+                <td style="color: #6b7280; padding: 5px 0;">Numero:</td>
                 <td style="color: #1f2937; font-weight: bold; padding: 5px 0;">${facture.numero}</td>
               </tr>
               <tr>
@@ -221,18 +221,18 @@ export function generateFactureOverdueEmail(
                 <td style="color: #dc2626; font-weight: bold; font-size: 18px; padding: 5px 0;">${facture.montant.toFixed(2)} €</td>
               </tr>
               <tr>
-                <td style="color: #6b7280; padding: 5px 0;">Échéance:</td>
+                <td style="color: #6b7280; padding: 5px 0;">echeance:</td>
                 <td style="color: #1f2937; padding: 5px 0;">${facture.dateEcheance.toLocaleDateString('fr-FR')}</td>
               </tr>
             </table>
           </div>
 
           <p style="color: #4b5563; line-height: 1.6;">
-            <strong>Actions recommandées:</strong>
+            <strong>Actions recommandees:</strong>
           </p>
           <ul style="color: #4b5563; line-height: 1.8;">
             <li>Contacter le client pour relance</li>
-            <li>Vérifier le statut de paiement</li>
+            <li>Verifier le statut de paiement</li>
             <li>Envoyer un rappel de paiement</li>
           </ul>
 
@@ -259,14 +259,14 @@ Rappel: Facture ${facture.numero} en retard (${daysOverdue} jours)
 
 La facture suivante est en retard de paiement:
 
-Numéro: ${facture.numero}
+Numero: ${facture.numero}
 Client: ${facture.client}
 Montant: ${facture.montant.toFixed(2)} €
-Échéance: ${facture.dateEcheance.toLocaleDateString('fr-FR')}
+echeance: ${facture.dateEcheance.toLocaleDateString('fr-FR')}
 
-Actions recommandées:
+Actions recommandees:
 - Contacter le client pour relance
-- Vérifier le statut de paiement
+- Verifier le statut de paiement
 - Envoyer un rappel de paiement
 
 Voir la facture: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/factures
@@ -276,7 +276,7 @@ Voir la facture: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/f
 }
 
 /**
- * Génère un résumé hebdomadaire
+ * Genere un resume hebdomadaire
  */
 export function generateWeeklySummaryEmail(
   summary: {
@@ -287,7 +287,7 @@ export function generateWeeklySummaryEmail(
     overdueFactures: number;
   }
 ): EmailTemplate {
-  const subject = `Résumé hebdomadaire - Semaine du ${new Date().toLocaleDateString('fr-FR')}`;
+  const subject = `Resume hebdomadaire - Semaine du ${new Date().toLocaleDateString('fr-FR')}`;
 
   const htmlBody = `
     <!DOCTYPE html>
@@ -299,12 +299,12 @@ export function generateWeeklySummaryEmail(
     <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
       <div style="max-width: 600px; margin: 0 auto; background-color: white;">
         <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">📊 Résumé Hebdomadaire</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">[emoji] Resume Hebdomadaire</h1>
           <p style="color: #dbeafe; margin: 10px 0 0 0;">Semaine du ${new Date().toLocaleDateString('fr-FR')}</p>
         </div>
 
         <div style="padding: 30px;">
-          <h2 style="color: #1f2937; margin-top: 0;">Votre activité cette semaine</h2>
+          <h2 style="color: #1f2937; margin-top: 0;">Votre activite cette semaine</h2>
 
           <!-- Stats Grid -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
@@ -318,7 +318,7 @@ export function generateWeeklySummaryEmail(
             </div>
             <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; text-align: center;">
               <div style="color: #f59e0b; font-size: 32px; font-weight: bold;">${summary.upcomingEcheances}</div>
-              <div style="color: #d97706; font-size: 14px; margin-top: 5px;">Échéances à venir</div>
+              <div style="color: #d97706; font-size: 14px; margin-top: 5px;">echeances a venir</div>
             </div>
             <div style="background-color: #fee2e2; padding: 20px; border-radius: 8px; text-align: center;">
               <div style="color: #ef4444; font-size: 32px; font-weight: bold;">${summary.overdueFactures}</div>
@@ -328,7 +328,7 @@ export function generateWeeklySummaryEmail(
 
           ${summary.overdueFactures > 0 ? `
           <div style="background-color: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0;">
-            <strong style="color: #991b1b;">⚠️ Action requise:</strong>
+            <strong style="color: #991b1b;">️ Action requise:</strong>
             <p style="color: #7f1d1d; margin: 8px 0 0 0;">
               Vous avez ${summary.overdueFactures} facture${summary.overdueFactures > 1 ? 's' : ''} en retard de paiement.
             </p>
@@ -345,8 +345,8 @@ export function generateWeeklySummaryEmail(
 
         <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 12px; margin: 0;">
-            IA Poste Manager - Résumé automatique hebdomadaire<br>
-            Pour désactiver ces emails, rendez-vous dans les paramètres.
+            IA Poste Manager - Resume automatique hebdomadaire<br>
+            Pour desactiver ces emails, rendez-vous dans les parametres.
           </p>
         </div>
       </div>
@@ -355,14 +355,14 @@ export function generateWeeklySummaryEmail(
   `;
 
   const textBody = `
-Résumé hebdomadaire - ${new Date().toLocaleDateString('fr-FR')}
+Resume hebdomadaire - ${new Date().toLocaleDateString('fr-FR')}
 
-Votre activité cette semaine:
+Votre activite cette semaine:
 
-📁 ${summary.newDossiers} nouveaux dossiers
-💶 ${summary.totalRevenue.toFixed(2)} € de chiffre d'affaires
-📅 ${summary.upcomingEcheances} échéances à venir
-⚠️ ${summary.overdueFactures} factures en retard
+[emoji] ${summary.newDossiers} nouveaux dossiers
+[emoji] ${summary.totalRevenue.toFixed(2)} € de chiffre d'affaires
+[emoji] ${summary.upcomingEcheances} echeances a venir
+️ ${summary.overdueFactures} factures en retard
 
 Voir le dashboard: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard
   `.trim();
@@ -371,7 +371,7 @@ Voir le dashboard: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}
 }
 
 /**
- * Configuration par défaut des notifications
+ * Configuration par defaut des notifications
  */
 export const DEFAULT_REMINDER_CONFIG: ReminderConfig = {
   enabled: true,
@@ -393,11 +393,11 @@ export const DEFAULT_REMINDER_CONFIG: ReminderConfig = {
 };
 
 /**
- * Simule l'envoi d'un email (pour développement)
+ * Simule l'envoi d'un email (pour developpement)
  * En production, utiliser un service comme Resend, SendGrid ou AWS SES
  */
 export async function sendEmail(notification: EmailNotification): Promise<boolean> {
-  logger.info('Email simulé envoyé', {
+  logger.info('Email simule envoye', {
     to: notification.to.map(r => r.email),
     subject: notification.template.subject,
     from: 'noreply@iapostemanage.com'

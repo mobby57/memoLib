@@ -1,5 +1,5 @@
-﻿/**
- * Moteur de templates pour génération de documents
+/**
+ * Moteur de templates pour generation de documents
  * Supporte les variables dynamiques: {{nom_client}}, {{date}}, etc.
  */
 
@@ -28,27 +28,27 @@ export const GLOBAL_VARIABLES: TemplateVariable[] = [
   { key: 'cabinet_adresse', label: 'Adresse du cabinet', type: 'text', required: true },
   { key: 'cabinet_ville', label: 'Ville du cabinet', type: 'text', required: true },
   { key: 'cabinet_code_postal', label: 'Code postal', type: 'text', required: true },
-  { key: 'cabinet_telephone', label: 'Téléphone', type: 'text' },
+  { key: 'cabinet_telephone', label: 'Telephone', type: 'text' },
   { key: 'cabinet_email', label: 'Email', type: 'email', required: true },
   { key: 'date_jour', label: 'Date du jour', type: 'date', required: true },
-  { key: 'annee', label: 'Année en cours', type: 'number', required: true },
+  { key: 'annee', label: 'Annee en cours', type: 'number', required: true },
 ];
 
 // Variables courantes pour les clients
 export const CLIENT_VARIABLES: TemplateVariable[] = [
   { key: 'client_nom', label: 'Nom du client', type: 'text', required: true },
-  { key: 'client_prenom', label: 'Prénom du client', type: 'text' },
-  { key: 'client_civilite', label: 'Civilité (M./Mme)', type: 'text' },
+  { key: 'client_prenom', label: 'Prenom du client', type: 'text' },
+  { key: 'client_civilite', label: 'Civilite (M./Mme)', type: 'text' },
   { key: 'client_adresse', label: 'Adresse du client', type: 'text' },
   { key: 'client_ville', label: 'Ville du client', type: 'text' },
   { key: 'client_code_postal', label: 'Code postal du client', type: 'text' },
   { key: 'client_email', label: 'Email du client', type: 'email' },
-  { key: 'client_telephone', label: 'Téléphone du client', type: 'text' },
+  { key: 'client_telephone', label: 'Telephone du client', type: 'text' },
 ];
 
 // Variables pour les dossiers
 export const DOSSIER_VARIABLES: TemplateVariable[] = [
-  { key: 'dossier_reference', label: 'Référence du dossier', type: 'text', required: true },
+  { key: 'dossier_reference', label: 'Reference du dossier', type: 'text', required: true },
   { key: 'dossier_titre', label: 'Titre du dossier', type: 'text' },
   { key: 'dossier_type', label: 'Type de dossier', type: 'text' },
   { key: 'dossier_description', label: 'Description', type: 'text' },
@@ -74,7 +74,7 @@ export function renderTemplate(
 }
 
 /**
- * Extrait toutes les variables utilisées dans un template
+ * Extrait toutes les variables utilisees dans un template
  */
 export function extractVariables(template: string): string[] {
   const regex = /{{\\s*([^}]+)\\s*}}/g;
@@ -130,7 +130,7 @@ export function formatValue(value: any, type: TemplateVariable['type']): string 
 }
 
 /**
- * Prépare les valeurs par défaut (date du jour, année, etc.)
+ * Prepare les valeurs par defaut (date du jour, annee, etc.)
  */
 export function getDefaultValues(): Record<string, any> {
   const today = new Date();
@@ -138,7 +138,7 @@ export function getDefaultValues(): Record<string, any> {
   return {
     date_jour: formatValue(today, 'date'),
     annee: today.getFullYear(),
-    cabinet_nom: 'Cabinet Juridique', // À remplacer par les vraies valeurs
+    cabinet_nom: 'Cabinet Juridique', // a remplacer par les vraies valeurs
     cabinet_adresse: '123 Rue du Droit',
     cabinet_ville: 'Paris',
     cabinet_code_postal: '75001',
@@ -147,7 +147,7 @@ export function getDefaultValues(): Record<string, any> {
   };
 }
 
-// Templates pré-définis
+// Templates pre-definis
 export const DEFAULT_TEMPLATES: Omit<DocumentTemplate, 'id' | 'createdAt' | 'updatedAt'>[] = [
   {
     nom: 'Contrat de prestation de services',
@@ -155,14 +155,14 @@ export const DEFAULT_TEMPLATES: Omit<DocumentTemplate, 'id' | 'createdAt' | 'upd
     description: 'Contrat standard pour prestations juridiques',
     contenu: `CONTRAT DE PRESTATION DE SERVICES
 
-Entre les soussignés :
+Entre les soussignes :
 
 {{cabinet_nom}}
 {{cabinet_adresse}}
 {{cabinet_code_postal}} {{cabinet_ville}}
 Email : {{cabinet_email}}
 
-Ci-après dénommé "Le Prestataire"
+Ci-apres denomme "Le Prestataire"
 
 D'une part,
 
@@ -173,22 +173,22 @@ Et :
 {{client_code_postal}} {{client_ville}}
 Email : {{client_email}}
 
-Ci-après dénommé "Le Client"
+Ci-apres denomme "Le Client"
 
 D'autre part,
 
-IL A ÉTÉ CONVENU CE QUI SUIT :
+IL A eTe CONVENU CE QUI SUIT :
 
 Article 1 - Objet du contrat
-Le présent contrat a pour objet la réalisation de prestations juridiques dans le cadre du dossier {{dossier_reference}}.
+Le present contrat a pour objet la realisation de prestations juridiques dans le cadre du dossier {{dossier_reference}}.
 
 Article 2 - Obligations du Prestataire
-Le Prestataire s'engage à fournir ses services avec diligence et professionnalisme.
+Le Prestataire s'engage a fournir ses services avec diligence et professionnalisme.
 
 Article 3 - Honoraires
-Les honoraires seront facturés conformément aux conditions convenues.
+Les honoraires seront factures conformement aux conditions convenues.
 
-Fait à {{cabinet_ville}}, le {{date_jour}}
+Fait a {{cabinet_ville}}, le {{date_jour}}
 
 En deux exemplaires originaux.
 
@@ -202,11 +202,11 @@ Le Prestataire                    Le Client`,
     contenu: `{{cabinet_nom}}
 {{cabinet_adresse}}
 {{cabinet_code_postal}} {{cabinet_ville}}
-Tél : {{cabinet_telephone}}
+Tel : {{cabinet_telephone}}
 
 {{client_ville}}, le {{date_jour}}
 
-LETTRE RECOMMANDÉE AVEC ACCUSÉ DE RÉCEPTION
+LETTRE RECOMMANDeE AVEC ACCUSe DE ReCEPTION
 
 {{client_civilite}} {{client_nom}} {{client_prenom}}
 {{client_adresse}}
@@ -216,13 +216,13 @@ Objet : Mise en demeure - Dossier {{dossier_reference}}
 
 {{client_civilite}},
 
-Par la présente, nous vous mettons en demeure de bien vouloir procéder au règlement de...
+Par la presente, nous vous mettons en demeure de bien vouloir proceder au reglement de...
 
-[À compléter selon les besoins]
+[a completer selon les besoins]
 
-À défaut de régularisation sous un délai de 8 jours à compter de la réception de ce courrier, nous nous verrons contraints d'engager les poursuites judiciaires nécessaires.
+a defaut de regularisation sous un delai de 8 jours a compter de la reception de ce courrier, nous nous verrons contraints d'engager les poursuites judiciaires necessaires.
 
-Veuillez agréer, {{client_civilite}}, l'expression de nos salutations distinguées.
+Veuillez agreer, {{client_civilite}}, l'expression de nos salutations distinguees.
 
 {{cabinet_nom}}`,
     variables: [...GLOBAL_VARIABLES, ...CLIENT_VARIABLES, ...DOSSIER_VARIABLES]
@@ -233,34 +233,34 @@ Veuillez agréer, {{client_civilite}}, l'expression de nos salutations distingu�
     description: 'Attestation pour certifier le suivi d\'un dossier',
     contenu: `ATTESTATION DE SUIVI JURIDIQUE
 
-Je soussigné(e), représentant(e) de {{cabinet_nom}}, atteste par la présente que :
+Je soussigne(e), representant(e) de {{cabinet_nom}}, atteste par la presente que :
 
 {{client_civilite}} {{client_nom}} {{client_prenom}}
-Demeurant à {{client_adresse}}, {{client_code_postal}} {{client_ville}}
+Demeurant a {{client_adresse}}, {{client_code_postal}} {{client_ville}}
 
-Fait l'objet d'un suivi juridique par notre cabinet dans le cadre du dossier référencé {{dossier_reference}}.
+Fait l'objet d'un suivi juridique par notre cabinet dans le cadre du dossier reference {{dossier_reference}}.
 
 Ce dossier, ouvert le {{dossier_date_ouverture}}, concerne : {{dossier_type}}.
 
-La présente attestation est délivrée pour servir et valoir ce que de droit.
+La presente attestation est delivree pour servir et valoir ce que de droit.
 
-Fait à {{cabinet_ville}}, le {{date_jour}}
+Fait a {{cabinet_ville}}, le {{date_jour}}
 
 {{cabinet_nom}}
 {{cabinet_adresse}}
 {{cabinet_code_postal}} {{cabinet_ville}}
-Tél : {{cabinet_telephone}}
+Tel : {{cabinet_telephone}}
 Email : {{cabinet_email}}`,
     variables: [...GLOBAL_VARIABLES, ...CLIENT_VARIABLES, ...DOSSIER_VARIABLES]
   },
   {
     nom: 'Courrier simple client',
     categorie: 'courrier',
-    description: 'Modèle de courrier simple pour communication client',
+    description: 'Modele de courrier simple pour communication client',
     contenu: `{{cabinet_nom}}
 {{cabinet_adresse}}
 {{cabinet_code_postal}} {{cabinet_ville}}
-Tél : {{cabinet_telephone}}
+Tel : {{cabinet_telephone}}
 Email : {{cabinet_email}}
 
 {{cabinet_ville}}, le {{date_jour}}
@@ -270,13 +270,13 @@ Email : {{cabinet_email}}
 {{client_code_postal}} {{client_ville}}
 
 Objet : {{dossier_titre}}
-Réf. : {{dossier_reference}}
+Ref. : {{dossier_reference}}
 
 {{client_civilite}},
 
-[Insérer le corps du courrier ici]
+[Inserer le corps du courrier ici]
 
-Restant à votre disposition pour toute information complémentaire, je vous prie d'agréer, {{client_civilite}}, l'expression de mes salutations distinguées.
+Restant a votre disposition pour toute information complementaire, je vous prie d'agreer, {{client_civilite}}, l'expression de mes salutations distinguees.
 
 {{cabinet_nom}}`,
     variables: [...GLOBAL_VARIABLES, ...CLIENT_VARIABLES, ...DOSSIER_VARIABLES]

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { UserRole, UserPermissions } from '@/types';
@@ -58,8 +58,8 @@ export function useAuth(): UseAuthReturn {
   const canAccessClient = (clientId: string): boolean => {
     if (isSuperAdmin) return true;
     if (isAdmin) {
-      // L'admin peut accéder aux clients de son tenant
-      // Cette vérification devrait être faite côté serveur
+      // L'admin peut acceder aux clients de son tenant
+      // Cette verification devrait etre faite cote serveur
       return true;
     }
     if (isClient) return user?.clientId === clientId;
