@@ -4,16 +4,17 @@
 //   enabled: process.env.ANALYZE === 'true',
 // });
 
-// 🔥 STATIC EXPORT pour Azure Static Web Apps
-// Note: headers() and rewrites() are NOT supported with output: 'export'
-// Configure them in staticwebapp.config.json or platform-specific config instead
-const isStaticExport = true;
+// 🔥 Detect platform for optimal build output
+const isVercel = process.env.VERCEL === '1';
+const isAzure = process.env.AZURE_STATIC_WEB_APPS === 'true';
+const isStaticExport = false; // Disable static export for API routes
 
 const nextConfig = {
   reactStrictMode: true,
   
-  // 🔥 STANDALONE pour Azure Static Web Apps (hybride SSR/Static)
-  output: 'standalone',
+  // 🔥 Use standalone ONLY for self-hosted/Docker, not for Vercel
+  // Vercel handles this automatically
+  ...(isVercel ? {} : isAzure ? { output: 'standalone' } : {}),
   
   // Image optimization
   images: {
