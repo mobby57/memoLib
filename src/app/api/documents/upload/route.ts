@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { PrismaClient } from '@prisma/client';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
 
-const prisma = new PrismaClient();
-
 // Configuration
-const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -24,10 +19,13 @@ const ALLOWED_TYPES = [
 ];
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const maxDuration = 30;
 
 /**
  * POST /api/documents/upload
  * Upload un document pour un dossier
+ * NOTE: Stockage fichiers en attente de configuration Vercel Blob
  */
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +35,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const user = session.user as any;
+    const user = session.user as { tenantId?: string; id?: string };
     const tenantId = user.tenantId;
 
     if (!tenantId) {
@@ -84,54 +82,40 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generer nom de fichier unique
-    const ext = path.extname(file.name);
+    // Generer ID unique
     const uniqueId = randomUUID();
-    const fileName = `${uniqueId}${ext}`;
-    const relativePath = `${tenantId}/${dossierId || 'general'}/${fileName}`;
-    const fullPath = path.join(UPLOAD_DIR, relativePath);
-
-    // Creer le repertoire si necessaire
-    const dir = path.dirname(fullPath);
-    await mkdir(dir, { recursive: true });
-
-    // ecrire le fichier
+    
+    // Calculer hash pour deduplication
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(fullPath, buffer);
-
-    // Calculer hash pour deduplication future
     const crypto = await import('crypto');
     const hash = crypto.createHash('sha256').update(buffer).digest('hex');
 
-    // Sauvegarder en base
-    // Note: On utilise une table Document si elle existe, sinon on log
-    const documentRecord = {
-      id: uniqueId,
-      tenantId,
-      dossierId: dossierId || null,
-      fileName: file.name,
-      fileType: file.type,
-      fileSize: file.size,
-      filePath: relativePath,
-      hash,
-      type,
-      description,
-      uploadedBy: user.id,
-      uploadedAt: new Date(),
-    };
+    // Sauvegarder les metadonnees en base (sans le fichier pour l'instant)
+    // TODO: Integrer Vercel Blob pour stockage gratuit (1GB)
+    const document = await prisma.document.create({
+      data: {
+        id: uniqueId,
+        name: file.name,
+        type: type,
+        size: file.size,
+        url: null, // Sera rempli quand Vercel Blob sera configure
+        dossierId: dossierId || undefined,
+      },
+    });
 
-    console.log('[UPLOAD] Document enregistre:', documentRecord);
+    console.log('[UPLOAD] Document enregistre:', { id: uniqueId, name: file.name, hash });
 
     return NextResponse.json({
       success: true,
       document: {
-        id: uniqueId,
+        id: document.id,
         fileName: file.name,
         fileType: file.type,
         fileSize: file.size,
         url: `/api/documents/download/${uniqueId}`,
       },
+      warning: 'Stockage fichiers non configure. Configurez BLOB_READ_WRITE_TOKEN pour Vercel Blob.',
     });
 
   } catch (error) {
@@ -140,8 +124,6 @@ export async function POST(request: NextRequest) {
       { error: 'Erreur lors de l\'upload' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
