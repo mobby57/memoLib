@@ -1,124 +1,144 @@
 # 🔐 CONFIGURATION AZURE — WORKSPACE JURIDIQUE
 
-**Variables d'environnement à ajouter dans Azure Static Web Apps**
+**Variables d'environnement pour Azure Static Web Apps**
 
 ---
 
-## 📋 Variables existantes (à conserver)
+## 📋 Variables requises
 
 ```env
+# Base de données
 DATABASE_URL=<votre_neon_url>
+
+# Auth
 NEXTAUTH_URL=https://green-stone-023c52610.6.azurestaticapps.net
 NEXTAUTH_SECRET=<votre_secret>
+
+# IA
 OLLAMA_BASE_URL=<votre_ollama_url>
+
+# Légifrance PISTE
+PISTE_ENVIRONMENT=sandbox
 PISTE_SANDBOX_CLIENT_ID=<votre_client_id>
 PISTE_SANDBOX_CLIENT_SECRET=<votre_client_secret>
+PISTE_SANDBOX_OAUTH_URL=https://sandbox-oauth.piste.gouv.fr/api/oauth/token
+PISTE_SANDBOX_API_URL=https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app
+
+# Paiement
 STRIPE_SECRET_KEY=<votre_stripe_key>
+
+# Cron
+CRON_SECRET=<votre_secret>
+
+# Azure SDK (optionnel)
+AZURE_STORAGE_ACCOUNT_NAME=<votre_storage_account>
+AZURE_STORAGE_CONTAINER=<votre_container>
+AZURE_KEY_VAULT_NAME=<votre_keyvault>
 ```
 
 ---
 
-## 🆕 Nouvelles variables à ajouter
-
-### 1. CRON_SECRET
-**Description** : Secret pour sécuriser les endpoints cron  
-**Valeur** : Générer un secret aléatoire fort
+## 🔑 Générer les secrets
 
 ```bash
-# Générer un secret
+# NEXTAUTH_SECRET
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+# CRON_SECRET
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-**Exemple** :
-```env
-CRON_SECRET=a3f5b8c2d9e1f4a7b6c3d8e2f5a9b4c7d1e6f3a8b5c2d9e4f7a1b8c5d2e9f6a3
-```
-
 ---
 
-## 🔧 Comment ajouter dans Azure
+## 🔧 Ajouter dans Azure
 
 ### Via le portail Azure
 
-1. Aller sur https://portal.azure.com
-2. Chercher "Static Web Apps"
-3. Sélectionner "green-stone-023c52610"
-4. Menu "Configuration" → "Application settings"
-5. Cliquer "Add"
-6. Ajouter :
-   - Name: `CRON_SECRET`
-   - Value: `<votre_secret_généré>`
-7. Cliquer "Save"
+1. https://portal.azure.com
+2. Static Web Apps → "green-stone-023c52610"
+3. Configuration → Application settings → Add
+4. Ajouter chaque variable
+5. Save
 
 ### Via Azure CLI
 
 ```bash
 az staticwebapp appsettings set \
   --name green-stone-023c52610 \
-  --setting-names CRON_SECRET=<votre_secret>
+  --setting-names \
+    DATABASE_URL="<url>" \
+    NEXTAUTH_SECRET="<secret>" \
+    CRON_SECRET="<secret>"
 ```
 
 ---
 
-## 🔄 Redéploiement
+## 🔄 Déploiement
 
-Après avoir ajouté les variables :
+### Automatique (GitHub Actions)
 
-1. Commit et push sur `main`
-2. Le workflow GitHub Actions se déclenche automatiquement
-3. Vérifier le déploiement : https://green-stone-023c52610.6.azurestaticapps.net
+1. Push sur `main`
+2. Workflow `.github/workflows/azure-static-web-apps-green-stone-023c52610.yml` se déclenche
+3. Build avec Node 20.x
+4. Génération Prisma Client
+5. Build Next.js
+6. Déploiement Azure
+
+### Manuel
+
+```bash
+# Via GitHub Actions
+gh workflow run azure-static-web-apps-green-stone-023c52610.yml
+```
 
 ---
 
 ## ✅ Vérification
 
+### Health check
+```bash
+curl https://green-stone-023c52610.6.azurestaticapps.net/api/health
+```
+
 ### Tester le cron
 ```bash
 curl -X POST https://green-stone-023c52610.6.azurestaticapps.net/api/cron/deadline-alerts \
-  -H "Authorization: Bearer <votre_CRON_SECRET>"
+  -H "Authorization: Bearer <CRON_SECRET>"
 ```
 
-**Réponse attendue** :
+### Tester Azure Storage (si configuré)
+```bash
+curl https://green-stone-023c52610.6.azurestaticapps.net/api/azure/storage/list
+```
+
+---
+
+## 🏗️ Architecture
+
+- **Runtime**: Node.js 20.x
+- **Framework**: Next.js 16.1.1
+- **Database**: PostgreSQL (Neon)
+- **ORM**: Prisma 5.22.0
+- **Auth**: NextAuth 4.24.13
+- **Storage**: Azure Blob Storage (optionnel)
+- **Secrets**: Azure Key Vault (optionnel)
+
+## 📦 Dépendances Azure
+
 ```json
-{
-  "success": true,
-  "message": "Alertes vérifiées",
-  "stats": {
-    "j7": 0,
-    "j3": 0,
-    "j1": 0,
-    "overdue": 0
-  }
-}
+"@azure/identity": "^4.5.0",
+"@azure/keyvault-secrets": "^4.9.0",
+"@azure/storage-blob": "^12.24.0"
 ```
+
+## 🔗 Liens
+
+- **App**: https://green-stone-023c52610.6.azurestaticapps.net
+- **Portal**: https://portal.azure.com
+- **Workflow**: `.github/workflows/azure-static-web-apps-green-stone-023c52610.yml`
+- **Config**: `staticwebapp.config.json`
 
 ---
 
-## 📊 Variables complètes (référence)
-
-```env
-# Base de données
-DATABASE_URL=postgresql://...
-
-# Auth
-NEXTAUTH_URL=https://green-stone-023c52610.6.azurestaticapps.net
-NEXTAUTH_SECRET=...
-
-# IA
-OLLAMA_BASE_URL=...
-
-# Légifrance
-PISTE_SANDBOX_CLIENT_ID=...
-PISTE_SANDBOX_CLIENT_SECRET=...
-
-# Paiement
-STRIPE_SECRET_KEY=...
-
-# Cron (NOUVEAU)
-CRON_SECRET=...
-```
-
----
-
-**Document créé le** : 24/01/2025  
-**Statut** : CONFIGURATION REQUISE
+**Mis à jour le** : 21/01/2026  
+**Statut** : PRODUCTION

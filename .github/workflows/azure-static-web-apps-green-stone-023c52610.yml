@@ -12,6 +12,9 @@ on:
 
 env:
   NODE_VERSION: '20.x'
+  AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+  AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
+  AZURE_KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
 
 jobs:
   build_and_deploy_job:
@@ -49,6 +52,9 @@ jobs:
           PISTE_SANDBOX_API_URL: https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
+          AZURE_KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
         run: npm run build
       
       - name: Deploy to Azure Static Web Apps
@@ -69,6 +75,9 @@ jobs:
           NEXTAUTH_URL: 'https://green-stone-023c52610.6.azurestaticapps.net'
           OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
+          AZURE_KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
