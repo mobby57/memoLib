@@ -10,13 +10,13 @@ import {
 } from './middleware/security';
 
 /**
- * Proxy/Middleware - Vérifications hiérarchiques et isolation tenant
- * + Sécurité OWASP ZAP compliant
+ * Proxy/Middleware - Verifications hierarchiques et isolation tenant
+ * + Securite OWASP ZAP compliant
  * 
- * Hiérarchie des rôles :
- * - SUPER_ADMIN : Accès à tous les tenants (routes /super-admin/*)
- * - ADMIN : Accès à son tenant uniquement (routes /admin/*, /api/admin/*, /dashboard, etc.)
- * - CLIENT : Accès lecture seule à ses propres données (routes /client/*, /api/client/*)
+ * Hierarchie des roles :
+ * - SUPER_ADMIN : Acces a tous les tenants (routes /super-admin/*)
+ * - ADMIN : Acces a son tenant uniquement (routes /admin/*, /api/admin/*, /dashboard, etc.)
+ * - CLIENT : Acces lecture seule a ses propres donnees (routes /client/*, /api/client/*)
  */
 
 type UserContext = {
@@ -25,7 +25,7 @@ type UserContext = {
 };
 
 /**
- * Vérifie si la route est publique
+ * Verifie si la route est publique
  */
 function isPublicRoute(pathname: string): boolean {
   return pathname === '/' || 
@@ -34,11 +34,11 @@ function isPublicRoute(pathname: string): boolean {
 }
 
 /**
- * Gère les requêtes non authentifiées
+ * Gere les requetes non authentifiees
  */
 function handleUnauthenticated(pathname: string, request: NextRequest): NextResponse {
   if (pathname.startsWith('/api/')) {
-    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }
   
   const url = new URL('/auth/login', request.url);
@@ -47,7 +47,7 @@ function handleUnauthenticated(pathname: string, request: NextRequest): NextResp
 }
 
 /**
- * Vérifie l'accès aux routes Super Admin
+ * Verifie l'acces aux routes Super Admin
  */
 function handleSuperAdminRoutes(pathname: string, userRole: string): NextResponse | null {
   const isSuperAdminRoute = pathname.startsWith('/super-admin') || pathname.startsWith('/api/super-admin');
@@ -57,7 +57,7 @@ function handleSuperAdminRoutes(pathname: string, userRole: string): NextRespons
 
   if (userRole !== 'SUPER_ADMIN') {
     return NextResponse.json(
-      { error: 'Accès refusé: Niveau Super Admin requis' },
+      { error: 'Acces refuse: Niveau Super Admin requis' },
       { status: 403 }
     );
   }
@@ -66,7 +66,7 @@ function handleSuperAdminRoutes(pathname: string, userRole: string): NextRespons
 }
 
 /**
- * Vérifie si le pathname correspond à une route admin
+ * Verifie si le pathname correspond a une route admin
  */
 function isAdminRoute(pathname: string): boolean {
   const adminPaths = ['/admin', '/api/admin', '/dashboard', '/dossiers', '/clients', '/factures'];
@@ -74,7 +74,7 @@ function isAdminRoute(pathname: string): boolean {
 }
 
 /**
- * Vérifie l'isolation tenant pour les routes admin
+ * Verifie l'isolation tenant pour les routes admin
  */
 function checkTenantIsolation(pathname: string, userTenantId: string): NextResponse | null {
   const needsTenantCheck = pathname.startsWith('/api/admin') || pathname.startsWith('/api/tenant');
@@ -85,7 +85,7 @@ function checkTenantIsolation(pathname: string, userTenantId: string): NextRespo
   const tenantIdInUrl = extractTenantIdFromPath(pathname);
   if (tenantIdInUrl && tenantIdInUrl !== userTenantId) {
     return NextResponse.json(
-      { error: 'Accès refusé: Isolation tenant' },
+      { error: 'Acces refuse: Isolation tenant' },
       { status: 403 }
     );
   }
@@ -94,7 +94,7 @@ function checkTenantIsolation(pathname: string, userTenantId: string): NextRespo
 }
 
 /**
- * Gère l'accès aux routes Admin
+ * Gere l'acces aux routes Admin
  */
 function handleAdminRoutes(pathname: string, user: UserContext): NextResponse | null {
   if (!isAdminRoute(pathname)) {
@@ -103,7 +103,7 @@ function handleAdminRoutes(pathname: string, user: UserContext): NextResponse | 
 
   if (user.role === 'CLIENT') {
     return NextResponse.json(
-      { error: 'Accès refusé: Niveau Admin requis' },
+      { error: 'Acces refuse: Niveau Admin requis' },
       { status: 403 }
     );
   }
@@ -119,7 +119,7 @@ function handleAdminRoutes(pathname: string, user: UserContext): NextResponse | 
 }
 
 /**
- * Gère l'accès aux routes Client
+ * Gere l'acces aux routes Client
  */
 function handleClientRoutes(pathname: string): NextResponse | null {
   const isClientRoute = pathname.startsWith('/client') || pathname.startsWith('/api/client');
@@ -127,12 +127,12 @@ function handleClientRoutes(pathname: string): NextResponse | null {
     return null;
   }
 
-  // ADMIN et SUPER_ADMIN peuvent aussi accéder (debug/support)
+  // ADMIN et SUPER_ADMIN peuvent aussi acceder (debug/support)
   return NextResponse.next();
 }
 
 /**
- * Gère l'accès aux routes API tenant avec isolation stricte
+ * Gere l'acces aux routes API tenant avec isolation stricte
  */
 function handleTenantApiRoutes(pathname: string, user: UserContext): NextResponse | null {
   if (!pathname.startsWith('/api/tenant/')) {
@@ -141,7 +141,7 @@ function handleTenantApiRoutes(pathname: string, user: UserContext): NextRespons
 
   const tenantIdInUrl = pathname.split('/')[3];
 
-  // Super Admin a accès à tous les tenants
+  // Super Admin a acces a tous les tenants
   if (user.role === 'SUPER_ADMIN') {
     return NextResponse.next();
   }
@@ -149,7 +149,7 @@ function handleTenantApiRoutes(pathname: string, user: UserContext): NextRespons
   // Isolation stricte pour ADMIN et CLIENT
   if (tenantIdInUrl && tenantIdInUrl !== user.tenantId) {
     return NextResponse.json(
-      { error: 'Accès refusé: Isolation tenant' },
+      { error: 'Acces refuse: Isolation tenant' },
       { status: 403 }
     );
   }
@@ -158,7 +158,7 @@ function handleTenantApiRoutes(pathname: string, user: UserContext): NextRespons
 }
 
 /**
- * Redirige l'utilisateur selon son rôle
+ * Redirige l'utilisateur selon son role
  */
 function handleRootRedirect(pathname: string, userRole: string, request: NextRequest): NextResponse | null {
   if (pathname !== '/') {
@@ -185,15 +185,15 @@ function handleRootRedirect(pathname: string, userRole: string, request: NextReq
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. SÉCURITÉ : Rate limiting
+  // 1. SeCURITe : Rate limiting
   if (!checkRateLimit(request)) {
     return NextResponse.json(
-      { error: 'Trop de requêtes' }, 
+      { error: 'Trop de requetes' }, 
       { status: 429 }
     );
   }
 
-  // 2. SÉCURITÉ : Validation CSRF pour routes sensibles
+  // 2. SeCURITe : Validation CSRF pour routes sensibles
   if (isSecureRoute(pathname) && !validateCSRF(request)) {
     return NextResponse.json(
       { error: 'CSRF validation failed' }, 
@@ -201,19 +201,19 @@ export default async function proxy(request: NextRequest) {
     );
   }
 
-  // 3. Routes publiques : accès direct avec headers sécurisés
+  // 3. Routes publiques : acces direct avec headers securises
   if (isPublicRoute(pathname)) {
     const response = NextResponse.next();
     return addSecurityHeaders(response);
   }
 
-  // 4. Récupérer le token JWT
+  // 4. Recuperer le token JWT
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET || '',
   });
 
-  // 5. Non authentifié : rediriger vers login
+  // 5. Non authentifie : rediriger vers login
   if (!token) {
     return handleUnauthenticated(pathname, request);
   }
@@ -223,7 +223,7 @@ export default async function proxy(request: NextRequest) {
     tenantId: token.tenantId as string
   };
 
-  // 6. Traiter les routes dans l'ordre hiérarchique
+  // 6. Traiter les routes dans l'ordre hierarchique
   const handlers = [
     () => handleSuperAdminRoutes(pathname, user.role),
     () => handleAdminRoutes(pathname, user),
@@ -235,7 +235,7 @@ export default async function proxy(request: NextRequest) {
   for (const handler of handlers) {
     const result = handler();
     if (result) {
-      // Ajouter headers sécurisés à toutes les réponses
+      // Ajouter headers securises a toutes les reponses
       const secureResult = addSecurityHeaders(result);
       if (pathname.startsWith('/api/')) {
         return addApiSecurityHeaders(secureResult);
@@ -244,7 +244,7 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
-  // 7. Réponse par défaut avec headers sécurisés
+  // 7. Reponse par defaut avec headers securises
   const response = NextResponse.next();
   const secureResponse = addSecurityHeaders(response);
   
@@ -256,8 +256,8 @@ export default async function proxy(request: NextRequest) {
 }
 
 /**
- * Extrait le tenantId d'un path API si présent
- * Ex: /api/tenant/abc123/dossiers → abc123
+ * Extrait le tenantId d'un path API si present
+ * Ex: /api/tenant/abc123/dossiers [Next] abc123
  */
 function extractTenantIdFromPath(pathname: string): string | null {
   const tenantMatch = pathname.match(/\/api\/tenant\/([^\/]+)/);

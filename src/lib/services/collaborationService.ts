@@ -1,7 +1,7 @@
-﻿"use client"
+"use client"
 
 /**
- * Service de collaboration en temps réel
+ * Service de collaboration en temps reel
  * Commentaires, mentions, notifications in-app
  */
 
@@ -17,10 +17,10 @@ export interface Comment {
   userName: string
   userAvatar?: string
   content: string
-  mentions: string[] // IDs des utilisateurs mentionnés
+  mentions: string[] // IDs des utilisateurs mentionnes
   createdAt: Date
   updatedAt: Date
-  parentId?: string // Pour les réponses
+  parentId?: string // Pour les reponses
   attachments?: string[]
   reactions?: Record<string, string[]> // emoji -> userIds
 }
@@ -51,7 +51,7 @@ export interface Activity {
 }
 
 /**
- * Récupère les commentaires
+ * Recupere les commentaires
  */
 export function getComments(filters?: {
   dossierId?: string
@@ -101,14 +101,14 @@ export function addComment(comment: Omit<Comment, 'id' | 'createdAt' | 'updatedA
   comments.push(newComment)
   safeLocalStorage.setItem('comments', JSON.stringify(comments))
 
-  // Créer des notifications pour les mentions
+  // Creer des notifications pour les mentions
   if (comment.mentions.length > 0) {
     comment.mentions.forEach(userId => {
       createNotification({
         userId,
         type: 'mention',
         title: 'Nouvelle mention',
-        message: `${comment.userName} vous a mentionné dans un commentaire`,
+        message: `${comment.userName} vous a mentionne dans un commentaire`,
         link: comment.dossierId
           ? `/dossiers/${comment.dossierId}`
           : comment.factureId
@@ -119,13 +119,13 @@ export function addComment(comment: Omit<Comment, 'id' | 'createdAt' | 'updatedA
     })
   }
 
-  logger.info('Commentaire ajouté avec succès', { commentId: newComment.id, dossierId: newComment.dossierId })
+  logger.info('Commentaire ajoute avec succes', { commentId: newComment.id, dossierId: newComment.dossierId })
 
   return newComment
 }
 
 /**
- * Met à jour un commentaire
+ * Met a jour un commentaire
  */
 export function updateComment(commentId: string, updates: Partial<Comment>): void {
   const commentsJson = safeLocalStorage.getItem('comments')
@@ -141,7 +141,7 @@ export function updateComment(commentId: string, updates: Partial<Comment>): voi
       updatedAt: new Date(),
     }
     safeLocalStorage.setItem('comments', JSON.stringify(comments))
-    logger.info('Commentaire mis à jour', { commentId })
+    logger.info('Commentaire mis a jour', { commentId })
   }
 }
 
@@ -152,11 +152,11 @@ export function deleteComment(commentId: string): void {
   const comments = getComments()
   const filtered = comments.filter(c => c.id !== commentId)
   safeLocalStorage.setItem('comments', JSON.stringify(filtered))
-  logger.info('Commentaire supprimé', { commentId })
+  logger.info('Commentaire supprime', { commentId })
 }
 
 /**
- * Ajoute une réaction à un commentaire
+ * Ajoute une reaction a un commentaire
  */
 export function addReaction(commentId: string, emoji: string, userId: string): void {
   const commentsJson = safeLocalStorage.getItem('comments')
@@ -172,13 +172,13 @@ export function addReaction(commentId: string, emoji: string, userId: string): v
     if (!comment.reactions[emoji].includes(userId)) {
       comment.reactions[emoji].push(userId)
       safeLocalStorage.setItem('comments', JSON.stringify(comments))
-      logger.debug('Réaction ajoutée', { emoji, commentId, userId })
+      logger.debug('Reaction ajoutee', { emoji, commentId, userId })
     }
   }
 }
 
 /**
- * Récupère les notifications
+ * Recupere les notifications
  */
 export function getNotifications(userId: string, unreadOnly: boolean = false): Notification[] {
   const notifsJson = safeLocalStorage.getItem('notifications')
@@ -202,7 +202,7 @@ export function getNotifications(userId: string, unreadOnly: boolean = false): N
 }
 
 /**
- * Crée une notification
+ * Cree une notification
  */
 export function createNotification(
   notif: Omit<Notification, 'id' | 'createdAt' | 'read'>
@@ -219,7 +219,7 @@ export function createNotification(
   const allNotifs = [...notifs, newNotif]
   safeLocalStorage.setItem('notifications', JSON.stringify(allNotifs))
 
-  logger.info('Notification créée', { notificationId: newNotif.id, userId: newNotif.userId, type: newNotif.type })
+  logger.info('Notification creee', { notificationId: newNotif.id, userId: newNotif.userId, type: newNotif.type })
 
   return newNotif
 }
@@ -237,7 +237,7 @@ export function markNotificationAsRead(notificationId: string): void {
   if (notif) {
     notif.read = true
     safeLocalStorage.setItem('notifications', JSON.stringify(notifs))
-    logger.debug('Notification marquée comme lue', { notificationId })
+    logger.debug('Notification marquee comme lue', { notificationId })
   }
 }
 
@@ -256,11 +256,11 @@ export function markAllNotificationsAsRead(userId: string): void {
   })
 
   safeLocalStorage.setItem('notifications', JSON.stringify(notifs))
-  logger.info('Toutes les notifications marquées comme lues', { count: notifs.filter((n: any) => !n.read).length })
+  logger.info('Toutes les notifications marquees comme lues', { count: notifs.filter((n: any) => !n.read).length })
 }
 
 /**
- * Récupère le fil d'activité
+ * Recupere le fil d'activite
  */
 export function getActivities(filters?: {
   targetId?: string
@@ -293,7 +293,7 @@ export function getActivities(filters?: {
 }
 
 /**
- * Enregistre une activité
+ * Enregistre une activite
  */
 export function logActivity(activity: Omit<Activity, 'id' | 'timestamp'>): Activity {
   const activities = getActivities()
@@ -306,11 +306,11 @@ export function logActivity(activity: Omit<Activity, 'id' | 'timestamp'>): Activ
 
   activities.push(newActivity)
   
-  // Garder seulement les 1000 dernières
+  // Garder seulement les 1000 dernieres
   const limited = activities.slice(0, 1000)
   safeLocalStorage.setItem('activities', JSON.stringify(limited))
 
-  logger.debug('Activité enregistrée', { activityId: newActivity.id, type: newActivity.type, targetId: newActivity.targetId })
+  logger.debug('Activite enregistree', { activityId: newActivity.id, type: newActivity.type, targetId: newActivity.targetId })
 
   return newActivity
 }
@@ -335,7 +335,7 @@ export function formatTextWithMentions(text: string): string {
 }
 
 /**
- * Récupère le nombre de notifications non lues
+ * Recupere le nombre de notifications non lues
  */
 export function getUnreadNotificationsCount(userId: string): number {
   return getNotifications(userId, true).length

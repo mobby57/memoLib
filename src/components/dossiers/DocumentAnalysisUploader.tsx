@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Upload, FileText, AlertCircle, CheckCircle, Clock, Calendar } from 'lucide-react';
@@ -36,12 +36,12 @@ export default function DocumentAnalysisUploader({ onAnalysisComplete }: Documen
     setFile(selectedFile);
     setError(null);
 
-    // Vérifier le type de fichier
+    // Verifier le type de fichier
     const allowedTypes = ['application/pdf', 'text/plain', 'application/msword', 
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     
     if (!allowedTypes.includes(selectedFile.type)) {
-      setError('Type de fichier non supporté. Utilisez PDF, DOC, DOCX ou TXT.');
+      setError('Type de fichier non supporte. Utilisez PDF, DOC, DOCX ou TXT.');
       return;
     }
 
@@ -147,15 +147,15 @@ export default function DocumentAnalysisUploader({ onAnalysisComplete }: Documen
         <label htmlFor="document-upload" className="cursor-pointer">
           <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
           <p className="text-sm font-medium text-gray-700 mb-1">
-            Déposez un document ou cliquez pour parcourir
+            Deposez un document ou cliquez pour parcourir
           </p>
           <p className="text-xs text-gray-500">
-            PDF, DOC, DOCX ou TXT - L'IA extraira automatiquement les délais
+            PDF, DOC, DOCX ou TXT - L'IA extraira automatiquement les delais
           </p>
         </label>
       </div>
 
-      {/* Fichier sélectionné */}
+      {/* Fichier selectionne */}
       {file && (
         <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
           <FileText className="w-5 h-5 text-blue-600" />
@@ -184,42 +184,42 @@ export default function DocumentAnalysisUploader({ onAnalysisComplete }: Documen
         <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
           <p className="text-sm text-blue-900">
-            Analyse du document en cours... L'IA extrait les délais et informations clés.
+            Analyse du document en cours... L'IA extrait les delais et informations cles.
           </p>
         </div>
       )}
 
-      {/* Résultats de l'analyse */}
+      {/* Resultats de l'analyse */}
       {analysis && !analyzing && (
         <div className="space-y-4">
-          {/* En-tête */}
+          {/* En-tete */}
           <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
             <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-green-900">Analyse terminée</p>
+              <p className="text-sm font-medium text-green-900">Analyse terminee</p>
               <p className="text-sm text-green-700 mt-1">{analysis.resume}</p>
             </div>
           </div>
 
-          {/* Informations générales */}
+          {/* Informations generales */}
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-xs text-gray-500 mb-1">Type d'affaire</p>
               <p className="text-sm font-medium text-gray-900">{analysis.typeAffaire}</p>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-xs text-gray-500 mb-1">Parties identifiées</p>
+              <p className="text-xs text-gray-500 mb-1">Parties identifiees</p>
               <p className="text-sm font-medium text-gray-900">
                 {analysis.parties.length > 0 ? analysis.parties.join(', ') : 'Aucune'}
               </p>
             </div>
           </div>
 
-          {/* Délais extraits */}
+          {/* Delais extraits */}
           {analysis.deadlines.length > 0 && (
             <div>
               <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                Délais automatiquement détectés ({analysis.deadlines.length})
+                Delais automatiquement detectes ({analysis.deadlines.length})
               </h4>
               <div className="space-y-2">
                 {analysis.deadlines.map((deadline, index) => (
@@ -249,7 +249,7 @@ export default function DocumentAnalysisUploader({ onAnalysisComplete }: Documen
                             {deadline.description}
                           </p>
                           <div className="flex items-center gap-4 text-xs text-gray-600">
-                            <span>📅 {new Date(deadline.date).toLocaleDateString('fr-FR')}</span>
+                            <span>[emoji] {new Date(deadline.date).toLocaleDateString('fr-FR')}</span>
                             {deadline.daysRemaining !== undefined && (
                               <span className={
                                 deadline.daysRemaining < 7
@@ -258,9 +258,9 @@ export default function DocumentAnalysisUploader({ onAnalysisComplete }: Documen
                                   ? 'text-orange-600'
                                   : 'text-green-600'
                               }>
-                                ⏰ {deadline.daysRemaining > 0 
+                                 {deadline.daysRemaining > 0 
                                   ? `${deadline.daysRemaining} jours restants`
-                                  : `Dépassé de ${Math.abs(deadline.daysRemaining)} jours`
+                                  : `Depasse de ${Math.abs(deadline.daysRemaining)} jours`
                                 }
                               </span>
                             )}
@@ -278,7 +278,7 @@ export default function DocumentAnalysisUploader({ onAnalysisComplete }: Documen
           {analysis.documentsManquants && analysis.documentsManquants.length > 0 && (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm font-medium text-yellow-900 mb-2">
-                ⚠️ Documents potentiellement manquants
+                ️ Documents potentiellement manquants
               </p>
               <ul className="list-disc list-inside text-sm text-yellow-800 space-y-1">
                 {analysis.documentsManquants.map((doc, index) => (

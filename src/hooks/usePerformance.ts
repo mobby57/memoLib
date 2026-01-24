@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { logger } from '@/lib/logger';
@@ -70,7 +70,7 @@ export function useIntersectionObserver(
   return isIntersecting;
 }
 
-// Hook pour préchargement des routes
+// Hook pour prechargement des routes
 export function usePrefetch() {
   const prefetchedRoutes = useRef(new Set<string>());
 
@@ -79,7 +79,7 @@ export function usePrefetch() {
     
     prefetchedRoutes.current.add(href);
     
-    // Préchargement via link prefetch
+    // Prechargement via link prefetch
     const link = document.createElement('link');
     link.rel = 'prefetch';
     link.href = href;
@@ -114,8 +114,8 @@ export function usePerformanceMonitor(name: string) {
       const endTime = performance.now();
       const duration = endTime - startTime;
       
-      if (duration > 16) { // Plus de 16ms = potentiel problème de performance
-        logger.warn('Performance hook seuil dépassé', { operation: name, durationMs: duration.toFixed(2), threshold: 16 });
+      if (duration > 16) { // Plus de 16ms = potentiel probleme de performance
+        logger.warn('Performance hook seuil depasse', { operation: name, durationMs: duration.toFixed(2), threshold: 16 });
       }
     };
   }, [name]);

@@ -1,9 +1,9 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { logger } from '@/lib/logger';
 
 /**
- * Vérifie la signature HMAC SHA256 du webhook GitHub
+ * Verifie la signature HMAC SHA256 du webhook GitHub
  */
 function verifySignature(payload: string, signature: string, secret: string): boolean {
   const expectedSignature = 'sha256=' + createHmac('sha256', secret)
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const secret = process.env.GITHUB_WEBHOOK_SECRET;
     
     if (!secret) {
-      logger.error('GITHUB_WEBHOOK_SECRET non configuré');
+      logger.error('GITHUB_WEBHOOK_SECRET non configure');
       return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
     }
 
@@ -46,14 +46,14 @@ export async function POST(request: NextRequest) {
 
     const payload = JSON.parse(rawBody);
     
-    logger.info('Webhook GitHub reçu', {
+    logger.info('Webhook GitHub recu', {
       event,
       delivery,
       repository: payload.repository?.full_name,
       sender: payload.sender?.login
     });
 
-    // Traitement selon le type d'événement
+    // Traitement selon le type d'evenement
     switch (event) {
       case 'push':
         logger.info('Push GitHub', {
@@ -81,11 +81,11 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'ping':
-        logger.debug('Webhook GitHub ping reçu', { zen: payload.zen });
+        logger.debug('Webhook GitHub ping recu', { zen: payload.zen });
         break;
 
       default:
-        logger.debug('Événement GitHub non géré', { event });
+        logger.debug('evenement GitHub non gere', { event });
     }
 
     return NextResponse.json({ success: true, event, delivery });

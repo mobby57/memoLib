@@ -1,24 +1,24 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET: Récupérer le profil
+// GET: Recuperer le profil
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
     if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
     const client = await prisma.client.findFirst({
@@ -30,12 +30,12 @@ export async function GET(request: NextRequest) {
     });
 
     if (!client) {
-      return NextResponse.json({ error: 'Profil client non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Profil client non trouve' }, { status: 404 });
     }
 
     return NextResponse.json(client);
   } catch (error) {
-    logger.error('Erreur récupération profil client', { error });
+    logger.error('Erreur recuperation profil client', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
@@ -45,20 +45,20 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT: Mettre à jour le profil
+// PUT: Mettre a jour le profil
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
     if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -101,16 +101,16 @@ export async function PUT(request: NextRequest) {
     });
 
     if (updatedClient.count === 0) {
-      return NextResponse.json({ error: 'Profil client non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Profil client non trouve' }, { status: 404 });
     }
 
-    logger.info(`Client ${userId} a mis à jour son profil`);
+    logger.info(`Client ${userId} a mis a jour son profil`);
 
-    return NextResponse.json({ success: true, message: 'Profil mis à jour avec succès' });
+    return NextResponse.json({ success: true, message: 'Profil mis a jour avec succes' });
   } catch (error) {
-    logger.error('Erreur mise à jour profil client', { error });
+    logger.error('Erreur mise a jour profil client', { error });
     return NextResponse.json(
-      { error: 'Erreur serveur lors de la mise à jour' },
+      { error: 'Erreur serveur lors de la mise a jour' },
       { status: 500 }
     );
   } finally {

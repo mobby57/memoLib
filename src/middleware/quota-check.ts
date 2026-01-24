@@ -1,6 +1,6 @@
 /**
- * Middleware de vérification des quotas
- * Bloque les créations si quotas dépassés
+ * Middleware de verification des quotas
+ * Bloque les creations si quotas depasses
  */
 
 import { NextResponse } from 'next/server';
@@ -9,7 +9,7 @@ import { getToken } from 'next-auth/jwt';
 import { checkQuota, ResourceType } from '@/lib/billing/quota-service';
 
 /**
- * Routes protégées par quota
+ * Routes protegees par quota
  */
 const QUOTA_ROUTES: Record<string, ResourceType> = {
   '/api/workspaces': 'workspaces',
@@ -19,17 +19,17 @@ const QUOTA_ROUTES: Record<string, ResourceType> = {
 };
 
 /**
- * Middleware de vérification quota
+ * Middleware de verification quota
  */
 export async function quotaCheckMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Vérifier si c'est une requête POST (création)
+  // Verifier si c'est une requete POST (creation)
   if (request.method !== 'POST') {
     return NextResponse.next();
   }
 
-  // Vérifier si la route nécessite un contrôle quota
+  // Verifier si la route necessite un controle quota
   const resourceType = Object.keys(QUOTA_ROUTES).find(route => 
     pathname.startsWith(route)
   );
@@ -38,7 +38,7 @@ export async function quotaCheckMiddleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Récupérer le token
+  // Recuperer le token
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET || '',
@@ -46,13 +46,13 @@ export async function quotaCheckMiddleware(request: NextRequest) {
 
   if (!token || !token.tenantId) {
     return NextResponse.json(
-      { error: 'Non authentifié' },
+      { error: 'Non authentifie' },
       { status: 401 }
     );
   }
 
   try {
-    // Vérifier le quota
+    // Verifier le quota
     const quota = await checkQuota(
       token.tenantId as string,
       QUOTA_ROUTES[resourceType]
@@ -61,7 +61,7 @@ export async function quotaCheckMiddleware(request: NextRequest) {
     if (!quota.allowed) {
       return NextResponse.json(
         {
-          error: 'Quota dépassé',
+          error: 'Quota depasse',
           message: `Vous avez atteint la limite de votre plan (${quota.current}/${quota.limit} ${QUOTA_ROUTES[resourceType]}).`,
           quotaInfo: {
             current: quota.current,
@@ -92,7 +92,7 @@ export async function quotaCheckMiddleware(request: NextRequest) {
 
     return NextResponse.next();
   } catch (error) {
-    console.error('Erreur vérification quota:', error);
+    console.error('Erreur verification quota:', error);
     return NextResponse.next(); // En cas d'erreur, on laisse passer (fail-open)
   }
 }

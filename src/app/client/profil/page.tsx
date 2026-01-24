@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -101,10 +101,10 @@ export default function ProfilClient() {
       });
 
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Profil mis à jour avec succès !' });
+        setMessage({ type: 'success', text: 'Profil mis a jour avec succes !' });
         setTimeout(() => setMessage(null), 5000);
       } else {
-        setMessage({ type: 'error', text: 'Erreur lors de la mise à jour' });
+        setMessage({ type: 'error', text: 'Erreur lors de la mise a jour' });
       }
     } catch (err) {
       setMessage({ type: 'error', text: 'Erreur de connexion' });
@@ -122,7 +122,7 @@ export default function ProfilClient() {
     }
     
     if (passwordData.newPassword.length < 8) {
-      setMessage({ type: 'error', text: 'Le mot de passe doit contenir au moins 8 caractères' });
+      setMessage({ type: 'error', text: 'Le mot de passe doit contenir au moins 8 caracteres' });
       return;
     }
 
@@ -140,7 +140,7 @@ export default function ProfilClient() {
       });
 
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Mot de passe modifié avec succès !' });
+        setMessage({ type: 'success', text: 'Mot de passe modifie avec succes !' });
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         setTimeout(() => setMessage(null), 5000);
       } else {
@@ -168,7 +168,7 @@ export default function ProfilClient() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Profil non trouvé</p>
+        <p className="text-gray-600">Profil non trouve</p>
       </div>
     );
   }
@@ -184,13 +184,13 @@ export default function ProfilClient() {
                 href="/client"
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <span className="text-2xl">←</span>
+                <span className="text-2xl">[Back]</span>
               </Link>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Mon Profil
                 </h1>
-                <p className="text-gray-600 mt-1">Gérez vos informations personnelles</p>
+                <p className="text-gray-600 mt-1">Gerez vos informations personnelles</p>
               </div>
             </div>
             <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
@@ -227,7 +227,7 @@ export default function ProfilClient() {
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-              👤 Informations Personnelles
+              [emoji] Informations Personnelles
             </button>
             <button
               onClick={() => setActiveTab('securite')}
@@ -237,7 +237,7 @@ export default function ProfilClient() {
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-              🔒 Sécurité
+              [emoji] Securite
             </button>
           </div>
 
@@ -245,12 +245,12 @@ export default function ProfilClient() {
           {activeTab === 'infos' && (
             <form onSubmit={handleSaveProfile} className="p-8">
               <div className="space-y-6">
-                {/* Identité */}
+                {/* Identite */}
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase border-b pb-2">Identité</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase border-b pb-2">Identite</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Prénom *</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Prenom *</label>
                       <input
                         type="text"
                         name="firstName"
@@ -282,13 +282,13 @@ export default function ProfilClient() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Nationalité</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Nationalite</label>
                       <input
                         type="text"
                         name="nationality"
                         value={profile.nationality || ''}
                         onChange={handleInputChange}
-                        placeholder="Ex: Française"
+                        placeholder="Ex: Francaise"
                         className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                       />
                     </div>
@@ -310,10 +310,10 @@ export default function ProfilClient() {
                         className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none bg-gray-50"
                         disabled
                       />
-                      <p className="text-xs text-gray-500 mt-1">L'email ne peut pas être modifié</p>
+                      <p className="text-xs text-gray-500 mt-1">L'email ne peut pas etre modifie</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Téléphone</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Telephone</label>
                       <input
                         type="tel"
                         name="phone"
@@ -324,7 +324,7 @@ export default function ProfilClient() {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Téléphone secondaire</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Telephone secondaire</label>
                       <input
                         type="tel"
                         name="phoneSecondaire"
@@ -348,7 +348,7 @@ export default function ProfilClient() {
                         name="address"
                         value={profile.address || ''}
                         onChange={handleInputChange}
-                        placeholder="123 rue de la République"
+                        placeholder="123 rue de la Republique"
                         className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                       />
                     </div>
@@ -393,9 +393,9 @@ export default function ProfilClient() {
                   </div>
                 </div>
 
-                {/* Préférences */}
+                {/* Preferences */}
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase border-b pb-2">Préférences</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase border-b pb-2">Preferences</h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <input
@@ -432,14 +432,14 @@ export default function ProfilClient() {
             </form>
           )}
 
-          {/* Tab: Sécurité */}
+          {/* Tab: Securite */}
           {activeTab === 'securite' && (
             <form onSubmit={handlePasswordChange} className="p-8">
               <div className="space-y-6 max-w-2xl">
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
                   <p className="text-sm text-yellow-800">
-                    <strong>Conseil:</strong> Choisissez un mot de passe d'au moins 8 caractères, 
-                    contenant des lettres majuscules, minuscules, des chiffres et des caractères spéciaux.
+                    <strong>Conseil:</strong> Choisissez un mot de passe d'au moins 8 caracteres, 
+                    contenant des lettres majuscules, minuscules, des chiffres et des caracteres speciaux.
                   </p>
                 </div>
 

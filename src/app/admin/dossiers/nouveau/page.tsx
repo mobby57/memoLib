@@ -1,8 +1,8 @@
-﻿'use client'
+'use client'
 
 /**
- * Formulaire Avocat - Création de Dossier pour un Client
- * Interface complète pour que l'avocat crée un dossier au nom d'un client
+ * Formulaire Avocat - Creation de Dossier pour un Client
+ * Interface complete pour que l'avocat cree un dossier au nom d'un client
  */
 
 import { useState, useEffect } from 'react'
@@ -20,14 +20,14 @@ import { Badge } from '@/components/ui'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/forms/Button'
 
-// Schéma de validation
+// Schema de validation
 const dossierSchema = z.object({
   clientId: z.string().min(1, 'Client requis'),
   typeDossier: z.enum([
     'TITRE_SEJOUR', 'RECOURS_OQTF', 'NATURALISATION', 
     'REGROUPEMENT_FAMILIAL', 'ASILE', 'VISA', 'AUTRE'
   ]),
-  objetDemande: z.string().min(10, 'Minimum 10 caractères'),
+  objetDemande: z.string().min(10, 'Minimum 10 caracteres'),
   priorite: z.enum(['NORMALE', 'HAUTE', 'URGENTE', 'CRITIQUE']),
   dateEcheance: z.string().optional(),
   statut: z.enum(['BROUILLON', 'EN_COURS', 'EN_ATTENTE', 'TERMINE', 'REJETE', 'ANNULE']).optional(),
@@ -37,7 +37,7 @@ const dossierSchema = z.object({
 type DossierFormData = z.infer<typeof dossierSchema>
 
 const TYPES_DOSSIER = [
-  { value: 'TITRE_SEJOUR', label: 'Titre de Séjour' },
+  { value: 'TITRE_SEJOUR', label: 'Titre de Sejour' },
   { value: 'RECOURS_OQTF', label: 'Recours OQTF' },
   { value: 'NATURALISATION', label: 'Naturalisation' },
   { value: 'REGROUPEMENT_FAMILIAL', label: 'Regroupement Familial' },
@@ -116,15 +116,15 @@ export default function NouveauDossierAvocatPage() {
 
       if (!res.ok) {
         const error = await res.json()
-        throw new Error(error.error || 'Erreur création dossier')
+        throw new Error(error.error || 'Erreur creation dossier')
       }
 
       const result = await res.json()
       
       toast({
         variant: 'success',
-        title: 'Dossier créé',
-        description: `Dossier ${result.dossier.numeroDossier} créé avec succès`
+        title: 'Dossier cree',
+        description: `Dossier ${result.dossier.numeroDossier} cree avec succes`
       })
 
       router.push('/admin/dossiers')
@@ -168,12 +168,12 @@ export default function NouveauDossierAvocatPage() {
             Nouveau Dossier Client
           </h1>
           <p className="text-gray-600 mt-2">
-            Créer un nouveau dossier pour un client existant
+            Creer un nouveau dossier pour un client existant
           </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Sélection Client */}
+          {/* Selection Client */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <User className="text-blue-600" size={24} />
@@ -183,7 +183,7 @@ export default function NouveauDossierAvocatPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sélectionner un client *
+                  Selectionner un client *
                 </label>
                 <select
                   {...register('clientId')}
@@ -206,7 +206,7 @@ export default function NouveauDossierAvocatPage() {
 
               {clientInfo && (
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm font-medium text-blue-900">Client sélectionné:</p>
+                  <p className="text-sm font-medium text-blue-900">Client selectionne:</p>
                   <p className="text-blue-700">
                     {clientInfo.firstName} {clientInfo.lastName} - {clientInfo.email}
                   </p>
@@ -244,10 +244,10 @@ export default function NouveauDossierAvocatPage() {
                 )}
               </div>
 
-              {/* Priorité */}
+              {/* Priorite */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Priorité *
+                  Priorite *
                 </label>
                 <select
                   {...register('priorite')}
@@ -278,10 +278,10 @@ export default function NouveauDossierAvocatPage() {
                 </select>
               </div>
 
-              {/* Date échéance */}
+              {/* Date echeance */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date d'échéance
+                  Date d'echeance
                 </label>
                 <input
                   type="date"
@@ -301,7 +301,7 @@ export default function NouveauDossierAvocatPage() {
                 <textarea
                   {...register('objetDemande')}
                   rows={3}
-                  placeholder="Décrivez l'objet de la demande (minimum 10 caractères)..."
+                  placeholder="Decrivez l'objet de la demande (minimum 10 caracteres)..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
                 ></textarea>
                 {errors.objetDemande && (
@@ -341,12 +341,12 @@ export default function NouveauDossierAvocatPage() {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Création...
+                  Creation...
                 </>
               ) : (
                 <>
                   <Save size={20} />
-                  Créer le Dossier
+                  Creer le Dossier
                 </>
               )}
             </Button>

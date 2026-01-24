@@ -1,8 +1,8 @@
-﻿"use client"
+"use client"
 
 /**
  * Service d'automatisation des workflows
- * Permet de créer des règles métier automatisées
+ * Permet de creer des regles metier automatisees
  */
 
 import { safeLocalStorage } from '@/lib/localStorage'
@@ -16,7 +16,7 @@ export type TriggerType =
   | 'echeance_approaching'
   | 'document_uploaded'
   | 'client_created'
-  | 'scheduled' // Planifié (cron-like)
+  | 'scheduled' // Planifie (cron-like)
 
 export type ActionType =
   | 'send_email'
@@ -37,7 +37,7 @@ export interface WorkflowCondition {
 export interface WorkflowAction {
   type: ActionType
   params: Record<string, any>
-  delay?: number // Délai en minutes avant l'exécution
+  delay?: number // Delai en minutes avant l'execution
 }
 
 export interface Workflow {
@@ -73,12 +73,12 @@ export interface WorkflowExecution {
 }
 
 /**
- * Workflows prédéfinis
+ * Workflows predefinis
  */
 export const DEFAULT_WORKFLOWS: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt' | 'executionCount' | 'lastExecuted'>[] = [
   {
-    name: 'Relance facture impayée',
-    description: 'Envoie automatiquement un email de relance 7 jours après l\'échéance d\'une facture',
+    name: 'Relance facture impayee',
+    description: 'Envoie automatiquement un email de relance 7 jours apres l\'echeance d\'une facture',
     enabled: true,
     trigger: {
       type: 'facture_overdue',
@@ -106,8 +106,8 @@ export const DEFAULT_WORKFLOWS: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt' 
     ]
   },
   {
-    name: 'Notification échéance proche',
-    description: 'Crée une alerte 3 jours avant une échéance importante',
+    name: 'Notification echeance proche',
+    description: 'Cree une alerte 3 jours avant une echeance importante',
     enabled: true,
     trigger: {
       type: 'echeance_approaching',
@@ -121,7 +121,7 @@ export const DEFAULT_WORKFLOWS: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt' 
         type: 'create_notification',
         params: {
           type: 'warning',
-          title: 'Échéance dans 3 jours',
+          title: 'echeance dans 3 jours',
           message: '{{dossier.titre}} - {{echeance.description}}',
           recipients: ['{{dossier.responsable}}']
         }
@@ -153,8 +153,8 @@ export const DEFAULT_WORKFLOWS: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt' 
       {
         type: 'create_task',
         params: {
-          title: 'Préparer dossier {{dossier.titre}}',
-          description: 'Vérifier les pièces, créer le planning',
+          title: 'Preparer dossier {{dossier.titre}}',
+          description: 'Verifier les pieces, creer le planning',
           dueDate: '+2 days',
         }
       },
@@ -168,8 +168,8 @@ export const DEFAULT_WORKFLOWS: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt' 
     ]
   },
   {
-    name: 'Document uploadé - Extraction automatique',
-    description: 'Extrait les métadonnées et lance l\'OCR sur les documents uploadés',
+    name: 'Document uploade - Extraction automatique',
+    description: 'Extrait les metadonnees et lance l\'OCR sur les documents uploades',
     enabled: false,
     trigger: {
       type: 'document_uploaded',
@@ -189,15 +189,15 @@ export const DEFAULT_WORKFLOWS: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt' 
         type: 'create_notification',
         params: {
           type: 'info',
-          title: 'Document traité',
-          message: 'Le document {{document.name}} a été analysé',
+          title: 'Document traite',
+          message: 'Le document {{document.name}} a ete analyse',
         }
       }
     ]
   },
   {
     name: 'Rapport hebdomadaire automatique',
-    description: 'Génère et envoie un rapport d\'activité chaque lundi à 9h',
+    description: 'Genere et envoie un rapport d\'activite chaque lundi a 9h',
     enabled: true,
     trigger: {
       type: 'scheduled',
@@ -226,12 +226,12 @@ export const DEFAULT_WORKFLOWS: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt' 
 ]
 
 /**
- * Récupère tous les workflows
+ * Recupere tous les workflows
  */
 export function getWorkflows(): Workflow[] {
   const workflowsJson = safeLocalStorage.getItem('workflows')
   if (!workflowsJson) {
-    // Initialiser avec les workflows par défaut
+    // Initialiser avec les workflows par defaut
     const workflows: Workflow[] = DEFAULT_WORKFLOWS.map((w, i) => ({
       ...w,
       id: `workflow_${i + 1}`,
@@ -259,7 +259,7 @@ export function saveWorkflow(workflow: Partial<Workflow>): Workflow {
   const workflows = getWorkflows()
   
   if (workflow.id) {
-    // Mise à jour
+    // Mise a jour
     const index = workflows.findIndex(w => w.id === workflow.id)
     if (index !== -1) {
       workflows[index] = {
@@ -272,7 +272,7 @@ export function saveWorkflow(workflow: Partial<Workflow>): Workflow {
     }
   }
 
-  // Création
+  // Creation
   const newWorkflow: Workflow = {
     id: `workflow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     name: workflow.name || 'Nouveau workflow',
@@ -300,7 +300,7 @@ export function deleteWorkflow(workflowId: string): void {
 }
 
 /**
- * Active/désactive un workflow
+ * Active/desactive un workflow
  */
 export function toggleWorkflow(workflowId: string): void {
   const workflows = getWorkflows()
@@ -313,7 +313,7 @@ export function toggleWorkflow(workflowId: string): void {
 }
 
 /**
- * Exécute un workflow manuellement
+ * Execute un workflow manuellement
  */
 export async function executeWorkflow(
   workflowId: string,
@@ -335,19 +335,19 @@ export async function executeWorkflow(
     results: [],
   }
 
-  logger.info('Début exécution workflow', { workflowId: workflow.id, workflowName: workflow.name, context })
+  logger.info('Debut execution workflow', { workflowId: workflow.id, workflowName: workflow.name, context })
 
   try {
     for (const action of workflow.actions) {
-      logger.debug('Exécution action workflow', { actionType: action.type, params: action.params })
+      logger.debug('Execution action workflow', { actionType: action.type, params: action.params })
 
-      // Délai si spécifié
+      // Delai si specifie
       if (action.delay && action.delay > 0) {
         const delayMs = action.delay * 60 * 1000
         await new Promise(resolve => setTimeout(resolve, delayMs))
       }
 
-      // Exécuter l'action (simulation)
+      // Executer l'action (simulation)
       const result = await executeAction(action, context)
       
       execution.results.push({
@@ -356,26 +356,26 @@ export async function executeWorkflow(
         result,
       })
 
-      logger.debug('Action workflow réussie', { actionType: action.type, result })
+      logger.debug('Action workflow reussie', { actionType: action.type, result })
     }
 
     execution.status = 'completed'
     execution.completedAt = new Date()
 
-    // Mettre à jour les stats du workflow
+    // Mettre a jour les stats du workflow
     workflow.executionCount++
     workflow.lastExecuted = new Date()
     safeLocalStorage.setItem('workflows', JSON.stringify(workflows))
 
-    logger.info('Workflow terminé avec succès', { workflowName: workflow.name, resultsCount: execution.results.length })
+    logger.info('Workflow termine avec succes', { workflowName: workflow.name, resultsCount: execution.results.length })
   } catch (error: any) {
     execution.status = 'failed'
     execution.error = error.message
     execution.completedAt = new Date()
-    logger.error('Erreur lors de l\'exécution du workflow', error, { workflowName: workflow.name })
+    logger.error('Erreur lors de l\'execution du workflow', error, { workflowName: workflow.name })
   }
 
-  // Sauvegarder l'exécution
+  // Sauvegarder l'execution
   const executions = getWorkflowExecutions()
   executions.push(execution)
   safeLocalStorage.setItem('workflow_executions', JSON.stringify(executions))
@@ -384,7 +384,7 @@ export async function executeWorkflow(
 }
 
 /**
- * Exécute une action spécifique
+ * Execute une action specifique
  */
 async function executeAction(
   action: WorkflowAction,
@@ -450,14 +450,14 @@ function replaceVariables(obj: any, context: Record<string, any>): any {
 }
 
 /**
- * Récupère une valeur imbriquée (ex: "client.email")
+ * Recupere une valeur imbriquee (ex: "client.email")
  */
 function getNestedValue(obj: any, path: string): any {
   return path.split('.').reduce((current, key) => current?.[key], obj)
 }
 
 /**
- * Récupère les exécutions de workflows
+ * Recupere les executions de workflows
  */
 export function getWorkflowExecutions(workflowId?: string): WorkflowExecution[] {
   const execJson = safeLocalStorage.getItem('workflow_executions')

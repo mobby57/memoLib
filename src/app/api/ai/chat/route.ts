@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,8 +25,8 @@ async function processAIChat(message: string, tenantId: string, context: string)
     return {
       content: 'Je peux vous aider avec la gestion de vos dossiers. Que souhaitez-vous faire ?',
       actions: [
-        { id: 'create-dossier', label: '📁 Créer un nouveau dossier', type: 'navigate', target: '/dossiers/nouveau' },
-        { id: 'view-dossiers', label: '📋 Voir tous les dossiers', type: 'navigate', target: '/dossiers' }
+        { id: 'create-dossier', label: '[emoji] Creer un nouveau dossier', type: 'navigate', target: '/dossiers/nouveau' },
+        { id: 'view-dossiers', label: '[emoji] Voir tous les dossiers', type: 'navigate', target: '/dossiers' }
       ]
     };
   }
@@ -35,8 +35,8 @@ async function processAIChat(message: string, tenantId: string, context: string)
     return {
       content: 'Je peux vous aider avec la gestion de vos clients.',
       actions: [
-        { id: 'add-client', label: '👤 Ajouter un client', type: 'navigate', target: '/clients/nouveau' },
-        { id: 'view-clients', label: '👥 Voir tous les clients', type: 'navigate', target: '/clients' }
+        { id: 'add-client', label: '[emoji] Ajouter un client', type: 'navigate', target: '/clients/nouveau' },
+        { id: 'view-clients', label: '[emoji] Voir tous les clients', type: 'navigate', target: '/clients' }
       ]
     };
   }

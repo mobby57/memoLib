@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -126,14 +126,14 @@ export default function MessagesAdmin() {
         <div className="max-w-7xl mx-auto px-8 py-4">
           <div className="flex items-center gap-4">
             <Link href="/admin" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <span className="text-2xl">←</span>
+              <span className="text-2xl">[Back]</span>
             </Link>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Messagerie Clients
               </h1>
               <p className="text-gray-600 mt-1">
-                {conversations.length} conversation(s) · {totalUnread} message(s) non lu(s)
+                {conversations.length} conversation(s) - {totalUnread} message(s) non lu(s)
               </p>
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function MessagesAdmin() {
             <div className="overflow-y-auto h-full">
               {conversations.length === 0 ? (
                 <div className="text-center py-12 px-4">
-                  <span className="text-4xl mb-2 block">💬</span>
+                  <span className="text-4xl mb-2 block">[Chat]</span>
                   <p className="text-gray-500">Aucune conversation</p>
                 </div>
               ) : (
@@ -195,8 +195,8 @@ export default function MessagesAdmin() {
             {!selectedConversation ? (
               <div className="flex-1 flex items-center justify-center text-gray-400">
                 <div className="text-center">
-                  <span className="text-6xl mb-4 block">💬</span>
-                  <p className="text-lg">Sélectionnez une conversation</p>
+                  <span className="text-6xl mb-4 block">[Chat]</span>
+                  <p className="text-lg">Selectionnez une conversation</p>
                 </div>
               </div>
             ) : (
@@ -227,7 +227,7 @@ export default function MessagesAdmin() {
                               isFromAdmin ? 'text-blue-100' : 'text-gray-500'
                             }`}>
                               <span>{message.expediteur.firstName}</span>
-                              <span>·</span>
+                              <span>-</span>
                               <span>{new Date(message.dateEnvoi).toLocaleString('fr-FR')}</span>
                             </div>
                           </div>
@@ -249,7 +249,7 @@ export default function MessagesAdmin() {
                           sendMessage();
                         }
                       }}
-                      placeholder="Écrivez votre message..."
+                      placeholder="ecrivez votre message..."
                       rows={3}
                       className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none resize-none"
                     />
@@ -258,10 +258,10 @@ export default function MessagesAdmin() {
                       disabled={sending || !newMessage.trim()}
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold transition-colors"
                     >
-                      {sending ? '...' : 'Envoyer ✉️'}
+                      {sending ? '...' : 'Envoyer ️'}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">Appuyez sur Entrée pour envoyer, Maj+Entrée pour nouvelle ligne</p>
+                  <p className="text-xs text-gray-500 mt-2">Appuyez sur Entree pour envoyer, Maj+Entree pour nouvelle ligne</p>
                 </div>
               </>
             )}

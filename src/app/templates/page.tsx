@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { FileText, Plus, Edit, Trash2, Eye, Copy } from 'lucide-react';
@@ -93,13 +93,13 @@ export default function TemplatesPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Templates de Documents
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Créez et gérez vos modèles de documents personnalisables
+          Creez et gerez vos modeles de documents personnalisables
         </p>
       </div>
 
@@ -126,7 +126,7 @@ export default function TemplatesPage() {
       </div>
 
       <Alert variant="info" className="mb-6">
-        Les templates utilisent des variables dynamiques comme <code className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-sm">{"{{client_nom}}"}</code> qui sont automatiquement remplacées lors de la génération.
+        Les templates utilisent des variables dynamiques comme <code className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-sm">{"{{client_nom}}"}</code> qui sont automatiquement remplacees lors de la generation.
       </Alert>
 
       {/* Barre d'actions */}
@@ -177,7 +177,7 @@ export default function TemplatesPage() {
                 className="flex-1 flex items-center justify-center gap-1 px-3 py-2 text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
               >
                 <Eye className="h-4 w-4" />
-                Aperçu
+                Apercu
               </button>
               <button
                 onClick={() => handleDuplicate(template)}
@@ -202,17 +202,17 @@ export default function TemplatesPage() {
         <div className="text-center py-12">
           <FileText className="h-16 w-16 mx-auto text-gray-400 mb-4" />
           <p className="text-gray-600 dark:text-gray-400">
-            {searchTerm ? 'Aucun template trouvé' : 'Aucun template disponible'}
+            {searchTerm ? 'Aucun template trouve' : 'Aucun template disponible'}
           </p>
         </div>
       )}
 
-      {/* Modal de prévisualisation */}
+      {/* Modal de previsualisation */}
       {selectedTemplate && (
         <Modal
           isOpen={isPreviewModalOpen}
           onClose={() => setIsPreviewModalOpen(false)}
-          title={`Aperçu: ${selectedTemplate.nom}`}
+          title={`Apercu: ${selectedTemplate.nom}`}
         >
           <div className="space-y-4">
             {/* Formulaire de variables */}
@@ -241,9 +241,9 @@ export default function TemplatesPage() {
               </div>
             </div>
 
-            {/* Aperçu du document */}
+            {/* Apercu du document */}
             <div className="bg-white dark:bg-gray-900 p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700">
-              <h3 className="font-semibold mb-3">Aperçu du document</h3>
+              <h3 className="font-semibold mb-3">Apercu du document</h3>
               <div className="prose dark:prose-invert max-w-none">
                 <pre className="whitespace-pre-wrap text-sm font-mono">
                   {renderTemplate(selectedTemplate.contenu, previewValues)}
@@ -256,9 +256,9 @@ export default function TemplatesPage() {
                 Fermer
               </Button>
               <Button onClick={() => {
-                // Ici on pourrait copier dans le presse-papier ou télécharger
+                // Ici on pourrait copier dans le presse-papier ou telecharger
                 navigator.clipboard.writeText(renderTemplate(selectedTemplate.contenu, previewValues));
-                alert('Document copié dans le presse-papier !');
+                alert('Document copie dans le presse-papier !');
               }}>
                 Copier le document
               </Button>

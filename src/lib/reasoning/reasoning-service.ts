@@ -1,8 +1,8 @@
-﻿/**
- * 🧠 SERVICE DE RAISONNEMENT IA
+/**
+ * [emoji] SERVICE DE RAISONNEMENT IA
  * 
- * Exécute le raisonnement structuré à travers les 8 états
- * en utilisant Ollama (llama3.2) avec les prompts définis.
+ * Execute le raisonnement structure a travers les 8 etats
+ * en utilisant Ollama (llama3.2) avec les prompts definis.
  */
 
 import { ollama } from '@/lib/ai/ollama-client';
@@ -24,7 +24,7 @@ interface ReasoningResult {
 }
 
 /**
- * Exécuter une transition de raisonnement
+ * Executer une transition de raisonnement
  */
 export async function executeReasoning(
   workspaceId: string,
@@ -54,12 +54,12 @@ export async function executeReasoning(
 
     const fromState = workspace.currentState;
 
-    // 2. Obtenir le prompt approprié
+    // 2. Obtenir le prompt approprie
     const promptTemplate = getPromptForTransition(fromState, toState);
     if (!promptTemplate) {
       return {
         success: false,
-        error: `No prompt defined for transition ${fromState} → ${toState}`,
+        error: `No prompt defined for transition ${fromState} [Next] ${toState}`,
       };
     }
 
@@ -76,14 +76,14 @@ export async function executeReasoning(
       };
     }
 
-    console.log(`🤖 Executing reasoning: ${fromState} → ${toState}`);
-    console.log(`📝 Prompt length: ${prompt.length} chars`);
+    console.log(`[emoji] Executing reasoning: ${fromState} [Next] ${toState}`);
+    console.log(`[emoji] Prompt length: ${prompt.length} chars`);
 
     const aiResponse = await ollama.generateJSON(prompt);
 
-    console.log(`✅ AI Response received:`, aiResponse);
+    console.log(` AI Response received:`, aiResponse);
 
-    // 5. Valider la structure de la réponse
+    // 5. Valider la structure de la reponse
     if (!aiResponse || typeof aiResponse !== 'object') {
       return {
         success: false,
@@ -91,10 +91,10 @@ export async function executeReasoning(
       };
     }
 
-    // 6. Appliquer les résultats selon l'état cible
+    // 6. Appliquer les resultats selon l'etat cible
     await applyReasoningResults(workspaceId, toState, aiResponse);
 
-    // 7. Mettre à jour l'état du workspace
+    // 7. Mettre a jour l'etat du workspace
     await prisma.workspaceReasoning.update({
       where: { id: workspaceId },
       data: {
@@ -105,7 +105,7 @@ export async function executeReasoning(
       },
     });
 
-    // 8. Créer la transition
+    // 8. Creer la transition
     await prisma.reasoningTransition.create({
       data: {
         workspaceId,
@@ -125,7 +125,7 @@ export async function executeReasoning(
       traces: aiResponse.traces,
     };
   } catch (error) {
-    console.error('❌ Reasoning execution error:', error);
+    console.error(' Reasoning execution error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -134,7 +134,7 @@ export async function executeReasoning(
 }
 
 /**
- * Appliquer les résultats du raisonnement à la base de données
+ * Appliquer les resultats du raisonnement a la base de donnees
  */
 async function applyReasoningResults(
   workspaceId: string,
@@ -175,7 +175,7 @@ async function applyReasoningResults(
 
     case 'OBLIGATIONS_DEDUCED':
       if (aiResponse.obligations && Array.isArray(aiResponse.obligations)) {
-        // Récupérer les contextes pour le mapping
+        // Recuperer les contextes pour le mapping
         const contexts = await prisma.contextHypothesis.findMany({
           where: { workspaceId },
           select: { id: true },
@@ -253,12 +253,12 @@ async function applyReasoningResults(
       break;
 
     case 'READY_FOR_HUMAN':
-      // Pas de création d'entités, juste validation
-      // Peut être verrouillé par l'humain
+      // Pas de creation d'entites, juste validation
+      // Peut etre verrouille par l'humain
       break;
   }
 
-  // Créer les traces de raisonnement
+  // Creer les traces de raisonnement
   if (aiResponse.traces && Array.isArray(aiResponse.traces)) {
     await prisma.reasoningTrace.createMany({
       data: aiResponse.traces.map((trace: any) => ({
@@ -273,7 +273,7 @@ async function applyReasoningResults(
 }
 
 /**
- * Exécuter le raisonnement complet (RECEIVED → READY_FOR_HUMAN)
+ * Executer le raisonnement complet (RECEIVED [Next] READY_FOR_HUMAN)
  */
 export async function executeFullReasoning(workspaceId: string): Promise<{
   success: boolean;
@@ -308,7 +308,7 @@ export async function executeFullReasoning(workspaceId: string): Promise<{
       uncertaintyLevel: result.uncertaintyLevel || 1.0,
     });
 
-    // Si on atteint MISSING_IDENTIFIED avec des bloquants, on s'arrête
+    // Si on atteint MISSING_IDENTIFIED avec des bloquants, on s'arrete
     if (state === 'MISSING_IDENTIFIED') {
       const workspace = await prisma.workspaceReasoning.findUnique({
         where: { id: workspaceId },
@@ -328,7 +328,7 @@ export async function executeFullReasoning(workspaceId: string): Promise<{
       }
     }
 
-    // Petite pause entre les étapes pour éviter de surcharger Ollama
+    // Petite pause entre les etapes pour eviter de surcharger Ollama
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
@@ -340,7 +340,7 @@ export async function executeFullReasoning(workspaceId: string): Promise<{
 }
 
 /**
- * Exécuter une seule étape (step-by-step)
+ * Executer une seule etape (step-by-step)
  */
 export async function executeNextStep(workspaceId: string): Promise<ReasoningResult> {
   const workspace = await prisma.workspaceReasoning.findUnique({

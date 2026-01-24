@@ -1,12 +1,12 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 /**
- * Hook pour gérer l'expiration automatique de la session
- * - Déconnexion après 2h d'inactivité
+ * Hook pour gerer l'expiration automatique de la session
+ * - Deconnexion apres 2h d'inactivite
  * - Avertissement 5 minutes avant expiration
  */
 export function useSessionTimeout() {
@@ -29,18 +29,18 @@ export function useSessionTimeout() {
       // Avertissement 5 minutes avant expiration
       warningRef.current = setTimeout(() => {
         const shouldStay = globalThis.confirm(
-          '⏰ Votre session expire dans 5 minutes.\n\nCliquez OK pour rester connecté, Annuler pour vous déconnecter.'
+          ' Votre session expire dans 5 minutes.\n\nCliquez OK pour rester connecte, Annuler pour vous deconnecter.'
         );
         
         if (shouldStay) {
-          // Rafraîchir la session en rechargeant la page
+          // Rafraichir la session en rechargeant la page
           globalThis.location.reload();
         } else {
           handleLogout();
         }
       }, TIMEOUT_DURATION - WARNING_BEFORE);
 
-      // Déconnexion automatique après 2h
+      // Deconnexion automatique apres 2h
       timeoutRef.current = setTimeout(() => {
         handleLogout();
       }, TIMEOUT_DURATION);
@@ -53,14 +53,14 @@ export function useSessionTimeout() {
       });
     };
 
-    // Réinitialiser le timer sur toute activité utilisateur
+    // Reinitialiser le timer sur toute activite utilisateur
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
     
     events.forEach(event => {
       globalThis.addEventListener(event, resetTimer);
     });
 
-    // Démarrer le timer initial
+    // Demarrer le timer initial
     resetTimer();
 
     // Cleanup

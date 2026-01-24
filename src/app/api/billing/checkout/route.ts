@@ -1,6 +1,6 @@
-﻿/**
+/**
  * API Checkout Stripe
- * Crée une session de paiement pour s'abonner à un plan
+ * Cree une session de paiement pour s'abonner a un plan
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as any;
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     const { planName, billingCycle = 'monthly', trialDays = 0 } = await request.json();
 
-    // Récupérer le plan
+    // Recuperer le plan
     const plan = await prisma.plan.findUnique({
       where: { name: planName, isActive: true }
     });
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Plan introuvable' }, { status: 404 });
     }
 
-    // Récupérer le tenant
+    // Recuperer le tenant
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },
       select: { name: true, billingEmail: true }
@@ -44,11 +44,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Tenant introuvable' }, { status: 404 });
     }
 
-    // Créer la session Stripe Checkout
-    // NOTE: Vous devez créer les prix dans Stripe Dashboard et stocker les IDs
+    // Creer la session Stripe Checkout
+    // NOTE: Vous devez creer les prix dans Stripe Dashboard et stocker les IDs
     const priceId = billingCycle === 'yearly' 
-      ? `price_${planName.toLowerCase()}_yearly` // À remplacer par vrai ID Stripe
-      : `price_${planName.toLowerCase()}_monthly`; // À remplacer par vrai ID Stripe
+      ? `price_${planName.toLowerCase()}_yearly` // a remplacer par vrai ID Stripe
+      : `price_${planName.toLowerCase()}_monthly`; // a remplacer par vrai ID Stripe
 
     const checkoutSession = await createCheckoutSession({
       priceId,
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       sessionId: checkoutSession.id,
     });
   } catch (error) {
-    console.error('Erreur création checkout:', error);
+    console.error('Erreur creation checkout:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

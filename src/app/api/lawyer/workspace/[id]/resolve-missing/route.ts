@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
-import { canTransitionToReadyForHuman } from '@/types/workspace-reasoning';
+import { MissingElement, canTransitionToReadyForHuman } from '@/types/workspace-reasoning';
 
 /**
  * POST /api/lawyer/workspace/[id]/resolve-missing
@@ -24,7 +24,7 @@ export async function POST(
     const tenantId = user.tenantId;
     const workspaceId = params.id;
     
-    // Vérifier isolation tenant
+    // Verifier isolation tenant
     const workspace = await prisma.workspaceReasoning.findFirst({
       where: { id: workspaceId, tenantId },
       include: {
@@ -34,14 +34,14 @@ export async function POST(
     
     if (!workspace) {
       return NextResponse.json(
-        { error: 'Workspace non trouvé' },
+        { error: 'Workspace non trouve' },
         { status: 404 }
       );
     }
     
     if (workspace.locked) {
       return NextResponse.json(
-        { error: 'Workspace verrouillé' },
+        { error: 'Workspace verrouille' },
         { status: 400 }
       );
     }
@@ -56,16 +56,16 @@ export async function POST(
       );
     }
     
-    // Vérifier que l'élément appartient au workspace
+    // Verifier que l'element appartient au workspace
     const missingElement = workspace.missingElements.find(m => m.id === missingElementId);
     if (!missingElement) {
       return NextResponse.json(
-        { error: 'Élément manquant non trouvé' },
+        { error: 'Element manquant non trouve' },
         { status: 404 }
       );
     }
     
-    // Résoudre l'élément
+    // Resoudre l'element
     const updated = await prisma.missingElement.update({
       where: { id: missingElementId },
       data: {
@@ -76,43 +76,41 @@ export async function POST(
       },
     });
     
-    // Créer une trace de raisonnement
+    // Creer une trace de raisonnement
     await prisma.reasoningTrace.create({
       data: {
         workspaceId,
-        step: `Résolution élément manquant (${missingElement.type})`,
+        step: `Resolution element manquant (${missingElement.type})`,
         explanation: resolution,
         createdBy: userId,
       },
     });
     
-    // Récupérer TOUS les missing elements mis à jour
+    // Recuperer TOUS les missing elements mis a jour
     const allMissing = await prisma.missingElement.findMany({
       where: { workspaceId },
     });
     
-    // Vérifier si on peut passer à READY_FOR_HUMAN
-    const canTransition = canTransitionToReadyForHuman(allMissing);
+    // Verifier si on peut passer a READY_FOR_HUMAN
+    const canTransition = canTransitionToReadyForHuman(allMissing as unknown as MissingElement[]);
     
-    if (canTransition && workspace.currentState === 'MISSING_IDENTIFIED') {
+    if (canTransition && workspace.status === 'MISSING_IDENTIFIED') {
       // Transition automatique vers READY_FOR_HUMAN
       await prisma.workspaceReasoning.update({
         where: { id: workspaceId },
         data: {
-          currentState: 'READY_FOR_HUMAN',
-          stateChangedAt: new Date(),
-          stateChangedBy: 'SYSTEM',
-          uncertaintyLevel: 0.15, // Très faible incertitude
+          status: 'READY_FOR_HUMAN',
+          updatedAt: new Date(),
         },
       });
       
       await prisma.reasoningTransition.create({
         data: {
           workspaceId,
-          fromState: 'MISSING_IDENTIFIED',
-          toState: 'READY_FOR_HUMAN',
+          fromStatus: 'MISSING_IDENTIFIED',
+          toStatus: 'READY_FOR_HUMAN',
           triggeredBy: 'SYSTEM',
-          reason: 'Tous les éléments bloquants résolus - transition automatique',
+          reason: 'Tous les elements bloquants resolus - transition automatique',
         },
       });
     }
@@ -124,7 +122,7 @@ export async function POST(
     });
     
   } catch (error) {
-    console.error('Erreur résolution élément manquant:', error);
+    console.error('Erreur resolution element manquant:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

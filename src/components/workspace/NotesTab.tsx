@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { StickyNote, Plus, Pin, Edit, Trash2, Save, X, Tag, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
@@ -58,7 +58,7 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
         onRefresh();
       }
     } catch (error) {
-      console.error('Erreur création note:', error);
+      console.error('Erreur creation note:', error);
     }
   };
 
@@ -96,7 +96,7 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
         onRefresh();
       }
     } catch (error) {
-      console.error('Erreur mise à jour note:', error);
+      console.error('Erreur mise a jour note:', error);
     }
   };
 
@@ -166,9 +166,9 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
       <div className="flex items-center space-x-2">
         {[
           { id: 'all', label: 'Toutes' },
-          { id: 'pinned', label: 'Épinglées' },
-          { id: 'team', label: 'Équipe' },
-          { id: 'private', label: 'Privées' },
+          { id: 'pinned', label: 'epinglees' },
+          { id: 'team', label: 'equipe' },
+          { id: 'private', label: 'Privees' },
         ].map(f => (
           <button
             key={f.id}
@@ -184,7 +184,7 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
         ))}
       </div>
 
-      {/* Formulaire création/édition */}
+      {/* Formulaire creation/edition */}
       {(isCreating || editingNote) && (
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h4 className="font-semibold text-gray-900 mb-4">
@@ -212,24 +212,24 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
               <textarea
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="Écrivez votre note ici..."
+                placeholder="ecrivez votre note ici..."
                 rows={8}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 font-mono text-sm"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Markdown supporté : **gras**, *italique*, - liste, # titre
+                Markdown supporte : **gras**, *italique*, - liste, # titre
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tags (séparés par des virgules)
+                Tags (separes par des virgules)
               </label>
               <input
                 type="text"
                 value={formData.tags}
                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                placeholder="stratégie, urgent, important"
+                placeholder="strategie, urgent, important"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -244,7 +244,7 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
                 />
                 <span className="text-sm text-gray-700 flex items-center">
                   <Pin className="w-4 h-4 mr-1" />
-                  Épingler en haut
+                  epingler en haut
                 </span>
               </label>
 
@@ -257,7 +257,7 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
                 />
                 <span className="text-sm text-gray-700 flex items-center">
                   <EyeOff className="w-4 h-4 mr-1" />
-                  Note privée (visible uniquement par moi)
+                  Note privee (visible uniquement par moi)
                 </span>
               </label>
             </div>
@@ -269,7 +269,7 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
                 className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
                 <Save className="w-4 h-4" />
-                <span>{editingNote ? 'Enregistrer' : 'Créer'}</span>
+                <span>{editingNote ? 'Enregistrer' : 'Creer'}</span>
               </button>
               <button
                 onClick={() => {
@@ -287,12 +287,12 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
         </div>
       )}
 
-      {/* Notes épinglées */}
+      {/* Notes epinglees */}
       {pinnedNotes.length > 0 && (
         <div>
           <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
             <Pin className="w-4 h-4 mr-2 text-indigo-600" />
-            Épinglées
+            epinglees
           </h4>
           <div className="grid grid-cols-2 gap-4">
             {pinnedNotes.map(note => (
@@ -308,7 +308,7 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
         </div>
       )}
 
-      {/* Notes régulières */}
+      {/* Notes regulieres */}
       {regularNotes.length > 0 && (
         <div>
           {pinnedNotes.length > 0 && (
@@ -332,7 +332,7 @@ export default function NotesTab({ notes, workspaceId, onRefresh }: NotesTabProp
         <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
           <StickyNote className="w-16 h-16 mx-auto mb-4 text-gray-300" />
           <p className="text-lg font-medium text-gray-900">Aucune note</p>
-          <p className="text-sm text-gray-500 mt-2">Créez votre première note pour commencer</p>
+          <p className="text-sm text-gray-500 mt-2">Creez votre premiere note pour commencer</p>
           <button
             onClick={() => setIsCreating(true)}
             className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
@@ -369,7 +369,7 @@ function NoteCard({
           )}
           <div className="flex items-center space-x-2 text-xs text-gray-500">
             <span>{note.authorName}</span>
-            <span>•</span>
+            <span>-</span>
             <span>{new Date(note.createdAt).toLocaleDateString('fr-FR')}</span>
           </div>
         </div>
@@ -381,7 +381,7 @@ function NoteCard({
             className={`p-1 rounded hover:bg-gray-100 transition-colors ${
               note.isPinned ? 'text-indigo-600' : 'text-gray-400'
             }`}
-            title={note.isPinned ? 'Désépingler' : 'Épingler'}
+            title={note.isPinned ? 'Desepingler' : 'epingler'}
           >
             <Pin className="w-4 h-4" />
           </button>
@@ -413,7 +413,7 @@ function NoteCard({
           {note.isPrivate && (
             <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium flex items-center">
               <EyeOff className="w-3 h-3 mr-1" />
-              Privée
+              Privee
             </span>
           )}
           {tags.map((tag: string, idx: number) => (
@@ -426,7 +426,7 @@ function NoteCard({
 
         {note.updatedAt !== note.createdAt && (
           <span className="text-xs text-gray-400">
-            Modifiée {new Date(note.updatedAt).toLocaleDateString('fr-FR')}
+            Modifiee {new Date(note.updatedAt).toLocaleDateString('fr-FR')}
           </span>
         )}
       </div>

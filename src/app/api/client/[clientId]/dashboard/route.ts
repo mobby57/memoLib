@@ -13,18 +13,18 @@ export async function GET(
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as any;
     const { clientId } = params;
 
-    // Vérifications d'accès - Seul le client peut accéder à ses données
+    // Verifications d'acces - Seul le client peut acceder a ses donnees
     if (user.role !== 'CLIENT' || user.clientId !== clientId) {
-      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
     }
 
-    // Récupérer les informations du client
+    // Recuperer les informations du client
     const client = await prisma.client.findUnique({
       where: { id: clientId },
       include: {
@@ -39,16 +39,16 @@ export async function GET(
             dateEcheance: true,
             description: true
           },
-          take: 1 // Un client n'a généralement qu'un dossier principal
+          take: 1 // Un client n'a generalement qu'un dossier principal
         }
       }
     });
 
     if (!client) {
-      return NextResponse.json({ error: 'Client non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
     }
 
-    // Récupérer les factures du client
+    // Recuperer les factures du client
     const factures = await prisma.facture.findMany({
       where: {
         tenantId: client.tenantId,
@@ -76,7 +76,7 @@ export async function GET(
         .sort((a, b) => new Date(a.dateEcheance).getTime() - new Date(b.dateEcheance).getTime())[0]
     };
 
-    // Récupérer les dernières activités (simplifiées pour le client)
+    // Recuperer les dernieres activites (simplifiees pour le client)
     const dernieresActivites = await prisma.auditLog.findMany({
       where: {
         tenantId: client.tenantId,

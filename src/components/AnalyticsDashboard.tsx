@@ -1,8 +1,8 @@
-﻿/**
- * Composant Dashboard Analytique Avancé
- * Visualisation des métriques IA et tendances
+/**
+ * Composant Dashboard Analytique Avance
+ * Visualisation des metriques IA et tendances
  * 
- * Innovation: Analytics en temps réel avec graphiques interactifs
+ * Innovation: Analytics en temps reel avec graphiques interactifs
  */
 
 'use client';
@@ -71,16 +71,16 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
   if (!analytics) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <p className="text-yellow-800">Pas de données analytiques disponibles</p>
+        <p className="text-yellow-800">Pas de donnees analytiques disponibles</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header avec sélection de période */}
+      {/* Header avec selection de periode */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">📊 Analytics IA</h2>
+        <h2 className="text-2xl font-bold text-gray-900">[emoji] Analytics IA</h2>
         <div className="flex gap-2">
           {(['7d', '30d', '90d'] as const).map(range => (
             <button
@@ -101,17 +101,17 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
       {/* KPIs principaux */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
-          <div className="text-sm font-medium opacity-90">Taux de Succès Global</div>
+          <div className="text-sm font-medium opacity-90">Taux de Succes Global</div>
           <div className="text-4xl font-bold mt-2">
             {(analytics.globalSuccessRate * 100).toFixed(1)}%
           </div>
           <div className="text-sm mt-2 opacity-80">
-            {analytics.totalActions} actions analysées
+            {analytics.totalActions} actions analysees
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
-          <div className="text-sm font-medium opacity-90">Actions Améliorées</div>
+          <div className="text-sm font-medium opacity-90">Actions Ameliorees</div>
           <div className="text-4xl font-bold mt-2">
             {analytics.improvements.filter(i => i.status === 'improving').length}
           </div>
@@ -140,14 +140,14 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
       {/* Tendances par type d'action */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">
-          📈 Performance par Type d'Action
+          [emoji] Performance par Type d'Action
         </h3>
         <div className="space-y-4">
           {analytics.improvements.map((improvement, index) => {
             const statusConfig = {
-              improving: { color: 'bg-green-500', icon: '📈', text: 'En amélioration' },
-              stable: { color: 'bg-blue-500', icon: '➡️', text: 'Stable' },
-              declining: { color: 'bg-red-500', icon: '📉', text: 'En baisse' }
+              improving: { color: 'bg-green-500', icon: '[emoji]', text: 'En amelioration' },
+              stable: { color: 'bg-blue-500', icon: '️', text: 'Stable' },
+              declining: { color: 'bg-red-500', icon: '[emoji]', text: 'En baisse' }
             };
             
             const config = statusConfig[improvement.status];
@@ -192,10 +192,10 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
         </div>
       </div>
 
-      {/* Répartition des actions */}
+      {/* Repartition des actions */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">
-          🎯 Répartition des Actions IA
+          🎯 Repartition des Actions IA
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {analytics.actionsByType.map((action, index) => {
@@ -236,7 +236,7 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
       {/* Timeline de validations (graphique simple) */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">
-          📅 Tendance des Validations
+          [emoji] Tendance des Validations
         </h3>
         {analytics.validationTrends && analytics.validationTrends.length > 0 ? (
           <div className="space-y-3">
@@ -261,17 +261,17 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
                     <div
                       className="bg-green-500"
                       style={{ width: `${approvedPercent}%` }}
-                      title={`${trend.approved} approuvées`}
+                      title={`${trend.approved} approuvees`}
                     />
                     <div
                       className="bg-orange-500"
                       style={{ width: `${modifiedPercent}%` }}
-                      title={`${trend.modified} modifiées`}
+                      title={`${trend.modified} modifiees`}
                     />
                     <div
                       className="bg-red-500"
                       style={{ width: `${rejectedPercent}%` }}
-                      title={`${trend.rejected} rejetées`}
+                      title={`${trend.rejected} rejetees`}
                     />
                   </div>
                 </div>
@@ -279,22 +279,22 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
             })}
           </div>
         ) : (
-          <p className="text-gray-600 text-center py-8">Pas de données de tendance disponibles</p>
+          <p className="text-gray-600 text-center py-8">Pas de donnees de tendance disponibles</p>
         )}
 
-        {/* Légende */}
+        {/* Legende */}
         <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-green-500 rounded"></div>
-            <span className="text-sm text-gray-700">Approuvées</span>
+            <span className="text-sm text-gray-700">Approuvees</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-orange-500 rounded"></div>
-            <span className="text-sm text-gray-700">Modifiées</span>
+            <span className="text-sm text-gray-700">Modifiees</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-red-500 rounded"></div>
-            <span className="text-sm text-gray-700">Rejetées</span>
+            <span className="text-sm text-gray-700">Rejetees</span>
           </div>
         </div>
       </div>
@@ -302,17 +302,17 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
       {/* Recommandations */}
       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200 p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-3">
-          💡 Recommandations d'Amélioration
+          [emoji] Recommandations d'Amelioration
         </h3>
         <div className="space-y-2">
           {analytics.improvements
             .filter(i => i.status === 'declining')
             .map((improvement, index) => (
               <div key={index} className="flex items-start gap-2 text-sm">
-                <span className="text-red-600">⚠️</span>
+                <span className="text-red-600">️</span>
                 <span className="text-gray-700">
                   <strong>{improvement.actionType}</strong>: Performance en baisse de{' '}
-                  {Math.abs(improvement.improvement * 100).toFixed(1)}%. Réviser les prompts système.
+                  {Math.abs(improvement.improvement * 100).toFixed(1)}%. Reviser les prompts systeme.
                 </span>
               </div>
             ))}
@@ -320,10 +320,10 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
             .filter(i => i.status === 'improving' && i.currentSuccessRate > 0.9)
             .map((improvement, index) => (
               <div key={index} className="flex items-start gap-2 text-sm">
-                <span className="text-green-600">✅</span>
+                <span className="text-green-600"></span>
                 <span className="text-gray-700">
                   <strong>{improvement.actionType}</strong>: Excellente performance (
-                  {(improvement.currentSuccessRate * 100).toFixed(0)}%). Considérer l'auto-approbation.
+                  {(improvement.currentSuccessRate * 100).toFixed(0)}%). Considerer l'auto-approbation.
                 </span>
               </div>
             ))}
@@ -331,8 +331,8 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
             <div className="flex items-start gap-2 text-sm">
               <span className="text-blue-600">🎉</span>
               <span className="text-gray-700">
-                Excellent taux de succès global ({(analytics.globalSuccessRate * 100).toFixed(0)}
-                %). Le système fonctionne de manière optimale.
+                Excellent taux de succes global ({(analytics.globalSuccessRate * 100).toFixed(0)}
+                %). Le systeme fonctionne de maniere optimale.
               </span>
             </div>
           )}

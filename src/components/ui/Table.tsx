@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { ReactNode } from 'react';
 
@@ -20,7 +20,7 @@ export function Table<T extends Record<string, any>>({
   data, 
   columns, 
   onRowClick,
-  emptyMessage = 'Aucune donnée disponible'
+  emptyMessage = 'Aucune donnee disponible'
 }: TableProps<T>) {
   return (
     <div className="overflow-x-auto">

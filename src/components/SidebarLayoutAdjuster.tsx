@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -6,12 +6,12 @@ export function SidebarLayoutAdjuster() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    // Écouter les changements du localStorage
+    // ecouter les changements du localStorage
     const handleStorageChange = () => {
       const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
       setSidebarCollapsed(collapsed);
       
-      // Mettre à jour le padding du main
+      // Mettre a jour le padding du main
       const main = document.querySelector('main');
       if (main && window.innerWidth >= 1024) {
         main.style.paddingLeft = collapsed ? '5rem' : '16rem';
@@ -21,7 +21,7 @@ export function SidebarLayoutAdjuster() {
     // Initial load
     handleStorageChange();
 
-    // Écouter les changements
+    // ecouter les changements
     window.addEventListener('storage', handleStorageChange);
     
     // Custom event pour les changements locaux

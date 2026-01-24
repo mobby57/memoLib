@@ -1,4 +1,4 @@
-﻿import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import * as fs from 'fs';
@@ -24,7 +24,7 @@ export class EmailPrismaService {
     const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
 
     if (!fs.existsSync(TOKEN_PATH)) {
-      throw new Error('Token non trouvé. Exécutez email-monitor.ts d\'abord.');
+      throw new Error('Token non trouve. Executez email-monitor.ts d\'abord.');
     }
 
     const content = fs.readFileSync(TOKEN_PATH, 'utf-8');
@@ -34,7 +34,7 @@ export class EmailPrismaService {
   }
 
   /**
-   * Sauvegarde un email dans la base de données avec classification
+   * Sauvegarde un email dans la base de donnees avec classification
    */
   async saveEmail(params: {
     messageId: string;
@@ -50,17 +50,17 @@ export class EmailPrismaService {
     tenantId?: string;
   }): Promise<void> {
     try {
-      // Vérifier si l'email existe déjà
+      // Verifier si l'email existe deja
       const existing = await prisma.email.findUnique({
         where: { messageId: params.messageId }
       });
 
       if (existing) {
-        console.log(`📧 Email ${params.messageId} déjà en base`);
+        console.log(`[emoji] Email ${params.messageId} deja en base`);
         return;
       }
 
-      // Créer l'email avec classification
+      // Creer l'email avec classification
       const email = await prisma.email.create({
         data: {
           messageId: params.messageId,
@@ -88,13 +88,13 @@ export class EmailPrismaService {
         }
       });
 
-      console.log(`✅ Email sauvegardé: ${email.id}`);
+      console.log(` Email sauvegarde: ${email.id}`);
 
       // Auto-traitement selon le type
       await this.autoProcessEmail(email.id, params.classification);
 
     } catch (error: any) {
-      console.error('❌ Erreur sauvegarde email:', error.message);
+      console.error(' Erreur sauvegarde email:', error.message);
       throw error;
     }
   }
@@ -126,30 +126,30 @@ export class EmailPrismaService {
         await this.createUrgentAlert(email);
       }
 
-      // === RÉPONSE CLIENT ===
+      // === RePONSE CLIENT ===
       else if (classification.type === 'reponse_client') {
         await this.linkToExistingClient(email);
       }
 
     } catch (error: any) {
-      console.error('❌ Erreur auto-traitement:', error.message);
+      console.error(' Erreur auto-traitement:', error.message);
     }
   }
 
   /**
-   * Créer un prospect depuis un email nouveau client
+   * Creer un prospect depuis un email nouveau client
    */
   private async createProspectFromEmail(email: any): Promise<void> {
     try {
-      // Extraire nom/prénom depuis expéditeur (basique)
+      // Extraire nom/prenom depuis expediteur (basique)
       const fromMatch = email.from.match(/([^<]+)</);
       const fullName = fromMatch ? fromMatch[1].trim() : email.from;
       const nameParts = fullName.split(' ');
       
-      const firstName = nameParts[0] || 'Prénom';
+      const firstName = nameParts[0] || 'Prenom';
       const lastName = nameParts.slice(1).join(' ') || 'Nom';
 
-      // Vérifier si client existe déjà
+      // Verifier si client existe deja
       const existingClient = await prisma.client.findFirst({
         where: {
           email: email.from.match(/<(.+)>/)?.[1] || email.from
@@ -162,11 +162,11 @@ export class EmailPrismaService {
           where: { id: email.id },
           data: { clientId: existingClient.id }
         });
-        console.log(`🔗 Email lié au client existant: ${existingClient.firstName} ${existingClient.lastName}`);
+        console.log(`[emoji] Email lie au client existant: ${existingClient.firstName} ${existingClient.lastName}`);
         return;
       }
 
-      // Créer nouveau client en statut prospect
+      // Creer nouveau client en statut prospect
       const newClient = await prisma.client.create({
         data: {
           firstName,
@@ -186,25 +186,25 @@ export class EmailPrismaService {
         data: { clientId: newClient.id }
       });
 
-      console.log(`✅ Nouveau prospect créé: ${newClient.firstName} ${newClient.lastName}`);
+      console.log(` Nouveau prospect cree: ${newClient.firstName} ${newClient.lastName}`);
 
     } catch (error: any) {
-      console.error('❌ Erreur création prospect:', error.message);
+      console.error(' Erreur creation prospect:', error.message);
     }
   }
 
   /**
-   * Extraire numéros de suivi La Poste
+   * Extraire numeros de suivi La Poste
    */
   private async extractTrackingNumbers(email: any): Promise<void> {
     try {
       const text = (email.bodyText || '').toLowerCase();
       
-      // Patterns numéros de suivi (exemples)
+      // Patterns numeros de suivi (exemples)
       const patterns = [
         /[0-9]{2}[a-z]{2}[0-9]{9}[a-z]{2}/gi, // Format La Poste
         /[0-9]{13}/g, // Format Colissimo
-        /[a-z]{2}[0-9]{9}[a-z]{2}/gi // Format recommandé
+        /[a-z]{2}[0-9]{9}[a-z]{2}/gi // Format recommande
       ];
 
       const trackingNumbers: string[] = [];
@@ -222,16 +222,16 @@ export class EmailPrismaService {
           data: { trackingNumbers: JSON.stringify([...new Set(trackingNumbers)]) }
         });
         
-        console.log(`📦 Numéros de suivi extraits: ${trackingNumbers.join(', ')}`);
+        console.log(`[emoji] Numeros de suivi extraits: ${trackingNumbers.join(', ')}`);
       }
 
     } catch (error: any) {
-      console.error('❌ Erreur extraction tracking:', error.message);
+      console.error(' Erreur extraction tracking:', error.message);
     }
   }
 
   /**
-   * Créer une alerte urgente
+   * Creer une alerte urgente
    */
   private async createUrgentAlert(email: any): Promise<void> {
     try {
@@ -243,19 +243,19 @@ export class EmailPrismaService {
           dossierId: email.dossierId || '', // Requis par le schema
           alertType: 'legal_deadline',
           severity: 'CRITICAL',
-          message: `Email urgent: ${email.subject}\nDe: ${email.from}\nReçu: ${email.receivedDate.toISOString()}\n\n${email.bodyText?.substring(0, 500)}`,
+          message: `Email urgent: ${email.subject}\nDe: ${email.from}\nRecu: ${email.receivedDate.toISOString()}\n\n${email.bodyText?.substring(0, 500)}`,
         }
       });
 
-      console.log(`🚨 Alerte urgente créée pour email ${email.id}`);
+      console.log(`[emoji] Alerte urgente creee pour email ${email.id}`);
 
     } catch (error: any) {
-      console.error('❌ Erreur création alerte:', error.message);
+      console.error(' Erreur creation alerte:', error.message);
     }
   }
 
   /**
-   * Lier email à client existant (réponse)
+   * Lier email a client existant (reponse)
    */
   private async linkToExistingClient(email: any): Promise<void> {
     try {
@@ -271,16 +271,16 @@ export class EmailPrismaService {
           data: { clientId: client.id }
         });
         
-        console.log(`🔗 Email lié au client: ${client.firstName} ${client.lastName}`);
+        console.log(`[emoji] Email lie au client: ${client.firstName} ${client.lastName}`);
       }
 
     } catch (error: any) {
-      console.error('❌ Erreur liaison client:', error.message);
+      console.error(' Erreur liaison client:', error.message);
     }
   }
 
   /**
-   * Récupérer emails non traités
+   * Recuperer emails non traites
    */
   async getUnprocessedEmails(tenantId?: string): Promise<any[]> {
     return await prisma.email.findMany({

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -39,7 +39,7 @@ export default function SearchBar({
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Fermer les résultats en cliquant à l'extérieur
+  // Fermer les resultats en cliquant a l'exterieur
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -233,7 +233,7 @@ export default function SearchBar({
         </div>
       )}
 
-      {/* Résultats et suggestions */}
+      {/* Resultats et suggestions */}
       {showResults && (query.length >= 2) && (
         <div className="absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto">
           {/* Suggestions */}
@@ -257,7 +257,7 @@ export default function SearchBar({
             </div>
           )}
 
-          {/* Résultats */}
+          {/* Resultats */}
           {results.length > 0 ? (
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {results.map((result) => (
@@ -310,16 +310,16 @@ export default function SearchBar({
             !isLoading && (
               <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                 <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Aucun résultat trouvé</p>
-                <p className="text-xs mt-1">Essayez avec d'autres mots-clés</p>
+                <p className="text-sm">Aucun resultat trouve</p>
+                <p className="text-xs mt-1">Essayez avec d'autres mots-cles</p>
               </div>
             )
           )}
 
-          {/* Compteur de résultats */}
+          {/* Compteur de resultats */}
           {results.length > 0 && (
             <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900 text-xs text-gray-500 text-center">
-              {results.length} résultat{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''}
+              {results.length} resultat{results.length > 1 ? 's' : ''} trouve{results.length > 1 ? 's' : ''}
             </div>
           )}
         </div>

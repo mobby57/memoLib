@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 
@@ -59,7 +59,7 @@ export function ConversationalAI({ tenantId }: ConversationalAIProps) {
     } catch (error) {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Désolé, une erreur s\'est produite. Veuillez réessayer.'
+        content: 'Desole, une erreur s\'est produite. Veuillez reessayer.'
       }]);
     } finally {
       setIsLoading(false);

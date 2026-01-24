@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Dashboard Client - Vue personnelle
- * Niveau 3 : Accès uniquement aux propres dossiers du client
+ * Niveau 3 : Acces uniquement aux propres dossiers du client
  */
 
 'use client';
@@ -18,8 +18,8 @@ export default function ClientDashboard() {
   const [loading, setLoading] = useState(true);
 
   const handlePayment = (factureId: string) => {
-    // TODO: Implémenter le paiement (Stripe, PayPal, etc.)
-    alert(`Paiement de la facture ${factureId} - Intégration à venir`);
+    // TODO: Implementer le paiement (Stripe, PayPal, etc.)
+    alert(`Paiement de la facture ${factureId} - Integration a venir`);
   };
 
   useEffect(() => {
@@ -99,28 +99,28 @@ export default function ClientDashboard() {
             href="/client/nouveau-dossier"
             className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
           >
-            <span className="text-2xl">➕</span>
+            <span className="text-2xl"></span>
             <span>Nouveau Dossier</span>
           </Link>
           <Link
             href="/client/documents"
             className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
           >
-            <span className="text-2xl">📄</span>
+            <span className="text-2xl">[emoji]</span>
             <span>Mes Documents</span>
           </Link>
           <Link
             href="/client/messages"
             className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-green-500 to-teal-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
           >
-            <span className="text-2xl">💬</span>
+            <span className="text-2xl">[emoji]</span>
             <span>Messagerie</span>
           </Link>
           <Link
             href="/client/profil"
             className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
           >
-            <span className="text-2xl">👤</span>
+            <span className="text-2xl">[emoji]</span>
             <span>Mon Profil</span>
           </Link>
         </div>
@@ -135,7 +135,7 @@ export default function ClientDashboard() {
                 <p className="text-xs text-blue-600 mt-1">{dossierEnCours.length} en cours</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
-                <span className="text-3xl">📁</span>
+                <span className="text-3xl">[emoji]</span>
               </div>
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function ClientDashboard() {
                 <p className="text-xs text-orange-600 mt-1">{facturesEnAttente.length} en attente</p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
-                <span className="text-3xl">💰</span>
+                <span className="text-3xl">[emoji]</span>
               </div>
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function ClientDashboard() {
                 <p className="text-xs text-purple-600 mt-1">Total</p>
               </div>
               <div className="bg-purple-100 p-3 rounded-full">
-                <span className="text-3xl">📄</span>
+                <span className="text-3xl">[emoji]</span>
               </div>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function ClientDashboard() {
         {/* Mes Dossiers */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <span>📁</span> Mes Dossiers
+            <span>[emoji]</span> Mes Dossiers
           </h2>
 
           {dossiers.length === 0 ? (
@@ -203,18 +203,18 @@ export default function ClientDashboard() {
                       </div>
                       <p className="text-gray-600 mb-2">{dossier.objet}</p>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>📋 Numéro: {dossier.numero}</span>
+                        <span>[emoji] Numero: {dossier.numero}</span>
                         {dossier.dateEcheance && (
-                          <span>⏰ Échéance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
+                          <span> echeance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
                         )}
-                        <span>📄 {dossier._count?.documents || 0} documents</span>
+                        <span>[emoji] {dossier._count?.documents || 0} documents</span>
                       </div>
                     </div>
                     <Link
                       href={`/client/dossiers/${dossier.id}`}
                       className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
                     >
-                      Voir détails →
+                      Voir details [Next]
                     </Link>
                   </div>
                 </div>
@@ -226,7 +226,7 @@ export default function ClientDashboard() {
         {/* Mes Factures */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <span>💰</span> Mes Factures
+            <span>[emoji]</span> Mes Factures
           </h2>
 
           {factures.length === 0 ? (
@@ -238,10 +238,10 @@ export default function ClientDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Numéro</th>
+                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Numero</th>
                     <th className="text-left py-3 px-4 text-gray-600 font-semibold">Dossier</th>
                     <th className="text-right py-3 px-4 text-gray-600 font-semibold">Montant</th>
-                    <th className="text-center py-3 px-4 text-gray-600 font-semibold">Échéance</th>
+                    <th className="text-center py-3 px-4 text-gray-600 font-semibold">echeance</th>
                     <th className="text-center py-3 px-4 text-gray-600 font-semibold">Statut</th>
                     <th className="text-right py-3 px-4 text-gray-600 font-semibold">Actions</th>
                   </tr>
@@ -281,7 +281,7 @@ export default function ClientDashboard() {
                             href={`/api/client/factures/${facture.id}/download`}
                             className="px-3 py-1 bg-blue-500 text-white rounded text-sm font-semibold hover:bg-blue-600 inline-block"
                           >
-                            Télécharger
+                            Telecharger
                           </Link>
                         )}
                       </td>

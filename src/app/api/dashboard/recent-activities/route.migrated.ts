@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/auth';
 import { logger, LogCategory } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
@@ -14,7 +14,7 @@ const RecentActivitiesQuerySchema = z.object({
 
 // ============================================
 // GET /api/dashboard/recent-activities
-// Récupère les activités récentes (multi-rôle)
+// Recupere les activites recentes (multi-role)
 // ============================================
 
 export const GET = withAuth(['CLIENT', 'ADMIN', 'SUPER_ADMIN'], async (
@@ -35,7 +35,7 @@ export const GET = withAuth(['CLIENT', 'ADMIN', 'SUPER_ADMIN'], async (
 
     const activities: any[] = [];
 
-    // Déterminer les filtres selon le rôle
+    // Determiner les filtres selon le role
     let dossiersWhere: any = {};
     let facturesWhere: any = {};
 
@@ -50,12 +50,12 @@ export const GET = withAuth(['CLIENT', 'ADMIN', 'SUPER_ADMIN'], async (
       dossiersWhere = { tenantId };
       facturesWhere = { tenantId };
     } else if (userRole === 'SUPER_ADMIN') {
-      // SUPER_ADMIN voit tout (optionnel - à adapter)
+      // SUPER_ADMIN voit tout (optionnel - a adapter)
       dossiersWhere = {};
       facturesWhere = {};
     }
 
-    // Récupérer dossiers et factures en parallèle
+    // Recuperer dossiers et factures en parallele
     const dossiersLimit = Math.ceil(limit * 0.6); // 60% dossiers
     const facturesLimit = Math.floor(limit * 0.4); // 40% factures
 
@@ -99,11 +99,11 @@ export const GET = withAuth(['CLIENT', 'ADMIN', 'SUPER_ADMIN'], async (
       });
     }
 
-    // Trier par date décroissante et limiter
+    // Trier par date decroissante et limiter
     activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     const limitedActivities = activities.slice(0, limit);
 
-    logger.log(LogCategory.API, `✅ Recent activities fetched: ${limitedActivities.length}`, {
+    logger.log(LogCategory.API, ` Recent activities fetched: ${limitedActivities.length}`, {
       userId,
       dossiers: recentDossiers.length,
       factures: recentFactures.length,
@@ -118,7 +118,7 @@ export const GET = withAuth(['CLIENT', 'ADMIN', 'SUPER_ADMIN'], async (
     if (error instanceof z.ZodError) {
       logger.warn(LogCategory.API, 'Invalid activities query', { error: error.errors });
       return NextResponse.json(
-        { error: 'Paramètres invalides', details: error.errors },
+        { error: 'Parametres invalides', details: error.errors },
         { status: 400 }
       );
     }

@@ -1,36 +1,36 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { runMonitors } from '@/lib/workflows/monitors';
 
 /**
- * 🔄 API Cron: Exécution périodique des moniteurs
+ * [emoji] API Cron: Execution periodique des moniteurs
  * 
- * À appeler toutes les 15 minutes via un cron job
+ * a appeler toutes les 15 minutes via un cron job
  */
 
 export async function GET(request: NextRequest) {
   try {
-    // Vérifier le token de sécurité
+    // Verifier le token de securite
     const authHeader = request.headers.get('authorization');
     const expectedToken = process.env.CRON_SECRET || 'dev-secret-token';
     
     if (authHeader !== `Bearer ${expectedToken}`) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    console.log('⏰ Exécution cron: moniteurs de workflows');
+    console.log(' Execution cron: moniteurs de workflows');
 
-    // Exécuter les moniteurs
+    // Executer les moniteurs
     await runMonitors();
 
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
-      message: 'Moniteurs exécutés avec succès',
+      message: 'Moniteurs executes avec succes',
     });
   } catch (error) {
-    console.error('Erreur exécution cron:', error);
+    console.error('Erreur execution cron:', error);
     return NextResponse.json(
-      { error: 'Erreur lors de l\'exécution des moniteurs' },
+      { error: 'Erreur lors de l\'execution des moniteurs' },
       { status: 500 }
     );
   }

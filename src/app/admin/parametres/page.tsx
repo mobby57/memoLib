@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -72,13 +72,13 @@ export default function ProfileAdmin() {
       });
 
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Profil mis à jour avec succès !' });
+        setMessage({ type: 'success', text: 'Profil mis a jour avec succes !' });
       } else {
         const data = await res.json();
-        setMessage({ type: 'error', text: data.error || 'Erreur lors de la mise à jour' });
+        setMessage({ type: 'error', text: data.error || 'Erreur lors de la mise a jour' });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Erreur réseau' });
+      setMessage({ type: 'error', text: 'Erreur reseau' });
     } finally {
       setSaving(false);
     }
@@ -93,7 +93,7 @@ export default function ProfileAdmin() {
     }
 
     if (passwords.newPassword.length < 8) {
-      setMessage({ type: 'error', text: 'Le mot de passe doit contenir au moins 8 caractères' });
+      setMessage({ type: 'error', text: 'Le mot de passe doit contenir au moins 8 caracteres' });
       return;
     }
 
@@ -111,14 +111,14 @@ export default function ProfileAdmin() {
       });
 
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Mot de passe changé avec succès !' });
+        setMessage({ type: 'success', text: 'Mot de passe change avec succes !' });
         setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
       } else {
         const data = await res.json();
         setMessage({ type: 'error', text: data.error || 'Erreur lors du changement de mot de passe' });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Erreur réseau' });
+      setMessage({ type: 'error', text: 'Erreur reseau' });
     } finally {
       setSaving(false);
     }
@@ -144,13 +144,13 @@ export default function ProfileAdmin() {
         <div className="max-w-5xl mx-auto px-8 py-4">
           <div className="flex items-center gap-4">
             <Link href="/admin" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <span className="text-2xl">←</span>
+              <span className="text-2xl">[Back]</span>
             </Link>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Mon Profil
               </h1>
-              <p className="text-gray-600 mt-1">Gérer mes informations personnelles</p>
+              <p className="text-gray-600 mt-1">Gerer mes informations personnelles</p>
             </div>
           </div>
         </div>
@@ -177,7 +177,7 @@ export default function ProfileAdmin() {
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
             >
-              👤 Informations Personnelles
+              [User] Informations Personnelles
             </button>
             <button
               onClick={() => setActiveTab('security')}
@@ -187,7 +187,7 @@ export default function ProfileAdmin() {
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
             >
-              🔒 Sécurité
+              [Lock] Securite
             </button>
           </div>
 
@@ -197,7 +197,7 @@ export default function ProfileAdmin() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Prénom *
+                    Prenom *
                   </label>
                   <input
                     type="text"
@@ -232,13 +232,13 @@ export default function ProfileAdmin() {
                     className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg bg-gray-100 cursor-not-allowed"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    L'email ne peut pas être modifié. Contactez le support si nécessaire.
+                    L'email ne peut pas etre modifie. Contactez le support si necessaire.
                   </p>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Téléphone
+                    Telephone
                   </label>
                   <input
                     type="tel"
@@ -321,7 +321,7 @@ export default function ProfileAdmin() {
             </form>
           )}
 
-          {/* Sécurité */}
+          {/* Securite */}
           {activeTab === 'security' && (
             <form onSubmit={handlePasswordSubmit} className="p-8">
               <div className="max-w-md mx-auto">
@@ -350,7 +350,7 @@ export default function ProfileAdmin() {
                     className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Minimum 8 caractères
+                    Minimum 8 caracteres
                   </p>
                 </div>
 

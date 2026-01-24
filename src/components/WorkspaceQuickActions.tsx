@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -24,14 +24,14 @@ export function WorkspaceQuickActions({ dossierId }: { dossierId?: string }) {
       await actionFn();
       addNotification({
         type: 'success',
-        title: 'Action réalisée',
-        message: 'L\'action a été exécutée avec succès'
+        title: 'Action realisee',
+        message: 'L\'action a ete executee avec succes'
       });
     } catch (error) {
       addNotification({
         type: 'error',
         title: 'Erreur',
-        message: 'Impossible d\'exécuter l\'action'
+        message: 'Impossible d\'executer l\'action'
       });
     } finally {
       setLoading(null);
@@ -71,7 +71,7 @@ export function WorkspaceQuickActions({ dossierId }: { dossierId?: string }) {
     },
     {
       id: 'mark-complete',
-      label: 'Marquer Terminé',
+      label: 'Marquer Termine',
       icon: CheckCircle,
       color: 'bg-green-500 hover:bg-green-600',
       action: async () => {

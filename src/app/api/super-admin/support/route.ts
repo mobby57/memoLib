@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
@@ -16,7 +16,7 @@ export async function GET() {
         id: '1',
         tenantId: 'demo',
         tenantName: 'Cabinet Demo',
-        subject: 'Problème de connexion',
+        subject: 'Probleme de connexion',
         status: 'open',
         priority: 'high',
         createdAt: new Date().toISOString(),

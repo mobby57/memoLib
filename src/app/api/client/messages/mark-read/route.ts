@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { PrismaClient } from '@prisma/client';
@@ -10,14 +10,14 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
     if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    logger.info(`Client ${userId} a marqué ${messageIds.length} messages comme lus`);
+    logger.info(`Client ${userId} a marque ${messageIds.length} messages comme lus`);
 
     return NextResponse.json({ success: true });
   } catch (error) {

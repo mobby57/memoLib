@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 
@@ -10,8 +10,8 @@ export default function LawyerAdvancedPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-              <span>🚀</span>
-              Fonctionnalités IA Avancées
+              <span>[emoji]</span>
+              Fonctionnalites IA Avancees
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
               Outils d'analyse et d'automatisation pour votre cabinet
@@ -21,7 +21,7 @@ export default function LawyerAdvancedPage() {
             href="/lawyer/integrations"
             className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors"
           >
-            Voir la démo complète →
+            Voir la demo complete [Next]
           </Link>
         </div>
 
@@ -31,7 +31,7 @@ export default function LawyerAdvancedPage() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-violet-200 dark:border-violet-700 hover:shadow-lg transition-shadow">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center text-2xl">
-                🤖
+                [emoji]
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-1">
@@ -46,7 +46,7 @@ export default function LawyerAdvancedPage() {
                   }}
                   className="text-sm text-violet-600 dark:text-violet-400 hover:underline font-medium"
                 >
-                  Tester l'API →
+                  Tester l'API [Next]
                 </button>
               </div>
             </div>
@@ -56,20 +56,20 @@ export default function LawyerAdvancedPage() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-blue-200 dark:border-blue-700 hover:shadow-lg transition-shadow">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-2xl">
-                📡
+                [emoji]
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-1">
-                  Notifications Temps Réel
+                  Notifications Temps Reel
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                  WebSocket pour mises à jour instantanées
+                  WebSocket pour mises a jour instantanees
                 </p>
                 <Link
                   href="/lawyer/integrations"
                   className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
                 >
-                  Voir la démo →
+                  Voir la demo [Next]
                 </Link>
               </div>
             </div>
@@ -79,17 +79,17 @@ export default function LawyerAdvancedPage() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-emerald-200 dark:border-emerald-700 hover:shadow-lg transition-shadow">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center text-2xl">
-                🔒
+                [emoji]
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-1">
-                  Conformité RGPD
+                  Conformite RGPD
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                  Outils d'anonymisation et export de données
+                  Outils d'anonymisation et export de donnees
                 </p>
                 <button className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
-                  En savoir plus →
+                  En savoir plus [Next]
                 </button>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function LawyerAdvancedPage() {
         {/* Integration Status */}
         <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-slate-200 dark:border-slate-700">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
-            État de l'intégration
+            etat de l'integration
           </h2>
           <div className="space-y-3">
             <StatusItem
@@ -135,14 +135,14 @@ export default function LawyerAdvancedPage() {
           <h2 className="text-xl font-bold mb-4">Commandes de test</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <CommandCard
-              title="Vérifier Ollama"
+              title="Verifier Ollama"
               command="curl http://localhost:11434"
-              description="Confirmer que Ollama est démarré"
+              description="Confirmer que Ollama est demarre"
             />
             <CommandCard
-              title="Démarrer le serveur"
+              title="Demarrer le serveur"
               command="npm run dev"
-              description="Lancer l'application en mode développement"
+              description="Lancer l'application en mode developpement"
             />
           </div>
         </div>
@@ -167,9 +167,9 @@ function StatusItem({
   };
 
   const icons = {
-    ready: '✓',
-    pending: '⏳',
-    error: '✗',
+    ready: '[Check]',
+    pending: '',
+    error: '[X]',
   };
 
   return (
@@ -179,7 +179,7 @@ function StatusItem({
         <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1">{file}</div>
       </div>
       <div className={`px-3 py-1 rounded-full text-sm font-medium ${colors[status]}`}>
-        {icons[status]} {status === 'ready' ? 'Prêt' : status === 'pending' ? 'En attente' : 'Erreur'}
+        {icons[status]} {status === 'ready' ? 'Pret' : status === 'pending' ? 'En attente' : 'Erreur'}
       </div>
     </div>
   );

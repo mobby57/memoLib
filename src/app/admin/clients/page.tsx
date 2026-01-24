@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -82,7 +82,7 @@ export default function ClientsAdmin() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/admin" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <span className="text-2xl">←</span>
+                <span className="text-2xl">[Back]</span>
               </Link>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -95,7 +95,7 @@ export default function ClientsAdmin() {
               href="/admin/clients/nouveau"
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors flex items-center gap-2"
             >
-              <span className="text-xl">➕</span>
+              <span className="text-xl">[+]</span>
               Nouveau Client
             </Link>
           </div>
@@ -109,7 +109,7 @@ export default function ClientsAdmin() {
             <div className="flex-1">
               <input
                 type="text"
-                placeholder="🔍 Rechercher un client (nom, email)..."
+                placeholder="[Search] Rechercher un client (nom, email)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
@@ -154,10 +154,10 @@ export default function ClientsAdmin() {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {filteredClients.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-6xl mb-4 block">👥</span>
+              <span className="text-6xl mb-4 block">[emoji]</span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filterStatus !== 'all'
-                  ? 'Aucun client ne correspond à votre recherche'
+                  ? 'Aucun client ne correspond a votre recherche'
                   : 'Aucun client pour le moment'}
               </p>
             </div>
@@ -168,7 +168,7 @@ export default function ClientsAdmin() {
                   <tr>
                     <th className="text-left py-4 px-6 text-gray-600 font-semibold">Client</th>
                     <th className="text-left py-4 px-6 text-gray-600 font-semibold">Contact</th>
-                    <th className="text-left py-4 px-6 text-gray-600 font-semibold">Nationalité</th>
+                    <th className="text-left py-4 px-6 text-gray-600 font-semibold">Nationalite</th>
                     <th className="text-center py-4 px-6 text-gray-600 font-semibold">Dossiers</th>
                     <th className="text-center py-4 px-6 text-gray-600 font-semibold">Statut</th>
                     <th className="text-center py-4 px-6 text-gray-600 font-semibold">Inscription</th>

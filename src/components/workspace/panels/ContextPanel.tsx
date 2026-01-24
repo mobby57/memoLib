@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 /**
- * Panel Contextes - Hypothèses de cadrage
+ * Panel Contextes - Hypotheses de cadrage
  */
 
 import { ContextHypothesis } from '@/types/workspace-reasoning';
@@ -21,21 +21,21 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const CERTAINTY_CONFIG: Record<string, { label: string; color: string; icon: string }> = {
-  POSSIBLE: { label: 'Possible', color: 'text-yellow-600', icon: '❓' },
-  PROBABLE: { label: 'Probable', color: 'text-orange-600', icon: '⚠️' },
-  CONFIRMED: { label: 'Confirmé', color: 'text-green-600', icon: '✓' },
+  POSSIBLE: { label: 'Possible', color: 'text-yellow-600', icon: '' },
+  PROBABLE: { label: 'Probable', color: 'text-orange-600', icon: '️' },
+  CONFIRMED: { label: 'Confirme', color: 'text-green-600', icon: '[Check]' },
 };
 
 export function ContextPanel({ contexts, onAddContext }: ContextPanelProps) {
   if (contexts.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">🧭</div>
+        <div className="text-6xl mb-4">[emoji]</div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Aucun contexte identifié
+          Aucun contexte identifie
         </h3>
         <p className="text-gray-600 mb-4">
-          L'IA n'a pas encore identifié de cadre contextuel pour ce workspace.
+          L'IA n'a pas encore identifie de cadre contextuel pour ce workspace.
         </p>
         {onAddContext && (
           <button
@@ -55,7 +55,7 @@ export function ContextPanel({ contexts, onAddContext }: ContextPanelProps) {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <Compass className="w-5 h-5 text-purple-500" />
-          Contextes Identifiés ({contexts.length})
+          Contextes Identifies ({contexts.length})
         </h3>
         
         {onAddContext && (
@@ -78,16 +78,16 @@ export function ContextPanel({ contexts, onAddContext }: ContextPanelProps) {
               key={context.id}
               className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
             >
-              {/* En-tête */}
+              {/* En-tete */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">🧭</span>
+                  <span className="text-2xl">[emoji]</span>
                   <div>
                     <h4 className="font-semibold text-gray-900">
                       {TYPE_LABELS[context.type]}
                     </h4>
                     <p className="text-xs text-gray-500 mt-1">
-                      Identifié par : {context.identifiedBy === 'AI' ? 'IA' : 'Humain'}
+                      Identifie par : {context.identifiedBy === 'AI' ? 'IA' : 'Humain'}
                     </p>
                   </div>
                 </div>
@@ -112,9 +112,9 @@ export function ContextPanel({ contexts, onAddContext }: ContextPanelProps) {
                 )}
               </div>
               
-              {/* Métadonnées */}
+              {/* Metadonnees */}
               <div className="ml-8 mt-3 text-xs text-gray-500">
-                {new Date(context.createdAt).toLocaleDateString('fr-FR')} à{' '}
+                {new Date(context.createdAt).toLocaleDateString('fr-FR')} a{' '}
                 {new Date(context.createdAt).toLocaleTimeString('fr-FR')}
               </div>
             </div>
@@ -125,7 +125,7 @@ export function ContextPanel({ contexts, onAddContext }: ContextPanelProps) {
       {/* Note explicative */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm">
         <p className="text-purple-800">
-          <strong>💡 Note :</strong> Les contextes sont des hypothèses de cadrage. Plusieurs contextes peuvent coexister jusqu'à confirmation.
+          <strong>[emoji] Note :</strong> Les contextes sont des hypotheses de cadrage. Plusieurs contextes peuvent coexister jusqu'a confirmation.
         </p>
       </div>
     </div>

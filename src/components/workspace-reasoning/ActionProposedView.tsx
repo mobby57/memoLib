@@ -1,6 +1,6 @@
-﻿/**
- * Composant d'affichage de l'état ACTION_PROPOSED
- * Proposer UNE SEULE action utile pour réduire l'incertitude
+/**
+ * Composant d'affichage de l'etat ACTION_PROPOSED
+ * Proposer UNE SEULE action utile pour reduire l'incertitude
  */
 
 import { WorkspaceReasoning, ProposedAction } from '@/types/workspace-reasoning';
@@ -29,11 +29,11 @@ export function ActionProposedView({
   
   const getTypeIcon = (type: ProposedAction['type']) => {
     const icons = {
-      QUESTION: '❓',
-      DOCUMENT_REQUEST: '📄',
-      ALERT: '🚨',
-      ESCALATION: '⬆️',
-      FORM_SEND: '📝',
+      QUESTION: '',
+      DOCUMENT_REQUEST: '[emoji]',
+      ALERT: '[emoji]',
+      ESCALATION: '️',
+      FORM_SEND: '[emoji]',
     };
     return icons[type];
   };
@@ -73,7 +73,7 @@ export function ActionProposedView({
               
               {action.executed && (
                 <span className="px-3 py-1 text-sm font-bold bg-green-600 text-white rounded">
-                  ✅ EXÉCUTÉE
+                   EXeCUTeE
                 </span>
               )}
             </div>
@@ -96,7 +96,7 @@ export function ActionProposedView({
             <div className="mb-4 p-4 bg-white border-2 border-blue-300 rounded-lg">
               <div className="text-sm">
                 <div className="font-semibold text-blue-700 mb-2">
-                  💡 Pourquoi cette action est nécessaire:
+                  [emoji] Pourquoi cette action est necessaire:
                 </div>
                 <p className="text-gray-600 whitespace-pre-wrap">{action.reasoning}</p>
               </div>
@@ -115,7 +115,7 @@ export function ActionProposedView({
                   }`}
                 >
                   {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-                  ▶️ Exécuter cette action
+                  ️ Executer cette action
                 </button>
                 
                 <button
@@ -128,23 +128,23 @@ export function ActionProposedView({
                   }`}
                 >
                   {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-                  ✅ Marquer comme exécutée
+                   Marquer comme executee
                 </button>
               </div>
             )}
             
-            {/* Informations d'exécution */}
+            {/* Informations d'execution */}
             {action.executed && action.executedAt && (
               <div className="p-3 bg-green-50 border border-green-300 rounded mb-3">
                 <div className="text-sm text-green-800">
-                  ✅ Exécutée le {new Date(action.executedAt).toLocaleString('fr-FR')}
+                   Executee le {new Date(action.executedAt).toLocaleString('fr-FR')}
                   {action.executedBy && ` par ${action.executedBy}`}
                 </div>
               </div>
             )}
             
             <div className="text-xs text-gray-500 mt-3">
-              Proposée par {action.proposedBy} • {new Date(action.createdAt).toLocaleString('fr-FR')}
+              Proposee par {action.proposedBy} - {new Date(action.createdAt).toLocaleString('fr-FR')}
             </div>
           </div>
         </div>
@@ -156,21 +156,21 @@ export function ActionProposedView({
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">💡 Actions proposées</h2>
+        <h2 className="text-2xl font-bold text-gray-900">[emoji] Actions proposees</h2>
         <p className="text-gray-600 mt-1">
-          Actions concrètes pour réduire l'incertitude et progresser
+          Actions concretes pour reduire l'incertitude et progresser
         </p>
       </div>
       
-      {/* Principe méthodologique */}
+      {/* Principe methodologique */}
       <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
         <div className="flex items-start gap-3">
           <div className="text-2xl">🎯</div>
           <div className="text-sm text-blue-900">
             <div className="font-semibold mb-1">Principe:</div>
             <p>
-              Chaque action proposée doit avoir un <strong>objectif clair</strong>: obtenir une information manquante, 
-              valider une hypothèse, ou alerter sur un risque. Pas d'action "au cas où".
+              Chaque action proposee doit avoir un <strong>objectif clair</strong>: obtenir une information manquante, 
+              valider une hypothese, ou alerter sur un risque. Pas d'action "au cas ou".
             </p>
           </div>
         </div>
@@ -179,21 +179,21 @@ export function ActionProposedView({
       {/* Statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-          <div className="text-3xl text-blue-600 mb-2">📊</div>
+          <div className="text-3xl text-blue-600 mb-2">[emoji]</div>
           <div className="text-2xl font-bold text-blue-900">{actions.length}</div>
           <div className="text-sm text-blue-700">Action{actions.length > 1 ? 's' : ''} totale{actions.length > 1 ? 's' : ''}</div>
         </div>
         
         <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
-          <div className="text-3xl text-orange-600 mb-2">⏳</div>
+          <div className="text-3xl text-orange-600 mb-2"></div>
           <div className="text-2xl font-bold text-orange-900">{pending.length}</div>
           <div className="text-sm text-orange-700">En attente</div>
         </div>
         
         <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
-          <div className="text-3xl text-green-600 mb-2">✅</div>
+          <div className="text-3xl text-green-600 mb-2"></div>
           <div className="text-2xl font-bold text-green-900">{executed.length}</div>
-          <div className="text-sm text-green-700">Exécutée{executed.length > 1 ? 's' : ''}</div>
+          <div className="text-sm text-green-700">Executee{executed.length > 1 ? 's' : ''}</div>
         </div>
       </div>
       
@@ -201,7 +201,7 @@ export function ActionProposedView({
       {pending.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-blue-700">
-            ⏳ Actions en attente ({pending.length})
+             Actions en attente ({pending.length})
           </h3>
           <div className="space-y-4">
             {pending.map(action => renderAction(action, true))}
@@ -209,11 +209,11 @@ export function ActionProposedView({
         </div>
       )}
       
-      {/* Actions exécutées */}
+      {/* Actions executees */}
       {executed.length > 0 && (
         <details className="bg-green-50 border border-green-200 rounded-lg p-4">
           <summary className="font-semibold text-green-900 cursor-pointer">
-            ✅ Actions exécutées ({executed.length})
+             Actions executees ({executed.length})
           </summary>
           <div className="mt-4 space-y-4">
             {executed.map(action => renderAction(action, false))}
@@ -224,9 +224,9 @@ export function ActionProposedView({
       {/* Aucune action */}
       {actions.length === 0 && (
         <div className="p-8 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg text-center">
-          <div className="text-4xl mb-3">💡</div>
+          <div className="text-4xl mb-3">[emoji]</div>
           <div className="text-gray-600">
-            Aucune action proposée pour le moment
+            Aucune action proposee pour le moment
           </div>
         </div>
       )}
@@ -235,12 +235,12 @@ export function ActionProposedView({
       {pending.length > 0 && (
         <div className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
           <div className="flex items-start gap-3">
-            <div className="text-2xl">⚠️</div>
+            <div className="text-2xl">️</div>
             <div className="text-sm text-yellow-900">
               <div className="font-semibold mb-1">Attention:</div>
               <p>
-                Exécuter une action ne garantit pas sa réussite. 
-                Après exécution, réévaluez l'état du workspace pour voir si l'incertitude a diminué.
+                Executer une action ne garantit pas sa reussite. 
+                Apres execution, reevaluez l'etat du workspace pour voir si l'incertitude a diminue.
               </p>
             </div>
           </div>
@@ -250,10 +250,10 @@ export function ActionProposedView({
       {/* Navigation */}
       <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
         <div className="text-sm text-gray-600">
-          {actions.length} action{actions.length > 1 ? 's' : ''} proposée{actions.length > 1 ? 's' : ''}
+          {actions.length} action{actions.length > 1 ? 's' : ''} proposee{actions.length > 1 ? 's' : ''}
           {pending.length > 0 && (
             <span className="ml-2 text-orange-600 font-medium">
-              • {pending.length} en attente
+              - {pending.length} en attente
             </span>
           )}
         </div>
@@ -268,7 +268,7 @@ export function ActionProposedView({
           }`}
         >
           {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-          Continuer → Préparer pour humain
+          Continuer [Next] Preparer pour humain
         </button>
       </div>
     </div>

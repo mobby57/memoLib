@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Orchestrateur principal du Workspace Reasoning
- * Route vers le bon composant d'état + Timeline de progression
+ * Route vers le bon composant d'etat + Timeline de progression
  */
 
 import { useState } from 'react';
@@ -34,7 +34,7 @@ export function WorkspaceReasoningOrchestrator({
   const currentStateIndex = Object.keys(WORKSPACE_STATES).indexOf(workspace.currentState);
   const transitions = workspace.transitions || [];
   
-  // Timeline des états
+  // Timeline des etats
   const renderTimeline = () => {
     const states = Object.entries(WORKSPACE_STATES);
     
@@ -65,7 +65,7 @@ export function WorkspaceReasoningOrchestrator({
                   }} />
                 )}
                 
-                {/* Badge état */}
+                {/* Badge etat */}
                 <div className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center border-4 ${
                   isCompleted 
                     ? 'bg-green-500 border-green-600 text-white' 
@@ -73,7 +73,7 @@ export function WorkspaceReasoningOrchestrator({
                     ? 'bg-blue-500 border-blue-600 text-white animate-pulse' 
                     : 'bg-gray-200 border-gray-300 text-gray-500'
                 }`}>
-                  {isCompleted ? '✓' : stateInfo.icon}
+                  {isCompleted ? '[Check]' : stateInfo.icon}
                 </div>
                 
                 {/* Label */}
@@ -129,7 +129,7 @@ export function WorkspaceReasoningOrchestrator({
     );
   };
   
-  // Métriques
+  // Metriques
   const renderMetrics = () => {
     const uncertainty = workspace.uncertaintyLevel;
     const quality = workspace.reasoningQuality;
@@ -161,7 +161,7 @@ export function WorkspaceReasoningOrchestrator({
         
         <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-lg">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-gray-700">Qualité raisonnement</span>
+            <span className="text-sm font-semibold text-gray-700">Qualite raisonnement</span>
             <span className={`px-3 py-1 text-sm font-bold rounded ${
               quality >= 0.8 ? 'bg-green-600 text-white' :
               quality >= 0.5 ? 'bg-orange-500 text-white' : 'bg-red-600 text-white'
@@ -183,7 +183,7 @@ export function WorkspaceReasoningOrchestrator({
     );
   };
   
-  // Router vers le bon composant selon l'état
+  // Router vers le bon composant selon l'etat
   const renderCurrentStateView = () => {
     const commonProps = {
       workspace,
@@ -249,7 +249,7 @@ export function WorkspaceReasoningOrchestrator({
           <MissingIdentifiedView
             {...commonProps}
             onGenerateAction={(missingId) => {
-              // Génération automatique d'action pour résoudre le manque
+              // Generation automatique d'action pour resoudre le manque
               console.log('Generate action for missing:', missingId);
             }}
             onResolve={(missingId, resolution) => {
@@ -307,9 +307,9 @@ export function WorkspaceReasoningOrchestrator({
       default:
         return (
           <div className="p-8 bg-gray-50 border-2 border-gray-300 rounded-lg text-center">
-            <div className="text-4xl mb-3">❌</div>
+            <div className="text-4xl mb-3"></div>
             <div className="text-gray-700 font-semibold">
-              État inconnu: {workspace.currentState}
+              etat inconnu: {workspace.currentState}
             </div>
           </div>
         );
@@ -318,14 +318,14 @@ export function WorkspaceReasoningOrchestrator({
   
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            🧠 Workspace Reasoning Engine
+            [emoji] Workspace Reasoning Engine
           </h1>
           <p className="text-gray-600 mt-1">
-            Raisonnement structuré - État actuel: <strong>{WORKSPACE_STATES[workspace.currentState].label}</strong>
+            Raisonnement structure - etat actuel: <strong>{WORKSPACE_STATES[workspace.currentState].label}</strong>
           </p>
         </div>
         
@@ -334,12 +334,12 @@ export function WorkspaceReasoningOrchestrator({
             onClick={() => setShowHistory(!showHistory)}
             className="px-4 py-2 text-sm font-medium bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors"
           >
-            📜 {showHistory ? 'Masquer' : 'Voir'} historique
+            [emoji] {showHistory ? 'Masquer' : 'Voir'} historique
           </button>
           
           {workspace.locked && (
             <span className="px-4 py-2 text-sm font-bold bg-purple-600 text-white rounded">
-              🔒 Verrouillé
+              [emoji] Verrouille
             </span>
           )}
         </div>
@@ -350,7 +350,7 @@ export function WorkspaceReasoningOrchestrator({
         {renderTimeline()}
       </div>
       
-      {/* Métriques */}
+      {/* Metriques */}
       {renderMetrics()}
       
       {/* Statistiques */}
@@ -360,7 +360,7 @@ export function WorkspaceReasoningOrchestrator({
       {showHistory && transitions.length > 0 && (
         <details open className="bg-gray-50 border-2 border-gray-300 rounded-lg p-4">
           <summary className="font-semibold text-gray-900 cursor-pointer mb-3">
-            📜 Historique des transitions ({transitions.length})
+            [emoji] Historique des transitions ({transitions.length})
           </summary>
           <div className="space-y-2">
             {transitions.map((t, index) => (
@@ -368,7 +368,7 @@ export function WorkspaceReasoningOrchestrator({
                 <div className="flex items-center justify-between">
                   <div className="text-sm">
                     <span className="font-medium">{t.fromState}</span>
-                    <span className="mx-2">→</span>
+                    <span className="mx-2">[Next]</span>
                     <span className="font-medium text-blue-600">{t.toState}</span>
                   </div>
                   <div className="text-xs text-gray-500">
@@ -386,7 +386,7 @@ export function WorkspaceReasoningOrchestrator({
         </details>
       )}
       
-      {/* Vue d'état actuelle */}
+      {/* Vue d'etat actuelle */}
       <div className="bg-white border-2 border-gray-300 rounded-lg p-6">
         {renderCurrentStateView()}
       </div>

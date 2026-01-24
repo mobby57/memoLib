@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from 'react'
 import { Card } from './ui/Card'
@@ -105,10 +105,10 @@ export function DashboardWidget({ config, onRemove, onRefresh }: DashboardWidget
   const loadData = async () => {
     setLoading(true)
     try {
-      // Simulation de chargement de données
+      // Simulation de chargement de donnees
       await new Promise(resolve => setTimeout(resolve, 500))
       
-      // Données mockées selon le type
+      // Donnees mockees selon le type
       const mockData = getMockData(config.type)
       setData(mockData)
       setLastUpdate(new Date())
@@ -122,7 +122,7 @@ export function DashboardWidget({ config, onRemove, onRefresh }: DashboardWidget
   useEffect(() => {
     loadData()
 
-    // Auto-refresh si configuré
+    // Auto-refresh si configure
     if (config.refreshInterval && config.refreshInterval > 0) {
       const interval = setInterval(() => {
         loadData()
@@ -192,12 +192,12 @@ export function DashboardWidget({ config, onRemove, onRefresh }: DashboardWidget
             </div>
           ) : (
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
-              Aucune donnée
+              Aucune donnee
             </p>
           )}
 
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
-            Mis à jour: {lastUpdate.toLocaleTimeString('fr-FR')}
+            Mis a jour: {lastUpdate.toLocaleTimeString('fr-FR')}
           </p>
         </Card>
       )}
@@ -242,7 +242,7 @@ export function DashboardWidget({ config, onRemove, onRefresh }: DashboardWidget
   )
 }
 
-// Données mockées pour les widgets
+// Donnees mockees pour les widgets
 function getMockData(type: string) {
   switch (type) {
     case 'metric':
@@ -255,17 +255,17 @@ function getMockData(type: string) {
     case 'list':
       return {
         items: [
-          { title: 'Dossier ABC-2026-001', subtitle: 'En cours • Échéance: 15/01/2026' },
-          { title: 'Dossier ABC-2026-002', subtitle: 'Urgent • Échéance: 08/01/2026' },
-          { title: 'Dossier ABC-2025-156', subtitle: 'Terminé • Clôturé le 28/12/2025' },
-          { title: 'Dossier ABC-2026-003', subtitle: 'En attente • Échéance: 22/01/2026' },
+          { title: 'Dossier ABC-2026-001', subtitle: 'En cours - echeance: 15/01/2026' },
+          { title: 'Dossier ABC-2026-002', subtitle: 'Urgent - echeance: 08/01/2026' },
+          { title: 'Dossier ABC-2025-156', subtitle: 'Termine - Cloture le 28/12/2025' },
+          { title: 'Dossier ABC-2026-003', subtitle: 'En attente - echeance: 22/01/2026' },
         ],
       }
     
     case 'progress':
       return {
         items: [
-          { label: 'Dossiers traités', value: 78 },
+          { label: 'Dossiers traites', value: 78 },
           { label: 'Objectif mensuel', value: 65 },
           { label: 'Taux de recouvrement', value: 92 },
         ],
@@ -304,7 +304,7 @@ export function DashboardGrid({ widgets, onWidgetRemove, editable = false }: Das
   )
 }
 
-// Hook pour gérer la configuration du dashboard
+// Hook pour gerer la configuration du dashboard
 export function useDashboardConfig() {
   const [widgets, setWidgets] = useState<WidgetConfig[]>([])
 
@@ -314,7 +314,7 @@ export function useDashboardConfig() {
     if (saved) {
       setWidgets(JSON.parse(saved))
     } else {
-      // Configuration par défaut
+      // Configuration par defaut
       const defaultWidgets: WidgetConfig[] = [
         {
           id: '1',
@@ -335,7 +335,7 @@ export function useDashboardConfig() {
         {
           id: '3',
           type: 'list',
-          title: 'Dossiers récents',
+          title: 'Dossiers recents',
           size: 'md',
           refreshInterval: 60,
           dataSource: '/api/dossiers/recent',

@@ -2,10 +2,10 @@ import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 
 /**
- * 🚀 Prisma Client Avancé - Expert Level
+ * [emoji] Prisma Client Avance - Expert Level
  * 
  * Features:
- * - Logging avancé avec timing et couleurs
+ * - Logging avance avec timing et couleurs
  * - Soft delete middleware
  * - Query metrics et monitoring
  * - Type-safe extensions
@@ -21,7 +21,7 @@ interface QueryMetrics {
 
 const queryMetrics: QueryMetrics[] = [];
 
-// Configuration Prisma Client avancée
+// Configuration Prisma Client avancee
 const prismaClientConfig = {
   log: [
     { level: 'query' as const, emit: 'event' as const },
@@ -46,12 +46,12 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // ============================================
-// ⚙️ OPTIMISATIONS DATABASE AUTOMATIQUES
+// ️ OPTIMISATIONS DATABASE AUTOMATIQUES
 // ============================================
 
 async function optimizeDatabase() {
   try {
-    // Détecter le type de base de données
+    // Detecter le type de base de donnees
     const databaseUrl = process.env.DATABASE_URL || '';
     const isPostgreSQL = databaseUrl.includes('postgresql') || databaseUrl.includes('postgres') || databaseUrl.includes('neon');
     const isSQLite = databaseUrl.includes('sqlite') || databaseUrl.includes('file:');
@@ -65,26 +65,26 @@ async function optimizeDatabase() {
       await prisma.$queryRawUnsafe('PRAGMA mmap_size = 30000000000');
       
       if (process.env.NODE_ENV === 'development') {
-        console.log('✅ SQLite optimizations applied');
+        console.log(' SQLite optimizations applied');
       }
     } else if (isPostgreSQL) {
       // PostgreSQL - pas besoin d'optimisations PRAGMA
       if (process.env.NODE_ENV === 'development') {
-        console.log('✅ PostgreSQL connection ready');
+        console.log(' PostgreSQL connection ready');
       }
     }
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.warn('⚠️  Could not apply database optimizations:', error);
+      console.warn('️  Could not apply database optimizations:', error);
     }
   }
 }
 
-// Appliquer les optimisations au démarrage
+// Appliquer les optimisations au demarrage
 optimizeDatabase();
 
 // ============================================
-// 📊 LOGGING AVANCÉ AVEC METRICS
+// [emoji] LOGGING AVANCe AVEC METRICS
 // ============================================
 
 if (process.env.NODE_ENV === 'development') {
@@ -94,17 +94,17 @@ if (process.env.NODE_ENV === 'development') {
     
     // Collecter les metrics
     queryMetrics.push({
-      query: query.substring(0, 100), // Limite à 100 chars
+      query: query.substring(0, 100), // Limite a 100 chars
       duration,
       timestamp: new Date(),
     });
 
-    // Garder seulement les 100 dernières queries
+    // Garder seulement les 100 dernieres queries
     if (queryMetrics.length > 100) {
       queryMetrics.shift();
     }
 
-    // Log coloré en développement
+    // Log colore en developpement
     const color = duration > 1000 ? '\x1b[31m' : duration > 100 ? '\x1b[33m' : '\x1b[32m';
     const reset = '\x1b[0m';
     console.log(`${color}[Prisma Query]${reset} ${duration}ms - ${query.substring(0, 80)}...`);
@@ -143,8 +143,8 @@ prisma.$use(async (params, next) => {
   return next(params);
 });
 
-// Exclure automatiquement les enregistrements supprimés (soft delete)
-// DÉSACTIVÉ TEMPORAIREMENT - Le modèle Dossier n'a pas de champ deletedAt
+// Exclure automatiquement les enregistrements supprimes (soft delete)
+// DeSACTIVe TEMPORAIREMENT - Le modele Dossier n'a pas de champ deletedAt
 /* 
 prisma.$use(async (params, next) => {
   if (params.action === 'findUnique' || params.action === 'findFirst') {
@@ -167,16 +167,16 @@ prisma.$use(async (params, next) => {
 */
 
 // ============================================
-// 📈 EXTENSIONS - FONCTIONNALITÉS AVANCÉES
+// [emoji] EXTENSIONS - FONCTIONNALITeS AVANCeES
 // ============================================
 
 export const prismaExtended = prisma.$extends({
   name: 'advanced-features',
   
-  // Ajouter des méthodes personnalisées sur tous les modèles
+  // Ajouter des methodes personnalisees sur tous les modeles
   model: {
     $allModels: {
-      // Méthode pour récupérer avec les enregistrements supprimés
+      // Methode pour recuperer avec les enregistrements supprimes
       async findManyWithDeleted<T>(this: T, args?: any) {
         const context = Reflect.get(this, Symbol.for('prisma.client.context'));
         return (context as any).findMany({
@@ -188,7 +188,7 @@ export const prismaExtended = prisma.$extends({
         });
       },
       
-      // Méthode pour supprimer définitivement
+      // Methode pour supprimer definitivement
       async hardDelete<T>(this: T, args: any) {
         const context = Reflect.get(this, Symbol.for('prisma.client.context'));
         return (context as any).delete(args);
@@ -196,7 +196,7 @@ export const prismaExtended = prisma.$extends({
     },
   },
   
-  // Ajouter des méthodes sur le client
+  // Ajouter des methodes sur le client
   client: {
     // Obtenir les metrics de performance
     $metrics() {
@@ -214,7 +214,7 @@ export const prismaExtended = prisma.$extends({
       };
     },
     
-    // Health check de la base de données
+    // Health check de la base de donnees
     async $health() {
       try {
         await prisma.$queryRaw`SELECT 1`;
@@ -234,7 +234,7 @@ export const prismaExtended = prisma.$extends({
 });
 
 // ============================================
-// 🛠️ UTILITY FUNCTIONS
+// [emoji]️ UTILITY FUNCTIONS
 // ============================================
 
 /**
@@ -245,13 +245,13 @@ export async function disconnectPrisma() {
 }
 
 /**
- * Réinitialise les metrics (utile pour les tests)
+ * Reinitialise les metrics (utile pour les tests)
  */
 export function resetMetrics() {
   queryMetrics.length = 0;
 }
 
 /**
- * Export du client standard pour compatibilité
+ * Export du client standard pour compatibilite
  */
 export default prisma;

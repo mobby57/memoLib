@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Breadcrumb, Card, Alert, Tabs, useToast } from '@/components/ui';
@@ -11,7 +11,7 @@ export default function SettingsPage() {
     nom: 'Jean Dupont',
     email: 'jean.dupont@cabinet-exemple.fr',
     telephone: '01 23 45 67 89',
-    poste: 'Avocat associé',
+    poste: 'Avocat associe',
     
     // Notifications
     emailNotifications: true,
@@ -24,7 +24,7 @@ export default function SettingsPage() {
     timezone: 'Europe/Paris',
     dateFormat: 'DD/MM/YYYY',
     
-    // Sécurité
+    // Securite
     twoFactorAuth: false,
     sessionTimeout: 30,
   });
@@ -32,8 +32,8 @@ export default function SettingsPage() {
   const handleSave = (section: string) => {
     addToast({
       variant: 'success',
-      title: 'Paramètres sauvegardés',
-      message: `Les paramètres de ${section} ont été mis à jour avec succès.`,
+      title: 'Parametres sauvegardes',
+      message: `Les parametres de ${section} ont ete mis a jour avec succes.`,
     });
   };
 
@@ -42,15 +42,15 @@ export default function SettingsPage() {
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: 'Paramètres' },
+          { label: 'Parametres' },
         ]}
       />
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Paramètres</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Parametres</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Configurez votre compte et vos préférences
+          Configurez votre compte et vos preferences
         </p>
       </div>
 
@@ -109,7 +109,7 @@ export default function SettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Téléphone
+                        Telephone
                       </label>
                       <input
                         type="tel"
@@ -179,7 +179,7 @@ export default function SettingsPage() {
               <div className="pt-6">
                 <Card>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Préférences de notifications
+                    Preferences de notifications
                   </h3>
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
@@ -215,7 +215,7 @@ export default function SettingsPage() {
                     </div>
 
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                      <h4 className="font-medium text-gray-900 dark:text-white mb-4">Notifications spécifiques</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-white mb-4">Notifications specifiques</h4>
                       
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
@@ -256,7 +256,7 @@ export default function SettingsPage() {
                       onClick={() => handleSave('notifications')}
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
-                      Enregistrer les préférences
+                      Enregistrer les preferences
                     </button>
                   </div>
                 </Card>
@@ -271,7 +271,7 @@ export default function SettingsPage() {
               <div className="pt-6">
                 <Card>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Préférences d'affichage
+                    Preferences d'affichage
                   </h3>
                   <div className="space-y-4">
                     <div>
@@ -283,7 +283,7 @@ export default function SettingsPage() {
                         onChange={(e) => setSettings({ ...settings, langue: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       >
-                        <option value="fr">Français</option>
+                        <option value="fr">Francais</option>
                         <option value="en">English</option>
                         <option value="es">Español</option>
                       </select>
@@ -323,7 +323,7 @@ export default function SettingsPage() {
                       onClick={() => handleSave('affichage')}
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
-                      Enregistrer les préférences
+                      Enregistrer les preferences
                     </button>
                   </div>
                 </Card>
@@ -332,24 +332,24 @@ export default function SettingsPage() {
           },
           {
             id: 'security',
-            label: 'Sécurité',
+            label: 'Securite',
             icon: <Shield className="w-4 h-4" />,
             content: (
               <div className="pt-6 space-y-6">
-                <Alert variant="info" title="Sécurité de votre compte">
-                  Activez l'authentification à deux facteurs pour renforcer la sécurité de votre compte.
+                <Alert variant="info" title="Securite de votre compte">
+                  Activez l'authentification a deux facteurs pour renforcer la securite de votre compte.
                 </Alert>
 
                 <Card>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Authentification à deux facteurs
+                    Authentification a deux facteurs
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium text-gray-900 dark:text-white">Activer 2FA</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Ajouter une couche de sécurité supplémentaire
+                          Ajouter une couche de securite supplementaire
                         </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -365,7 +365,7 @@ export default function SettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Délai d'expiration de session (minutes)
+                        Delai d'expiration de session (minutes)
                       </label>
                       <select
                         value={settings.sessionTimeout}
@@ -380,10 +380,10 @@ export default function SettingsPage() {
                     </div>
 
                     <button
-                      onClick={() => handleSave('sécurité')}
+                      onClick={() => handleSave('securite')}
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
-                      Enregistrer les paramètres
+                      Enregistrer les parametres
                     </button>
                   </div>
                 </Card>

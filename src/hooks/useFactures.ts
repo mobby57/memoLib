@@ -1,4 +1,4 @@
-﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTenant } from './useTenant';
 
 interface Facture {
@@ -55,7 +55,7 @@ export function useFactures(options?: { statut?: string; client_id?: string }) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Erreur création facture');
+        throw new Error(error.error || 'Erreur creation facture');
       }
 
       return response.json();

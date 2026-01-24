@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * WebSocket Notification Demo Component
@@ -40,7 +40,7 @@ export function WebSocketNotificationDemo({ tenantId }: { tenantId: string }) {
     });
 
     socketInstance.on('connect', () => {
-      console.log('✅ WebSocket connected');
+      console.log(' WebSocket connected');
       setConnected(true);
 
       // Join tenant room
@@ -48,7 +48,7 @@ export function WebSocketNotificationDemo({ tenantId }: { tenantId: string }) {
     });
 
     socketInstance.on('disconnect', () => {
-      console.log('❌ WebSocket disconnected');
+      console.log(' WebSocket disconnected');
       setConnected(false);
     });
 
@@ -58,7 +58,7 @@ export function WebSocketNotificationDemo({ tenantId }: { tenantId: string }) {
         {
           id: data.id,
           type: 'email',
-          message: `📧 Nouveau email: ${data.subject} (${data.priority})`,
+          message: `[emoji] Nouveau email: ${data.subject} (${data.priority})`,
           timestamp: new Date(data.timestamp),
           priority: data.priority,
         },
@@ -72,7 +72,7 @@ export function WebSocketNotificationDemo({ tenantId }: { tenantId: string }) {
         {
           id: data.id,
           type: 'dossier',
-          message: `📁 Dossier ${data.dossierNumber}: ${data.action}`,
+          message: `[emoji] Dossier ${data.dossierNumber}: ${data.action}`,
           timestamp: new Date(data.timestamp),
         },
         ...prev,
@@ -85,7 +85,7 @@ export function WebSocketNotificationDemo({ tenantId }: { tenantId: string }) {
         {
           id: data.id,
           type: 'deadline',
-          message: `⏰ ${data.message} (${data.remainingDays}j restants)`,
+          message: ` ${data.message} (${data.remainingDays}j restants)`,
           timestamp: new Date(),
           priority: data.urgency,
         },
@@ -138,7 +138,7 @@ export function WebSocketNotificationDemo({ tenantId }: { tenantId: string }) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <h3 className="text-lg font-semibold text-gray-900">
-            Notifications en Temps Réel
+            Notifications en Temps Reel
           </h3>
           <div className="flex items-center gap-2">
             <div
@@ -147,7 +147,7 @@ export function WebSocketNotificationDemo({ tenantId }: { tenantId: string }) {
               } animate-pulse`}
             />
             <span className="text-sm text-gray-600">
-              {connected ? 'Connecté' : 'Déconnecté'}
+              {connected ? 'Connecte' : 'Deconnecte'}
             </span>
           </div>
         </div>

@@ -1,6 +1,6 @@
 /**
  * Security Middleware - OWASP ZAP Compliant
- * IA Poste Manager - Sécurité niveau Enterprise
+ * IA Poste Manager - Securite niveau Enterprise
  * 
  * Conforme aux exigences :
  * - RGPD / CNIL
@@ -12,7 +12,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Headers de sécurité OWASP compliant
+ * Headers de securite OWASP compliant
  */
 export function addSecurityHeaders(response: NextResponse): NextResponse {
   // Content Security Policy - Strict mais fonctionnel
@@ -31,7 +31,7 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
     "upgrade-insecure-requests"
   ].join('; ');
 
-  // Headers de sécurité obligatoires
+  // Headers de securite obligatoires
   response.headers.set('Content-Security-Policy', csp);
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -59,7 +59,7 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
   ].join(', ');
   response.headers.set('Permissions-Policy', permissions);
 
-  // Headers additionnels pour la confidentialité
+  // Headers additionnels pour la confidentialite
   response.headers.set('X-Powered-By', ''); // Masquer la technologie
   response.headers.set('Server', ''); // Masquer le serveur
   
@@ -67,7 +67,7 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
 }
 
 /**
- * Configuration cookies sécurisés
+ * Configuration cookies securises
  */
 export const SECURE_COOKIE_CONFIG = {
   httpOnly: true,
@@ -78,7 +78,7 @@ export const SECURE_COOKIE_CONFIG = {
 };
 
 /**
- * Rate limiting simple (en mémoire)
+ * Rate limiting simple (en memoire)
  */
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
@@ -124,7 +124,7 @@ export function isSecureRoute(pathname: string): boolean {
 }
 
 /**
- * Headers spécifiques API
+ * Headers specifiques API
  */
 export function addApiSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('X-API-Version', '1.0');

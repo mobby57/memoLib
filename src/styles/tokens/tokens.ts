@@ -1,6 +1,6 @@
 /**
  * Design Tokens extraits depuis Figma
- * Généré automatiquement - NE PAS MODIFIER MANUELLEMENT
+ * Genere automatiquement - NE PAS MODIFIER MANUELLEMENT
  */
 
 export const colors = {

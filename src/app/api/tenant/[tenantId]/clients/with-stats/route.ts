@@ -95,7 +95,7 @@ export async function GET(
 
         const timeSinceUpdate = lastDossier?.updatedAt 
           ? getTimeSince(lastDossier.updatedAt)
-          : 'Jamais';
+          : 'Aucune activite';
 
         // Déterminer le statut (attention si actions en attente)
         const status = pendingActions > 0 ? 'attention' : 

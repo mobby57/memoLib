@@ -1,7 +1,7 @@
-﻿/**
- * API Routes Légifrance pour Next.js
+/**
+ * API Routes Legifrance pour Next.js
  * 
- * Endpoints pour exposer les fonctionnalités Légifrance
+ * Endpoints pour exposer les fonctionnalites Legifrance
  * avec authentification et isolation tenant
  */
 
@@ -13,7 +13,7 @@ import { logger } from '@/lib/logger';
 
 /**
  * POST /api/legifrance/search
- * Recherche générique dans Légifrance
+ * Recherche generique dans Legifrance
  */
 export async function POST(req: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions as any);
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'Non authentifié' },
+        { error: 'Non authentifie' },
         { status: 401 }
       );
     }
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { action, params } = body;
 
-    logger.info(`Requête Légifrance: ${action}`, { userId, tenantId, action });
+    logger.info(`Requete Legifrance: ${action}`, { userId, tenantId, action });
 
     let result;
 
@@ -107,13 +107,13 @@ export async function POST(req: NextRequest) {
 
       default:
         return NextResponse.json(
-          { error: `Action non supportée: ${action}` },
+          { error: `Action non supportee: ${action}` },
           { status: 400 }
         );
     }
 
-    // Log succès
-    logger.info(`Légifrance ${action} réussi`, {
+    // Log succes
+    logger.info(`Legifrance ${action} reussi`, {
       userId,
       tenantId,
       action,
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     
-    logger.error('Erreur API Légifrance', error);
+    logger.error('Erreur API Legifrance', error);
 
     return NextResponse.json(
       {
@@ -152,7 +152,7 @@ export async function GET(req: NextRequest) {
     const session = await getServerSession(authOptions as any);
     if (!session?.user) {
       return NextResponse.json(
-        { error: 'Non authentifié' },
+        { error: 'Non authentifie' },
         { status: 401 }
       );
     }

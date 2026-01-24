@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { PrismaClient } from '@prisma/client';
@@ -10,14 +10,14 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
     if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Récupérer le client et son tenant
+    // Recuperer le client et son tenant
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { tenantId: true, clientId: true },
@@ -45,19 +45,19 @@ export async function POST(request: NextRequest) {
 
     if (!user?.tenantId || !user.clientId) {
       return NextResponse.json(
-        { error: 'Client non associé correctement' },
+        { error: 'Client non associe correctement' },
         { status: 400 }
       );
     }
 
-    // Générer un numéro de dossier
+    // Generer un numero de dossier
     const year = new Date().getFullYear();
     const count = await prisma.dossier.count({
       where: { tenantId: user.tenantId },
     });
     const numero = `D-${year}-${String(count + 1).padStart(4, '0')}`;
 
-    // Créer le dossier
+    // Creer le dossier
     const dossier = await prisma.dossier.create({
       data: {
         numero,
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    logger.info(`Client ${userId} a créé le dossier ${dossier.numero}`);
+    logger.info(`Client ${userId} a cree le dossier ${dossier.numero}`);
 
     return NextResponse.json({
       success: true,
@@ -83,9 +83,9 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    logger.error('Erreur création dossier client', { error });
+    logger.error('Erreur creation dossier client', { error });
     return NextResponse.json(
-      { error: 'Erreur serveur lors de la création' },
+      { error: 'Erreur serveur lors de la creation' },
       { status: 500 }
     );
   } finally {

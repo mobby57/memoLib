@@ -1,4 +1,4 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
 
 export default function IntegrationsPage() {
   return (
@@ -7,10 +7,10 @@ export default function IntegrationsPage() {
         
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <h1 className="text-3xl font-bold mb-4">
-            Fonctionnalités Intégrées
+            Fonctionnalites Integrees
           </h1>
           <p className="text-gray-600">
-            Explorez les nouvelles fonctionnalités IA et temps réel
+            Explorez les nouvelles fonctionnalites IA et temps reel
           </p>
         </div>
 
@@ -32,14 +32,14 @@ export default function IntegrationsPage() {
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
             <h2 className="text-xl font-semibold mb-3">WebSocket</h2>
             <p className="text-gray-600">
-              Notifications temps réel
+              Notifications temps reel
             </p>
           </div>
 
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-emerald-500">
             <h2 className="text-xl font-semibold mb-3">RGPD</h2>
             <p className="text-gray-600">
-              Conformité RGPD
+              Conformite RGPD
             </p>
           </div>
 

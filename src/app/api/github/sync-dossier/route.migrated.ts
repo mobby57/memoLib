@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/withAuth';
 import { syncDossierToGitHub } from '@/lib/github/user-actions';
 import { logger } from '@/lib/logger';
@@ -19,7 +19,7 @@ async function handler(request: NextRequest, context: any) {
 
     const { dossierId, repo } = validated;
 
-    // Récupérer le dossier
+    // Recuperer le dossier
     const dossier = await prisma.dossier.findFirst({
       where: {
         id: dossierId,
@@ -49,7 +49,7 @@ async function handler(request: NextRequest, context: any) {
       userId
     );
 
-    // Sauvegarder le numéro d'issue dans le dossier
+    // Sauvegarder le numero d'issue dans le dossier
     await prisma.dossier.update({
       where: { id: dossierId },
       data: {
@@ -61,7 +61,7 @@ async function handler(request: NextRequest, context: any) {
       },
     });
 
-    logger.info('Dossier synchronisé avec GitHub', {
+    logger.info('Dossier synchronise avec GitHub', {
       userId,
       tenantId,
       dossierId,
@@ -79,7 +79,7 @@ async function handler(request: NextRequest, context: any) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Paramètres invalides', details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Parametres invalides', details: error.errors }, { status: 400 });
     }
 
     logger.error('Erreur sync GitHub dossier', error, { userId, tenantId });
@@ -88,7 +88,7 @@ async function handler(request: NextRequest, context: any) {
     
     if (errorMessage.includes('not connected to GitHub')) {
       return NextResponse.json(
-        { error: 'GitHub non connecté', message: 'Autorisez GitHub dans vos paramètres' },
+        { error: 'GitHub non connecte', message: 'Autorisez GitHub dans vos parametres' },
         { status: 403 }
       );
     }

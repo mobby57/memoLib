@@ -1,6 +1,6 @@
 /**
  * Types et utilitaires pour la gestion des dossiers
- * Synchronisé avec le schéma Prisma enrichi
+ * Synchronise avec le schema Prisma enrichi
  */
 
 import { Dossier, TacheDossier, EvenementDossier, CommentaireDossier } from './index';
@@ -47,11 +47,11 @@ export const TYPES_DOSSIER_CESEDA = [
 ] as const;
 
 export const JURIDICTIONS = [
-  'Préfecture',
+  'Prefecture',
   'Tribunal administratif',
   'Cour administrative d\'appel',
   'CNDA',
-  'Conseil d\'État',
+  'Conseil d\'etat',
   'Tribunal judiciaire',
   'Cour d\'appel',
   'Cour de cassation'
@@ -60,14 +60,14 @@ export const JURIDICTIONS = [
 export const TYPES_RECOURS = [
   'Gracieux',
   'Contentieux',
-  'Référé',
-  'Référé suspension',
-  'Référé liberté',
+  'Refere',
+  'Refere suspension',
+  'Refere liberte',
   'Plein contentieux'
 ] as const;
 
 export const INSTANCES = [
-  'Première instance',
+  'Premiere instance',
   'Appel',
   'Cassation'
 ] as const;
@@ -116,11 +116,11 @@ export type CanalContact = typeof CANAUX_CONTACT[number];
 export type FrequenceRelance = typeof FREQUENCES_RELANCE[number];
 
 // ============================================
-// INTERFACES ÉTENDUES
+// INTERFACES eTENDUES
 // ============================================
 
 /**
- * Dossier avec toutes ses relations chargées
+ * Dossier avec toutes ses relations chargees
  */
 export interface DossierComplet {
   id: string;
@@ -149,7 +149,7 @@ export interface DossierComplet {
 }
 
 /**
- * Vue simplifiée d'un dossier pour les listes
+ * Vue simplifiee d'un dossier pour les listes
  */
 export interface DossierListItem {
   id: string;
@@ -217,10 +217,10 @@ export interface DossierSortOptions {
 }
 
 /**
- * Création/Mise à jour de dossier
+ * Creation/Mise a jour de dossier
  */
 export interface DossierInput {
-  numero?: string; // Généré automatiquement si absent
+  numero?: string; // Genere automatiquement si absent
   clientId: string;
   typeDossier: string;
   articleCeseda?: string;
@@ -257,7 +257,7 @@ export interface DossierInput {
 }
 
 // ============================================
-// TYPES POUR TÂCHES
+// TYPES POUR TaCHES
 // ============================================
 
 export const TYPES_TACHE = [
@@ -292,7 +292,7 @@ export interface TacheInput {
 }
 
 // ============================================
-// TYPES POUR ÉVÉNEMENTS
+// TYPES POUR eVeNEMENTS
 // ============================================
 
 export const TYPES_EVENEMENT = [
@@ -374,7 +374,7 @@ export interface CommentaireInput {
 // ============================================
 
 /**
- * Vérifie si un dossier est en retard
+ * Verifie si un dossier est en retard
  */
 export function isDossierEnRetard(dossier: Dossier): boolean {
   if (!dossier.dateEcheance) return false;
@@ -384,7 +384,7 @@ export function isDossierEnRetard(dossier: Dossier): boolean {
 }
 
 /**
- * Calcule le nombre de jours avant échéance
+ * Calcule le nombre de jours avant echeance
  */
 export function joursAvantEcheance(dossier: Dossier): number | null {
   if (!dossier.dateEcheance) return null;
@@ -395,7 +395,7 @@ export function joursAvantEcheance(dossier: Dossier): number | null {
 }
 
 /**
- * Retourne la couleur associée à une priorité
+ * Retourne la couleur associee a une priorite
  */
 export function couleurPriorite(priorite: Priorite): string {
   const couleurs: Record<Priorite, string> = {
@@ -408,7 +408,7 @@ export function couleurPriorite(priorite: Priorite): string {
 }
 
 /**
- * Retourne la couleur associée à un statut
+ * Retourne la couleur associee a un statut
  */
 export function couleurStatut(statut: StatutDossier): string {
   const couleurs: Record<StatutDossier, string> = {
@@ -424,7 +424,7 @@ export function couleurStatut(statut: StatutDossier): string {
 }
 
 /**
- * Génère un numéro de dossier
+ * Genere un numero de dossier
  */
 export function genererNumeroDossier(annee?: number, sequence?: number): string {
   const year = annee || new Date().getFullYear();
@@ -449,7 +449,7 @@ export function calculerProgression(stats: DossierStats): number {
 }
 
 /**
- * Détermine l'urgence basée sur l'échéance
+ * Determine l'urgence basee sur l'echeance
  */
 export function determinerUrgence(dossier: Dossier): 'critique' | 'haute' | 'normale' | 'basse' {
   const jours = joursAvantEcheance(dossier);
@@ -468,7 +468,7 @@ export function determinerUrgence(dossier: Dossier): 'critique' | 'haute' | 'nor
 
 import type { StatutUI, PrioriteUI, TypeDossier } from '../lib/constants/dossier.constants'
 
-// Interface pour les donn�es venant de la DB (Prisma)
+// Interface pour les donnes venant de la DB (Prisma)
 export interface DossierDB {
   id: string
   numero: string
