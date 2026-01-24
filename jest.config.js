@@ -28,6 +28,25 @@ const customJestConfig = {
     '!src/**/*.d.ts',
     '!src/**/*.stories.{js,jsx,ts,tsx}',
     '!src/**/index.{js,jsx,ts,tsx}',
+    '!src/types/**/*',
+    '!src/**/*.types.ts',
+    // Priorité haute - Services métier
+    'src/lib/services/**/*.ts',
+    'src/middleware.ts',
+    // Priorité haute - API critiques  
+    'src/app/api/auth/**/*.ts',
+    'src/app/api/dossiers/**/*.ts',
+    'src/app/api/client/**/*.ts',
+    'src/app/api/billing/**/*.ts',
+  ],
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/node_modules_backup/',
+    '/.next/',
+    '/coverage/',
+    '/prisma/',
+    '/scripts/',
+    '/docs/',
   ],
   coverageThreshold: {
     global: {
