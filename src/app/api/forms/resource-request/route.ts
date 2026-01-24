@@ -1,22 +1,22 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 
 /**
- * 📝 API: Soumission de demande de ressources
+ * [emoji] API: Soumission de demande de ressources
  */
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const data = await request.json();
     const { resourceType, justification, urgency, estimatedCost, duration, alternatives, metadata } = data;
 
-    // Créer la demande dans la base de données
+    // Creer la demande dans la base de donnees
     const submission = await prisma.$executeRaw`
       INSERT INTO FormSubmission (
         id, formType, submitterId, status, data, impactScore, 
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       )
     `;
 
-    // Si approbation requise, créer les tâches d'approbation
+    // Si approbation requise, creer les taches d'approbation
     if (metadata.requiresApproval && metadata.approvers) {
       for (const approver of metadata.approvers) {
         await createApprovalTask(submission, approver, metadata);
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       submissionId: submission,
-      message: 'Demande soumise avec succès',
+      message: 'Demande soumise avec succes',
     });
   } catch (error) {
     console.error('Erreur soumission:', error);
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function createApprovalTask(submissionId: any, approver: string, metadata: any) {
-  // Créer une tâche d'approbation
+  // Creer une tache d'approbation
   await prisma.$executeRaw`
     INSERT INTO ApprovalTask (
       id, submissionId, approverRole, status, dueDate, createdAt
@@ -80,9 +80,9 @@ async function createApprovalTask(submissionId: any, approver: string, metadata:
 }
 
 async function sendNotificationEmail(approvers: string[], context: any) {
-  // Intégration avec le système d'email
+  // Integration avec le systeme d'email
   // Pour l'instant, log uniquement
-  console.log('📧 Email notification:', { approvers, context });
+  console.log('[emoji] Email notification:', { approvers, context });
 }
 
 function generateId(): string {

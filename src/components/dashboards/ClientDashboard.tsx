@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -73,7 +73,7 @@ export default function ClientDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Documents Envoyés</CardTitle>
+            <CardTitle className="text-sm font-medium">Documents Envoyes</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -98,7 +98,7 @@ export default function ClientDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-sm font-medium">
-              {stats.prochainRdv || 'Aucun RDV planifié'}
+              {stats.prochainRdv || 'Aucun RDV planifie'}
             </div>
           </CardContent>
         </Card>
@@ -125,7 +125,7 @@ export default function ClientDashboard() {
                   </Badge>
                   {dossier.echeance && (
                     <span className="text-sm font-medium">
-                      Échéance: {dossier.echeance}
+                      echeance: {dossier.echeance}
                     </span>
                   )}
                 </div>

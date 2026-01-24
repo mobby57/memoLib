@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -21,13 +21,13 @@ export function PredictiveDashboard({ tenantId }: PredictiveDashboardProps) {
   });
 
   if (isLoading) {
-    return <div className="animate-pulse">Chargement des prédictions...</div>;
+    return <div className="animate-pulse">Chargement des predictions...</div>;
   }
 
   return (
     <div className="grid grid-cols-2 gap-6">
       <PredictiveKPICard 
-        title="Revenus Prévus (30j)"
+        title="Revenus Prevus (30j)"
         value={predictions?.nextMonthRevenue || 0}
         trend={predictions?.revenueTrend || 0}
         format="currency"
@@ -64,7 +64,7 @@ function PredictiveKPICard({ title, value, trend, format }: {
   };
 
   const trendColor = trend > 0 ? 'text-green-600' : trend < 0 ? 'text-red-600' : 'text-gray-600';
-  const trendIcon = trend > 0 ? '↗️' : trend < 0 ? '↘️' : '➡️';
+  const trendIcon = trend > 0 ? '️' : trend < 0 ? '️' : '️';
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
@@ -85,17 +85,17 @@ function WorkloadForecast({ forecast, alerts }: {
 }) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
-      <h3 className="text-sm font-medium text-gray-500">Prévision de Charge</h3>
+      <h3 className="text-sm font-medium text-gray-500">Prevision de Charge</h3>
       <div className="mt-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600">Dossiers prévus</span>
+          <span className="text-sm text-gray-600">Dossiers prevus</span>
           <span className="text-lg font-semibold">{forecast}</span>
         </div>
         {alerts.length > 0 && (
           <div className="mt-3 space-y-1">
             {alerts.map((alert, index) => (
               <div key={index} className="text-sm text-amber-600 bg-amber-50 p-2 rounded">
-                ⚠️ {alert}
+                ️ {alert}
               </div>
             ))}
           </div>
@@ -119,7 +119,7 @@ function ResourceOptimization({ score, suggestions }: {
         <div className="mt-3 space-y-2">
           {suggestions.slice(0, 3).map((suggestion, index) => (
             <div key={index} className="text-sm text-gray-600 flex items-start">
-              <span className="text-blue-500 mr-2">💡</span>
+              <span className="text-blue-500 mr-2">[emoji]</span>
               {suggestion}
             </div>
           ))}

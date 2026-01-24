@@ -1,8 +1,8 @@
-﻿/**
+/**
  * Composant Suggestions Intelligentes
  * Affiche les suggestions proactives de l'IA
  * 
- * Innovation: L'IA devient proactive et suggère des actions
+ * Innovation: L'IA devient proactive et suggere des actions
  */
 
 'use client';
@@ -57,7 +57,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
         method: 'POST'
       });
       if (response.ok) {
-        // Retirer la suggestion acceptée
+        // Retirer la suggestion acceptee
         setSuggestions(prev => prev.filter(s => s.id !== suggestionId));
       }
     } catch (error) {
@@ -81,7 +81,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
           border: 'border-red-300',
           text: 'text-red-800',
           badge: 'bg-red-600',
-          icon: '🚨'
+          icon: '[emoji]'
         };
       case 'HIGH':
         return {
@@ -89,7 +89,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
           border: 'border-orange-300',
           text: 'text-orange-800',
           badge: 'bg-orange-600',
-          icon: '⚠️'
+          icon: '️'
         };
       case 'MEDIUM':
         return {
@@ -97,7 +97,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
           border: 'border-yellow-300',
           text: 'text-yellow-800',
           badge: 'bg-yellow-600',
-          icon: '📌'
+          icon: '[emoji]'
         };
       default:
         return {
@@ -121,8 +121,8 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
   if (suggestions.length === 0) {
     return (
       <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-        <div className="text-4xl mb-2">✨</div>
-        <div className="font-medium text-green-900">Tout est à jour !</div>
+        <div className="text-4xl mb-2"></div>
+        <div className="font-medium text-green-900">Tout est a jour !</div>
         <div className="text-sm text-green-700 mt-1">
           Aucune suggestion pour le moment
         </div>
@@ -134,13 +134,13 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-gray-900">
-          💡 Suggestions Intelligentes ({suggestions.length})
+          [emoji] Suggestions Intelligentes ({suggestions.length})
         </h3>
         <button
           onClick={loadSuggestions}
           className="text-sm text-blue-600 hover:text-blue-700 font-medium"
         >
-          🔄 Actualiser
+          [emoji] Actualiser
         </button>
       </div>
 
@@ -153,7 +153,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
             className={`${config.bg} border ${config.border} rounded-lg p-4 transition-all hover:shadow-md`}
           >
             <div className="flex items-start gap-4">
-              {/* Icône de priorité */}
+              {/* Icone de priorite */}
               <div className="text-3xl flex-shrink-0">{config.icon}</div>
 
               {/* Contenu */}
@@ -167,18 +167,18 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
 
                 <p className="text-sm text-gray-700 mb-3">{suggestion.description}</p>
 
-                {/* Détails */}
+                {/* Details */}
                 <div className="flex items-center gap-4 text-xs text-gray-600 mb-3">
                   <div className="flex items-center gap-1">
                     <span>🎯</span>
                     <span>Confiance: {(suggestion.confidence * 100).toFixed(0)}%</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span>⏱️</span>
+                    <span>️</span>
                     <span>~{suggestion.estimatedTimeMinutes} min</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span>🤖</span>
+                    <span>[emoji]</span>
                     <span>{suggestion.actionType}</span>
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
                 {/* Raisonnement */}
                 <div className="bg-white bg-opacity-60 rounded p-2 mb-3">
                   <div className="text-xs font-medium text-gray-700 mb-1">
-                    💭 Raisonnement:
+                    [emoji] Raisonnement:
                   </div>
                   <div className="text-xs text-gray-600">{suggestion.reasoning}</div>
                 </div>
@@ -200,11 +200,11 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
                   >
                     {accepting === suggestion.id ? (
                       <>
-                        <span className="inline-block animate-spin mr-2">⏳</span>
+                        <span className="inline-block animate-spin mr-2"></span>
                         Traitement...
                       </>
                     ) : (
-                      <>✓ Accepter</>
+                      <>[Check] Accepter</>
                     )}
                   </button>
 
@@ -213,13 +213,13 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
                     disabled={dismissing === suggestion.id}
                     className="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm px-4 py-2 rounded-lg font-medium transition disabled:opacity-50"
                   >
-                    ✕ Ignorer
+                     Ignorer
                   </button>
 
                   <button
                     className="ml-auto text-xs text-blue-600 hover:text-blue-700 font-medium"
                   >
-                    Détails →
+                    Details [Next]
                   </button>
                 </div>
               </div>

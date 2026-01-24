@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API Route: Synchroniser un dossier avec GitHub
  * POST /api/github/sync-dossier
  */
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Récupérer le dossier
+    // Recuperer le dossier
     const dossier = await prisma.dossier.findFirst({
       where: {
         id: dossierId,
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       userId
     );
 
-    // Sauvegarder le numéro d'issue dans le dossier
+    // Sauvegarder le numero d'issue dans le dossier
     await prisma.dossier.update({
       where: { id: dossierId },
       data: {

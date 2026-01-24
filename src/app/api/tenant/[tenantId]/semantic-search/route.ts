@@ -28,11 +28,11 @@ function calculateCosineSimilarity(query: string, text: string): number {
   
   // Bonus contextuel pour termes juridiques
   const legalTerms = {
-    'régulariser': ['titre', 'séjour', 'préfecture', 'oqtf'],
-    'naturalisation': ['français', 'nationalité', 'citoyenneté'],
-    'asile': ['protection', 'réfugié', 'ofpra', 'cnda'],
+    'regulariser': ['titre', 'sejour', 'prefecture', 'oqtf'],
+    'naturalisation': ['francais', 'nationalite', 'citoyennete'],
+    'asile': ['protection', 'refugie', 'ofpra', 'cnda'],
     'famille': ['regroupement', 'conjoint', 'enfant'],
-    'travail': ['salarié', 'emploi', 'autorisation']
+    'travail': ['salarie', 'emploi', 'autorisation']
   };
   
   Object.entries(legalTerms).forEach(([term, related]) => {
@@ -130,11 +130,11 @@ export async function GET(
         results: [],
         patterns: null,
         suggestions: [
-          'régulariser situation administrative',
-          'demande naturalisation française',
-          'recours OQTF préfecture',
+          'regulariser situation administrative',
+          'demande naturalisation francaise',
+          'recours OQTF prefecture',
           'regroupement familial conjoint',
-          'renouvellement titre séjour'
+          'renouvellement titre sejour'
         ]
       });
     }

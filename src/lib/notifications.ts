@@ -12,7 +12,7 @@ interface CreateNotificationParams {
   priority?: NotificationPriority;
 }
 
-// Créer une notification
+// Creer une notification
 export async function createNotification(params: CreateNotificationParams) {
   const { userId, type, title, message, data, priority = 'normal' } = params;
 
@@ -27,7 +27,7 @@ export async function createNotification(params: CreateNotificationParams) {
     },
   });
 
-  // Émettre via Server-Sent Events (SSE) ou WebSocket si configuré
+  // emettre via Server-Sent Events (SSE) ou WebSocket si configure
   await emitNotification(userId, notification);
 
   return notification;
@@ -99,7 +99,7 @@ export function registerSSEClient(userId: string, controller: ReadableStreamDefa
   sseClients.get(userId)!.add(controller);
 }
 
-// Désenregistrer un client SSE
+// Desenregistrer un client SSE
 export function unregisterSSEClient(userId: string, controller: ReadableStreamDefaultController) {
   const clients = sseClients.get(userId);
   if (clients) {
@@ -110,7 +110,7 @@ export function unregisterSSEClient(userId: string, controller: ReadableStreamDe
   }
 }
 
-// Émettre une notification via SSE
+// emettre une notification via SSE
 async function emitNotification(userId: string, notification: Record<string, unknown>) {
   const clients = sseClients.get(userId);
   if (clients) {
@@ -128,74 +128,74 @@ async function emitNotification(userId: string, notification: Record<string, unk
   }
 }
 
-// Créer des notifications pour différents événements
+// Creer des notifications pour differents evenements
 export const NotificationService = {
-  // Nouvel email reçu
+  // Nouvel email recu
   async emailReceived(userId: string, emailData: { from: string; subject: string; emailId: string }) {
     return createNotification({
       userId,
       type: 'email',
-      title: 'Nouvel email reçu',
+      title: 'Nouvel email recu',
       message: `De: ${emailData.from} - ${emailData.subject}`,
       data: { emailId: emailData.emailId },
       priority: 'normal',
     });
   },
 
-  // Workflow terminé
+  // Workflow termine
   async workflowCompleted(userId: string, workflowData: { name: string; status: string; workflowId: string }) {
     return createNotification({
       userId,
       type: 'workflow',
-      title: 'Workflow terminé',
+      title: 'Workflow termine',
       message: `${workflowData.name} - Statut: ${workflowData.status}`,
       data: { workflowId: workflowData.workflowId },
       priority: workflowData.status === 'failed' ? 'high' : 'normal',
     });
   },
 
-  // Facture émise
+  // Facture emise
   async factureCreated(userId: string, factureData: { numero: string; montant: number; factureId: string }) {
     return createNotification({
       userId,
       type: 'facture',
-      title: 'Nouvelle facture créée',
+      title: 'Nouvelle facture creee',
       message: `Facture ${factureData.numero} - ${factureData.montant.toFixed(2)}€`,
       data: { factureId: factureData.factureId },
       priority: 'normal',
     });
   },
 
-  // Paiement reçu
+  // Paiement recu
   async paymentReceived(userId: string, paymentData: { numero: string; montant: number; factureId: string }) {
     return createNotification({
       userId,
       type: 'facture',
-      title: 'Paiement reçu',
-      message: `Facture ${paymentData.numero} - ${paymentData.montant.toFixed(2)}€ payé`,
+      title: 'Paiement recu',
+      message: `Facture ${paymentData.numero} - ${paymentData.montant.toFixed(2)}€ paye`,
       data: { factureId: paymentData.factureId },
       priority: 'normal',
     });
   },
 
-  // Échéance proche
+  // echeance proche
   async deadlineApproaching(userId: string, data: { title: string; date: Date; type: string; id: string }) {
     return createNotification({
       userId,
       type: 'calendar',
-      title: 'Échéance proche',
+      title: 'echeance proche',
       message: `${data.title} - ${data.date.toLocaleDateString('fr-FR')}`,
       data: { eventId: data.id, eventType: data.type },
       priority: 'high',
     });
   },
 
-  // Dossier mis à jour
+  // Dossier mis a jour
   async dossierUpdated(userId: string, dossierData: { numero: string; action: string; dossierId: string }) {
     return createNotification({
       userId,
       type: 'dossier',
-      title: 'Dossier mis à jour',
+      title: 'Dossier mis a jour',
       message: `Dossier ${dossierData.numero} - ${dossierData.action}`,
       data: { dossierId: dossierData.dossierId },
       priority: 'normal',

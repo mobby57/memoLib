@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/auth';
 import { logger, LogCategory } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
@@ -14,7 +14,7 @@ const MonthlyDataQuerySchema = z.object({
 
 // ============================================
 // GET /api/dashboard/monthly-data
-// Récupère les données mensuelles (dossiers, factures, revenus)
+// Recupere les donnees mensuelles (dossiers, factures, revenus)
 // ============================================
 
 export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
@@ -31,7 +31,7 @@ export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
 
     logger.log(LogCategory.API, `Fetching monthly data for ${months} months`, { tenantId, months });
 
-    // Calculer les données des N derniers mois
+    // Calculer les donnees des N derniers mois
     const monthlyData = [];
     const now = new Date();
     
@@ -41,7 +41,7 @@ export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
       
       const monthName = date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
 
-      // Compter les dossiers créés ce mois (en parallèle)
+      // Compter les dossiers crees ce mois (en parallele)
       const [dossiersCount, facturesCount, facturesSum] = await Promise.all([
         prisma.dossier.count({
           where: {
@@ -73,7 +73,7 @@ export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
       });
     }
 
-    logger.log(LogCategory.API, `✅ Monthly data fetched: ${monthlyData.length} months`, {
+    logger.log(LogCategory.API, ` Monthly data fetched: ${monthlyData.length} months`, {
       tenantId,
       totalDossiers: monthlyData.reduce((sum, m) => sum + m.dossiers, 0),
       totalRevenus: monthlyData.reduce((sum, m) => sum + m.revenus, 0),
@@ -88,7 +88,7 @@ export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
     if (error instanceof z.ZodError) {
       logger.warn(LogCategory.API, 'Invalid monthly data query', { error: error.errors });
       return NextResponse.json(
-        { error: 'Paramètres invalides', details: error.errors },
+        { error: 'Parametres invalides', details: error.errors },
         { status: 400 }
       );
     }

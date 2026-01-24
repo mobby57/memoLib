@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 🎨 Figma Code Connect - Dashboard Analytics
  * 
  * Composant: IA Poste Manager > Dashboards > AnalyticsDashboard
@@ -56,21 +56,21 @@ CodeConnect.figma(
 /**
  * **Dashboard d'analytics pour avocats**
  * 
- * Affiche KPIs en temps réel:
- * - Dossiers actifs / terminés
- * - Taux de succès par type
- * - Délais moyens de traitement
- * - Prévisions (ML)
+ * Affiche KPIs en temps reel:
+ * - Dossiers actifs / termines
+ * - Taux de succes par type
+ * - Delais moyens de traitement
+ * - Previsions (ML)
  * 
  * ### Sections
  * 1. **Overview Cards** - KPIs principaux
- * 2. **Trends Chart** - Évolution sur période
+ * 2. **Trends Chart** - evolution sur periode
  * 3. **Case Distribution** - Pie chart par type
- * 4. **Performance Metrics** - Tableau détaillé
+ * 4. **Performance Metrics** - Tableau detaille
  * 
- * ### Capacités
- * ✅ Filtres par période/type/statut
- * ✅ Export CSV/PDF
- * ✅ Actualisation temps réel
- * ✅ Drill-down sur chaque métrique
+ * ### Capacites
+ *  Filtres par periode/type/statut
+ *  Export CSV/PDF
+ *  Actualisation temps reel
+ *  Drill-down sur chaque metrique
  */

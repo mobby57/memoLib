@@ -32,7 +32,7 @@ async function generatePredictions(tenantId: string) {
     caseloadTrend: (Math.random() - 0.5) * 30,
     clientSatisfactionTrend: 85 + Math.random() * 10,
     resourceOptimization: 70 + Math.random() * 25,
-    workloadAlerts: baseCaseload > 35 ? ['Charge de travail élevée prévue'] : [],
+    workloadAlerts: baseCaseload > 35 ? ['Charge de travail elevee prevue'] : [],
     optimizationSuggestions: [
       'Automatiser le triage des emails',
       'Optimiser les workflows de validation',

@@ -1,4 +1,4 @@
-﻿
+
 
 export interface Column<T> {
   header: string;
@@ -52,7 +52,7 @@ export function Table<T extends { id: string | number }>({ columns, data, onRowC
       </table>
       {data.length === 0 && (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          Aucune donnée à afficher
+          Aucune donnee a afficher
         </div>
       )}
     </div>

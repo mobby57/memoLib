@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ export default function QuickSearch({ className = '' }: QuickSearchProps) {
   const popularSearches = [
     'Dossiers en cours',
     'Emails non lus',
-    'Documents récents',
+    'Documents recents',
     'Clients actifs',
   ];
 
@@ -52,7 +52,7 @@ export default function QuickSearch({ className = '' }: QuickSearchProps) {
           href="/search"
           className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
         >
-          Recherche avancée →
+          Recherche avancee [Next]
         </Link>
       </div>
 
@@ -72,7 +72,7 @@ export default function QuickSearch({ className = '' }: QuickSearchProps) {
         </div>
       </form>
 
-      {/* Résultats rapides */}
+      {/* Resultats rapides */}
       {quickResults.length > 0 && (
         <div className="mb-4 space-y-2">
           {quickResults.map((result) => (
@@ -101,13 +101,13 @@ export default function QuickSearch({ className = '' }: QuickSearchProps) {
         </div>
       )}
 
-      {/* Recherches récentes */}
+      {/* Recherches recentes */}
       {recentSearches.length > 0 && query.length === 0 && (
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
             <Clock className="w-4 h-4 text-gray-400" />
             <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Recherches récentes
+              Recherches recentes
             </h4>
           </div>
           <div className="space-y-1">

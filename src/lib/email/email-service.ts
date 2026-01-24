@@ -7,7 +7,7 @@ import nodemailer from 'nodemailer';
 
 // Configuration du transporteur
 const getTransporter = () => {
-  // Option 1: Resend (recommandé, gratuit 100 emails/jour)
+  // Option 1: Resend (recommande, gratuit 100 emails/jour)
   if (process.env.RESEND_API_KEY) {
     return nodemailer.createTransport({
       host: 'smtp.resend.com',
@@ -32,7 +32,7 @@ const getTransporter = () => {
     });
   }
 
-  // Option 3: SMTP personnalisé
+  // Option 3: SMTP personnalise
   if (process.env.SMTP_HOST) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -46,7 +46,7 @@ const getTransporter = () => {
   }
 
   // Fallback: Mode test (logs seulement)
-  console.warn('[EMAIL] Aucun transporteur configuré - mode test');
+  console.warn('[EMAIL] Aucun transporteur configure - mode test');
   return null;
 };
 
@@ -98,7 +98,7 @@ export async function sendEmail(options: EmailOptions): Promise<SendResult> {
       attachments: options.attachments,
     });
 
-    console.log('[EMAIL] Envoyé:', result.messageId);
+    console.log('[EMAIL] Envoye:', result.messageId);
     return { success: true, messageId: result.messageId };
 
   } catch (error) {
@@ -111,11 +111,11 @@ export async function sendEmail(options: EmailOptions): Promise<SendResult> {
 }
 
 /**
- * Templates d'emails prédéfinis
+ * Templates d'emails predefinis
  */
 export const emailTemplates = {
   /**
-   * Alerte échéance dossier
+   * Alerte echeance dossier
    */
   deadlineAlert: (data: {
     clientName: string;
@@ -125,7 +125,7 @@ export const emailTemplates = {
     joursRestants: number;
     lienDossier: string;
   }) => ({
-    subject: `⚠️ Échéance proche: ${data.dossierNumero} - ${data.joursRestants} jours restants`,
+    subject: `️ echeance proche: ${data.dossierNumero} - ${data.joursRestants} jours restants`,
     html: `
 <!DOCTYPE html>
 <html>
@@ -147,31 +147,31 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">⚠️ Alerte Échéance</h1>
+      <h1 style="margin: 0; font-size: 24px;">️ Alerte echeance</h1>
       <p style="margin: 10px 0 0 0; opacity: 0.9;">${data.joursRestants} jours restants</p>
     </div>
     <div class="content">
       <p>Bonjour,</p>
       
       <div class="alert-box">
-        <strong>Une échéance importante approche !</strong><br>
-        Le dossier <strong>${data.dossierNumero}</strong> arrive à échéance dans <strong>${data.joursRestants} jours</strong>.
+        <strong>Une echeance importante approche !</strong><br>
+        Le dossier <strong>${data.dossierNumero}</strong> arrive a echeance dans <strong>${data.joursRestants} jours</strong>.
       </div>
       
       <table class="info-table">
         <tr><td>Client</td><td>${data.clientName}</td></tr>
-        <tr><td>Numéro dossier</td><td>${data.dossierNumero}</td></tr>
+        <tr><td>Numero dossier</td><td>${data.dossierNumero}</td></tr>
         <tr><td>Type</td><td>${data.dossierType}</td></tr>
-        <tr><td>Date échéance</td><td>${new Date(data.echeance).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>
+        <tr><td>Date echeance</td><td>${new Date(data.echeance).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>
       </table>
       
       <p style="text-align: center; margin-top: 30px;">
-        <a href="${data.lienDossier}" class="btn">Voir le dossier →</a>
+        <a href="${data.lienDossier}" class="btn">Voir le dossier [Next]</a>
       </p>
       
       <div class="footer">
-        <p>Cet email a été envoyé automatiquement par IA Poste Manager.</p>
-        <p>© ${new Date().getFullYear()} IA Poste Manager</p>
+        <p>Cet email a ete envoye automatiquement par IA Poste Manager.</p>
+        <p> ${new Date().getFullYear()} IA Poste Manager</p>
       </div>
     </div>
   </div>
@@ -190,7 +190,7 @@ export const emailTemplates = {
     nouveauStatut: string;
     lienDossier: string;
   }) => ({
-    subject: `📋 Mise à jour dossier ${data.dossierNumero}: ${data.nouveauStatut}`,
+    subject: `[emoji] Mise a jour dossier ${data.dossierNumero}: ${data.nouveauStatut}`,
     html: `
 <!DOCTYPE html>
 <html>
@@ -213,27 +213,27 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">📋 Mise à jour de votre dossier</h1>
+      <h1 style="margin: 0; font-size: 24px;">[emoji] Mise a jour de votre dossier</h1>
       <p style="margin: 10px 0 0 0; opacity: 0.9;">${data.dossierNumero}</p>
     </div>
     <div class="content">
       <p>Bonjour ${data.clientName},</p>
       
-      <p>Le statut de votre dossier a été mis à jour :</p>
+      <p>Le statut de votre dossier a ete mis a jour :</p>
       
       <div class="status-change">
         <div class="status old">${data.ancienStatut}</div>
-        <span class="arrow">→</span>
+        <span class="arrow">[Next]</span>
         <div class="status new">${data.nouveauStatut}</div>
       </div>
       
       <p style="text-align: center; margin-top: 30px;">
-        <a href="${data.lienDossier}" class="btn">Consulter le dossier →</a>
+        <a href="${data.lienDossier}" class="btn">Consulter le dossier [Next]</a>
       </p>
       
       <div class="footer">
-        <p>Cet email a été envoyé automatiquement par IA Poste Manager.</p>
-        <p>© ${new Date().getFullYear()} IA Poste Manager</p>
+        <p>Cet email a ete envoye automatiquement par IA Poste Manager.</p>
+        <p> ${new Date().getFullYear()} IA Poste Manager</p>
       </div>
     </div>
   </div>
@@ -273,7 +273,7 @@ export const emailTemplates = {
   <div class="container">
     <div class="header">
       <h1 style="margin: 0; font-size: 28px;">🎉 Bienvenue !</h1>
-      <p style="margin: 10px 0 0 0; opacity: 0.9;">Votre espace client est prêt</p>
+      <p style="margin: 10px 0 0 0; opacity: 0.9;">Votre espace client est pret</p>
     </div>
     <div class="content">
       <p>Bonjour ${data.clientName},</p>
@@ -284,21 +284,21 @@ export const emailTemplates = {
       
       <div class="features">
         <div class="feature">
-          <span class="feature-icon">📁</span>
-          <div><strong>Suivre vos dossiers</strong><br>Consultez l'avancement de vos dossiers en temps réel</div>
+          <span class="feature-icon">[emoji]</span>
+          <div><strong>Suivre vos dossiers</strong><br>Consultez l'avancement de vos dossiers en temps reel</div>
         </div>
         <div class="feature">
-          <span class="feature-icon">📎</span>
-          <div><strong>Partager des documents</strong><br>Envoyez et recevez des documents en toute sécurité</div>
+          <span class="feature-icon">[emoji]</span>
+          <div><strong>Partager des documents</strong><br>Envoyez et recevez des documents en toute securite</div>
         </div>
         <div class="feature">
-          <span class="feature-icon">💬</span>
-          <div><strong>Communiquer</strong><br>Échangez directement avec votre avocat</div>
+          <span class="feature-icon">[emoji]</span>
+          <div><strong>Communiquer</strong><br>echangez directement avec votre avocat</div>
         </div>
       </div>
       
       <p style="text-align: center; margin-top: 30px;">
-        <a href="${data.loginUrl}" class="btn">Accéder à mon espace →</a>
+        <a href="${data.loginUrl}" class="btn">Acceder a mon espace [Next]</a>
       </p>
       
       <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
@@ -306,7 +306,7 @@ export const emailTemplates = {
       </p>
       
       <div class="footer">
-        <p>© ${new Date().getFullYear()} ${data.cabinetName} - Propulsé par IA Poste Manager</p>
+        <p> ${new Date().getFullYear()} ${data.cabinetName} - Propulse par IA Poste Manager</p>
       </div>
     </div>
   </div>

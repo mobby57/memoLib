@@ -41,7 +41,7 @@ export function FileUpload({
   dossierId,
   onUploadComplete,
   maxFiles = 10,
-  maxSize = 10, // 10 MB par défaut
+  maxSize = 10, // 10 MB par defaut
   acceptedTypes = ['application/pdf', 'image/*', '.doc', '.docx', '.xls', '.xlsx'],
   className = '',
 }: FileUploadProps) {
@@ -53,7 +53,7 @@ export function FileUpload({
   const uploadFile = async (file: File): Promise<UploadedFile> => {
     const tempId = `temp-${Date.now()}-${Math.random()}`;
     
-    // Ajouter fichier en état "uploading"
+    // Ajouter fichier en etat "uploading"
     const uploadingFile: UploadedFile = {
       id: tempId,
       fileName: file.name,
@@ -209,15 +209,15 @@ export function FileUpload({
           
           <div>
             <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
-              {isDragging ? 'Déposez les fichiers ici' : 'Glissez-déposez vos fichiers'}
+              {isDragging ? 'Deposez les fichiers ici' : 'Glissez-deposez vos fichiers'}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              ou <span className="text-blue-500 hover:text-blue-600">parcourez</span> pour sélectionner
+              ou <span className="text-blue-500 hover:text-blue-600">parcourez</span> pour selectionner
             </p>
           </div>
 
           <p className="text-xs text-gray-400 dark:text-gray-500">
-            PDF, Images, Word, Excel • Max {maxSize} MB par fichier
+            PDF, Images, Word, Excel - Max {maxSize} MB par fichier
           </p>
         </div>
       </div>
@@ -241,7 +241,7 @@ export function FileUpload({
                   }
                 `}
               >
-                {/* Icône */}
+                {/* Icone */}
                 {getFileIcon(file.fileType)}
 
                 {/* Infos */}
@@ -252,7 +252,7 @@ export function FileUpload({
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {formatFileSize(file.fileSize)}
                     {file.error && (
-                      <span className="text-red-500 ml-2">• {file.error}</span>
+                      <span className="text-red-500 ml-2">- {file.error}</span>
                     )}
                   </p>
                 </div>

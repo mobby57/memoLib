@@ -1,6 +1,6 @@
-﻿/**
- * Composant d'affichage de l'état RECEIVED
- * Objectif: Confirmer ce qui est reçu, rien de plus
+/**
+ * Composant d'affichage de l'etat RECEIVED
+ * Objectif: Confirmer ce qui est recu, rien de plus
  */
 
 import { WorkspaceReasoning } from '@/types/workspace-reasoning';
@@ -44,19 +44,19 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
       const factsCount = result.extractedFactsCount || 0;
       const confidence = Math.round((result.averageConfidence || 0) * 100);
       toast.showToast(
-        `✅ ${factsCount} fait(s) extrait(s) avec ${confidence}% de confiance`,
+        ` ${factsCount} fait(s) extrait(s) avec ${confidence}% de confiance`,
         'success',
-        'Extraction IA réussie'
+        'Extraction IA reussie'
       );
 
-      // Rafraîchir après extraction sans recharger la page
+      // Rafraichir apres extraction sans recharger la page
       if (onRefresh) {
         onRefresh();
       }
 
     } catch (error) {
       const classified = classifyError(error);
-      toast.showToast(classified.userMessage, 'error', 'Échec de l\'extraction');
+      toast.showToast(classified.userMessage, 'error', 'echec de l\'extraction');
     }
   };
   
@@ -64,9 +64,9 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">📥 Nouveau dossier reçu</h2>
+        <h2 className="text-2xl font-bold text-gray-900">[emoji] Nouveau dossier recu</h2>
         <p className="text-gray-600 mt-1">
-          État initial - Aucune interprétation effectuée
+          etat initial - Aucune interpretation effectuee
         </p>
       </div>
       
@@ -82,13 +82,13 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
           
           {workspace.sourceId && (
             <div>
-              <span className="text-gray-500">Référence:</span>
+              <span className="text-gray-500">Reference:</span>
               <span className="ml-2 font-mono text-xs">{workspace.sourceId}</span>
             </div>
           )}
           
           <div>
-            <span className="text-gray-500">Reçu le:</span>
+            <span className="text-gray-500">Recu le:</span>
             <span className="ml-2">{new Date(workspace.createdAt).toLocaleString('fr-FR')}</span>
           </div>
           
@@ -103,7 +103,7 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
       
       {/* Contenu brut */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <h3 className="font-semibold text-gray-900 mb-3">Contenu brut reçu (non modifié)</h3>
+        <h3 className="font-semibold text-gray-900 mb-3">Contenu brut recu (non modifie)</h3>
         
         <div className="bg-white border border-gray-300 rounded p-4">
           <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono">
@@ -112,10 +112,10 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
         </div>
       </div>
       
-      {/* Métadonnées */}
+      {/* Metadonnees */}
       {Object.keys(metadata).length > 0 && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 mb-2">Métadonnées</h3>
+          <h3 className="font-semibold text-blue-900 mb-2">Metadonnees</h3>
           
           <div className="space-y-1 text-sm">
             {Object.entries(metadata).map(([key, value]) => (
@@ -144,7 +144,7 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
       {/* Actions */}
       <div className="flex items-center justify-between pt-4 border-t border-gray-200">
         <div className="text-sm text-gray-500">
-          ⚠️ Aucune modification manuelle autorisée à ce stade
+          ️ Aucune modification manuelle autorisee a ce stade
         </div>
         
         <div className="flex gap-3">
@@ -161,7 +161,7 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
               </>
             ) : (
               <>
-                🤖 Extraire avec IA
+                [emoji] Extraire avec IA
               </>
             )}
           </button>
@@ -172,7 +172,7 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
             disabled={isLoading}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
           >
-            ✅ Analyse manuelle
+             Analyse manuelle
           </button>
         </div>
       </div>

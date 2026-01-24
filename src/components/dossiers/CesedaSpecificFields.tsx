@@ -1,10 +1,10 @@
-﻿'use client'
+'use client'
 
 /**
- * Champs spécifiques par type de dossier CESEDA
- * - Formulaires dynamiques selon le type sélectionné
+ * Champs specifiques par type de dossier CESEDA
+ * - Formulaires dynamiques selon le type selectionne
  * - Validation contextuelle
- * - Aide et documentation intégrées
+ * - Aide et documentation integrees
  */
 
 import { useFormContext } from 'react-hook-form'
@@ -42,7 +42,7 @@ function FormulaireOQTF() {
         <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
         <div>
           <h3 className="text-xl font-bold text-red-900 mb-1">Recours contre OQTF</h3>
-          <p className="text-sm text-red-700">Obligation de Quitter le Territoire Français - Dossier critique</p>
+          <p className="text-sm text-red-700">Obligation de Quitter le Territoire Francais - Dossier critique</p>
         </div>
       </div>
 
@@ -61,8 +61,8 @@ function FormulaireOQTF() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium">OQTF sans délai de départ volontaire</div>
-                <div className="text-xs text-gray-600">Référé-liberté dans les 48h</div>
+                <div className="font-medium">OQTF sans delai de depart volontaire</div>
+                <div className="text-xs text-gray-600">Refere-liberte dans les 48h</div>
               </div>
             </label>
             <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-white">
@@ -73,7 +73,7 @@ function FormulaireOQTF() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium">OQTF avec délai de départ volontaire (30 jours)</div>
+                <div className="font-medium">OQTF avec delai de depart volontaire (30 jours)</div>
                 <div className="text-xs text-gray-600">Recours administratif et contentieux possibles</div>
               </div>
             </label>
@@ -90,7 +90,7 @@ function FormulaireOQTF() {
             {...register('metadata.oqtf.dateNotification')}
             className="w-full px-4 py-2 border rounded-lg"
           />
-          <p className="text-xs text-gray-600 mt-1">Date de remise de l'arrêté OQTF</p>
+          <p className="text-xs text-gray-600 mt-1">Date de remise de l'arrete OQTF</p>
         </div>
 
         {/* Mode de notification */}
@@ -99,18 +99,18 @@ function FormulaireOQTF() {
             Mode de notification <span className="text-red-500">*</span>
           </label>
           <select {...register('metadata.oqtf.modeNotification')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">-- Sélectionner --</option>
+            <option value="">-- Selectionner --</option>
             <option value="main_propre">Remise en main propre</option>
-            <option value="courrier">Courrier recommandé</option>
-            <option value="prefecture">Notification en préfecture</option>
+            <option value="courrier">Courrier recommande</option>
+            <option value="prefecture">Notification en prefecture</option>
             <option value="domicile">Notification au domicile</option>
           </select>
         </div>
 
-        {/* Numéro de l'arrêté */}
+        {/* Numero de l'arrete */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Numéro de l'arrêté préfectoral
+            Numero de l'arrete prefectoral
           </label>
           <input
             type="text"
@@ -120,15 +120,15 @@ function FormulaireOQTF() {
           />
         </div>
 
-        {/* Préfecture émettrice */}
+        {/* Prefecture emettrice */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Préfecture émettrice <span className="text-red-500">*</span>
+            Prefecture emettrice <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             {...register('metadata.oqtf.prefecture')}
-            placeholder="Ex: Préfecture du Val-de-Marne"
+            placeholder="Ex: Prefecture du Val-de-Marne"
             className="w-full px-4 py-2 border rounded-lg"
           />
         </div>
@@ -141,7 +141,7 @@ function FormulaireOQTF() {
               {...register('metadata.oqtf.interdictionRetour')}
               className="w-4 h-4"
             />
-            <span className="text-sm font-medium">Interdiction de retour sur le territoire français (IRTF)</span>
+            <span className="text-sm font-medium">Interdiction de retour sur le territoire francais (IRTF)</span>
           </label>
         </div>
 
@@ -149,10 +149,10 @@ function FormulaireOQTF() {
           <>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Durée de l'interdiction
+                Duree de l'interdiction
               </label>
               <select {...register('metadata.oqtf.dureeInterdiction')} className="w-full px-4 py-2 border rounded-lg">
-                <option value="">-- Sélectionner --</option>
+                <option value="">-- Selectionner --</option>
                 <option value="1_an">1 an</option>
                 <option value="2_ans">2 ans</option>
                 <option value="3_ans">3 ans</option>
@@ -167,7 +167,7 @@ function FormulaireOQTF() {
               <input
                 type="text"
                 {...register('metadata.oqtf.motifInterdiction')}
-                placeholder="Ex: Séjour irrégulier"
+                placeholder="Ex: Sejour irregulier"
                 className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
@@ -177,28 +177,28 @@ function FormulaireOQTF() {
         {/* Pays de destination */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Pays de destination prévu
+            Pays de destination prevu
           </label>
           <input
             type="text"
             {...register('metadata.oqtf.paysDestination')}
-            placeholder="Ex: Algérie"
+            placeholder="Ex: Algerie"
             className="w-full px-4 py-2 border rounded-lg"
           />
         </div>
 
-        {/* Situation particulière */}
+        {/* Situation particuliere */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Situation particulière
+            Situation particuliere
           </label>
           <select {...register('metadata.oqtf.situationParticuliere')} className="w-full px-4 py-2 border rounded-lg">
             <option value="">-- Aucune --</option>
-            <option value="enfants_scolarises">Enfants scolarisés en France</option>
-            <option value="conjoint_francais">Conjoint français</option>
-            <option value="probleme_sante">Problème de santé grave</option>
+            <option value="enfants_scolarises">Enfants scolarises en France</option>
+            <option value="conjoint_francais">Conjoint francais</option>
+            <option value="probleme_sante">Probleme de sante grave</option>
             <option value="risque_pays_origine">Risques dans pays d'origine</option>
-            <option value="anciennete_france">Ancienneté importante en France</option>
+            <option value="anciennete_france">Anciennete importante en France</option>
           </select>
         </div>
 
@@ -210,7 +210,7 @@ function FormulaireOQTF() {
           <textarea
             {...register('metadata.oqtf.contexte')}
             rows={4}
-            placeholder="Décrivez le contexte: contrôle d'identité, interpellation, convocation préfecture, etc."
+            placeholder="Decrivez le contexte: controle d'identite, interpellation, convocation prefecture, etc."
             className="w-full px-4 py-3 border rounded-lg"
           />
         </div>
@@ -221,11 +221,11 @@ function FormulaireOQTF() {
         <div className="flex items-start gap-2">
           <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-blue-900">
-            <p className="font-medium mb-1">Délais de recours critiques :</p>
+            <p className="font-medium mb-1">Delais de recours critiques :</p>
             <ul className="list-disc list-inside space-y-1 text-blue-800">
-              <li><strong>48 heures</strong> : Référé-liberté devant le juge administratif (OQTF sans délai)</li>
-              <li><strong>48 heures</strong> : Référé-suspension (OQTF sans délai)</li>
-              <li><strong>30 jours</strong> : Recours gracieux auprès de la préfecture</li>
+              <li><strong>48 heures</strong> : Refere-liberte devant le juge administratif (OQTF sans delai)</li>
+              <li><strong>48 heures</strong> : Refere-suspension (OQTF sans delai)</li>
+              <li><strong>30 jours</strong> : Recours gracieux aupres de la prefecture</li>
               <li><strong>2 mois</strong> : Recours contentieux devant le Tribunal Administratif</li>
             </ul>
           </div>
@@ -246,7 +246,7 @@ function FormulaireAsile() {
         <Shield className="w-6 h-6 text-orange-600 flex-shrink-0 mt-1" />
         <div>
           <h3 className="text-xl font-bold text-orange-900 mb-1">Demande d'Asile</h3>
-          <p className="text-sm text-orange-700">Protection internationale - Statut de réfugié ou protection subsidiaire</p>
+          <p className="text-sm text-orange-700">Protection internationale - Statut de refugie ou protection subsidiaire</p>
         </div>
       </div>
 
@@ -265,8 +265,8 @@ function FormulaireAsile() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium">Première demande d'asile</div>
-                <div className="text-xs text-gray-600">Procédure normale ou accélérée devant l'OFPRA</div>
+                <div className="font-medium">Premiere demande d'asile</div>
+                <div className="text-xs text-gray-600">Procedure normale ou acceleree devant l'OFPRA</div>
               </div>
             </label>
             <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-white">
@@ -277,8 +277,8 @@ function FormulaireAsile() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium">Demande de réexamen</div>
-                <div className="text-xs text-gray-600">Nouvelle demande après rejet ou élément nouveau</div>
+                <div className="font-medium">Demande de reexamen</div>
+                <div className="text-xs text-gray-600">Nouvelle demande apres rejet ou element nouveau</div>
               </div>
             </label>
             <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-white">
@@ -290,7 +290,7 @@ function FormulaireAsile() {
               />
               <div>
                 <div className="font-medium">Recours devant la CNDA</div>
-                <div className="text-xs text-gray-600">Suite à un rejet de l'OFPRA</div>
+                <div className="text-xs text-gray-600">Suite a un rejet de l'OFPRA</div>
               </div>
             </label>
           </div>
@@ -308,10 +308,10 @@ function FormulaireAsile() {
           />
         </div>
 
-        {/* Numéro de dossier OFPRA */}
+        {/* Numero de dossier OFPRA */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Numéro de dossier OFPRA
+            Numero de dossier OFPRA
           </label>
           <input
             type="text"
@@ -337,7 +337,7 @@ function FormulaireAsile() {
         {/* Date de fuite */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date de départ du pays d'origine
+            Date de depart du pays d'origine
           </label>
           <input
             type="date"
@@ -346,10 +346,10 @@ function FormulaireAsile() {
           />
         </div>
 
-        {/* Procédure */}
+        {/* Procedure */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Procédure applicable
+            Procedure applicable
           </label>
           <div className="space-y-2">
             <label className="flex items-center gap-2">
@@ -358,7 +358,7 @@ function FormulaireAsile() {
                 value="normale"
                 {...register('metadata.asile.procedure')}
               />
-              <span>Procédure normale (6 mois)</span>
+              <span>Procedure normale (6 mois)</span>
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -366,7 +366,7 @@ function FormulaireAsile() {
                 value="acceleree"
                 {...register('metadata.asile.procedure')}
               />
-              <span>Procédure accélérée (15 jours + 5 mois CNDA)</span>
+              <span>Procedure acceleree (15 jours + 5 mois CNDA)</span>
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -374,15 +374,15 @@ function FormulaireAsile() {
                 value="dublin"
                 {...register('metadata.asile.procedure')}
               />
-              <span>Procédure Dublin (demande dans un autre pays UE)</span>
+              <span>Procedure Dublin (demande dans un autre pays UE)</span>
             </label>
           </div>
         </div>
 
-        {/* Motifs de persécution */}
+        {/* Motifs de persecution */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Motifs de persécution (plusieurs choix possibles)
+            Motifs de persecution (plusieurs choix possibles)
           </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="flex items-center gap-2">
@@ -399,45 +399,45 @@ function FormulaireAsile() {
             </label>
             <label className="flex items-center gap-2">
               <input type="checkbox" {...register('metadata.asile.motifs.nationalite')} />
-              <span className="text-sm">Nationalité</span>
+              <span className="text-sm">Nationalite</span>
             </label>
             <label className="flex items-center gap-2">
               <input type="checkbox" {...register('metadata.asile.motifs.groupe_social')} />
-              <span className="text-sm">Appartenance à un groupe social</span>
+              <span className="text-sm">Appartenance a un groupe social</span>
             </label>
             <label className="flex items-center gap-2">
               <input type="checkbox" {...register('metadata.asile.motifs.orientation_sexuelle')} />
-              <span className="text-sm">Orientation sexuelle / Identité de genre</span>
+              <span className="text-sm">Orientation sexuelle / Identite de genre</span>
             </label>
           </div>
         </div>
 
-        {/* Récit synthétique */}
+        {/* Recit synthetique */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Résumé du récit (synopsis)
+            Resume du recit (synopsis)
           </label>
           <textarea
             {...register('metadata.asile.recitSynthetique')}
             rows={5}
-            placeholder="Résumé chronologique des faits de persécution et raisons de la fuite..."
+            placeholder="Resume chronologique des faits de persecution et raisons de la fuite..."
             className="w-full px-4 py-3 border rounded-lg"
           />
-          <p className="text-xs text-gray-600 mt-1">Sera complété par le récit détaillé en pièce jointe</p>
+          <p className="text-xs text-gray-600 mt-1">Sera complete par le recit detaille en piece jointe</p>
         </div>
 
-        {/* Hébergement actuel */}
+        {/* Hebergement actuel */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Type d'hébergement actuel
+            Type d'hebergement actuel
           </label>
           <select {...register('metadata.asile.hebergement')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">-- Sélectionner --</option>
+            <option value="">-- Selectionner --</option>
             <option value="cada">CADA (Centre d'Accueil pour Demandeurs d'Asile)</option>
-            <option value="huda">HUDA (Hébergement d'Urgence pour Demandeurs d'Asile)</option>
-            <option value="hotel">Hôtel (dispositif préfectoral)</option>
+            <option value="huda">HUDA (Hebergement d'Urgence pour Demandeurs d'Asile)</option>
+            <option value="hotel">Hotel (dispositif prefectoral)</option>
             <option value="famille">Chez famille ou amis</option>
-            <option value="rue">Sans hébergement stable</option>
+            <option value="rue">Sans hebergement stable</option>
             <option value="autre">Autre</option>
           </select>
         </div>
@@ -451,7 +451,7 @@ function FormulaireAsile() {
             />
             <span className="text-sm font-medium">Possession de l'attestation de demande d'asile</span>
           </label>
-          <p className="text-xs text-gray-600 mt-1">Document remis par la préfecture autorisant le séjour</p>
+          <p className="text-xs text-gray-600 mt-1">Document remis par la prefecture autorisant le sejour</p>
         </div>
       </div>
 
@@ -460,12 +460,12 @@ function FormulaireAsile() {
         <div className="flex items-start gap-2">
           <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-blue-900">
-            <p className="font-medium mb-1">Étapes de la procédure d'asile :</p>
+            <p className="font-medium mb-1">etapes de la procedure d'asile :</p>
             <ol className="list-decimal list-inside space-y-1 text-blue-800">
-              <li>Enregistrement en préfecture (guichet unique)</li>
-              <li>Dépôt du dossier à l'OFPRA (récit + documents)</li>
-              <li>Convocation à l'entretien OFPRA</li>
-              <li>Décision OFPRA (acceptation ou rejet)</li>
+              <li>Enregistrement en prefecture (guichet unique)</li>
+              <li>Depot du dossier a l'OFPRA (recit + documents)</li>
+              <li>Convocation a l'entretien OFPRA</li>
+              <li>Decision OFPRA (acceptation ou rejet)</li>
               <li>Si rejet : Recours CNDA dans 1 mois</li>
             </ol>
           </div>
@@ -475,7 +475,7 @@ function FormulaireAsile() {
   )
 }
 
-// ===== FORMULAIRE TITRE DE SÉJOUR =====
+// ===== FORMULAIRE TITRE DE SeJOUR =====
 function FormulaireTitreSejour() {
   const { register, watch } = useFormContext()
   const fondement = watch('metadata.titreSejour.fondement')
@@ -485,8 +485,8 @@ function FormulaireTitreSejour() {
       <div className="flex items-start gap-3">
         <FileText className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
         <div>
-          <h3 className="text-xl font-bold text-blue-900 mb-1">Titre de Séjour</h3>
-          <p className="text-sm text-blue-700">Demande ou renouvellement de titre de séjour</p>
+          <h3 className="text-xl font-bold text-blue-900 mb-1">Titre de Sejour</h3>
+          <p className="text-sm text-blue-700">Demande ou renouvellement de titre de sejour</p>
         </div>
       </div>
 
@@ -504,7 +504,7 @@ function FormulaireTitreSejour() {
                 {...register('metadata.titreSejour.natureDemande')}
                 className="mr-3"
               />
-              <span className="font-medium">Première demande de titre de séjour</span>
+              <span className="font-medium">Premiere demande de titre de sejour</span>
             </label>
             <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-white">
               <input
@@ -513,7 +513,7 @@ function FormulaireTitreSejour() {
                 {...register('metadata.titreSejour.natureDemande')}
                 className="mr-3"
               />
-              <span className="font-medium">Renouvellement de titre de séjour</span>
+              <span className="font-medium">Renouvellement de titre de sejour</span>
             </label>
             <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-white">
               <input
@@ -533,24 +533,24 @@ function FormulaireTitreSejour() {
             Fondement juridique (article CESEDA) <span className="text-red-500">*</span>
           </label>
           <select {...register('metadata.titreSejour.fondement')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">-- Sélectionner --</option>
-            <optgroup label="Vie privée et familiale">
-              <option value="L423-23">L.423-23 - Conjoint de Français</option>
-              <option value="L423-1">L.423-1 - Parent d'enfant français</option>
-              <option value="L435-1">L.435-1 - Vie privée et familiale (10 ans en France)</option>
-              <option value="L425-9">L.425-9 - Jeune majeur entré mineur</option>
+            <option value="">-- Selectionner --</option>
+            <optgroup label="Vie privee et familiale">
+              <option value="L423-23">L.423-23 - Conjoint de Francais</option>
+              <option value="L423-1">L.423-1 - Parent d'enfant francais</option>
+              <option value="L435-1">L.435-1 - Vie privee et familiale (10 ans en France)</option>
+              <option value="L425-9">L.425-9 - Jeune majeur entre mineur</option>
             </optgroup>
             <optgroup label="Travail">
-              <option value="L421-1">L.421-1 - Salarié</option>
+              <option value="L421-1">L.421-1 - Salarie</option>
               <option value="L421-5">L.421-5 - Travailleur temporaire</option>
-              <option value="L421-10">L.421-10 - Entrepreneur / Profession libérale</option>
+              <option value="L421-10">L.421-10 - Entrepreneur / Profession liberale</option>
             </optgroup>
-            <optgroup label="Études">
-              <option value="L422-1">L.422-1 - Étudiant</option>
+            <optgroup label="etudes">
+              <option value="L422-1">L.422-1 - etudiant</option>
               <option value="L422-10">L.422-10 - Stagiaire</option>
             </optgroup>
-            <optgroup label="Santé">
-              <option value="L425-10">L.425-10 - Étranger malade</option>
+            <optgroup label="Sante">
+              <option value="L425-10">L.425-10 - etranger malade</option>
             </optgroup>
             <optgroup label="Autres">
               <option value="L426-1">L.426-1 - Visiteur</option>
@@ -571,12 +571,12 @@ function FormulaireTitreSejour() {
                 {...register('metadata.titreSejour.dateExpiration')}
                 className="w-full px-4 py-2 border rounded-lg"
               />
-              <p className="text-xs text-gray-600 mt-1">Déposer la demande 2 mois avant l'expiration</p>
+              <p className="text-xs text-gray-600 mt-1">Deposer la demande 2 mois avant l'expiration</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Numéro du titre actuel
+                Numero du titre actuel
               </label>
               <input
                 type="text"
@@ -596,10 +596,10 @@ function FormulaireTitreSejour() {
                 Type de contrat <span className="text-red-500">*</span>
               </label>
               <select {...register('metadata.titreSejour.typeContrat')} className="w-full px-4 py-2 border rounded-lg">
-                <option value="">-- Sélectionner --</option>
-                <option value="cdi">CDI (Contrat à Durée Indéterminée)</option>
-                <option value="cdd">CDD (Contrat à Durée Déterminée)</option>
-                <option value="interim">Intérim</option>
+                <option value="">-- Selectionner --</option>
+                <option value="cdi">CDI (Contrat a Duree Indeterminee)</option>
+                <option value="cdd">CDD (Contrat a Duree Determinee)</option>
+                <option value="interim">Interim</option>
                 <option value="promesse_embauche">Promesse d'embauche</option>
               </select>
             </div>
@@ -630,27 +630,27 @@ function FormulaireTitreSejour() {
           </>
         )}
 
-        {/* Établissement (si étudiant) */}
+        {/* etablissement (si etudiant) */}
         {fondement === 'L422-1' && (
           <>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Établissement d'enseignement <span className="text-red-500">*</span>
+                etablissement d'enseignement <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 {...register('metadata.titreSejour.etablissement')}
-                placeholder="Ex: Université Paris-Sorbonne"
+                placeholder="Ex: Universite Paris-Sorbonne"
                 className="w-full px-4 py-2 border rounded-lg"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Niveau d'études
+                Niveau d'etudes
               </label>
               <select {...register('metadata.titreSejour.niveauEtudes')} className="w-full px-4 py-2 border rounded-lg">
-                <option value="">-- Sélectionner --</option>
+                <option value="">-- Selectionner --</option>
                 <option value="licence">Licence (L1, L2, L3)</option>
                 <option value="master">Master (M1, M2)</option>
                 <option value="doctorat">Doctorat</option>
@@ -660,12 +660,12 @@ function FormulaireTitreSejour() {
           </>
         )}
 
-        {/* Lien familial (si vie privée et familiale) */}
+        {/* Lien familial (si vie privee et familiale) */}
         {(fondement === 'L423-23' || fondement === 'L423-1') && (
           <>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Identité du membre de famille français
+                Identite du membre de famille francais
               </label>
               <input
                 type="text"
@@ -688,15 +688,15 @@ function FormulaireTitreSejour() {
           </>
         )}
 
-        {/* Préfecture de dépôt */}
+        {/* Prefecture de depot */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Préfecture de dépôt <span className="text-red-500">*</span>
+            Prefecture de depot <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             {...register('metadata.titreSejour.prefecture')}
-            placeholder="Ex: Préfecture de Paris"
+            placeholder="Ex: Prefecture de Paris"
             className="w-full px-4 py-2 border rounded-lg"
           />
         </div>
@@ -704,7 +704,7 @@ function FormulaireTitreSejour() {
         {/* Date de rendez-vous */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date du rendez-vous en préfecture
+            Date du rendez-vous en prefecture
           </label>
           <input
             type="date"
@@ -713,16 +713,16 @@ function FormulaireTitreSejour() {
           />
         </div>
 
-        {/* Récépissé */}
+        {/* Recepisse */}
         <div>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               {...register('metadata.titreSejour.recepisse')}
             />
-            <span className="text-sm font-medium">Récépissé déjà obtenu</span>
+            <span className="text-sm font-medium">Recepisse deja obtenu</span>
           </label>
-          <p className="text-xs text-gray-600 mt-1">Récépissé de dépôt de demande</p>
+          <p className="text-xs text-gray-600 mt-1">Recepisse de depot de demande</p>
         </div>
       </div>
 
@@ -731,12 +731,12 @@ function FormulaireTitreSejour() {
         <div className="flex items-start gap-2">
           <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-blue-900">
-            <p className="font-medium mb-1">Documents généralement requis :</p>
+            <p className="font-medium mb-1">Documents generalement requis :</p>
             <ul className="list-disc list-inside space-y-1 text-blue-800">
-              <li>Passeport en cours de validité</li>
-              <li>3 photos d'identité récentes</li>
+              <li>Passeport en cours de validite</li>
+              <li>3 photos d'identite recentes</li>
               <li>Justificatif de domicile de moins de 3 mois</li>
-              <li>Titre de séjour actuel (si renouvellement)</li>
+              <li>Titre de sejour actuel (si renouvellement)</li>
               <li>Documents justifiant le fondement (contrat de travail, mariage, etc.)</li>
             </ul>
           </div>
@@ -755,8 +755,8 @@ function FormulaireNaturalisation() {
       <div className="flex items-start gap-3">
         <div className="text-3xl">🇫🇷</div>
         <div>
-          <h3 className="text-xl font-bold text-indigo-900 mb-1">Naturalisation Française</h3>
-          <p className="text-sm text-indigo-700">Acquisition de la nationalité française par décret ou déclaration</p>
+          <h3 className="text-xl font-bold text-indigo-900 mb-1">Naturalisation Francaise</h3>
+          <p className="text-sm text-indigo-700">Acquisition de la nationalite francaise par decret ou declaration</p>
         </div>
       </div>
 
@@ -775,8 +775,8 @@ function FormulaireNaturalisation() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium">Naturalisation par décret</div>
-                <div className="text-xs text-gray-600">Procédure standard (5 ans de résidence)</div>
+                <div className="font-medium">Naturalisation par decret</div>
+                <div className="text-xs text-gray-600">Procedure standard (5 ans de residence)</div>
               </div>
             </label>
             <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-white">
@@ -787,8 +787,8 @@ function FormulaireNaturalisation() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium">Déclaration par mariage avec un Français</div>
-                <div className="text-xs text-gray-600">4 ans de mariage + communauté de vie</div>
+                <div className="font-medium">Declaration par mariage avec un Francais</div>
+                <div className="text-xs text-gray-600">4 ans de mariage + communaute de vie</div>
               </div>
             </label>
             <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-white">
@@ -799,17 +799,17 @@ function FormulaireNaturalisation() {
                 className="mr-3"
               />
               <div>
-                <div className="font-medium">Parent d'enfant français</div>
-                <div className="text-xs text-gray-600">Condition de résidence réduite</div>
+                <div className="font-medium">Parent d'enfant francais</div>
+                <div className="text-xs text-gray-600">Condition de residence reduite</div>
               </div>
             </label>
           </div>
         </div>
 
-        {/* Durée de résidence en France */}
+        {/* Duree de residence en France */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date d'arrivée en France <span className="text-red-500">*</span>
+            Date d'arrivee en France <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -820,7 +820,7 @@ function FormulaireNaturalisation() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Années de résidence en France
+            Annees de residence en France
           </label>
           <input
             type="number"
@@ -832,31 +832,31 @@ function FormulaireNaturalisation() {
           <p className="text-xs text-gray-600 mt-1">Minimum 5 ans (sauf exceptions)</p>
         </div>
 
-        {/* Titres de séjour */}
+        {/* Titres de sejour */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Titres de séjour détenus (historique)
+            Titres de sejour detenus (historique)
           </label>
           <textarea
             {...register('metadata.naturalisation.titresSejour')}
             rows={3}
-            placeholder="Ex: 2018-2019: Étudiant, 2019-2024: Salarié, 2024-2029: Résident 10 ans"
+            placeholder="Ex: 2018-2019: etudiant, 2019-2024: Salarie, 2024-2029: Resident 10 ans"
             className="w-full px-4 py-3 border rounded-lg"
           />
         </div>
 
-        {/* Niveau de français */}
+        {/* Niveau de francais */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Niveau de français certifié <span className="text-red-500">*</span>
+            Niveau de francais certifie <span className="text-red-500">*</span>
           </label>
           <select {...register('metadata.naturalisation.niveauFrancais')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">-- Sélectionner --</option>
+            <option value="">-- Selectionner --</option>
             <option value="B1_oral">B1 oral minimum (requis)</option>
-            <option value="B2">B2 (recommandé)</option>
+            <option value="B2">B2 (recommande)</option>
             <option value="C1">C1</option>
             <option value="C2">C2</option>
-            <option value="diplome_francais">Diplôme obtenu en français</option>
+            <option value="diplome_francais">Diplome obtenu en francais</option>
           </select>
         </div>
 
@@ -878,14 +878,14 @@ function FormulaireNaturalisation() {
             Situation professionnelle actuelle <span className="text-red-500">*</span>
           </label>
           <select {...register('metadata.naturalisation.situationPro')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">-- Sélectionner --</option>
-            <option value="cdi">Salarié en CDI</option>
-            <option value="cdd">Salarié en CDD</option>
-            <option value="independant">Travailleur indépendant</option>
+            <option value="">-- Selectionner --</option>
+            <option value="cdi">Salarie en CDI</option>
+            <option value="cdd">Salarie en CDD</option>
+            <option value="independant">Travailleur independant</option>
             <option value="fonctionnaire">Fonctionnaire</option>
             <option value="chomage">En recherche d'emploi</option>
-            <option value="retraite">Retraité</option>
-            <option value="etudiant">Étudiant</option>
+            <option value="retraite">Retraite</option>
+            <option value="etudiant">etudiant</option>
             <option value="autre">Autre</option>
           </select>
         </div>
@@ -909,7 +909,7 @@ function FormulaireNaturalisation() {
               type="checkbox"
               {...register('metadata.naturalisation.casierVierge')}
             />
-            <span className="text-sm font-medium">Casier judiciaire vierge (bulletin n°3)</span>
+            <span className="text-sm font-medium">Casier judiciaire vierge (bulletin n deg3)</span>
           </label>
           <p className="text-xs text-gray-600 mt-1">Requis pour la naturalisation</p>
         </div>
@@ -917,32 +917,32 @@ function FormulaireNaturalisation() {
         {/* Assimilation */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Éléments d'assimilation à la communauté française
+            elements d'assimilation a la communaute francaise
           </label>
           <textarea
             {...register('metadata.naturalisation.assimilation')}
             rows={4}
-            placeholder="Ex: Engagement associatif, activité professionnelle, liens familiaux, formation suivie en France..."
+            placeholder="Ex: Engagement associatif, activite professionnelle, liens familiaux, formation suivie en France..."
             className="w-full px-4 py-3 border rounded-lg"
           />
         </div>
 
-        {/* Préfecture de dépôt */}
+        {/* Prefecture de depot */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Préfecture de dépôt <span className="text-red-500">*</span>
+            Prefecture de depot <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             {...register('metadata.naturalisation.prefecture')}
-            placeholder="Ex: Préfecture de Paris"
+            placeholder="Ex: Prefecture de Paris"
             className="w-full px-4 py-2 border rounded-lg"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date de dépôt du dossier
+            Date de depot du dossier
           </label>
           <input
             type="date"
@@ -958,7 +958,7 @@ function FormulaireNaturalisation() {
               type="checkbox"
               {...register('metadata.naturalisation.entretienPasse')}
             />
-            <span className="text-sm font-medium">Entretien d'assimilation déjà passé</span>
+            <span className="text-sm font-medium">Entretien d'assimilation deja passe</span>
           </label>
         </div>
 
@@ -983,12 +983,12 @@ function FormulaireNaturalisation() {
           <div className="text-sm text-blue-900">
             <p className="font-medium mb-1">Conditions principales de naturalisation :</p>
             <ul className="list-disc list-inside space-y-1 text-blue-800">
-              <li><strong>Résidence</strong> : 5 ans minimum en France (sauf exceptions)</li>
-              <li><strong>Langue</strong> : Niveau B1 oral minimum certifié</li>
+              <li><strong>Residence</strong> : 5 ans minimum en France (sauf exceptions)</li>
+              <li><strong>Langue</strong> : Niveau B1 oral minimum certifie</li>
               <li><strong>Ressources</strong> : Ressources stables et suffisantes</li>
-              <li><strong>Assimilation</strong> : Connaissance de l'histoire, culture et société françaises</li>
-              <li><strong>Moralité</strong> : Casier judiciaire vierge</li>
-              <li><strong>Délai</strong> : Instruction 12 à 18 mois</li>
+              <li><strong>Assimilation</strong> : Connaissance de l'histoire, culture et societe francaises</li>
+              <li><strong>Moralite</strong> : Casier judiciaire vierge</li>
+              <li><strong>Delai</strong> : Instruction 12 a 18 mois</li>
             </ul>
           </div>
         </div>
@@ -1015,12 +1015,12 @@ function FormulaireRegroupementFamilial() {
         {/* Membres de la famille */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Membres concernés par le regroupement <span className="text-red-500">*</span>
+            Membres concernes par le regroupement <span className="text-red-500">*</span>
           </label>
           <div className="space-y-2">
             <label className="flex items-center gap-2">
               <input type="checkbox" {...register('metadata.regroupement.conjoint')} />
-              <span>Conjoint (marié ou pacsé)</span>
+              <span>Conjoint (marie ou pacse)</span>
             </label>
             <label className="flex items-center gap-2">
               <input type="checkbox" {...register('metadata.regroupement.enfants')} />
@@ -1032,7 +1032,7 @@ function FormulaireRegroupementFamilial() {
         {watch('metadata.regroupement.enfants') && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Nombre d'enfants concernés
+              Nombre d'enfants concernes
             </label>
             <input
               type="number"
@@ -1051,7 +1051,7 @@ function FormulaireRegroupementFamilial() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Durée de résidence régulière en France <span className="text-red-500">*</span>
+            Duree de residence reguliere en France <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -1059,17 +1059,17 @@ function FormulaireRegroupementFamilial() {
             placeholder="En mois (minimum 18 mois)"
             className="w-full px-4 py-2 border rounded-lg"
           />
-          <p className="text-xs text-gray-600 mt-1">Minimum 18 mois de résidence régulière</p>
+          <p className="text-xs text-gray-600 mt-1">Minimum 18 mois de residence reguliere</p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Type de titre de séjour actuel
+            Type de titre de sejour actuel
           </label>
           <input
             type="text"
             {...register('metadata.regroupement.titreSejour')}
-            placeholder="Ex: Carte de résident 10 ans"
+            placeholder="Ex: Carte de resident 10 ans"
             className="w-full px-4 py-2 border rounded-lg"
           />
         </div>
@@ -1092,10 +1092,10 @@ function FormulaireRegroupementFamilial() {
             Type d'emploi
           </label>
           <select {...register('metadata.regroupement.typeEmploi')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">-- Sélectionner --</option>
+            <option value="">-- Selectionner --</option>
             <option value="cdi">CDI</option>
-            <option value="cdd_long">CDD longue durée (+ 1 an)</option>
-            <option value="independant">Travailleur indépendant</option>
+            <option value="cdd_long">CDD longue duree (+ 1 an)</option>
+            <option value="independant">Travailleur independant</option>
             <option value="retraite">Pension de retraite</option>
           </select>
         </div>
@@ -1110,10 +1110,10 @@ function FormulaireRegroupementFamilial() {
             Type de logement <span className="text-red-500">*</span>
           </label>
           <select {...register('metadata.regroupement.typeLogement')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">-- Sélectionner --</option>
-            <option value="proprietaire">Propriétaire</option>
+            <option value="">-- Selectionner --</option>
+            <option value="proprietaire">Proprietaire</option>
             <option value="locataire">Locataire</option>
-            <option value="heberge">Hébergé</option>
+            <option value="heberge">Heberge</option>
           </select>
         </div>
 
@@ -1132,7 +1132,7 @@ function FormulaireRegroupementFamilial() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Nombre de pièces
+            Nombre de pieces
           </label>
           <input
             type="number"
@@ -1148,7 +1148,7 @@ function FormulaireRegroupementFamilial() {
               type="checkbox"
               {...register('metadata.regroupement.logementDecent')}
             />
-            <span className="text-sm font-medium">Logement décent et conforme (normes sanitaires)</span>
+            <span className="text-sm font-medium">Logement decent et conforme (normes sanitaires)</span>
           </label>
         </div>
 
@@ -1159,7 +1159,7 @@ function FormulaireRegroupementFamilial() {
               type="checkbox"
               {...register('metadata.regroupement.visiteEffectuee')}
             />
-            <span className="text-sm font-medium">Visite du logement par l'OFII déjà effectuée</span>
+            <span className="text-sm font-medium">Visite du logement par l'OFII deja effectuee</span>
           </label>
         </div>
 
@@ -1178,34 +1178,34 @@ function FormulaireRegroupementFamilial() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Résultat de la visite
+                Resultat de la visite
               </label>
               <select {...register('metadata.regroupement.resultatVisite')} className="w-full px-4 py-2 border rounded-lg">
-                <option value="">-- Sélectionner --</option>
+                <option value="">-- Selectionner --</option>
                 <option value="favorable">Avis favorable</option>
-                <option value="reserve">Avis avec réserves</option>
-                <option value="defavorable">Avis défavorable</option>
+                <option value="reserve">Avis avec reserves</option>
+                <option value="defavorable">Avis defavorable</option>
               </select>
             </div>
           </>
         )}
 
-        {/* Préfecture */}
+        {/* Prefecture */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Préfecture de dépôt <span className="text-red-500">*</span>
+            Prefecture de depot <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             {...register('metadata.regroupement.prefecture')}
-            placeholder="Ex: Préfecture de Seine-et-Marne"
+            placeholder="Ex: Prefecture de Seine-et-Marne"
             className="w-full px-4 py-2 border rounded-lg"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Date de dépôt de la demande
+            Date de depot de la demande
           </label>
           <input
             type="date"
@@ -1217,12 +1217,12 @@ function FormulaireRegroupementFamilial() {
         {/* Observations */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Observations particulières
+            Observations particulieres
           </label>
           <textarea
             {...register('metadata.regroupement.observations')}
             rows={3}
-            placeholder="Ex: Situation d'urgence, problème de santé d'un membre de la famille, etc."
+            placeholder="Ex: Situation d'urgence, probleme de sante d'un membre de la famille, etc."
             className="w-full px-4 py-3 border rounded-lg"
           />
         </div>
@@ -1235,10 +1235,10 @@ function FormulaireRegroupementFamilial() {
           <div className="text-sm text-blue-900">
             <p className="font-medium mb-1">Conditions du regroupement familial :</p>
             <ul className="list-disc list-inside space-y-1 text-blue-800">
-              <li><strong>Résidence</strong> : 18 mois minimum de résidence régulière en France</li>
-              <li><strong>Ressources</strong> : Revenus ≥ SMIC (stables et réguliers)</li>
+              <li><strong>Residence</strong> : 18 mois minimum de residence reguliere en France</li>
+              <li><strong>Ressources</strong> : Revenus ≥ SMIC (stables et reguliers)</li>
               <li><strong>Logement</strong> : Surface minimale selon composition familiale + visite OFII</li>
-              <li><strong>Délai</strong> : Instruction 6 mois environ + visite logement</li>
+              <li><strong>Delai</strong> : Instruction 6 mois environ + visite logement</li>
               <li><strong>Famille</strong> : Conjoint + enfants mineurs (sauf exceptions)</li>
             </ul>
           </div>

@@ -1,8 +1,8 @@
 import ExcelJS from 'exceljs'
 
 /**
- * Wrapper sécurisé pour Excel avec ExcelJS
- * Alternative sécurisée à xlsx
+ * Wrapper securise pour Excel avec ExcelJS
+ * Alternative securisee a xlsx
  */
 
 export class SecureXLSX {
@@ -16,7 +16,7 @@ export class SecureXLSX {
 
     const extension = file.name.toLowerCase().slice(file.name.lastIndexOf('.'))
     if (!this.ALLOWED_EXTENSIONS.includes(extension)) {
-      throw new Error('Format de fichier non autorisé')
+      throw new Error('Format de fichier non autorise')
     }
   }
 
@@ -59,18 +59,18 @@ export class SecureXLSX {
       const workbook = new ExcelJS.Workbook()
       const worksheet = workbook.addWorksheet('Data')
       
-      // Ajouter les données
+      // Ajouter les donnees
       data.forEach(row => {
         worksheet.addRow(row)
       })
       
-      // Générer le fichier
+      // Generer le fichier
       const buffer = await workbook.xlsx.writeBuffer()
       const blob = new Blob([buffer], { 
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
       })
       
-      // Télécharger
+      // Telecharger
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url

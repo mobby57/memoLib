@@ -64,6 +64,7 @@ export const Modal: React.FC<ModalProps> = ({
             <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
             <button
               onClick={onClose}
+              aria-label="Close"
               className="text-gray-400 hover:text-gray-600 transition-colors"
             >
               <svg

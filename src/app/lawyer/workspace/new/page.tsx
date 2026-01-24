@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 /**
- * 🆕 Nouveau Workspace - Création d'un espace de raisonnement
- * Formulaire intelligent pour initialiser un workspace depuis différentes sources
+ * 🆕 Nouveau Workspace - Creation d'un espace de raisonnement
+ * Formulaire intelligent pour initialiser un workspace depuis differentes sources
  */
 
 import { useState } from 'react';
@@ -13,40 +13,40 @@ type SourceType = 'EMAIL' | 'FORM' | 'PHONE' | 'COURRIER' | 'MANUAL';
 
 const SOURCE_TYPE_CONFIG = {
   EMAIL: {
-    icon: '📧',
+    icon: '[emoji]',
     label: 'Email',
-    description: 'Créer depuis un email reçu',
+    description: 'Creer depuis un email recu',
   },
   FORM: {
-    icon: '📋',
+    icon: '[emoji]',
     label: 'Formulaire',
-    description: 'Créer depuis une soumission de formulaire',
+    description: 'Creer depuis une soumission de formulaire',
   },
   PHONE: {
-    icon: '📞',
-    label: 'Téléphone',
-    description: 'Créer depuis un appel téléphonique',
+    icon: '[emoji]',
+    label: 'Telephone',
+    description: 'Creer depuis un appel telephonique',
   },
   COURRIER: {
-    icon: '✉️',
+    icon: '️',
     label: 'Courrier',
-    description: 'Créer depuis un courrier postal',
+    description: 'Creer depuis un courrier postal',
   },
   MANUAL: {
-    icon: '✍️',
+    icon: '️',
     label: 'Manuel',
-    description: 'Créer manuellement un workspace',
+    description: 'Creer manuellement un workspace',
   },
 };
 
 const PROCEDURE_TYPES = [
   { value: 'OQTF', label: 'OQTF - Obligation de Quitter le Territoire' },
-  { value: 'REFUS_TITRE', label: 'Refus de Titre de Séjour' },
-  { value: 'RETRAIT_TITRE', label: 'Retrait de Titre de Séjour' },
+  { value: 'REFUS_TITRE', label: 'Refus de Titre de Sejour' },
+  { value: 'RETRAIT_TITRE', label: 'Retrait de Titre de Sejour' },
   { value: 'NATURALISATION', label: 'Naturalisation' },
   { value: 'REGROUPEMENT_FAMILIAL', label: 'Regroupement Familial' },
   { value: 'ASILE', label: 'Demande d\'Asile' },
-  { value: 'AUTRE', label: 'Autre procédure CESEDA' },
+  { value: 'AUTRE', label: 'Autre procedure CESEDA' },
 ];
 
 export default function NewWorkspacePage() {
@@ -89,13 +89,13 @@ export default function NewWorkspacePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erreur de création');
+        throw new Error(data.error || 'Erreur de creation');
       }
 
-      // Rediriger vers le workspace créé
+      // Rediriger vers le workspace cree
       router.push(`/lawyer/workspace/${data.workspace.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur de création');
+      setError(err instanceof Error ? err.message : 'Erreur de creation');
     } finally {
       setLoading(false);
     }
@@ -115,11 +115,11 @@ export default function NewWorkspacePage() {
           </button>
           
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <span className="text-4xl">🧠</span>
+            <span className="text-4xl">[emoji]</span>
             Nouveau Workspace de Raisonnement
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Créez un espace de raisonnement pour analyser intelligemment une situation juridique
+            Creez un espace de raisonnement pour analyser intelligemment une situation juridique
           </p>
         </div>
       </div>
@@ -169,12 +169,12 @@ export default function NewWorkspacePage() {
           {sourceType === 'EMAIL' && (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
-                Métadonnées Email
+                Metadonnees Email
               </h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    De (expéditeur)
+                    De (expediteur)
                   </label>
                   <input
                     type="email"
@@ -208,27 +208,27 @@ export default function NewWorkspacePage() {
             <textarea
               value={sourceRaw}
               onChange={(e) => setSourceRaw(e.target.value)}
-              placeholder={`Collez ici le contenu du ${SOURCE_TYPE_CONFIG[sourceType].label.toLowerCase()}...\n\nExemple:\nBonjour Maître,\n\nJe vous contacte car j'ai reçu une OQTF il y a 3 jours. Je suis en France depuis 5 ans avec ma famille...`}
+              placeholder={`Collez ici le contenu du ${SOURCE_TYPE_CONFIG[sourceType].label.toLowerCase()}...\n\nExemple:\nBonjour Maitre,\n\nJe vous contacte car j'ai recu une OQTF il y a 3 jours. Je suis en France depuis 5 ans avec ma famille...`}
               rows={12}
               required
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
             />
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              Le moteur d'IA analysera ce texte pour extraire les faits, identifier le contexte et déduire les obligations juridiques.
+              Le moteur d'IA analysera ce texte pour extraire les faits, identifier le contexte et deduire les obligations juridiques.
             </p>
           </div>
 
           {/* Procedure Type */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-              Type de Procédure CESEDA (optionnel)
+              Type de Procedure CESEDA (optionnel)
             </label>
             <select
               value={procedureType}
               onChange={(e) => setProcedureType(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              <option value="">-- Non spécifié --</option>
+              <option value="">-- Non specifie --</option>
               {PROCEDURE_TYPES.map((proc) => (
                 <option key={proc.value} value={proc.value}>
                   {proc.label}
@@ -236,7 +236,7 @@ export default function NewWorkspacePage() {
               ))}
             </select>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              L'IA peut détecter automatiquement le type de procédure, mais vous pouvez le spécifier.
+              L'IA peut detecter automatiquement le type de procedure, mais vous pouvez le specifier.
             </p>
           </div>
 
@@ -258,12 +258,12 @@ export default function NewWorkspacePage() {
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-                  Création en cours...
+                  Creation en cours...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5" />
-                  Créer le Workspace
+                  Creer le Workspace
                 </>
               )}
             </button>

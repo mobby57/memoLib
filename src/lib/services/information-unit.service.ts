@@ -1,4 +1,4 @@
-﻿/**
+/**
  * InformationUnitService
  * 
  * Core service for the "Zero Ignored Information" guarantee
@@ -122,14 +122,14 @@ export class InformationUnitService {
         linkedWorkspaceId: input.linkedWorkspaceId,
         metadata: input.metadata,
         currentStatus: InformationUnitStatus.RECEIVED,
-        statusReason: `Reçu via ${input.source}`,
+        statusReason: `Recu via ${input.source}`,
         lastStatusChangeBy: 'system',
         statusHistory: [
           {
             timestamp: new Date().toISOString(),
             fromStatus: null,
             toStatus: InformationUnitStatus.RECEIVED,
-            reason: `Auto-créé via ${input.source}`,
+            reason: `Auto-cree via ${input.source}`,
             changedBy: 'system',
             metadata: input.sourceMetadata,
           },

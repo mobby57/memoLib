@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/Card';
@@ -38,7 +38,7 @@ import {
 } from '@/lib/services/analyticsService';
 
 export default function AnalyticsPage() {
-  // Données d'exemple (remplacer par vraies données de l'API)
+  // Donnees d'exemple (remplacer par vraies donnees de l'API)
   const historicalRevenue: PredictionData[] = [
     { date: new Date(2025, 6), value: 8500 },
     { date: new Date(2025, 7), value: 9200 },
@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
     { type: 'Droit du travail', montantFacture: 1900, heuresTravaillees: 16, tauxHoraire: 150 },
   ];
 
-  // Calculs des prévisions
+  // Calculs des previsions
   const revenueForecast = useMemo(() => predictRevenue(historicalRevenue), []);
   const recoveryAnalysis = useMemo(() => analyzeRecoveryRate(factures), []);
   const profitability = useMemo(() => analyzeDossierProfitability(dossiers), []);
@@ -74,38 +74,38 @@ export default function AnalyticsPage() {
     revenueGrowth: revenueForecast.nextMonth.trendPercentage,
     recoveryRate: recoveryAnalysis.currentRate,
     profitMargin: profitability.length > 0 ? profitability[0].profitMargin : 0,
-    clientRetention: 75, // À calculer depuis les vraies données
+    clientRetention: 75, // a calculer depuis les vraies donnees
     cashflow: 8500
   }), [revenueForecast, recoveryAnalysis, profitability]);
 
-  // Préparer les données pour les graphiques
+  // Preparer les donnees pour les graphiques
   const revenueChartData = [
     ...historicalRevenue.map((d, i) => ({
       mois: `M${i + 1}`,
-      réel: d.value,
-      prévu: null
+      reel: d.value,
+      prevu: null
     })),
     {
       mois: 'M+1',
-      réel: null,
-      prévu: revenueForecast.nextMonth.predicted
+      reel: null,
+      prevu: revenueForecast.nextMonth.predicted
     },
     {
       mois: 'M+3',
-      réel: null,
-      prévu: revenueForecast.next3Months.predicted
+      reel: null,
+      prevu: revenueForecast.next3Months.predicted
     },
     {
       mois: 'M+6',
-      réel: null,
-      prévu: revenueForecast.next6Months.predicted
+      reel: null,
+      prevu: revenueForecast.next6Months.predicted
     }
   ];
 
   const profitabilityChartData = profitability.map(p => ({
     type: p.type,
     revenu: Math.round(p.averageRevenue),
-    coût: Math.round(p.averageCost),
+    cout: Math.round(p.averageCost),
     marge: Math.round(p.profitMargin)
   }));
 
@@ -133,20 +133,20 @@ export default function AnalyticsPage() {
       <Breadcrumb
         items={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Analytics Prédictifs', href: '/analytics' }
+          { label: 'Analytics Predictifs', href: '/analytics' }
         ]}
       />
 
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Analytics Prédictifs
+          Analytics Predictifs
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Prévisions et analyse de la performance de votre cabinet
+          Previsions et analyse de la performance de votre cabinet
         </p>
       </div>
 
-      {/* Score de santé financière */}
+      {/* Score de sante financiere */}
       <Card className="p-6 mb-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -155,10 +155,10 @@ export default function AnalyticsPage() {
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Score de Santé Financière
+                Score de Sante Financiere
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Évaluation globale de la performance
+                evaluation globale de la performance
               </p>
             </div>
           </div>
@@ -181,11 +181,11 @@ export default function AnalyticsPage() {
             <ul className="space-y-1">
               {financialHealth.strengths.map((strength, i) => (
                 <li key={i} className="text-sm text-green-700 dark:text-green-300">
-                  • {strength}
+                  - {strength}
                 </li>
               ))}
               {financialHealth.strengths.length === 0 && (
-                <li className="text-sm text-gray-500">Aucun point fort identifié</li>
+                <li className="text-sm text-gray-500">Aucun point fort identifie</li>
               )}
             </ul>
           </div>
@@ -193,16 +193,16 @@ export default function AnalyticsPage() {
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-red-600" />
-              Points à améliorer
+              Points a ameliorer
             </h3>
             <ul className="space-y-1">
               {financialHealth.weaknesses.map((weakness, i) => (
                 <li key={i} className="text-sm text-red-700 dark:text-red-300">
-                  • {weakness}
+                  - {weakness}
                 </li>
               ))}
               {financialHealth.weaknesses.length === 0 && (
-                <li className="text-sm text-gray-500">Aucun point faible identifié</li>
+                <li className="text-sm text-gray-500">Aucun point faible identifie</li>
               )}
             </ul>
           </div>
@@ -225,11 +225,11 @@ export default function AnalyticsPage() {
         )}
       </Card>
 
-      {/* Prévision des revenus */}
+      {/* Prevision des revenus */}
       <Card className="p-6 mb-6">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <DollarSign className="h-6 w-6 text-green-600" />
-          Prévision des Revenus
+          Prevision des Revenus
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -291,14 +291,14 @@ export default function AnalyticsPage() {
             <Legend />
             <Line 
               type="monotone" 
-              dataKey="réel" 
+              dataKey="reel" 
               stroke="#3b82f6" 
               strokeWidth={2}
               dot={{ r: 4 }}
             />
             <Line 
               type="monotone" 
-              dataKey="prévu" 
+              dataKey="prevu" 
               stroke="#8b5cf6" 
               strokeWidth={2}
               strokeDasharray="5 5"
@@ -324,7 +324,7 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Prévision</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Prevision</div>
             <div className="text-3xl font-bold text-gray-900 dark:text-white">
               {recoveryAnalysis.predictedRate.predicted.toFixed(1)}%
             </div>
@@ -337,7 +337,7 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Délai moyen</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Delai moyen</div>
             <div className="text-3xl font-bold text-gray-900 dark:text-white">
               {recoveryAnalysis.averageDelayDays.toFixed(0)} j
             </div>
@@ -351,10 +351,10 @@ export default function AnalyticsPage() {
           <Alert variant="warning" className="mt-4">
             <AlertCircle className="h-5 w-5" />
             <div>
-              <strong>Facteurs de risque détectés:</strong>
+              <strong>Facteurs de risque detectes:</strong>
               <ul className="mt-2 space-y-1">
                 {recoveryAnalysis.riskFactors.map((risk, i) => (
-                  <li key={i} className="text-sm">• {risk}</li>
+                  <li key={i} className="text-sm">- {risk}</li>
                 ))}
               </ul>
             </div>
@@ -362,11 +362,11 @@ export default function AnalyticsPage() {
         )}
       </Card>
 
-      {/* Rentabilité par type de dossier */}
+      {/* Rentabilite par type de dossier */}
       <Card className="p-6">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <TrendingUp className="h-6 w-6 text-purple-600" />
-          Rentabilité par Type de Dossier
+          Rentabilite par Type de Dossier
         </h2>
 
         <ResponsiveContainer width="100%" height={300}>
@@ -377,7 +377,7 @@ export default function AnalyticsPage() {
             <Tooltip />
             <Legend />
             <Bar dataKey="revenu" fill="#3b82f6" name="Revenu moyen" />
-            <Bar dataKey="coût" fill="#ef4444" name="Coût moyen" />
+            <Bar dataKey="cout" fill="#ef4444" name="Cout moyen" />
           </BarChart>
         </ResponsiveContainer>
 

@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 /**
- * Composant d'extraction automatique de délais par IA
- * Permet d'uploader un document ou coller du texte pour extraire les échéances
+ * Composant d'extraction automatique de delais par IA
+ * Permet d'uploader un document ou coller du texte pour extraire les echeances
  */
 
 import { useState } from 'react';
@@ -34,10 +34,10 @@ const DEADLINE_TYPE_LABELS: Record<string, string> = {
   delai_recours_contentieux: 'Recours contentieux',
   delai_recours_gracieux: 'Recours gracieux',
   audience: 'Audience',
-  depot_memoire: 'Dépôt mémoire',
-  reponse_prefecture: 'Réponse préfecture',
+  depot_memoire: 'Depot memoire',
+  reponse_prefecture: 'Reponse prefecture',
   expiration_titre: 'Expiration titre',
-  oqtf_execution: 'Exécution OQTF',
+  oqtf_execution: 'Execution OQTF',
   prescription: 'Prescription',
   convocation: 'Convocation',
   autre: 'Autre'
@@ -69,7 +69,7 @@ export default function DeadlineExtractor({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      // Vérifier le type de fichier
+      // Verifier le type de fichier
       const allowedTypes = [
         'application/pdf',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -79,7 +79,7 @@ export default function DeadlineExtractor({
       if (!allowedTypes.includes(selectedFile.type)) {
         addToast({
           title: 'Erreur',
-          message: 'Type de fichier non supporté. Utilisez PDF, DOCX ou TXT.',
+          message: 'Type de fichier non supporte. Utilisez PDF, DOCX ou TXT.',
           variant: 'error',
         });
         return;
@@ -91,7 +91,7 @@ export default function DeadlineExtractor({
 
   const handleExtract = async () => {
     if (mode === 'file' && !file) {
-      addToast({ title: 'Erreur', message: 'Veuillez sélectionner un fichier', variant: 'error' });
+      addToast({ title: 'Erreur', message: 'Veuillez selectionner un fichier', variant: 'error' });
       return;
     }
 
@@ -128,19 +128,19 @@ export default function DeadlineExtractor({
 
       setExtractedDeadlines(result.deadlines || []);
       
-      // Sélectionner tous les délais par défaut
+      // Selectionner tous les delais par defaut
       setSelectedDeadlines(new Set(result.deadlines.map((_: any, i: number) => i)));
 
       if (result.deadlines.length === 0) {
         addToast({
           title: 'Attention',
-          message: 'Aucun délai trouvé dans ce document',
+          message: 'Aucun delai trouve dans ce document',
           variant: 'warning',
         });
       } else {
         addToast({
-          title: 'Succès',
-          message: `${result.deadlines.length} délai(s) extrait(s) avec succès`,
+          title: 'Succes',
+          message: `${result.deadlines.length} delai(s) extrait(s) avec succes`,
           variant: 'success',
         });
         onDeadlinesExtracted?.(result.deadlines);
@@ -160,7 +160,7 @@ export default function DeadlineExtractor({
 
   const handleSaveDeadlines = async () => {
     if (selectedDeadlines.size === 0) {
-      addToast({ title: 'Erreur', message: 'Veuillez sélectionner au moins un délai', variant: 'error' });
+      addToast({ title: 'Erreur', message: 'Veuillez selectionner au moins un delai', variant: 'error' });
       return;
     }
 
@@ -182,8 +182,8 @@ export default function DeadlineExtractor({
       }
 
       addToast({
-        title: 'Succès',
-        message: `${selectedDeadlines.size} délai(s) ajouté(s) au dossier`,
+        title: 'Succes',
+        message: `${selectedDeadlines.size} delai(s) ajoute(s) au dossier`,
         variant: 'success',
       });
 
@@ -244,7 +244,7 @@ export default function DeadlineExtractor({
         className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
       >
         <Calendar className="w-4 h-4" />
-        Extraire délais (IA)
+        Extraire delais (IA)
       </button>
 
       <Modal
@@ -253,7 +253,7 @@ export default function DeadlineExtractor({
           setIsOpen(false);
           resetForm();
         }}
-        title="Extraction automatique des délais"
+        title="Extraction automatique des delais"
         size="xl"
       >
         <div className="space-y-6">
@@ -287,7 +287,7 @@ export default function DeadlineExtractor({
           {mode === 'file' && (
             <div className="space-y-2">
               <label htmlFor="document-file" className="block text-sm font-medium text-gray-700">
-                Document à analyser (PDF, DOCX, TXT)
+                Document a analyser (PDF, DOCX, TXT)
               </label>
               <input
                 id="document-file"
@@ -298,7 +298,7 @@ export default function DeadlineExtractor({
               />
               {file && (
                 <p className="text-sm text-gray-600">
-                  Fichier sélectionné: {file.name}
+                  Fichier selectionne: {file.name}
                 </p>
               )}
             </div>
@@ -315,7 +315,7 @@ export default function DeadlineExtractor({
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 rows={10}
-                placeholder="Collez ici le texte de la décision administrative, OQTF, convocation..."
+                placeholder="Collez ici le texte de la decision administrative, OQTF, convocation..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -345,7 +345,7 @@ export default function DeadlineExtractor({
             <div className="space-y-4 border-t pt-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Délais extraits ({extractedDeadlines.length})
+                  Delais extraits ({extractedDeadlines.length})
                 </h3>
                 <button
                   onClick={() => {
@@ -357,7 +357,7 @@ export default function DeadlineExtractor({
                   }}
                   className="text-sm text-blue-600 hover:text-blue-700"
                 >
-                  {selectedDeadlines.size === extractedDeadlines.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                  {selectedDeadlines.size === extractedDeadlines.length ? 'Tout deselectionner' : 'Tout selectionner'}
                 </button>
               </div>
 
@@ -397,14 +397,14 @@ export default function DeadlineExtractor({
                             </span>
                           </div>
                           <div>
-                            <span className="text-gray-600">Échéance:</span>
+                            <span className="text-gray-600">echeance:</span>
                             <span className="ml-2 text-gray-900 font-medium">
                               {formatDate(deadline.dateEcheance)}
                             </span>
                           </div>
                           {deadline.delaiJours && (
                             <div>
-                              <span className="text-gray-600">Délai:</span>
+                              <span className="text-gray-600">Delai:</span>
                               <span className="ml-2 text-gray-900">
                                 {deadline.delaiJours} jour(s)
                               </span>
@@ -450,7 +450,7 @@ export default function DeadlineExtractor({
                 ) : (
                   <>
                     <Check className="w-5 h-5" />
-                    Ajouter {selectedDeadlines.size} délai(s) au dossier
+                    Ajouter {selectedDeadlines.size} delai(s) au dossier
                   </>
                 )}
               </button>
@@ -464,8 +464,8 @@ export default function DeadlineExtractor({
               <div className="text-sm text-blue-800">
                 <p className="font-medium mb-1">Analyse automatique par IA</p>
                 <p>
-                  L'IA analyse le document pour extraire automatiquement tous les délais (recours, audiences, prescriptions...).
-                  Vérifiez toujours les résultats avant de les enregistrer.
+                  L'IA analyse le document pour extraire automatiquement tous les delais (recours, audiences, prescriptions...).
+                  Verifiez toujours les resultats avant de les enregistrer.
                 </p>
               </div>
             </div>

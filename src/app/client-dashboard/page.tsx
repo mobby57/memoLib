@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
@@ -89,7 +89,7 @@ export default function ClientDashboardPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Accès non autorisé</p>
+          <p className="text-gray-600 dark:text-gray-400">Acces non autorise</p>
         </div>
       </div>
     );
@@ -152,7 +152,7 @@ export default function ClientDashboardPage() {
           icon={FileText}
         />
         <StatCard
-          title="Factures Payées"
+          title="Factures Payees"
           value={data?.mesFactures.payees || 0}
           icon={CheckCircle}
         />
@@ -196,9 +196,9 @@ export default function ClientDashboardPage() {
                 )}
                 
                 <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                  <span>Créé le {new Date(data.monDossier.dateCreation).toLocaleDateString('fr-FR')}</span>
+                  <span>Cree le {new Date(data.monDossier.dateCreation).toLocaleDateString('fr-FR')}</span>
                   {data.monDossier.dateEcheance && (
-                    <span>Échéance: {new Date(data.monDossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
+                    <span>echeance: {new Date(data.monDossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
                   )}
                 </div>
               </div>

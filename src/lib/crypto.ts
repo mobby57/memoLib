@@ -1,5 +1,5 @@
-﻿/**
- * Utilitaires cryptographiques pour l'intégrité des données
+/**
+ * Utilitaires cryptographiques pour l'integrite des donnees
  * Zero-Trust Architecture - IA Poste Manager
  */
 
@@ -7,9 +7,9 @@ import crypto from 'crypto';
 import fs from 'fs/promises';
 
 /**
- * Calcule le hash SHA-256 d'une donnée
- * @param data - Données à hasher (string ou Buffer)
- * @returns Hash hexadécimal
+ * Calcule le hash SHA-256 d'une donnee
+ * @param data - Donnees a hasher (string ou Buffer)
+ * @returns Hash hexadecimal
  */
 export function calculateHash(data: string | Buffer): string {
   return crypto
@@ -19,8 +19,8 @@ export function calculateHash(data: string | Buffer): string {
 }
 
 /**
- * Vérifie qu'un hash correspond à des données
- * @param data - Données à vérifier
+ * Verifie qu'un hash correspond a des donnees
+ * @param data - Donnees a verifier
  * @param hash - Hash attendu
  * @returns true si le hash correspond
  */
@@ -31,7 +31,7 @@ export function verifyHash(data: string | Buffer, hash: string): boolean {
 /**
  * Calcule le hash d'un fichier
  * @param filePath - Chemin absolu du fichier
- * @returns Promise du hash hexadécimal
+ * @returns Promise du hash hexadecimal
  */
 export async function hashFile(filePath: string): Promise<string> {
   const buffer = await fs.readFile(filePath);
@@ -39,10 +39,10 @@ export async function hashFile(filePath: string): Promise<string> {
 }
 
 /**
- * Calcule le hash d'un événement d'audit
- * Utilisé pour garantir l'intégrité du journal d'audit
- * @param event - Événement d'audit
- * @returns Hash de l'événement
+ * Calcule le hash d'un evenement d'audit
+ * Utilise pour garantir l'integrite du journal d'audit
+ * @param event - evenement d'audit
+ * @returns Hash de l'evenement
  */
 export function hashAuditEvent(event: {
   tenantId?: string | null;
@@ -69,10 +69,10 @@ export function hashAuditEvent(event: {
 }
 
 /**
- * Génère un hash pour un document avec ses métadonnées
+ * Genere un hash pour un document avec ses metadonnees
  * @param file - Buffer du fichier
- * @param metadata - Métadonnées du document
- * @returns Hash combiné
+ * @param metadata - Metadonnees du document
+ * @returns Hash combine
  */
 export function hashDocument(
   file: Buffer,
@@ -98,11 +98,11 @@ export function hashDocument(
 }
 
 /**
- * Vérifie l'intégrité d'un document
+ * Verifie l'integrite d'un document
  * @param file - Buffer du fichier actuel
  * @param expectedHash - Hash attendu
- * @param metadata - Métadonnées du document
- * @returns true si l'intégrité est confirmée
+ * @param metadata - Metadonnees du document
+ * @returns true si l'integrite est confirmee
  */
 export function verifyDocumentIntegrity(
   file: Buffer,
@@ -119,6 +119,6 @@ export function verifyDocumentIntegrity(
     return computedHash === expectedHash;
   }
   
-  // Vérification simple du fichier seul
+  // Verification simple du fichier seul
   return verifyHash(file, expectedHash);
 }

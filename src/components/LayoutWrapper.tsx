@@ -12,7 +12,7 @@ interface LayoutWrapperProps {
   children: React.ReactNode;
 }
 
-// Pages qui doivent s'afficher en plein écran sans sidebar
+// Pages qui doivent s'afficher en plein ecran sans sidebar
 const FULLSCREEN_PAGES = [
   '/',
   '/auth/login',
@@ -26,12 +26,12 @@ const FULLSCREEN_PAGES = [
 export function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
   
-  // Vérifier si la page courante doit être en plein écran
+  // Verifier si la page courante doit etre en plein ecran
   const isFullscreenPage = FULLSCREEN_PAGES.some(
     page => pathname === page || pathname?.startsWith('/auth/')
   );
 
-  // Mode plein écran : pas de sidebar, pas de marges
+  // Mode plein ecran : pas de sidebar, pas de marges
   if (isFullscreenPage) {
     return (
       <main className="min-h-screen w-full">

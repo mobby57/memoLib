@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
@@ -69,7 +69,7 @@ export function Pagination({
           disabled={currentPage === 1}
           className="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Précédent
+          Precedent
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
@@ -87,13 +87,13 @@ export function Pagination({
               <>
                 Affichage de{' '}
                 <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>
-                {' '}à{' '}
+                {' '}a{' '}
                 <span className="font-medium">
                   {Math.min(currentPage * itemsPerPage, totalItems)}
                 </span>
                 {' '}sur{' '}
                 <span className="font-medium">{totalItems}</span>
-                {' '}résultats
+                {' '}resultats
               </>
             )}
           </p>

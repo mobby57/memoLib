@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -46,7 +46,7 @@ export default function WorkspacesPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Mes Dossiers CESDA</h1>
             <p className="text-gray-600 mt-1">
-              Gestion des procédures contentieuses des étrangers
+              Gestion des procedures contentieuses des etrangers
             </p>
           </div>
           <Link
@@ -62,7 +62,7 @@ export default function WorkspacesPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Type de procédure
+                Type de procedure
               </label>
               <select
                 value={filters.procedureType}
@@ -89,10 +89,10 @@ export default function WorkspacesPage() {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Tous</option>
-                <option value="CRITIQUE">🔴 Critique</option>
-                <option value="ELEVE">🟠 Élevé</option>
-                <option value="MOYEN">🟡 Moyen</option>
-                <option value="FAIBLE">🟢 Faible</option>
+                <option value="CRITIQUE">[emoji] Critique</option>
+                <option value="ELEVE">[emoji] eleve</option>
+                <option value="MOYEN">[emoji] Moyen</option>
+                <option value="FAIBLE">[emoji] Faible</option>
               </select>
             </div>
 
@@ -109,7 +109,7 @@ export default function WorkspacesPage() {
                 <option value="active">Actif</option>
                 <option value="pending">En attente</option>
                 <option value="closed">Clos</option>
-                <option value="archived">Archivé</option>
+                <option value="archived">Archive</option>
               </select>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function WorkspacesPage() {
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-sm text-gray-600">Élevé</div>
+            <div className="text-sm text-gray-600">eleve</div>
             <div className="text-2xl font-bold text-orange-600">
               {workspaces.filter((w) => w.urgencyLevel === "ELEVE").length}
             </div>
@@ -149,12 +149,12 @@ export default function WorkspacesPage() {
           </div>
         ) : workspaces.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-            <p className="text-gray-600 text-lg">Aucun dossier trouvé</p>
+            <p className="text-gray-600 text-lg">Aucun dossier trouve</p>
             <Link
               href="/workspaces/new"
               className="inline-block mt-4 text-blue-600 hover:text-blue-700 font-medium"
             >
-              Créer votre premier dossier →
+              Creer votre premier dossier [Next]
             </Link>
           </div>
         ) : (

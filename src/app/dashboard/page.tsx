@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
@@ -62,7 +62,7 @@ export default function DashboardPage() {
   const [showMetrics, setShowMetrics] = useState(true);
   const [metricsData, setMetricsData] = useState<MetricsData | null>(null);
 
-  // Redirection selon le rôle
+  // Redirection selon le role
   useEffect(() => {
     if (isAuthenticated && isClient) {
       window.location.href = '/client-dashboard';
@@ -74,7 +74,7 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isClient, isSuperAdmin]);
 
-  // Charger les données du dashboard
+  // Charger les donnees du dashboard
   useEffect(() => {
     if (isAuthenticated && isAdmin) {
       loadDashboardData();
@@ -114,7 +114,7 @@ export default function DashboardPage() {
     try {
       setLoading(true);
 
-      // API spécifique au tenant pour les admins
+      // API specifique au tenant pour les admins
       const baseUrl = `/api/tenant/${user?.tenantId}`;
 
       // Charger les statistiques
@@ -132,22 +132,22 @@ export default function DashboardPage() {
         setStatusData([
           { name: 'En cours', value: statsData.dossiersActifs, color: '#3b82f6' },
           { name: 'En attente', value: statsData.dossiersEnAttente, color: '#f59e0b' },
-          { name: 'Terminés', value: statsData.dossiersTermines, color: '#10b981' },
-          { name: 'Archivés', value: statsData.dossiersArchives, color: '#6b7280' },
+          { name: 'Termines', value: statsData.dossiersTermines, color: '#10b981' },
+          { name: 'Archives', value: statsData.dossiersArchives, color: '#6b7280' },
         ]);
 
-        // Calculer les métriques
+        // Calculer les metriques
         calculateMetrics(statsData);
       }
 
-      // Charger les données mensuelles
+      // Charger les donnees mensuelles
       const monthlyResponse = await fetch(`${baseUrl}/dashboard/monthly-data`);
       if (monthlyResponse.ok) {
         const monthlyDataResult = await monthlyResponse.json();
         setMonthlyData(monthlyDataResult);
       }
 
-      // Charger les activités récentes
+      // Charger les activites recentes
       const activitiesResponse = await fetch(`${baseUrl}/dashboard/recent-activities`);
       if (activitiesResponse.ok) {
         const activitiesData = await activitiesResponse.json();
@@ -159,7 +159,7 @@ export default function DashboardPage() {
       logger.error('Erreur chargement dashboard', { error });
       addToast?.({
         title: 'Erreur',
-        message: 'Erreur lors du chargement des données',
+        message: 'Erreur lors du chargement des donnees',
         variant: 'error',
       });
       setLoading(false);
@@ -190,7 +190,7 @@ export default function DashboardPage() {
     
     if (hasPermission('canAccessAnalytics')) {
       actions.push({ 
-        label: 'Exporter Données', 
+        label: 'Exporter Donnees', 
         href: '/exports', 
         icon: Download, 
         color: 'bg-purple-500 hover:bg-purple-600' 
@@ -204,9 +204,9 @@ export default function DashboardPage() {
       color: 'bg-indigo-500 hover:bg-indigo-600' 
     });
     
-    // Nouveau: Fonctionnalités IA Avancées
+    // Nouveau: Fonctionnalites IA Avancees
     actions.push({ 
-      label: '🚀 IA Avancée', 
+      label: '[emoji] IA Avancee', 
       href: '/lawyer/advanced', 
       icon: Shield, 
       color: 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg' 
@@ -237,9 +237,9 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Accès non autorisé</p>
+          <p className="text-gray-600 dark:text-gray-400">Acces non autorise</p>
           <Link href="/" className="text-blue-600 hover:underline mt-2 inline-block">
-            Retour à l'accueil
+            Retour a l'accueil
           </Link>
         </div>
       </div>
@@ -278,7 +278,7 @@ export default function DashboardPage() {
             onClick={() => setShowMetrics(!showMetrics)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
-            {showMetrics ? '📊 Masquer métriques' : '📊 Afficher métriques'}
+            {showMetrics ? '[emoji] Masquer metriques' : '[emoji] Afficher metriques'}
           </button>
 
           <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
@@ -306,7 +306,7 @@ export default function DashboardPage() {
             <button
               onClick={() => window.location.href = '/api/auth/signout'}
               className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-              title="Se déconnecter"
+              title="Se deconnecter"
             >
               <LogOut className="w-5 h-5" />
             </button>
@@ -314,7 +314,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Widgets Métriques */}
+      {/* Widgets Metriques */}
       {showMetrics && metricsData && (
         <div className="my-8">
           <MetricsWidgets data={metricsData} />
@@ -343,7 +343,7 @@ export default function DashboardPage() {
           className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 text-white p-4 rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 flex items-center justify-between group relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-          <span className="font-medium relative z-10">🚀 IA Avancée</span>
+          <span className="font-medium relative z-10">[emoji] IA Avancee</span>
           <div className="relative z-10 flex items-center">
             <span className="text-xs bg-white/20 px-2 py-1 rounded-full mr-2">NEW</span>
             <ArrowRight className="w-5 h-5 group-hover:scale-110 group-hover:translate-x-1 transition-all" />
@@ -353,10 +353,10 @@ export default function DashboardPage() {
 
       {/* Alert for pending tasks */}
       {stats.facturesEnAttente > 0 && (
-        <Alert variant="warning" title="Tâches en attente">
+        <Alert variant="warning" title="Taches en attente">
           Vous avez {stats.facturesEnAttente} facture(s) en attente de paiement. 
           <Link href="/factures" className="ml-2 underline font-medium hover:text-yellow-700">
-            Voir les factures →
+            Voir les factures [Next]
           </Link>
         </Alert>
       )}
@@ -396,7 +396,7 @@ export default function DashboardPage() {
           tabs={[
             {
               id: 'evolution',
-              label: 'Évolution Mensuelle',
+              label: 'evolution Mensuelle',
               icon: <TrendingUp className="w-4 h-4" />,
               content: (
                 <div className="pt-4">
@@ -422,7 +422,7 @@ export default function DashboardPage() {
             },
             {
               id: 'repartition',
-              label: 'Répartition des Dossiers',
+              label: 'Repartition des Dossiers',
               icon: <FileText className="w-4 h-4" />,
               badge: statusData.reduce((sum, s) => sum + s.value, 0),
               content: (
@@ -493,7 +493,7 @@ export default function DashboardPage() {
           <Card>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Activités Récentes
+                Activites Recentes
               </h3>
               <Link 
                 href="/dossiers" 
@@ -563,7 +563,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white">Nouveau Dossier</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Créer un dossier client</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Creer un dossier client</p>
                   </div>
                 </div>
               </Link>
@@ -578,7 +578,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white">Nouvelle Facture</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Générer une facture</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Generer une facture</p>
                   </div>
                 </div>
               </Link>

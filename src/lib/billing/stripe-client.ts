@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Client Stripe pour IA Poste Manager
  * Gestion des paiements et abonnements
  */
@@ -6,7 +6,7 @@
 import Stripe from 'stripe';
 
 if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn('⚠️ STRIPE_SECRET_KEY non définie - Paiements désactivés');
+  console.warn('️ STRIPE_SECRET_KEY non definie - Paiements desactives');
 }
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy', {
@@ -15,7 +15,7 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy
 });
 
 /**
- * Créer un client Stripe
+ * Creer un client Stripe
  */
 export async function createStripeCustomer(params: {
   email: string;
@@ -34,7 +34,7 @@ export async function createStripeCustomer(params: {
 }
 
 /**
- * Créer un abonnement Stripe
+ * Creer un abonnement Stripe
  */
 export async function createStripeSubscription(params: {
   customerId: string;
@@ -54,7 +54,7 @@ export async function createStripeSubscription(params: {
 }
 
 /**
- * Créer une session de checkout
+ * Creer une session de checkout
  */
 export async function createCheckoutSession(params: {
   priceId: string;
@@ -89,7 +89,7 @@ export async function createCheckoutSession(params: {
 }
 
 /**
- * Créer un portail client
+ * Creer un portail client
  */
 export async function createCustomerPortalSession(params: {
   customerId: string;
@@ -109,7 +109,7 @@ export async function cancelStripeSubscription(subscriptionId: string) {
 }
 
 /**
- * Mettre à jour un abonnement (upgrade/downgrade)
+ * Mettre a jour un abonnement (upgrade/downgrade)
  */
 export async function updateStripeSubscription(params: {
   subscriptionId: string;
@@ -130,7 +130,7 @@ export async function updateStripeSubscription(params: {
 }
 
 /**
- * Récupérer les factures d'un client
+ * Recuperer les factures d'un client
  */
 export async function getCustomerInvoices(customerId: string, limit = 10) {
   return await stripe.invoices.list({
@@ -140,7 +140,7 @@ export async function getCustomerInvoices(customerId: string, limit = 10) {
 }
 
 /**
- * Créer un prix Stripe pour un plan
+ * Creer un prix Stripe pour un plan
  */
 export async function createStripePrice(params: {
   productId: string;
@@ -161,7 +161,7 @@ export async function createStripePrice(params: {
 }
 
 /**
- * Créer un produit Stripe
+ * Creer un produit Stripe
  */
 export async function createStripeProduct(params: {
   name: string;

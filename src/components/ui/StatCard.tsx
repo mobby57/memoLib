@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 
 import { LucideIcon } from 'lucide-react';
@@ -28,7 +28,7 @@ export function StatCard({ title, value, icon: Icon, trend, description }: StatC
           {trend && (
             <div className="mt-2 flex items-center">
               <span className={`text-sm font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
+                {trend.isPositive ? '[Up]' : '[Down]'} {Math.abs(trend.value)}%
               </span>
               <span className="ml-2 text-sm text-gray-500">vs mois dernier</span>
             </div>

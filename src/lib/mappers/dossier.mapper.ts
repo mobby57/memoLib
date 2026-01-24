@@ -1,5 +1,5 @@
-﻿/**
- * Mappers pour convertir les données entre DB et UI
+/**
+ * Mappers pour convertir les donnees entre DB et UI
  * Centralise toute la logique de transformation
  */
 
@@ -36,7 +36,7 @@ export function mapDossiersToUI(dossiers: DossierDB[]): DossierUI[] {
 }
 
 /**
- * Génère un numéro de dossier unique
+ * Genere un numero de dossier unique
  */
 export function generateNumeroDossier(count: number): string {
   const year = new Date().getFullYear()

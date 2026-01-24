@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -95,11 +95,11 @@ export default function DocumentsAdmin() {
   };
 
   const getFileIcon = (type: string) => {
-    if (type.includes('pdf')) return '📄';
-    if (type.includes('image')) return '🖼️';
-    if (type.includes('word') || type.includes('document')) return '📝';
-    if (type.includes('excel') || type.includes('spreadsheet')) return '📊';
-    return '📎';
+    if (type.includes('pdf')) return '[PDF]';
+    if (type.includes('image')) return '[IMG]';
+    if (type.includes('word') || type.includes('document')) return '[DOC]';
+    if (type.includes('excel') || type.includes('spreadsheet')) return '[XLS]';
+    return '[FILE]';
   };
 
   if (loading) {
@@ -120,7 +120,7 @@ export default function DocumentsAdmin() {
         <div className="max-w-7xl mx-auto px-8 py-4">
           <div className="flex items-center gap-4">
             <Link href="/admin" className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <span className="text-2xl">←</span>
+              <span className="text-2xl">[Back]</span>
             </Link>
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -139,7 +139,7 @@ export default function DocumentsAdmin() {
             <div className="flex-1">
               <input
                 type="text"
-                placeholder="🔍 Rechercher un document (nom, dossier, client)..."
+                placeholder="[Search] Rechercher un document (nom, dossier, client)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
@@ -164,7 +164,7 @@ export default function DocumentsAdmin() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                📄 PDF
+                [emoji] PDF
               </button>
               <button
                 onClick={() => setFilterType('image')}
@@ -174,7 +174,7 @@ export default function DocumentsAdmin() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                🖼️ Images
+                [emoji]️ Images
               </button>
               <button
                 onClick={() => setFilterType('word')}
@@ -184,7 +184,7 @@ export default function DocumentsAdmin() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                📝 Word
+                [emoji] Word
               </button>
             </div>
           </div>
@@ -194,10 +194,10 @@ export default function DocumentsAdmin() {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {filteredDocuments.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-6xl mb-4 block">📁</span>
+              <span className="text-6xl mb-4 block">[emoji]</span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filterType !== 'all'
-                  ? 'Aucun document ne correspond à votre recherche'
+                  ? 'Aucun document ne correspond a votre recherche'
                   : 'Aucun document pour le moment'}
               </p>
             </div>
@@ -261,7 +261,7 @@ export default function DocumentsAdmin() {
                           onClick={() => downloadDocument(doc.id, doc.nom)}
                           className="px-4 py-2 bg-blue-500 text-white rounded text-sm font-semibold hover:bg-blue-600 transition-colors"
                         >
-                          Télécharger ⬇️
+                          Telecharger ️
                         </button>
                       </td>
                     </tr>

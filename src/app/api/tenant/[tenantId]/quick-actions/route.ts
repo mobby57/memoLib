@@ -73,7 +73,7 @@ export async function POST(
   } catch (error) {
     logger.error('Erreur quick actions', { error, tenantId: params.tenantId });
     return NextResponse.json(
-      { error: 'Erreur lors de l\'exécution de l\'action' },
+      { error: 'Erreur lors de l\'execution de l\'action' },
       { status: 500 }
     );
   }

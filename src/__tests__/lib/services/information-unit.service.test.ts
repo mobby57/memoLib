@@ -55,7 +55,7 @@ describe('InformationUnitService - Closed Pipeline', () => {
             timestamp: new Date().toISOString(),
             fromStatus: null,
             toStatus: InformationUnitStatus.RECEIVED,
-            reason: 'Auto-créé via EMAIL',
+            reason: 'Auto-cree via EMAIL',
             changedBy: 'system',
           },
         ],

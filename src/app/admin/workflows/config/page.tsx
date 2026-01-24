@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -12,7 +12,7 @@ import { Slider } from '@/components/ui/Slider';
 import { Badge } from '@/components/ui/Badge';
 
 /**
- * ⚙️ Interface d'Administration - Configuration Avancée des Workflows
+ * ️ Interface d'Administration - Configuration Avancee des Workflows
  */
 
 export default function WorkflowConfigPage() {
@@ -45,9 +45,9 @@ export default function WorkflowConfigPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
       });
-      alert('✅ Configuration sauvegardée!');
+      alert(' Configuration sauvegardee!');
     } catch (error) {
-      alert('❌ Erreur sauvegarde');
+      alert(' Erreur sauvegarde');
     }
     setSaving(false);
   };
@@ -69,18 +69,18 @@ export default function WorkflowConfigPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">⚙️ Configuration Avancée</h1>
-          <p className="text-gray-600">Personnalisation complète des workflows intelligents</p>
+          <h1 className="text-3xl font-bold">️ Configuration Avancee</h1>
+          <p className="text-gray-600">Personnalisation complete des workflows intelligents</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={loadConfig}>
-            🔄 Recharger
+            [emoji] Recharger
           </Button>
           <Button onClick={saveConfig} disabled={saving}>
-            {saving ? '💾 Sauvegarde...' : '💾 Sauvegarder'}
+            {saving ? '[emoji] Sauvegarde...' : '[emoji] Sauvegarder'}
           </Button>
         </div>
       </div>
@@ -88,8 +88,8 @@ export default function WorkflowConfigPage() {
       {/* Presets */}
       <Card>
         <CardHeader>
-          <CardTitle>🎨 Configurations Prédéfinies</CardTitle>
-          <CardDescription>Charger une configuration optimisée</CardDescription>
+          <CardTitle>🎨 Configurations Predefinies</CardTitle>
+          <CardDescription>Charger une configuration optimisee</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -97,32 +97,32 @@ export default function WorkflowConfigPage() {
               variant={preset === 'default' ? 'default' : 'outline'}
               onClick={() => loadPreset('default')}
             >
-              📝 Par Défaut
+              [emoji] Par Defaut
             </Button>
             <Button
               variant={preset === 'performance' ? 'default' : 'outline'}
               onClick={() => loadPreset('performance')}
             >
-              ⚡ Performance
+               Performance
             </Button>
             <Button
               variant={preset === 'security' ? 'default' : 'outline'}
               onClick={() => loadPreset('security')}
             >
-              🔒 Sécurité
+              [emoji] Securite
             </Button>
             <Button
               variant={preset === 'automated' ? 'default' : 'outline'}
               onClick={() => loadPreset('automated')}
             >
-              🤖 Automatique
+              [emoji] Automatique
             </Button>
             <Button
               variant={preset === 'law-firm' ? 'default' : 'outline'}
               onClick={() => loadPreset('law-firm')}
               className="col-span-2"
             >
-              ⚖️ Cabinet Juridique
+              ️ Cabinet Juridique
             </Button>
           </div>
         </CardContent>
@@ -131,11 +131,11 @@ export default function WorkflowConfigPage() {
       {/* Tabs de Configuration */}
       <Tabs defaultValue="ai" className="space-y-4">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="ai">🤖 IA</TabsTrigger>
-          <TabsTrigger value="notifications">🔔 Notifications</TabsTrigger>
-          <TabsTrigger value="forms">📝 Formulaires</TabsTrigger>
-          <TabsTrigger value="calendar">📅 Calendrier</TabsTrigger>
-          <TabsTrigger value="security">🔒 Sécurité</TabsTrigger>
+          <TabsTrigger value="ai">[emoji] IA</TabsTrigger>
+          <TabsTrigger value="notifications">[emoji] Notifications</TabsTrigger>
+          <TabsTrigger value="forms">[emoji] Formulaires</TabsTrigger>
+          <TabsTrigger value="calendar">[emoji] Calendrier</TabsTrigger>
+          <TabsTrigger value="security">[emoji] Securite</TabsTrigger>
         </TabsList>
 
         {/* Configuration IA */}
@@ -143,7 +143,7 @@ export default function WorkflowConfigPage() {
           <Card>
             <CardHeader>
               <CardTitle>Intelligence Artificielle</CardTitle>
-              <CardDescription>Paramètres de l'IA pour l'analyse et les suggestions</CardDescription>
+              <CardDescription>Parametres de l'IA pour l'analyse et les suggestions</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
@@ -168,7 +168,7 @@ export default function WorkflowConfigPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Modèle</Label>
+                  <Label>Modele</Label>
                   <Input
                     value={config.ai.model}
                     onChange={(e) => setConfig({
@@ -180,7 +180,7 @@ export default function WorkflowConfigPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Température: {config.ai.temperature}</Label>
+                  <Label>Temperature: {config.ai.temperature}</Label>
                   <Slider
                     value={[config.ai.temperature]}
                     onValueChange={([value]) => setConfig({
@@ -192,7 +192,7 @@ export default function WorkflowConfigPage() {
                     step={0.1}
                   />
                   <p className="text-xs text-gray-500">
-                    0 = Conservateur, 1 = Créatif
+                    0 = Conservateur, 1 = Creatif
                   </p>
                 </div>
 
@@ -221,9 +221,9 @@ export default function WorkflowConfigPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="quick">⚡ Rapide</SelectItem>
-                      <SelectItem value="standard">📊 Standard</SelectItem>
-                      <SelectItem value="deep">🔍 Approfondie</SelectItem>
+                      <SelectItem value="quick"> Rapide</SelectItem>
+                      <SelectItem value="standard">[emoji] Standard</SelectItem>
+                      <SelectItem value="deep">[emoji] Approfondie</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -251,7 +251,7 @@ export default function WorkflowConfigPage() {
                     ai: { ...config.ai, fallbackEnabled: checked },
                   })}
                 />
-                <Label>Activer le fallback (réponses par défaut si IA indisponible)</Label>
+                <Label>Activer le fallback (reponses par defaut si IA indisponible)</Label>
               </div>
             </CardContent>
           </Card>
@@ -299,7 +299,7 @@ export default function WorkflowConfigPage() {
                 </div>
               </div>
 
-              {/* Priorités */}
+              {/* Priorites */}
               {['critical', 'high', 'medium', 'low'].map((priority) => (
                 <Card key={priority}>
                   <CardHeader>
@@ -324,7 +324,7 @@ export default function WorkflowConfigPage() {
                             },
                           })}
                         />
-                        <Label>🔊 Son</Label>
+                        <Label>[emoji] Son</Label>
                       </div>
 
                       <div className="flex items-center space-x-2">
@@ -344,7 +344,7 @@ export default function WorkflowConfigPage() {
                             },
                           })}
                         />
-                        <Label>✖️ Dismissible</Label>
+                        <Label>️ Dismissible</Label>
                       </div>
 
                       <div className="space-y-2">
@@ -369,7 +369,7 @@ export default function WorkflowConfigPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Escalade après (minutes)</Label>
+                        <Label>Escalade apres (minutes)</Label>
                         <Input
                           type="number"
                           value={config.notifications.priority[priority].escalateAfterMinutes}
@@ -418,7 +418,7 @@ export default function WorkflowConfigPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Début</Label>
+                      <Label>Debut</Label>
                       <Input
                         type="time"
                         value={config.notifications.quietHours.start}
@@ -468,11 +468,11 @@ export default function WorkflowConfigPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Switch checked={config.forms.autofill} />
-                <Label>Autofill avec données existantes</Label>
+                <Label>Autofill avec donnees existantes</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Switch checked={config.forms.aiSuggestions} />
-                <Label>Suggestions IA en temps réel</Label>
+                <Label>Suggestions IA en temps reel</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Switch checked={config.forms.conditionalLogic} />
@@ -512,7 +512,7 @@ export default function WorkflowConfigPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Durée par défaut (minutes)</Label>
+                <Label>Duree par defaut (minutes)</Label>
                 <Input type="number" value={config.calendar.defaultDuration} />
               </div>
 
@@ -527,12 +527,12 @@ export default function WorkflowConfigPage() {
         <TabsContent value="security">
           <Card>
             <CardHeader>
-              <CardTitle>Sécurité & Conformité</CardTitle>
+              <CardTitle>Securite & Conformite</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Switch checked={config.security.encryptData} />
-                <Label>Chiffrement des données</Label>
+                <Label>Chiffrement des donnees</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <Switch checked={config.security.auditLog} />
@@ -544,10 +544,10 @@ export default function WorkflowConfigPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Rétention des données (jours)</Label>
+                <Label>Retention des donnees (jours)</Label>
                 <Input type="number" value={config.security.dataRetentionDays} />
                 <p className="text-xs text-gray-500">
-                  Minimum 30 jours, recommandé 2555 jours (7 ans) pour juridique
+                  Minimum 30 jours, recommande 2555 jours (7 ans) pour juridique
                 </p>
               </div>
             </CardContent>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { safeLocalStorage } from '@/lib/localStorage';
 import { logger } from '@/lib/logger';
@@ -42,7 +42,7 @@ export interface UploadOptions {
   category: StoredFile['metadata']['category']
   description?: string
   tags?: string[]
-  parentId?: string // Pour créer une nouvelle version
+  parentId?: string // Pour creer une nouvelle version
 }
 
 /**
@@ -59,7 +59,7 @@ export async function uploadFile(
       throw new Error(`Le fichier est trop volumineux (max ${maxSize / 1024 / 1024}MB)`)
     }
 
-    // Types autorisés
+    // Types autorises
     const allowedTypes = [
       'application/pdf',
       'application/msword',
@@ -73,15 +73,15 @@ export async function uploadFile(
     ]
 
     if (!allowedTypes.includes(file.type)) {
-      throw new Error('Type de fichier non autorisé')
+      throw new Error('Type de fichier non autorise')
     }
 
-    // Simulation de l'upload (à remplacer par Azure Blob Storage, AWS S3, etc.)
+    // Simulation de l'upload (a remplacer par Azure Blob Storage, AWS S3, etc.)
     const formData = new FormData()
     formData.append('file', file)
     formData.append('options', JSON.stringify(options))
 
-    // Dans une vraie implémentation, on ferait :
+    // Dans une vraie implementation, on ferait :
     // const response = await fetch('/api/storage/upload', {
     //   method: 'POST',
     //   body: formData,
@@ -99,7 +99,7 @@ export async function uploadFile(
       mimeType: file.type,
       url: URL.createObjectURL(file), // En production: URL du stockage cloud
       uploadedAt: new Date(),
-      uploadedBy: 'current_user', // À récupérer depuis la session
+      uploadedBy: 'current_user', // a recuperer depuis la session
       version,
       parentId: options.parentId,
       tags: options.tags || [],
@@ -116,7 +116,7 @@ export async function uploadFile(
     files.push(storedFile)
     safeLocalStorage.setItem('stored_files', JSON.stringify(files))
 
-    logger.info('Fichier uploadé avec succès', {
+    logger.info('Fichier uploade avec succes', {
       fileId: storedFile.id,
       filename: storedFile.name,
       size: storedFile.size
@@ -133,7 +133,7 @@ export async function uploadFile(
 }
 
 /**
- * Récupère tous les fichiers stockés
+ * Recupere tous les fichiers stockes
  */
 export function getStoredFiles(filters?: {
   dossierId?: string
@@ -172,7 +172,7 @@ export function getStoredFiles(filters?: {
 }
 
 /**
- * Récupère un fichier par son ID
+ * Recupere un fichier par son ID
  */
 export function getFileById(fileId: string): StoredFile | null {
   const files = getStoredFiles()
@@ -181,7 +181,7 @@ export function getFileById(fileId: string): StoredFile | null {
 }
 
 /**
- * Récupère toutes les versions d'un fichier
+ * Recupere toutes les versions d'un fichier
  */
 export function getFileVersions(fileId: string): StoredFile[] {
   const files = getStoredFiles()
@@ -192,7 +192,7 @@ export function getFileVersions(fileId: string): StoredFile[] {
   // Trouver le fichier parent
   const parentId = file.parentId || fileId
 
-  // Récupérer toutes les versions
+  // Recuperer toutes les versions
   const versions = files.filter(
     f => f.id === parentId || f.parentId === parentId
   )
@@ -201,7 +201,7 @@ export function getFileVersions(fileId: string): StoredFile[] {
 }
 
 /**
- * Récupère la dernière version d'un fichier
+ * Recupere la derniere version d'un fichier
  */
 export function getLatestVersion(fileId: string): number {
   const versions = getFileVersions(fileId)
@@ -218,7 +218,7 @@ export async function deleteFile(fileId: string): Promise<void> {
     const filteredFiles = files.filter(f => f.id !== fileId)
     safeLocalStorage.setItem('stored_files', JSON.stringify(filteredFiles))
 
-    logger.info('Fichier supprimé', { fileId });
+    logger.info('Fichier supprime', { fileId });
   } catch (error) {
     logger.error('Erreur lors de la suppression du fichier', error, { fileId })
     throw error
@@ -226,7 +226,7 @@ export async function deleteFile(fileId: string): Promise<void> {
 }
 
 /**
- * Télécharge un fichier
+ * Telecharge un fichier
  */
 export function downloadFile(file: StoredFile): void {
   const link = document.createElement('a')
@@ -238,7 +238,7 @@ export function downloadFile(file: StoredFile): void {
 }
 
 /**
- * Génère un nom de fichier sécurisé
+ * Genere un nom de fichier securise
  */
 function generateSafeName(originalName: string): string {
   const timestamp = Date.now()
@@ -266,15 +266,15 @@ export function formatFileSize(bytes: number): string {
 }
 
 /**
- * Récupère l'icône pour un type de fichier
+ * Recupere l'icone pour un type de fichier
  */
 export function getFileIcon(mimeType: string): string {
-  if (mimeType.startsWith('image/')) return '🖼️'
-  if (mimeType === 'application/pdf') return '📄'
-  if (mimeType.includes('word')) return '📝'
-  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊'
-  if (mimeType.includes('text')) return '📃'
-  return '📎'
+  if (mimeType.startsWith('image/')) return '[emoji]️'
+  if (mimeType === 'application/pdf') return '[emoji]'
+  if (mimeType.includes('word')) return '[emoji]'
+  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '[emoji]'
+  if (mimeType.includes('text')) return '[emoji]'
+  return '[emoji]'
 }
 
 /**
@@ -296,7 +296,7 @@ export function getStorageStats(): {
   }
 
   files.forEach(file => {
-    // Par catégorie
+    // Par categorie
     const cat = file.metadata.category
     stats.byCategory[cat] = (stats.byCategory[cat] || 0) + 1
 

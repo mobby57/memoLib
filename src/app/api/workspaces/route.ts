@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { PrismaClient } from '@prisma/client';
 
@@ -9,17 +9,17 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const tenantId = (session.user as any).tenantId;
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 400 });
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 400 });
     }
 
-    // Récupérer les workspaces du tenant
+    // Recuperer les workspaces du tenant
     const workspaces = await prisma.workspace.findMany({
       where: {
         tenantId,
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(workspaces);
   } catch (error) {
-    console.error('Erreur lors de la récupération des workspaces:', error);
+    console.error('Erreur lors de la recuperation des workspaces:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -61,7 +61,7 @@ export default function SearchAnalytics({ className = '' }: SearchAnalyticsProps
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Statistiques générales */}
+      {/* Statistiques generales */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -124,18 +124,18 @@ export default function SearchAnalytics({ className = '' }: SearchAnalyticsProps
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500">Aucune recherche enregistrée</p>
+            <p className="text-sm text-gray-500">Aucune recherche enregistree</p>
           )}
         </CardContent>
       </Card>
 
-      {/* Recherches sans résultats */}
+      {/* Recherches sans resultats */}
       {emptySearches.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-orange-500" />
-              Recherches Sans Résultats
+              Recherches Sans Resultats
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -155,7 +155,7 @@ export default function SearchAnalytics({ className = '' }: SearchAnalyticsProps
               ))}
             </div>
             <p className="text-xs text-gray-500 mt-3">
-              💡 Ces termes n'ont donné aucun résultat. Envisagez d'améliorer l'indexation.
+              [emoji] Ces termes n'ont donne aucun resultat. Envisagez d'ameliorer l'indexation.
             </p>
           </CardContent>
         </Card>

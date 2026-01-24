@@ -5,6 +5,22 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
+// Polyfill TextEncoder/TextDecoder for Node.js test environment
+if (typeof globalThis.TextEncoder === 'undefined') {
+  const { TextEncoder, TextDecoder } = require('util');
+  globalThis.TextEncoder = TextEncoder;
+  globalThis.TextDecoder = TextDecoder;
+}
+
+// Polyfill fetch, Request, Response for Node.js test environment
+if (typeof globalThis.fetch === 'undefined') {
+  const { fetch, Request, Response, Headers } = require('undici');
+  globalThis.fetch = fetch;
+  globalThis.Request = Request;
+  globalThis.Response = Response;
+  globalThis.Headers = Headers;
+}
+
 // Mock Next.js router
 jest.mock('next/router', () => ({
   useRouter() {

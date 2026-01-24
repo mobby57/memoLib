@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 /**
- * Panel READY FOR HUMAN - État final actionnable
+ * Panel READY FOR HUMAN - etat final actionnable
  */
 
 import { WorkspaceReasoning } from '@/types/workspace-reasoning';
@@ -27,16 +27,16 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
   
   return (
     <div className="space-y-6">
-      {/* Bannière de succès */}
+      {/* Banniere de succes */}
       <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-6 text-white">
         <div className="flex items-center gap-4">
-          <div className="text-6xl">✅</div>
+          <div className="text-6xl"></div>
           <div>
             <h2 className="text-2xl font-bold mb-2">
-              Workspace Prêt pour Validation Humaine
+              Workspace Pret pour Validation Humaine
             </h2>
             <p className="text-green-100">
-              Tous les éléments bloquants ont été résolus. Le workspace est actionnable.
+              Tous les elements bloquants ont ete resolus. Le workspace est actionnable.
             </p>
           </div>
         </div>
@@ -46,7 +46,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">
-            📊 Niveau d'Incertitude
+            [emoji] Niveau d'Incertitude
           </h3>
           <span className={`
             px-3 py-1 rounded-full text-sm font-medium
@@ -73,63 +73,63 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
         </div>
         
         <p className="text-sm text-gray-600 mt-2">
-          {uncertaintyPercent < 20 ? '✅ Très faible incertitude - Actionnable' :
-           uncertaintyPercent < 50 ? '⚠️ Incertitude modérée - Validation recommandée' :
-           uncertaintyPercent < 80 ? '🟠 Incertitude élevée - Validation requise' :
-           '🔴 Incertitude critique - Investigation approfondie nécessaire'}
+          {uncertaintyPercent < 20 ? ' Tres faible incertitude - Actionnable' :
+           uncertaintyPercent < 50 ? '️ Incertitude moderee - Validation recommandee' :
+           uncertaintyPercent < 80 ? '[emoji] Incertitude elevee - Validation requise' :
+           '[emoji] Incertitude critique - Investigation approfondie necessaire'}
         </p>
       </div>
       
-      {/* Résumé du raisonnement */}
+      {/* Resume du raisonnement */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📋 Résumé du Raisonnement
+          [emoji] Resume du Raisonnement
         </h3>
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <SummaryCard
-            icon="📋"
+            icon="[emoji]"
             label="Faits Extraits"
             value={summary.factsCount}
             color="blue"
           />
           <SummaryCard
-            icon="🧭"
-            label="Contextes Identifiés"
+            icon="[emoji]"
+            label="Contextes Identifies"
             value={summary.contextsCount}
             color="purple"
           />
           <SummaryCard
-            icon="📜"
-            label="Obligations Déduites"
+            icon="[emoji]"
+            label="Obligations Deduites"
             value={summary.obligationsCount}
             color="orange"
           />
           <SummaryCard
-            icon="✅"
-            label="Manques Résolus"
+            icon=""
+            label="Manques Resolus"
             value={summary.missingResolved}
             color="green"
           />
           <SummaryCard
-            icon="⚠️"
-            label="Risques Évalués"
+            icon="️"
+            label="Risques evalues"
             value={summary.risksEvaluated}
             color="red"
           />
           <SummaryCard
-            icon="👉"
-            label="Actions Proposées"
+            icon="[emoji]"
+            label="Actions Proposees"
             value={summary.actionsProposed}
             color="indigo"
           />
         </div>
       </div>
       
-      {/* Métadonnées workspace */}
+      {/* Metadonnees workspace */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📌 Informations Workspace
+          [emoji] Informations Workspace
         </h3>
         
         <div className="space-y-3 text-sm">
@@ -143,20 +143,20 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
           </div>
           {workspace.procedureType && (
             <div className="flex justify-between">
-              <span className="text-gray-600">Procédure CESEDA :</span>
+              <span className="text-gray-600">Procedure CESEDA :</span>
               <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">
                 {workspace.procedureType}
               </span>
             </div>
           )}
           <div className="flex justify-between">
-            <span className="text-gray-600">Créé le :</span>
+            <span className="text-gray-600">Cree le :</span>
             <span className="text-gray-900">
               {new Date(workspace.createdAt).toLocaleString('fr-FR')}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Dernière mise à jour :</span>
+            <span className="text-gray-600">Derniere mise a jour :</span>
             <span className="text-gray-900">
               {new Date(workspace.updatedAt).toLocaleString('fr-FR')}
             </span>
@@ -167,7 +167,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
               px-2 py-1 rounded text-xs font-medium
               ${workspace.locked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}
             `}>
-              {workspace.locked ? '🔒 Verrouillé' : '🔓 En cours'}
+              {workspace.locked ? '[emoji] Verrouille' : '[emoji] En cours'}
             </span>
           </div>
         </div>
@@ -206,7 +206,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
               className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
             >
               <Send className="w-5 h-5" />
-              Exécuter les Actions
+              Executer les Actions
             </button>
           )}
         </div>
@@ -215,11 +215,11 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
       {/* Note explicative finale */}
       <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
         <p className="text-green-800">
-          <strong>✅ Règle #5 validée :</strong> Aucun élément bloquant non résolu. 
-          Le workspace a atteint l'état READY_FOR_HUMAN conformément aux règles structurelles du moteur de raisonnement.
+          <strong> Regle #5 validee :</strong> Aucun element bloquant non resolu. 
+          Le workspace a atteint l'etat READY_FOR_HUMAN conformement aux regles structurelles du moteur de raisonnement.
         </p>
         <p className="text-green-700 mt-2">
-          Vous pouvez maintenant valider humainement le raisonnement complet et exécuter les actions proposées.
+          Vous pouvez maintenant valider humainement le raisonnement complet et executer les actions proposees.
         </p>
       </div>
     </div>

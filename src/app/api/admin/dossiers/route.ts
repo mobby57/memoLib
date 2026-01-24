@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { PrismaClient } from '@prisma/client';
 
@@ -6,28 +6,28 @@ const prisma = new PrismaClient();
 
 /**
  * GET /api/admin/dossiers
- * Récupère tous les dossiers du tenant (pour avocats)
+ * Recupere tous les dossiers du tenant (pour avocats)
  */
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userRole = (session.user as any).role;
     const tenantId = (session.user as any).tenantId;
 
     if (userRole !== 'AVOCAT' && userRole !== 'ADMIN') {
-      return NextResponse.json({ error: 'Accès réservé aux avocats' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux avocats' }, { status: 403 });
     }
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 403 });
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 403 });
     }
 
-    // Récupérer tous les dossiers du tenant
+    // Recuperer tous les dossiers du tenant
     const dossiers = await prisma.dossier.findMany({
       where: {
         tenantId,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Transformer pour correspondre à l'interface attendue
+    // Transformer pour correspondre a l'interface attendue
     return NextResponse.json({ 
       dossiers: dossiers.map(d => ({
         ...d,
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       }))
     });
   } catch (error) {
-    console.error('Erreur récupération dossiers admin:', error);
+    console.error('Erreur recuperation dossiers admin:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
@@ -80,31 +80,31 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/admin/dossiers
- * Créer un nouveau dossier (avocat pour un client)
+ * Creer un nouveau dossier (avocat pour un client)
  */
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userRole = (session.user as any).role;
     const tenantId = (session.user as any).tenantId;
 
     if (userRole !== 'AVOCAT' && userRole !== 'ADMIN') {
-      return NextResponse.json({ error: 'Accès réservé aux avocats' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux avocats' }, { status: 403 });
     }
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 403 });
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 403 });
     }
 
     const body = await request.json();
     const { clientId, typeDossier, objetDemande, priorite, dateEcheance, notes } = body;
 
-    // Vérifier que le client appartient au tenant
+    // Verifier que le client appartient au tenant
     const client = await prisma.client.findFirst({
       where: {
         id: clientId,
@@ -113,17 +113,17 @@ export async function POST(request: NextRequest) {
     });
 
     if (!client) {
-      return NextResponse.json({ error: 'Client non trouvé ou accès refusé' }, { status: 404 });
+      return NextResponse.json({ error: 'Client non trouve ou acces refuse' }, { status: 404 });
     }
 
-    // Générer le numéro de dossier
+    // Generer le numero de dossier
     const year = new Date().getFullYear();
     const count = await prisma.dossier.count({
       where: { tenantId },
     });
     const numero = `D-${year}-${String(count + 1).padStart(3, '0')}`;
 
-    // Mapper les priorités et statuts au format DB
+    // Mapper les priorites et statuts au format DB
     const prioriteMap: Record<string, string> = {
       'NORMALE': 'normale',
       'HAUTE': 'haute',
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
       'ANNULE': 'archive',
     };
 
-    // Créer le dossier
+    // Creer le dossier
     const dossier = await prisma.dossier.create({
       data: {
         numero,
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
       }
     }, { status: 201 });
   } catch (error) {
-    console.error('Erreur création dossier:', error);
+    console.error('Erreur creation dossier:', error);
     return NextResponse.json(
       { error: 'Erreur serveur', details: (error as Error).message },
       { status: 500 }

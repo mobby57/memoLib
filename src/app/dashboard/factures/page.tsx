@@ -44,7 +44,7 @@ export default function FacturesPage() {
   const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
   const [filter, setFilter] = useState('all');
 
-  // Pour la démo, on utilise un tenantId fictif
+  // Pour la demo, on utilise un tenantId fictif
   const tenantId = 'demo-tenant-001';
 
   const loadFactures = useCallback(async () => {
@@ -84,10 +84,10 @@ export default function FacturesPage() {
     };
     const labels: Record<string, string> = {
       brouillon: 'Brouillon',
-      envoyee: 'Envoyée',
-      payee: 'Payée',
+      envoyee: 'Envoyee',
+      payee: 'Payee',
       en_retard: 'En retard',
-      annulee: 'Annulée',
+      annulee: 'Annulee',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[statut] || 'bg-gray-100'}`}>
@@ -113,14 +113,14 @@ export default function FacturesPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">💰 Facturation</h1>
-          <p className="text-gray-600">Gérez vos factures et paiements</p>
+          <h1 className="text-2xl font-bold text-gray-900">[emoji] Facturation</h1>
+          <p className="text-gray-600">Gerez vos factures et paiements</p>
         </div>
         <button
           onClick={() => setShowNewFacture(true)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
         >
-          <span>➕</span>
+          <span></span>
           Nouvelle Facture
         </button>
       </div>
@@ -128,11 +128,11 @@ export default function FacturesPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-500">Total Facturé</p>
+          <p className="text-sm text-gray-500">Total Facture</p>
           <p className="text-2xl font-bold text-gray-900">{stats.total.toFixed(2)}€</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-500">Payées</p>
+          <p className="text-sm text-gray-500">Payees</p>
           <p className="text-2xl font-bold text-green-600">{stats.payees.toFixed(2)}€</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
@@ -166,25 +166,25 @@ export default function FacturesPage() {
           <div className="p-8 text-center">Chargement...</div>
         ) : filteredFactures.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            <p className="text-4xl mb-2">📄</p>
-            <p>Aucune facture trouvée</p>
+            <p className="text-4xl mb-2">[emoji]</p>
+            <p>Aucune facture trouvee</p>
             <button
               onClick={() => setShowNewFacture(true)}
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Créer une facture
+              Creer une facture
             </button>
           </div>
         ) : (
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Numéro</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Numero</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant TTC</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Échéance</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">echeance</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
@@ -210,9 +210,9 @@ export default function FacturesPage() {
                       onClick={() => setSelectedFacture(facture)}
                       className="text-blue-600 hover:text-blue-800 mr-3"
                     >
-                      👁️ Voir
+                      [emoji]️ Voir
                     </button>
-                    <button className="text-gray-600 hover:text-gray-800">📥 PDF</button>
+                    <button className="text-gray-600 hover:text-gray-800">[emoji] PDF</button>
                   </td>
                 </tr>
               ))}
@@ -234,7 +234,7 @@ export default function FacturesPage() {
         />
       )}
 
-      {/* Modal Détail Facture */}
+      {/* Modal Detail Facture */}
       {selectedFacture && (
         <FactureDetailModal
           facture={selectedFacture}
@@ -285,7 +285,7 @@ function NewFactureModal({
 
   const handleSubmit = async () => {
     if (!clientId || lignes.length === 0) {
-      alert('Veuillez sélectionner un client et ajouter au moins une ligne');
+      alert('Veuillez selectionner un client et ajouter au moins une ligne');
       return;
     }
 
@@ -305,11 +305,11 @@ function NewFactureModal({
         onCreated();
       } else {
         const data = await res.json();
-        alert(data.error || 'Erreur création facture');
+        alert(data.error || 'Erreur creation facture');
       }
     } catch (error) {
       console.error('Erreur:', error);
-      alert('Erreur création facture');
+      alert('Erreur creation facture');
     } finally {
       setLoading(false);
     }
@@ -319,7 +319,7 @@ function NewFactureModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b">
-          <h2 className="text-xl font-bold">➕ Nouvelle Facture</h2>
+          <h2 className="text-xl font-bold"> Nouvelle Facture</h2>
         </div>
 
         <div className="p-6 space-y-4">
@@ -331,7 +331,7 @@ function NewFactureModal({
               onChange={(e) => setClientId(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg"
             >
-              <option value="">Sélectionner un client</option>
+              <option value="">Selectionner un client</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.firstName} {c.lastName} - {c.email}
@@ -354,7 +354,7 @@ function NewFactureModal({
                 />
                 <input
                   type="number"
-                  placeholder="Qté"
+                  placeholder="Qte"
                   value={ligne.quantite}
                   onChange={(e) => updateLigne(index, 'quantite', parseFloat(e.target.value))}
                   className="w-20 px-3 py-2 border rounded-lg"
@@ -370,7 +370,7 @@ function NewFactureModal({
                   onClick={() => removeLigne(index)}
                   className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
                 >
-                  🗑️
+                  [emoji]️
                 </button>
               </div>
             ))}
@@ -405,7 +405,7 @@ function NewFactureModal({
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Création...' : 'Créer la facture'}
+            {loading ? 'Creation...' : 'Creer la facture'}
           </button>
         </div>
       </div>
@@ -413,7 +413,7 @@ function NewFactureModal({
   );
 }
 
-// Composant Modal Détail Facture
+// Composant Modal Detail Facture
 function FactureDetailModal({
   facture,
   onClose,
@@ -452,9 +452,9 @@ function FactureDetailModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b flex justify-between items-center">
-          <h2 className="text-xl font-bold">📄 Facture {facture.numero}</h2>
+          <h2 className="text-xl font-bold">[emoji] Facture {facture.numero}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl">
-            ×
+            x
           </button>
         </div>
 
@@ -475,7 +475,7 @@ function FactureDetailModal({
               <thead>
                 <tr className="text-left text-sm text-gray-500">
                   <th className="pb-2">Description</th>
-                  <th className="pb-2 text-right">Qté</th>
+                  <th className="pb-2 text-right">Qte</th>
                   <th className="pb-2 text-right">Prix</th>
                   <th className="pb-2 text-right">Total</th>
                 </tr>
@@ -517,7 +517,7 @@ function FactureDetailModal({
                 disabled={loading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
-                📤 Envoyer
+                [emoji] Envoyer
               </button>
             )}
             {facture.statut === 'envoyee' && (
@@ -526,10 +526,10 @@ function FactureDetailModal({
                 disabled={loading}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
               >
-                ✅ Marquer payée
+                 Marquer payee
               </button>
             )}
-            <button className="px-4 py-2 border rounded-lg hover:bg-gray-50">📥 Télécharger PDF</button>
+            <button className="px-4 py-2 border rounded-lg hover:bg-gray-50">[emoji] Telecharger PDF</button>
           </div>
         </div>
       </div>

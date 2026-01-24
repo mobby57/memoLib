@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -103,8 +103,8 @@ export default function BillingPage() {
     const badges: Record<string, { label: string; color: string }> = {
       active: { label: 'Actif', color: 'bg-green-100 text-green-800' },
       trialing: { label: 'Essai', color: 'bg-blue-100 text-blue-800' },
-      past_due: { label: 'Impayé', color: 'bg-red-100 text-red-800' },
-      canceled: { label: 'Annulé', color: 'bg-gray-100 text-gray-800' },
+      past_due: { label: 'Impaye', color: 'bg-red-100 text-red-800' },
+      canceled: { label: 'Annule', color: 'bg-gray-100 text-gray-800' },
     };
     const badge = badges[status] || { label: status, color: 'bg-gray-100 text-gray-800' };
     return (
@@ -131,7 +131,7 @@ export default function BillingPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Facturation & Abonnement</h1>
-          <p className="mt-2 text-gray-600">Gérez votre abonnement, quotas et factures</p>
+          <p className="mt-2 text-gray-600">Gerez votre abonnement, quotas et factures</p>
         </div>
 
         {/* Subscription actuelle */}
@@ -154,7 +154,7 @@ export default function BillingPage() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Période actuelle</p>
+                <p className="text-sm text-gray-600">Periode actuelle</p>
                 <p className="text-lg font-semibold text-gray-900">
                   {new Date(subscription.currentPeriodStart).toLocaleDateString('fr-FR')} - {' '}
                   {new Date(subscription.currentPeriodEnd).toLocaleDateString('fr-FR')}
@@ -169,7 +169,7 @@ export default function BillingPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-4">Utilisation des quotas</h2>
           
           {quotas.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">Aucun quota configuré</p>
+            <p className="text-gray-500 text-center py-8">Aucun quota configure</p>
           ) : (
             <div className="space-y-4">
               {quotas.map((quota) => (
@@ -197,8 +197,8 @@ export default function BillingPage() {
                   {quota.percentage >= 80 && (
                     <p className="text-xs mt-2">
                       {quota.percentage >= 100 
-                        ? '⚠️ Quota dépassé - Veuillez mettre à niveau votre plan'
-                        : '⚠️ Approche de la limite - Envisagez une mise à niveau'}
+                        ? '️ Quota depasse - Veuillez mettre a niveau votre plan'
+                        : '️ Approche de la limite - Envisagez une mise a niveau'}
                     </p>
                   )}
                 </div>
@@ -234,7 +234,7 @@ export default function BillingPage() {
                   <p className="text-4xl font-bold text-gray-900">{plan.priceMonthly}€</p>
                   <p className="text-sm text-gray-600">par mois</p>
                   <p className="text-sm text-gray-500 mt-1">
-                    {plan.priceYearly}€/an (économie de {Math.round((1 - plan.priceYearly / (plan.priceMonthly * 12)) * 100)}%)
+                    {plan.priceYearly}€/an (economie de {Math.round((1 - plan.priceYearly / (plan.priceMonthly * 12)) * 100)}%)
                   </p>
                 </div>
                 

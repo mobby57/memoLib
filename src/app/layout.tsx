@@ -1,4 +1,4 @@
-﻿import type { Metadata, Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import '@/styles/tokens/tokens.css';
@@ -17,7 +17,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'IA Poste Manager - Gestion Multi-Tenant',
-  description: 'Système intelligent de gestion des dossiers juridiques pour cabinets d\'avocats',
+  description: 'Systeme intelligent de gestion des dossiers juridiques pour cabinets d\'avocats',
   keywords: 'gestion juridique, IA, multi-tenant, avocats',
   authors: [{ name: 'IA Poste Manager' }],
   manifest: '/manifest.json',

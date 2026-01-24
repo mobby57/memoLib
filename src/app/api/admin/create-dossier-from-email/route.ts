@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
@@ -20,7 +20,7 @@ function extractClientInfo(emailData: any): ClientInfo {
     email: emailData.from,
   };
 
-  // Extraire nom/prénom de l'email
+  // Extraire nom/prenom de l'email
   const emailMatch = emailData.from.match(/^([^<]+)</);
   if (emailMatch) {
     const name = emailMatch[1].trim();
@@ -31,11 +31,11 @@ function extractClientInfo(emailData: any): ClientInfo {
     }
   }
 
-  // Détecter le type de demande
+  // Detecter le type de demande
   const text = `${emailData.subject} ${emailData.snippet} ${emailData.body || ''}`.toLowerCase();
   
-  if (text.includes('titre de séjour') || text.includes('titre de sejour')) {
-    info.typeDemande = 'Titre de séjour';
+  if (text.includes('titre de sejour') || text.includes('titre de sejour')) {
+    info.typeDemande = 'Titre de sejour';
   } else if (text.includes('visa')) {
     info.typeDemande = 'Visa';
   } else if (text.includes('naturalisation')) {
@@ -44,10 +44,10 @@ function extractClientInfo(emailData: any): ClientInfo {
     info.typeDemande = 'Regroupement familial';
   } else if (text.includes('oqtf') || text.includes('expulsion')) {
     info.typeDemande = 'OQTF / Expulsion';
-  } else if (text.includes('asile') || text.includes('réfugié')) {
+  } else if (text.includes('asile') || text.includes('refugie')) {
     info.typeDemande = 'Demande d\'asile';
   } else {
-    info.typeDemande = 'Demande générale';
+    info.typeDemande = 'Demande generale';
   }
 
   if (emailData.priority === 'urgent' || text.includes('urgent')) {
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const { emailId } = await request.json();
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!emailFile) {
-      return NextResponse.json({ error: 'Email non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Email non trouve' }, { status: 404 });
     }
 
     const emailData = JSON.parse(
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     // Extraire les informations
     const clientInfo = extractClientInfo(emailData);
 
-    // Créer ou récupérer le client
+    // Creer ou recuperer le client
     let client = await prisma.client.findFirst({
       where: { email: clientInfo.email }
     });
@@ -96,11 +96,11 @@ export async function POST(request: NextRequest) {
     if (!client) {
       client = await prisma.client.create({
         data: {
-          nom: clientInfo.nom || 'À renseigner',
-          prenom: clientInfo.prenom || 'À renseigner',
+          nom: clientInfo.nom || 'a renseigner',
+          prenom: clientInfo.prenom || 'a renseigner',
           email: clientInfo.email,
           telephone: '',
-          nationalite: 'À renseigner',
+          nationalite: 'a renseigner',
           dateNaissance: new Date('1990-01-01'),
           adresse: '',
           codePostal: '',
@@ -110,24 +110,24 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Créer le dossier
+    // Creer le dossier
     const dossier = await prisma.dossier.create({
       data: {
         titre: `${clientInfo.typeDemande} - ${client.nom} ${client.prenom}`,
         type: clientInfo.typeDemande || 'Autre',
         statut: 'nouveau',
-        description: `Demande reçue par email le ${new Date(emailData.date).toLocaleDateString('fr-FR')}\n\nSujet: ${emailData.subject}\n\n${emailData.snippet}`,
+        description: `Demande recue par email le ${new Date(emailData.date).toLocaleDateString('fr-FR')}\n\nSujet: ${emailData.subject}\n\n${emailData.snippet}`,
         dateOuverture: new Date(emailData.date),
         clientId: client.id,
       }
     });
 
-    // Si urgent, créer une échéance
+    // Si urgent, creer une echeance
     if (clientInfo.urgence) {
       await prisma.echeance.create({
         data: {
           titre: `URGENT - ${clientInfo.typeDemande}`,
-          type: 'Délai légal',
+          type: 'Delai legal',
           dateEcheance: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           statut: 'en_attente',
           dossierId: dossier.id,
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la création du dossier:', error);
+    console.error('Erreur lors de la creation du dossier:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

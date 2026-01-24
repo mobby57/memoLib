@@ -16,17 +16,17 @@ export async function DELETE(
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userRole = (session.user as any).role;
     const tenantId = (session.user as any).tenantId;
 
     if (userRole !== 'AVOCAT' && userRole !== 'ADMIN') {
-      return NextResponse.json({ error: 'Accès réservé aux avocats' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux avocats' }, { status: 403 });
     }
 
-    // Vérifier que le dossier appartient au tenant
+    // Verifier que le dossier appartient au tenant
     const dossier = await prisma.dossier.findFirst({
       where: {
         id: params.id,
@@ -35,7 +35,7 @@ export async function DELETE(
     });
 
     if (!dossier) {
-      return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
     }
 
     // Supprimer le dossier et ses relations
@@ -43,7 +43,7 @@ export async function DELETE(
       where: { id: params.id },
     });
 
-    return NextResponse.json({ message: 'Dossier supprimé' }, { status: 200 });
+    return NextResponse.json({ message: 'Dossier supprime' }, { status: 200 });
   } catch (error) {
     console.error('Erreur suppression dossier:', error);
     return NextResponse.json(
@@ -57,7 +57,7 @@ export async function DELETE(
 
 /**
  * GET /api/admin/dossiers/[id]
- * Récupérer un dossier spécifique
+ * Recuperer un dossier specifique
  */
 export async function GET(
   request: NextRequest,
@@ -67,14 +67,14 @@ export async function GET(
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userRole = (session.user as any).role;
     const tenantId = (session.user as any).tenantId;
 
     if (userRole !== 'AVOCAT' && userRole !== 'ADMIN') {
-      return NextResponse.json({ error: 'Accès réservé aux avocats' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux avocats' }, { status: 403 });
     }
 
     const dossier = await prisma.dossier.findFirst({
@@ -91,12 +91,12 @@ export async function GET(
     });
 
     if (!dossier) {
-      return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
     }
 
     return NextResponse.json({ dossier });
   } catch (error) {
-    console.error('Erreur récupération dossier:', error);
+    console.error('Erreur recuperation dossier:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
@@ -108,7 +108,7 @@ export async function GET(
 
 /**
  * PUT /api/admin/dossiers/[id]
- * Mettre à jour un dossier
+ * Mettre a jour un dossier
  */
 export async function PUT(
   request: NextRequest,
@@ -118,19 +118,19 @@ export async function PUT(
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userRole = (session.user as any).role;
     const tenantId = (session.user as any).tenantId;
 
     if (userRole !== 'AVOCAT' && userRole !== 'ADMIN') {
-      return NextResponse.json({ error: 'Accès réservé aux avocats' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux avocats' }, { status: 403 });
     }
 
     const body = await request.json();
 
-    // Vérifier que le dossier appartient au tenant
+    // Verifier que le dossier appartient au tenant
     const existingDossier = await prisma.dossier.findFirst({
       where: {
         id: params.id,
@@ -139,7 +139,7 @@ export async function PUT(
     });
 
     if (!existingDossier) {
-      return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
     }
 
     // Mettre à jour
@@ -171,7 +171,7 @@ export async function PUT(
       }
     });
   } catch (error) {
-    console.error('Erreur mise à jour dossier:', error);
+    console.error('Erreur mise a jour dossier:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

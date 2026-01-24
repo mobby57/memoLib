@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { ZeroRiskExport } from '@/lib/zero-risk-export'
 import { useState } from 'react'
@@ -30,8 +30,8 @@ export default function ExportsPage() {
     setImporting(true)
     try {
       const data = await ZeroRiskExport.importFromCSV(file)
-      console.log('Données importées:', data)
-      alert(`${data.length} lignes importées avec succès`)
+      console.log('Donnees importees:', data)
+      alert(`${data.length} lignes importees avec succes`)
     } catch (error) {
       alert('Erreur import: ' + (error as Error).message)
     } finally {
@@ -41,14 +41,14 @@ export default function ExportsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Exports & Imports ZÉRO RISQUE</h1>
+      <h1 className="text-3xl font-bold">Exports & Imports ZeRO RISQUE</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Download className="w-5 h-5 mr-2" />
-              Exports Sécurisés
+              Exports Securises
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -76,7 +76,7 @@ export default function ExportsPage() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Upload className="w-5 h-5 mr-2" />
-              Imports Sécurisés
+              Imports Securises
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -106,15 +106,15 @@ export default function ExportsPage() {
       
       <Card>
         <CardHeader>
-          <CardTitle>🛡️ Sécurité ZÉRO RISQUE</CardTitle>
+          <CardTitle>[emoji]️ Securite ZeRO RISQUE</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm">
-            <li>✅ Aucune dépendance externe vulnérable</li>
-            <li>✅ APIs natives du navigateur uniquement</li>
-            <li>✅ Validation stricte des formats</li>
-            <li>✅ Pas de parsing complexe</li>
-            <li>✅ Zéro vulnérabilité npm audit</li>
+            <li> Aucune dependance externe vulnerable</li>
+            <li> APIs natives du navigateur uniquement</li>
+            <li> Validation stricte des formats</li>
+            <li> Pas de parsing complexe</li>
+            <li> Zero vulnerabilite npm audit</li>
           </ul>
         </CardContent>
       </Card>

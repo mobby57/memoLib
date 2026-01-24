@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 
@@ -34,7 +34,7 @@ export default function WebhookConfig() {
             className="w-full p-2 border rounded"
           />
           <p className="text-xs text-gray-500 mt-1">
-            Utilisé pour vérifier l'authenticité du webhook. 
+            Utilise pour verifier l'authenticite du webhook. 
             <a href="/docs/WEBHOOK_SECRET.md" className="text-blue-600 hover:underline">
               Lire notre documentation sur les secrets webhook
             </a>

@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 /**
- * Panel Manques - CŒUR DU MVP
- * Affiche les éléments manquants bloquants/non-bloquants
+ * Panel Manques - CoeUR DU MVP
+ * Affiche les elements manquants bloquants/non-bloquants
  */
 
 import { MissingElement } from '@/types/workspace-reasoning';
@@ -17,17 +17,17 @@ interface MissingPanelProps {
 const TYPE_LABELS: Record<string, string> = {
   INFORMATION: 'Information manquante',
   DOCUMENT: 'Document manquant',
-  DECISION: 'Décision à prendre',
+  DECISION: 'Decision a prendre',
   VALIDATION: 'Validation requise',
   HUMAN_EXPERTISE: 'Expertise humaine',
 };
 
 const TYPE_ICONS: Record<string, string> = {
-  INFORMATION: '❓',
-  DOCUMENT: '📄',
-  DECISION: '⚖️',
-  VALIDATION: '✅',
-  HUMAN_EXPERTISE: '👨‍⚖️',
+  INFORMATION: '',
+  DOCUMENT: '[emoji]',
+  DECISION: '️',
+  VALIDATION: '',
+  HUMAN_EXPERTISE: '[emoji]‍️',
 };
 
 export function MissingPanel({ missingElements, onResolve, onAddMissing }: MissingPanelProps) {
@@ -38,12 +38,12 @@ export function MissingPanel({ missingElements, onResolve, onAddMissing }: Missi
   if (missingElements.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">✅</div>
+        <div className="text-6xl mb-4"></div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Aucun élément manquant !
+          Aucun element manquant !
         </h3>
         <p className="text-gray-600">
-          Tous les éléments nécessaires sont présents pour progresser.
+          Tous les elements necessaires sont presents pour progresser.
         </p>
       </div>
     );
@@ -56,10 +56,10 @@ export function MissingPanel({ missingElements, onResolve, onAddMissing }: Missi
         <div>
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-orange-500" />
-            Éléments Manquants
+            elements Manquants
           </h3>
           <p className="text-sm text-gray-600 mt-1">
-            {blockingElements.length} bloquant(s) • {nonBlockingElements.length} non-bloquant(s)
+            {blockingElements.length} bloquant(s) - {nonBlockingElements.length} non-bloquant(s)
           </p>
         </div>
         
@@ -73,19 +73,19 @@ export function MissingPanel({ missingElements, onResolve, onAddMissing }: Missi
         )}
       </div>
       
-      {/* Alerte critique si éléments bloquants */}
+      {/* Alerte critique si elements bloquants */}
       {blockingElements.length > 0 && (
         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
           <div className="flex items-center gap-2">
             <XCircle className="w-5 h-5 text-red-500" />
             <p className="text-red-800 font-semibold">
-              {blockingElements.length} élément(s) bloquant(s) empêche(nt) la progression vers READY_FOR_HUMAN
+              {blockingElements.length} element(s) bloquant(s) empeche(nt) la progression vers READY_FOR_HUMAN
             </p>
           </div>
         </div>
       )}
       
-      {/* Éléments BLOQUANTS */}
+      {/* elements BLOQUANTS */}
       {blockingElements.length > 0 && (
         <div>
           <h4 className="text-sm font-semibold text-red-700 mb-3 flex items-center gap-2">
@@ -106,7 +106,7 @@ export function MissingPanel({ missingElements, onResolve, onAddMissing }: Missi
         </div>
       )}
       
-      {/* Éléments NON-BLOQUANTS */}
+      {/* elements NON-BLOQUANTS */}
       {nonBlockingElements.length > 0 && (
         <div>
           <h4 className="text-sm font-semibold text-orange-700 mb-3 flex items-center gap-2">
@@ -127,13 +127,13 @@ export function MissingPanel({ missingElements, onResolve, onAddMissing }: Missi
         </div>
       )}
       
-      {/* Éléments RÉSOLUS */}
+      {/* elements ReSOLUS */}
       {resolvedElements.length > 0 && (
         <details className="border border-gray-200 rounded-lg">
           <summary className="cursor-pointer p-4 hover:bg-gray-50 flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-500" />
             <span className="text-sm font-semibold text-green-700">
-              RÉSOLUS ({resolvedElements.length})
+              ReSOLUS ({resolvedElements.length})
             </span>
           </summary>
           
@@ -177,7 +177,7 @@ function MissingCard({
         }
       `}
     >
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-2xl">{TYPE_ICONS[element.type]}</span>
@@ -186,7 +186,7 @@ function MissingCard({
               {TYPE_LABELS[element.type]}
             </h5>
             <p className="text-xs text-gray-600 mt-1">
-              Identifié par : {element.identifiedBy === 'AI' ? 'IA' : 'Humain'}
+              Identifie par : {element.identifiedBy === 'AI' ? 'IA' : 'Humain'}
             </p>
           </div>
         </div>
@@ -203,7 +203,7 @@ function MissingCard({
             }
           `}
         >
-          {resolved ? 'Résolu' : blocking ? 'BLOQUANT' : 'Non-bloquant'}
+          {resolved ? 'Resolu' : blocking ? 'BLOQUANT' : 'Non-bloquant'}
         </div>
       </div>
       
@@ -217,15 +217,15 @@ function MissingCard({
         </p>
       </div>
       
-      {/* Résolution */}
+      {/* Resolution */}
       {resolved && element.resolution && (
         <div className="bg-white rounded p-3 border border-green-200 mb-3">
           <p className="text-xs text-gray-600 mb-1">
-            <strong>Résolution :</strong>
+            <strong>Resolution :</strong>
           </p>
           <p className="text-sm text-gray-900">{element.resolution}</p>
           <p className="text-xs text-gray-500 mt-2">
-            Résolu par {element.resolvedBy} le{' '}
+            Resolu par {element.resolvedBy} le{' '}
             {element.resolvedAt && new Date(element.resolvedAt).toLocaleDateString('fr-FR')}
           </p>
         </div>
@@ -244,14 +244,14 @@ function MissingCard({
               }
             `}
           >
-            Marquer comme résolu
+            Marquer comme resolu
           </button>
         </div>
       )}
       
-      {/* Métadonnées */}
+      {/* Metadonnees */}
       <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
-        Créé le {new Date(element.createdAt).toLocaleDateString('fr-FR')} à{' '}
+        Cree le {new Date(element.createdAt).toLocaleDateString('fr-FR')} a{' '}
         {new Date(element.createdAt).toLocaleTimeString('fr-FR')}
       </div>
     </div>

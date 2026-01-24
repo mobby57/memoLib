@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
 import { ProcedureType, PROCEDURE_COLORS, PROCEDURE_LABELS } from "@/types/cesda"
@@ -20,7 +20,7 @@ export default function WorkspaceCard({ workspace, onClick }: WorkspaceCardProps
     const deadline = new Date(workspace.deadlineDate)
     const diff = deadline.getTime() - now.getTime()
 
-    if (diff <= 0) return "Expiré"
+    if (diff <= 0) return "Expire"
 
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const days = Math.floor(hours / 24)
@@ -52,7 +52,7 @@ export default function WorkspaceCard({ workspace, onClick }: WorkspaceCardProps
         <UrgencyBadge level={workspace.urgencyLevel as any} size="sm" />
       </div>
 
-      {/* Type de procédure */}
+      {/* Type de procedure */}
       <div className="mb-3">
         <span
           className="inline-block px-2 py-1 text-xs font-medium rounded"
@@ -96,12 +96,12 @@ export default function WorkspaceCard({ workspace, onClick }: WorkspaceCardProps
       {workspace.deadlineDate && (
         <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
           <div className="flex items-center gap-2">
-            <span className="text-sm">⏱️</span>
-            <span className="text-sm text-gray-700">Échéance:</span>
+            <span className="text-sm">️</span>
+            <span className="text-sm text-gray-700">echeance:</span>
           </div>
           <div className="text-right">
             <div className={`text-sm font-semibold ${
-              timeRemaining === "Expiré" || timeRemaining?.includes("h")
+              timeRemaining === "Expire" || timeRemaining?.includes("h")
                 ? "text-red-600"
                 : "text-gray-900"
             }`}>
@@ -117,7 +117,7 @@ export default function WorkspaceCard({ workspace, onClick }: WorkspaceCardProps
       {/* Footer */}
       <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
         <span>
-          Créé le {new Date(workspace.createdAt).toLocaleDateString("fr-FR")}
+          Cree le {new Date(workspace.createdAt).toLocaleDateString("fr-FR")}
         </span>
         {workspace.reference && <span className="font-mono">{workspace.reference}</span>}
       </div>

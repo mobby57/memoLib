@@ -1,4 +1,4 @@
-﻿import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export interface SearchAnalytics {
   query: string;
@@ -26,7 +26,7 @@ export async function logSearch(analytics: SearchAnalytics): Promise<void> {
     });
   } catch (error) {
     console.error('Erreur logging recherche:', error);
-    // Ne pas bloquer la recherche si le logging échoue
+    // Ne pas bloquer la recherche si le logging echoue
   }
 }
 
@@ -60,7 +60,7 @@ export async function getPopularSearches(
 }
 
 /**
- * Obtenir les recherches récentes d'un utilisateur
+ * Obtenir les recherches recentes d'un utilisateur
  */
 export async function getUserRecentSearches(
   userId: string,
@@ -100,7 +100,7 @@ export async function getSearchStats(tenantId?: string) {
 }
 
 /**
- * Obtenir les recherches sans résultats (pour améliorer le système)
+ * Obtenir les recherches sans resultats (pour ameliorer le systeme)
  */
 export async function getEmptySearches(
   tenantId?: string,

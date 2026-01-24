@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 /**
- * Timeline Visuelle - Machine à États Workspace
+ * Timeline Visuelle - Machine a etats Workspace
  * Affiche la progression du raisonnement
  */
 
@@ -39,7 +39,7 @@ export function WorkspaceTimeline({ currentState, completedStates, onClick }: Wo
           />
         </div>
         
-        {/* États */}
+        {/* etats */}
         <div className="relative flex justify-between">
           {STATE_ORDER.map((state, index) => {
             const stateConfig = WORKSPACE_STATES[state];
@@ -58,7 +58,7 @@ export function WorkspaceTimeline({ currentState, completedStates, onClick }: Wo
                   transition-all duration-300
                 `}
               >
-                {/* Cercle d'état */}
+                {/* Cercle d'etat */}
                 <div
                   className={`
                     w-10 h-10 rounded-full flex items-center justify-center
@@ -74,7 +74,7 @@ export function WorkspaceTimeline({ currentState, completedStates, onClick }: Wo
                 >
                   {stateConfig.icon}
                   
-                  {/* Pulse animation pour état actuel */}
+                  {/* Pulse animation pour etat actuel */}
                   {isCurrent && (
                     <span className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-75" />
                   )}
@@ -91,7 +91,7 @@ export function WorkspaceTimeline({ currentState, completedStates, onClick }: Wo
                     {stateConfig.label}
                   </span>
                   
-                  {/* Numéro d'étape */}
+                  {/* Numero d'etape */}
                   <span className="text-xs text-gray-400">
                     {index + 1}/{STATE_ORDER.length}
                   </span>
@@ -101,7 +101,7 @@ export function WorkspaceTimeline({ currentState, completedStates, onClick }: Wo
                 {isClickable && (
                   <div className="absolute bottom-full mb-2 hidden group-hover:block">
                     <div className="bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-                      Cliquer pour voir les détails
+                      Cliquer pour voir les details
                     </div>
                   </div>
                 )}

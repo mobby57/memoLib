@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -31,7 +31,7 @@ interface SearchableItem {
 
 /**
  * Provider global pour la Command Palette
- * Intègre la recherche globale dans toute l'application
+ * Integre la recherche globale dans toute l'application
  */
 export function GlobalCommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +59,7 @@ export function GlobalCommandPalette() {
           {
             id: 'action-new-dossier',
             type: 'action',
-            title: 'Créer un nouveau dossier',
+            title: 'Creer un nouveau dossier',
             icon: Plus,
             href: '/dossiers?action=create'
           },
@@ -73,7 +73,7 @@ export function GlobalCommandPalette() {
           {
             id: 'action-new-facture',
             type: 'action',
-            title: 'Créer une facture',
+            title: 'Creer une facture',
             icon: Plus,
             href: '/factures?action=create'
           },
@@ -89,14 +89,14 @@ export function GlobalCommandPalette() {
           {
             id: 'nav-templates',
             type: 'action',
-            title: 'Gérer les templates',
+            title: 'Gerer les templates',
             icon: FileType,
             href: '/templates'
           },
           {
             id: 'nav-settings',
             type: 'action',
-            title: 'Paramètres',
+            title: 'Parametres',
             icon: Settings,
             href: '/settings'
           },
@@ -139,7 +139,7 @@ export function GlobalCommandPalette() {
       } catch (error) {
         logger.error('Erreur chargement items recherche', { error });
         
-        // Items par défaut en cas d'erreur
+        // Items par defaut en cas d'erreur
         setSearchItems([
           {
             id: 'nav-dashboard',
@@ -196,7 +196,7 @@ export function GlobalCommandPalette() {
 
 /**
  * Indicateur de raccourci clavier Ctrl+K
- * À afficher dans la barre de navigation
+ * a afficher dans la barre de navigation
  */
 export function SearchShortcut() {
   const open = () => {}; // Placeholder

@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/withAuth';
 import { legifranceApi } from '@/lib/legifrance/api-client';
 import { logger } from '@/lib/logger';
@@ -26,7 +26,7 @@ async function handler(request: NextRequest, context: any) {
 
     const { action, params } = validated;
 
-    logger.info(`Requête Légifrance: ${action}`, { userId, tenantId, action });
+    logger.info(`Requete Legifrance: ${action}`, { userId, tenantId, action });
 
     let result;
 
@@ -62,10 +62,10 @@ async function handler(request: NextRequest, context: any) {
         break;
 
       default:
-        return NextResponse.json({ error: 'Action non supportée' }, { status: 400 });
+        return NextResponse.json({ error: 'Action non supportee' }, { status: 400 });
     }
 
-    logger.info(`Légifrance ${action} - ${result?.results?.length || 0} résultats`, {
+    logger.info(`Legifrance ${action} - ${result?.results?.length || 0} resultats`, {
       userId,
       tenantId,
       action,
@@ -74,11 +74,11 @@ async function handler(request: NextRequest, context: any) {
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Paramètres invalides', details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Parametres invalides', details: error.errors }, { status: 400 });
     }
 
-    logger.error('Erreur Légifrance API', error, { userId, tenantId });
-    return NextResponse.json({ error: 'Erreur lors de la recherche Légifrance' }, { status: 500 });
+    logger.error('Erreur Legifrance API', error, { userId, tenantId });
+    return NextResponse.json({ error: 'Erreur lors de la recherche Legifrance' }, { status: 500 });
   }
 }
 

@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { PrismaClient } from '@prisma/client';
@@ -13,14 +13,14 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
     if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
     const formData = await request.formData();
@@ -32,12 +32,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Aucun fichier fourni' }, { status: 400 });
     }
 
-    // Vérifier la taille (max 10 MB)
+    // Verifier la taille (max 10 MB)
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json({ error: 'Fichier trop volumineux (max 10 MB)' }, { status: 400 });
     }
 
-    // Vérifier le type MIME
+    // Verifier le type MIME
     const allowedTypes = [
       'application/pdf',
       'image/jpeg',
@@ -48,10 +48,10 @@ export async function POST(request: NextRequest) {
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Type de fichier non autorisé' }, { status: 400 });
+      return NextResponse.json({ error: 'Type de fichier non autorise' }, { status: 400 });
     }
 
-    // Vérifier que le dossier appartient au client (si dossierId fourni)
+    // Verifier que le dossier appartient au client (si dossierId fourni)
     if (dossierId) {
       const dossier = await prisma.dossier.findFirst({
         where: {
@@ -61,15 +61,15 @@ export async function POST(request: NextRequest) {
       });
 
       if (!dossier) {
-        return NextResponse.json({ error: 'Dossier non trouvé ou accès refusé' }, { status: 404 });
+        return NextResponse.json({ error: 'Dossier non trouve ou acces refuse' }, { status: 404 });
       }
     }
 
-    // Générer un nom de fichier unique
+    // Generer un nom de fichier unique
     const fileExtension = file.name.split('.').pop();
     const filename = `${randomUUID()}.${fileExtension}`;
     
-    // Créer le chemin de stockage
+    // Creer le chemin de stockage
     const uploadDir = join(process.cwd(), 'uploads', 'documents');
     const filePath = join(uploadDir, filename);
 
@@ -80,13 +80,13 @@ export async function POST(request: NextRequest) {
     try {
       await writeFile(filePath, buffer);
     } catch (error) {
-      // Si le dossier n'existe pas, le créer
+      // Si le dossier n'existe pas, le creer
       const { mkdir } = await import('fs/promises');
       await mkdir(uploadDir, { recursive: true });
       await writeFile(filePath, buffer);
     }
 
-    // Enregistrer dans la base de données
+    // Enregistrer dans la base de donnees
     const document = await prisma.document.create({
       data: {
         filename: filename,
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    logger.info(`Client ${userId} a téléversé le document ${file.name}`);
+    logger.info(`Client ${userId} a televerse le document ${file.name}`);
 
     return NextResponse.json({
       success: true,

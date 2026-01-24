@@ -1,10 +1,10 @@
-﻿import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 /**
- * Service IA Local avec Ollama pour la génération de réponses
- * Garantit la confidentialité totale des données juridiques
+ * Service IA Local avec Ollama pour la generation de reponses
+ * Garantit la confidentialite totale des donnees juridiques
  */
 class OllamaService {
   private baseUrl: string;
@@ -41,7 +41,7 @@ class OllamaService {
       return data.response || '';
 
     } catch (error: any) {
-      console.error('❌ Erreur Ollama:', error.message);
+      console.error(' Erreur Ollama:', error.message);
       throw error;
     }
   }
@@ -75,11 +75,11 @@ const RESPONSE_TEMPLATES: ResponseTemplate[] = [
 
 Je vous remercie pour votre prise de contact concernant votre situation.
 
-Après lecture de votre message, je souhaiterais convenir d'un premier rendez-vous afin d'étudier votre dossier plus en détail.
+Apres lecture de votre message, je souhaiterais convenir d'un premier rendez-vous afin d'etudier votre dossier plus en detail.
 
 Seriez-vous disponible pour un entretien {date_options}?
 
-Dans l'attente de votre retour, je reste à votre disposition pour tout complément d'information.
+Dans l'attente de votre retour, je reste a votre disposition pour tout complement d'information.
 
 Cordialement,`,
     variables: ['date_options']
@@ -88,12 +88,12 @@ Cordialement,`,
     type: 'ceseda',
     template: `Madame, Monsieur,
 
-Suite à votre message concernant {objet_ceseda}, je tiens à vous informer de l'urgence de traiter ce dossier compte tenu des délais légaux.
+Suite a votre message concernant {objet_ceseda}, je tiens a vous informer de l'urgence de traiter ce dossier compte tenu des delais legaux.
 
-Les démarches à entreprendre en priorité sont:
+Les demarches a entreprendre en priorite sont:
 {actions_prioritaires}
 
-Je vous propose un rendez-vous en urgence pour faire le point sur votre situation et préparer les recours nécessaires.
+Je vous propose un rendez-vous en urgence pour faire le point sur votre situation et preparer les recours necessaires.
 
 Cordialement,`,
     variables: ['objet_ceseda', 'actions_prioritaires']
@@ -102,13 +102,13 @@ Cordialement,`,
     type: 'suivi_dossier',
     template: `Madame, Monsieur,
 
-Suite à votre message, voici un point d'étape sur l'avancement de votre dossier {numero_dossier}:
+Suite a votre message, voici un point d'etape sur l'avancement de votre dossier {numero_dossier}:
 
 {etat_avancement}
 
 {prochaines_etapes}
 
-Je reste à votre disposition pour toute question complémentaire.
+Je reste a votre disposition pour toute question complementaire.
 
 Cordialement,`,
     variables: ['numero_dossier', 'etat_avancement', 'prochaines_etapes']
@@ -118,7 +118,7 @@ Cordialement,`,
 export class AIResponseService {
   
   /**
-   * Générer un brouillon de réponse avec Claude AI
+   * Generer un brouillon de reponse avec Claude AI
    */
   async generateResponse(emailId: string, context?: {
     clientHistory?: string;
@@ -126,7 +126,7 @@ export class AIResponseService {
     urgencyLevel?: string;
   }): Promise<string> {
     try {
-      // Récupérer l'email
+      // Recuperer l'email
       const email = await prisma.email.findUnique({
         where: { id: emailId },
         include: {
@@ -149,26 +149,26 @@ export class AIResponseService {
       });
 
       if (!email) {
-        throw new Error('Email non trouvé');
+        throw new Error('Email non trouve');
       }
 
-      // Configurer Ollama selon les paramètres du tenant
+      // Configurer Ollama selon les parametres du tenant
       if (email.tenantId) {
         await ollama.getSettings(email.tenantId);
       }
 
       // Construire le contexte pour l'IA locale
-      const systemPrompt = `Tu es un assistant juridique spécialisé en droit des étrangers (CESEDA).
-Ton rôle est de générer des brouillons de réponses professionnelles aux emails des clients.
+      const systemPrompt = `Tu es un assistant juridique specialise en droit des etrangers (CESEDA).
+Ton role est de generer des brouillons de reponses professionnelles aux emails des clients.
 
-Règles importantes:
+Regles importantes:
 - Ton professionnel et respectueux
 - Concis et clair
-- Adapté au contexte juridique français
-- Respecter les délais et urgences CESEDA
-- Proposer des actions concrètes
-- Ne jamais donner de conseils juridiques définitifs sans consultation préalable
-- Respecter la confidentialité absolue (données traitées localement)`;
+- Adapte au contexte juridique francais
+- Respecter les delais et urgences CESEDA
+- Proposer des actions concretes
+- Ne jamais donner de conseils juridiques definitifs sans consultation prealable
+- Respecter la confidentialite absolue (donnees traitees localement)`;
 
       const clientInfo = email.client ? `
 Client: ${email.client.firstName} ${email.client.lastName}
@@ -188,13 +188,13 @@ ${email.bodyText}
 
 Classification IA automatique:
 - Type: ${email.classification?.type}
-- Priorité: ${email.classification?.priority}
+- Priorite: ${email.classification?.priority}
 - Confiance: ${email.classification?.confidence}
-- Action suggérée: ${email.classification?.suggestedAction}
+- Action suggeree: ${email.classification?.suggestedAction}
 - Tags: ${email.classification?.tags}
 `;
 
-      const userPrompt = `Génère un brouillon de réponse professionnelle pour cet email:
+      const userPrompt = `Genere un brouillon de reponse professionnelle pour cet email:
 
 ${emailContent}
 
@@ -207,15 +207,15 @@ ${context?.clientHistory || ''}
 
 Instructions:
 1. Analyse le contexte et la demande du client
-2. Utilise un ton professionnel adapté à un cabinet d'avocat spécialisé en CESEDA
-3. Propose des actions concrètes et un rendez-vous si nécessaire
-4. Si c'est urgent (CESEDA, OQTF, délais), mentionne-le clairement et propose une action rapide
+2. Utilise un ton professionnel adapte a un cabinet d'avocat specialise en CESEDA
+3. Propose des actions concretes et un rendez-vous si necessaire
+4. Si c'est urgent (CESEDA, OQTF, delais), mentionne-le clairement et propose une action rapide
 5. Termine par une ouverture au dialogue
-6. Signe avec "Cordialement," (la signature sera ajoutée automatiquement)
+6. Signe avec "Cordialement," (la signature sera ajoutee automatiquement)
 
-La réponse doit être directement utilisable, sans placeholder ni commentaire entre crochets.`;
+La reponse doit etre directement utilisable, sans placeholder ni commentaire entre crochets.`;
 
-      console.log('🤖 Génération avec IA locale Ollama...');
+      console.log('[emoji] Generation avec IA locale Ollama...');
       const response = await ollama.chat(systemPrompt, userPrompt, 1024);
 
       // Sauvegarder le brouillon
@@ -228,18 +228,18 @@ La réponse doit être directement utilisable, sans placeholder ni commentaire e
         }
       });
 
-      console.log(`✅ Brouillon généré localement pour email ${emailId}`);
+      console.log(` Brouillon genere localement pour email ${emailId}`);
 
       return response;
 
     } catch (error: any) {
-      console.error('❌ Erreur génération réponse:', error.message);
+      console.error(' Erreur generation reponse:', error.message);
       throw error;
     }
   }
 
   /**
-   * Améliorer un brouillon existant avec des instructions
+   * Ameliorer un brouillon existant avec des instructions
    */
   async improveResponse(emailId: string, currentDraft: string, instructions: string): Promise<string> {
     try {
@@ -251,30 +251,30 @@ La réponse doit être directement utilisable, sans placeholder ni commentaire e
         }
       });
 
-      if (!email) throw new Error('Email non trouvé');
+      if (!email) throw new Error('Email non trouve');
 
       // Configurer Ollama
       if (email.tenantId) {
         await ollama.getSettings(email.tenantId);
       }
 
-      const systemPrompt = 'Tu es un assistant juridique. Améliore les réponses tout en gardant un ton professionnel et conforme au droit français.';
+      const systemPrompt = 'Tu es un assistant juridique. Ameliore les reponses tout en gardant un ton professionnel et conforme au droit francais.';
       
-      const userPrompt = `Améliore ce brouillon de réponse selon les instructions:
+      const userPrompt = `Ameliore ce brouillon de reponse selon les instructions:
 
 Brouillon actuel:
 ${currentDraft}
 
-Instructions d'amélioration:
+Instructions d'amelioration:
 ${instructions}
 
 Email original:
 De: ${email.from}
 Sujet: ${email.subject}
 
-Génère une version améliorée en suivant les instructions. Garde un ton professionnel.`;
+Genere une version amelioree en suivant les instructions. Garde un ton professionnel.`;
 
-      console.log('🤖 Amélioration avec IA locale...');
+      console.log('[emoji] Amelioration avec IA locale...');
       const improved = await ollama.chat(systemPrompt, userPrompt, 1024);
 
       await prisma.email.update({
@@ -282,17 +282,17 @@ Génère une version améliorée en suivant les instructions. Garde un ton profe
         data: { responseDraft: improved }
       });
 
-      console.log(`✅ Brouillon amélioré localement`);
+      console.log(` Brouillon ameliore localement`);
       return improved;
 
     } catch (error: any) {
-      console.error('❌ Erreur amélioration réponse:', error.message);
+      console.error(' Erreur amelioration reponse:', error.message);
       throw error;
     }
   }
 
   /**
-   * Extraire informations structurées depuis un email
+   * Extraire informations structurees depuis un email
    */
   async extractStructuredData(emailId: string): Promise<{
     dates?: string[];
@@ -307,7 +307,7 @@ Génère une version améliorée en suivant les instructions. Garde un ton profe
         include: { tenant: true }
       });
 
-      if (!email) throw new Error('Email non trouvé');
+      if (!email) throw new Error('Email non trouve');
 
       // Configurer Ollama
       if (email.tenantId) {
@@ -316,18 +316,18 @@ Génère une version améliorée en suivant les instructions. Garde un ton profe
 
       const systemPrompt = `Tu es un extracteur d'informations. Retourne uniquement du JSON valide, sans commentaire.`;
       
-      const userPrompt = `Extrais les informations structurées de cet email et retourne-les en JSON strict:
+      const userPrompt = `Extrais les informations structurees de cet email et retourne-les en JSON strict:
 
 ${email.bodyText}
 
-Extrais UNIQUEMENT si présent dans le texte:
-- dates: toutes les dates mentionnées (format français)
-- phones: numéros de téléphone français
-- addresses: adresses postales complètes
-- documentTypes: types de documents (passeport, titre de séjour, récépissé, OQTF, etc.)
-- urgencyMarkers: termes d'urgence (OQTF, délai, expulsion, préfecture, recours, etc.)
+Extrais UNIQUEMENT si present dans le texte:
+- dates: toutes les dates mentionnees (format francais)
+- phones: numeros de telephone francais
+- addresses: adresses postales completes
+- documentTypes: types de documents (passeport, titre de sejour, recepisse, OQTF, etc.)
+- urgencyMarkers: termes d'urgence (OQTF, delai, expulsion, prefecture, recours, etc.)
 
-Format de réponse STRICT (JSON uniquement):
+Format de reponse STRICT (JSON uniquement):
 {
   "dates": ["..."],
   "phones": ["..."],
@@ -336,17 +336,17 @@ Format de réponse STRICT (JSON uniquement):
   "urgencyMarkers": ["..."]
 }`;
 
-      console.log('🤖 Extraction avec IA locale...');
+      console.log('[emoji] Extraction avec IA locale...');
       const jsonStr = await ollama.chat(systemPrompt, userPrompt, 512);
 
-      // Nettoyer la réponse (enlever markdown si présent)
+      // Nettoyer la reponse (enlever markdown si present)
       const cleanJson = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       
       let extracted;
       try {
         extracted = JSON.parse(cleanJson);
       } catch (e) {
-        console.warn('⚠️ Réponse non-JSON, extraction manuelle...');
+        console.warn('️ Reponse non-JSON, extraction manuelle...');
         extracted = {};
       }
 
@@ -359,17 +359,17 @@ Format de réponse STRICT (JSON uniquement):
         }
       });
 
-      console.log(`✅ Données extraites localement`);
+      console.log(` Donnees extraites localement`);
       return extracted;
 
     } catch (error: any) {
-      console.error('❌ Erreur extraction données:', error.message);
+      console.error(' Erreur extraction donnees:', error.message);
       return {};
     }
   }
 
   /**
-   * Générer résumé d'email pour notification
+   * Generer resume d'email pour notification
    */
   async generateSummary(emailId: string, maxLength: number = 100): Promise<string> {
     try {
@@ -378,32 +378,32 @@ Format de réponse STRICT (JSON uniquement):
         include: { tenant: true }
       });
 
-      if (!email) throw new Error('Email non trouvé');
+      if (!email) throw new Error('Email non trouve');
 
       // Configurer Ollama
       if (email.tenantId) {
         await ollama.getSettings(email.tenantId);
       }
 
-      const systemPrompt = 'Tu es un résumeur de texte. Sois concis et factuel.';
+      const systemPrompt = 'Tu es un resumeur de texte. Sois concis et factuel.';
       
-      const userPrompt = `Résume cet email en maximum ${maxLength} caractères:
+      const userPrompt = `Resume cet email en maximum ${maxLength} caracteres:
 
 Sujet: ${email.subject}
 
 ${email.bodyText}
 
-Résumé concis (${maxLength} caractères max):`;
+Resume concis (${maxLength} caracteres max):`;
 
-      console.log('🤖 Résumé avec IA locale...');
+      console.log('[emoji] Resume avec IA locale...');
       const summary = await ollama.chat(systemPrompt, userPrompt, 100);
 
       return summary.substring(0, maxLength);
 
     } catch (error: any) {
-      console.error('❌ Erreur génération résumé:', error.message);
+      console.error(' Erreur generation resume:', error.message);
       
-      // Fallback: retourner le sujet tronqué
+      // Fallback: retourner le sujet tronque
       try {
         const fallbackEmail = await prisma.email.findUnique({
           where: { id: emailId },

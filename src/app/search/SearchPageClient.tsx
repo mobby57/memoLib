@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -44,7 +44,7 @@ export default function SearchPageClient() {
 
         {currentQuery && (
           <section className="text-sm text-slate-600 dark:text-slate-300">
-            Résultats pour <span className="font-semibold">{currentQuery}</span>
+            Resultats pour <span className="font-semibold">{currentQuery}</span>
           </section>
         )}
 
@@ -60,15 +60,15 @@ export default function SearchPageClient() {
               }`}
             >
               <SlidersHorizontal className="w-4 h-4" />
-              Filtres avancés
+              Filtres avances
             </button>
 
             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-              <span>{searchStats.totalResults} résultats</span>
-              <span>•</span>
+              <span>{searchStats.totalResults} resultats</span>
+              <span>-</span>
               <span>{searchStats.executionTime} ms</span>
-              <span>•</span>
-              <span>{searchStats.indexedDocuments} documents indexés</span>
+              <span>-</span>
+              <span>{searchStats.indexedDocuments} documents indexes</span>
             </div>
           </div>
 
@@ -87,15 +87,15 @@ export default function SearchPageClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
                 <div className="flex items-center gap-2 font-semibold text-slate-800 dark:text-white">
-                  <Calendar className="w-4 h-4" /> Période
+                  <Calendar className="w-4 h-4" /> Periode
                 </div>
                 <select className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                   <option>Toutes les dates</option>
                   <option>Aujourd'hui</option>
                   <option>Cette semaine</option>
                   <option>Ce mois</option>
-                  <option>Cette année</option>
-                  <option>Personnalisé</option>
+                  <option>Cette annee</option>
+                  <option>Personnalise</option>
                 </select>
               </div>
 
@@ -106,7 +106,7 @@ export default function SearchPageClient() {
                 <select className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                   <option>Tous les statuts</option>
                   <option>En cours</option>
-                  <option>Terminé</option>
+                  <option>Termine</option>
                   <option>En attente</option>
                   <option>Urgent</option>
                 </select>
@@ -125,7 +125,7 @@ export default function SearchPageClient() {
             </div>
 
             <div className="flex justify-end gap-3 text-sm">
-              <button className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700">Réinitialiser</button>
+              <button className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700">Reinitialiser</button>
               <button className="px-4 py-2 rounded-lg bg-sky-600 text-white">Appliquer</button>
             </div>
           </section>
@@ -135,11 +135,11 @@ export default function SearchPageClient() {
           <div className="bg-slate-100 dark:bg-slate-800 rounded-2xl p-6 text-slate-900 dark:text-white">
             <p className="text-sm font-semibold">Conseils de recherche</p>
             <ul className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600 dark:text-slate-300">
-              <li>"mot exact" → recherche précise</li>
-              <li>type:client → filtrer par type</li>
-              <li>after:2024-01-01 → données postérieures</li>
-              <li>-mot → exclure un terme</li>
-              <li>mot1 OR mot2 → opérateur logique</li>
+              <li>"mot exact" [Next] recherche precise</li>
+              <li>type:client [Next] filtrer par type</li>
+              <li>after:2024-01-01 [Next] donnees posterieures</li>
+              <li>-mot [Next] exclure un terme</li>
+              <li>mot1 OR mot2 [Next] operateur logique</li>
               <li>Use * pour wildcards, ex: doc*</li>
             </ul>
           </div>
@@ -148,12 +148,12 @@ export default function SearchPageClient() {
             <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
               <p className="text-xs uppercase tracking-wide text-slate-400">Tendance</p>
               <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-2">+14%</p>
-              <p className="text-xs text-slate-500">dossiers retrouvés cette semaine</p>
+              <p className="text-xs text-slate-500">dossiers retrouves cette semaine</p>
             </div>
             <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
-              <p className="text-xs uppercase tracking-wide text-slate-400">Précision</p>
+              <p className="text-xs uppercase tracking-wide text-slate-400">Precision</p>
               <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-2">92%</p>
-              <p className="text-xs text-slate-500">de résultats pertinents</p>
+              <p className="text-xs text-slate-500">de resultats pertinents</p>
             </div>
             <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
               <p className="text-xs uppercase tracking-wide text-slate-400">Indices</p>

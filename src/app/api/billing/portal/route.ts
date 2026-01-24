@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API Portail Client Stripe
  * Redirige vers le portail de gestion d'abonnement
  */
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as any;
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Pas de tenant' }, { status: 400 });
     }
 
-    // Récupérer la subscription
+    // Recuperer la subscription
     const subscription = await prisma.subscription.findUnique({
       where: { tenantId },
       select: { metadata: true }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Créer la session portail
+    // Creer la session portail
     const portalSession = await createCustomerPortalSession({
       customerId,
       returnUrl: `${process.env.NEXTAUTH_URL}/admin/billing`,
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       portalUrl: portalSession.url,
     });
   } catch (error) {
-    console.error('Erreur création portail:', error);
+    console.error('Erreur creation portail:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

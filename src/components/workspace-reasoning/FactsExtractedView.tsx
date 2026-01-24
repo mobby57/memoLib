@@ -1,5 +1,5 @@
-﻿/**
- * Composant d'affichage de l'état FACTS_EXTRACTED
+/**
+ * Composant d'affichage de l'etat FACTS_EXTRACTED
  * Objectif: Lister uniquement des faits certains
  */
 
@@ -21,7 +21,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
   const getSourceBadge = (source: Fact['source']) => {
     const badges = {
       EXPLICIT_MESSAGE: { label: 'Message', color: 'bg-blue-100 text-blue-800' },
-      METADATA: { label: 'Métadonnées', color: 'bg-gray-100 text-gray-800' },
+      METADATA: { label: 'Metadonnees', color: 'bg-gray-100 text-gray-800' },
       DOCUMENT: { label: 'Document', color: 'bg-green-100 text-green-800' },
       USER_PROVIDED: { label: 'Utilisateur', color: 'bg-purple-100 text-purple-800' },
     };
@@ -32,9 +32,9 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">📋 Faits extraits</h2>
+        <h2 className="text-2xl font-bold text-gray-900">[emoji] Faits extraits</h2>
         <p className="text-gray-600 mt-1">
-          Uniquement des faits certains et sourcés
+          Uniquement des faits certains et sources
         </p>
       </div>
       
@@ -77,13 +77,13 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
                       )}
                       
                       <div className="text-xs text-gray-400 mt-2">
-                        Extrait par {fact.extractedBy} • {new Date(fact.createdAt).toLocaleString('fr-FR')}
+                        Extrait par {fact.extractedBy} - {new Date(fact.createdAt).toLocaleString('fr-FR')}
                       </div>
                     </div>
                     
                     <div className="ml-4">
                       <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                        <span className="text-2xl">✔</span>
+                        <span className="text-2xl">[Check]</span>
                       </div>
                       <div className="text-xs text-center text-gray-500 mt-1">
                         {(fact.confidence * 100).toFixed(0)}%
@@ -108,7 +108,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
               className={`text-sm ${loading?.mutation ? 'text-purple-400 cursor-not-allowed' : 'text-purple-600 hover:text-purple-800'}`}
             >
               {loading?.mutation && <Loader2 className="inline h-3 w-3 mr-1 animate-spin" />}
-              {showAddForm ? 'Annuler' : '➕ Ajouter'}
+              {showAddForm ? 'Annuler' : ' Ajouter'}
             </button>
           </div>
           
@@ -116,7 +116,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
             <div className="space-y-3 mt-4">
               <div className="bg-white p-4 rounded border border-purple-200">
                 <p className="text-sm text-purple-700">
-                  ⚠️ Toute modification manuelle sera tracée et nécessitera une justification
+                  ️ Toute modification manuelle sera tracee et necessitera une justification
                 </p>
               </div>
               {/* TODO: Formulaire d'ajout */}
@@ -129,8 +129,8 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
       <div className="flex items-center justify-between pt-4 border-t border-gray-200">
         <div className="text-sm text-gray-500">
           {facts.length > 0 
-            ? '✅ Faits extraits et vérifiés' 
-            : '⚠️ Aucun fait extrait - Vérifiez la source'
+            ? ' Faits extraits et verifies' 
+            : '️ Aucun fait extrait - Verifiez la source'
           }
         </div>
         
@@ -144,7 +144,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
           }`}
         >
           {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-          Continuer → Identifier le contexte
+          Continuer [Next] Identifier le contexte
         </button>
       </div>
     </div>

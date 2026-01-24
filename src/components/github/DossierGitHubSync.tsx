@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Composant: Synchronisation Dossier ↔ GitHub
- * Permet de créer/synchroniser des issues GitHub pour les dossiers
+ * Permet de creer/synchroniser des issues GitHub pour les dossiers
  */
 
 'use client';
@@ -61,7 +61,7 @@ export function DossierGitHubSync({ dossierId, dossierNumero, existingIssue }: D
     }
   };
 
-  // Déjà synchronisé
+  // Deja synchronise
   if (issue) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
@@ -74,7 +74,7 @@ export function DossierGitHubSync({ dossierId, dossierNumero, existingIssue }: D
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h4 className="font-medium text-gray-900 dark:text-white">
-                  Synchronisé avec GitHub
+                  Synchronise avec GitHub
                 </h4>
                 <CheckCircle className="w-4 h-4 text-green-500" />
               </div>
@@ -112,7 +112,7 @@ export function DossierGitHubSync({ dossierId, dossierNumero, existingIssue }: D
             Synchroniser avec GitHub
           </h4>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Créer une issue GitHub pour le dossier {dossierNumero}
+            Creer une issue GitHub pour le dossier {dossierNumero}
           </p>
         </div>
       </div>
@@ -154,7 +154,7 @@ export function DossierGitHubSync({ dossierId, dossierNumero, existingIssue }: D
           ) : (
             <>
               <Github className="w-4 h-4" />
-              Créer l'issue GitHub
+              Creer l'issue GitHub
             </>
           )}
         </button>

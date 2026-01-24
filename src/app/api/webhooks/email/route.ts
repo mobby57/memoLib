@@ -1,6 +1,6 @@
 /**
- * API Route - Webhook Email Entrant (simplifié)
- * POST /api/webhooks/email - Reçoit un email via webhook
+ * API Route - Webhook Email Entrant (simplifie)
+ * POST /api/webhooks/email - Recoit un email via webhook
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Email reçu',
+      message: 'Email recu',
       data: {
         from,
         to,

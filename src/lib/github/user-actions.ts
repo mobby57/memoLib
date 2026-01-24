@@ -1,13 +1,13 @@
-﻿/**
+/**
  * GitHub User Actions - Agir pour le compte d'un utilisateur
- * Toutes les actions sont attribuées à l'utilisateur avec le badge de l'application
+ * Toutes les actions sont attribuees a l'utilisateur avec le badge de l'application
  */
 
 import { getUserGitHubClient } from './user-client';
 import { logger, logDossierAction } from '@/lib/logger';
 
 /**
- * Créer une issue GitHub pour le compte de l'utilisateur
+ * Creer une issue GitHub pour le compte de l'utilisateur
  */
 export async function createIssueAsUser(
   repo: string,
@@ -104,7 +104,7 @@ export async function commentAsUser(
 }
 
 /**
- * Mettre à jour une issue pour le compte de l'utilisateur
+ * Mettre a jour une issue pour le compte de l'utilisateur
  */
 export async function updateIssueAsUser(
   repo: string,
@@ -154,7 +154,7 @@ export async function updateIssueAsUser(
 }
 
 /**
- * Créer un déploiement pour le compte de l'utilisateur
+ * Creer un deploiement pour le compte de l'utilisateur
  */
 export async function createDeploymentAsUser(
   repo: string,
@@ -205,7 +205,7 @@ export async function createDeploymentAsUser(
 }
 
 /**
- * Créer une Pull Request pour le compte de l'utilisateur
+ * Creer une Pull Request pour le compte de l'utilisateur
  */
 export async function createPullRequestAsUser(
   repo: string,
@@ -295,7 +295,7 @@ export async function listUserRepositories(
 }
 
 /**
- * INTÉGRATION MÉTIER : Synchroniser un dossier avec GitHub
+ * INTeGRATION MeTIER : Synchroniser un dossier avec GitHub
  */
 export async function syncDossierToGitHub(
   repo: string,
@@ -321,12 +321,12 @@ export async function syncDossierToGitHub(
 **Client** : ${dossier.client}
 **Type** : ${dossier.typeDossier}
 **Statut** : ${dossier.statut}
-**Priorité** : ${dossier.priorite}
+**Priorite** : ${dossier.priorite}
 
 ${dossier.description || ''}
 
 ---
-*Synchronisé depuis IA Poste Manager*
+*Synchronise depuis IA Poste Manager*
     `.trim();
 
     const issue = await createIssueAsUser(
@@ -336,7 +336,7 @@ ${dossier.description || ''}
       labels
     );
 
-    // Log l'action métier
+    // Log l'action metier
     logDossierAction(
       'GITHUB_SYNC',
       userId,
@@ -361,7 +361,7 @@ ${dossier.description || ''}
 }
 
 /**
- * INTÉGRATION MÉTIER : Mettre à jour une issue GitHub quand le dossier change
+ * INTeGRATION MeTIER : Mettre a jour une issue GitHub quand le dossier change
  */
 export async function updateDossierOnGitHub(
   repo: string,
@@ -376,14 +376,14 @@ export async function updateDossierOnGitHub(
 ) {
   try {
     const comment = `
-📋 **Mise à jour du dossier**
+[emoji] **Mise a jour du dossier**
 
 ${changes.statut ? `- Statut : ${changes.statut}` : ''}
-${changes.priorite ? `- Priorité : ${changes.priorite}` : ''}
+${changes.priorite ? `- Priorite : ${changes.priorite}` : ''}
 ${changes.description ? `\n${changes.description}` : ''}
 
 ---
-*Mise à jour automatique depuis IA Poste Manager*
+*Mise a jour automatique depuis IA Poste Manager*
     `.trim();
 
     const result = await commentAsUser(repo, issueNumber, comment);

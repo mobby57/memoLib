@@ -8,7 +8,7 @@ import { getToken } from 'next-auth/jwt';
 import { logAudit, AuditHelpers } from '@/lib/audit';
 
 /**
- * Extraction du contexte de la requête
+ * Extraction du contexte de la requete
  */
 function extractContext(req: NextRequest): {
   pathname: string
@@ -24,7 +24,7 @@ function extractContext(req: NextRequest): {
   const tenantMatch = pathname.match(/\/api\/tenant\/([^\/]+)/);
   const tenantId: string | null = tenantMatch ? tenantMatch[1] : null;
   
-  // Détermination du type de ressource
+  // Determination du type de ressource
   let resourceType: string | null = null;
   if (pathname.includes('/dossiers')) resourceType = 'Dossier';
   else if (pathname.includes('/clients')) resourceType = 'Client';
@@ -43,7 +43,7 @@ function extractContext(req: NextRequest): {
 }
 
 /**
- * Vérification des autorisations
+ * Verification des autorisations
  */
 async function checkAuthorization(
   user: any,
@@ -51,22 +51,22 @@ async function checkAuthorization(
   resourceType: string | null,
   method: string
 ): Promise<{ authorized: boolean; reason?: string }> {
-  // SUPER_ADMIN : accès structure uniquement, pas au contenu
+  // SUPER_ADMIN : acces structure uniquement, pas au contenu
   if (user.role === 'SUPER_ADMIN') {
-    // Peut accéder aux routes /api/super-admin
+    // Peut acceder aux routes /api/super-admin
     if (resourceType === 'Tenant') {
       return { authorized: true };
     }
-    // Ne peut PAS accéder au contenu des tenants
+    // Ne peut PAS acceder au contenu des tenants
     if (tenantId && resourceType !== 'Tenant') {
       return {
         authorized: false,
-        reason: 'SUPER_ADMIN ne peut accéder au contenu des tenants'
+        reason: 'SUPER_ADMIN ne peut acceder au contenu des tenants'
       };
     }
   }
   
-  // ADMIN : doit appartenir au même tenant
+  // ADMIN : doit appartenir au meme tenant
   if (user.role === 'ADMIN') {
     if (!tenantId) {
       return { authorized: true }; // Routes non tenant-specific
@@ -74,20 +74,20 @@ async function checkAuthorization(
     if (user.tenantId !== tenantId) {
       return {
         authorized: false,
-        reason: 'Accès cross-tenant interdit'
+        reason: 'Acces cross-tenant interdit'
       };
     }
     return { authorized: true };
   }
   
-  // CLIENT : accès restreint à ses propres données
+  // CLIENT : acces restreint a ses propres donnees
   if (user.role === 'CLIENT') {
-    // Les clients ne peuvent accéder qu'à leurs propres dossiers
+    // Les clients ne peuvent acceder qu'a leurs propres dossiers
     if (method === 'GET' && (resourceType === 'Dossier' || resourceType === 'Facture')) {
-      // Vérification additionnelle nécessaire au niveau de la route
+      // Verification additionnelle necessaire au niveau de la route
       return { authorized: true };
     }
-    // Pas de création/modification pour les clients
+    // Pas de creation/modification pour les clients
     if (method !== 'GET') {
       return {
         authorized: false,
@@ -100,7 +100,7 @@ async function checkAuthorization(
 }
 
 /**
- * Routes publiques (pas de vérification)
+ * Routes publiques (pas de verification)
  */
 const PUBLIC_ROUTES = [
   '/api/auth/',
@@ -129,7 +129,7 @@ export async function zeroTrustMiddleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   
   if (!token) {
-    // Log tentative d'accès non authentifié
+    // Log tentative d'acces non authentifie
     await logAudit({
       action: 'UNAUTHORIZED_ACCESS',
       objectType: context.resourceType as any || 'Unknown',
@@ -140,11 +140,11 @@ export async function zeroTrustMiddleware(req: NextRequest) {
       ipAddress: context.ip || null,
       userAgent: context.userAgent,
       success: false,
-      errorMessage: 'Non authentifié'
+      errorMessage: 'Non authentifie'
     });
     
     return NextResponse.json(
-      { error: 'Non authentifié' },
+      { error: 'Non authentifie' },
       { status: 401 }
     );
   }
@@ -158,18 +158,18 @@ export async function zeroTrustMiddleware(req: NextRequest) {
   );
   
   if (!authCheck.authorized) {
-    // Log accès non autorisé
+    // Log acces non autorise
     await AuditHelpers.logUnauthorizedAccess(
       (token.id as string) || 'anonymous',
       context.tenantId as string | null,
       context.resourceType as any || 'Unknown',
       'route',
-      authCheck.reason || 'Non autorisé',
+      authCheck.reason || 'Non autorise',
       context.ip || undefined
     );
     
     return NextResponse.json(
-      { error: authCheck.reason || 'Non autorisé' },
+      { error: authCheck.reason || 'Non autorise' },
       { status: 403 }
     );
   }
@@ -191,7 +191,7 @@ export async function zeroTrustMiddleware(req: NextRequest) {
     });
   }
   
-  // 4. PASSAGE À LA RESSOURCE
+  // 4. PASSAGE a LA RESSOURCE
   return NextResponse.next();
 }
 

@@ -15,13 +15,13 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 // Types for WebSocket events
 export interface SocketEvents {
-  // Client → Server
+  // Client [Next] Server
   'join-tenant': (tenantId: string) => void
   'leave-tenant': (tenantId: string) => void
   'join-user': (userId: string) => void
   'mark-notification-read': (notificationId: string) => void
 
-  // Server → Client
+  // Server [Next] Client
   'email-received': (data: EmailNotification) => void
   'dossier-updated': (data: DossierNotification) => void
   'deadline-alert': (data: DeadlineAlert) => void

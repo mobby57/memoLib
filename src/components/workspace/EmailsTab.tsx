@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Mail, Star, Archive, Check, X, AlertTriangle, Calendar, Paperclip } from 'lucide-react';
 import { useState } from 'react';
@@ -152,7 +152,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
             { id: 'unread', label: 'Non lus' },
             { id: 'starred', label: 'Favoris' },
             { id: 'urgent', label: 'Urgents' },
-            { id: 'needsResponse', label: 'À répondre' },
+            { id: 'needsResponse', label: 'a repondre' },
           ].map(f => (
             <button
               key={f.id}
@@ -186,7 +186,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
                     <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
                   )}
                   <span className="font-medium text-gray-900 truncate text-sm">
-                    {email.direction === 'inbound' ? email.from : `À: ${email.to}`}
+                    {email.direction === 'inbound' ? email.from : `a: ${email.to}`}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1 flex-shrink-0">
@@ -199,7 +199,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
               
               {email.aiSummary && (
                 <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                  🤖 {email.aiSummary}
+                  [emoji] {email.aiSummary}
                 </p>
               )}
 
@@ -210,7 +210,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
                   </span>
                   {email.needsResponse && (
                     <span className="px-2 py-0.5 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
-                      À répondre
+                      a repondre
                     </span>
                   )}
                 </div>
@@ -229,13 +229,13 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
           {filteredEmails.length === 0 && (
             <div className="text-center py-12 text-gray-500">
               <Mail className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p>Aucun email trouvé</p>
+              <p>Aucun email trouve</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Détail Email */}
+      {/* Detail Email */}
       <div className="col-span-2 border border-gray-200 rounded-lg bg-white overflow-hidden">
         {selectedEmail ? (
           <div className="flex flex-col h-full">
@@ -249,7 +249,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
                       <span className="font-medium">De:</span> {selectedEmail.from}
                     </p>
                     <p className="text-gray-600">
-                      <span className="font-medium">À:</span> {selectedEmail.to}
+                      <span className="font-medium">a:</span> {selectedEmail.to}
                     </p>
                     <p className="text-gray-600">
                       <span className="font-medium">Date:</span>{' '}
@@ -270,7 +270,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
                   <button
                     onClick={() => handleEmailAction(selectedEmail.id, selectedEmail.isArchived ? 'unarchive' : 'archive')}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    title={selectedEmail.isArchived ? 'Désarchiver' : 'Archiver'}
+                    title={selectedEmail.isArchived ? 'Desarchiver' : 'Archiver'}
                   >
                     <Archive className="w-5 h-5 text-gray-600" />
                   </button>
@@ -299,7 +299,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
                       <h4 className="font-semibold text-gray-900 mb-1">Analyse IA</h4>
                       {selectedEmail.aiSummary && (
                         <p className="text-sm text-gray-700 mb-2">
-                          <span className="font-medium">Résumé:</span> {selectedEmail.aiSummary}
+                          <span className="font-medium">Resume:</span> {selectedEmail.aiSummary}
                         </p>
                       )}
                       {selectedEmail.aiClassified && (
@@ -317,7 +317,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
                       )}
                       {selectedEmail.aiActionNeeded && (
                         <p className="text-sm text-gray-700">
-                          <span className="font-medium">Action suggérée:</span> {selectedEmail.aiActionNeeded}
+                          <span className="font-medium">Action suggeree:</span> {selectedEmail.aiActionNeeded}
                         </p>
                       )}
                     </div>
@@ -334,12 +334,12 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
                 </pre>
               </div>
 
-              {/* Pièces jointes */}
+              {/* Pieces jointes */}
               {selectedEmail.hasAttachments && selectedEmail.attachments && (
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
                     <Paperclip className="w-4 h-4 mr-2" />
-                    Pièces jointes
+                    Pieces jointes
                   </h4>
                   <div className="space-y-2">
                     {JSON.parse(selectedEmail.attachments).map((att: any, idx: number) => (
@@ -356,7 +356,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
                           </div>
                         </div>
                         <button className="px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700">
-                          Télécharger
+                          Telecharger
                         </button>
                       </div>
                     ))}
@@ -369,13 +369,13 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
             <div className="p-4 border-t border-gray-200 bg-gray-50">
               <div className="flex space-x-2">
                 <button className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                  Répondre
+                  Repondre
                 </button>
                 <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                  Transférer
+                  Transferer
                 </button>
                 <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                  Générer réponse IA
+                  Generer reponse IA
                 </button>
               </div>
             </div>
@@ -384,7 +384,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
           <div className="flex items-center justify-center h-full text-gray-500">
             <div className="text-center">
               <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <p>Sélectionnez un email pour afficher son contenu</p>
+              <p>Selectionnez un email pour afficher son contenu</p>
             </div>
           </div>
         )}

@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import { ChecklistCategory, type ChecklistItemData } from "@/types/cesda"
@@ -45,11 +45,11 @@ export default function ChecklistContainer({
   const getCategoryLabel = (category: string) => {
     switch (category) {
       case ChecklistCategory.VERIFICATIONS:
-        return "Vérifications juridiques"
+        return "Verifications juridiques"
       case ChecklistCategory.PIECES:
-        return "Pièces à obtenir"
+        return "Pieces a obtenir"
       case ChecklistCategory.ACTIONS:
-        return "Actions à effectuer"
+        return "Actions a effectuer"
       default:
         return category
     }
@@ -58,13 +58,13 @@ export default function ChecklistContainer({
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case ChecklistCategory.VERIFICATIONS:
-        return "✓"
+        return "[Check]"
       case ChecklistCategory.PIECES:
-        return "📄"
+        return "[emoji]"
       case ChecklistCategory.ACTIONS:
-        return "⚡"
+        return ""
       default:
-        return "•"
+        return "-"
     }
   }
 
@@ -99,7 +99,7 @@ export default function ChecklistContainer({
           />
         </div>
         <div className="mt-2 text-xs text-gray-600">
-          {items.filter((i) => i.completed).length} sur {items.length} éléments complétés
+          {items.filter((i) => i.completed).length} sur {items.length} elements completes
         </div>
       </div>
 
@@ -167,7 +167,7 @@ export default function ChecklistContainer({
                         )}
                         {item.completed && item.completedAt && (
                           <p className="text-xs text-gray-500 mt-1">
-                            ✓ Complété le{" "}
+                            [Check] Complete le{" "}
                             {new Date(item.completedAt).toLocaleDateString("fr-FR", {
                               day: "numeric",
                               month: "long",
@@ -187,7 +187,7 @@ export default function ChecklistContainer({
 
       {items.length === 0 && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <p className="text-gray-600">Aucun élément de checklist pour ce workspace.</p>
+          <p className="text-gray-600">Aucun element de checklist pour ce workspace.</p>
         </div>
       )}
     </div>

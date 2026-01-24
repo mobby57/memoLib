@@ -1,4 +1,4 @@
-﻿import { useAuth } from './useAuth';
+import { useAuth } from './useAuth';
 
 export function useTenant() {
   const { user } = useAuth();
@@ -17,7 +17,7 @@ export function useTenant() {
   };
 
   const hasFeature = (feature: string) => {
-    // Logique de gestion des fonctionnalités par plan
+    // Logique de gestion des fonctionnalites par plan
     const features: Record<string, string[]> = {
       Starter: ['basic_dossiers', 'basic_factures'],
       Professional: [

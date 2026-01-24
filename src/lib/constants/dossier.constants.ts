@@ -1,9 +1,9 @@
-﻿/**
- * Constantes centralisées pour les dossiers
+/**
+ * Constantes centralisees pour les dossiers
  * Mapping entre valeurs DB (snake_case) et UI (SCREAMING_CASE)
  */
 
-// Statuts dans la base de données
+// Statuts dans la base de donnees
 export const STATUTS_DB = {
   EN_COURS: 'en_cours',
   EN_ATTENTE: 'en_attente',
@@ -24,7 +24,7 @@ export const STATUTS_UI = {
   ANNULE: 'ANNULE',
 } as const
 
-// Priorités dans la base de données
+// Priorites dans la base de donnees
 export const PRIORITES_DB = {
   BASSE: 'basse',
   NORMALE: 'normale',
@@ -32,7 +32,7 @@ export const PRIORITES_DB = {
   CRITIQUE: 'critique',
 } as const
 
-// Priorités pour l'interface utilisateur
+// Priorites pour l'interface utilisateur
 export const PRIORITES_UI = {
   NORMALE: 'NORMALE',
   HAUTE: 'HAUTE',
@@ -53,7 +53,7 @@ export const TYPES_DOSSIER = {
 
 // Labels lisibles pour les types
 export const TYPE_LABELS: Record<string, string> = {
-  [TYPES_DOSSIER.TITRE_SEJOUR]: 'Titre de Séjour',
+  [TYPES_DOSSIER.TITRE_SEJOUR]: 'Titre de Sejour',
   [TYPES_DOSSIER.RECOURS_OQTF]: 'Recours OQTF',
   [TYPES_DOSSIER.NATURALISATION]: 'Naturalisation',
   [TYPES_DOSSIER.REGROUPEMENT_FAMILIAL]: 'Regroupement Familial',
@@ -73,7 +73,7 @@ export const STATUT_COLORS: Record<string, 'default' | 'success' | 'warning' | '
   ANNULE: 'default',
 }
 
-// Couleurs pour les priorités
+// Couleurs pour les priorites
 export const PRIORITE_COLORS: Record<string, 'default' | 'success' | 'warning' | 'danger' | 'info'> = {
   NORMALE: 'default',
   HAUTE: 'warning',

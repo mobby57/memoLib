@@ -1,5 +1,5 @@
 /**
- * Types TypeScript pour l'API Légifrance (PISTE)
+ * Types TypeScript pour l'API Legifrance (PISTE)
  * 
  * Documentation officielle: https://developer.aife.economie.gouv.fr/
  */
@@ -9,9 +9,9 @@
 // ============================================
 
 export type Fond = 
-  | 'CODE_ETAT'         // Codes par état juridique
+  | 'CODE_ETAT'         // Codes par etat juridique
   | 'CODE_DATE'         // Codes par date de version
-  | 'LODA_ETAT'         // Lois/ordonnances par état
+  | 'LODA_ETAT'         // Lois/ordonnances par etat
   | 'LODA_DATE'         // Lois/ordonnances par date
   | 'CETAT'             // Jurisprudence administrative
   | 'JURI'              // Jurisprudence judiciaire
@@ -47,7 +47,7 @@ export type TypePagination = 'DEFAUT' | 'ARTICLE';
 export type TextLegalStatus = 'VIGUEUR' | 'ABROGE' | 'MODIFIE';
 
 // ============================================
-// STRUCTURES DE REQUÊTE
+// STRUCTURES DE REQUeTE
 // ============================================
 
 export interface Critere {
@@ -94,7 +94,7 @@ export interface SearchRequest {
 }
 
 // ============================================
-// STRUCTURES DE RÉPONSE
+// STRUCTURES DE RePONSE
 // ============================================
 
 export interface SearchResult {
@@ -148,23 +148,23 @@ export interface TexteComplet {
 }
 
 // ============================================
-// REQUÊTES SPÉCIALISÉES CESEDA
+// REQUeTES SPeCIALISeES CESEDA
 // ============================================
 
 export interface CesedaSearchParams {
-  /** Numéro d'article (ex: "L313-11") */
+  /** Numero d'article (ex: "L313-11") */
   numeroArticle?: string;
   
-  /** Mots-clés à rechercher */
+  /** Mots-cles a rechercher */
   keywords?: string;
   
   /** Date de version (timestamp ou YYYY-MM-DD) */
   dateVersion?: number | string;
   
-  /** État juridique */
+  /** etat juridique */
   etat?: TextLegalStatus;
   
-  /** Proximité entre mots-clés */
+  /** Proximite entre mots-cles */
   proximite?: number;
   
   /** Pagination */
@@ -173,13 +173,13 @@ export interface CesedaSearchParams {
 }
 
 export interface JurisprudenceSearchParams {
-  /** Mots-clés */
+  /** Mots-cles */
   keywords: string;
   
-  /** Numéro d'affaire */
+  /** Numero d'affaire */
   numeroAffaire?: string;
   
-  /** Date de décision (range) */
+  /** Date de decision (range) */
   dateDebut?: string;  // YYYY-MM-DD
   dateFin?: string;    // YYYY-MM-DD
   
@@ -199,13 +199,13 @@ export interface JurisprudenceSearchParams {
 // ============================================
 
 /**
- * Builder pour recherche CESEDA simplifiée
+ * Builder pour recherche CESEDA simplifiee
  */
 export function buildCesedaSearch(params: CesedaSearchParams): SearchRequest {
   const champs: Champ[] = [];
   const filtres: Filtre[] = [];
 
-  // Recherche par numéro d'article
+  // Recherche par numero d'article
   if (params.numeroArticle) {
     champs.push({
       typeChamp: 'NUM_ARTICLE',
@@ -218,7 +218,7 @@ export function buildCesedaSearch(params: CesedaSearchParams): SearchRequest {
     });
   }
 
-  // Recherche par mots-clés
+  // Recherche par mots-cles
   if (params.keywords) {
     champs.push({
       typeChamp: 'ARTICLE',
@@ -235,7 +235,7 @@ export function buildCesedaSearch(params: CesedaSearchParams): SearchRequest {
   // Filtre sur le CESEDA
   filtres.push({
     facette: params.dateVersion ? 'NOM_CODE' : 'TEXT_NOM_CODE',
-    valeurs: ['Code de l\'entrée et du séjour des étrangers et du droit d\'asile'],
+    valeurs: ['Code de l\'entree et du sejour des etrangers et du droit d\'asile'],
   });
 
   // Date de version
@@ -246,7 +246,7 @@ export function buildCesedaSearch(params: CesedaSearchParams): SearchRequest {
     });
   }
 
-  // État juridique
+  // etat juridique
   if (params.etat) {
     filtres.push({
       facette: 'TEXT_LEGAL_STATUS',
@@ -278,7 +278,7 @@ export function buildJurisprudenceSearch(
   const champs: Champ[] = [];
   const filtres: Filtre[] = [];
 
-  // Mots-clés
+  // Mots-cles
   champs.push({
     typeChamp: params.numeroAffaire ? 'NUM_AFFAIRE' : 'ALL',
     criteres: [{
@@ -290,7 +290,7 @@ export function buildJurisprudenceSearch(
     operateur: 'ET',
   });
 
-  // Filtre date de décision
+  // Filtre date de decision
   if (params.dateDebut && params.dateFin) {
     filtres.push({
       facette: 'DATE_DECISION',

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Clock, MapPin, Users, FileText } from 'lucide-react';
@@ -32,8 +32,8 @@ export function Calendar({ events, onEventClick, onDateClick, onAddEvent }: Cale
   const [view, setView] = useState<'month' | 'week' | 'day'>('month');
 
   const monthNames = [
-    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'
   ];
 
   const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
@@ -49,7 +49,7 @@ export function Calendar({ events, onEventClick, onDateClick, onAddEvent }: Cale
     
     const days: (Date | null)[] = [];
     
-    // Jours du mois précédent
+    // Jours du mois precedent
     for (let i = 0; i < startDayOfWeek; i++) {
       days.push(null);
     }
@@ -111,7 +111,7 @@ export function Calendar({ events, onEventClick, onDateClick, onAddEvent }: Cale
 
   return (
     <div className="space-y-4">
-      {/* En-tête du calendrier */}
+      {/* En-tete du calendrier */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -121,7 +121,7 @@ export function Calendar({ events, onEventClick, onDateClick, onAddEvent }: Cale
             <button
               onClick={() => navigateMonth('prev')}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              aria-label="Mois précédent"
+              aria-label="Mois precedent"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -175,7 +175,7 @@ export function Calendar({ events, onEventClick, onDateClick, onAddEvent }: Cale
       {view === 'month' && (
         <Card className="overflow-hidden">
           <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700">
-            {/* En-têtes des jours */}
+            {/* En-tetes des jours */}
             {dayNames.map(day => (
               <div
                 key={day}
@@ -247,7 +247,7 @@ export function Calendar({ events, onEventClick, onDateClick, onAddEvent }: Cale
         </Card>
       )}
 
-      {/* Vue liste pour semaine/jour (simplifié) */}
+      {/* Vue liste pour semaine/jour (simplifie) */}
       {(view === 'week' || view === 'day') && (
         <Card className="p-4">
           <div className="space-y-3">
@@ -286,7 +286,7 @@ export function Calendar({ events, onEventClick, onDateClick, onAddEvent }: Cale
                             <span className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
                               {event.date.toLocaleDateString('fr-FR')}
-                              {event.startTime && ` à ${event.startTime}`}
+                              {event.startTime && ` a ${event.startTime}`}
                             </span>
                             {event.client && (
                               <span className="flex items-center gap-1">
@@ -309,7 +309,7 @@ export function Calendar({ events, onEventClick, onDateClick, onAddEvent }: Cale
               })}
             {events.length === 0 && (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                Aucun événement prévu
+                Aucun evenement prevu
               </div>
             )}
           </div>
@@ -325,8 +325,8 @@ export function MiniCalendar({ events, onDateClick }: Pick<CalendarProps, 'event
   const dayNames = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
   
   const monthNames = [
-    'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
-    'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'
+    'Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin',
+    'Juil', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
   const getMonthDays = useMemo(() => {

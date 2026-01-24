@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Archive, FileText, Image, Video, File, Download, Eye, Check, X, Upload, Plus, Filter, Search } from 'lucide-react';
 import { useState } from 'react';
@@ -85,7 +85,7 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
         onRefresh();
       }
     } catch (error) {
-      console.error('Erreur vérification:', error);
+      console.error('Erreur verification:', error);
     }
   };
 
@@ -200,9 +200,9 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
           <Filter className="w-4 h-4 text-gray-500" />
           {[
             { id: 'all', label: 'Tous' },
-            { id: 'verified', label: 'Vérifiés' },
-            { id: 'unverified', label: 'Non vérifiés' },
-            { id: 'ai_processed', label: 'Traités IA' },
+            { id: 'verified', label: 'Verifies' },
+            { id: 'unverified', label: 'Non verifies' },
+            { id: 'ai_processed', label: 'Traites IA' },
           ].map(f => (
             <button
               key={f.id}
@@ -230,7 +230,7 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
                 onClick={() => setSelectedDoc(doc)}
                 className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all cursor-pointer group"
               >
-                {/* Preview ou icône */}
+                {/* Preview ou icone */}
                 <div className="w-full h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
                   {doc.mimeType.startsWith('image/') ? (
                     <img
@@ -258,7 +258,7 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
                   {doc.originalName}
                 </p>
 
-                {/* Métadonnées */}
+                {/* Metadonnees */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
                   <span>{formatFileSize(doc.sizeBytes)}</span>
                   <span>{new Date(doc.uploadedAt).toLocaleDateString('fr-FR')}</span>
@@ -276,7 +276,7 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
                   {doc.verified && (
                     <span className="px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs font-medium flex items-center">
                       <Check className="w-3 h-3 mr-1" />
-                      Vérifié
+                      Verifie
                     </span>
                   )}
                   {doc.aiProcessed && (
@@ -296,7 +296,7 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categorie</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Taille</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
@@ -338,7 +338,7 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
                         {doc.verified && (
                           <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium flex items-center">
                             <Check className="w-3 h-3 mr-1" />
-                            Vérifié
+                            Verifie
                           </span>
                         )}
                         {doc.aiProcessed && (
@@ -355,7 +355,7 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
                           // Download logic
                         }}
                         className="p-1 hover:bg-gray-200 rounded transition-colors"
-                        title="Télécharger"
+                        title="Telecharger"
                       >
                         <Download className="w-4 h-4 text-gray-600" />
                       </button>
@@ -403,12 +403,12 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
                   <p className="font-medium text-gray-900">{formatFileSize(selectedDoc.sizeBytes)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Uploadé le</p>
+                  <p className="text-sm text-gray-500">Uploade le</p>
                   <p className="font-medium text-gray-900">{new Date(selectedDoc.uploadedAt).toLocaleString('fr-FR')}</p>
                 </div>
                 {selectedDoc.category && (
                   <div>
-                    <p className="text-sm text-gray-500">Catégorie</p>
+                    <p className="text-sm text-gray-500">Categorie</p>
                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
                       categoryColors[selectedDoc.category] || 'bg-gray-100 text-gray-800'
                     }`}>
@@ -418,10 +418,10 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
                 )}
                 {selectedDoc.verified && (
                   <div>
-                    <p className="text-sm text-gray-500">Vérification</p>
+                    <p className="text-sm text-gray-500">Verification</p>
                     <p className="font-medium text-green-600 flex items-center">
                       <Check className="w-4 h-4 mr-1" />
-                      Vérifié le {new Date(selectedDoc.verifiedAt!).toLocaleDateString('fr-FR')}
+                      Verifie le {new Date(selectedDoc.verifiedAt!).toLocaleDateString('fr-FR')}
                     </p>
                   </div>
                 )}
@@ -431,7 +431,7 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
                 <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 mb-6">
                   <h4 className="font-semibold text-gray-900 mb-2 flex items-center">
                     <span className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold mr-2">IA</span>
-                    Données extraites par l'IA
+                    Donnees extraites par l'IA
                   </h4>
                   <pre className="text-sm text-gray-700 whitespace-pre-wrap">{selectedDoc.aiExtractedData}</pre>
                   {selectedDoc.aiConfidence && (
@@ -452,12 +452,12 @@ export default function DocumentsTab({ documents, workspaceId, onRefresh }: Docu
               <div className="flex space-x-2">
                 <button className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2">
                   <Download className="w-4 h-4" />
-                  <span>Télécharger</span>
+                  <span>Telecharger</span>
                 </button>
                 {!selectedDoc.verified && (
                   <button className="flex-1 px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center space-x-2">
                     <Check className="w-4 h-4" />
-                    <span>Vérifier</span>
+                    <span>Verifier</span>
                   </button>
                 )}
               </div>

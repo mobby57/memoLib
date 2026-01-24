@@ -1,5 +1,5 @@
-﻿/**
- * Client OAuth2.0 pour API Légifrance (PISTE)
+/**
+ * Client OAuth2.0 pour API Legifrance (PISTE)
  * 
  * Gestion des tokens OAuth avec flux Client Credentials
  * Documentation: https://developer.aife.economie.gouv.fr/
@@ -10,7 +10,7 @@ interface OAuthToken {
   token_type: 'Bearer';
   expires_in: number;
   scope: string;
-  expires_at: number; // Timestamp d'expiration calculé
+  expires_at: number; // Timestamp d'expiration calcule
 }
 
 interface PisteConfig {
@@ -49,25 +49,25 @@ export class LegifranceOAuthClient {
     this.isConfigured = !!(this.config.clientId && this.config.clientSecret);
     if (!this.isConfigured) {
       console.warn(
-        `⚠️ Configuration PISTE manquante pour l'environnement ${environment}. ` +
-        `L'API Legifrance sera désactivée.`
+        `️ Configuration PISTE manquante pour l'environnement ${environment}. ` +
+        `L'API Legifrance sera desactivee.`
       );
     }
   }
 
   /**
-   * Vérifie si le client est configuré
+   * Verifie si le client est configure
    */
   isAvailable(): boolean {
     return this.isConfigured;
   }
 
   /**
-   * Obtenir un token OAuth valide (récupère ou renouvelle)
+   * Obtenir un token OAuth valide (recupere ou renouvelle)
    */
   async getValidToken(): Promise<string> {
     if (!this.isConfigured) {
-      throw new Error('API Legifrance non configurée');
+      throw new Error('API Legifrance non configuree');
     }
     
     // Si token existant et encore valide (avec marge de 5 minutes)
@@ -81,7 +81,7 @@ export class LegifranceOAuthClient {
   }
 
   /**
-   * Récupérer un nouveau token OAuth
+   * Recuperer un nouveau token OAuth
    */
   private async fetchNewToken(): Promise<void> {
     try {
@@ -120,11 +120,11 @@ export class LegifranceOAuthClient {
       };
 
       console.log(
-        `✅ Token OAuth PISTE obtenu (${this.config.environment}). ` +
+        ` Token OAuth PISTE obtenu (${this.config.environment}). ` +
         `Expire dans ${data.expires_in}s`
       );
     } catch (error) {
-      console.error('❌ Erreur obtention token PISTE:', error);
+      console.error(' Erreur obtention token PISTE:', error);
       throw error;
     }
   }
@@ -144,7 +144,7 @@ export class LegifranceOAuthClient {
   }
 
   /**
-   * Vérifier si le client est configuré
+   * Verifier si le client est configure
    */
   isConfigured(): boolean {
     return !!(this.config.clientId && this.config.clientSecret);

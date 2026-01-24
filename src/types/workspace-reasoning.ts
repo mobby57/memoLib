@@ -1,17 +1,17 @@
 /**
- * 🧠 SCHÉMA DE DONNÉES CANONIQUE - IA POSTE MANAGER
+ * [emoji] SCHeMA DE DONNeES CANONIQUE - IA POSTE MANAGER
  * 
- * Types stricts pour le système de raisonnement Workspace.
- * Conformité absolue au schéma canonique MVP.
+ * Types stricts pour le systeme de raisonnement Workspace.
+ * Conformite absolue au schema canonique MVP.
  * 
- * ⚠️ Ce schéma est dicté par le raisonnement, pas par la technique.
- * La base de données n'est qu'un support de cognition.
+ * ️ Ce schema est dicte par le raisonnement, pas par la technique.
+ * La base de donnees n'est qu'un support de cognition.
  * 
- * Version: 2.0 - Alignement strict avec machine à états MVP
+ * Version: 2.0 - Alignement strict avec machine a etats MVP
  */
 
 // ============================================
-// ÉTATS DU WORKSPACE (Machine à états MVP)
+// eTATS DU WORKSPACE (Machine a etats MVP)
 // ============================================
 
 export type WorkspaceState = 
@@ -25,14 +25,14 @@ export type WorkspaceState =
   | 'READY_FOR_HUMAN';
 
 export const WORKSPACE_STATES: Record<WorkspaceState, { label: string; color: string; icon: string }> = {
-  RECEIVED: { label: 'Reçu', color: 'gray', icon: '📥' },
-  FACTS_EXTRACTED: { label: 'Faits extraits', color: 'blue', icon: '📋' },
-  CONTEXT_IDENTIFIED: { label: 'Contexte identifié', color: 'purple', icon: '🧭' },
-  OBLIGATIONS_DEDUCED: { label: 'Obligations déduites', color: 'orange', icon: '📜' },
-  MISSING_IDENTIFIED: { label: 'Manques identifiés', color: 'red', icon: '❗' },
-  RISK_EVALUATED: { label: 'Risques évalués', color: 'yellow', icon: '⚠️' },
-  ACTION_PROPOSED: { label: 'Action proposée', color: 'indigo', icon: '👉' },
-  READY_FOR_HUMAN: { label: 'Prêt pour humain', color: 'green', icon: '✅' },
+  RECEIVED: { label: 'Recu', color: 'gray', icon: '[emoji]' },
+  FACTS_EXTRACTED: { label: 'Faits extraits', color: 'blue', icon: '[emoji]' },
+  CONTEXT_IDENTIFIED: { label: 'Contexte identifie', color: 'purple', icon: '[emoji]' },
+  OBLIGATIONS_DEDUCED: { label: 'Obligations deduites', color: 'orange', icon: '[emoji]' },
+  MISSING_IDENTIFIED: { label: 'Manques identifies', color: 'red', icon: '' },
+  RISK_EVALUATED: { label: 'Risques evalues', color: 'yellow', icon: '️' },
+  ACTION_PROPOSED: { label: 'Action proposee', color: 'indigo', icon: '[emoji]' },
+  READY_FOR_HUMAN: { label: 'Pret pour humain', color: 'green', icon: '' },
 };
 
 // ============================================
@@ -43,7 +43,7 @@ export interface WorkspaceReasoning {
   id: string;
   tenantId: string;
   
-  // État
+  // etat
   currentState: WorkspaceState;
   stateChangedAt: Date;
   stateChangedBy?: string;
@@ -54,11 +54,11 @@ export interface WorkspaceReasoning {
   sourceRaw: string;
   sourceMetadata?: string; // JSON
   
-  // Métadonnées métier
+  // Metadonnees metier
   procedureType?: string;
   ownerUserId: string;
   
-  // Métriques
+  // Metriques
   reasoningQuality?: number;
   uncertaintyLevel: number;
   confidenceScore?: number;
@@ -76,7 +76,7 @@ export interface WorkspaceReasoning {
   updatedAt: Date;
   completedAt?: Date;
   
-  // Relations métier
+  // Relations metier
   clientId?: string;
   dossierId?: string;
   emailId?: string;
@@ -154,25 +154,27 @@ export interface Obligation {
 }
 
 // ============================================
-// MISSING ELEMENT (CŒUR MVP)
+// MISSING ELEMENT (CoeUR MVP)
 // ============================================
 
 export interface MissingElement {
   id: string;
   workspaceId: string;
   
-  type: 'INFORMATION' | 'DOCUMENT' | 'DECISION' | 'VALIDATION' | 'HUMAN_EXPERTISE';
+  type: string; // document, information, decision, action
   description: string;
-  why: string;
+  priority: string; // low, normal, high, urgent
   
-  blocking: boolean;
+  // Pour compatibilite avec l'ancienne API
+  why?: string;
+  blocking?: boolean;
+  identifiedBy?: string;
   
   resolved: boolean;
-  resolvedBy?: string;
-  resolvedAt?: Date;
-  resolution?: string;
+  resolvedBy?: string | null;
+  resolvedAt?: Date | null;
+  resolution?: string | null;
   
-  identifiedBy: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -303,7 +305,7 @@ export function canTransitionTo(currentState: WorkspaceState, targetState: Works
 }
 
 export function formatUncertaintyLevel(level: number): { label: string; color: string } {
-  if (level >= 0.8) return { label: 'Très incertain', color: 'text-red-600' };
+  if (level >= 0.8) return { label: 'Tres incertain', color: 'text-red-600' };
   if (level >= 0.5) return { label: 'Incertain', color: 'text-orange-600' };
   if (level >= 0.2) return { label: 'Peu incertain', color: 'text-yellow-600' };
   return { label: 'Actionnable', color: 'text-green-600' };
@@ -315,36 +317,40 @@ export function calculateRiskScore(impact: Risk['impact'], probability: Risk['pr
 }
 
 // ============================================
-// 🔒 RÈGLES STRUCTURELLES (IMPÉRATIVES)
+// [emoji] ReGLES STRUCTURELLES (IMPeRATIVES)
 // ============================================
 
 /**
- * Règles de validation du raisonnement
- * Ces règles DOIVENT être respectées à tout moment
+ * Regles de validation du raisonnement
+ * Ces regles DOIVENT etre respectees a tout moment
  */
 export const STRUCTURAL_RULES = {
-  /** ❌ Aucune donnée sans workspaceId */
+  /**  Aucune donnee sans workspaceId */
   WORKSPACE_REQUIRED: 'All entities must have a workspaceId',
   
-  /** ❌ Aucun fait sans source */
+  /**  Aucun fait sans source */
   FACT_SOURCE_REQUIRED: 'All facts must have a source',
   
-  /** ❌ Aucune obligation sans contexte */
+  /**  Aucune obligation sans contexte */
   OBLIGATION_CONTEXT_REQUIRED: 'All obligations must link to a context',
   
-  /** ❌ Aucune action sans manque associé */
+  /**  Aucune action sans manque associe */
   ACTION_MISSING_REQUIRED: 'All actions must address at least one missing element',
   
-  /** ❌ Aucun passage à READY_FOR_HUMAN s'il reste un manque bloquant */
+  /**  Aucun passage a READY_FOR_HUMAN s'il reste un manque bloquant */
   NO_READY_WITH_BLOCKING: 'Cannot transition to READY_FOR_HUMAN with blocking missing elements',
 } as const;
 
 /**
- * Vérifie si un workspace peut passer à READY_FOR_HUMAN
- * RÈGLE #5 : Pas de READY_FOR_HUMAN si blocking missing elements
+ * Verifie si un workspace peut passer a READY_FOR_HUMAN
+ * ReGLE #5 : Pas de READY_FOR_HUMAN si blocking missing elements
+ * Si 'blocking' n'est pas defini, on considere la priorite 'urgent' ou 'high' comme bloquant
  */
 export function canTransitionToReadyForHuman(missingElements: MissingElement[]): boolean {
-  return !missingElements.some(m => m.blocking && !m.resolved);
+  return !missingElements.some(m => {
+    const isBlocking = m.blocking ?? (m.priority === 'urgent' || m.priority === 'high');
+    return isBlocking && !m.resolved;
+  });
 }
 
 /**
@@ -367,37 +373,37 @@ export function calculateUncertaintyLevel(
 
 /**
  * Valide qu'un fait a bien une source
- * RÈGLE #2 : Aucun fait sans source
+ * ReGLE #2 : Aucun fait sans source
  */
 export function validateFactHasSource(fact: Fact): boolean {
   return !!fact.source && fact.source.length > 0;
 }
 
 /**
- * Valide qu'une obligation est liée à un contexte
- * RÈGLE #3 : Aucune obligation sans contexte
+ * Valide qu'une obligation est liee a un contexte
+ * ReGLE #3 : Aucune obligation sans contexte
  */
 export function validateObligationHasContext(obligation: Obligation): boolean {
   return !!obligation.contextId && obligation.contextId.length > 0;
 }
 
 /**
- * Vérifie si une transition d'état est valide
+ * Verifie si une transition d'etat est valide
  */
 export function validateStateTransition(
   from: WorkspaceState,
   to: WorkspaceState,
   missingElements?: MissingElement[]
 ): { valid: boolean; reason?: string } {
-  // Vérifier que la transition est autorisée
+  // Verifier que la transition est autorisee
   if (!canTransitionTo(from, to)) {
     return {
       valid: false,
-      reason: `Transition ${from} → ${to} not allowed`,
+      reason: `Transition ${from} [Next] ${to} not allowed`,
     };
   }
   
-  // Vérifier règle #5 pour READY_FOR_HUMAN
+  // Verifier regle #5 pour READY_FOR_HUMAN
   if (to === 'READY_FOR_HUMAN' && missingElements) {
     if (!canTransitionToReadyForHuman(missingElements)) {
       return {
@@ -411,7 +417,7 @@ export function validateStateTransition(
 }
 
 /**
- * Transitions autorisées de la machine à états
+ * Transitions autorisees de la machine a etats
  */
 export const ALLOWED_TRANSITIONS: Record<WorkspaceState, WorkspaceState[]> = {
   RECEIVED: ['FACTS_EXTRACTED'],
@@ -421,24 +427,24 @@ export const ALLOWED_TRANSITIONS: Record<WorkspaceState, WorkspaceState[]> = {
   MISSING_IDENTIFIED: ['RISK_EVALUATED'],
   RISK_EVALUATED: ['ACTION_PROPOSED'],
   ACTION_PROPOSED: ['READY_FOR_HUMAN'],
-  READY_FOR_HUMAN: [], // État terminal
+  READY_FOR_HUMAN: [], // etat terminal
 };
 
 // ============================================
-// 🧾 POURQUOI CE SCHÉMA EST FORT
+// [emoji] POURQUOI CE SCHeMA EST FORT
 // ============================================
 
 /**
- * Avantages du schéma canonique :
+ * Avantages du schema canonique :
  * 
- * ✅ Il FORCE le raisonnement
- * ✅ Il empêche les raccourcis IA
- * ✅ Il est AUDITABLE
- * ✅ Il est JURIDIQUEMENT défendable
- * ✅ Il est TRANSMISSIBLE
- * ✅ Il est INDÉPENDANT du métier
+ *  Il FORCE le raisonnement
+ *  Il empeche les raccourcis IA
+ *  Il est AUDITABLE
+ *  Il est JURIDIQUEMENT defendable
+ *  Il est TRANSMISSIBLE
+ *  Il est INDePENDANT du metier
  * 
- * 👉 On peut ajouter des métiers SANS changer ce noyau.
+ * [emoji] On peut ajouter des metiers SANS changer ce noyau.
  */
 
 

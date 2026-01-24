@@ -1,4 +1,4 @@
-﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTenant } from './useTenant';
 
 interface Dossier {
@@ -55,7 +55,7 @@ export function useDossiers(options?: { statut?: string; search?: string }) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Erreur création dossier');
+        throw new Error(error.error || 'Erreur creation dossier');
       }
 
       return response.json();

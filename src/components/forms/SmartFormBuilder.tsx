@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -6,11 +6,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 /**
- * 🤖 Smart Form Builder - IA Interactive
+ * [emoji] Smart Form Builder - IA Interactive
  * 
- * Génère des formulaires adaptatifs basés sur:
+ * Genere des formulaires adaptatifs bases sur:
  * - Le contexte de l'utilisateur
- * - Les décisions précédentes
+ * - Les decisions precedentes
  * - L'impact organisationnel
  * - Les recommandations IA
  */
@@ -24,7 +24,7 @@ export interface FormField {
   placeholder?: string;
   options?: { value: string; label: string; impact?: string }[];
   validation?: z.ZodType<any>;
-  dependsOn?: string; // ID du champ dont dépend ce champ
+  dependsOn?: string; // ID du champ dont depend ce champ
   dependsOnValue?: any; // Valeur requise pour afficher ce champ
   aiSuggestion?: string;
   impactAnalysis?: {
@@ -64,7 +64,7 @@ export default function SmartFormBuilder({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [visibleFields, setVisibleFields] = useState<Set<string>>(new Set());
 
-  // Créer le schéma de validation Zod dynamiquement
+  // Creer le schema de validation Zod dynamiquement
   const createValidationSchema = () => {
     const schemaFields: Record<string, z.ZodType<any>> = {};
     
@@ -110,7 +110,7 @@ export default function SmartFormBuilder({
 
   const watchedValues = watch();
 
-  // Calculer les champs visibles basés sur les dépendances
+  // Calculer les champs visibles bases sur les dependances
   useEffect(() => {
     const visible = new Set<string>();
     
@@ -177,7 +177,7 @@ export default function SmartFormBuilder({
 
   const onSubmit = async (data: any) => {
     try {
-      // Enrichir les données avec l'analyse d'impact
+      // Enrichir les donnees avec l'analyse d'impact
       const enrichedData = {
         ...data,
         metadata: {
@@ -231,7 +231,7 @@ export default function SmartFormBuilder({
               hasError ? 'border-red-500' : 'border-gray-300'
             }`}
           >
-            <option value="">Sélectionner...</option>
+            <option value="">Selectionner...</option>
             {field.options?.map(opt => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
@@ -285,7 +285,7 @@ export default function SmartFormBuilder({
         {aiSuggestions[field.id] && (
           <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-start">
-              <span className="text-blue-600 mr-2">🤖</span>
+              <span className="text-blue-600 mr-2">[emoji]</span>
               <div>
                 <p className="text-sm font-medium text-blue-900">Suggestion IA</p>
                 <p className="text-sm text-blue-700">{aiSuggestions[field.id]}</p>
@@ -309,9 +309,9 @@ export default function SmartFormBuilder({
                 field.impactAnalysis.level === 'medium' ? 'text-yellow-600' :
                 'text-green-600'
               }`}>
-                {field.impactAnalysis.level === 'critical' ? '⚠️' :
-                 field.impactAnalysis.level === 'high' ? '🔴' :
-                 field.impactAnalysis.level === 'medium' ? '🟡' : '🟢'}
+                {field.impactAnalysis.level === 'critical' ? '️' :
+                 field.impactAnalysis.level === 'high' ? '[emoji]' :
+                 field.impactAnalysis.level === 'medium' ? '[emoji]' : '[emoji]'}
               </span>
               <div>
                 <p className="text-sm font-medium">
@@ -321,7 +321,7 @@ export default function SmartFormBuilder({
                   {field.impactAnalysis.description}
                 </p>
                 <div className="mt-2">
-                  <p className="text-xs font-medium text-gray-600">Zones affectées:</p>
+                  <p className="text-xs font-medium text-gray-600">Zones affectees:</p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {field.impactAnalysis.affectedAreas.map(area => (
                       <span
@@ -346,7 +346,7 @@ export default function SmartFormBuilder({
             className="mt-2 text-sm text-blue-600 hover:text-blue-700"
             disabled={isAnalyzing}
           >
-            {isAnalyzing ? '🤖 Analyse...' : '🤖 Obtenir une suggestion IA'}
+            {isAnalyzing ? '[emoji] Analyse...' : '[emoji] Obtenir une suggestion IA'}
           </button>
         )}
       </div>
@@ -355,7 +355,7 @@ export default function SmartFormBuilder({
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-gray-900">{config.title}</h2>
@@ -379,13 +379,13 @@ export default function SmartFormBuilder({
             <div>
               <p className="font-medium text-gray-900">Score d'impact organisationnel</p>
               <p className="text-sm text-gray-600">
-                Basé sur vos réponses et l'analyse IA
+                Base sur vos reponses et l'analyse IA
               </p>
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold text-blue-600">{impactScore}</div>
               <div className="text-sm text-gray-600">
-                {impactScore < 5 ? 'Faible' : impactScore < 10 ? 'Moyen' : 'Élevé'}
+                {impactScore < 5 ? 'Faible' : impactScore < 10 ? 'Moyen' : 'eleve'}
               </div>
             </div>
           </div>
@@ -402,11 +402,11 @@ export default function SmartFormBuilder({
         {config.requiresApproval && (
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-start">
-              <span className="text-yellow-600 mr-2">⚠️</span>
+              <span className="text-yellow-600 mr-2">️</span>
               <div>
                 <p className="font-medium text-yellow-900">Approbation requise</p>
                 <p className="text-sm text-yellow-700 mt-1">
-                  Cette décision nécessite l'approbation de: {config.approvers?.join(', ')}
+                  Cette decision necessite l'approbation de: {config.approvers?.join(', ')}
                 </p>
               </div>
             </div>

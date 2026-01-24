@@ -3,7 +3,7 @@
 // ============================================
 
 /**
- * Types de procédures CESDA supportées
+ * Types de procedures CESDA supportees
  */
 export enum ProcedureType {
   OQTF = "OQTF",
@@ -15,27 +15,27 @@ export enum ProcedureType {
 }
 
 /**
- * Libellés français des procédures
+ * Libelles francais des procedures
  */
 export const PROCEDURE_LABELS: Record<ProcedureType, string> = {
-  [ProcedureType.OQTF]: "OQTF (Obligation de Quitter le Territoire Français)",
-  [ProcedureType.REFUS_TITRE]: "Refus de Titre de Séjour",
-  [ProcedureType.RETRAIT_TITRE]: "Retrait de Titre de Séjour",
+  [ProcedureType.OQTF]: "OQTF (Obligation de Quitter le Territoire Francais)",
+  [ProcedureType.REFUS_TITRE]: "Refus de Titre de Sejour",
+  [ProcedureType.RETRAIT_TITRE]: "Retrait de Titre de Sejour",
   [ProcedureType.ASILE]: "Demande d'Asile",
   [ProcedureType.REGROUPEMENT_FAMILIAL]: "Regroupement Familial",
-  [ProcedureType.NATURALISATION]: "Naturalisation Française",
+  [ProcedureType.NATURALISATION]: "Naturalisation Francaise",
 }
 
 /**
- * Couleurs associées aux procédures
+ * Couleurs associees aux procedures
  */
 export const PROCEDURE_COLORS: Record<ProcedureType, string> = {
   [ProcedureType.OQTF]: "#B91C1C", // Rouge bordeaux
   [ProcedureType.REFUS_TITRE]: "#CA8A04", // Or
-  [ProcedureType.RETRAIT_TITRE]: "#EA580C", // Orange foncé
+  [ProcedureType.RETRAIT_TITRE]: "#EA580C", // Orange fonce
   [ProcedureType.ASILE]: "#1E40AF", // Bleu profond
   [ProcedureType.REGROUPEMENT_FAMILIAL]: "#7C3AED", // Violet
-  [ProcedureType.NATURALISATION]: "#059669", // Vert émeraude
+  [ProcedureType.NATURALISATION]: "#059669", // Vert emeraude
 }
 
 /**
@@ -64,7 +64,7 @@ export enum UrgencyLevel {
 export const URGENCY_COLORS: Record<UrgencyLevel, string> = {
   [UrgencyLevel.FAIBLE]: "#10B981", // Vert
   [UrgencyLevel.MOYEN]: "#F59E0B", // Ambre
-  [UrgencyLevel.ELEVE]: "#EA580C", // Orange foncé
+  [UrgencyLevel.ELEVE]: "#EA580C", // Orange fonce
   [UrgencyLevel.CRITIQUE]: "#DC2626", // Rouge vif
 }
 
@@ -86,7 +86,7 @@ export enum DocumentType {
 }
 
 /**
- * Catégories de checklist
+ * Categories de checklist
  */
 export enum ChecklistCategory {
   VERIFICATIONS = "verifications",
@@ -104,7 +104,7 @@ export enum AlertLevel {
 }
 
 /**
- * Types d'événements timeline
+ * Types d'evenements timeline
  */
 export enum TimelineEventType {
   CREATED = "created",
@@ -165,23 +165,23 @@ export enum AlertType {
 }
 
 // ============================================
-// INTERFACES MÉTIER
+// INTERFACES MeTIER
 // ============================================
 
 /**
- * Métadonnées OQTF
+ * Metadonnees OQTF
  */
 export interface OQTFMetadata {
   oqtfType: "sans_delai" | "avec_delai"
   modeNotification: "main_propre" | "courrier" | "autre"
   paysDestination: string
   irtfAssociee: boolean
-  irtfDuree?: number // en années
+  irtfDuree?: number // en annees
   delaiDepartVolontaire?: number // en jours
 }
 
 /**
- * Métadonnées Asile
+ * Metadonnees Asile
  */
 export interface AsileMetadata {
   stade: "OFPRA" | "CNDA" | "REEXAMEN"
@@ -195,7 +195,7 @@ export interface AsileMetadata {
 }
 
 /**
- * Métadonnées Regroupement Familial
+ * Metadonnees Regroupement Familial
  */
 export interface RegroupementFamilialMetadata {
   typeDemandeur: "conjoint" | "enfants" | "ascendants"
@@ -210,10 +210,10 @@ export interface RegroupementFamilialMetadata {
 }
 
 /**
- * Métadonnées Naturalisation
+ * Metadonnees Naturalisation
  */
 export interface NaturalisationMetadata {
-  dureeResidence: number // en années
+  dureeResidence: number // en annees
   niveauLangue: "A1" | "A2" | "B1" | "B2" | "C1" | "C2"
   diplomeObtenu?: string
   serviceMilitaire: boolean
@@ -222,24 +222,24 @@ export interface NaturalisationMetadata {
 }
 
 /**
- * Données extraites par IA d'un document
+ * Donnees extraites par IA d'un document
  */
 export interface AIExtractedData {
-  // Dates détectées
+  // Dates detectees
   dates?: {
     decision?: string
     notification?: string
     echeance?: string
   }
-  // Parties identifiées
+  // Parties identifiees
   parties?: {
     autorite?: string
     beneficiaire?: string
     nationalite?: string
   }
-  // Type de document détecté
+  // Type de document detecte
   documentType?: DocumentType
-  // Éléments clés extraits
+  // elements cles extraits
   elements?: {
     [key: string]: string | number | boolean
   }
@@ -248,7 +248,7 @@ export interface AIExtractedData {
 }
 
 /**
- * Checklist item avec données complètes
+ * Checklist item avec donnees completes
  */
 export interface ChecklistItemData {
   id: string
@@ -274,7 +274,7 @@ export interface AISuggestion {
 }
 
 /**
- * Calcul de délai
+ * Calcul de delai
  */
 export interface DeadlineCalculation {
   notificationDate: Date
@@ -365,7 +365,7 @@ export interface WorkspaceSortOptions {
 }
 
 /**
- * Formulaire de création workspace
+ * Formulaire de creation workspace
  */
 export interface CreateWorkspaceInput {
   clientId: string
@@ -377,7 +377,7 @@ export interface CreateWorkspaceInput {
 }
 
 /**
- * Formulaire de mise à jour workspace
+ * Formulaire de mise a jour workspace
  */
 export interface UpdateWorkspaceInput {
   title?: string
@@ -395,7 +395,7 @@ export interface UpdateWorkspaceInput {
 // ============================================
 
 /**
- * Résultat d'analyse IA
+ * Resultat d'analyse IA
  */
 export interface AIAnalysisResult<T = any> {
   success: boolean
@@ -407,7 +407,7 @@ export interface AIAnalysisResult<T = any> {
 }
 
 /**
- * Configuration délais par procédure
+ * Configuration delais par procedure
  */
 export interface DeadlineConfig {
   procedureType: ProcedureType
@@ -418,7 +418,7 @@ export interface DeadlineConfig {
 }
 
 /**
- * Délais standards CESDA
+ * Delais standards CESDA
  */
 export const STANDARD_DEADLINES: Record<string, DeadlineConfig> = {
   OQTF_SANS_DELAI: {
@@ -448,7 +448,7 @@ export const STANDARD_DEADLINES: Record<string, DeadlineConfig> = {
 }
 
 /**
- * Template de checklist par procédure
+ * Template de checklist par procedure
  */
 export interface ChecklistTemplate {
   procedureType: ProcedureType
@@ -470,27 +470,27 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
     items: [
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Type d'OQTF identifié",
-        description: "Sans délai ou avec délai de départ volontaire",
+        label: "Type d'OQTF identifie",
+        description: "Sans delai ou avec delai de depart volontaire",
         required: true,
         order: 1,
       },
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Date de notification confirmée",
+        label: "Date de notification confirmee",
         required: true,
         order: 2,
       },
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Mode de notification vérifié",
-        description: "Main propre, courrier recommandé, ou autre",
+        label: "Mode de notification verifie",
+        description: "Main propre, courrier recommande, ou autre",
         required: true,
         order: 3,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Décision OQTF",
+        label: "Decision OQTF",
         required: true,
         order: 1,
       },
@@ -503,13 +503,13 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Passeport / Carte d'identité",
+        label: "Passeport / Carte d'identite",
         required: true,
         order: 3,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Justificatifs de présence en France",
+        label: "Justificatifs de presence en France",
         description: "Factures, bail, attestations",
         required: false,
         order: 4,
@@ -528,46 +528,46 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
     items: [
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Stade de la procédure identifié",
+        label: "Stade de la procedure identifie",
         description: "OFPRA ou CNDA",
         required: true,
         order: 1,
       },
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Langue requise déterminée",
+        label: "Langue requise determinee",
         required: false,
         order: 2,
       },
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Vulnérabilités détectées",
+        label: "Vulnerabilites detectees",
         description: "Mineur, torture, LGBT+, etc.",
         required: false,
         order: 3,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Décision OFPRA (si recours CNDA)",
+        label: "Decision OFPRA (si recours CNDA)",
         required: false,
         order: 1,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Récit de persécution",
+        label: "Recit de persecution",
         required: true,
         order: 2,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Pièces d'identité",
+        label: "Pieces d'identite",
         required: true,
         order: 3,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Preuves des persécutions",
-        description: "Photos, rapports médicaux, articles de presse",
+        label: "Preuves des persecutions",
+        description: "Photos, rapports medicaux, articles de presse",
         required: false,
         order: 4,
       },
@@ -578,7 +578,7 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
     items: [
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Type de titre refusé",
+        label: "Type de titre refuse",
         required: true,
         order: 1,
       },
@@ -590,20 +590,20 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Décision préfectorale",
+        label: "Decision prefectorale",
         required: true,
         order: 1,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Historique de séjour",
+        label: "Historique de sejour",
         required: false,
         order: 2,
       },
       {
         category: ChecklistCategory.PIECES,
         label: "Justificatifs actuels",
-        description: "Ressources, logement, intégration",
+        description: "Ressources, logement, integration",
         required: true,
         order: 3,
       },
@@ -620,13 +620,13 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Décision de retrait",
+        label: "Decision de retrait",
         required: true,
         order: 1,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Ancien titre de séjour",
+        label: "Ancien titre de sejour",
         required: true,
         order: 2,
       },
@@ -637,7 +637,7 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
     items: [
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Statut du demandeur vérifié",
+        label: "Statut du demandeur verifie",
         required: true,
         order: 1,
       },
@@ -662,13 +662,13 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Titre propriété ou bail",
+        label: "Titre propriete ou bail",
         required: true,
         order: 2,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Actes d'état civil",
+        label: "Actes d'etat civil",
         required: true,
         order: 3,
       },
@@ -679,27 +679,27 @@ export const CHECKLIST_TEMPLATES: Record<ProcedureType, ChecklistTemplate> = {
     items: [
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Ancienneté de séjour",
+        label: "Anciennete de sejour",
         description: "Minimum 5 ans sauf exceptions",
         required: true,
         order: 1,
       },
       {
         category: ChecklistCategory.VERIFICATIONS,
-        label: "Niveau de langue français",
+        label: "Niveau de langue francais",
         description: "B1 oral minimum",
         required: true,
         order: 2,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Justificatifs résidence 5 ans",
+        label: "Justificatifs residence 5 ans",
         required: true,
         order: 1,
       },
       {
         category: ChecklistCategory.PIECES,
-        label: "Attestation langue française",
+        label: "Attestation langue francaise",
         required: true,
         order: 2,
       },

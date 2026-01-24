@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 
@@ -14,7 +14,7 @@ export default function TestLoginPage() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     
-    setResult(`<p>Envoi des données...</p>
+    setResult(`<p>Envoi des donnees...</p>
       <p>Email: ${email}</p>
       <p>Password: ${password ? '***' : 'VIDE!'}</p>`);
     
@@ -23,7 +23,7 @@ export default function TestLoginPage() {
       const csrfRes = await fetch('/api/auth/csrf');
       const { csrfToken } = await csrfRes.json();
       
-      // Envoyer la requête de connexion
+      // Envoyer la requete de connexion
       const response = await fetch('/api/auth/callback/credentials', {
         method: 'POST',
         headers: {
@@ -45,12 +45,12 @@ export default function TestLoginPage() {
         <pre>${JSON.stringify(data, null, 2)}</pre>`);
         
       if (response.ok && data.url) {
-        setResult(prev => prev + `<p style="color: green;">✅ Connexion réussie!</p>`);
+        setResult(prev => prev + `<p style="color: green;"> Connexion reussie!</p>`);
         setTimeout(() => {
           window.location.href = data.url;
         }, 2000);
       } else {
-        setResult(prev => prev + `<p style="color: red;">❌ Échec de connexion</p>`);
+        setResult(prev => prev + `<p style="color: red;"> echec de connexion</p>`);
       }
     } catch (error: any) {
       setResult(prev => prev + `<hr><p style="color: red;"><strong>Erreur:</strong> ${error.message}</p>`);

@@ -1,6 +1,6 @@
-﻿/**
- * Composant d'affichage de l'état MISSING_IDENTIFIED
- * CŒUR DU MVP - Montrer pourquoi on NE PEUT PAS agir
+/**
+ * Composant d'affichage de l'etat MISSING_IDENTIFIED
+ * CoeUR DU MVP - Montrer pourquoi on NE PEUT PAS agir
  */
 
 import { WorkspaceReasoning, MissingElement } from '@/types/workspace-reasoning';
@@ -21,11 +21,11 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
   
   const getTypeIcon = (type: MissingElement['type']) => {
     const icons = {
-      INFORMATION: '❓',
-      DOCUMENT: '📄',
-      DECISION: '🤔',
-      VALIDATION: '✋',
-      HUMAN_EXPERTISE: '👤',
+      INFORMATION: '',
+      DOCUMENT: '[emoji]',
+      DECISION: '[emoji]',
+      VALIDATION: '',
+      HUMAN_EXPERTISE: '[emoji]',
     };
     return icons[type];
   };
@@ -34,7 +34,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
     const badges = {
       INFORMATION: { label: 'Information', color: 'bg-blue-100 text-blue-800' },
       DOCUMENT: { label: 'Document', color: 'bg-green-100 text-green-800' },
-      DECISION: { label: 'Décision', color: 'bg-purple-100 text-purple-800' },
+      DECISION: { label: 'Decision', color: 'bg-purple-100 text-purple-800' },
       VALIDATION: { label: 'Validation', color: 'bg-orange-100 text-orange-800' },
       HUMAN_EXPERTISE: { label: 'Expertise humaine', color: 'bg-red-100 text-red-800' },
     };
@@ -61,7 +61,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
             <div className="flex items-center gap-3 mb-2">
               {isBlocking && (
                 <span className="px-2 py-1 text-xs font-bold bg-red-600 text-white rounded">
-                  🔴 BLOQUANT
+                  [emoji] BLOQUANT
                 </span>
               )}
               <span className={`px-2 py-1 text-xs font-medium rounded ${typeBadge.color}`}>
@@ -91,12 +91,12 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
                 }`}
               >
                 {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-                📝 Générer action de résolution
+                [emoji] Generer action de resolution
               </button>
               
               <button
                 onClick={() => {
-                  const resolution = prompt('Comment avez-vous résolu ce manque ?');
+                  const resolution = prompt('Comment avez-vous resolu ce manque ?');
                   if (resolution) {
                     onResolve(missing.id, resolution);
                   }
@@ -109,12 +109,12 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
                 }`}
               >
                 {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-                ✅ Marquer comme résolu
+                 Marquer comme resolu
               </button>
             </div>
             
             <div className="text-xs text-gray-500 mt-3">
-              Identifié par {missing.identifiedBy} • {new Date(missing.createdAt).toLocaleString('fr-FR')}
+              Identifie par {missing.identifiedBy} - {new Date(missing.createdAt).toLocaleString('fr-FR')}
             </div>
           </div>
         </div>
@@ -126,7 +126,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">❗ Éléments manquants identifiés</h2>
+        <h2 className="text-2xl font-bold text-gray-900"> elements manquants identifies</h2>
         <p className="text-gray-600 mt-1">
           Raisons pour lesquelles nous ne pouvons pas agir
         </p>
@@ -142,7 +142,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
       }`}>
         <div className="flex items-center gap-3">
           <div className="text-3xl">
-            {workspace.uncertaintyLevel >= 0.8 ? '🔴' : workspace.uncertaintyLevel >= 0.5 ? '🟠' : '🟡'}
+            {workspace.uncertaintyLevel >= 0.8 ? '[emoji]' : workspace.uncertaintyLevel >= 0.5 ? '[emoji]' : '[emoji]'}
           </div>
           <div>
             <div className="font-semibold text-gray-900">
@@ -152,7 +152,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
               {workspace.uncertaintyLevel >= 0.8 
                 ? 'Action impossible - Trop de manques critiques'
                 : workspace.uncertaintyLevel >= 0.5
-                ? 'Action risquée - Manques significatifs'
+                ? 'Action risquee - Manques significatifs'
                 : 'Action possible sous conditions'
               }
             </div>
@@ -165,10 +165,10 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <h3 className="text-xl font-bold text-red-700">
-              🔴 Manques bloquants ({blocking.length})
+              [emoji] Manques bloquants ({blocking.length})
             </h3>
             <span className="text-sm text-gray-600">
-              → Empêchent le passage à l'action
+              [Next] Empechent le passage a l'action
             </span>
           </div>
           
@@ -183,10 +183,10 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <h3 className="text-xl font-bold text-yellow-700">
-              🟡 Manques non bloquants ({nonBlocking.length})
+              [emoji] Manques non bloquants ({nonBlocking.length})
             </h3>
             <span className="text-sm text-gray-600">
-              → Recommandés de résoudre
+              [Next] Recommandes de resoudre
             </span>
           </div>
           
@@ -196,11 +196,11 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
         </div>
       )}
       
-      {/* Manques résolus */}
+      {/* Manques resolus */}
       {resolved.length > 0 && (
         <details className="bg-green-50 border border-green-200 rounded-lg p-4">
           <summary className="font-semibold text-green-900 cursor-pointer">
-            ✅ Manques résolus ({resolved.length})
+             Manques resolus ({resolved.length})
           </summary>
           
           <div className="mt-4 space-y-2">
@@ -210,7 +210,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
                   <div>
                     <div className="font-medium text-gray-900">{missing.description}</div>
                     <div className="text-sm text-gray-600 mt-1">
-                      Résolution: {missing.resolution}
+                      Resolution: {missing.resolution}
                     </div>
                   </div>
                   <div className="text-xs text-gray-500">
@@ -223,16 +223,16 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
         </details>
       )}
       
-      {/* État global */}
+      {/* etat global */}
       <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
         <div>
           {blocking.length > 0 ? (
             <div className="text-red-600 font-semibold">
-              ❌ Impossible de continuer - {blocking.length} manque{blocking.length > 1 ? 's' : ''} bloquant{blocking.length > 1 ? 's' : ''}
+               Impossible de continuer - {blocking.length} manque{blocking.length > 1 ? 's' : ''} bloquant{blocking.length > 1 ? 's' : ''}
             </div>
           ) : (
             <div className="text-green-600 font-semibold">
-              ✅ Tous les manques bloquants résolus - Progression possible
+               Tous les manques bloquants resolus - Progression possible
             </div>
           )}
         </div>
@@ -245,7 +245,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
               : 'bg-blue-600 hover:bg-blue-700 text-white'
           }`}
         >
-          {blocking.length > 0 ? 'Résoudre les manques bloquants' : 'Continuer → Évaluer les risques'}
+          {blocking.length > 0 ? 'Resoudre les manques bloquants' : 'Continuer [Next] evaluer les risques'}
         </button>
       </div>
     </div>

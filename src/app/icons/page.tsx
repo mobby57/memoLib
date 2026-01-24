@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { 
   Menu, X, Search, User, FileText, LayoutDashboard, Settings, 
@@ -120,10 +120,10 @@ export default function IconsDemo() {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Galerie d'Icônes Lucide
+            Galerie d'Icones Lucide
           </h1>
           <p className="text-gray-600">
-            Plus de 90 icônes disponibles pour votre application
+            Plus de 90 icones disponibles pour votre application
           </p>
 
           {/* Controls */}
@@ -189,7 +189,7 @@ export default function IconsDemo() {
           </h2>
           <div className="space-y-4">
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">1. Importer l'icône</h3>
+              <h3 className="font-medium text-gray-900 mb-2">1. Importer l'icone</h3>
               <pre className="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
 {`import { Menu, Search, User } from 'lucide-react';`}
               </pre>
@@ -211,9 +211,9 @@ export default function IconsDemo() {
             <div>
               <h3 className="font-medium text-gray-900 mb-2">Props disponibles</h3>
               <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                <li><code className="bg-gray-100 px-1 rounded">size</code> - Taille de l'icône (défaut: 24)</li>
-                <li><code className="bg-gray-100 px-1 rounded">color</code> - Couleur (défaut: currentColor)</li>
-                <li><code className="bg-gray-100 px-1 rounded">strokeWidth</code> - Épaisseur du trait (défaut: 2)</li>
+                <li><code className="bg-gray-100 px-1 rounded">size</code> - Taille de l'icone (defaut: 24)</li>
+                <li><code className="bg-gray-100 px-1 rounded">color</code> - Couleur (defaut: currentColor)</li>
+                <li><code className="bg-gray-100 px-1 rounded">strokeWidth</code> - epaisseur du trait (defaut: 2)</li>
                 <li><code className="bg-gray-100 px-1 rounded">className</code> - Classes CSS</li>
                 <li>Toutes les props SVG standard</li>
               </ul>

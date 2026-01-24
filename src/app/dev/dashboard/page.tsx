@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 
 /**
- * 🔍 DASHBOARD DÉVELOPPEMENT AVANCÉ
- * Monitoring temps réel, debugging IA, métriques performance
+ * [emoji] DASHBOARD DeVELOPPEMENT AVANCe
+ * Monitoring temps reel, debugging IA, metriques performance
  */
 
 export default function DevDashboard() {
@@ -61,26 +61,26 @@ export default function DevDashboard() {
   };
 
   if (!metrics || !systemHealth) {
-    return <div className="p-6">⏳ Chargement dashboard...</div>;
+    return <div className="p-6"> Chargement dashboard...</div>;
   }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">🔍 Dashboard Développement</h1>
-          <p className="text-gray-600">Monitoring temps réel & debugging avancé</p>
+          <h1 className="text-3xl font-bold">[emoji] Dashboard Developpement</h1>
+          <p className="text-gray-600">Monitoring temps reel & debugging avance</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => exportLogs('json')}>
-            📥 Export JSON
+            [emoji] Export JSON
           </Button>
           <Button variant="outline" onClick={() => exportLogs('csv')}>
-            📊 Export CSV
+            [emoji] Export CSV
           </Button>
           <Button variant="destructive" onClick={clearLogs}>
-            🗑️ Clear Logs
+            [emoji]️ Clear Logs
           </Button>
         </div>
       </div>
@@ -89,11 +89,11 @@ export default function DevDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Status Système</CardTitle>
+            <CardTitle className="text-sm">Status Systeme</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {systemHealth.status === 'healthy' ? '🟢 Opérationnel' : '🔴 Problème'}
+              {systemHealth.status === 'healthy' ? '[emoji] Operationnel' : '[emoji] Probleme'}
             </div>
             <p className="text-xs text-gray-500">Uptime: {systemHealth.uptime}</p>
           </CardContent>
@@ -101,7 +101,7 @@ export default function DevDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Requêtes IA</CardTitle>
+            <CardTitle className="text-sm">Requetes IA</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{aiStats?.total || 0}</div>
@@ -118,7 +118,7 @@ export default function DevDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{workflowStats?.active || 0}</div>
             <p className="text-xs text-gray-500">
-              Taux succès: {workflowStats?.successRate?.toFixed(1)}%
+              Taux succes: {workflowStats?.successRate?.toFixed(1)}%
             </p>
           </CardContent>
         </Card>
@@ -132,7 +132,7 @@ export default function DevDashboard() {
               {metrics.averageDuration?.toFixed(0)}ms
             </div>
             <p className="text-xs text-gray-500">
-              {metrics.totalOperations} opérations
+              {metrics.totalOperations} operations
             </p>
           </CardContent>
         </Card>
@@ -141,18 +141,18 @@ export default function DevDashboard() {
       {/* Tabs */}
       <Tabs defaultValue="logs" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="logs">📋 Logs</TabsTrigger>
-          <TabsTrigger value="ai">🤖 IA</TabsTrigger>
-          <TabsTrigger value="workflows">🔄 Workflows</TabsTrigger>
-          <TabsTrigger value="performance">⚡ Performance</TabsTrigger>
+          <TabsTrigger value="logs">[emoji] Logs</TabsTrigger>
+          <TabsTrigger value="ai">[emoji] IA</TabsTrigger>
+          <TabsTrigger value="workflows">[emoji] Workflows</TabsTrigger>
+          <TabsTrigger value="performance"> Performance</TabsTrigger>
         </TabsList>
 
-        {/* Logs en temps réel */}
+        {/* Logs en temps reel */}
         <TabsContent value="logs">
           <Card>
             <CardHeader>
-              <CardTitle>Logs en Temps Réel</CardTitle>
-              <CardDescription>Derniers événements système</CardDescription>
+              <CardTitle>Logs en Temps Reel</CardTitle>
+              <CardDescription>Derniers evenements systeme</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
@@ -197,27 +197,27 @@ export default function DevDashboard() {
         <TabsContent value="ai">
           <Card>
             <CardHeader>
-              <CardTitle>Analyse IA - Métriques</CardTitle>
+              <CardTitle>Analyse IA - Metriques</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div className="p-4 bg-blue-50 rounded">
-                    <p className="text-sm text-gray-600">Total Requêtes</p>
+                    <p className="text-sm text-gray-600">Total Requetes</p>
                     <p className="text-2xl font-bold">{aiStats?.total || 0}</p>
                   </div>
                   <div className="p-4 bg-green-50 rounded">
-                    <p className="text-sm text-gray-600">Taux Succès</p>
+                    <p className="text-sm text-gray-600">Taux Succes</p>
                     <p className="text-2xl font-bold">{aiStats?.successRate?.toFixed(1)}%</p>
                   </div>
                   <div className="p-4 bg-purple-50 rounded">
-                    <p className="text-sm text-gray-600">Durée Moyenne</p>
+                    <p className="text-sm text-gray-600">Duree Moyenne</p>
                     <p className="text-2xl font-bold">{aiStats?.averageDuration?.toFixed(0)}ms</p>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-2">Requêtes les plus lentes</h3>
+                  <h3 className="font-semibold mb-2">Requetes les plus lentes</h3>
                   <div className="space-y-2">
                     {aiStats?.slowest?.map((item: any, idx: number) => (
                       <div key={idx} className="p-3 bg-gray-50 rounded flex justify-between">
@@ -231,12 +231,12 @@ export default function DevDashboard() {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-2">Modèles utilisés</h3>
+                  <h3 className="font-semibold mb-2">Modeles utilises</h3>
                   <div className="space-y-2">
                     {aiStats?.models?.map((model: any, idx: number) => (
                       <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
                         <span>{model.name}</span>
-                        <Badge>{model.count} requêtes</Badge>
+                        <Badge>{model.count} requetes</Badge>
                       </div>
                     ))}
                   </div>
@@ -250,7 +250,7 @@ export default function DevDashboard() {
         <TabsContent value="workflows">
           <Card>
             <CardHeader>
-              <CardTitle>Workflows - État</CardTitle>
+              <CardTitle>Workflows - etat</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -260,11 +260,11 @@ export default function DevDashboard() {
                     <p className="text-2xl font-bold">{workflowStats?.active || 0}</p>
                   </div>
                   <div className="p-4 bg-green-50 rounded">
-                    <p className="text-sm text-gray-600">Complétés</p>
+                    <p className="text-sm text-gray-600">Completes</p>
                     <p className="text-2xl font-bold">{workflowStats?.completed || 0}</p>
                   </div>
                   <div className="p-4 bg-red-50 rounded">
-                    <p className="text-sm text-gray-600">Échoués</p>
+                    <p className="text-sm text-gray-600">echoues</p>
                     <p className="text-2xl font-bold">{workflowStats?.failed || 0}</p>
                   </div>
                   <div className="p-4 bg-purple-50 rounded">
@@ -280,8 +280,8 @@ export default function DevDashboard() {
                       <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                         <span>{type.name}</span>
                         <div className="flex gap-2">
-                          <Badge variant="outline">{type.count} exécutions</Badge>
-                          <Badge>{type.successRate?.toFixed(1)}% succès</Badge>
+                          <Badge variant="outline">{type.count} executions</Badge>
+                          <Badge>{type.successRate?.toFixed(1)}% succes</Badge>
                         </div>
                       </div>
                     ))}
@@ -296,12 +296,12 @@ export default function DevDashboard() {
         <TabsContent value="performance">
           <Card>
             <CardHeader>
-              <CardTitle>Performance Système</CardTitle>
+              <CardTitle>Performance Systeme</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-2">Opérations les plus lentes</h3>
+                  <h3 className="font-semibold mb-2">Operations les plus lentes</h3>
                   <div className="space-y-2">
                     {metrics.slowestOperations?.map((op: any, idx: number) => (
                       <div key={idx} className="p-3 bg-gray-50 rounded">
@@ -324,11 +324,11 @@ export default function DevDashboard() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-gray-50 rounded">
-                    <p className="text-sm text-gray-600">Durée Moyenne Globale</p>
+                    <p className="text-sm text-gray-600">Duree Moyenne Globale</p>
                     <p className="text-2xl font-bold">{metrics.averageDuration?.toFixed(0)}ms</p>
                   </div>
                   <div className="p-4 bg-gray-50 rounded">
-                    <p className="text-sm text-gray-600">Taux de Succès</p>
+                    <p className="text-sm text-gray-600">Taux de Succes</p>
                     <p className="text-2xl font-bold">{metrics.successRate?.toFixed(1)}%</p>
                   </div>
                 </div>

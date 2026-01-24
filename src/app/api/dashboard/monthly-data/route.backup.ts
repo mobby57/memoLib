@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { PrismaClient } from '@prisma/client';
@@ -10,17 +10,17 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userRole = (session.user as any).role;
     const tenantId = (session.user as any).tenantId;
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 400 });
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 400 });
     }
 
-    // Calculer les données des 6 derniers mois
+    // Calculer les donnees des 6 derniers mois
     const monthlyData = [];
     const now = new Date();
     
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       
       const monthName = date.toLocaleDateString('fr-FR', { month: 'short' });
 
-      // Compter les dossiers créés ce mois
+      // Compter les dossiers crees ce mois
       const dossiersCount = await prisma.dossier.count({
         where: {
           tenantId,
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      // Compter les factures créées ce mois
+      // Compter les factures creees ce mois
       const facturesCount = await prisma.facture.count({
         where: {
           tenantId,
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(monthlyData);
   } catch (error) {
-    logger.error('Erreur récupération données mensuelles', { error });
+    logger.error('Erreur recuperation donnees mensuelles', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

@@ -1,14 +1,14 @@
-﻿/**
+/**
  * WORKSPACE EXTRACTION SERVICE
  * 
  * Service d'extraction automatique IA pour WorkspaceReasoning
- * Utilise Ollama (local) pour générer Facts, Contexts, Obligations depuis sourceRaw
+ * Utilise Ollama (local) pour generer Facts, Contexts, Obligations depuis sourceRaw
  * 
- * Fonctionnalités:
- * - Extraction structurée depuis email brut
- * - Prompts spécialisés CESEDA (OQTF, Naturalisation, Asile, Titre séjour)
- * - Génération JSON validé
- * - Scoring de confiance par entité
+ * Fonctionnalites:
+ * - Extraction structuree depuis email brut
+ * - Prompts specialises CESEDA (OQTF, Naturalisation, Asile, Titre sejour)
+ * - Generation JSON valide
+ * - Scoring de confiance par entite
  * - Fallback gracieux si Ollama indisponible
  */
 
@@ -58,27 +58,27 @@ export interface ExtractionResult {
 }
 
 // ============================================
-// PROMPTS SPÉCIALISÉS CESEDA
+// PROMPTS SPeCIALISeS CESEDA
 // ============================================
 
-const SYSTEM_PROMPT = `Tu es un assistant juridique spécialisé en droit des étrangers (CESEDA) pour avocats français.
+const SYSTEM_PROMPT = `Tu es un assistant juridique specialise en droit des etrangers (CESEDA) pour avocats francais.
 
-Ta mission est d'extraire des informations structurées depuis des emails de clients pour créer un dossier juridique.
+Ta mission est d'extraire des informations structurees depuis des emails de clients pour creer un dossier juridique.
 
-RÈGLES STRICTES:
+ReGLES STRICTES:
 1. Extrais UNIQUEMENT des faits certains (dates, noms, lieux explicites)
 2. Propose des contextes juridiques POSSIBLES (pas de certitude absolue)
-3. Identifie les obligations légales selon le type de procédure
-4. Fournis un score de confiance (0-1) pour chaque élément extrait
-5. Réponds UNIQUEMENT en JSON valide (pas de texte avant/après)
+3. Identifie les obligations legales selon le type de procedure
+4. Fournis un score de confiance (0-1) pour chaque element extrait
+5. Reponds UNIQUEMENT en JSON valide (pas de texte avant/apres)
 
-TYPES DE PROCÉDURES CESEDA:
-- OQTF (Obligation de Quitter le Territoire Français) → Délais critiques 48h-30 jours
-- Naturalisation → Procédure longue, nombreux documents
-- Asile politique → OFPRA/CNDA, urgence variable
-- Titre de séjour → Préfecture, renouvellement, première demande
+TYPES DE PROCeDURES CESEDA:
+- OQTF (Obligation de Quitter le Territoire Francais) [Next] Delais critiques 48h-30 jours
+- Naturalisation [Next] Procedure longue, nombreux documents
+- Asile politique [Next] OFPRA/CNDA, urgence variable
+- Titre de sejour [Next] Prefecture, renouvellement, premiere demande
 
-FORMAT DE RÉPONSE (JSON strict):
+FORMAT DE RePONSE (JSON strict):
 {
   "facts": [
     {
@@ -92,15 +92,15 @@ FORMAT DE RÉPONSE (JSON strict):
   "contexts": [
     {
       "type": "LEGAL",
-      "description": "OQTF avec délai de départ volontaire (Art. L511-1 CESEDA)",
-      "reasoning": "Mention explicite d'une obligation de quitter le territoire avec délai",
+      "description": "OQTF avec delai de depart volontaire (Art. L511-1 CESEDA)",
+      "reasoning": "Mention explicite d'une obligation de quitter le territoire avec delai",
       "certaintyLevel": "PROBABLE",
       "confidence": 0.85
     }
   ],
   "obligations": [
     {
-      "description": "Déposer un recours contentieux devant le Tribunal administratif",
+      "description": "Deposer un recours contentieux devant le Tribunal administratif",
       "mandatory": true,
       "deadline": "2026-02-15",
       "critical": true,
@@ -116,15 +116,15 @@ const USER_PROMPT_TEMPLATE = `Analyse cet email de client et extrais les informa
 {sourceRaw}
 ===================
 
-Type de procédure détecté: {procedureType}
+Type de procedure detecte: {procedureType}
 
 INSTRUCTIONS:
-1. Identifie les FAITS certains (dates, noms, événements explicites)
+1. Identifie les FAITS certains (dates, noms, evenements explicites)
 2. Propose les CONTEXTES juridiques possibles (CESEDA)
-3. Détermine les OBLIGATIONS légales (délais, recours, documents)
-4. Score de confiance pour chaque élément
+3. Determine les OBLIGATIONS legales (delais, recours, documents)
+4. Score de confiance pour chaque element
 
-Réponds en JSON strict (aucun texte avant/après).`;
+Reponds en JSON strict (aucun texte avant/apres).`;
 
 // ============================================
 // SERVICE D'EXTRACTION
@@ -138,7 +138,7 @@ export class WorkspaceExtractionService {
   }
 
   /**
-   * Vérifie si Ollama est disponible
+   * Verifie si Ollama est disponible
    */
   async isAvailable(): Promise<boolean> {
     try {
@@ -157,7 +157,7 @@ export class WorkspaceExtractionService {
     const startTime = Date.now();
 
     try {
-      // Vérifier disponibilité Ollama
+      // Verifier disponibilite Ollama
       const available = await this.isAvailable();
       if (!available) {
         return this.fallbackExtraction(workspace);
@@ -168,7 +168,7 @@ export class WorkspaceExtractionService {
         .replace('{sourceRaw}', workspace.sourceRaw)
         .replace('{procedureType}', workspace.procedureType || 'Inconnu');
 
-      // Appeler Ollama avec prompt spécialisé
+      // Appeler Ollama avec prompt specialise
       const response = await this.ollama.generateJSON<{
         facts: ExtractedFact[];
         contexts: ExtractedContext[];
@@ -216,7 +216,7 @@ export class WorkspaceExtractionService {
 
   /**
    * Extraction fallback si Ollama indisponible
-   * Utilise des règles simples d'extraction
+   * Utilise des regles simples d'extraction
    */
   private fallbackExtraction(workspace: WorkspaceReasoning): ExtractionResult {
     const facts: ExtractedFact[] = [];
@@ -225,11 +225,11 @@ export class WorkspaceExtractionService {
 
     const sourceRaw = workspace.sourceRaw.toLowerCase();
 
-    // Détection simple de dates (YYYY-MM-DD)
+    // Detection simple de dates (YYYY-MM-DD)
     const dateMatches = workspace.sourceRaw.match(/\d{4}-\d{2}-\d{2}/g);
     if (dateMatches && dateMatches.length > 0) {
       facts.push({
-        label: 'Date détectée',
+        label: 'Date detectee',
         value: dateMatches[0],
         source: 'EXPLICIT_MESSAGE',
         sourceRef: 'Extraction automatique (regex)',
@@ -237,18 +237,18 @@ export class WorkspaceExtractionService {
       });
     }
 
-    // Détection type procédure
+    // Detection type procedure
     if (workspace.procedureType === 'OQTF') {
       contexts.push({
         type: 'LEGAL',
-        description: 'Procédure OQTF détectée - Délais critiques',
-        reasoning: 'Type de procédure spécifié',
+        description: 'Procedure OQTF detectee - Delais critiques',
+        reasoning: 'Type de procedure specifie',
         certaintyLevel: 'PROBABLE',
         confidence: 0.7,
       });
 
       obligations.push({
-        description: 'Vérifier le délai de recours contentieux (48h ou 30 jours)',
+        description: 'Verifier le delai de recours contentieux (48h ou 30 jours)',
         mandatory: true,
         critical: true,
         legalRef: 'Art. L512-1 CESEDA',
@@ -256,8 +256,8 @@ export class WorkspaceExtractionService {
       });
     }
 
-    // Détection mots-clés urgence
-    if (sourceRaw.includes('urgent') || sourceRaw.includes('expulsion') || sourceRaw.includes('délai')) {
+    // Detection mots-cles urgence
+    if (sourceRaw.includes('urgent') || sourceRaw.includes('expulsion') || sourceRaw.includes('delai')) {
       obligations.push({
         description: 'Analyser l\'urgence du dossier',
         mandatory: true,
@@ -278,7 +278,7 @@ export class WorkspaceExtractionService {
   }
 
   /**
-   * Extraction avec prompts personnalisés par type
+   * Extraction avec prompts personnalises par type
    */
   async extractWithCustomPrompt(
     workspace: WorkspaceReasoning,
@@ -341,25 +341,25 @@ export class WorkspaceExtractionService {
   } {
     const warnings: string[] = [];
 
-    // Vérifier confiance globale
+    // Verifier confiance globale
     if (result.confidence < 0.5) {
       warnings.push(`Confiance globale faible: ${(result.confidence * 100).toFixed(0)}%`);
     }
 
-    // Vérifier nombre d'entités
+    // Verifier nombre d'entites
     if (result.facts.length === 0) {
-      warnings.push('Aucun fait extrait - Vérification manuelle recommandée');
+      warnings.push('Aucun fait extrait - Verification manuelle recommandee');
     }
 
     if (result.contexts.length === 0) {
-      warnings.push('Aucun contexte identifié - Analyse juridique requise');
+      warnings.push('Aucun contexte identifie - Analyse juridique requise');
     }
 
     if (result.obligations.length === 0) {
-      warnings.push('Aucune obligation détectée - Vérifier les délais manuellement');
+      warnings.push('Aucune obligation detectee - Verifier les delais manuellement');
     }
 
-    // Vérifier cohérence des dates
+    // Verifier coherence des dates
     const futureDates = result.facts.filter(f => {
       if (f.label.toLowerCase().includes('date')) {
         const dateValue = new Date(f.value);
@@ -369,10 +369,10 @@ export class WorkspaceExtractionService {
     });
 
     if (futureDates.length > 0) {
-      warnings.push('Dates futures suspectes détectées');
+      warnings.push('Dates futures suspectes detectees');
     }
 
-    // Vérifier deadlines critiques
+    // Verifier deadlines critiques
     const criticalDeadlines = result.obligations.filter(o => o.critical && o.deadline);
     const now = new Date();
     const urgentDeadlines = criticalDeadlines.filter(o => {
@@ -382,7 +382,7 @@ export class WorkspaceExtractionService {
     });
 
     if (urgentDeadlines.length > 0) {
-      warnings.push(`⚠️ ${urgentDeadlines.length} deadline(s) critique(s) < 7 jours`);
+      warnings.push(`️ ${urgentDeadlines.length} deadline(s) critique(s) < 7 jours`);
     }
 
     return {
@@ -392,5 +392,5 @@ export class WorkspaceExtractionService {
   }
 }
 
-// Singleton pour réutilisation
+// Singleton pour reutilisation
 export const workspaceExtractionService = new WorkspaceExtractionService();

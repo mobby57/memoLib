@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { NotificationService } from '@/lib/notifications';
 
-// GET - Récupérer les événements du calendrier
+// GET - Recuperer les evenements du calendrier
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Créer un événement
+// POST - Creer un evenement
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Planifier les rappels si demandé
+    // Planifier les rappels si demande
     if (reminders && Array.isArray(reminders)) {
       await scheduleReminders(event.id, userId, title, new Date(startDate), reminders);
     }
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PATCH - Mettre à jour un événement
+// PATCH - Mettre a jour un evenement
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
@@ -124,7 +124,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'eventId requis' }, { status: 400 });
     }
 
-    // Convertir les dates si présentes
+    // Convertir les dates si presentes
     if (updateData.startDate) updateData.startDate = new Date(updateData.startDate);
     if (updateData.endDate) updateData.endDate = new Date(updateData.endDate);
     if (updateData.reminders) updateData.reminders = JSON.stringify(updateData.reminders);
@@ -146,7 +146,7 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// DELETE - Supprimer un événement
+// DELETE - Supprimer un evenement
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -167,7 +167,7 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// Planifier des rappels pour un événement
+// Planifier des rappels pour un evenement
 async function scheduleReminders(
   eventId: string,
   userId: string,
@@ -182,8 +182,8 @@ async function scheduleReminders(
     if (reminderDate > new Date()) {
       const delay = reminderDate.getTime() - Date.now();
       
-      // Pour les rappels à court terme, utiliser setTimeout
-      // Pour les rappels à long terme, utiliser une tâche planifiée (cron)
+      // Pour les rappels a court terme, utiliser setTimeout
+      // Pour les rappels a long terme, utiliser une tache planifiee (cron)
       if (delay < 24 * 60 * 60 * 1000) { // Moins de 24h
         setTimeout(async () => {
           try {

@@ -1,21 +1,21 @@
 /**
- * Tests pour le système de logging professionnel
- * Vérifie RGPD, anonymisation, niveaux de log, contexte
+ * Tests pour le systeme de logging professionnel
+ * Verifie RGPD, anonymisation, niveaux de log, contexte
  */
 
 import { logger, logDossierAction, logIAUsage, logRGPDAction } from '@/lib/logger';
 import type { ActionJuridique, TypeDossier } from '@/lib/logger';
 
-describe('Logger - Système de logging professionnel', () => {
+describe('Logger - Systeme de logging professionnel', () => {
   beforeEach(() => {
     // Reset de l'environnement
     process.env.NODE_ENV = 'development';
   });
 
   describe('Niveaux de log', () => {
-    test('debug() log uniquement en développement', () => {
-      // Le logger vérifie NODE_ENV qui est 'test' dans Jest
-      // donc debug() ne loggera rien (pas de console.log appelé)
+    test('debug() log uniquement en developpement', () => {
+      // Le logger verifie NODE_ENV qui est 'test' dans Jest
+      // donc debug() ne loggera rien (pas de console.log appele)
       const logs = logger.getBufferedLogs();
       const initialCount = logs.length;
       
@@ -82,7 +82,7 @@ describe('Logger - Système de logging professionnel', () => {
     });
   });
 
-  describe('RGPD - Anonymisation des données', () => {
+  describe('RGPD - Anonymisation des donnees', () => {
     test('Anonymise les emails', () => {
       const logs = logger.getBufferedLogs();
       const initialCount = logs.length;
@@ -95,7 +95,7 @@ describe('Logger - Système de logging professionnel', () => {
       const newLogs = logger.getBufferedLogs();
       const lastLog = newLogs[newLogs.length - 1];
       
-      // L'email doit être anonymisé
+      // L'email doit etre anonymise
       expect(lastLog.context?.email).toMatch(/\*\*\*@example\.com/);
       expect(lastLog.context?.email).not.toContain('john.doe');
     });
@@ -113,8 +113,8 @@ describe('Logger - Système de logging professionnel', () => {
       expect(lastLog.context?.token).toBe('[REDACTED]');
     });
 
-    test('Protège les données personnelles si non-RGPD compliant', () => {
-      logger.info('Test données personnelles', {
+    test('Protege les donnees personnelles si non-RGPD compliant', () => {
+      logger.info('Test donnees personnelles', {
         nom: 'Dupont',
         prenom: 'Jean',
         telephone: '0612345678',
@@ -124,12 +124,12 @@ describe('Logger - Système de logging professionnel', () => {
       const logs = logger.getBufferedLogs();
       const lastLog = logs[logs.length - 1];
       
-      expect(lastLog.context?.nom).toBe('[DONNÉES PERSONNELLES]');
-      expect(lastLog.context?.prenom).toBe('[DONNÉES PERSONNELLES]');
-      expect(lastLog.context?.telephone).toBe('[DONNÉES PERSONNELLES]');
+      expect(lastLog.context?.nom).toBe('[DONNeES PERSONNELLES]');
+      expect(lastLog.context?.prenom).toBe('[DONNeES PERSONNELLES]');
+      expect(lastLog.context?.telephone).toBe('[DONNeES PERSONNELLES]');
     });
 
-    test('Conserve les données si RGPD compliant', () => {
+    test('Conserve les donnees si RGPD compliant', () => {
       logger.info('Test RGPD OK', {
         dossierId: 'DOSSIER-123',
         actionType: 'CREATE',
@@ -144,7 +144,7 @@ describe('Logger - Système de logging professionnel', () => {
     });
   });
 
-  describe('Logs métier - Actions dossiers', () => {
+  describe('Logs metier - Actions dossiers', () => {
     test('logDossierAction() trace action juridique', () => {
       const logs = logger.getBufferedLogs();
       const initialCount = logs.length;
@@ -226,13 +226,13 @@ describe('Logger - Système de logging professionnel', () => {
       expect(logs2.length).toBe(initialLength + 2);
       expect(logs2[logs2.length - 1].message).toBe('Test buffer 2');
       
-      // Vérifier que c'est une copie (pas de mutation)
+      // Verifier que c'est une copie (pas de mutation)
       logs2.pop();
       const logs3 = logger.getBufferedLogs();
       expect(logs3.length).toBe(initialLength + 2); // Toujours 2 logs
     });
 
-    test('Buffer limite à 100 entrées (flush automatique)', () => {
+    test('Buffer limite a 100 entrees (flush automatique)', () => {
       // Vider le buffer d'abord
       const currentLogs = logger.getBufferedLogs();
       
@@ -243,32 +243,32 @@ describe('Logger - Système de logging professionnel', () => {
       
       const logs = logger.getBufferedLogs();
       
-      // Le buffer doit avoir été flush, donc < 100 entrées
+      // Le buffer doit avoir ete flush, donc < 100 entrees
       expect(logs.length).toBeLessThanOrEqual(100);
     });
   });
 
   describe('Performance logging', () => {
-    test('performance() log opérations rapides en debug', () => {
+    test('performance() log operations rapides en debug', () => {
       const logs = logger.getBufferedLogs();
       const initialCount = logs.length;
       
       logger.performance('Fast operation', 150, { operation: 'query' });
       
-      // Opération rapide (<1000ms) → debug log (mais pas de buffer en test)
-      // Vérifier qu'aucun warning n'a été créé
+      // Operation rapide (<1000ms) [Next] debug log (mais pas de buffer en test)
+      // Verifier qu'aucun warning n'a ete cree
       const newLogs = logger.getBufferedLogs();
       const warnLogs = newLogs.filter(l => l.level === 'warn' && l.message.includes('Slow'));
       expect(warnLogs.length).toBe(0);
     });
 
-    test('performance() warn si opération lente', () => {
+    test('performance() warn si operation lente', () => {
       const logs = logger.getBufferedLogs();
       const initialCount = logs.length;
       
       logger.performance('Slow operation', 2500, { operation: 'pdf-export' });
       
-      // Opération lente (>1000ms) → warning
+      // Operation lente (>1000ms) [Next] warning
       const newLogs = logger.getBufferedLogs();
       expect(newLogs.length).toBeGreaterThan(initialCount);
       const lastLog = newLogs[newLogs.length - 1];

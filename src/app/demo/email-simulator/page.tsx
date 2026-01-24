@@ -6,41 +6,41 @@ import { Mail, Send, CheckCircle, Loader2, AlertCircle, User, Building } from 'l
 const TEST_CLIENTS = [
   { email: 'mohamed.benali@example.com', name: 'Mohamed Benali' },
   { email: 'karim.ibrahim@example.com', name: 'Karim Ibrahim' },
-  { email: 'nouveau.client@example.com', name: 'Nouveau Client (non enregistré)' }
+  { email: 'nouveau.client@example.com', name: 'Nouveau Client (non enregistre)' }
 ];
 
 const TEST_LAWYERS = [
-  { email: 'jean.dupont@cabinet-dupont.fr', name: 'Maître Jean Dupont' },
-  { email: 'sophie.martin@cabinet-martin.fr', name: 'Maître Sophie Martin' },
-  { email: 'pierre.rousseau@cabinet-rousseau.fr', name: 'Maître Pierre Rousseau' }
+  { email: 'jean.dupont@cabinet-dupont.fr', name: 'Maitre Jean Dupont' },
+  { email: 'sophie.martin@cabinet-martin.fr', name: 'Maitre Sophie Martin' },
+  { email: 'pierre.rousseau@cabinet-rousseau.fr', name: 'Maitre Pierre Rousseau' }
 ];
 
 const EMAIL_TEMPLATES = [
   {
     name: 'Question juridique urgente',
-    subject: 'URGENT - Question concernant mon dossier de régularisation',
-    body: `Bonjour Maître,
+    subject: 'URGENT - Question concernant mon dossier de regularisation',
+    body: `Bonjour Maitre,
 
-Je vous écris car j'ai une situation urgente concernant mon dossier de régularisation.
+Je vous ecris car j'ai une situation urgente concernant mon dossier de regularisation.
 
-J'ai reçu hier une convocation de la préfecture pour un entretien le 15 février prochain. Je suis très inquiet car je ne sais pas quels documents je dois apporter.
+J'ai recu hier une convocation de la prefecture pour un entretien le 15 fevrier prochain. Je suis tres inquiet car je ne sais pas quels documents je dois apporter.
 
-Pouvez-vous me rappeler dès que possible pour me conseiller sur la marche à suivre ?
+Pouvez-vous me rappeler des que possible pour me conseiller sur la marche a suivre ?
 
 Merci pour votre aide.
 
 Cordialement,
 Mohamed Benali
-Tél: 06 12 34 56 78`
+Tel: 06 12 34 56 78`
   },
   {
     name: 'Demande de rendez-vous',
     subject: 'Demande de rendez-vous pour consultation',
-    body: `Bonjour Maître,
+    body: `Bonjour Maitre,
 
-Je souhaiterais prendre rendez-vous pour une consultation concernant ma demande de titre de séjour.
+Je souhaiterais prendre rendez-vous pour une consultation concernant ma demande de titre de sejour.
 
-Je suis disponible les matins en semaine. Quelles sont vos disponibilités ?
+Je suis disponible les matins en semaine. Quelles sont vos disponibilites ?
 
 Merci d'avance.
 
@@ -48,30 +48,30 @@ Cordialement`
   },
   {
     name: 'Envoi de documents',
-    subject: 'Documents demandés pour mon dossier',
-    body: `Bonjour Maître,
+    subject: 'Documents demandes pour mon dossier',
+    body: `Bonjour Maitre,
 
-Suite à notre dernier échange, veuillez trouver ci-joint les documents suivants :
+Suite a notre dernier echange, veuillez trouver ci-joint les documents suivants :
 - Copie de mon passeport
 - Justificatifs de domicile des 3 derniers mois
-- Attestation d'hébergement
+- Attestation d'hebergement
 
-N'hésitez pas à me contacter si vous avez besoin d'autres pièces.
+N'hesitez pas a me contacter si vous avez besoin d'autres pieces.
 
 Bien cordialement`
   },
   {
-    name: 'Réclamation',
+    name: 'Reclamation',
     subject: 'Insatisfaction concernant le suivi de mon dossier',
     body: `Bonjour,
 
-Je me permets de vous écrire car je suis mécontent du suivi de mon dossier.
+Je me permets de vous ecrire car je suis mecontent du suivi de mon dossier.
 
-Cela fait maintenant 3 semaines que j'attends un retour concernant ma demande et je n'ai reçu aucune nouvelle malgré mes relances téléphoniques.
+Cela fait maintenant 3 semaines que j'attends un retour concernant ma demande et je n'ai recu aucune nouvelle malgre mes relances telephoniques.
 
-Je souhaite obtenir des explications sur ce retard et connaître l'état d'avancement de mon dossier.
+Je souhaite obtenir des explications sur ce retard et connaitre l'etat d'avancement de mon dossier.
 
-Dans l'attente de votre réponse.`
+Dans l'attente de votre reponse.`
   }
 ];
 
@@ -171,7 +171,7 @@ export default function EmailSimulatorPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <Building className="w-4 h-4 inline mr-1" />
-                  À (Avocat)
+                  a (Avocat)
                 </label>
                 <select
                   value={toEmail}
@@ -227,19 +227,19 @@ export default function EmailSimulatorPage() {
                 <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                   <div className="flex items-center gap-2 text-green-700 dark:text-green-400 mb-2">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="font-semibold">Email envoyé avec succès!</span>
+                    <span className="font-semibold">Email envoye avec succes!</span>
                   </div>
                   <div className="text-sm text-green-600 dark:text-green-300 space-y-1">
                     <p><strong>Email ID:</strong> {result.emailId}</p>
                     <p><strong>Workflow ID:</strong> {result.workflowId}</p>
-                    <p><strong>Catégorie détectée:</strong> {result.category}</p>
+                    <p><strong>Categorie detectee:</strong> {result.category}</p>
                     <p><strong>Urgence:</strong> {result.urgency}</p>
                   </div>
                   <a 
                     href="/super-admin/emails"
                     className="inline-block mt-3 text-sm text-green-700 dark:text-green-400 underline hover:no-underline"
                   >
-                    → Voir dans le dashboard Super Admin
+                    [Next] Voir dans le dashboard Super Admin
                   </a>
                 </div>
               )}
@@ -268,7 +268,7 @@ export default function EmailSimulatorPage() {
           {/* Templates */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Modèles d'email
+              Modeles d'email
             </h2>
             <div className="space-y-3">
               {EMAIL_TEMPLATES.map((template, index) => (
