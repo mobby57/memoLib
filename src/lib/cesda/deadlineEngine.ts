@@ -1,5 +1,5 @@
-﻿// ============================================
-// MOTEUR DE CALCUL DES DÉLAIS CESDA
+// ============================================
+// MOTEUR DE CALCUL DES DeLAIS CESDA
 // ============================================
 
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/types/cesda"
 
 /**
- * Calcule le délai d'une procédure CESDA
+ * Calcule le delai d'une procedure CESDA
  */
 export function calculateDeadline(
   procedureType: ProcedureType,
@@ -22,11 +22,11 @@ export function calculateDeadline(
   let deadlineDate: Date
   let config: DeadlineConfig | undefined
 
-  // Déterminer la configuration du délai
+  // Determiner la configuration du delai
   switch (procedureType) {
     case ProcedureType.OQTF:
-      // OQTF sans délai = 48h
-      // OQTF avec délai = 30 jours
+      // OQTF sans delai = 48h
+      // OQTF avec delai = 30 jours
       if (metadata?.oqtfType === "sans_delai") {
         config = STANDARD_DEADLINES.OQTF_SANS_DELAI
         deadlineDate = addHours(notificationDate, 48)
@@ -44,28 +44,28 @@ export function calculateDeadline(
       break
 
     case ProcedureType.ASILE:
-      // Dépend du stade
+      // Depend du stade
       if (metadata?.stade === "CNDA") {
         config = STANDARD_DEADLINES.ASILE_CNDA
         deadlineDate = addDays(notificationDate, 30)
       } else {
-        // OFPRA - pas de délai strict client, mais délai interne traitement
+        // OFPRA - pas de delai strict client, mais delai interne traitement
         deadlineDate = addMonths(notificationDate, 6)
       }
       break
 
     case ProcedureType.REGROUPEMENT_FAMILIAL:
-      // Délai d'instruction préfecture = 6 mois (pas un délai à respecter par avocat)
+      // Delai d'instruction prefecture = 6 mois (pas un delai a respecter par avocat)
       deadlineDate = addMonths(notificationDate, 6)
       break
 
     case ProcedureType.NATURALISATION:
-      // Instruction longue, pas de délai client strict
+      // Instruction longue, pas de delai client strict
       deadlineDate = addMonths(notificationDate, 18)
       break
 
     default:
-      // Délai par défaut
+      // Delai par defaut
       deadlineDate = addDays(notificationDate, 60)
   }
 
@@ -74,7 +74,7 @@ export function calculateDeadline(
   const hoursRemaining = Math.max(0, diff / (1000 * 60 * 60))
   const daysRemaining = Math.max(0, hoursRemaining / 24)
 
-  // Déterminer le niveau d'urgence
+  // Determiner le niveau d'urgence
   const urgencyLevel = calculateUrgencyLevel(hoursRemaining, procedureType)
 
   return {
@@ -89,13 +89,13 @@ export function calculateDeadline(
 }
 
 /**
- * Calcule le niveau d'urgence basé sur le temps restant
+ * Calcule le niveau d'urgence base sur le temps restant
  */
 export function calculateUrgencyLevel(
   hoursRemaining: number,
   procedureType: ProcedureType
 ): UrgencyLevel {
-  // OQTF sans délai (48h) - seuils très serrés
+  // OQTF sans delai (48h) - seuils tres serres
   if (procedureType === ProcedureType.OQTF) {
     if (hoursRemaining <= 12) return UrgencyLevel.CRITIQUE
     if (hoursRemaining <= 24) return UrgencyLevel.ELEVE
@@ -103,7 +103,7 @@ export function calculateUrgencyLevel(
     return UrgencyLevel.FAIBLE
   }
 
-  // Autres procédures - seuils standards
+  // Autres procedures - seuils standards
   if (hoursRemaining <= 48) return UrgencyLevel.CRITIQUE // < 2 jours
   if (hoursRemaining <= 168) return UrgencyLevel.ELEVE // < 1 semaine
   if (hoursRemaining <= 720) return UrgencyLevel.MOYEN // < 1 mois
@@ -111,7 +111,7 @@ export function calculateUrgencyLevel(
 }
 
 /**
- * Ajoute des heures à une date
+ * Ajoute des heures a une date
  */
 export function addHours(date: Date, hours: number): Date {
   const result = new Date(date)
@@ -120,7 +120,7 @@ export function addHours(date: Date, hours: number): Date {
 }
 
 /**
- * Ajoute des jours à une date
+ * Ajoute des jours a une date
  */
 export function addDays(date: Date, days: number): Date {
   const result = new Date(date)
@@ -129,7 +129,7 @@ export function addDays(date: Date, days: number): Date {
 }
 
 /**
- * Ajoute des mois à une date
+ * Ajoute des mois a une date
  */
 export function addMonths(date: Date, months: number): Date {
   const result = new Date(date)
@@ -138,18 +138,18 @@ export function addMonths(date: Date, months: number): Date {
 }
 
 /**
- * Vérifie si un délai est dépassé
+ * Verifie si un delai est depasse
  */
 export function isDeadlineExpired(deadlineDate: Date): boolean {
   return new Date() > new Date(deadlineDate)
 }
 
 /**
- * Formate un délai en texte lisible
+ * Formate un delai en texte lisible
  */
 export function formatTimeRemaining(deadline: DeadlineCalculation): string {
   if (deadline.isExpired) {
-    return "Délai expiré"
+    return "Delai expire"
   }
 
   const { daysRemaining, hoursRemaining } = deadline
@@ -170,7 +170,7 @@ export function formatTimeRemaining(deadline: DeadlineCalculation): string {
 }
 
 /**
- * Génère des alertes basées sur les délais
+ * Genere des alertes basees sur les delais
  */
 export function generateDeadlineAlerts(
   workspaces: Array<{
@@ -203,8 +203,8 @@ export function generateDeadlineAlerts(
     if (deadline.hoursRemaining <= 48 && !deadline.isExpired) {
       alerts.push({
         workspaceId: workspace.id,
-        title: `🔴 Délai critique - ${workspace.title}`,
-        message: `Il reste seulement ${formatTimeRemaining(deadline)}. Action immédiate requise.`,
+        title: `[emoji] Delai critique - ${workspace.title}`,
+        message: `Il reste seulement ${formatTimeRemaining(deadline)}. Action immediate requise.`,
         level: "critical",
         deadline,
       })
@@ -213,18 +213,18 @@ export function generateDeadlineAlerts(
     else if (deadline.daysRemaining <= 7 && !deadline.isExpired) {
       alerts.push({
         workspaceId: workspace.id,
-        title: `⚠️ Délai approchant - ${workspace.title}`,
+        title: `️ Delai approchant - ${workspace.title}`,
         message: `Il reste ${formatTimeRemaining(deadline)}.`,
         level: "warning",
         deadline,
       })
     }
-    // Alerte si expiré
+    // Alerte si expire
     else if (deadline.isExpired) {
       alerts.push({
         workspaceId: workspace.id,
-        title: `❌ Délai expiré - ${workspace.title}`,
-        message: `Le délai est dépassé. Vérifier les options de recours.`,
+        title: ` Delai expire - ${workspace.title}`,
+        message: `Le delai est depasse. Verifier les options de recours.`,
         level: "critical",
         deadline,
       })
@@ -240,7 +240,7 @@ export function generateDeadlineAlerts(
 }
 
 /**
- * Calcule la date limite à partir du type de procédure et de la date de notification
+ * Calcule la date limite a partir du type de procedure et de la date de notification
  */
 export function autoCalculateDeadline(
   procedureType: ProcedureType,

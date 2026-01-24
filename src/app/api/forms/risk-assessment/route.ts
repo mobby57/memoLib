@@ -1,16 +1,16 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 
 /**
- * ⚠️ API: Soumission d'évaluation des risques
+ * ️ API: Soumission d'evaluation des risques
  */
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const data = await request.json();
@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
       metadata
     } = data;
 
-    // Calculer le score de risque (matrice probabilité x sévérité)
+    // Calculer le score de risque (matrice probabilite x severite)
     const riskScore = calculateRiskScore(probability, severity);
     const priorityLevel = getRiskPriority(riskScore);
 
-    // Créer l'évaluation de risque
+    // Creer l'evaluation de risque
     const assessment = await prisma.$executeRaw`
       INSERT INTO RiskAssessment (
         id, category, description, probability, severity,
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       )
     `;
 
-    // Si risque critique, créer une alerte immédiate
+    // Si risque critique, creer une alerte immediate
     if (priorityLevel === 'critical') {
       await createCriticalRiskAlert(assessment, {
         category: riskCategory,
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Générer plan d'action IA
+    // Generer plan d'action IA
     const aiActionPlan = await generateAIActionPlan({
       category: riskCategory,
       probability,
@@ -74,12 +74,12 @@ export async function POST(request: NextRequest) {
       riskScore,
       priorityLevel,
       aiActionPlan,
-      message: 'Évaluation de risque enregistrée',
+      message: 'evaluation de risque enregistree',
     });
   } catch (error) {
-    console.error('Erreur évaluation risque:', error);
+    console.error('Erreur evaluation risque:', error);
     return NextResponse.json(
-      { error: 'Erreur lors de l\'évaluation' },
+      { error: 'Erreur lors de l\'evaluation' },
       { status: 500 }
     );
   }
@@ -113,7 +113,7 @@ function getRiskPriority(score: number): string {
 }
 
 async function createCriticalRiskAlert(assessmentId: any, context: any) {
-  // Créer une alerte dans le système
+  // Creer une alerte dans le systeme
   await prisma.$executeRaw`
     INSERT INTO Alert (
       id, type, severity, title, description, status, createdAt
@@ -121,7 +121,7 @@ async function createCriticalRiskAlert(assessmentId: any, context: any) {
       ${generateId()},
       'risk-critical',
       'critical',
-      ${'Risque critique identifié: ' + context.category},
+      ${'Risque critique identifie: ' + context.category},
       ${context.description},
       'active',
       ${new Date().toISOString()}
@@ -129,7 +129,7 @@ async function createCriticalRiskAlert(assessmentId: any, context: any) {
   `;
 
   // Notifier les responsables
-  console.log('🚨 ALERTE CRITIQUE:', context);
+  console.log('[emoji] ALERTE CRITIQUE:', context);
 }
 
 async function generateAIActionPlan(data: any): Promise<any> {
@@ -139,17 +139,17 @@ async function generateAIActionPlan(data: any): Promise<any> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'llama3.2:latest',
-        prompt: `En tant qu'expert en gestion des risques, analyse ce risque et propose un plan d'action détaillé.
+        prompt: `En tant qu'expert en gestion des risques, analyse ce risque et propose un plan d'action detaille.
 
-Catégorie: ${data.category}
-Probabilité: ${data.probability}
-Sévérité: ${data.severity}
+Categorie: ${data.category}
+Probabilite: ${data.probability}
+Severite: ${data.severity}
 Mitigation actuelle: ${data.currentMitigation}
 
 Fournis:
-1. Actions immédiates (0-7 jours)
-2. Actions à moyen terme (1-3 mois)
-3. Actions préventives long terme
+1. Actions immediates (0-7 jours)
+2. Actions a moyen terme (1-3 mois)
+3. Actions preventives long terme
 4. Indicateurs de suivi (KPIs)
 
 Sois concis et actionnable.`,
@@ -165,7 +165,7 @@ Sois concis et actionnable.`,
       };
     }
   } catch (error) {
-    console.error('Erreur génération plan IA:', error);
+    console.error('Erreur generation plan IA:', error);
   }
 
   return {

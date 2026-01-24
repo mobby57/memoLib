@@ -12,7 +12,7 @@ const upstashConfig = {
   enableTelemetry: process.env.UPSTASH_DISABLE_TELEMETRY !== 'true',
 }
 
-// Créer une instance singleton
+// Creer une instance singleton
 let redisInstance: Redis | null = null
 
 /**
@@ -31,12 +31,12 @@ export function getRedis(): Redis {
 }
 
 /**
- * Instance Redis par défaut (singleton)
+ * Instance Redis par defaut (singleton)
  */
 export const redis = getRedis()
 
 /**
- * Vérifier si Redis est disponible
+ * Verifier si Redis est disponible
  */
 export async function isRedisAvailable(): Promise<boolean> {
   try {
@@ -65,7 +65,7 @@ export const cache = {
   },
 
   /**
-   * Récupérer une valeur
+   * Recuperer une valeur
    */
   async get<T>(key: string): Promise<T | null> {
     const value = await redis.get<string>(key)
@@ -78,14 +78,14 @@ export const cache = {
   },
 
   /**
-   * Supprimer une ou plusieurs clés
+   * Supprimer une ou plusieurs cles
    */
   async del(...keys: string[]): Promise<number> {
     return await redis.del(...keys)
   },
 
   /**
-   * Vérifier l'existence d'une clé
+   * Verifier l'existence d'une cle
    */
   async exists(key: string): Promise<boolean> {
     const result = await redis.exists(key)
@@ -93,7 +93,7 @@ export const cache = {
   },
 
   /**
-   * Définir une expiration sur une clé existante
+   * Definir une expiration sur une cle existante
    */
   async expire(key: string, seconds: number): Promise<boolean> {
     const result = await redis.expire(key, seconds)
@@ -101,7 +101,7 @@ export const cache = {
   },
 
   /**
-   * Obtenir le TTL d'une clé
+   * Obtenir le TTL d'une cle
    */
   async ttl(key: string): Promise<number> {
     return await redis.ttl(key)
@@ -113,7 +113,7 @@ export const cache = {
  */
 export const queue = {
   /**
-   * Ajouter un élément à la fin de la queue
+   * Ajouter un element a la fin de la queue
    */
   async push<T>(queueName: string, item: T): Promise<number> {
     const serialized = JSON.stringify(item)
@@ -121,7 +121,7 @@ export const queue = {
   },
 
   /**
-   * Retirer et retourner le premier élément de la queue
+   * Retirer et retourner le premier element de la queue
    */
   async pop<T>(queueName: string): Promise<T | null> {
     const value = await redis.lpop<string>(queueName)
@@ -141,7 +141,7 @@ export const queue = {
   },
 
   /**
-   * Voir les éléments de la queue sans les retirer
+   * Voir les elements de la queue sans les retirer
    */
   async peek<T>(queueName: string, start = 0, end = -1): Promise<T[]> {
     const values = await redis.lrange<string>(queueName, start, end)
@@ -168,7 +168,7 @@ export const session = {
   },
 
   /**
-   * Récupérer une session utilisateur
+   * Recuperer une session utilisateur
    */
   async get<T = any>(userId: string): Promise<T | null> {
     const key = `session:${userId}`
@@ -184,7 +184,7 @@ export const session = {
   },
 
   /**
-   * Rate limiting simple (nombre de requêtes par période)
+   * Rate limiting simple (nombre de requetes par periode)
    */
   async rateLimit(
     identifier: string,
@@ -195,10 +195,10 @@ export const session = {
     const now = Date.now()
     const windowMs = windowSeconds * 1000
 
-    // Incrémenter le compteur
+    // Incrementer le compteur
     const count = await redis.incr(key)
 
-    // Si c'est la première requête, définir l'expiration
+    // Si c'est la premiere requete, definir l'expiration
     if (count === 1) {
       await redis.expire(key, windowSeconds)
     }
@@ -248,7 +248,7 @@ export const sortedSet = {
   },
 
   /**
-   * Incrémenter le score d'un membre
+   * Incrementer le score d'un membre
    */
   async increment(setName: string, member: string, increment: number): Promise<number> {
     return await redis.zincrby(setName, increment, member)
@@ -260,7 +260,7 @@ export const sortedSet = {
  */
 export const hashMap = {
   /**
-   * Définir plusieurs champs d'un hash
+   * Definir plusieurs champs d'un hash
    */
   async set(hashName: string, data: Record<string, any>): Promise<number> {
     const serialized = Object.entries(data).reduce((acc, [key, value]) => {
@@ -310,7 +310,7 @@ export const hashMap = {
   },
 
   /**
-   * Vérifier l'existence d'un champ
+   * Verifier l'existence d'un champ
    */
   async exists(hashName: string, field: string): Promise<boolean> {
     const result = await redis.hexists(hashName, field)

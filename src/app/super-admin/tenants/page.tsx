@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -145,7 +145,7 @@ export default function TenantsPage() {
                 <option value="active">Actif</option>
                 <option value="trial">Trial</option>
                 <option value="suspended">Suspendu</option>
-                <option value="cancelled">Annulé</option>
+                <option value="cancelled">Annule</option>
               </select>
             </div>
           </div>
@@ -176,7 +176,7 @@ export default function TenantsPage() {
                     Dossiers
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Créé le
+                    Cree le
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                     Actions
@@ -187,7 +187,7 @@ export default function TenantsPage() {
                 {filteredTenants.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
-                      Aucun tenant trouvé
+                      Aucun tenant trouve
                     </td>
                   </tr>
                 ) : (

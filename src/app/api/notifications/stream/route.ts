@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { registerSSEClient, unregisterSSEClient } from '@/lib/notifications';
 
-// GET - Stream SSE pour les notifications en temps réel
+// GET - Stream SSE pour les notifications en temps reel
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
@@ -35,12 +35,12 @@ export async function GET(request: NextRequest) {
         try {
           controller.close();
         } catch {
-          // Déjà fermé
+          // Deja ferme
         }
       });
     },
     cancel() {
-      // Stream annulé par le client
+      // Stream annule par le client
     },
   });
 

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -97,7 +97,7 @@ export default function SuperAdminDashboard() {
               </svg>
             </div>
             <p className="text-3xl font-bold">{stats.totalMRR.toLocaleString('fr-FR')}€</p>
-            <p className="text-xs mt-2 opacity-75">Revenu mensuel récurrent</p>
+            <p className="text-xs mt-2 opacity-75">Revenu mensuel recurrent</p>
           </div>
 
           {/* ARR */}
@@ -109,7 +109,7 @@ export default function SuperAdminDashboard() {
               </svg>
             </div>
             <p className="text-3xl font-bold">{stats.totalARR.toLocaleString('fr-FR')}€</p>
-            <p className="text-xs mt-2 opacity-75">Revenu annuel récurrent</p>
+            <p className="text-xs mt-2 opacity-75">Revenu annuel recurrent</p>
           </div>
 
           {/* Tenants actifs */}
@@ -137,9 +137,9 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
 
-        {/* Répartition par plan */}
+        {/* Repartition par plan */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Répartition par plan</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Repartition par plan</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {stats.planStats.map((plan) => (
@@ -221,12 +221,12 @@ export default function SuperAdminDashboard() {
 
           {/* Mix optimal */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Mix optimal recommandé</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Mix optimal recommande</h2>
             
             <div className="space-y-3">
               <div className="p-3 border border-gray-200 rounded">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">10 × Cabinet</span>
+                  <span className="text-sm font-medium text-gray-700">10 x Cabinet</span>
                   <span className="text-green-600 font-bold">3 490€</span>
                 </div>
                 <p className="text-xs text-gray-500">Sweet spot - Meilleure marge</p>
@@ -234,7 +234,7 @@ export default function SuperAdminDashboard() {
 
               <div className="p-3 border border-gray-200 rounded">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">50 × Cabinet + 5 × Enterprise</span>
+                  <span className="text-sm font-medium text-gray-700">50 x Cabinet + 5 x Enterprise</span>
                   <span className="text-blue-600 font-bold">19 945€</span>
                 </div>
                 <p className="text-xs text-gray-500">Scaling phase</p>
@@ -242,17 +242,17 @@ export default function SuperAdminDashboard() {
 
               <div className="p-3 border border-gray-200 rounded">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">200 × Cabinet + 50 × Enterprise</span>
+                  <span className="text-sm font-medium text-gray-700">200 x Cabinet + 50 x Enterprise</span>
                   <span className="text-purple-600 font-bold">94 750€</span>
                 </div>
-                <p className="text-xs text-gray-500">Croissance établie</p>
+                <p className="text-xs text-gray-500">Croissance etablie</p>
               </div>
             </div>
 
             <div className="mt-4 p-4 bg-purple-50 rounded-lg">
-              <p className="text-sm font-medium text-purple-900">💡 Insight</p>
+              <p className="text-sm font-medium text-purple-900">[emoji] Insight</p>
               <p className="text-xs text-purple-700 mt-1">
-                Le plan Cabinet représente le meilleur équilibre valeur/prix. Focus commercial recommandé.
+                Le plan Cabinet represente le meilleur equilibre valeur/prix. Focus commercial recommande.
               </p>
             </div>
           </div>

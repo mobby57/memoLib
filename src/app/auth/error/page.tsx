@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -7,17 +7,17 @@ import { Suspense } from 'react';
 // Documentation des codes d'erreur NextAuth
 const errorMessages: { [key: string]: string } = {
   Configuration: 'Erreur de configuration du serveur. Contactez l\'administrateur.',
-  AccessDenied: 'Accès refusé. Vous n\'avez pas les permissions nécessaires.',
-  Verification: 'Le lien de vérification est expiré ou invalide.',
+  AccessDenied: 'Acces refuse. Vous n\'avez pas les permissions necessaires.',
+  Verification: 'Le lien de verification est expire ou invalide.',
   OAuthSignin: 'Erreur lors de la connexion OAuth.',
   OAuthCallback: 'Erreur lors du callback OAuth.',
-  OAuthCreateAccount: 'Impossible de créer le compte OAuth.',
-  EmailCreateAccount: 'Impossible de créer le compte par email.',
+  OAuthCreateAccount: 'Impossible de creer le compte OAuth.',
+  EmailCreateAccount: 'Impossible de creer le compte par email.',
   Callback: 'Erreur lors du callback d\'authentification.',
-  OAuthAccountNotLinked: 'Ce compte email existe déjà avec un autre fournisseur.',
+  OAuthAccountNotLinked: 'Ce compte email existe deja avec un autre fournisseur.',
   EmailSignin: 'Erreur lors de l\'envoi de l\'email de connexion.',
   CredentialsSignin: 'Email ou mot de passe incorrect.',
-  SessionRequired: 'Vous devez être connecté pour accéder à cette page.',
+  SessionRequired: 'Vous devez etre connecte pour acceder a cette page.',
   Default: 'Une erreur est survenue lors de l\'authentification.',
 };
 
@@ -33,7 +33,7 @@ function AuthErrorContent() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center">
-          {/* Icône d'erreur */}
+          {/* Icone d'erreur */}
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
             <svg
               className="h-8 w-8 text-red-600"
@@ -60,7 +60,7 @@ function AuthErrorContent() {
             {errorMessage}
           </p>
 
-          {/* Code d'erreur technique (si présent et pas Default) */}
+          {/* Code d'erreur technique (si present et pas Default) */}
           {error && errorCode !== 'Default' && (
             <div className="mb-6 p-3 bg-gray-100 rounded-lg">
               <p className="text-xs font-mono text-gray-500">
@@ -75,21 +75,21 @@ function AuthErrorContent() {
               href="/auth/login"
               className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
             >
-              Retour à la connexion
+              Retour a la connexion
             </Link>
             
             <Link
               href="/"
               className="block w-full border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
             >
-              Retour à l'accueil
+              Retour a l'accueil
             </Link>
           </div>
 
-          {/* Aide supplémentaire */}
+          {/* Aide supplementaire */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <p className="text-sm text-gray-500">
-              Problème persistant ?{' '}
+              Probleme persistant ?{' '}
               <a
                 href="mailto:support@iapostemanager.fr"
                 className="text-blue-600 hover:underline font-medium"

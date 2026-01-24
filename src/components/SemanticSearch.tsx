@@ -1,8 +1,8 @@
-﻿/**
- * Composant de Recherche Sémantique
+/**
+ * Composant de Recherche Semantique
  * Interface de recherche intelligente avec IA
  * 
- * Innovation: Recherche par sens, pas juste mots-clés
+ * Innovation: Recherche par sens, pas juste mots-cles
  */
 
 'use client';
@@ -58,7 +58,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
         setResults(data.results || []);
       }
     } catch (error) {
-      logger.error('Erreur recherche sémantique', { error, query, tenantId });
+      logger.error('Erreur recherche semantique', { error, query, tenantId });
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
         setPatterns(data);
       }
     } catch (error) {
-      logger.error('Erreur analyse patterns sémantiques', { error, query, tenantId });
+      logger.error('Erreur analyse patterns semantiques', { error, query, tenantId });
     } finally {
       setAnalyzing(false);
     }
@@ -105,9 +105,9 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
     <div className="space-y-6">
       {/* Zone de recherche */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-        <h2 className="text-2xl font-bold mb-4">🔍 Recherche Sémantique IA</h2>
+        <h2 className="text-2xl font-bold mb-4">[emoji] Recherche Semantique IA</h2>
         <p className="text-blue-100 mb-4">
-          Recherchez par sens, pas par mots-clés. L'IA comprend votre intention.
+          Recherchez par sens, pas par mots-cles. L'IA comprend votre intention.
         </p>
 
         <div className="flex gap-2">
@@ -116,7 +116,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            placeholder="Ex: dossiers de régularisation avec employeur..."
+            placeholder="Ex: dossiers de regularisation avec employeur..."
             className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
           <button
@@ -124,7 +124,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
             disabled={loading || !query.trim()}
             className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '🔄' : '🔍'} Rechercher
+            {loading ? '[emoji]' : '[emoji]'} Rechercher
           </button>
           {results.length > 0 && (
             <button
@@ -132,7 +132,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
               disabled={analyzing}
               className="bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-800 transition disabled:opacity-50"
             >
-              {analyzing ? '⏳' : '📊'} Analyser
+              {analyzing ? '' : '[emoji]'} Analyser
             </button>
           )}
         </div>
@@ -163,7 +163,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
       {patterns && (
         <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">
-            📊 Analyse des Patterns Détectés
+            [emoji] Analyse des Patterns Detectes
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -175,14 +175,14 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
             </div>
 
             <div className="bg-white rounded-lg p-4">
-              <div className="text-sm text-gray-600 mb-1">Durée Moyenne</div>
+              <div className="text-sm text-gray-600 mb-1">Duree Moyenne</div>
               <div className="text-2xl font-bold text-blue-600">
                 {Math.round(patterns.averageDuration)} jours
               </div>
             </div>
 
             <div className="bg-white rounded-lg p-4">
-              <div className="text-sm text-gray-600 mb-1">Taux de Succès</div>
+              <div className="text-sm text-gray-600 mb-1">Taux de Succes</div>
               <div className="text-2xl font-bold text-green-600">
                 {(patterns.successRate * 100).toFixed(0)}%
               </div>
@@ -192,7 +192,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
           {patterns.commonDocuments.length > 0 && (
             <div className="bg-white rounded-lg p-4 mb-4">
               <div className="font-semibold text-gray-900 mb-2">
-                📄 Documents fréquemment requis:
+                [emoji] Documents frequemment requis:
               </div>
               <div className="flex flex-wrap gap-2">
                 {patterns.commonDocuments.map((doc, index) => (
@@ -209,10 +209,10 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
 
           {patterns.recommendations.length > 0 && (
             <div className="space-y-2">
-              <div className="font-semibold text-gray-900">💡 Recommandations:</div>
+              <div className="font-semibold text-gray-900">[emoji] Recommandations:</div>
               {patterns.recommendations.map((rec, index) => (
                 <div key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                  <span className="flex-shrink-0 mt-0.5">•</span>
+                  <span className="flex-shrink-0 mt-0.5">-</span>
                   <span>{rec}</span>
                 </div>
               ))}
@@ -221,14 +221,14 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
         </div>
       )}
 
-      {/* Résultats de recherche */}
+      {/* Resultats de recherche */}
       {results.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900">
-              {results.length} Dossier{results.length > 1 ? 's' : ''} Trouvé{results.length > 1 ? 's' : ''}
+              {results.length} Dossier{results.length > 1 ? 's' : ''} Trouve{results.length > 1 ? 's' : ''}
             </h3>
-            <span className="text-sm text-gray-600">Triés par pertinence</span>
+            <span className="text-sm text-gray-600">Tries par pertinence</span>
           </div>
 
           {results.map((result) => {
@@ -275,11 +275,11 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
                     )}
 
                     <div className="text-xs text-gray-500">
-                      Créé le {format(new Date(result.createdAt), 'dd MMM yyyy', { locale: fr })}
+                      Cree le {format(new Date(result.createdAt), 'dd MMM yyyy', { locale: fr })}
                     </div>
                   </div>
 
-                  {/* Score de similarité */}
+                  {/* Score de similarite */}
                   <div className="flex flex-col items-center">
                     <div className="text-xs text-gray-600 mb-1">Pertinence</div>
                     <div className="relative w-16 h-16">
@@ -317,13 +317,13 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
         </div>
       )}
 
-      {/* État vide */}
+      {/* etat vide */}
       {!loading && results.length === 0 && query && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <div className="text-4xl mb-2">🔍</div>
-          <div className="font-medium text-gray-900 mb-1">Aucun résultat trouvé</div>
+          <div className="text-4xl mb-2">[emoji]</div>
+          <div className="font-medium text-gray-900 mb-1">Aucun resultat trouve</div>
           <div className="text-sm text-gray-600">
-            Essayez une recherche différente ou plus générale
+            Essayez une recherche differente ou plus generale
           </div>
         </div>
       )}

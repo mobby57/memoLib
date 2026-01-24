@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Service de gestion des quotas
- * Vérifie et applique les limites par plan
+ * Verifie et applique les limites par plan
  */
 
 import { prisma } from '@/lib/prisma';
@@ -16,7 +16,7 @@ export interface QuotaCheck {
 export type ResourceType = 'workspaces' | 'dossiers' | 'clients' | 'users' | 'storage';
 
 /**
- * Vérifie si un tenant peut créer une ressource
+ * Verifie si un tenant peut creer une ressource
  */
 export async function checkQuota(
   tenantId: string,
@@ -67,7 +67,7 @@ export async function checkQuota(
       break;
   }
 
-  // Illimité = -1
+  // Illimite = -1
   if (limit === -1) {
     return {
       allowed: true,
@@ -100,8 +100,8 @@ export async function checkQuota(
 }
 
 /**
- * Applique le quota - bloque si dépassé
- * @throws Error si quota dépassé
+ * Applique le quota - bloque si depasse
+ * @throws Error si quota depasse
  */
 export async function enforceQuota(
   tenantId: string,
@@ -110,7 +110,7 @@ export async function enforceQuota(
   const quotaCheck = await checkQuota(tenantId, resourceType);
 
   if (!quotaCheck.allowed) {
-    // Créer événement quota
+    // Creer evenement quota
     await prisma.quotaEvent.create({
       data: {
         tenantId,
@@ -124,12 +124,12 @@ export async function enforceQuota(
     });
 
     throw new Error(
-      `Quota ${resourceType} dépassé (${quotaCheck.current}/${quotaCheck.limit}). ` +
-      `Veuillez mettre à niveau votre plan.`
+      `Quota ${resourceType} depasse (${quotaCheck.current}/${quotaCheck.limit}). ` +
+      `Veuillez mettre a niveau votre plan.`
     );
   }
 
-  // Créer alerte si proche de la limite
+  // Creer alerte si proche de la limite
   if (quotaCheck.warningLevel === 'warning' || quotaCheck.warningLevel === 'critical') {
     await prisma.quotaEvent.create({
       data: {
@@ -146,7 +146,7 @@ export async function enforceQuota(
 }
 
 /**
- * Incrémente l'usage d'une ressource
+ * Incremente l'usage d'une ressource
  */
 export async function incrementUsage(
   tenantId: string,
@@ -174,7 +174,7 @@ export async function incrementUsage(
 }
 
 /**
- * Décrémente l'usage d'une ressource
+ * Decremente l'usage d'une ressource
  */
 export async function decrementUsage(
   tenantId: string,
@@ -217,5 +217,5 @@ export async function getAllQuotas(tenantId: string) {
     })
   );
 
-  return quotas.filter(q => q.limit !== -1); // Filtrer les illimités
+  return quotas.filter(q => q.limit !== -1); // Filtrer les illimites
 }

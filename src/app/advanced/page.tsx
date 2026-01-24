@@ -1,6 +1,6 @@
-﻿/**
- * Page de démonstration des fonctionnalités avancées
- * Recherche sémantique, Suggestions, Analytics
+/**
+ * Page de demonstration des fonctionnalites avancees
+ * Recherche semantique, Suggestions, Analytics
  */
 
 'use client';
@@ -21,7 +21,7 @@ export default function AdvancedFeaturesPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="text-4xl mb-4">🔒</div>
+          <div className="text-4xl mb-4">[emoji]</div>
           <div className="font-semibold text-gray-900">Connexion requise</div>
         </div>
       </div>
@@ -36,17 +36,17 @@ export default function AdvancedFeaturesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-white">
-                🚀 Fonctionnalités Avancées IA
+                [emoji] Fonctionnalites Avancees IA
               </h1>
               <p className="text-blue-100 mt-1">
-                Apprentissage continu, Suggestions intelligentes, Recherche sémantique
+                Apprentissage continu, Suggestions intelligentes, Recherche semantique
               </p>
             </div>
             <a
               href="/dashboard"
               className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 transition"
             >
-              ← Retour Dashboard
+              [Back] Retour Dashboard
             </a>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function AdvancedFeaturesPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              📊 Analytics & Apprentissage
+              [emoji] Analytics & Apprentissage
             </button>
             
             <button
@@ -75,7 +75,7 @@ export default function AdvancedFeaturesPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              💡 Suggestions Intelligentes
+              [emoji] Suggestions Intelligentes
             </button>
             
             <button
@@ -86,7 +86,7 @@ export default function AdvancedFeaturesPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              🔍 Recherche Sémantique
+              [emoji] Recherche Semantique
             </button>
           </nav>
         </div>
@@ -96,27 +96,27 @@ export default function AdvancedFeaturesPage() {
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                🧠 Apprentissage Continu
+                [emoji] Apprentissage Continu
               </h2>
               <p className="text-gray-700">
-                Le système analyse chaque validation humaine pour améliorer ses prédictions.
-                Plus vous validez, plus l'IA devient précise et adaptée à votre cabinet.
+                Le systeme analyse chaque validation humaine pour ameliorer ses predictions.
+                Plus vous validez, plus l'IA devient precise et adaptee a votre cabinet.
               </p>
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4">
                   <div className="text-sm text-gray-600">Ajustement automatique</div>
                   <div className="text-lg font-bold text-green-600">+5% confiance</div>
-                  <div className="text-xs text-gray-500">Actions &gt; 90% succès</div>
+                  <div className="text-xs text-gray-500">Actions &gt; 90% succes</div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
-                  <div className="text-sm text-gray-600">Détection de baisse</div>
+                  <div className="text-sm text-gray-600">Detection de baisse</div>
                   <div className="text-lg font-bold text-orange-600">-10% confiance</div>
-                  <div className="text-xs text-gray-500">Actions &lt; 70% succès</div>
+                  <div className="text-xs text-gray-500">Actions &lt; 70% succes</div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
-                  <div className="text-sm text-gray-600">Prédiction d'approbation</div>
+                  <div className="text-sm text-gray-600">Prediction d'approbation</div>
                   <div className="text-lg font-bold text-blue-600">ML-powered</div>
-                  <div className="text-xs text-gray-500">Basé sur historique</div>
+                  <div className="text-xs text-gray-500">Base sur historique</div>
                 </div>
               </div>
             </div>
@@ -129,27 +129,27 @@ export default function AdvancedFeaturesPage() {
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                💡 IA Proactive
+                [emoji] IA Proactive
               </h2>
               <p className="text-gray-700 mb-4">
-                L'IA analyse en permanence vos dossiers pour identifier les opportunités
-                d'amélioration et vous suggérer des actions pertinentes.
+                L'IA analyse en permanence vos dossiers pour identifier les opportunites
+                d'amelioration et vous suggerer des actions pertinentes.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div className="bg-white rounded-lg p-3 text-center">
-                  <div className="text-2xl mb-1">📁</div>
+                  <div className="text-2xl mb-1">[emoji]</div>
                   <div className="text-xs font-medium">Dossiers inactifs</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 text-center">
-                  <div className="text-2xl mb-1">📄</div>
+                  <div className="text-2xl mb-1">[emoji]</div>
                   <div className="text-xs font-medium">Documents manquants</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 text-center">
-                  <div className="text-2xl mb-1">⏰</div>
-                  <div className="text-xs font-medium">Échéances proches</div>
+                  <div className="text-2xl mb-1"></div>
+                  <div className="text-xs font-medium">echeances proches</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 text-center">
-                  <div className="text-2xl mb-1">🤖</div>
+                  <div className="text-2xl mb-1">[emoji]</div>
                   <div className="text-xs font-medium">Auto-optimisation</div>
                 </div>
               </div>
@@ -163,38 +163,38 @@ export default function AdvancedFeaturesPage() {
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                🔍 Recherche par Sens, pas par Mots-Clés
+                [emoji] Recherche par Sens, pas par Mots-Cles
               </h2>
               <p className="text-gray-700 mb-4">
                 Utilisez le pouvoir des embeddings IA pour trouver des dossiers similaires
-                même s'ils n'ont pas les mêmes mots-clés. L'IA comprend le contexte.
+                meme s'ils n'ont pas les memes mots-cles. L'IA comprend le contexte.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4">
-                  <div className="text-2xl mb-2">🧠</div>
+                  <div className="text-2xl mb-2">[emoji]</div>
                   <div className="font-semibold text-gray-900 mb-1">
-                    Compréhension sémantique
+                    Comprehension semantique
                   </div>
                   <div className="text-sm text-gray-600">
                     Recherche par intention, pas par mots exacts
                   </div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
-                  <div className="text-2xl mb-2">📊</div>
+                  <div className="text-2xl mb-2">[emoji]</div>
                   <div className="font-semibold text-gray-900 mb-1">
                     Analyse de patterns
                   </div>
                   <div className="text-sm text-gray-600">
-                    Documents communs, durées, taux de succès
+                    Documents communs, durees, taux de succes
                   </div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
-                  <div className="text-2xl mb-2">⚡</div>
+                  <div className="text-2xl mb-2"></div>
                   <div className="font-semibold text-gray-900 mb-1">
                     Suggestions intelligentes
                   </div>
                   <div className="text-sm text-gray-600">
-                    Requêtes populaires basées sur vos données
+                    Requetes populaires basees sur vos donnees
                   </div>
                 </div>
               </div>

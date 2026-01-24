@@ -1,6 +1,6 @@
 /**
  * Types et utilitaires pour la gestion des clients
- * Synchronisé avec le schéma Prisma enrichi
+ * Synchronise avec le schema Prisma enrichi
  */
 
 import { Client } from './index';
@@ -81,7 +81,7 @@ export type FrequenceContact = typeof FREQUENCES_CONTACT[number];
 export type NiveauConfidentialiteClient = typeof NIVEAUX_CONFIDENTIALITE_CLIENT[number];
 
 // ============================================
-// INTERFACES ÉTENDUES
+// INTERFACES eTENDUES
 // ============================================
 
 /**
@@ -105,7 +105,7 @@ export interface ClientComplet {
 }
 
 /**
- * Vue simplifiée pour les listes
+ * Vue simplifiee pour les listes
  */
 export interface ClientListItem {
   id: string;
@@ -138,7 +138,7 @@ export interface ClientStats {
   montantPaye: number;
   montantEnAttente: number;
   tempsTotal: number; // heures
-  anciennete: number; // jours depuis première visite
+  anciennete: number; // jours depuis premiere visite
   dernierContact?: string | Date;
   prochaineEcheance?: string | Date;
   satisfactionMoyenne?: number; // 1-5
@@ -171,7 +171,7 @@ export interface ClientSortOptions {
 }
 
 /**
- * Création/Mise à jour de client
+ * Creation/Mise a jour de client
  */
 export interface ClientInput {
   // Obligatoires
@@ -179,7 +179,7 @@ export interface ClientInput {
   lastName: string;
   email: string;
   
-  // Identité
+  // Identite
   civilite?: Civilite;
   nomNaissance?: string;
   prenomUsuel?: string;
@@ -238,7 +238,7 @@ export interface ClientInput {
   contactUrgenceLien?: string;
   contactUrgenceTel?: string;
   
-  // Préférences
+  // Preferences
   languePrincipale?: string;
   languesSecondaires?: string[];
   prefCommunication?: CanalCommunication;
@@ -261,11 +261,11 @@ export interface ClientInput {
   origineClient?: string;
   frequenceContact?: FrequenceContact;
   
-  // Confidentialité
+  // Confidentialite
   niveauConfidentialite?: NiveauConfidentialiteClient;
   consentementRGPD?: boolean;
   
-  // Métadonnées
+  // Metadonnees
   notes?: string;
   notesPrivees?: string;
   tags?: string[];
@@ -276,7 +276,7 @@ export interface ClientInput {
 }
 
 /**
- * Validation de document d'identité
+ * Validation de document d'identite
  */
 export interface DocumentIdentite {
   type: 'passeport' | 'carte_identite' | 'titre_sejour';
@@ -298,7 +298,7 @@ export interface ContactUrgence {
 }
 
 /**
- * Adresse complète
+ * Adresse complete
  */
 export interface Adresse {
   ligne1: string;
@@ -339,7 +339,7 @@ export function formatNomInitiales(client: {
 }
 
 /**
- * Calcule l'âge du client
+ * Calcule l'age du client
  */
 export function calculerAge(dateNaissance: string | Date): number | null {
   if (!dateNaissance) return null;
@@ -357,7 +357,7 @@ export function calculerAge(dateNaissance: string | Date): number | null {
 }
 
 /**
- * Vérifie si un document est expiré ou va expirer
+ * Verifie si un document est expire ou va expirer
  */
 export function verifierExpirationDocument(dateExpiration?: string | Date, delaiAlerte: number = 30): {
   expire: boolean;
@@ -381,7 +381,7 @@ export function verifierExpirationDocument(dateExpiration?: string | Date, delai
 }
 
 /**
- * Retourne tous les documents d'identité d'un client
+ * Retourne tous les documents d'identite d'un client
  */
 export function getDocumentsIdentite(client: Client): DocumentIdentite[] {
   const documents: DocumentIdentite[] = [];
@@ -424,7 +424,7 @@ export function getDocumentsIdentite(client: Client): DocumentIdentite[] {
 }
 
 /**
- * Vérifie si le consentement RGPD est valide
+ * Verifie si le consentement RGPD est valide
  */
 export function consentementRGPDValide(client: Client): boolean {
   if (!client.consentementRGPD) return false;
@@ -441,14 +441,14 @@ export function consentementRGPDValide(client: Client): boolean {
 }
 
 /**
- * Génère les initiales du client
+ * Genere les initiales du client
  */
 export function getInitiales(client: { firstName: string; lastName: string }): string {
   return `${client.firstName.charAt(0)}${client.lastName.charAt(0)}`.toUpperCase();
 }
 
 /**
- * Retourne la couleur associée à une qualité client
+ * Retourne la couleur associee a une qualite client
  */
 export function couleurQualite(qualite?: QualiteClient): string {
   if (!qualite) return '#6B7280'; // gray-500
@@ -463,7 +463,7 @@ export function couleurQualite(qualite?: QualiteClient): string {
 }
 
 /**
- * Retourne la couleur associée au statut
+ * Retourne la couleur associee au statut
  */
 export function couleurStatutClient(statut: StatutClient): string {
   const couleurs: Record<StatutClient, string> = {
@@ -477,7 +477,7 @@ export function couleurStatutClient(statut: StatutClient): string {
 }
 
 /**
- * Formatte une adresse complète
+ * Formatte une adresse complete
  */
 export function formatAdresse(client: Client, type: 'principale' | 'correspondance' = 'principale'): string {
   if (type === 'correspondance' && client.adresseCorrespondance) {
@@ -502,7 +502,7 @@ export function formatAdresse(client: Client, type: 'principale' | 'correspondan
 }
 
 /**
- * Vérifie si les informations du client sont complètes
+ * Verifie si les informations du client sont completes
  */
 export function informationsCompletes(client: Client): {
   complet: boolean;
@@ -550,10 +550,10 @@ export function validerEmail(email: string): boolean {
 }
 
 /**
- * Valide un numéro de téléphone français
+ * Valide un numero de telephone francais
  */
 export function validerTelephoneFR(telephone: string): boolean {
-  // Formats acceptés: 0123456789, 01 23 45 67 89, 01.23.45.67.89, +33123456789
+  // Formats acceptes: 0123456789, 01 23 45 67 89, 01.23.45.67.89, +33123456789
   const regex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
   return regex.test(telephone);
 }
@@ -570,22 +570,22 @@ export function calculerScoreRisque(client: Client, stats: ClientStats): number 
     score += ratioImpaye * 30;
   }
   
-  // Qualité client
+  // Qualite client
   if (client.qualite === 'risque') score += 20;
   if (client.qualite === 'vip') score -= 10;
   
-  // Documents expirés
+  // Documents expires
   const documents = getDocumentsIdentite(client);
   const documentsExpires = documents.filter(d => !d.valide).length;
   score += documentsExpires * 10;
   
-  // Pas de contact récent
+  // Pas de contact recent
   if (client.dateDernierContact) {
     const jours = Math.floor((Date.now() - new Date(client.dateDernierContact).getTime()) / (1000 * 60 * 60 * 24));
     if (jours > 180) score += 15; // Plus de 6 mois
   }
   
-  // Informations incomplètes
+  // Informations incompletes
   const { pourcentageComplet } = informationsCompletes(client);
   score += (100 - pourcentageComplet) * 0.2;
   

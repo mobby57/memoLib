@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -41,7 +41,7 @@ export function CommandPalette({ isOpen: externalIsOpen, onClose, items }: Comma
     {
       id: 'new-dossier',
       label: 'Nouveau Dossier',
-      description: 'Créer un nouveau dossier client',
+      description: 'Creer un nouveau dossier client',
       icon: FileText,
       action: () => router.push('/dossiers/nouveau'),
       category: 'Actions'
@@ -57,7 +57,7 @@ export function CommandPalette({ isOpen: externalIsOpen, onClose, items }: Comma
     {
       id: 'new-facture',
       label: 'Nouvelle Facture',
-      description: 'Créer une nouvelle facture',
+      description: 'Creer une nouvelle facture',
       icon: DollarSign,
       action: () => router.push('/factures'),
       category: 'Actions'
@@ -65,22 +65,22 @@ export function CommandPalette({ isOpen: externalIsOpen, onClose, items }: Comma
     {
       id: 'calendar',
       label: 'Calendrier',
-      description: 'Voir le calendrier des échéances',
+      description: 'Voir le calendrier des echeances',
       icon: Calendar,
       action: () => router.push('/calendrier'),
       category: 'Navigation'
     },
     {
       id: 'advanced',
-      label: 'IA Avancée',
-      description: 'Fonctionnalités IA avancées',
+      label: 'IA Avancee',
+      description: 'Fonctionnalites IA avancees',
       icon: Zap,
       action: () => router.push('/advanced'),
       category: 'IA'
     },
     {
       id: 'settings',
-      label: 'Paramètres',
+      label: 'Parametres',
       description: 'Configuration du cabinet',
       icon: Settings,
       action: () => router.push('/settings'),
@@ -135,7 +135,7 @@ export function CommandPalette({ isOpen: externalIsOpen, onClose, items }: Comma
               autoFocus
             />
             <kbd className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded">
-              Échap
+              echap
             </kbd>
           </div>
         </div>
@@ -143,7 +143,7 @@ export function CommandPalette({ isOpen: externalIsOpen, onClose, items }: Comma
         <div className="max-h-96 overflow-y-auto">
           {filteredCommands.length === 0 ? (
             <div className="p-4 text-center text-gray-500 dark:text-gray-400">
-              Aucune action trouvée
+              Aucune action trouvee
             </div>
           ) : (
             filteredCommands.map((command) => {
@@ -183,7 +183,7 @@ export function CommandPalette({ isOpen: externalIsOpen, onClose, items }: Comma
         </div>
 
         <div className="p-3 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 text-center">
-          Utilisez ⌘K (Ctrl+K) pour ouvrir rapidement
+          Utilisez K (Ctrl+K) pour ouvrir rapidement
         </div>
       </div>
     </div>

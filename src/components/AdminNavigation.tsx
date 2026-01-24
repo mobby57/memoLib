@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 
@@ -18,37 +18,37 @@ export default function AdminNavigation() {
               href="/admin/clients"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              👥 Clients
+              [emoji] Clients
             </Link>
             <Link
               href="/admin/dossiers"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              📁 Dossiers
+              [emoji] Dossiers
             </Link>
             <Link
               href="/admin/documents"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              📄 Documents
+              [emoji] Documents
             </Link>
             <Link
               href="/admin/messages"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              💬 Messages
+              [emoji] Messages
             </Link>
             <Link
               href="/admin/email-monitoring"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              📧 Emails
+              [emoji] Emails
             </Link>
             <Link
               href="/admin/parametres"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              ⚙️ Paramètres
+              ️ Parametres
             </Link>
           </div>
 
@@ -60,7 +60,7 @@ export default function AdminNavigation() {
               href="/api/auth/signout"
               className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold transition-colors"
             >
-              Déconnexion
+              Deconnexion
             </Link>
           </div>
         </div>

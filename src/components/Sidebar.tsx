@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -77,10 +77,10 @@ export default function Sidebar() {
         { name: 'Nouveaux dossiers', href: '/dossiers?filter=new', icon: Plus, badge: 8, color: 'green' },
         { name: 'En cours', href: '/dossiers?filter=active', icon: Clock, badge: 23, color: 'blue' },
         { name: 'En attente', href: '/dossiers?filter=pending', icon: AlertCircle, badge: 11, color: 'yellow' },
-        { name: 'Terminés', href: '/dossiers?filter=completed', icon: CheckCircle2, color: 'green' },
+        { name: 'Termines', href: '/dossiers?filter=completed', icon: CheckCircle2, color: 'green' },
         { name: 'Urgents', href: '/dossiers?filter=urgent', icon: AlertCircle, badge: 6, color: 'red' },
-        { name: 'Archivés', href: '/dossiers?filter=archived', icon: Archive },
-        { name: 'Créer un dossier', href: '/dossiers/new', icon: Plus, color: 'blue' }
+        { name: 'Archives', href: '/dossiers?filter=archived', icon: Archive },
+        { name: 'Creer un dossier', href: '/dossiers/new', icon: Plus, color: 'blue' }
       ]
     },
     { 
@@ -91,9 +91,9 @@ export default function Sidebar() {
       subItems: [
         { name: 'Toutes les factures', href: '/factures', icon: FileText },
         { name: 'En attente', href: '/factures?status=pending', icon: Clock, badge: 12, color: 'yellow' },
-        { name: 'Payées', href: '/factures?status=paid', icon: CheckCircle2, color: 'green' },
+        { name: 'Payees', href: '/factures?status=paid', icon: CheckCircle2, color: 'green' },
         { name: 'En retard', href: '/factures?status=overdue', icon: XCircle, badge: 6, color: 'red' },
-        { name: 'Créer une facture', href: '/factures/new', icon: Plus, color: 'blue' }
+        { name: 'Creer une facture', href: '/factures/new', icon: Plus, color: 'blue' }
       ]
     },
     { 
@@ -119,8 +119,8 @@ export default function Sidebar() {
         { name: 'Vue hebdomadaire', href: '/calendrier?view=week', icon: Calendar },
         { name: 'Vue quotidienne', href: '/calendrier?view=day', icon: Calendar },
         { name: 'Rendez-vous', href: '/calendrier?type=appointments', icon: Clock, badge: 5 },
-        { name: 'Échéances', href: '/calendrier?type=deadlines', icon: AlertCircle, badge: 3, color: 'red' },
-        { name: 'Créer un événement', href: '/calendrier/new', icon: Plus, color: 'blue' }
+        { name: 'echeances', href: '/calendrier?type=deadlines', icon: AlertCircle, badge: 3, color: 'red' },
+        { name: 'Creer un evenement', href: '/calendrier/new', icon: Plus, color: 'blue' }
       ]
     },
     { 
@@ -144,7 +144,7 @@ export default function Sidebar() {
         { name: 'Documents juridiques', href: '/templates?category=legal', icon: FileText },
         { name: 'Emails', href: '/templates?category=email', icon: FileText },
         { name: 'Contrats', href: '/templates?category=contracts', icon: FileText },
-        { name: 'Créer un template', href: '/templates/new', icon: Plus, color: 'blue' }
+        { name: 'Creer un template', href: '/templates/new', icon: Plus, color: 'blue' }
       ]
     },
     { 
@@ -154,10 +154,10 @@ export default function Sidebar() {
       badge: 234,
       subItems: [
         { name: 'Tous les documents', href: '/documents', icon: FolderOpen },
-        { name: 'Récents', href: '/documents?filter=recent', icon: Clock },
-        { name: 'Partagés', href: '/documents?filter=shared', icon: Users },
+        { name: 'Recents', href: '/documents?filter=recent', icon: Clock },
+        { name: 'Partages', href: '/documents?filter=shared', icon: Users },
         { name: 'Rechercher', href: '/documents?action=search', icon: Search },
-        { name: 'Télécharger', href: '/documents/upload', icon: Plus, color: 'blue' }
+        { name: 'Telecharger', href: '/documents/upload', icon: Plus, color: 'blue' }
       ]
     },
     { 
@@ -169,7 +169,7 @@ export default function Sidebar() {
         { name: 'Tous les workflows', href: '/workflows', icon: Workflow },
         { name: 'Actifs', href: '/workflows?status=active', icon: CheckCircle2, badge: 8, color: 'green' },
         { name: 'En pause', href: '/workflows?status=paused', icon: Clock, badge: 4 },
-        { name: 'Créer un workflow', href: '/workflows/new', icon: Plus, color: 'blue' }
+        { name: 'Creer un workflow', href: '/workflows/new', icon: Plus, color: 'blue' }
       ]
     },
     { 
@@ -180,7 +180,7 @@ export default function Sidebar() {
         { name: 'Historique d\'exports', href: '/exports', icon: FileDown },
         { name: 'Exporter des dossiers', href: '/exports?type=dossiers', icon: Folder },
         { name: 'Exporter des factures', href: '/exports?type=factures', icon: FileText },
-        { name: 'Rapports personnalisés', href: '/exports?type=custom', icon: TrendingUp }
+        { name: 'Rapports personnalises', href: '/exports?type=custom', icon: TrendingUp }
       ]
     },
     { 
@@ -238,7 +238,7 @@ export default function Sidebar() {
                     <button
                       onClick={() => toggleExpand(item.name)}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                      aria-label={expanded ? 'Réduire' : 'Développer'}
+                      aria-label={expanded ? 'Reduire' : 'Developper'}
                     >
                       {expanded ? (
                         <ChevronDown className="w-4 h-4 text-gray-500" />

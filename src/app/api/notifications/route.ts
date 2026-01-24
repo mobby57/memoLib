@@ -6,7 +6,7 @@ import {
   getUnreadCount 
 } from '@/lib/notifications';
 
-// GET - Récupérer les notifications d'un utilisateur
+// GET - Recuperer les notifications d'un utilisateur
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -55,12 +55,12 @@ export async function PATCH(request: NextRequest) {
 
     if (markAll) {
       await markAllNotificationsAsRead(userId);
-      return NextResponse.json({ success: true, message: 'Toutes les notifications marquées comme lues' });
+      return NextResponse.json({ success: true, message: 'Toutes les notifications marquees comme lues' });
     }
 
     if (notificationId) {
       await markNotificationAsRead(notificationId, userId);
-      return NextResponse.json({ success: true, message: 'Notification marquée comme lue' });
+      return NextResponse.json({ success: true, message: 'Notification marquee comme lue' });
     }
 
     return NextResponse.json({ error: 'notificationId ou markAll requis' }, { status: 400 });

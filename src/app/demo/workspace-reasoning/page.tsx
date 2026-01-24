@@ -1,6 +1,6 @@
-﻿/**
- * Page de démonstration du Workspace Reasoning Engine
- * Test interactif du système MVP avec API réelle
+/**
+ * Page de demonstration du Workspace Reasoning Engine
+ * Test interactif du systeme MVP avec API reelle
  */
 
 'use client';
@@ -17,13 +17,13 @@ export default function WorkspaceReasoningDemoPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   
-  // Hook pour gérer le workspace
+  // Hook pour gerer le workspace
   const { workspace, loading, error, transitionState, refetch } = useWorkspaceReasoning(workspaceId || '');
   
-  // Créer le workspace de démonstration au chargement
+  // Creer le workspace de demonstration au chargement
   useEffect(() => {
     const initDemo = async () => {
-      if (workspaceId) return; // Déjà créé
+      if (workspaceId) return; // Deja cree
       
       setIsCreating(true);
       setCreateError(null);
@@ -36,11 +36,11 @@ export default function WorkspaceReasoningDemoPage() {
 
 Madame, Monsieur,
 
-Je viens de recevoir une Obligation de Quitter le Territoire Français (OQTF) datée du 15 janvier 2026. 
+Je viens de recevoir une Obligation de Quitter le Territoire Francais (OQTF) datee du 15 janvier 2026. 
 
-La notification indique que je dois quitter le territoire sous 30 jours. Je suis en France depuis 5 ans avec mes deux enfants scolarisés.
+La notification indique que je dois quitter le territoire sous 30 jours. Je suis en France depuis 5 ans avec mes deux enfants scolarises.
 
-Mon titre de séjour a expiré il y a 3 mois et je n'ai pas pu le renouveler à temps pour des raisons médicales.
+Mon titre de sejour a expire il y a 3 mois et je n'ai pas pu le renouveler a temps pour des raisons medicales.
 
 Pouvez-vous m'aider ?
 
@@ -58,7 +58,7 @@ Sophie DUBOIS
         
         setWorkspaceId(newWorkspace.id);
       } catch (err) {
-        setCreateError(err instanceof Error ? err.message : 'Erreur de création');
+        setCreateError(err instanceof Error ? err.message : 'Erreur de creation');
         console.error('Failed to create demo workspace:', err);
       } finally {
         setIsCreating(false);
@@ -68,7 +68,7 @@ Sophie DUBOIS
     initDemo();
   }, [workspaceId]);
   
-  // Workspace de démonstration initial (fallback)
+  // Workspace de demonstration initial (fallback)
   const fallbackWorkspace: WorkspaceReasoning = {
     id: 'loading',
     tenantId: 'demo-tenant',
@@ -133,8 +133,8 @@ Sophie DUBOIS
           <div className="flex items-center space-x-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Création du workspace...</h2>
-              <p className="text-gray-600 mt-1">Initialisation de la démonstration OQTF</p>
+              <h2 className="text-xl font-bold text-gray-900">Creation du workspace...</h2>
+              <p className="text-gray-600 mt-1">Initialisation de la demonstration OQTF</p>
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@ Sophie DUBOIS
     );
   }
   
-  // Erreur de création
+  // Erreur de creation
   if (createError) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -153,7 +153,7 @@ Sophie DUBOIS
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Erreur de création</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Erreur de creation</h2>
             <p className="text-red-600 mb-4">{createError}</p>
             <button
               onClick={() => {
@@ -162,7 +162,7 @@ Sophie DUBOIS
               }}
               className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
             >
-              Réessayer
+              Reessayer
             </button>
           </div>
         </div>

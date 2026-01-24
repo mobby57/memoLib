@@ -1,6 +1,6 @@
-﻿/**
- * 🔔 Moteur de Notifications Contextuelles
- * Génère des notifications interactives obligatoires avec actions
+/**
+ * [emoji] Moteur de Notifications Contextuelles
+ * Genere des notifications interactives obligatoires avec actions
  */
 
 import { prisma } from '@/lib/prisma';
@@ -74,7 +74,7 @@ export interface EmailConfig {
 }
 
 /**
- * Crée une notification contextuelle basée sur l'analyse email
+ * Cree une notification contextuelle basee sur l'analyse email
  */
 export async function createContextualNotification(
   emailAnalysis: EmailAnalysis,
@@ -98,14 +98,14 @@ export async function createContextualNotification(
     createdAt: new Date(),
   };
   
-  // Sauvegarder dans la base de données
+  // Sauvegarder dans la base de donnees
   await saveNotification(notification, userId);
   
   return notification;
 }
 
 /**
- * Génère les actions de la notification
+ * Genere les actions de la notification
  */
 async function generateNotificationActions(
   emailAnalysis: EmailAnalysis
@@ -122,7 +122,7 @@ async function generateNotificationActions(
     primary: true,
   });
   
-  // Si rendez-vous suggéré
+  // Si rendez-vous suggere
   if (emailAnalysis.category === 'appointment-request' || 
       emailAnalysis.entities.dates.length > 0) {
     actions.push({
@@ -134,20 +134,20 @@ async function generateNotificationActions(
     });
   }
   
-  // Si réponse automatique possible
+  // Si reponse automatique possible
   actions.push({
     id: 'action_reply',
-    label: 'Répondre',
+    label: 'Repondre',
     type: 'reply',
     emailConfig: await generateEmailConfig(emailAnalysis),
     primary: false,
   });
   
-  // Si délégation possible
+  // Si delegation possible
   if (emailAnalysis.urgency !== 'critical') {
     actions.push({
       id: 'action_delegate',
-      label: 'Déléguer',
+      label: 'Deleguer',
       type: 'delegate',
       primary: false,
     });
@@ -157,7 +157,7 @@ async function generateNotificationActions(
 }
 
 /**
- * Génère un formulaire dynamique adapté au contexte
+ * Genere un formulaire dynamique adapte au contexte
  */
 async function generateDynamicForm(
   emailAnalysis: EmailAnalysis
@@ -171,14 +171,14 @@ async function generateDynamicForm(
         {
           id: 'urgencyLevel',
           type: 'select',
-          label: 'Niveau d\'urgence réel',
+          label: 'Niveau d\'urgence reel',
           required: true,
-          options: ['Critique (< 24h)', 'Élevé (< 48h)', 'Moyen (< 1 semaine)', 'Faible'],
+          options: ['Critique (< 24h)', 'eleve (< 48h)', 'Moyen (< 1 semaine)', 'Faible'],
         },
         {
           id: 'issueType',
           type: 'select',
-          label: 'Type de problème',
+          label: 'Type de probleme',
           required: true,
           options: ['Juridique', 'Administratif', 'Relationnel', 'Financier', 'Autre'],
         },
@@ -187,25 +187,25 @@ async function generateDynamicForm(
           type: 'textarea',
           label: 'Action requise',
           required: true,
-          placeholder: 'Décrivez l\'action à entreprendre...',
+          placeholder: 'Decrivez l\'action a entreprendre...',
         },
         {
           id: 'assignTo',
           type: 'select',
-          label: 'Assigner à',
+          label: 'Assigner a',
           required: true,
-          options: ['Moi-même', 'Avocat Senior', 'Paralegal', 'Assistant'],
+          options: ['Moi-meme', 'Avocat Senior', 'Paralegal', 'Assistant'],
         },
         {
           id: 'scheduleMeeting',
           type: 'checkbox',
-          label: 'Planifier une réunion avec le client',
+          label: 'Planifier une reunion avec le client',
           required: false,
         },
         {
           id: 'meetingDate',
           type: 'date',
-          label: 'Date de réunion',
+          label: 'Date de reunion',
           required: false,
           conditional: {
             field: 'scheduleMeeting',
@@ -216,13 +216,13 @@ async function generateDynamicForm(
         {
           id: 'responseTemplate',
           type: 'select',
-          label: 'Modèle de réponse',
+          label: 'Modele de reponse',
           required: true,
           options: [
-            'Accusé réception urgent',
-            'Demande informations complémentaires',
+            'Accuse reception urgent',
+            'Demande informations complementaires',
             'Proposition rendez-vous',
-            'Réponse personnalisée',
+            'Reponse personnalisee',
           ],
         },
       ],
@@ -245,7 +245,7 @@ async function generateDynamicForm(
           type: 'select',
           label: 'Type de dossier',
           required: true,
-          options: ['Civil', 'Pénal', 'Commercial', 'Famille', 'Travail', 'Administratif'],
+          options: ['Civil', 'Penal', 'Commercial', 'Famille', 'Travail', 'Administratif'],
         },
         {
           id: 'clientName',
@@ -268,14 +268,14 @@ async function generateDynamicForm(
         {
           id: 'complexity',
           type: 'select',
-          label: 'Complexité',
+          label: 'Complexite',
           required: true,
-          options: ['Simple', 'Moyenne', 'Complexe', 'Très complexe'],
+          options: ['Simple', 'Moyenne', 'Complexe', 'Tres complexe'],
         },
         {
           id: 'startDate',
           type: 'date',
-          label: 'Date de début souhaitée',
+          label: 'Date de debut souhaitee',
           required: true,
         },
         {
@@ -287,7 +287,7 @@ async function generateDynamicForm(
         {
           id: 'documentsNeeded',
           type: 'checkbox',
-          label: 'Documents clients nécessaires',
+          label: 'Documents clients necessaires',
           required: false,
         },
       ],
@@ -311,25 +311,25 @@ async function generateDynamicForm(
           type: 'select',
           label: 'Type de rendez-vous',
           required: true,
-          options: ['Première consultation', 'Suivi dossier', 'Signature', 'Visio', 'Téléphone'],
+          options: ['Premiere consultation', 'Suivi dossier', 'Signature', 'Visio', 'Telephone'],
         },
         {
           id: 'duration',
           type: 'select',
-          label: 'Durée estimée',
+          label: 'Duree estimee',
           required: true,
           options: ['30 minutes', '1 heure', '2 heures', '3+ heures'],
         },
         {
           id: 'preferredDate',
           type: 'date',
-          label: 'Date souhaitée',
+          label: 'Date souhaitee',
           required: true,
         },
         {
           id: 'preferredTime',
           type: 'time',
-          label: 'Heure préférée',
+          label: 'Heure preferee',
           required: true,
         },
         {
@@ -337,14 +337,14 @@ async function generateDynamicForm(
           type: 'select',
           label: 'Lieu',
           required: true,
-          options: ['Cabinet', 'Visioconférence', 'Téléphone', 'Chez le client'],
+          options: ['Cabinet', 'Visioconference', 'Telephone', 'Chez le client'],
         },
         {
           id: 'agenda',
           type: 'textarea',
           label: 'Ordre du jour',
           required: false,
-          placeholder: 'Points à aborder...',
+          placeholder: 'Points a aborder...',
         },
       ],
       onSubmit: {
@@ -359,40 +359,40 @@ async function generateDynamicForm(
     
     'legal-question': {
       formId: 'legal-question-response',
-      title: 'Réponse Question Juridique',
+      title: 'Reponse Question Juridique',
       fields: [
         {
           id: 'questionArea',
           type: 'select',
           label: 'Domaine juridique',
           required: true,
-          options: ['Droit civil', 'Droit pénal', 'Droit commercial', 'Droit du travail', 'Autre'],
+          options: ['Droit civil', 'Droit penal', 'Droit commercial', 'Droit du travail', 'Autre'],
         },
         {
           id: 'complexity',
           type: 'select',
-          label: 'Complexité de la réponse',
+          label: 'Complexite de la reponse',
           required: true,
           options: ['Simple (< 30min)', 'Moyenne (< 2h)', 'Complexe (> 2h)', 'Recherche approfondie'],
         },
         {
           id: 'researchNeeded',
           type: 'checkbox',
-          label: 'Recherche juridique nécessaire',
+          label: 'Recherche juridique necessaire',
           required: false,
         },
         {
           id: 'responseDeadline',
           type: 'date',
-          label: 'Échéance réponse',
+          label: 'echeance reponse',
           required: true,
         },
         {
           id: 'aiDraftResponse',
           type: 'textarea',
-          label: 'Brouillon IA (à réviser)',
+          label: 'Brouillon IA (a reviser)',
           required: false,
-          placeholder: 'Réponse générée par l\'IA...',
+          placeholder: 'Reponse generee par l\'IA...',
         },
       ],
       onSubmit: {
@@ -410,7 +410,7 @@ async function generateDynamicForm(
 }
 
 /**
- * Génère la configuration calendrier
+ * Genere la configuration calendrier
  */
 function generateCalendarConfig(emailAnalysis: EmailAnalysis): CalendarConfig {
   return {
@@ -426,10 +426,10 @@ function generateCalendarConfig(emailAnalysis: EmailAnalysis): CalendarConfig {
 }
 
 /**
- * Génère la configuration email de réponse
+ * Genere la configuration email de reponse
  */
 async function generateEmailConfig(emailAnalysis: EmailAnalysis): Promise<EmailConfig> {
-  // Générer un brouillon avec l'IA
+  // Generer un brouillon avec l'IA
   const draft = await generateAIDraftResponse(emailAnalysis);
   
   return {
@@ -446,21 +446,21 @@ async function generateEmailConfig(emailAnalysis: EmailAnalysis): Promise<EmailC
 }
 
 /**
- * Génère un brouillon de réponse avec l'IA
+ * Genere un brouillon de reponse avec l'IA
  */
 async function generateAIDraftResponse(emailAnalysis: EmailAnalysis): Promise<string> {
   try {
-    const prompt = `En tant qu'avocat professionnel, rédige une réponse courtoise à cet email:
+    const prompt = `En tant qu'avocat professionnel, redige une reponse courtoise a cet email:
 
-CATÉGORIE: ${emailAnalysis.category}
+CATeGORIE: ${emailAnalysis.category}
 URGENCE: ${emailAnalysis.urgency}
 SUJET: ${emailAnalysis.subject}
 DE: ${emailAnalysis.from}
 
-QUESTIONS À TRAITER:
+QUESTIONS a TRAITER:
 ${emailAnalysis.questions.join('\n')}
 
-Rédige une réponse professionnelle, courtoise et structurée. Accuse réception, réponds aux points principaux, et propose des prochaines étapes.`;
+Redige une reponse professionnelle, courtoise et structuree. Accuse reception, reponds aux points principaux, et propose des prochaines etapes.`;
 
     const response = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',
@@ -477,14 +477,14 @@ Rédige une réponse professionnelle, courtoise et structurée. Accuse réceptio
       return data.response;
     }
   } catch (error) {
-    console.error('Erreur génération brouillon:', error);
+    console.error('Erreur generation brouillon:', error);
   }
 
   return `Madame, Monsieur,
 
-Nous accusons bonne réception de votre email concernant ${emailAnalysis.subject}.
+Nous accusons bonne reception de votre email concernant ${emailAnalysis.subject}.
 
-Nous reviendrons vers vous dans les meilleurs délais pour traiter votre demande.
+Nous reviendrons vers vous dans les meilleurs delais pour traiter votre demande.
 
 Cordialement,`;
 }
@@ -497,17 +497,17 @@ function mapUrgencyToSeverity(urgency: string): 'info' | 'warning' | 'critical' 
 
 function generateNotificationTitle(emailAnalysis: EmailAnalysis): string {
   const titles: Record<string, string> = {
-    'client-urgent': '🚨 Demande Client Urgente',
-    'new-case': '📁 Nouveau Dossier à Traiter',
-    'deadline-reminder': '⏰ Rappel de Délai',
-    'invoice': '💰 Facture Reçue',
-    'legal-question': '❓ Question Juridique',
-    'appointment-request': '📅 Demande de Rendez-vous',
-    'court-document': '⚖️ Document Tribunal',
-    'client-complaint': '⚠️ Réclamation Client',
+    'client-urgent': '[emoji] Demande Client Urgente',
+    'new-case': '[emoji] Nouveau Dossier a Traiter',
+    'deadline-reminder': ' Rappel de Delai',
+    'invoice': '[emoji] Facture Recue',
+    'legal-question': ' Question Juridique',
+    'appointment-request': '[emoji] Demande de Rendez-vous',
+    'court-document': '️ Document Tribunal',
+    'client-complaint': '️ Reclamation Client',
   };
   
-  return titles[emailAnalysis.category] || '📧 Email Nécessite Action';
+  return titles[emailAnalysis.category] || '[emoji] Email Necessite Action';
 }
 
 function generateNotificationMessage(emailAnalysis: EmailAnalysis): string {

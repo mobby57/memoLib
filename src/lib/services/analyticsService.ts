@@ -1,6 +1,6 @@
-﻿/**
- * Service d'analytics prédictifs
- * Utilise la régression linéaire pour prévoir les tendances
+/**
+ * Service d'analytics predictifs
+ * Utilise la regression lineaire pour prevoir les tendances
  */
 
 import regression from 'regression';
@@ -41,7 +41,7 @@ export interface DossierProfitability {
 }
 
 /**
- * Prévision des revenus basée sur l'historique
+ * Prevision des revenus basee sur l'historique
  */
 export function predictRevenue(historicalData: PredictionData[]): RevenueForecast {
   if (historicalData.length < 3) {
@@ -53,24 +53,24 @@ export function predictRevenue(historicalData: PredictionData[]): RevenueForecas
     };
   }
 
-  // Préparer les données pour la régression (x = mois, y = revenu)
+  // Preparer les donnees pour la regression (x = mois, y = revenu)
   const data: [number, number][] = historicalData.map((point, index) => [index, point.value]);
   
-  // Régression linéaire
+  // Regression lineaire
   const result = regression.linear(data);
   
   const currentMonth = historicalData[historicalData.length - 1].value;
   const nextIndex = historicalData.length;
   
-  // Prédictions
+  // Predictions
   const nextMonth = result.predict(nextIndex)[1];
   const next3Months = result.predict(nextIndex + 2)[1];
   const next6Months = result.predict(nextIndex + 5)[1];
   
-  // Calculer la confiance basée sur le R²
+  // Calculer la confiance basee sur le R²
   const confidence = Math.min(100, Math.max(0, result.r2 * 100));
   
-  // Détecter la tendance
+  // Detecter la tendance
   const getTrend = (current: number, predicted: number): { trend: 'up' | 'down' | 'stable', percentage: number } => {
     const diff = ((predicted - current) / current) * 100;
     if (Math.abs(diff) < 5) return { trend: 'stable', percentage: diff };
@@ -212,8 +212,8 @@ function identifyRiskFactors(
   const riskFactors: string[] = [];
   
   if (currentRate < 70) riskFactors.push('Taux de recouvrement faible');
-  if (averageDelayDays > 45) riskFactors.push('Délais de paiement trop longs');
-  if (predictedRate.trend === 'down') riskFactors.push('Tendance à la baisse');
+  if (averageDelayDays > 45) riskFactors.push('Delais de paiement trop longs');
+  if (predictedRate.trend === 'down') riskFactors.push('Tendance a la baisse');
   
   const overdueCount = getOverdueFacturesCount(factures);
   if (overdueCount > 0) {
@@ -233,7 +233,7 @@ function getOverdueFacturesCount(factures: any[]): number {
 }
 
 /**
- * Analyse de rentabilité par type de dossier
+ * Analyse de rentabilite par type de dossier
  */
 export function analyzeDossierProfitability(
   dossiers: Array<{
@@ -315,19 +315,19 @@ function determineTrend(profitMargin: number): 'up' | 'down' | 'stable' {
 
 function generateRecommendation(profitMargin: number): string {
   if (profitMargin > 40) {
-    return 'Type de dossier très rentable. Augmentez votre volume.';
+    return 'Type de dossier tres rentable. Augmentez votre volume.';
   }
   if (profitMargin > 20) {
-    return 'Rentabilité satisfaisante. Optimisez les processus.';
+    return 'Rentabilite satisfaisante. Optimisez les processus.';
   }
   if (profitMargin > 0) {
-    return 'Marge faible. Révisez vos tarifs ou réduisez les coûts.';
+    return 'Marge faible. Revisez vos tarifs ou reduisez les couts.';
   }
   return 'Non rentable. Augmentez significativement vos tarifs.';
 }
 
 /**
- * Prédiction du nombre de nouveaux clients
+ * Prediction du nombre de nouveaux clients
  */
 export function predictNewClients(
   historicalClients: Array<{ date: Date; count: number }>
@@ -364,14 +364,14 @@ function calculateTrendPercentage(predicted: number, current: number): number {
 }
 
 /**
- * Score de santé financière global
+ * Score de sante financiere global
  */
 export function calculateFinancialHealthScore(metrics: {
   revenueGrowth: number;      // % croissance revenus
   recoveryRate: number;        // % taux de recouvrement
-  profitMargin: number;        // % marge bénéficiaire moyenne
-  clientRetention: number;     // % clients récurrents
-  cashflow: number;           // Trésorerie actuelle
+  profitMargin: number;        // % marge beneficiaire moyenne
+  clientRetention: number;     // % clients recurrents
+  cashflow: number;           // Tresorerie actuelle
 }): {
   score: number;              // 0-100
   grade: 'A' | 'B' | 'C' | 'D' | 'F';
@@ -384,7 +384,7 @@ export function calculateFinancialHealthScore(metrics: {
   const weaknesses: string[] = [];
   const recommendations: string[] = [];
 
-  // Évaluation croissance revenus (25 points)
+  // evaluation croissance revenus (25 points)
   if (metrics.revenueGrowth > 20) {
     score += 25;
     strengths.push('Forte croissance des revenus');
@@ -394,10 +394,10 @@ export function calculateFinancialHealthScore(metrics: {
     score += 15;
   } else {
     weaknesses.push('Croissance des revenus insuffisante');
-    recommendations.push('Développer de nouveaux services ou augmenter les tarifs');
+    recommendations.push('Developper de nouveaux services ou augmenter les tarifs');
   }
 
-  // Évaluation taux de recouvrement (25 points)
+  // evaluation taux de recouvrement (25 points)
   if (metrics.recoveryRate > 90) {
     score += 25;
     strengths.push('Excellent taux de recouvrement');
@@ -407,49 +407,49 @@ export function calculateFinancialHealthScore(metrics: {
     score += 15;
   } else {
     weaknesses.push('Taux de recouvrement faible');
-    recommendations.push('Améliorer le processus de facturation et de relance');
+    recommendations.push('Ameliorer le processus de facturation et de relance');
   }
 
-  // Évaluation marge bénéficiaire (20 points)
+  // evaluation marge beneficiaire (20 points)
   if (metrics.profitMargin > 30) {
     score += 20;
-    strengths.push('Marge bénéficiaire élevée');
+    strengths.push('Marge beneficiaire elevee');
   } else if (metrics.profitMargin > 20) {
     score += 15;
   } else if (metrics.profitMargin > 10) {
     score += 10;
   } else {
-    weaknesses.push('Marge bénéficiaire insuffisante');
-    recommendations.push('Optimiser les coûts ou revoir la tarification');
+    weaknesses.push('Marge beneficiaire insuffisante');
+    recommendations.push('Optimiser les couts ou revoir la tarification');
   }
 
-  // Évaluation rétention clients (15 points)
+  // evaluation retention clients (15 points)
   if (metrics.clientRetention > 80) {
     score += 15;
-    strengths.push('Excellente fidélisation client');
+    strengths.push('Excellente fidelisation client');
   } else if (metrics.clientRetention > 60) {
     score += 12;
   } else if (metrics.clientRetention > 40) {
     score += 8;
   } else {
-    weaknesses.push('Faible rétention client');
-    recommendations.push('Améliorer la qualité de service et la relation client');
+    weaknesses.push('Faible retention client');
+    recommendations.push('Ameliorer la qualite de service et la relation client');
   }
 
-  // Évaluation trésorerie (15 points)
+  // evaluation tresorerie (15 points)
   if (metrics.cashflow > 50000) {
     score += 15;
-    strengths.push('Trésorerie solide');
+    strengths.push('Tresorerie solide');
   } else if (metrics.cashflow > 20000) {
     score += 12;
   } else if (metrics.cashflow > 0) {
     score += 8;
   } else {
-    weaknesses.push('Problème de trésorerie');
-    recommendations.push('Améliorer la gestion de trésorerie et accélérer les encaissements');
+    weaknesses.push('Probleme de tresorerie');
+    recommendations.push('Ameliorer la gestion de tresorerie et accelerer les encaissements');
   }
 
-  // Détermination du grade
+  // Determination du grade
   let grade: 'A' | 'B' | 'C' | 'D' | 'F';
   if (score >= 90) grade = 'A';
   else if (score >= 80) grade = 'B';

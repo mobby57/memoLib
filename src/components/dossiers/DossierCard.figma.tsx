@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 🎨 Figma Code Connect - DossierCard
  * 
  * Composant: IA Poste Manager > Dossiers > DossierCard
@@ -56,19 +56,19 @@ CodeConnect.figma(
 /**
  * **Carte de dossier juridique CESEDA**
  * 
- * Affiche les informations clés d'un dossier avec:
- * - Type procédure (OQTF, Naturalisation, Asile, Titre de séjour)
- * - Statut et priorité visuels
- * - Échéance critique
- * - Client associé
+ * Affiche les informations cles d'un dossier avec:
+ * - Type procedure (OQTF, Naturalisation, Asile, Titre de sejour)
+ * - Statut et priorite visuels
+ * - echeance critique
+ * - Client associe
  * - Actions rapides
  * 
  * ### Variants
  * - **minimal** - Titre + statut seulement
- * - **standard** - Infos complètes (par défaut)
+ * - **standard** - Infos completes (par defaut)
  * - **detailed** - Avec description et historique
  * 
- * ### États
+ * ### etats
  * - Normal, Urgent (orange), Critique (rouge)
  * - Loading (skeleton)
  * - Selected (highlight)

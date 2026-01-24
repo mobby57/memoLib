@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -125,7 +125,7 @@ export default function MessagesClient() {
                 href="/client"
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <span className="text-2xl">←</span>
+                <span className="text-2xl">[Back]</span>
               </Link>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -152,7 +152,7 @@ export default function MessagesClient() {
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {messages.length === 0 ? (
               <div className="text-center py-12">
-                <span className="text-6xl mb-4 block">💬</span>
+                <span className="text-6xl mb-4 block">[emoji]</span>
                 <p className="text-gray-500 text-lg">Aucun message pour le moment</p>
                 <p className="text-gray-400 text-sm mt-2">
                   Commencez une conversation avec votre avocat
@@ -161,7 +161,7 @@ export default function MessagesClient() {
             ) : (
               Object.entries(messageGroups).map(([date, msgs]) => (
                 <div key={date}>
-                  {/* Séparateur de date */}
+                  {/* Separateur de date */}
                   <div className="flex items-center justify-center my-6">
                     <div className="bg-gray-200 px-4 py-2 rounded-full">
                       <p className="text-xs font-semibold text-gray-600">{date}</p>
@@ -211,7 +211,7 @@ export default function MessagesClient() {
                                     isFromClient ? 'bg-blue-600' : 'bg-gray-200'
                                   }`}
                                 >
-                                  <span className="text-lg">📎</span>
+                                  <span className="text-lg">[emoji]</span>
                                   <span className="text-sm">{att}</span>
                                 </div>
                               ))}
@@ -245,7 +245,7 @@ export default function MessagesClient() {
               <textarea
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Écrivez votre message..."
+                placeholder="ecrivez votre message..."
                 rows={3}
                 disabled={sending}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none resize-none"
@@ -257,19 +257,19 @@ export default function MessagesClient() {
                 className="p-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                 title="Joindre un fichier"
               >
-                <span className="text-2xl">📎</span>
+                <span className="text-2xl">[emoji]</span>
               </button>
               <button
                 type="submit"
                 disabled={sending || !newMessage.trim()}
                 className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {sending ? '⏳' : '📤'}
+                {sending ? '' : '[emoji]'}
               </button>
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            💡 Votre avocat sera notifié par email de votre message
+            [emoji] Votre avocat sera notifie par email de votre message
           </p>
         </form>
       </main>
@@ -278,14 +278,14 @@ export default function MessagesClient() {
       <div className="max-w-5xl mx-auto px-8 pb-8 w-full">
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">⚠️</span>
+            <span className="text-2xl">️</span>
             <div>
               <p className="font-semibold text-yellow-800 mb-1">Informations importantes</p>
               <ul className="text-sm text-yellow-700 space-y-1">
-                <li>• Les messages sont consultables par votre avocat et son équipe</li>
-                <li>• Évitez de partager des informations sensibles (mots de passe, codes PIN)</li>
-                <li>• Pour les urgences, contactez directement votre cabinet par téléphone</li>
-                <li>• Les messages sont archivés et peuvent servir de preuve</li>
+                <li>- Les messages sont consultables par votre avocat et son equipe</li>
+                <li>- evitez de partager des informations sensibles (mots de passe, codes PIN)</li>
+                <li>- Pour les urgences, contactez directement votre cabinet par telephone</li>
+                <li>- Les messages sont archives et peuvent servir de preuve</li>
               </ul>
             </div>
           </div>

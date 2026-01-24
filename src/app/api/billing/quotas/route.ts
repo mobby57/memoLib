@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
@@ -8,17 +8,17 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as any;
     const tenantId = user.tenantId;
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 404 });
     }
 
-    // Récupérer le tenant avec son plan
+    // Recuperer le tenant avec son plan
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },
       include: {
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!tenant) {
-      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 404 });
     }
 
     // Calculer les quotas
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
       },
     ];
 
-    // Filtrer les quotas illimités pour l'affichage
+    // Filtrer les quotas illimites pour l'affichage
     const visibleQuotas = quotas.filter(q => q.limit !== -1);
 
     return NextResponse.json({ 
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Erreur récupération quotas:', error);
+    console.error('Erreur recuperation quotas:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

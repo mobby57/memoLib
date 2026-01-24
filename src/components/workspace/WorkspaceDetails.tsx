@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -75,7 +75,7 @@ export default function WorkspaceDetails({
     try {
       setLoading(true)
       const response = await fetch(`/api/lawyer/workspaces/${workspaceId}`)
-      if (!response.ok) throw new Error('Échec du chargement')
+      if (!response.ok) throw new Error('echec du chargement')
       
       const data = await response.json()
       setWorkspace(data)
@@ -94,24 +94,24 @@ export default function WorkspaceDetails({
         body: JSON.stringify({ status: newStatus })
       })
 
-      if (!response.ok) throw new Error('Échec mise à jour')
+      if (!response.ok) throw new Error('echec mise a jour')
       
       await fetchWorkspaceDetails()
       onUpdate?.()
     } catch (error) {
-      console.error('Erreur mise à jour statut:', error)
+      console.error('Erreur mise a jour statut:', error)
     }
   }
 
   const handleDelete = async () => {
-    if (!confirm('Êtes-vous sûr de vouloir archiver ce dossier ?')) return
+    if (!confirm('etes-vous sur de vouloir archiver ce dossier ?')) return
 
     try {
       const response = await fetch(`/api/lawyer/workspaces/${workspaceId}`, {
         method: 'DELETE'
       })
 
-      if (!response.ok) throw new Error('Échec suppression')
+      if (!response.ok) throw new Error('echec suppression')
       
       onDelete?.()
       router.push('/lawyer/workspaces')
@@ -133,7 +133,7 @@ export default function WorkspaceDetails({
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900">Dossier non trouvé</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Dossier non trouve</h2>
         </div>
       </div>
     )
@@ -151,7 +151,7 @@ export default function WorkspaceDetails({
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const days = Math.floor(hours / 24)
 
-    if (diff <= 0) return { text: 'Expiré', color: 'text-red-600 bg-red-100' }
+    if (diff <= 0) return { text: 'Expire', color: 'text-red-600 bg-red-100' }
     if (hours < 48) return { text: `${hours}h restantes`, color: 'text-orange-600 bg-orange-100' }
     if (days < 7) return { text: `${days}j restants`, color: 'text-yellow-600 bg-yellow-100' }
     
@@ -318,7 +318,7 @@ export default function WorkspaceDetails({
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-sm">Aucun élément de checklist.</p>
+                    <p className="text-gray-500 text-sm">Aucun element de checklist.</p>
                   )}
                 </div>
 
@@ -352,21 +352,21 @@ export default function WorkspaceDetails({
             {activeTab === 'documents' && (
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Documents</h2>
-                <p className="text-gray-500">Gestion des documents à implémenter</p>
+                <p className="text-gray-500">Gestion des documents a implementer</p>
               </div>
             )}
 
             {activeTab === 'timeline' && (
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Chronologie</h2>
-                <p className="text-gray-500">Timeline à implémenter</p>
+                <p className="text-gray-500">Timeline a implementer</p>
               </div>
             )}
 
             {activeTab === 'notes' && (
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Notes</h2>
-                <p className="text-gray-500">Notes à implémenter</p>
+                <p className="text-gray-500">Notes a implementer</p>
               </div>
             )}
           </div>
@@ -403,7 +403,7 @@ export default function WorkspaceDetails({
               <h3 className="text-sm font-semibold text-gray-900 mb-4">Informations</h3>
               <div className="space-y-3 text-sm">
                 <div>
-                  <span className="text-gray-600">Créé le</span>
+                  <span className="text-gray-600">Cree le</span>
                   <p className="text-gray-900 mt-1">
                     {new Date(workspace.createdAt).toLocaleDateString('fr-FR', {
                       day: 'numeric',
@@ -414,7 +414,7 @@ export default function WorkspaceDetails({
                 </div>
                 
                 <div>
-                  <span className="text-gray-600">Dernière mise à jour</span>
+                  <span className="text-gray-600">Derniere mise a jour</span>
                   <p className="text-gray-900 mt-1">
                     {new Date(workspace.updatedAt).toLocaleDateString('fr-FR', {
                       day: 'numeric',
@@ -426,7 +426,7 @@ export default function WorkspaceDetails({
 
                 {workspace.reference && (
                   <div>
-                    <span className="text-gray-600">Référence</span>
+                    <span className="text-gray-600">Reference</span>
                     <p className="text-gray-900 mt-1 font-mono">{workspace.reference}</p>
                   </div>
                 )}
@@ -440,8 +440,8 @@ export default function WorkspaceDetails({
                   >
                     <option value="active">Actif</option>
                     <option value="pending">En attente</option>
-                    <option value="closed">Clôturé</option>
-                    <option value="archived">Archivé</option>
+                    <option value="closed">Cloture</option>
+                    <option value="archived">Archive</option>
                   </select>
                 </div>
               </div>

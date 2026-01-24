@@ -1,16 +1,16 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 
 /**
- * 🎯 API: Soumission de décision stratégique
+ * 🎯 API: Soumission de decision strategique
  */
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const data = await request.json();
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       expectedImpact,
     });
 
-    // Créer la soumission
+    // Creer la soumission
     const submission = await prisma.$executeRaw`
       INSERT INTO StrategicDecision (
         id, title, context, proposedSolution, expectedImpact,
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       )
     `;
 
-    // Créer workflow d'approbation multi-niveaux
+    // Creer workflow d'approbation multi-niveaux
     if (metadata.requiresApproval) {
       await createApprovalWorkflow(submission, metadata.approvers, {
         title: decisionTitle,
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Analyser avec l'IA et générer recommandations
+    // Analyser avec l'IA et generer recommandations
     const aiAnalysis = await getAIDecisionAnalysis(data);
 
     return NextResponse.json({
@@ -72,10 +72,10 @@ export async function POST(request: NextRequest) {
       submissionId: submission,
       riskScore,
       aiAnalysis,
-      message: 'Décision soumise pour approbation',
+      message: 'Decision soumise pour approbation',
     });
   } catch (error) {
-    console.error('Erreur soumission décision:', error);
+    console.error('Erreur soumission decision:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la soumission' },
       { status: 500 }
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
 async function analyzeDecisionRisks(data: any): Promise<number> {
   // Analyse basique des risques
-  // Dans une version avancée, utiliser l'IA pour l'analyse
+  // Dans une version avancee, utiliser l'IA pour l'analyse
   const riskFactors = {
     hasRiskMitigation: data.risks && data.risks.length > 100 ? 1 : 0,
     impactBreadth: data.expectedImpact.length || 0,
@@ -101,7 +101,7 @@ async function createApprovalWorkflow(
   approvers: string[], 
   context: any
 ) {
-  // Créer un workflow séquentiel
+  // Creer un workflow sequentiel
   for (let i = 0; i < approvers.length; i++) {
     await prisma.$executeRaw`
       INSERT INTO ApprovalTask (
@@ -127,15 +127,15 @@ async function getAIDecisionAnalysis(data: any): Promise<any> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'llama3.2:latest',
-        prompt: `Analyse cette décision stratégique et fournis:
+        prompt: `Analyse cette decision strategique et fournis:
 1. Points forts de la proposition (2-3 points)
 2. Points de vigilance (2-3 points)
-3. Recommandations d'amélioration (2-3 points)
+3. Recommandations d'amelioration (2-3 points)
 
-Décision: ${data.decisionTitle}
+Decision: ${data.decisionTitle}
 Contexte: ${data.context}
-Solution proposée: ${data.proposedSolution}
-Risques identifiés: ${data.risks}
+Solution proposee: ${data.proposedSolution}
+Risques identifies: ${data.risks}
 
 Fournis une analyse concise et actionnable.`,
         stream: false,

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * React Hook for WebSocket Real-Time Notifications
@@ -170,7 +170,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
         // Browser notification for critical deadlines
         if (data.urgency === 'critical' && 'Notification' in window && Notification.permission === 'granted') {
-          new Notification('⚠️ Délai critique', {
+          new Notification('️ Delai critique', {
             body: data.message,
             icon: '/icons/alert.png',
             requireInteraction: true,

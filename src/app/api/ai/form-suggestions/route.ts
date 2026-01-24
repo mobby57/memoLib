@@ -1,9 +1,9 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * 🤖 API: Suggestions IA pour formulaires interactifs
+ * [emoji] API: Suggestions IA pour formulaires interactifs
  * 
- * Analyse le contexte et génère des suggestions intelligentes
+ * Analyse le contexte et genere des suggestions intelligentes
  */
 
 export async function POST(request: NextRequest) {
@@ -20,9 +20,9 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Erreur génération suggestion:', error);
+    console.error('Erreur generation suggestion:', error);
     return NextResponse.json(
-      { success: false, error: 'Erreur génération suggestion' },
+      { success: false, error: 'Erreur generation suggestion' },
       { status: 500 }
     );
   }
@@ -50,7 +50,7 @@ Fournis une suggestion qui:
 1. Est pertinente au contexte juridique
 2. Anticipe les risques potentiels
 3. Propose une meilleure pratique
-4. Est actionnable immédiatement
+4. Est actionnable immediatement
 
 Suggestion:`,
         stream: false,
@@ -65,17 +65,17 @@ Suggestion:`,
     return data.response.trim();
   } catch (error) {
     console.error('Erreur Ollama:', error);
-    // Fallback sur des suggestions prédéfinies
+    // Fallback sur des suggestions predefinies
     return getFallbackSuggestion(formId, fieldId);
   }
 }
 
 function getFallbackSuggestion(formId: string, fieldId: string): string {
   const fallbacks: Record<string, string> = {
-    'priority': 'Basé sur les délais légaux, une priorité HAUTE est recommandée pour les dossiers CESEDA.',
-    'budget': 'Le budget moyen pour ce type de dossier est de 2500€. Ajuster selon la complexité.',
-    'deadline': 'Les dossiers CESEDA ont un délai légal de 4 mois. Prévoir une marge de sécurité.',
-    'resources': 'Allouer au minimum 2 juristes expérimentés pour ce type de dossier.',
+    'priority': 'Base sur les delais legaux, une priorite HAUTE est recommandee pour les dossiers CESEDA.',
+    'budget': 'Le budget moyen pour ce type de dossier est de 2500€. Ajuster selon la complexite.',
+    'deadline': 'Les dossiers CESEDA ont un delai legal de 4 mois. Prevoir une marge de securite.',
+    'resources': 'Allouer au minimum 2 juristes experimentes pour ce type de dossier.',
   };
 
   return fallbacks[fieldId] || 'Aucune suggestion disponible pour ce champ.';

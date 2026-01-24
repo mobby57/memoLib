@@ -1,9 +1,9 @@
-﻿/**
- * TEMPLATES DE DOCUMENTS PRÉ-VALIDÉS
- * Basé sur CHARTE_IA_JURIDIQUE.md - Section 2.5
+/**
+ * TEMPLATES DE DOCUMENTS PRe-VALIDeS
+ * Base sur CHARTE_IA_JURIDIQUE.md - Section 2.5
  * 
- * Ces templates sont utilisés par l'IA pour générer des documents
- * selon des structures pré-approuvées.
+ * Ces templates sont utilises par l'IA pour generer des documents
+ * selon des structures pre-approuvees.
  */
 
 import { DocumentType } from '@/types';
@@ -28,10 +28,10 @@ export interface DocumentTemplate {
   /** Validation requise ? */
   requiresValidation: boolean;
   
-  /** Variables nécessaires */
+  /** Variables necessaires */
   variables: TemplateVariable[];
   
-  /** Fonction de génération du contenu */
+  /** Fonction de generation du contenu */
   generate: (variables: Record<string, any>) => string;
   
   /** Objet email (si applicable) */
@@ -43,13 +43,13 @@ export interface DocumentTemplate {
 // ============================================
 
 /**
- * Template: Accusé de réception automatique
+ * Template: Accuse de reception automatique
  */
 export const TEMPLATE_ACKNOWLEDGMENT: DocumentTemplate = {
   id: 'acknowledgment_auto',
   type: DocumentType.ACKNOWLEDGMENT,
-  name: 'Accusé de réception automatique',
-  description: 'Confirmation automatique de réception d\'un message',
+  name: 'Accuse de reception automatique',
+  description: 'Confirmation automatique de reception d\'un message',
   autonomyLevel: 'GREEN',
   requiresValidation: false,
   
@@ -65,7 +65,7 @@ export const TEMPLATE_ACKNOWLEDGMENT: DocumentTemplate = {
       name: 'messageDate',
       type: 'date',
       required: true,
-      description: 'Date du message reçu',
+      description: 'Date du message recu',
       example: '01/01/2026'
     },
     {
@@ -73,42 +73,42 @@ export const TEMPLATE_ACKNOWLEDGMENT: DocumentTemplate = {
       type: 'text',
       required: true,
       description: 'Objet du message',
-      example: 'Demande de titre de séjour'
+      example: 'Demande de titre de sejour'
     },
     {
       name: 'dossierRef',
       type: 'text',
       required: true,
-      description: 'Référence du dossier',
+      description: 'Reference du dossier',
       example: 'DOS-2026-0123'
     },
     {
       name: 'responseDelay',
       type: 'text',
       required: false,
-      description: 'Délai de réponse estimé',
+      description: 'Delai de reponse estime',
       example: '48 heures'
     }
   ],
   
-  subject: (vars) => `Accusé de réception - ${vars.dossierRef}`,
+  subject: (vars) => `Accuse de reception - ${vars.dossierRef}`,
   
   generate: (vars) => `
 Bonjour ${vars.clientName},
 
-Nous accusons réception de votre message du ${vars.messageDate} concernant ${vars.messageSubject}.
+Nous accusons reception de votre message du ${vars.messageDate} concernant ${vars.messageSubject}.
 
-Votre demande a été enregistrée sous la référence **${vars.dossierRef}**.
+Votre demande a ete enregistree sous la reference **${vars.dossierRef}**.
 
 ${vars.responseDelay 
-  ? `Nous reviendrons vers vous sous ${vars.responseDelay} pour vous informer de la suite donnée à votre dossier.` 
-  : 'Nous reviendrons vers vous prochainement pour vous informer de la suite donnée à votre dossier.'}
+  ? `Nous reviendrons vers vous sous ${vars.responseDelay} pour vous informer de la suite donnee a votre dossier.` 
+  : 'Nous reviendrons vers vous prochainement pour vous informer de la suite donnee a votre dossier.'}
 
-En attendant, si vous avez des documents complémentaires à nous transmettre, n'hésitez pas à répondre directement à cet email.
+En attendant, si vous avez des documents complementaires a nous transmettre, n'hesitez pas a repondre directement a cet email.
 
 Cordialement,
 
-L'équipe
+L'equipe
   `.trim()
 };
 
@@ -160,40 +160,40 @@ export const TEMPLATE_APPOINTMENT_CONFIRMATION: DocumentTemplate = {
       name: 'visioLink',
       type: 'text',
       required: false,
-      description: 'Lien de visioconférence'
+      description: 'Lien de visioconference'
     },
     {
       name: 'documentsTobring',
       type: 'list',
       required: false,
-      description: 'Documents à apporter'
+      description: 'Documents a apporter'
     }
   ],
   
-  subject: (vars) => `Confirmation de rendez-vous - ${vars.appointmentDate} à ${vars.appointmentTime}`,
+  subject: (vars) => `Confirmation de rendez-vous - ${vars.appointmentDate} a ${vars.appointmentTime}`,
   
   generate: (vars) => `
 Bonjour ${vars.clientName},
 
 Nous vous confirmons votre rendez-vous pour **${vars.appointmentType}** :
 
-📅 **Date :** ${vars.appointmentDate}  
-🕐 **Heure :** ${vars.appointmentTime}  
-${vars.location ? `📍 **Lieu :** ${vars.location}` : ''}
-${vars.visioLink ? `💻 **Lien visio :** ${vars.visioLink}` : ''}
+[emoji] **Date :** ${vars.appointmentDate}  
+[emoji] **Heure :** ${vars.appointmentTime}  
+${vars.location ? `[emoji] **Lieu :** ${vars.location}` : ''}
+${vars.visioLink ? `[emoji] **Lien visio :** ${vars.visioLink}` : ''}
 
 ${vars.documentsToBring && vars.documentsToBring.length > 0 
   ? `
-**Documents à apporter :**
+**Documents a apporter :**
 ${vars.documentsToBring.map((doc: string) => `- ${doc}`).join('\n')}
 ` 
   : ''}
 
-Si vous avez un empêchement, merci de nous prévenir au moins 24 heures à l'avance.
+Si vous avez un empechement, merci de nous prevenir au moins 24 heures a l'avance.
 
-À très bientôt,
+a tres bientot,
 
-L'équipe
+L'equipe
   `.trim()
 };
 
@@ -202,13 +202,13 @@ L'équipe
 // ============================================
 
 /**
- * Template: Demande de pièces
+ * Template: Demande de pieces
  */
 export const TEMPLATE_DOCUMENT_REQUEST: DocumentTemplate = {
   id: 'document_request',
   type: DocumentType.DOCUMENT_REQUEST,
-  name: 'Demande de pièces',
-  description: 'Demande de documents complémentaires',
+  name: 'Demande de pieces',
+  description: 'Demande de documents complementaires',
   autonomyLevel: 'ORANGE',
   requiresValidation: true,
   
@@ -223,14 +223,14 @@ export const TEMPLATE_DOCUMENT_REQUEST: DocumentTemplate = {
       name: 'dossierRef',
       type: 'text',
       required: true,
-      description: 'Référence du dossier'
+      description: 'Reference du dossier'
     },
     {
       name: 'caseType',
       type: 'text',
       required: true,
       description: 'Type de dossier',
-      example: 'Demande de titre de séjour'
+      example: 'Demande de titre de sejour'
     },
     {
       name: 'documents',
@@ -253,32 +253,32 @@ export const TEMPLATE_DOCUMENT_REQUEST: DocumentTemplate = {
     }
   ],
   
-  subject: (vars) => `Dossier ${vars.dossierRef} - Documents à transmettre`,
+  subject: (vars) => `Dossier ${vars.dossierRef} - Documents a transmettre`,
   
   generate: (vars) => `
 Bonjour ${vars.clientName},
 
-Dans le cadre de votre dossier **${vars.caseType}** (réf. ${vars.dossierRef}), nous avons besoin des documents suivants pour pouvoir avancer :
+Dans le cadre de votre dossier **${vars.caseType}** (ref. ${vars.dossierRef}), nous avons besoin des documents suivants pour pouvoir avancer :
 
 ${vars.documents.map((doc: any) => `
 **${doc.name}**  
-${doc.reason ? `_Nécessaire pour :_ ${doc.reason}` : ''}
-${doc.format ? `_Format accepté :_ ${doc.format}` : ''}
+${doc.reason ? `_Necessaire pour :_ ${doc.reason}` : ''}
+${doc.format ? `_Format accepte :_ ${doc.format}` : ''}
 `).join('\n')}
 
 ${vars.deadline 
-  ? `⏰ **Merci de nous transmettre ces documents avant le ${vars.deadline}.**` 
+  ? ` **Merci de nous transmettre ces documents avant le ${vars.deadline}.**` 
   : ''}
 
 ${vars.transmissionMethod 
-  ? `📤 **Comment transmettre :** ${vars.transmissionMethod}` 
-  : `📤 **Comment transmettre :** Vous pouvez nous envoyer ces documents en répondant directement à cet email.`}
+  ? `[emoji] **Comment transmettre :** ${vars.transmissionMethod}` 
+  : `[emoji] **Comment transmettre :** Vous pouvez nous envoyer ces documents en repondant directement a cet email.`}
 
-Si vous avez des questions ou rencontrez des difficultés pour obtenir certains documents, n'hésitez pas à nous contacter.
+Si vous avez des questions ou rencontrez des difficultes pour obtenir certains documents, n'hesitez pas a nous contacter.
 
 Cordialement,
 
-L'équipe
+L'equipe
   `.trim()
 };
 
@@ -289,7 +289,7 @@ export const TEMPLATE_SIMPLE_LETTER: DocumentTemplate = {
   id: 'simple_letter',
   type: DocumentType.SIMPLE_LETTER,
   name: 'Courrier simple',
-  description: 'Lettre de réponse ou d\'information simple',
+  description: 'Lettre de reponse ou d\'information simple',
   autonomyLevel: 'ORANGE',
   requiresValidation: true,
   
@@ -304,7 +304,7 @@ export const TEMPLATE_SIMPLE_LETTER: DocumentTemplate = {
       name: 'dossierRef',
       type: 'text',
       required: true,
-      description: 'Référence du dossier'
+      description: 'Reference du dossier'
     },
     {
       name: 'subject',
@@ -328,13 +328,13 @@ export const TEMPLATE_SIMPLE_LETTER: DocumentTemplate = {
       name: 'nextSteps',
       type: 'list',
       required: false,
-      description: 'Prochaines étapes'
+      description: 'Prochaines etapes'
     },
     {
       name: 'attachments',
       type: 'list',
       required: false,
-      description: 'Pièces jointes'
+      description: 'Pieces jointes'
     }
   ],
   
@@ -349,37 +349,37 @@ ${vars.mainMessage}
 
 ${vars.nextSteps && vars.nextSteps.length > 0 
   ? `
-**Prochaines étapes :**
+**Prochaines etapes :**
 ${vars.nextSteps.map((step: string, idx: number) => `${idx + 1}. ${step}`).join('\n')}
 ` 
   : ''}
 
 ${vars.attachments && vars.attachments.length > 0 
   ? `
-**Pièces jointes :**
+**Pieces jointes :**
 ${vars.attachments.map((att: string) => `- ${att}`).join('\n')}
 ` 
   : ''}
 
-Nous restons à votre disposition pour toute question.
+Nous restons a votre disposition pour toute question.
 
 Cordialement,
 
-L'équipe
+L'equipe
 
 ---
-_Référence : ${vars.dossierRef}_
+_Reference : ${vars.dossierRef}_
   `.trim()
 };
 
 /**
- * Template: Récapitulatif de dossier
+ * Template: Recapitulatif de dossier
  */
 export const TEMPLATE_CASE_SUMMARY: DocumentTemplate = {
   id: 'case_summary',
   type: DocumentType.CASE_SUMMARY,
-  name: 'Récapitulatif de dossier',
-  description: 'Synthèse de l\'état d\'avancement d\'un dossier',
+  name: 'Recapitulatif de dossier',
+  description: 'Synthese de l\'etat d\'avancement d\'un dossier',
   autonomyLevel: 'ORANGE',
   requiresValidation: true,
   
@@ -394,7 +394,7 @@ export const TEMPLATE_CASE_SUMMARY: DocumentTemplate = {
       name: 'dossierRef',
       type: 'text',
       required: true,
-      description: 'Référence du dossier'
+      description: 'Reference du dossier'
     },
     {
       name: 'caseType',
@@ -418,13 +418,13 @@ export const TEMPLATE_CASE_SUMMARY: DocumentTemplate = {
       name: 'timeline',
       type: 'list',
       required: false,
-      description: 'Chronologie des événements'
+      description: 'Chronologie des evenements'
     },
     {
       name: 'documentsReceived',
       type: 'list',
       required: false,
-      description: 'Documents reçus'
+      description: 'Documents recus'
     },
     {
       name: 'documentsPending',
@@ -436,28 +436,28 @@ export const TEMPLATE_CASE_SUMMARY: DocumentTemplate = {
       name: 'nextDeadline',
       type: 'date',
       required: false,
-      description: 'Prochaine échéance'
+      description: 'Prochaine echeance'
     }
   ],
   
-  subject: (vars) => `${vars.dossierRef} - Récapitulatif de votre dossier`,
+  subject: (vars) => `${vars.dossierRef} - Recapitulatif de votre dossier`,
   
   generate: (vars) => `
 Bonjour ${vars.clientName},
 
-Voici un récapitulatif de l'état d'avancement de votre dossier **${vars.caseType}** (réf. ${vars.dossierRef}).
+Voici un recapitulatif de l'etat d'avancement de votre dossier **${vars.caseType}** (ref. ${vars.dossierRef}).
 
-## 📋 Informations générales
+## [emoji] Informations generales
 
-- **Référence :** ${vars.dossierRef}
+- **Reference :** ${vars.dossierRef}
 - **Type de dossier :** ${vars.caseType}
 - **Date d'ouverture :** ${vars.openingDate}
 - **Statut actuel :** ${vars.currentStatus}
-${vars.nextDeadline ? `- **Prochaine échéance :** ${vars.nextDeadline}` : ''}
+${vars.nextDeadline ? `- **Prochaine echeance :** ${vars.nextDeadline}` : ''}
 
 ${vars.timeline && vars.timeline.length > 0 
   ? `
-## 📅 Chronologie
+## [emoji] Chronologie
 
 ${vars.timeline.map((event: any) => `- **${event.date}** : ${event.description}`).join('\n')}
 ` 
@@ -465,7 +465,7 @@ ${vars.timeline.map((event: any) => `- **${event.date}** : ${event.description}`
 
 ${vars.documentsReceived && vars.documentsReceived.length > 0 
   ? `
-## ✅ Documents reçus
+##  Documents recus
 
 ${vars.documentsReceived.map((doc: string) => `- ${doc}`).join('\n')}
 ` 
@@ -473,20 +473,20 @@ ${vars.documentsReceived.map((doc: string) => `- ${doc}`).join('\n')}
 
 ${vars.documentsPending && vars.documentsPending.length > 0 
   ? `
-## ⏳ Documents en attente
+##  Documents en attente
 
 ${vars.documentsPending.map((doc: string) => `- ${doc}`).join('\n')}
 ` 
   : ''}
 
-Si vous avez des questions sur ce récapitulatif, n'hésitez pas à nous contacter.
+Si vous avez des questions sur ce recapitulatif, n'hesitez pas a nous contacter.
 
 Cordialement,
 
-L'équipe
+L'equipe
 
 ---
-_Document généré le ${new Date().toLocaleDateString('fr-FR')}_
+_Document genere le ${new Date().toLocaleDateString('fr-FR')}_
   `.trim()
 };
 
@@ -512,7 +512,7 @@ export const TEMPLATE_REMINDER: DocumentTemplate = {
       name: 'dossierRef',
       type: 'text',
       required: true,
-      description: 'Référence du dossier'
+      description: 'Reference du dossier'
     },
     {
       name: 'initialRequestDate',
@@ -524,13 +524,13 @@ export const TEMPLATE_REMINDER: DocumentTemplate = {
       name: 'pendingItems',
       type: 'list',
       required: true,
-      description: 'Éléments en attente'
+      description: 'elements en attente'
     },
     {
       name: 'attemptNumber',
       type: 'number',
       required: true,
-      description: 'Numéro de la relance (1, 2 ou 3)'
+      description: 'Numero de la relance (1, 2 ou 3)'
     }
   ],
   
@@ -541,7 +541,7 @@ export const TEMPLATE_REMINDER: DocumentTemplate = {
       ? 'douce' 
       : vars.attemptNumber === 2 
         ? 'rappel' 
-        : 'dernière';
+        : 'derniere';
     
     const greeting = vars.attemptNumber === 1
       ? 'Bonjour'
@@ -550,30 +550,30 @@ export const TEMPLATE_REMINDER: DocumentTemplate = {
         : 'Bonjour';
     
     const message = vars.attemptNumber === 1
-      ? `Nous n'avons pas encore reçu les informations demandées le ${vars.initialRequestDate}.`
+      ? `Nous n'avons pas encore recu les informations demandees le ${vars.initialRequestDate}.`
       : vars.attemptNumber === 2
-        ? `Nous vous rappelons que nous sommes toujours en attente des éléments demandés le ${vars.initialRequestDate}.`
-        : `Malgré nos précédentes relances, nous n'avons toujours pas reçu les éléments demandés le ${vars.initialRequestDate}.`;
+        ? `Nous vous rappelons que nous sommes toujours en attente des elements demandes le ${vars.initialRequestDate}.`
+        : `Malgre nos precedentes relances, nous n'avons toujours pas recu les elements demandes le ${vars.initialRequestDate}.`;
     
     return `
 ${greeting} ${vars.clientName},
 
 ${message}
 
-**Éléments en attente :**
+**elements en attente :**
 ${vars.pendingItems.map((item: string) => `- ${item}`).join('\n')}
 
-Afin que nous puissions avancer sur votre dossier (réf. ${vars.dossierRef}), pourriez-vous nous transmettre ces éléments dans les meilleurs délais ?
+Afin que nous puissions avancer sur votre dossier (ref. ${vars.dossierRef}), pourriez-vous nous transmettre ces elements dans les meilleurs delais ?
 
 ${vars.attemptNumber === 3 
-  ? `⚠️ **Attention :** Sans ces éléments, nous ne pourrons malheureusement pas progresser sur votre dossier.` 
+  ? `️ **Attention :** Sans ces elements, nous ne pourrons malheureusement pas progresser sur votre dossier.` 
   : ''}
 
-Merci de votre compréhension.
+Merci de votre comprehension.
 
 Cordialement,
 
-L'équipe
+L'equipe
     `.trim();
   }
 };
@@ -592,14 +592,14 @@ export const DOCUMENT_TEMPLATES: Record<string, DocumentTemplate> = {
 };
 
 /**
- * Récupère un template par son ID
+ * Recupere un template par son ID
  */
 export function getTemplate(templateId: string): DocumentTemplate | null {
   return DOCUMENT_TEMPLATES[templateId] || null;
 }
 
 /**
- * Récupère tous les templates d'un certain niveau d'autonomie
+ * Recupere tous les templates d'un certain niveau d'autonomie
  */
 export function getTemplatesByLevel(level: 'GREEN' | 'ORANGE' | 'RED'): DocumentTemplate[] {
   return Object.values(DOCUMENT_TEMPLATES).filter(
@@ -608,7 +608,7 @@ export function getTemplatesByLevel(level: 'GREEN' | 'ORANGE' | 'RED'): Document
 }
 
 /**
- * Récupère tous les templates d'un certain type
+ * Recupere tous les templates d'un certain type
  */
 export function getTemplatesByType(type: DocumentType): DocumentTemplate[] {
   return Object.values(DOCUMENT_TEMPLATES).filter(
@@ -617,7 +617,7 @@ export function getTemplatesByType(type: DocumentType): DocumentTemplate[] {
 }
 
 /**
- * Génère un document à partir d'un template
+ * Genere un document a partir d'un template
  */
 export function generateDocument(
   templateId: string,
@@ -626,10 +626,10 @@ export function generateDocument(
   const template = getTemplate(templateId);
   
   if (!template) {
-    return { success: false, error: 'Template non trouvé' };
+    return { success: false, error: 'Template non trouve' };
   }
   
-  // Vérifier les variables requises
+  // Verifier les variables requises
   const missingVars = template.variables
     .filter(v => v.required && !variables[v.name])
     .map(v => v.name);
@@ -649,7 +649,7 @@ export function generateDocument(
   } catch (error) {
     return { 
       success: false, 
-      error: `Erreur de génération : ${error}` 
+      error: `Erreur de generation : ${error}` 
     };
   }
 }

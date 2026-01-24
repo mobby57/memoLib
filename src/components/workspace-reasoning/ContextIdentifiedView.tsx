@@ -1,6 +1,6 @@
-﻿/**
- * Composant d'affichage de l'état CONTEXT_IDENTIFIED
- * Présenter des cadres possibles, jamais une vérité
+/**
+ * Composant d'affichage de l'etat CONTEXT_IDENTIFIED
+ * Presenter des cadres possibles, jamais une verite
  */
 
 import { WorkspaceReasoning, ContextHypothesis } from '@/types/workspace-reasoning';
@@ -28,11 +28,11 @@ export function ContextIdentifiedView({
   
   const getTypeIcon = (type: ContextHypothesis['type']) => {
     const icons = {
-      LEGAL: '⚖️',
+      LEGAL: '️',
       ADMINISTRATIVE: '🏛️',
-      PROCEDURAL: '📋',
-      TEMPORAL: '⏰',
-      RELATIONAL: '🤝',
+      PROCEDURAL: '[emoji]',
+      TEMPORAL: '',
+      RELATIONAL: '[emoji]',
     };
     return icons[type];
   };
@@ -41,7 +41,7 @@ export function ContextIdentifiedView({
     const badges = {
       LEGAL: { label: 'Juridique', color: 'bg-blue-100 text-blue-800' },
       ADMINISTRATIVE: { label: 'Administratif', color: 'bg-purple-100 text-purple-800' },
-      PROCEDURAL: { label: 'Procédural', color: 'bg-green-100 text-green-800' },
+      PROCEDURAL: { label: 'Procedural', color: 'bg-green-100 text-green-800' },
       TEMPORAL: { label: 'Temporel', color: 'bg-orange-100 text-orange-800' },
       RELATIONAL: { label: 'Relationnel', color: 'bg-pink-100 text-pink-800' },
     };
@@ -53,17 +53,17 @@ export function ContextIdentifiedView({
       POSSIBLE: { 
         label: 'Possible', 
         color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-        icon: '💭'
+        icon: '[emoji]'
       },
       PROBABLE: { 
         label: 'Probable', 
         color: 'bg-orange-100 text-orange-800 border-orange-300',
-        icon: '🔍'
+        icon: '[emoji]'
       },
       CONFIRMED: { 
-        label: 'Confirmé', 
+        label: 'Confirme', 
         color: 'bg-green-100 text-green-800 border-green-300',
-        icon: '✅'
+        icon: ''
       },
     };
     return badges[level];
@@ -99,7 +99,7 @@ export function ContextIdentifiedView({
             <div className="bg-white border border-gray-300 rounded-lg p-4 mb-4">
               <div className="text-sm">
                 <div className="font-semibold text-gray-700 mb-2">
-                  💡 Raisonnement qui a conduit à cette hypothèse:
+                  [emoji] Raisonnement qui a conduit a cette hypothese:
                 </div>
                 <p className="text-gray-600 whitespace-pre-wrap">{context.reasoning}</p>
               </div>
@@ -117,7 +117,7 @@ export function ContextIdentifiedView({
                   }`}
                 >
                   {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-                  ✅ Confirmer ce contexte
+                   Confirmer ce contexte
                 </button>
                 
                 <button
@@ -130,19 +130,19 @@ export function ContextIdentifiedView({
                   }`}
                 >
                   {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-                  ❌ Rejeter ce contexte
+                   Rejeter ce contexte
                 </button>
               </div>
             )}
             
             {context.certaintyLevel === 'CONFIRMED' && (
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded font-medium">
-                ✅ Contexte confirmé
+                 Contexte confirme
               </div>
             )}
             
             <div className="text-xs text-gray-500 mt-3">
-              Identifié par {context.identifiedBy} • {new Date(context.createdAt).toLocaleString('fr-FR')}
+              Identifie par {context.identifiedBy} - {new Date(context.createdAt).toLocaleString('fr-FR')}
             </div>
           </div>
         </div>
@@ -154,32 +154,32 @@ export function ContextIdentifiedView({
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">🔍 Contextes identifiés</h2>
+        <h2 className="text-2xl font-bold text-gray-900">[emoji] Contextes identifies</h2>
         <p className="text-gray-600 mt-1">
-          Cadres d'interprétation possibles - Aucune vérité absolue
+          Cadres d'interpretation possibles - Aucune verite absolue
         </p>
       </div>
       
-      {/* Avertissement méthodologique */}
+      {/* Avertissement methodologique */}
       <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
         <div className="flex items-start gap-3">
-          <div className="text-2xl">💡</div>
+          <div className="text-2xl">[emoji]</div>
           <div className="text-sm text-blue-900">
-            <div className="font-semibold mb-1">Principe méthodologique:</div>
+            <div className="font-semibold mb-1">Principe methodologique:</div>
             <p>
-              Ces contextes sont des <strong>hypothèses de travail</strong>, pas des vérités. 
-              Un contexte "Confirmé" signifie seulement qu'il est cohérent avec les faits connus, 
+              Ces contextes sont des <strong>hypotheses de travail</strong>, pas des verites. 
+              Un contexte "Confirme" signifie seulement qu'il est coherent avec les faits connus, 
               pas qu'il est absolument vrai.
             </p>
           </div>
         </div>
       </div>
       
-      {/* Contextes confirmés */}
+      {/* Contextes confirmes */}
       {confirmed.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-green-700">
-            ✅ Contextes confirmés ({confirmed.length})
+             Contextes confirmes ({confirmed.length})
           </h3>
           <div className="space-y-4">
             {confirmed.map(renderContext)}
@@ -191,7 +191,7 @@ export function ContextIdentifiedView({
       {probable.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-orange-700">
-            🔍 Contextes probables ({probable.length})
+            [emoji] Contextes probables ({probable.length})
           </h3>
           <div className="space-y-4">
             {probable.map(renderContext)}
@@ -203,7 +203,7 @@ export function ContextIdentifiedView({
       {possible.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-yellow-700">
-            💭 Contextes possibles ({possible.length})
+            [emoji] Contextes possibles ({possible.length})
           </h3>
           <div className="space-y-4">
             {possible.map(renderContext)}
@@ -214,9 +214,9 @@ export function ContextIdentifiedView({
       {/* Aucun contexte */}
       {contexts.length === 0 && (
         <div className="p-8 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg text-center">
-          <div className="text-4xl mb-3">🤔</div>
+          <div className="text-4xl mb-3">[emoji]</div>
           <div className="text-gray-600">
-            Aucun contexte identifié pour le moment
+            Aucun contexte identifie pour le moment
           </div>
         </div>
       )}
@@ -224,10 +224,10 @@ export function ContextIdentifiedView({
       {/* Navigation */}
       <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
         <div className="text-sm text-gray-600">
-          {contexts.length} contexte{contexts.length > 1 ? 's' : ''} identifié{contexts.length > 1 ? 's' : ''}
+          {contexts.length} contexte{contexts.length > 1 ? 's' : ''} identifie{contexts.length > 1 ? 's' : ''}
           {confirmed.length > 0 && (
             <span className="ml-2 text-green-600 font-medium">
-              • {confirmed.length} confirmé{confirmed.length > 1 ? 's' : ''}
+              - {confirmed.length} confirme{confirmed.length > 1 ? 's' : ''}
             </span>
           )}
         </div>
@@ -244,7 +244,7 @@ export function ContextIdentifiedView({
           {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
           {confirmed.length === 0 
             ? 'Confirmez au moins un contexte pour continuer'
-            : 'Continuer → Déduire les obligations'
+            : 'Continuer [Next] Deduire les obligations'
           }
         </button>
       </div>

@@ -16,7 +16,7 @@ export async function GET(
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
     }
 
     const documentId = params.id;
@@ -34,7 +34,7 @@ export async function GET(
     });
 
     if (!document) {
-      return NextResponse.json({ error: 'Document non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Document non trouve' }, { status: 404 });
     }
 
     // Read file
@@ -42,7 +42,7 @@ export async function GET(
     const filePath = path.join(uploadsDir, document.path);
 
     if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ error: 'Fichier non trouvé sur le serveur' }, { status: 404 });
+      return NextResponse.json({ error: 'Fichier non trouve sur le serveur' }, { status: 404 });
     }
 
     const fileBuffer = fs.readFileSync(filePath);

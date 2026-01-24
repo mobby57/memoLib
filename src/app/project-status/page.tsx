@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 
@@ -53,56 +53,56 @@ export default function ProjectStatusPage() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            🚀 IA Poste Manager - Status Projet
+            [emoji] IA Poste Manager - Status Projet
           </h1>
           <p className="text-gray-600">
-            Tableau de bord complet avec experts assemblés
+            Tableau de bord complet avec experts assembles
           </p>
         </div>
 
         {/* System Status */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold mb-4">🗄️ Base de Données</h3>
+            <h3 className="font-semibold mb-4">[emoji]️ Base de Donnees</h3>
             <StatusIndicator status={status.database} label="PostgreSQL" />
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold mb-4">🤖 IA</h3>
+            <h3 className="font-semibold mb-4">[emoji] IA</h3>
             <StatusIndicator status={status.ai} label="Ollama + GPT" />
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold mb-4">🔐 Sécurité</h3>
+            <h3 className="font-semibold mb-4">[emoji] Securite</h3>
             <StatusIndicator status={status.security} label="Chiffrement E2E" />
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold mb-4">⚡ Performance</h3>
+            <h3 className="font-semibold mb-4"> Performance</h3>
             <div className="text-2xl font-bold text-green-600">{status.performance}%</div>
           </div>
         </div>
 
         {/* Expert Team */}
         <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
-          <h2 className="text-xl font-semibold mb-6">👥 Équipe d'Experts</h2>
+          <h2 className="text-xl font-semibold mb-6">[emoji] equipe d'Experts</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">[Check]</div>
               <div>
                 <div className="font-medium">🏛️ Expert Juridique</div>
-                <div className="text-xs text-gray-600">CESEDA validé</div>
+                <div className="text-xs text-gray-600">CESEDA valide</div>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">[Check]</div>
               <div>
-                <div className="font-medium">🔐 Expert Sécurité</div>
+                <div className="font-medium">[emoji] Expert Securite</div>
                 <div className="text-xs text-gray-600">RGPD conforme</div>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">✓</div>
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">[Check]</div>
               <div>
-                <div className="font-medium">🤖 Expert IA</div>
-                <div className="text-xs text-gray-600">ML optimisé</div>
+                <div className="font-medium">[emoji] Expert IA</div>
+                <div className="text-xs text-gray-600">ML optimise</div>
               </div>
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function ProjectStatusPage() {
 
         {/* Demo Data */}
         <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
-          <h2 className="text-xl font-semibold mb-6">📊 Données Démo</h2>
+          <h2 className="text-xl font-semibold mb-6">[emoji] Donnees Demo</h2>
           <div className="grid grid-cols-5 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{demoData.tenants}</div>
@@ -142,11 +142,11 @@ export default function ProjectStatusPage() {
             <div className="text-blue-100">Tableau de bord principal</div>
           </a>
           <a href="/advanced-features" className="block bg-purple-600 text-white p-6 rounded-lg hover:bg-purple-700">
-            <div className="text-xl font-semibold mb-2">🚀 IA Avancée</div>
-            <div className="text-purple-100">Fonctionnalités innovantes</div>
+            <div className="text-xl font-semibold mb-2">[emoji] IA Avancee</div>
+            <div className="text-purple-100">Fonctionnalites innovantes</div>
           </a>
           <a href="/dossiers" className="block bg-green-600 text-white p-6 rounded-lg hover:bg-green-700">
-            <div className="text-xl font-semibold mb-2">⚖️ Dossiers</div>
+            <div className="text-xl font-semibold mb-2">️ Dossiers</div>
             <div className="text-green-100">Gestion CESEDA</div>
           </a>
         </div>

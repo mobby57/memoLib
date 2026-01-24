@@ -1,27 +1,28 @@
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database - Architecture 3 Niveaux...')
+  console.log('🌱 Début du seeding...');
 
-  // ============================================
-  // ÉTAPE 1 : CRÉER LES 3 PLANS
-  // ============================================
-  console.log('\n📊 Création des plans tarifaires...')
-
-  const basicPlan = await prisma.plan.create({
-    data: {
-      name: 'BASIC',
-      displayName: 'Basic',
-      description: 'Pour petits cabinets et indépendants',
-      priceMonthly: 49.00,
-      priceYearly: 490.00,
-      maxDossiers: 100,
-      maxClients: 20,
-      maxStorageGb: 5,
-      maxUsers: 3,
+  // 1. Plans
+  console.log('📦 Création des plans...');
+  
+  const starter = await prisma.plan.upsert({
+    where: { name: 'starter' },
+    update: {},
+    create: {
+      name: 'starter',
+      displayName: 'Starter',
+      description: 'Pour débuter avec la documentation juridique',
+      priceMonthly: 0,
+      priceYearly: 0,
+      currency: 'EUR',
+      maxWorkspaces: 1,
+      maxDossiers: 50,
+      maxClients: 10,
+      maxStorageGb: 2,
+      maxUsers: 2,
       aiAutonomyLevel: 1,
       humanValidation: true,
       advancedAnalytics: false,
@@ -29,482 +30,232 @@ async function main() {
       prioritySupport: false,
       customBranding: false,
       apiAccess: false,
-    }
-  })
+      isActive: true,
+    },
+  });
 
-  const premiumPlan = await prisma.plan.create({
-    data: {
-      name: 'PREMIUM',
-      displayName: 'Premium',
-      description: 'Pour cabinets structurés',
-      priceMonthly: 149.00,
-      priceYearly: 1490.00,
-      maxDossiers: 1000,
-      maxClients: 200,
+  const pro = await prisma.plan.upsert({
+    where: { name: 'pro' },
+    update: {},
+    create: {
+      name: 'pro',
+      displayName: 'Pro',
+      description: 'Pour les cabinets en croissance',
+      priceMonthly: 99,
+      priceYearly: 990,
+      currency: 'EUR',
+      maxWorkspaces: 3,
+      maxDossiers: 500,
+      maxClients: 100,
       maxStorageGb: 50,
-      maxUsers: 15,
-      aiAutonomyLevel: 3,
-      humanValidation: false,
+      maxUsers: 10,
+      aiAutonomyLevel: 2,
+      humanValidation: true,
       advancedAnalytics: true,
-      externalAiAccess: true,
-      prioritySupport: false,
-      customBranding: true,
+      externalAiAccess: false,
+      prioritySupport: true,
+      customBranding: false,
       apiAccess: true,
-    }
-  })
+      isActive: true,
+    },
+  });
 
-  const enterprisePlan = await prisma.plan.create({
-    data: {
-      name: 'ENTERPRISE',
+  const enterprise = await prisma.plan.upsert({
+    where: { name: 'enterprise' },
+    update: {},
+    create: {
+      name: 'enterprise',
       displayName: 'Enterprise',
-      description: 'Pour grands cabinets et international',
-      priceMonthly: 499.00,
-      priceYearly: 4990.00,
-      maxDossiers: 999999,
-      maxClients: 999999,
+      description: 'Pour les grandes structures',
+      priceMonthly: 299,
+      priceYearly: 2990,
+      currency: 'EUR',
+      maxWorkspaces: 10,
+      maxDossiers: -1,
+      maxClients: -1,
       maxStorageGb: 500,
-      maxUsers: 100,
-      aiAutonomyLevel: 4,
-      humanValidation: false,
+      maxUsers: 50,
+      aiAutonomyLevel: 3,
+      humanValidation: true,
       advancedAnalytics: true,
       externalAiAccess: true,
       prioritySupport: true,
       customBranding: true,
       apiAccess: true,
-    }
-  })
+      isActive: true,
+    },
+  });
 
-  console.log(`✅ Plans créés: Basic, Premium, Enterprise`)
+  console.log('✅ Plans créés:', { starter: starter.id, pro: pro.id, enterprise: enterprise.id });
 
-  // ============================================
-  // ÉTAPE 2 : CRÉER SUPER ADMIN
-  // ============================================
-  console.log('\n👑 Création du Super Admin...')
+  // 2. Articles CESEDA (sélection critique)
+  console.log('📚 Création des articles CESEDA...');
 
-  const superAdmin = await prisma.user.create({
-    data: {
+  const articles = [
+    {
+      code: 'CESEDA',
+      article: 'L313-11',
+      version: '2024',
+      title: 'Carte de séjour temporaire portant la mention "salarié"',
+      content: 'La carte de séjour temporaire portant la mention "salarié" est délivrée à l\'étranger dont l\'employeur s\'est engagé à verser une rémunération au moins égale au salaire minimum de croissance.',
+      summary: 'Conditions de délivrance du titre de séjour salarié',
+      category: 'titre_sejour',
+      keywords: JSON.stringify(['salarié', 'titre de séjour', 'rémunération', 'SMIC']),
+      defaultDeadlineDays: 120,
+      deadlineType: 'calendaire',
+      legifrance_url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042772415',
+      isActive: true,
+    },
+    {
+      code: 'CESEDA',
+      article: 'L511-1',
+      version: '2024',
+      title: 'Obligation de quitter le territoire français (OQTF)',
+      content: 'L\'autorité administrative peut obliger un étranger à quitter le territoire français lorsqu\'il se trouve en situation irrégulière.',
+      summary: 'Conditions et procédure d\'OQTF',
+      category: 'eloignement',
+      keywords: JSON.stringify(['OQTF', 'éloignement', 'reconduite', 'situation irrégulière']),
+      defaultDeadlineDays: 30,
+      deadlineType: 'franc',
+      legifrance_url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042772589',
+      isActive: true,
+    },
+    {
+      code: 'CESEDA',
+      article: 'L512-1',
+      version: '2024',
+      title: 'Délai de départ volontaire',
+      content: 'L\'étranger dispose d\'un délai de départ volontaire de trente jours à compter de la notification de la décision.',
+      summary: 'Délai de départ volontaire après OQTF',
+      category: 'eloignement',
+      keywords: JSON.stringify(['délai', 'départ volontaire', 'OQTF']),
+      defaultDeadlineDays: 30,
+      deadlineType: 'franc',
+      legifrance_url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042772593',
+      isActive: true,
+    },
+    {
+      code: 'CESEDA',
+      article: 'L743-1',
+      version: '2024',
+      title: 'Demande d\'asile',
+      content: 'L\'étranger qui demande l\'asile bénéficie du droit de se maintenir sur le territoire français jusqu\'à la décision définitive.',
+      summary: 'Droit au maintien pendant la procédure d\'asile',
+      category: 'asile',
+      keywords: JSON.stringify(['asile', 'demande', 'maintien', 'territoire']),
+      defaultDeadlineDays: 90,
+      deadlineType: 'calendaire',
+      legifrance_url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042772751',
+      isActive: true,
+    },
+    {
+      code: 'CJA',
+      article: 'R421-1',
+      version: '2024',
+      title: 'Délai de recours contentieux',
+      content: 'Le délai de recours contentieux est de deux mois. Il court à compter de la notification ou de la publication de la décision attaquée.',
+      summary: 'Délai de 2 mois pour recours contentieux',
+      category: 'recours',
+      keywords: JSON.stringify(['recours contentieux', 'délai', '2 mois', 'tribunal administratif']),
+      defaultDeadlineDays: 60,
+      deadlineType: 'franc',
+      legifrance_url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006449326',
+      isActive: true,
+    },
+    {
+      code: 'CJA',
+      article: 'R421-5',
+      version: '2024',
+      title: 'Délai d\'appel',
+      content: 'Le délai d\'appel est d\'un mois à compter de la notification du jugement.',
+      summary: 'Délai de 1 mois pour appel devant la CAA',
+      category: 'recours',
+      keywords: JSON.stringify(['appel', 'CAA', 'délai', '1 mois']),
+      defaultDeadlineDays: 30,
+      deadlineType: 'franc',
+      legifrance_url: 'https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006449330',
+      isActive: true,
+    },
+  ];
+
+  for (const article of articles) {
+    await prisma.legalReference.upsert({
+      where: {
+        code_article_version: {
+          code: article.code,
+          article: article.article,
+          version: article.version,
+        },
+      },
+      update: {},
+      create: article,
+    });
+  }
+
+  console.log(`✅ ${articles.length} articles CESEDA créés`);
+
+  // 3. Tenant de démo
+  console.log('🏢 Création du tenant de démo...');
+
+  const demoTenant = await prisma.tenant.upsert({
+    where: { subdomain: 'demo' },
+    update: {},
+    create: {
+      name: 'Cabinet Démo',
+      subdomain: 'demo',
+      planId: starter.id,
+      status: 'active',
+      trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  await prisma.tenantSettings.upsert({
+    where: { tenantId: demoTenant.id },
+    update: {},
+    create: {
+      tenantId: demoTenant.id,
+      ollamaEnabled: true,
+      ollamaUrl: 'http://localhost:11434',
+      ollamaModel: 'llama3.2:latest',
+      emailEnabled: false,
+      maxDossiers: 50,
+      maxUsers: 2,
+      storageLimit: 2000,
+    },
+  });
+
+  console.log('✅ Tenant démo créé:', demoTenant.id);
+
+  // 4. Super Admin
+  console.log('👤 Création du super admin...');
+
+  const bcrypt = require('bcryptjs');
+  const hashedPassword = await bcrypt.hash('Admin123!', 10);
+
+  const superAdmin = await prisma.user.upsert({
+    where: { email: 'admin@iapostemanage.com' },
+    update: {},
+    create: {
+      email: 'admin@iapostemanage.com',
       name: 'Super Admin',
-      email: 'superadmin@iapostemanager.com',
-      password: await bcrypt.hash('SuperAdmin2026!', 10),
-      role: 'SUPER_ADMIN',
+      password: hashedPassword,
+      role: 'super_admin',
       status: 'active',
-    }
-  })
-
-  console.log(`✅ Super Admin créé: ${superAdmin.email}`)
-
-  // ============================================
-  // ÉTAPE 3 : CRÉER LES 3 CABINETS
-  // ============================================
-  console.log('\n🏢 Création des cabinets...')
-
-  // CABINET 1 : DUPONT (BASIC)
-  const cabinetDupont = await prisma.tenant.create({
-    data: {
-      name: 'Cabinet Dupont',
-      subdomain: 'cabinet-dupont',
-      planId: basicPlan.id,
-      status: 'active',
-      billingEmail: 'facturation@cabinet-dupont.fr',
-      currentDossiers: 0,
-      currentClients: 0,
-      currentStorageGb: 0,
-      currentUsers: 0,
-      settings: {
-        create: {
-          ollamaEnabled: true,
-          ollamaUrl: 'http://localhost:11434',
-          ollamaModel: 'llama3.2:latest',
-          maxDossiers: basicPlan.maxDossiers,
-          maxUsers: basicPlan.maxUsers,
-          storageLimit: basicPlan.maxStorageGb * 1024,
-        }
-      }
+      language: 'fr',
+      timezone: 'Europe/Paris',
     },
-  })
+  });
 
-  // CABINET 2 : MARTIN (PREMIUM)
-  const cabinetMartin = await prisma.tenant.create({
-    data: {
-      name: 'Cabinet Martin & Associés',
-      subdomain: 'cabinet-martin',
-      planId: premiumPlan.id,
-      status: 'active',
-      billingEmail: 'facturation@cabinet-martin.fr',
-      currentDossiers: 0,
-      currentClients: 0,
-      currentStorageGb: 0,
-      currentUsers: 0,
-      settings: {
-        create: {
-          ollamaEnabled: true,
-          ollamaUrl: 'http://localhost:11434',
-          ollamaModel: 'llama3.2:latest',
-          maxDossiers: premiumPlan.maxDossiers,
-          maxUsers: premiumPlan.maxUsers,
-          storageLimit: premiumPlan.maxStorageGb * 1024,
-        }
-      }
-    },
-  })
+  console.log('✅ Super admin créé:', superAdmin.id);
 
-  // CABINET 3 : ROUSSEAU (ENTERPRISE)
-  const cabinetRousseau = await prisma.tenant.create({
-    data: {
-      name: 'Cabinet Rousseau International',
-      subdomain: 'cabinet-rousseau',
-      planId: enterprisePlan.id,
-      status: 'active',
-      billingEmail: 'facturation@cabinet-rousseau.fr',
-      currentDossiers: 0,
-      currentClients: 0,
-      currentStorageGb: 0,
-      currentUsers: 0,
-      settings: {
-        create: {
-          ollamaEnabled: true,
-          ollamaUrl: 'http://localhost:11434',
-          ollamaModel: 'llama3.2:latest',
-          maxDossiers: enterprisePlan.maxDossiers,
-          maxUsers: enterprisePlan.maxUsers,
-          storageLimit: enterprisePlan.maxStorageGb * 1024,
-        }
-      }
-    },
-  })
-
-  console.log(`✅ Cabinets créés: Dupont (Basic), Martin (Premium), Rousseau (Enterprise)`)
-
-  // ============================================
-  // ÉTAPE 4 : CRÉER AVOCATS (ADMIN)
-  // ============================================
-  console.log('\n⚖️ Création des avocats...')
-
-  const avocatDupont = await prisma.user.create({
-    data: {
-      name: 'Maître Jean Dupont',
-      email: 'jean.dupont@cabinet-dupont.fr',
-      password: await bcrypt.hash('Avocat2026!', 10),
-      role: 'ADMIN',
-      tenantId: cabinetDupont.id,
-      status: 'active',
-    }
-  })
-
-  const avocatMartin = await prisma.user.create({
-    data: {
-      name: 'Maître Sophie Martin',
-      email: 'sophie.martin@cabinet-martin.fr',
-      password: await bcrypt.hash('Avocat2026!', 10),
-      role: 'ADMIN',
-      tenantId: cabinetMartin.id,
-      status: 'active',
-    }
-  })
-
-  const avocatRousseau = await prisma.user.create({
-    data: {
-      name: 'Maître Pierre Rousseau',
-      email: 'pierre.rousseau@cabinet-rousseau.fr',
-      password: await bcrypt.hash('Avocat2026!', 10),
-      role: 'ADMIN',
-      tenantId: cabinetRousseau.id,
-      status: 'active',
-    }
-  })
-
-  console.log(`✅ Avocats créés pour chaque cabinet: ${avocatDupont.id}, ${avocatMartin.id}, ${avocatRousseau.id}`)
-
-  // ============================================
-  // ÉTAPE 5 : CRÉER CLIENTS FINAUX
-  // ============================================
-  console.log('\n👤 Création des clients...')
-
-  // Clients Cabinet Dupont
-  const clientDupont1 = await prisma.client.create({
-    data: {
-      tenantId: cabinetDupont.id,
-      firstName: 'Mohamed',
-      lastName: 'Benali',
-      email: 'mohamed.benali@example.com',
-      phone: '+33612345678',
-      nationality: 'Algérie',
-      status: 'active',
-    }
-  })
-
-  const clientDupont2 = await prisma.client.create({
-    data: {
-      tenantId: cabinetDupont.id,
-      firstName: 'Fatima',
-      lastName: 'El Amrani',
-      email: 'fatima.elamrani@example.com',
-      phone: '+33612345679',
-      nationality: 'Maroc',
-      status: 'active',
-    }
-  })
-
-  // Clients Cabinet Martin
-  const clientMartin1 = await prisma.client.create({
-    data: {
-      tenantId: cabinetMartin.id,
-      firstName: 'Karim',
-      lastName: 'Ibrahim',
-      email: 'karim.ibrahim@example.com',
-      phone: '+33623456789',
-      nationality: 'Syrie',
-      status: 'active',
-    }
-  })
-
-  const clientMartin2 = await prisma.client.create({
-    data: {
-      tenantId: cabinetMartin.id,
-      firstName: 'Elena',
-      lastName: 'Popescu',
-      email: 'elena.popescu@example.com',
-      phone: '+33623456790',
-      nationality: 'Roumanie',
-      status: 'active',
-    }
-  })
-
-  // Clients Cabinet Rousseau
-  const clientRousseau1 = await prisma.client.create({
-    data: {
-      tenantId: cabinetRousseau.id,
-      firstName: 'Youssef',
-      lastName: 'Hassan',
-      email: 'youssef.hassan@example.com',
-      phone: '+33634567890',
-      nationality: 'Égypte',
-      status: 'active',
-    }
-  })
-
-  const clientRousseau2 = await prisma.client.create({
-    data: {
-      tenantId: cabinetRousseau.id,
-      firstName: 'Aisha',
-      lastName: 'Mohammed',
-      email: 'aisha.mohammed@example.com',
-      phone: '+33634567891',
-      nationality: 'Soudan',
-      status: 'active',
-    }
-  })
-
-  console.log(`✅ Clients créés: 2 par cabinet`)
-
-  // ============================================
-  // ÉTAPE 6 : CRÉER COMPTES CLIENTS (pour portail)
-  // ============================================
-  console.log('\n🔐 Création des comptes portail clients...')
-
-  await prisma.user.create({
-    data: {
-      name: `${clientDupont1.firstName} ${clientDupont1.lastName}`,
-      email: clientDupont1.email,
-      password: await bcrypt.hash('Client2026!', 10),
-      role: 'CLIENT',
-      tenantId: cabinetDupont.id,
-      clientId: clientDupont1.id,
-      status: 'active',
-    }
-  })
-
-  await prisma.user.create({
-    data: {
-      name: `${clientMartin1.firstName} ${clientMartin1.lastName}`,
-      email: clientMartin1.email,
-      password: await bcrypt.hash('Client2026!', 10),
-      role: 'CLIENT',
-      tenantId: cabinetMartin.id,
-      clientId: clientMartin1.id,
-      status: 'active',
-    }
-  })
-
-  console.log(`✅ Comptes portail créés pour 2 clients`)
-
-  // ============================================
-  // ÉTAPE 7 : CRÉER DOSSIERS CESEDA
-  // ============================================
-  console.log('\n📁 Création des dossiers CESEDA...')
-
-  const dossierDupont1 = await prisma.dossier.create({
-    data: {
-      tenantId: cabinetDupont.id,
-      numero: 'D-2026-001',
-      clientId: clientDupont1.id,
-      typeDossier: 'OQTF',
-      articleCeseda: 'Art. L511-1',
-      statut: 'urgent',
-      priorite: 'critique',
-      objet: 'Recours contre OQTF',
-      description: 'OQTF notifiée le 20/12/2025, délai de recours 30 jours',
-      dateEcheance: new Date('2026-01-19'),
-      riskScore: 85,
-    }
-  })
-
-  await prisma.dossier.create({
-    data: {
-      tenantId: cabinetDupont.id,
-      numero: 'D-2026-002',
-      clientId: clientDupont2.id,
-      typeDossier: 'TitreSejour',
-      statut: 'en_cours',
-      priorite: 'normale',
-      objet: 'Première demande titre de séjour',
-      description: 'Demande titre de séjour salarié',
-      dateEcheance: new Date('2026-03-15'),
-    }
-  })
-
-  await prisma.dossier.create({
-    data: {
-      tenantId: cabinetMartin.id,
-      numero: 'M-2026-045',
-      clientId: clientMartin1.id,
-      typeDossier: 'Asile',
-      statut: 'en_cours',
-      priorite: 'haute',
-      objet: 'Demande d\'asile politique',
-      description: 'Demande d\'asile - persécutions politiques',
-      dateEcheance: new Date('2026-03-10'),
-      riskScore: 45,
-    }
-  })
-
-  await prisma.dossier.create({
-    data: {
-      tenantId: cabinetMartin.id,
-      numero: 'M-2026-046',
-      clientId: clientMartin2.id,
-      typeDossier: 'CarteResident',
-      articleCeseda: 'Art. L314-11',
-      statut: 'en_attente',
-      priorite: 'normale',
-      objet: 'Carte de résident 10 ans',
-      description: 'Demande carte de résident',
-      dateEcheance: new Date('2026-02-28'),
-    }
-  })
-
-  await prisma.dossier.create({
-    data: {
-      tenantId: cabinetRousseau.id,
-      numero: 'R-2026-112',
-      clientId: clientRousseau1.id,
-      typeDossier: 'CarteResident',
-      articleCeseda: 'Art. L313-11',
-      statut: 'urgent',
-      priorite: 'critique',
-      objet: 'Renouvellement carte de résident',
-      description: 'Renouvellement urgent - carte expirée',
-      dateEcheance: new Date('2026-01-10'),
-      riskScore: 70,
-    }
-  })
-
-  await prisma.dossier.create({
-    data: {
-      tenantId: cabinetRousseau.id,
-      numero: 'R-2026-113',
-      clientId: clientRousseau2.id,
-      typeDossier: 'Naturalisation',
-      statut: 'en_cours',
-      priorite: 'normale',
-      objet: 'Demande de naturalisation',
-      description: 'Naturalisation par mariage',
-      dateEcheance: new Date('2026-06-20'),
-    }
-  })
-
-  console.log(`✅ Dossiers créés: 2 par cabinet`)
-
-  // ============================================
-  // ÉTAPE 8 : CRÉER FACTURES
-  // ============================================
-  console.log('\n💰 Création des factures...')
-
-  await prisma.facture.create({
-    data: {
-      tenantId: cabinetDupont.id,
-      numero: 'F-2026-001',
-      dossierId: dossierDupont1.id,
-      clientName: `${clientDupont1.firstName} ${clientDupont1.lastName}`,
-      montant: 1500.00,
-      statut: 'en_attente',
-      dateEcheance: new Date('2026-02-01'),
-      description: 'Recours OQTF - Honoraires',
-    }
-  })
-
-  await prisma.facture.create({
-    data: {
-      tenantId: cabinetMartin.id,
-      numero: 'FM-2026-023',
-      clientName: `${clientMartin1.firstName} ${clientMartin1.lastName}`,
-      montant: 950.00,
-      statut: 'payee',
-      dateEcheance: new Date('2026-01-15'),
-      datePaiement: new Date('2026-01-10'),
-      description: 'Asile politique - Consultation',
-    }
-  })
-
-  await prisma.facture.create({
-    data: {
-      tenantId: cabinetRousseau.id,
-      numero: 'FR-2026-089',
-      clientName: `${clientRousseau1.firstName} ${clientRousseau1.lastName}`,
-      montant: 1200.00,
-      statut: 'payee',
-      dateEcheance: new Date('2026-01-05'),
-      datePaiement: new Date('2026-01-03'),
-      description: 'Carte de résident - Dossier urgent',
-    }
-  })
-
-  console.log(`✅ Factures créées`)
-
-  // ============================================
-  // RÉSUMÉ FINAL
-  // ============================================
-  console.log('\n' + '='.repeat(50))
-  console.log('🎉 SEED TERMINÉ AVEC SUCCÈS !')
-  console.log('='.repeat(50))
-  console.log('\n📊 COMPTES CRÉÉS:')
-  console.log(`   👑 Super Admin: superadmin@iapostemanager.com / SuperAdmin2026!`)
-  console.log(`   ⚖️  Avocat Dupont: jean.dupont@cabinet-dupont.fr / Avocat2026!`)
-  console.log(`   ⚖️  Avocat Martin: sophie.martin@cabinet-martin.fr / Avocat2026!`)
-  console.log(`   ⚖️  Avocat Rousseau: pierre.rousseau@cabinet-rousseau.fr / Avocat2026!`)
-  console.log(`   👤 Client 1: ${clientDupont1.email} / Client2026!`)
-  console.log(`   👤 Client 2: ${clientMartin1.email} / Client2026!`)
-  console.log('\n🏢 CABINETS:')
-  console.log(`   • ${cabinetDupont.name} (Plan: BASIC)`)
-  console.log(`   • ${cabinetMartin.name} (Plan: PREMIUM)`)
-  console.log(`   • ${cabinetRousseau.name} (Plan: ENTERPRISE)`)
-  console.log('\n📁 DOSSIERS: 6 dossiers CESEDA créés')
-  console.log('💰 FACTURES: 3 factures créées')
-  console.log('=' .repeat(50) + '\n')
-
-  console.log('\n🎉 Database seeded successfully!')
-  console.log('\n📝 Identifiants de connexion:')
-  console.log('   Email: admin@demo.com')
-  console.log('\n📁 DOSSIERS: 6 dossiers CESEDA créés')
-  console.log('💰 FACTURES: 3 factures créées')
-  console.log('='.repeat(50) + '\n')
+  console.log('🎉 Seeding terminé avec succès !');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Erreur:', e)
-    process.exit(1)
+    console.error('❌ Erreur lors du seeding:', e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

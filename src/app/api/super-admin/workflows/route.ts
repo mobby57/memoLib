@@ -1,6 +1,6 @@
 /**
  * API Route - Super Admin Workflow Monitoring
- * GET /api/super-admin/workflows - Liste toutes les exécutions de workflows
+ * GET /api/super-admin/workflows - Liste toutes les executions de workflows
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,13 +13,13 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as any;
 
     if (user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       stats[stat.status] = stat._count;
     });
 
-    // Temps moyen d'exécution
+    // Temps moyen d'execution
     const completedWorkflows = await prisma.workflowExecution.findMany({
       where: { 
         status: 'completed',

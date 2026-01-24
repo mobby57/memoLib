@@ -1,9 +1,9 @@
-﻿/**
- * Cloudflare SDK Client - Configuration Centralisée
+/**
+ * Cloudflare SDK Client - Configuration Centralisee
  * 
- * Services supportés:
- * - Workers AI (alternative à Ollama)
- * - R2 Storage (alternative à S3)
+ * Services supportes:
+ * - Workers AI (alternative a Ollama)
+ * - R2 Storage (alternative a S3)
  * - D1 Database (SQLite serverless)
  * - KV Storage (key-value)
  * - Analytics
@@ -44,7 +44,7 @@ export const cloudflareClient = new Cloudflare({
 });
 
 /**
- * Vérifier si Cloudflare est disponible
+ * Verifier si Cloudflare est disponible
  */
 export async function isCloudflareAvailable(): Promise<boolean> {
   if (!CLOUDFLARE_CONFIG.apiToken || !CLOUDFLARE_CONFIG.accountId) {
@@ -52,7 +52,7 @@ export async function isCloudflareAvailable(): Promise<boolean> {
   }
   
   try {
-    // Test simple: vérifier le compte
+    // Test simple: verifier le compte
     await cloudflareClient.accounts.get({ account_id: CLOUDFLARE_CONFIG.accountId });
     return true;
   } catch {
@@ -61,7 +61,7 @@ export async function isCloudflareAvailable(): Promise<boolean> {
 }
 
 /**
- * Workers AI - Alternative à Ollama
+ * Workers AI - Alternative a Ollama
  */
 export class CloudflareAI {
   private accountId: string;
@@ -71,14 +71,14 @@ export class CloudflareAI {
   }
   
   /**
-   * Vérifier si Workers AI est disponible
+   * Verifier si Workers AI est disponible
    */
   async isAvailable(): Promise<boolean> {
     return CLOUDFLARE_CONFIG.workersAI.enabled && await isCloudflareAvailable();
   }
   
   /**
-   * Générer du texte avec Workers AI
+   * Generer du texte avec Workers AI
    */
   async generate(
     prompt: string,
@@ -143,7 +143,7 @@ export class CloudflareAI {
   }
   
   /**
-   * Générer des embeddings (pour recherche sémantique)
+   * Generer des embeddings (pour recherche semantique)
    */
   async generateEmbeddings(text: string): Promise<number[]> {
     if (!await this.isAvailable()) {
@@ -152,7 +152,7 @@ export class CloudflareAI {
     
     try {
       const response = await cloudflareClient.workers.ai.run(
-        '@cf/baai/bge-base-en-v1.5', // Modèle embeddings
+        '@cf/baai/bge-base-en-v1.5', // Modele embeddings
         {
           account_id: this.accountId,
           text,
@@ -176,7 +176,7 @@ export class CloudflareAI {
     
     try {
       const response = await cloudflareClient.workers.ai.run(
-        '@cf/meta/m2m100-1.2b', // Modèle traduction
+        '@cf/meta/m2m100-1.2b', // Modele traduction
         {
           account_id: this.accountId,
           text,
@@ -192,7 +192,7 @@ export class CloudflareAI {
   }
   
   /**
-   * Lister les modèles disponibles
+   * Lister les modeles disponibles
    */
   async listModels(): Promise<string[]> {
     try {
@@ -208,7 +208,7 @@ export class CloudflareAI {
 }
 
 /**
- * R2 Storage - Alternative à S3
+ * R2 Storage - Alternative a S3
  */
 export class CloudflareR2 {
   private accountId: string;
@@ -246,7 +246,7 @@ export class CloudflareR2 {
   }
   
   /**
-   * Télécharger un fichier
+   * Telecharger un fichier
    */
   async downloadFile(key: string): Promise<Buffer> {
     try {
@@ -315,7 +315,7 @@ export class CloudflareKV {
   }
   
   /**
-   * Écrire une clé
+   * ecrire une cle
    */
   async set(key: string, value: string, expirationTtl?: number): Promise<void> {
     try {
@@ -335,7 +335,7 @@ export class CloudflareKV {
   }
   
   /**
-   * Lire une clé
+   * Lire une cle
    */
   async get(key: string): Promise<string | null> {
     try {
@@ -354,7 +354,7 @@ export class CloudflareKV {
   }
   
   /**
-   * Supprimer une clé
+   * Supprimer une cle
    */
   async delete(key: string): Promise<void> {
     try {
@@ -372,7 +372,7 @@ export class CloudflareKV {
   }
   
   /**
-   * Lister les clés
+   * Lister les cles
    */
   async listKeys(prefix?: string): Promise<string[]> {
     try {

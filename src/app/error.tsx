@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -60,7 +60,7 @@ export default function Error({
               onClick={reset}
               className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              Réessayer
+              Reessayer
             </button>
             <button
               onClick={() => router.push('/dashboard')}
@@ -72,7 +72,7 @@ export default function Error({
 
           {/* Help text */}
           <p className="text-sm text-gray-500 mt-6">
-            Si le problème persiste, contactez le support technique
+            Si le probleme persiste, contactez le support technique
           </p>
         </div>
       </div>

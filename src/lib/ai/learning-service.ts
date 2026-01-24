@@ -1,4 +1,4 @@
-﻿import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 
 export interface ValidationResult {
   actionId: string
@@ -10,7 +10,7 @@ export interface ValidationResult {
 export class LearningService {
   // Enregistrer une validation et ajuster la confiance
   static async recordValidation(validation: ValidationResult) {
-    // Mettre à jour l'action
+    // Mettre a jour l'action
     await prisma.aIAction.update({
       where: { id: validation.actionId },
       data: {
@@ -22,13 +22,13 @@ export class LearningService {
     // Calculer nouvel ajustement de confiance
     const adjustment = this.calculateConfidenceAdjustment(validation)
     
-    // Enregistrer les métriques
+    // Enregistrer les metriques
     await this.updateMetrics(validation, adjustment)
     
     return adjustment
   }
 
-  // Calculer ajustement de confiance basé sur le résultat
+  // Calculer ajustement de confiance base sur le resultat
   static calculateConfidenceAdjustment(validation: ValidationResult): number {
     switch (validation.result) {
       case 'APPROVED':
@@ -85,7 +85,7 @@ export class LearningService {
       return acc
     }, {} as Record<string, any>)
 
-    // Calculer moyennes et taux de succès
+    // Calculer moyennes et taux de succes
     Object.keys(byType).forEach(type => {
       const stats = byType[type]
       stats.avgConfidence = stats.avgConfidence / stats.total
@@ -96,7 +96,7 @@ export class LearningService {
     return byType
   }
 
-  // Obtenir recommandation basée sur performance
+  // Obtenir recommandation basee sur performance
   static getRecommendation(successRate: number, avgConfidence: number): string {
     if (successRate > 0.9 && avgConfidence > 0.8) {
       return 'AUTO_APPROVE'
@@ -107,7 +107,7 @@ export class LearningService {
     }
   }
 
-  // Mettre à jour les métriques d'apprentissage
+  // Mettre a jour les metriques d'apprentissage
   static async updateMetrics(validation: ValidationResult, adjustment: number) {
     const period = new Date().toISOString().slice(0, 7) // YYYY-MM
     const periodStart = new Date(period + '-01')
@@ -148,7 +148,7 @@ export class LearningService {
     })
   }
 
-  // Prédire le niveau d'approbation pour une nouvelle action
+  // Predire le niveau d'approbation pour une nouvelle action
   static async predictApprovalLevel(tenantId: string, actionType: string, confidence: number) {
     const patterns = await this.analyzeValidationPatterns(tenantId)
     const typeStats = patterns[actionType]
@@ -160,11 +160,11 @@ export class LearningService {
     return typeStats.recommendation
   }
 
-  // Générer rapport d'amélioration
+  // Generer rapport d'amelioration
   static async generateImprovementReport(tenantId: string) {
     const [current, previous] = await Promise.all([
       this.analyzeValidationPatterns(tenantId, 30),
-      this.analyzeValidationPatterns(tenantId, 60) // 30-60 jours précédents
+      this.analyzeValidationPatterns(tenantId, 60) // 30-60 jours precedents
     ])
 
     const improvements = Object.keys(current).map(type => {

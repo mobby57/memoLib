@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Clock, User, Mail, FileText, AlertTriangle, CheckCircle2, MessageSquare, Calendar, Star } from 'lucide-react';
 
@@ -51,7 +51,7 @@ export default function TimelineTab({ events }: TimelineTabProps) {
   const actorLabels: Record<string, string> = {
     user: 'Utilisateur',
     ai: 'IA Poste Manager',
-    system: 'Système',
+    system: 'Systeme',
   };
 
   const actorIcons: Record<string, any> = {
@@ -89,8 +89,8 @@ export default function TimelineTab({ events }: TimelineTabProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Timeline Complète</h3>
-          <p className="text-sm text-gray-600 mt-1">{events.length} événement(s) au total</p>
+          <h3 className="text-lg font-semibold text-gray-900">Timeline Complete</h3>
+          <p className="text-sm text-gray-600 mt-1">{events.length} evenement(s) au total</p>
         </div>
 
         {/* Filtres */}
@@ -102,7 +102,7 @@ export default function TimelineTab({ events }: TimelineTabProps) {
             Emails
           </button>
           <button className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">
-            Procédures
+            Procedures
           </button>
           <button className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">
             Documents
@@ -153,14 +153,14 @@ export default function TimelineTab({ events }: TimelineTabProps) {
                       </span>
                     </div>
 
-                    {/* Icône événement */}
+                    {/* Icone evenement */}
                     <div className="absolute left-11 top-0">
                       <div className={`w-10 h-10 rounded-full ${colorClass} flex items-center justify-center shadow-lg`}>
                         <Icon className="w-5 h-5" />
                       </div>
                     </div>
 
-                    {/* Contenu événement */}
+                    {/* Contenu evenement */}
                     <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
@@ -177,12 +177,12 @@ export default function TimelineTab({ events }: TimelineTabProps) {
                         </div>
                       </div>
 
-                      {/* Métadonnées */}
+                      {/* Metadonnees */}
                       {event.metadata && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <details className="text-xs text-gray-600">
                             <summary className="cursor-pointer hover:text-gray-900">
-                              Voir détails
+                              Voir details
                             </summary>
                             <pre className="mt-2 p-2 bg-gray-50 rounded overflow-x-auto">
                               {JSON.stringify(JSON.parse(event.metadata), null, 2)}
@@ -191,7 +191,7 @@ export default function TimelineTab({ events }: TimelineTabProps) {
                         </div>
                       )}
 
-                      {/* Type d'événement */}
+                      {/* Type d'evenement */}
                       <div className="mt-2">
                         <span className="text-xs text-gray-500">
                           Type: <span className="font-medium">{event.eventType}</span>
@@ -208,8 +208,8 @@ export default function TimelineTab({ events }: TimelineTabProps) {
         {events.length === 0 && (
           <div className="text-center py-12 text-gray-500">
             <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium">Aucun événement</p>
-            <p className="text-sm mt-2">La timeline sera alimentée au fil des actions</p>
+            <p className="text-lg font-medium">Aucun evenement</p>
+            <p className="text-sm mt-2">La timeline sera alimentee au fil des actions</p>
           </div>
         )}
       </div>
@@ -228,7 +228,7 @@ export default function TimelineTab({ events }: TimelineTabProps) {
               <p className="text-2xl font-bold text-purple-600">
                 {events.filter(e => e.eventType.includes('procedure')).length}
               </p>
-              <p className="text-xs text-gray-600 mt-1">Procédures</p>
+              <p className="text-xs text-gray-600 mt-1">Procedures</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-yellow-600">

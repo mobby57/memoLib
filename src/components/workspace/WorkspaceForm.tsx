@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -125,7 +125,7 @@ export default function WorkspaceForm({
           {/* Procedure Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Type de procédure *
+              Type de procedure *
             </label>
             <select
               required
@@ -153,7 +153,7 @@ export default function WorkspaceForm({
               placeholder="ID du client"
             />
             <p className="mt-1 text-sm text-gray-500">
-              Pour le moment, entrez l'ID du client. Un sélecteur sera ajouté prochainement.
+              Pour le moment, entrez l'ID du client. Un selecteur sera ajoute prochainement.
             </p>
           </div>
 
@@ -167,7 +167,7 @@ export default function WorkspaceForm({
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Décrivez la situation du client..."
+              placeholder="Decrivez la situation du client..."
             />
           </div>
 
@@ -184,7 +184,7 @@ export default function WorkspaceForm({
               >
                 <option value="faible">Faible</option>
                 <option value="moyen">Moyen</option>
-                <option value="eleve">Élevé</option>
+                <option value="eleve">eleve</option>
                 <option value="critique">Critique</option>
               </select>
             </div>
@@ -200,8 +200,8 @@ export default function WorkspaceForm({
               >
                 <option value="active">Actif</option>
                 <option value="pending">En attente</option>
-                <option value="closed">Clôturé</option>
-                <option value="archived">Archivé</option>
+                <option value="closed">Cloture</option>
+                <option value="archived">Archive</option>
               </select>
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function WorkspaceForm({
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  {workspaceId ? 'Mettre à jour' : 'Créer le dossier'}
+                  {workspaceId ? 'Mettre a jour' : 'Creer le dossier'}
                 </>
               )}
             </button>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { 
@@ -30,13 +30,13 @@ export default function MonitoringPage() {
     setLoading(true);
     
     try {
-      // Simuler le chargement des statuts (à remplacer par de vrais appels API)
+      // Simuler le chargement des statuts (a remplacer par de vrais appels API)
       const statuses: SystemStatus[] = [
         {
-          name: 'Base de Données',
+          name: 'Base de Donnees',
           status: 'online',
           icon: Database,
-          details: 'PostgreSQL connectée',
+          details: 'PostgreSQL connectee',
           metrics: {
             tenants: 3,
             users: 12,
@@ -58,7 +58,7 @@ export default function MonitoringPage() {
           name: 'IA Locale (Ollama)',
           status: 'online',
           icon: Brain,
-          details: 'Modèle llama3.2 chargé',
+          details: 'Modele llama3.2 charge',
           metrics: {
             model: 'llama3.2:3b',
             uptime: '99.8%',
@@ -68,7 +68,7 @@ export default function MonitoringPage() {
           name: 'WebSocket',
           status: 'online',
           icon: Zap,
-          details: 'Notifications temps réel',
+          details: 'Notifications temps reel',
           metrics: {
             connections: 5,
             port: 3001,
@@ -78,7 +78,7 @@ export default function MonitoringPage() {
           name: 'GitHub OAuth',
           status: 'online',
           icon: Server,
-          details: 'Configuration complète',
+          details: 'Configuration complete',
           metrics: {
             appId: '2594935',
             connected: true,
@@ -88,7 +88,7 @@ export default function MonitoringPage() {
           name: 'Smart Forms',
           status: 'online',
           icon: FileText,
-          details: 'Système opérationnel',
+          details: 'Systeme operationnel',
           metrics: {
             submissions: 0,
             approvals: 0,
@@ -104,10 +104,10 @@ export default function MonitoringPage() {
           }
         },
         {
-          name: 'Sécurité',
+          name: 'Securite',
           status: 'online',
           icon: Shield,
-          details: 'Tous les secrets configurés',
+          details: 'Tous les secrets configures',
           metrics: {
             encryption: true,
             rateLimit: true,
@@ -164,10 +164,10 @@ export default function MonitoringPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                🎛️ Monitoring Système
+                🎛️ Monitoring Systeme
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                État en temps réel de tous les workflows avancés
+                etat en temps reel de tous les workflows avances
               </p>
             </div>
             
@@ -182,7 +182,7 @@ export default function MonitoringPage() {
           </div>
           
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Dernière mise à jour : {lastUpdate.toLocaleTimeString('fr-FR')}
+            Derniere mise a jour : {lastUpdate.toLocaleTimeString('fr-FR')}
           </p>
         </div>
 
@@ -191,7 +191,7 @@ export default function MonitoringPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                État Global du Système
+                etat Global du Systeme
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
                 Tous les composants critiques
@@ -207,7 +207,7 @@ export default function MonitoringPage() {
                 {globalHealth}%
               </div>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Santé globale
+                Sante globale
               </p>
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function MonitoringPage() {
           </div>
         </div>
 
-        {/* Grille des Systèmes */}
+        {/* Grille des Systemes */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {systems.map((system, index) => {
             const Icon = system.icon;
@@ -276,13 +276,13 @@ export default function MonitoringPage() {
                   </div>
 
                   <div className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(system.status)}`}>
-                    {system.status === 'online' ? '✅ Opérationnel' : 
-                     system.status === 'warning' ? '⚠️ Attention' : 
-                     '❌ Hors ligne'}
+                    {system.status === 'online' ? ' Operationnel' : 
+                     system.status === 'warning' ? '️ Attention' : 
+                     ' Hors ligne'}
                   </div>
                 </div>
 
-                {/* Métriques */}
+                {/* Metriques */}
                 {system.metrics && (
                   <div className="p-6 bg-gray-50 dark:bg-slate-900/50">
                     <div className="space-y-2">
@@ -292,7 +292,7 @@ export default function MonitoringPage() {
                             {key.replace(/([A-Z])/g, ' $1').trim()}:
                           </span>
                           <span className="font-medium text-gray-900 dark:text-white">
-                            {typeof value === 'boolean' ? (value ? '✅' : '❌') : value}
+                            {typeof value === 'boolean' ? (value ? '' : '') : value}
                           </span>
                         </div>
                       ))}
@@ -306,21 +306,21 @@ export default function MonitoringPage() {
 
         {/* Actions Rapides */}
         <div className="mt-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-8 text-white">
-          <h2 className="text-2xl font-bold mb-4">🚀 Actions Rapides</h2>
+          <h2 className="text-2xl font-bold mb-4">[emoji] Actions Rapides</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-colors border border-white/30">
-              <div className="font-semibold mb-1">📧 Voir les Emails</div>
-              <div className="text-sm text-white/80">Consulter les emails classifiés</div>
+              <div className="font-semibold mb-1">[emoji] Voir les Emails</div>
+              <div className="text-sm text-white/80">Consulter les emails classifies</div>
             </button>
             
             <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-colors border border-white/30">
-              <div className="font-semibold mb-1">📊 Analytics IA</div>
+              <div className="font-semibold mb-1">[emoji] Analytics IA</div>
               <div className="text-sm text-white/80">Dashboard d'apprentissage</div>
             </button>
             
             <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-colors border border-white/30">
-              <div className="font-semibold mb-1">🔍 Recherche Sémantique</div>
+              <div className="font-semibold mb-1">[emoji] Recherche Semantique</div>
               <div className="text-sm text-white/80">Chercher dans les dossiers</div>
             </button>
           </div>

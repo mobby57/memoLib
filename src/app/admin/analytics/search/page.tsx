@@ -16,7 +16,7 @@ export default async function SearchAnalyticsPage() {
     redirect('/login');
   }
 
-  // Vérifier que l'utilisateur est admin ou super admin
+  // Verifier que l'utilisateur est admin ou super admin
   if (session.user.role !== 'ADMIN' && session.user.role !== 'SUPER_ADMIN') {
     redirect('/dashboard');
   }
@@ -25,10 +25,10 @@ export default async function SearchAnalyticsPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          📊 Analytics de Recherche
+          [Chart] Analytics de Recherche
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Analysez les tendances et l'utilisation du système de recherche
+          Analysez les tendances et l'utilisation du systeme de recherche
         </p>
       </div>
 

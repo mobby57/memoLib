@@ -1,6 +1,6 @@
-﻿/**
- * ⚙️ Moteur de Workflows Intelligents
- * Orchestration des workflows automatisés contextuels
+/**
+ * ️ Moteur de Workflows Intelligents
+ * Orchestration des workflows automatises contextuels
  */
 
 import { EmailAnalysis } from './email-intelligence';
@@ -31,12 +31,12 @@ export interface WorkflowStep {
 }
 
 /**
- * WORKFLOW 1: Email Urgent → Notification → Formulaire → Planning → Réponse
+ * WORKFLOW 1: Email Urgent [Next] Notification [Next] Formulaire [Next] Planning [Next] Reponse
  */
 export const WORKFLOW_URGENT_EMAIL: Workflow = {
   id: 'urgent-email-workflow',
   name: 'Traitement Email Urgent',
-  description: 'Email urgent → Analyse IA → Notification obligatoire → Formulaire dynamique → Planning calendrier → Réponse automatique',
+  description: 'Email urgent [Next] Analyse IA [Next] Notification obligatoire [Next] Formulaire dynamique [Next] Planning calendrier [Next] Reponse automatique',
   trigger: {
     type: 'email',
     condition: { urgency: ['high', 'critical'] },
@@ -54,7 +54,7 @@ export const WORKFLOW_URGENT_EMAIL: Workflow = {
     },
     {
       id: 'step2_notification',
-      name: 'Créer notification urgente',
+      name: 'Creer notification urgente',
       type: 'notification',
       action: {
         function: 'createContextualNotification',
@@ -85,7 +85,7 @@ export const WORKFLOW_URGENT_EMAIL: Workflow = {
     },
     {
       id: 'step5_email',
-      name: 'Envoyer réponse automatique',
+      name: 'Envoyer reponse automatique',
       type: 'email',
       action: {
         function: 'sendAIDraftEmail',
@@ -98,12 +98,12 @@ export const WORKFLOW_URGENT_EMAIL: Workflow = {
 };
 
 /**
- * WORKFLOW 2: Facture → Validation → Échéance → Confirmation
+ * WORKFLOW 2: Facture [Next] Validation [Next] echeance [Next] Confirmation
  */
 export const WORKFLOW_INVOICE_PROCESSING: Workflow = {
   id: 'invoice-processing-workflow',
   name: 'Traitement Automatique Factures',
-  description: 'Facture reçue → Extraction IA → Formulaire validation → Échéance calendrier → Email confirmation',
+  description: 'Facture recue [Next] Extraction IA [Next] Formulaire validation [Next] echeance calendrier [Next] Email confirmation',
   trigger: {
     type: 'email',
     condition: { category: 'invoice', hasAttachment: true },
@@ -111,7 +111,7 @@ export const WORKFLOW_INVOICE_PROCESSING: Workflow = {
   steps: [
     {
       id: 'step1_extract',
-      name: 'Extraction données facture (OCR + IA)',
+      name: 'Extraction donnees facture (OCR + IA)',
       type: 'analysis',
       action: {
         function: 'extractInvoiceData',
@@ -143,7 +143,7 @@ export const WORKFLOW_INVOICE_PROCESSING: Workflow = {
     },
     {
       id: 'step4_schedule',
-      name: 'Ajouter échéance paiement',
+      name: 'Ajouter echeance paiement',
       type: 'schedule',
       action: {
         function: 'addPaymentDeadline',
@@ -153,7 +153,7 @@ export const WORKFLOW_INVOICE_PROCESSING: Workflow = {
     },
     {
       id: 'step5_task',
-      name: 'Créer tâche approbation',
+      name: 'Creer tache approbation',
       type: 'task',
       action: {
         function: 'createApprovalTask',
@@ -176,12 +176,12 @@ export const WORKFLOW_INVOICE_PROCESSING: Workflow = {
 };
 
 /**
- * WORKFLOW 3: Nouveau Dossier → Intake → Planning → Accusé Réception
+ * WORKFLOW 3: Nouveau Dossier [Next] Intake [Next] Planning [Next] Accuse Reception
  */
 export const WORKFLOW_NEW_CASE_INTAKE: Workflow = {
   id: 'new-case-intake-workflow',
   name: 'Ouverture Nouveau Dossier',
-  description: 'Email nouveau dossier → Formulaire intake → Planning tâches → Email bienvenue',
+  description: 'Email nouveau dossier [Next] Formulaire intake [Next] Planning taches [Next] Email bienvenue',
   trigger: {
     type: 'email',
     condition: { category: 'new-case' },
@@ -219,7 +219,7 @@ export const WORKFLOW_NEW_CASE_INTAKE: Workflow = {
     },
     {
       id: 'step4_dossier',
-      name: 'Créer dossier système',
+      name: 'Creer dossier systeme',
       type: 'task',
       action: {
         function: 'createDossier',
@@ -229,7 +229,7 @@ export const WORKFLOW_NEW_CASE_INTAKE: Workflow = {
     },
     {
       id: 'step5_schedule',
-      name: 'Planifier première consultation',
+      name: 'Planifier premiere consultation',
       type: 'schedule',
       action: {
         function: 'scheduleIntakeMeeting',
@@ -239,7 +239,7 @@ export const WORKFLOW_NEW_CASE_INTAKE: Workflow = {
     },
     {
       id: 'step6_tasks',
-      name: 'Générer tâches ouverture',
+      name: 'Generer taches ouverture',
       type: 'task',
       action: {
         function: 'generateCaseOpeningTasks',
@@ -262,12 +262,12 @@ export const WORKFLOW_NEW_CASE_INTAKE: Workflow = {
 };
 
 /**
- * WORKFLOW 4: Question Juridique → Recherche IA → Brouillon → Révision
+ * WORKFLOW 4: Question Juridique [Next] Recherche IA [Next] Brouillon [Next] Revision
  */
 export const WORKFLOW_LEGAL_QUESTION_RESPONSE: Workflow = {
   id: 'legal-question-workflow',
-  name: 'Réponse Question Juridique',
-  description: 'Question reçue → Recherche IA → Brouillon réponse → Révision avocat → Envoi',
+  name: 'Reponse Question Juridique',
+  description: 'Question recue [Next] Recherche IA [Next] Brouillon reponse [Next] Revision avocat [Next] Envoi',
   trigger: {
     type: 'email',
     condition: { category: 'legal-question' },
@@ -275,7 +275,7 @@ export const WORKFLOW_LEGAL_QUESTION_RESPONSE: Workflow = {
   steps: [
     {
       id: 'step1_categorize',
-      name: 'Catégoriser question juridique',
+      name: 'Categoriser question juridique',
       type: 'analysis',
       action: {
         function: 'categorizeLegalQuestion',
@@ -295,7 +295,7 @@ export const WORKFLOW_LEGAL_QUESTION_RESPONSE: Workflow = {
     },
     {
       id: 'step3_draft',
-      name: 'Générer brouillon réponse IA',
+      name: 'Generer brouillon reponse IA',
       type: 'analysis',
       action: {
         function: 'generateLegalResponse',
@@ -305,7 +305,7 @@ export const WORKFLOW_LEGAL_QUESTION_RESPONSE: Workflow = {
     },
     {
       id: 'step4_notification',
-      name: 'Notification révision requise',
+      name: 'Notification revision requise',
       type: 'notification',
       action: {
         function: 'createReviewNotification',
@@ -315,7 +315,7 @@ export const WORKFLOW_LEGAL_QUESTION_RESPONSE: Workflow = {
     },
     {
       id: 'step5_form',
-      name: 'Formulaire révision',
+      name: 'Formulaire revision',
       type: 'form',
       action: {
         function: 'generateReviewForm',
@@ -325,7 +325,7 @@ export const WORKFLOW_LEGAL_QUESTION_RESPONSE: Workflow = {
     },
     {
       id: 'step6_decision',
-      name: 'Décision: Approuver ou Modifier',
+      name: 'Decision: Approuver ou Modifier',
       type: 'decision',
       action: {
         function: 'reviewDecision',
@@ -335,7 +335,7 @@ export const WORKFLOW_LEGAL_QUESTION_RESPONSE: Workflow = {
     },
     {
       id: 'step7_email',
-      name: 'Envoyer réponse finale',
+      name: 'Envoyer reponse finale',
       type: 'email',
       action: {
         function: 'sendLegalResponse',
@@ -348,12 +348,12 @@ export const WORKFLOW_LEGAL_QUESTION_RESPONSE: Workflow = {
 };
 
 /**
- * WORKFLOW 5: Délai Approche → Impact → Mise à Jour → Notifications
+ * WORKFLOW 5: Delai Approche [Next] Impact [Next] Mise a Jour [Next] Notifications
  */
 export const WORKFLOW_DEADLINE_MANAGEMENT: Workflow = {
   id: 'deadline-management-workflow',
-  name: 'Gestion Délais Critiques',
-  description: 'Email délai → Évaluation impact → Mise à jour planning → Notifications multiples',
+  name: 'Gestion Delais Critiques',
+  description: 'Email delai [Next] evaluation impact [Next] Mise a jour planning [Next] Notifications multiples',
   trigger: {
     type: 'email',
     condition: { category: 'deadline-reminder' },
@@ -361,7 +361,7 @@ export const WORKFLOW_DEADLINE_MANAGEMENT: Workflow = {
   steps: [
     {
       id: 'step1_extract',
-      name: 'Extraire informations délai',
+      name: 'Extraire informations delai',
       type: 'analysis',
       action: {
         function: 'extractDeadlineInfo',
@@ -371,7 +371,7 @@ export const WORKFLOW_DEADLINE_MANAGEMENT: Workflow = {
     },
     {
       id: 'step2_impact',
-      name: 'Évaluer impact délai',
+      name: 'evaluer impact delai',
       type: 'analysis',
       action: {
         function: 'assessDeadlineImpact',
@@ -381,7 +381,7 @@ export const WORKFLOW_DEADLINE_MANAGEMENT: Workflow = {
     },
     {
       id: 'step3_notification',
-      name: 'Alerte urgence délai',
+      name: 'Alerte urgence delai',
       type: 'notification',
       action: {
         function: 'createDeadlineAlert',
@@ -391,7 +391,7 @@ export const WORKFLOW_DEADLINE_MANAGEMENT: Workflow = {
     },
     {
       id: 'step4_form',
-      name: 'Formulaire gestion délai',
+      name: 'Formulaire gestion delai',
       type: 'form',
       action: {
         function: 'generateDeadlineForm',
@@ -403,7 +403,7 @@ export const WORKFLOW_DEADLINE_MANAGEMENT: Workflow = {
     },
     {
       id: 'step5_schedule',
-      name: 'Mettre à jour calendrier',
+      name: 'Mettre a jour calendrier',
       type: 'schedule',
       action: {
         function: 'updateDeadlineCalendar',
@@ -413,7 +413,7 @@ export const WORKFLOW_DEADLINE_MANAGEMENT: Workflow = {
     },
     {
       id: 'step6_tasks',
-      name: 'Créer tâches préparation',
+      name: 'Creer taches preparation',
       type: 'task',
       action: {
         function: 'generatePreparationTasks',
@@ -439,12 +439,12 @@ export const WORKFLOW_DEADLINE_MANAGEMENT: Workflow = {
 };
 
 /**
- * WORKFLOW 6: Document Tribunal → OCR → Analyse → Action Urgente
+ * WORKFLOW 6: Document Tribunal [Next] OCR [Next] Analyse [Next] Action Urgente
  */
 export const WORKFLOW_COURT_DOCUMENT: Workflow = {
   id: 'court-document-workflow',
   name: 'Traitement Document Tribunal',
-  description: 'Document reçu → OCR + IA → Extraction dates → Action urgente → Préparation réponse',
+  description: 'Document recu [Next] OCR + IA [Next] Extraction dates [Next] Action urgente [Next] Preparation reponse',
   trigger: {
     type: 'email',
     condition: { category: 'court-document', hasAttachment: true },
@@ -502,7 +502,7 @@ export const WORKFLOW_COURT_DOCUMENT: Workflow = {
     },
     {
       id: 'step6_tasks',
-      name: 'Créer checklist préparation',
+      name: 'Creer checklist preparation',
       type: 'task',
       action: {
         function: 'generateCourtPrepTasks',
@@ -512,7 +512,7 @@ export const WORKFLOW_COURT_DOCUMENT: Workflow = {
     },
     {
       id: 'step7_email',
-      name: 'Accusé réception + Prochaines étapes',
+      name: 'Accuse reception + Prochaines etapes',
       type: 'email',
       action: {
         function: 'sendCourtDocConfirmation',
@@ -525,7 +525,7 @@ export const WORKFLOW_COURT_DOCUMENT: Workflow = {
 };
 
 /**
- * Exécute un workflow complet
+ * Execute un workflow complet
  */
 export async function executeWorkflow(
   workflow: Workflow,
@@ -539,12 +539,12 @@ export async function executeWorkflow(
       const nextSteps = [];
       
       for (const step of currentSteps) {
-        console.log(`Exécution step: ${step.name}`);
+        console.log(`Execution step: ${step.name}`);
         
         const result = await executeWorkflowStep(step, context);
         results.push({ step: step.id, result });
         
-        // Ajouter les prochaines étapes
+        // Ajouter les prochaines etapes
         for (const nextStepId of step.nextSteps) {
           const nextStep = workflow.steps.find(s => s.id === nextStepId);
           if (nextStep) nextSteps.push(nextStep);
@@ -562,7 +562,7 @@ export async function executeWorkflow(
 }
 
 async function executeWorkflowStep(step: WorkflowStep, context: any): Promise<any> {
-  // Simuler l'exécution de l'étape
+  // Simuler l'execution de l'etape
   await new Promise(resolve => setTimeout(resolve, 100));
   
   return {

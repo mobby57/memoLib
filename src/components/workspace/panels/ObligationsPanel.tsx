@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Panel Obligations - Ce qui est requis
@@ -21,12 +21,12 @@ export function ObligationsPanel({ obligations, contexts = [], onAddObligation }
   if (obligations.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">📜</div>
+        <div className="text-6xl mb-4">[emoji]</div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Aucune obligation identifiée
+          Aucune obligation identifiee
         </h3>
         <p className="text-gray-600 mb-4">
-          L'IA n'a pas encore déduit d'obligations légales ou administratives.
+          L'IA n'a pas encore deduit d'obligations legales ou administratives.
         </p>
         {onAddObligation && (
           <button
@@ -57,7 +57,7 @@ export function ObligationsPanel({ obligations, contexts = [], onAddObligation }
         <div>
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <FileText className="w-5 h-5 text-orange-500" />
-            Obligations Identifiées ({obligations.length})
+            Obligations Identifiees ({obligations.length})
           </h3>
           <div className="flex gap-4 mt-2 text-sm text-gray-600">
             <span>
@@ -67,7 +67,7 @@ export function ObligationsPanel({ obligations, contexts = [], onAddObligation }
               <strong className="text-blue-600">{optionalObligations.length}</strong> optionnelle(s)
             </span>
             <span>
-              <strong className="text-red-600">{withDeadline.length}</strong> avec délai
+              <strong className="text-red-600">{withDeadline.length}</strong> avec delai
             </span>
           </div>
         </div>
@@ -82,18 +82,18 @@ export function ObligationsPanel({ obligations, contexts = [], onAddObligation }
         )}
       </div>
       
-      {/* Obligations groupées par contexte */}
+      {/* Obligations groupees par contexte */}
       <div className="space-y-4">
         {Object.entries(groupedByContext).map(([contextId, contextObligations]) => {
           const context = contexts.find(c => c.id === contextId);
           
           return (
             <div key={contextId} className="border border-orange-200 rounded-lg overflow-hidden">
-              {/* En-tête contexte */}
+              {/* En-tete contexte */}
               {context && (
                 <div className="bg-orange-50 px-4 py-3 border-b border-orange-200">
                   <h4 className="font-semibold text-orange-900">
-                    🧭 Contexte : {context.type}
+                    [emoji] Contexte : {context.type}
                   </h4>
                   <p className="text-xs text-orange-700 mt-1">{context.description}</p>
                 </div>
@@ -113,8 +113,8 @@ export function ObligationsPanel({ obligations, contexts = [], onAddObligation }
       {/* Note explicative */}
       <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm">
         <p className="text-orange-800">
-          <strong>⚠️ Règle #3 :</strong> Chaque obligation est liée à un contexte spécifique. 
-          Les obligations découlent du cadre identifié.
+          <strong>️ Regle #3 :</strong> Chaque obligation est liee a un contexte specifique. 
+          Les obligations decoulent du cadre identifie.
         </p>
       </div>
     </div>
@@ -129,17 +129,17 @@ function ObligationCard({ obligation }: { obligation: Obligation }) {
       border rounded-lg p-4
       ${obligation.mandatory ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-gray-50'}
     `}>
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-xl">{obligation.mandatory ? '❗' : '💡'}</span>
+          <span className="text-xl">{obligation.mandatory ? '' : '[emoji]'}</span>
           <div>
             <h5 className="font-semibold text-gray-900">
               {obligation.mandatory ? 'OBLIGATOIRE' : 'Optionnel'}
             </h5>
             {obligation.critical && (
               <span className="text-xs text-red-600 font-medium">
-                🔴 DÉLAI CRITIQUE
+                [emoji] DeLAI CRITIQUE
               </span>
             )}
           </div>
@@ -160,19 +160,19 @@ function ObligationCard({ obligation }: { obligation: Obligation }) {
       <div className="ml-7">
         <p className="text-sm text-gray-900 mb-2">{obligation.description}</p>
         
-        {/* Référence légale */}
+        {/* Reference legale */}
         {obligation.legalRef && (
           <div className="bg-white border border-orange-200 rounded p-2 mb-2">
             <p className="text-xs text-orange-800">
-              <strong>📖 Base légale :</strong> {obligation.legalRef}
+              <strong>[emoji] Base legale :</strong> {obligation.legalRef}
             </p>
           </div>
         )}
       </div>
       
-      {/* Métadonnées */}
+      {/* Metadonnees */}
       <div className="ml-7 mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
-        Déduit par {obligation.deducedBy === 'AI' ? 'IA' : 'Humain'} le{' '}
+        Deduit par {obligation.deducedBy === 'AI' ? 'IA' : 'Humain'} le{' '}
         {new Date(obligation.createdAt).toLocaleDateString('fr-FR')}
       </div>
     </div>

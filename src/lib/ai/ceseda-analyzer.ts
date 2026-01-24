@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CESEDA Case Analyzer - AI-Powered Legal Analysis
  * 
  * Uses Ollama to analyze immigration law cases and provide:
@@ -58,10 +58,10 @@ export class CESEDAAnalyzer {
     }
 
     try {
-      const systemPrompt = `Tu es un expert en droit français des étrangers (CESEDA).
-Analyse les cas d'immigration avec précision juridique.
+      const systemPrompt = `Tu es un expert en droit francais des etrangers (CESEDA).
+Analyse les cas d'immigration avec precision juridique.
 Fournis toujours des recommandations conformes au CESEDA.
-Réponds UNIQUEMENT en JSON valide.`;
+Reponds UNIQUEMENT en JSON valide.`;
 
       const userPrompt = `Analyse ce dossier CESEDA:
 
@@ -76,7 +76,7 @@ Fournis une analyse JSON avec:
   "confidence": 0.0-1.0,
   "urgentActions": ["action1", "action2"],
   "requiredDocuments": ["doc1", "doc2"],
-  "deadlines": [{"type": "recours", "description": "Délai CESEDA", "daysRemaining": 30}],
+  "deadlines": [{"type": "recours", "description": "Delai CESEDA", "daysRemaining": 30}],
   "successProbability": 0.0-1.0,
   "recommendations": ["recommandation1"],
   "legalBasis": ["Article L313-11 CESEDA"]
@@ -111,7 +111,7 @@ Fournis une analyse JSON avec:
     if (caseType === 'OQTF' || urgencyLevel === 'critique') {
       return {
         risk: 'critical',
-        message: 'Délais CESEDA critiques - Action immédiate requise',
+        message: 'Delais CESEDA critiques - Action immediate requise',
       };
     }
 
@@ -119,7 +119,7 @@ Fournis une analyse JSON avec:
     if (caseType === 'ASILE' || urgencyLevel === 'haute') {
       return {
         risk: 'high',
-        message: 'Priorité élevée - Traitement rapide recommandé',
+        message: 'Priorite elevee - Traitement rapide recommande',
       };
     }
 
@@ -127,13 +127,13 @@ Fournis une analyse JSON avec:
     if (urgencyLevel === 'normale') {
       return {
         risk: 'medium',
-        message: 'Traitement standard dans les délais réglementaires',
+        message: 'Traitement standard dans les delais reglementaires',
       };
     }
 
     return {
       risk: 'low',
-      message: 'Cas standard - Suivi régulier',
+      message: 'Cas standard - Suivi regulier',
     };
   }
 
@@ -158,7 +158,7 @@ Fournis une analyse JSON avec:
 
         const now = new Date();
         deadlines.push({
-          type: 'Départ volontaire (si applicable)',
+          type: 'Depart volontaire (si applicable)',
           date: deadline48h,
           daysRemaining: Math.ceil((deadline48h.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
         });
@@ -189,29 +189,29 @@ Fournis une analyse JSON avec:
       riskLevel: isCritical ? 'critical' : isUrgent ? 'high' : 'medium',
       confidence: 0.6,
       urgentActions: isCritical
-        ? ['Vérifier délais de recours', 'Préparer recours contentieux']
-        : ['Rassembler documents', 'Préparer rendez-vous'],
+        ? ['Verifier delais de recours', 'Preparer recours contentieux']
+        : ['Rassembler documents', 'Preparer rendez-vous'],
       requiredDocuments: this.getDefaultDocuments(params.caseType),
       deadlines: [],
       successProbability: 0.5,
       recommendations: [
-        'Consultation juridique recommandée',
-        'Vérifier conformité dossier',
+        'Consultation juridique recommandee',
+        'Verifier conformite dossier',
       ],
       legalBasis: this.getLegalBasis(params.caseType),
     };
   }
 
   private getDefaultDocuments(caseType: string): string[] {
-    const common = ['Passeport', 'Justificatif de domicile', 'Photos d\'identité'];
+    const common = ['Passeport', 'Justificatif de domicile', 'Photos d\'identite'];
 
     switch (caseType) {
       case 'OQTF':
-        return [...common, 'Décision OQTF', 'Justificatifs d\'attaches en France'];
+        return [...common, 'Decision OQTF', 'Justificatifs d\'attaches en France'];
       case 'NATURALISATION':
-        return [...common, 'Acte de naissance', 'Justificatifs de revenus', 'Diplômes'];
+        return [...common, 'Acte de naissance', 'Justificatifs de revenus', 'Diplomes'];
       case 'ASILE':
-        return [...common, 'Récit de persécution', 'Preuves de menaces'];
+        return [...common, 'Recit de persecution', 'Preuves de menaces'];
       case 'TITRE_SEJOUR':
         return [...common, 'Contrat de travail ou attestation', 'Bulletins de salaire'];
       default:
@@ -226,7 +226,7 @@ Fournis une analyse JSON avec:
       case 'NATURALISATION':
         return ['Art. 21-2 Code civil', 'Art. L111-1 CESEDA'];
       case 'ASILE':
-        return ['Art. L711-1 CESEDA', 'Convention de Genève'];
+        return ['Art. L711-1 CESEDA', 'Convention de Geneve'];
       case 'TITRE_SEJOUR':
         return ['Art. L313-11 CESEDA', 'Art. L313-10 CESEDA'];
       default:

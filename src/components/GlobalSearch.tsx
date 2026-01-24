@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Search, X, FileText, Users, FolderOpen, Mail, Filter, Clock, TrendingUp } from 'lucide-react';
@@ -197,7 +197,7 @@ export default function GlobalSearch({ onClose }: { onClose?: () => void }) {
               <div className="px-4 py-3 bg-gray-50 border-b flex items-center justify-between text-sm">
                 <div className="flex items-center gap-4">
                   <span className="text-gray-600">
-                    {results.totalCount} résultat{results.totalCount > 1 ? 's' : ''}
+                    {results.totalCount} resultat{results.totalCount > 1 ? 's' : ''}
                   </span>
                   <span className="text-gray-400 flex items-center gap-1">
                     <Clock className="w-4 h-4" />
@@ -279,14 +279,14 @@ export default function GlobalSearch({ onClose }: { onClose?: () => void }) {
           {!loading && results && results.results.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-gray-500">
               <Search className="w-12 h-12 mb-3 text-gray-300" />
-              <p className="text-lg font-medium">Aucun résultat trouvé</p>
+              <p className="text-lg font-medium">Aucun resultat trouve</p>
               <p className="text-sm">Essayez avec d'autres termes</p>
             </div>
           )}
 
           {!loading && !results && query.length > 0 && query.length < 2 && (
             <div className="flex items-center justify-center py-12 text-gray-400">
-              <p>Entrez au moins 2 caractères pour rechercher</p>
+              <p>Entrez au moins 2 caracteres pour rechercher</p>
             </div>
           )}
 

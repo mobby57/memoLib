@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Calendar, CalendarEvent, MiniCalendar } from '@/components/Calendar';
@@ -30,15 +30,15 @@ type EventFormData = z.infer<typeof eventSchema>;
 export default function CalendrierPage() {
   const { showToast } = useToast();
   
-  // Données d'exemple
+  // Donnees d'exemple
   const [events, setEvents] = useState<CalendarEvent[]>([
     {
       id: '1',
-      title: 'Échéance dépôt conclusions',
+      title: 'echeance depot conclusions',
       date: new Date(2026, 0, 15, 14, 0),
       startTime: '14:00',
       type: 'echeance',
-      description: 'Dépôt des conclusions au greffe',
+      description: 'Depot des conclusions au greffe',
       dossier: 'DOS-2026-001',
       client: 'Martin Dupont',
     },
@@ -49,7 +49,7 @@ export default function CalendrierPage() {
       startTime: '10:00',
       endTime: '11:00',
       type: 'rendez-vous',
-      description: 'Première consultation contentieux commercial',
+      description: 'Premiere consultation contentieux commercial',
       client: 'Sophie Bernard',
       location: 'Cabinet - Salle 2',
     },
@@ -59,7 +59,7 @@ export default function CalendrierPage() {
       date: new Date(2026, 0, 20, 9, 0),
       startTime: '09:00',
       type: 'audience',
-      description: 'Affaire n°2025/12345',
+      description: 'Affaire n deg2025/12345',
       dossier: 'DOS-2025-089',
       client: 'SAS TechCorp',
       location: 'Tribunal de Commerce de Paris - Salle 3',
@@ -75,7 +75,7 @@ export default function CalendrierPage() {
     },
     {
       id: '5',
-      title: 'Échéance appel',
+      title: 'echeance appel',
       date: new Date(2026, 0, 10),
       type: 'echeance',
       description: 'Dernier jour pour faire appel',
@@ -125,15 +125,15 @@ export default function CalendrierPage() {
     };
 
     setEvents([...events, newEvent]);
-    showToast('Événement ajouté avec succès', 'success');
+    showToast('evenement ajoute avec succes', 'success');
     setIsModalOpen(false);
     reset();
   };
 
   const handleDeleteEvent = (eventId: string) => {
-    if (confirm('Voulez-vous vraiment supprimer cet événement ?')) {
+    if (confirm('Voulez-vous vraiment supprimer cet evenement ?')) {
       setEvents(events.filter(e => e.id !== eventId));
-      showToast('Événement supprimé', 'success');
+      showToast('evenement supprime', 'success');
       setIsEventDetailOpen(false);
     }
   };
@@ -162,10 +162,10 @@ export default function CalendrierPage() {
 
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Calendrier & Échéances
+          Calendrier & echeances
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Gérez vos rendez-vous, audiences et échéances juridiques
+          Gerez vos rendez-vous, audiences et echeances juridiques
         </p>
       </div>
 
@@ -181,7 +181,7 @@ export default function CalendrierPage() {
                 {upcomingEvents}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                Événements à venir
+                evenements a venir
               </div>
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function CalendrierPage() {
                 {echeances}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                Échéances
+                echeances
               </div>
             </div>
           </div>
@@ -226,7 +226,7 @@ export default function CalendrierPage() {
             </div>
             <div>
               <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                Prochain événement
+                Prochain evenement
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400">
                 {nextEvent ? (
@@ -236,7 +236,7 @@ export default function CalendrierPage() {
                     {nextEvent.date.toLocaleDateString('fr-FR')}
                   </>
                 ) : (
-                  'Aucun événement'
+                  'Aucun evenement'
                 )}
               </div>
             </div>
@@ -247,7 +247,7 @@ export default function CalendrierPage() {
       {urgentEvents > 0 && (
         <Alert variant="warning" className="mb-6">
           <AlertTriangle className="h-5 w-5" />
-          Vous avez <strong>{urgentEvents}</strong> événement{urgentEvents > 1 ? 's' : ''} urgent{urgentEvents > 1 ? 's' : ''} dans les 3 prochains jours !
+          Vous avez <strong>{urgentEvents}</strong> evenement{urgentEvents > 1 ? 's' : ''} urgent{urgentEvents > 1 ? 's' : ''} dans les 3 prochains jours !
         </Alert>
       )}
 
@@ -259,18 +259,18 @@ export default function CalendrierPage() {
         onAddEvent={handleAddEvent}
       />
 
-      {/* Modal d'ajout d'événement */}
+      {/* Modal d'ajout d'evenement */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Ajouter un événement"
+        title="Ajouter un evenement"
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Input
             label="Titre *"
             {...register('title')}
             error={errors.title?.message}
-            placeholder="Ex: Rendez-vous client, Échéance..."
+            placeholder="Ex: Rendez-vous client, echeance..."
           />
 
           <div className="grid grid-cols-2 gap-4">
@@ -290,7 +290,7 @@ export default function CalendrierPage() {
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 <option value="rendez-vous">Rendez-vous</option>
-                <option value="echeance">Échéance</option>
+                <option value="echeance">echeance</option>
                 <option value="audience">Audience</option>
                 <option value="autre">Autre</option>
               </select>
@@ -299,7 +299,7 @@ export default function CalendrierPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Heure de début"
+              label="Heure de debut"
               type="time"
               {...register('startTime')}
             />
@@ -320,7 +320,7 @@ export default function CalendrierPage() {
           <Input
             label="Dossier"
             {...register('dossier')}
-            placeholder="Référence du dossier"
+            placeholder="Reference du dossier"
           />
 
           <Input
@@ -337,7 +337,7 @@ export default function CalendrierPage() {
               {...register('description')}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              placeholder="Détails supplémentaires..."
+              placeholder="Details supplementaires..."
             />
           </div>
 
@@ -362,18 +362,18 @@ export default function CalendrierPage() {
               Annuler
             </Button>
             <Button type="submit">
-              Ajouter l'événement
+              Ajouter l'evenement
             </Button>
           </div>
         </form>
       </Modal>
 
-      {/* Modal détails événement */}
+      {/* Modal details evenement */}
       {selectedEvent && (
         <Modal
           isOpen={isEventDetailOpen}
           onClose={() => setIsEventDetailOpen(false)}
-          title="Détails de l'événement"
+          title="Details de l'evenement"
         >
           <div className="space-y-4">
             <div>
@@ -386,7 +386,7 @@ export default function CalendrierPage() {
                 selectedEvent.type === 'audience' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
                 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
               }`}>
-                {selectedEvent.type === 'echeance' ? 'Échéance' :
+                {selectedEvent.type === 'echeance' ? 'echeance' :
                  selectedEvent.type === 'rendez-vous' ? 'Rendez-vous' :
                  selectedEvent.type === 'audience' ? 'Audience' : 'Autre'}
               </span>
@@ -441,8 +441,8 @@ export default function CalendrierPage() {
                 Fermer
               </Button>
               <Button variant="secondary" onClick={() => {
-                // TODO: Éditer l'événement
-                showToast('Fonctionnalité en développement', 'info');
+                // TODO: editer l'evenement
+                showToast('Fonctionnalite en developpement', 'info');
               }}>
                 Modifier
               </Button>

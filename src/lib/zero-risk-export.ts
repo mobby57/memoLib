@@ -1,10 +1,10 @@
 /**
- * Solution ZÉRO RISQUE - Export/Import sans dépendances externes
+ * Solution ZeRO RISQUE - Export/Import sans dependances externes
  * Utilise uniquement les APIs natives du navigateur
  */
 
 export class ZeroRiskExport {
-  // Export CSV natif (zéro vulnérabilité)
+  // Export CSV natif (zero vulnerabilite)
   static exportToCSV(data: any[], filename: string): void {
     const headers = Object.keys(data[0] || {})
     const csvContent = [
@@ -20,10 +20,10 @@ export class ZeroRiskExport {
     URL.revokeObjectURL(link.href)
   }
 
-  // Import CSV natif (zéro vulnérabilité)
+  // Import CSV natif (zero vulnerabilite)
   static async importFromCSV(file: File): Promise<any[]> {
     if (!file.name.toLowerCase().endsWith('.csv')) {
-      throw new Error('Seuls les fichiers CSV sont autorisés')
+      throw new Error('Seuls les fichiers CSV sont autorises')
     }
     
     const text = await file.text()
@@ -41,7 +41,7 @@ export class ZeroRiskExport {
     })
   }
 
-  // Export JSON natif (zéro vulnérabilité)
+  // Export JSON natif (zero vulnerabilite)
   static exportToJSON(data: any[], filename: string): void {
     const jsonContent = JSON.stringify(data, null, 2)
     const blob = new Blob([jsonContent], { type: 'application/json' })
@@ -52,10 +52,10 @@ export class ZeroRiskExport {
     URL.revokeObjectURL(link.href)
   }
 
-  // Import JSON natif (zéro vulnérabilité)
+  // Import JSON natif (zero vulnerabilite)
   static async importFromJSON(file: File): Promise<any[]> {
     if (!file.name.toLowerCase().endsWith('.json')) {
-      throw new Error('Seuls les fichiers JSON sont autorisés')
+      throw new Error('Seuls les fichiers JSON sont autorises')
     }
     
     const text = await file.text()

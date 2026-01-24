@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -44,8 +44,8 @@ export default function HomePage() {
               La plateforme intelligente de gestion pour cabinets d'avocats
             </p>
             <p className="text-lg text-gray-500 dark:text-gray-400 mb-12 max-w-2xl mx-auto">
-              Gérez vos dossiers, clients et factures avec une solution moderne et sécurisée, 
-              optimisée par l'intelligence artificielle
+              Gerez vos dossiers, clients et factures avec une solution moderne et securisee, 
+              optimisee par l'intelligence artificielle
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -71,10 +71,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Fonctionnalités principales
+              Fonctionnalites principales
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Tout ce dont vous avez besoin pour gérer votre cabinet efficacement
+              Tout ce dont vous avez besoin pour gerer votre cabinet efficacement
             </p>
           </div>
 
@@ -96,10 +96,10 @@ export default function HomePage() {
                 <DollarSign className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Facturation Automatisée
+                Facturation Automatisee
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Créez et gérez vos factures facilement avec calcul automatique de la TVA et suivi des paiements
+                Creez et gerez vos factures facilement avec calcul automatique de la TVA et suivi des paiements
               </p>
             </div>
 
@@ -123,7 +123,7 @@ export default function HomePage() {
                 Analytics & Reporting
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Visualisez vos performances avec des graphiques et statistiques détaillées
+                Visualisez vos performances avec des graphiques et statistiques detaillees
               </p>
             </div>
 
@@ -135,7 +135,7 @@ export default function HomePage() {
                 Intelligence Artificielle
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Bénéficiez de suggestions et d'automatisations intelligentes pour gagner du temps
+                Beneficiez de suggestions et d'automatisations intelligentes pour gagner du temps
               </p>
             </div>
 
@@ -144,10 +144,10 @@ export default function HomePage() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Sécurité & Conformité
+                Securite & Conformite
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Vos données sont protégées avec un chiffrement de niveau entreprise et conformité RGPD
+                Vos donnees sont protegees avec un chiffrement de niveau entreprise et conformite RGPD
               </p>
             </div>
           </div>
@@ -166,11 +166,11 @@ export default function HomePage() {
                 {[
                   'Interface moderne et intuitive',
                   'Mode sombre pour un confort optimal',
-                  'Recherche et filtres avancés',
-                  'Notifications en temps réel',
-                  'Export de données (CSV, PDF)',
+                  'Recherche et filtres avances',
+                  'Notifications en temps reel',
+                  'Export de donnees (CSV, PDF)',
                   'Support multi-tenant',
-                  'Mises à jour régulières'
+                  'Mises a jour regulieres'
                 ].map((benefit, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
@@ -181,10 +181,10 @@ export default function HomePage() {
             </div>
             <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Démarrez dès aujourd'hui
+                Demarrez des aujourd'hui
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Rejoignez les cabinets d'avocats qui font confiance à IA Poste Manager 
+                Rejoignez les cabinets d'avocats qui font confiance a IA Poste Manager 
                 pour optimiser leur gestion quotidienne.
               </p>
               <Link
@@ -202,7 +202,7 @@ export default function HomePage() {
       <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-gray-600 dark:text-gray-400">
-            © 2026 IA Poste Manager. Tous droits réservés.
+             2026 IA Poste Manager. Tous droits reserves.
           </p>
         </div>
       </footer>

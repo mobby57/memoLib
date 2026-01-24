@@ -1,8 +1,8 @@
-﻿'use client'
+'use client'
 
 /**
  * Dashboard Avocat - Gestion de TOUS les dossiers
- * Interface complète pour gérer les dossiers de tous les clients du cabinet
+ * Interface complete pour gerer les dossiers de tous les clients du cabinet
  */
 
 import { useState, useEffect } from 'react'
@@ -55,7 +55,7 @@ const PRIORITE_COLORS = {
 }
 
 const TYPES_LABELS: Record<string, string> = {
-  TITRE_SEJOUR: 'Titre de Séjour',
+  TITRE_SEJOUR: 'Titre de Sejour',
   RECOURS_OQTF: 'Recours OQTF',
   NATURALISATION: 'Naturalisation',
   REGROUPEMENT_FAMILIAL: 'Regroupement Familial',
@@ -106,7 +106,7 @@ export default function DossiersAvocatPage() {
   }
 
   const deleteDossier = async (id: string) => {
-    if (!confirm('Supprimer ce dossier ? Cette action est irréversible.')) return
+    if (!confirm('Supprimer ce dossier ? Cette action est irreversible.')) return
 
     try {
       const res = await fetch(`/api/admin/dossiers/${id}`, { method: 'DELETE' })
@@ -114,8 +114,8 @@ export default function DossiersAvocatPage() {
       
       toast({
         variant: 'success',
-        title: 'Dossier supprimé',
-        description: 'Le dossier a été supprimé avec succès'
+        title: 'Dossier supprime',
+        description: 'Le dossier a ete supprime avec succes'
       })
       
       fetchDossiers()
@@ -198,7 +198,7 @@ export default function DossiersAvocatPage() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Rechercher par numéro, client, objet..."
+                  placeholder="Rechercher par numero, client, objet..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -215,20 +215,20 @@ export default function DossiersAvocatPage() {
                 <option value="BROUILLON">Brouillon</option>
                 <option value="EN_COURS">En cours</option>
                 <option value="EN_ATTENTE">En attente</option>
-                <option value="TERMINE">Terminé</option>
-                <option value="REJETE">Rejeté</option>
-                <option value="ANNULE">Annulé</option>
+                <option value="TERMINE">Termine</option>
+                <option value="REJETE">Rejete</option>
+                <option value="ANNULE">Annule</option>
               </select>
             </div>
 
-            {/* Filtre Priorité */}
+            {/* Filtre Priorite */}
             <div>
               <select
                 value={filterPriorite}
                 onChange={(e) => setFilterPriorite(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                <option value="ALL">Toutes priorités</option>
+                <option value="ALL">Toutes priorites</option>
                 <option value="CRITIQUE">Critique</option>
                 <option value="URGENTE">Urgente</option>
                 <option value="HAUTE">Haute</option>
@@ -253,7 +253,7 @@ export default function DossiersAvocatPage() {
                 sortBy === 'echeance' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
               }`}
             >
-              Par échéance
+              Par echeance
             </button>
             <button
               onClick={() => setSortBy('priorite')}
@@ -261,7 +261,7 @@ export default function DossiersAvocatPage() {
                 sortBy === 'priorite' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
               }`}
             >
-              Par priorité
+              Par priorite
             </button>
           </div>
         </Card>
@@ -270,11 +270,11 @@ export default function DossiersAvocatPage() {
         {filteredDossiers.length === 0 ? (
           <Card className="p-12 text-center">
             <FileText className="mx-auto text-gray-400 mb-4" size={48} />
-            <p className="text-gray-600 text-lg">Aucun dossier trouvé</p>
+            <p className="text-gray-600 text-lg">Aucun dossier trouve</p>
             <p className="text-gray-400 mt-2">
               {searchTerm || filterStatut !== 'ALL' || filterPriorite !== 'ALL'
                 ? 'Essayez de modifier vos filtres'
-                : 'Créez votre premier dossier pour commencer'}
+                : 'Creez votre premier dossier pour commencer'}
             </p>
           </Card>
         ) : (
@@ -307,12 +307,12 @@ export default function DossiersAvocatPage() {
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
                         <Calendar size={16} />
-                        <span>Créé le {new Date(dossier.dateCreation).toLocaleDateString('fr-FR')}</span>
+                        <span>Cree le {new Date(dossier.dateCreation).toLocaleDateString('fr-FR')}</span>
                       </div>
                       {dossier.dateEcheance && (
                         <div className="flex items-center gap-2 text-orange-600">
                           <Clock size={16} />
-                          <span>Échéance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
+                          <span>echeance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
                         </div>
                       )}
                     </div>
@@ -321,7 +321,7 @@ export default function DossiersAvocatPage() {
 
                     <div className="flex gap-4 mt-3 text-sm text-gray-500">
                       <span>{dossier._count?.documents || 0} document(s)</span>
-                      <span>{dossier._count?.echeances || 0} échéance(s)</span>
+                      <span>{dossier._count?.echeances || 0} echeance(s)</span>
                     </div>
                   </div>
 
@@ -339,7 +339,7 @@ export default function DossiersAvocatPage() {
                       className="bg-gray-600 hover:bg-gray-700 text-white flex items-center gap-2"
                     >
                       <Edit size={16} />
-                      Éditer
+                      editer
                     </Button>
                     <Button
                       onClick={() => deleteDossier(dossier.id)}
