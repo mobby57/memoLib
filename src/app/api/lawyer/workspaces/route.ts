@@ -266,7 +266,5 @@ export async function POST(req: NextRequest) {
       { error: 'Erreur lors de la creation du workspace' },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

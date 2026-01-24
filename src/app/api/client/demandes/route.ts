@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 /**
  * POST /api/client/demandes
@@ -86,8 +84,6 @@ export async function POST(request: NextRequest) {
       { error: 'Erreur serveur', details: (error as Error).message },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -134,7 +130,5 @@ export async function GET(request: NextRequest) {
       { error: 'Erreur serveur' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
