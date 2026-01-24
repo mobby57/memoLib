@@ -7,9 +7,17 @@ import { logger, logDossierAction, logIAUsage, logRGPDAction } from '@/lib/logge
 import type { ActionJuridique, TypeDossier } from '@/lib/logger';
 
 describe('Logger - Systeme de logging professionnel', () => {
+  // Mock console.error pour eviter les sorties dans les tests
+  const originalConsoleError = console.error;
+  
   beforeEach(() => {
     // Reset de l'environnement
     process.env.NODE_ENV = 'development';
+    console.error = jest.fn();
+  });
+
+  afterEach(() => {
+    console.error = originalConsoleError;
   });
 
   describe('Niveaux de log', () => {
