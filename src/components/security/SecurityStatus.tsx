@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Shield, CheckCircle, AlertTriangle, Lock } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
@@ -13,7 +13,7 @@ export function SecurityStatus({ className }: SecurityStatusProps) {
     {
       name: 'OWASP ZAP Compliant',
       status: 'active',
-      description: 'Headers de sécurité, CSP, HSTS'
+      description: 'Headers de securite, CSP, HSTS'
     },
     {
       name: 'RGPD Ready',
@@ -23,10 +23,10 @@ export function SecurityStatus({ className }: SecurityStatusProps) {
     {
       name: 'Zero-Trust Architecture',
       status: 'active',
-      description: 'Authentification + Autorisation systématiques'
+      description: 'Authentification + Autorisation systematiques'
     },
     {
-      name: 'Cookies Sécurisés',
+      name: 'Cookies Securises',
       status: 'active',
       description: 'HttpOnly, Secure, SameSite'
     },
@@ -54,15 +54,15 @@ export function SecurityStatus({ className }: SecurityStatusProps) {
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-white">
-              Statut Sécurité
+              Statut Securite
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Conformité OWASP & RGPD
+              Conformite OWASP & RGPD
             </p>
           </div>
           <div className="ml-auto">
             <Badge variant="success">
-              {securityScore}% Sécurisé
+              {securityScore}% Securise
             </Badge>
           </div>
         </div>
@@ -92,7 +92,7 @@ export function SecurityStatus({ className }: SecurityStatusProps) {
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <Lock className="w-3 h-3" />
-            <span>"Même nous, éditeurs, ne pouvons pas lire vos dossiers."</span>
+            <span>"Meme nous, editeurs, ne pouvons pas lire vos dossiers."</span>
           </div>
         </div>
       </div>

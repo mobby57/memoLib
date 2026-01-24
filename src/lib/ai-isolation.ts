@@ -1,29 +1,29 @@
-﻿/**
- * Isolation et sécurisation des interactions avec l'IA
+/**
+ * Isolation et securisation des interactions avec l'IA
  * Zero-Trust Architecture - IA Poste Manager
  */
 
 import { logger } from '@/lib/logger';
 
 /**
- * Anonymise les données avant envoi à l'IA
+ * Anonymise les donnees avant envoi a l'IA
  * Supprime toutes les informations personnelles identifiables
- * @param data - Données à anonymiser
- * @returns Données anonymisées
+ * @param data - Donnees a anonymiser
+ * @returns Donnees anonymisees
  */
 export function anonymizeForAI(data: any): any {
   if (!data) return data;
   
   const anonymized = { ...data };
   
-  // Suppression données personnelles
-  if (anonymized.firstName) anonymized.firstName = '[PRÉNOM]';
+  // Suppression donnees personnelles
+  if (anonymized.firstName) anonymized.firstName = '[PReNOM]';
   if (anonymized.lastName) anonymized.lastName = '[NOM]';
   if (anonymized.email) anonymized.email = '[EMAIL]';
-  if (anonymized.phone) anonymized.phone = '[TÉLÉPHONE]';
+  if (anonymized.phone) anonymized.phone = '[TeLePHONE]';
   if (anonymized.address) anonymized.address = '[ADRESSE]';
   
-  // Suppression documents d'identité
+  // Suppression documents d'identite
   delete anonymized.passportNumber;
   delete anonymized.idCardNumber;
   delete anonymized.nationality;
@@ -41,7 +41,7 @@ export function anonymizeForAI(data: any): any {
     };
   }
   
-  // Conservation de la structure métier uniquement
+  // Conservation de la structure metier uniquement
   return {
     documentType: anonymized.documentType,
     typeDossier: anonymized.typeDossier,
@@ -55,26 +55,26 @@ export function anonymizeForAI(data: any): any {
 }
 
 /**
- * Vérifie qu'aucune donnée sensible n'est présente dans l'input IA
- * @param input - Données à valider
- * @returns true si l'input est sûr, false sinon
+ * Verifie qu'aucune donnee sensible n'est presente dans l'input IA
+ * @param input - Donnees a valider
+ * @returns true si l'input est sur, false sinon
  */
 export function validateAIInput(input: any): boolean {
   const text = JSON.stringify(input);
   
-  // Patterns de données sensibles à bloquer
+  // Patterns de donnees sensibles a bloquer
   const forbiddenPatterns = [
-    /\b[A-Z]{2}\d{6,}\b/,                    // Numéros de passeport
-    /\b\d{15}\b/,                            // Numéros de sécurité sociale
+    /\b[A-Z]{2}\d{6,}\b/,                    // Numeros de passeport
+    /\b\d{15}\b/,                            // Numeros de securite sociale
     /\b[\w.-]+@[\w.-]+\.\w{2,}\b/,          // Adresses email
-    /\b(?:\+33|0)[1-9](?:\d{8})\b/,         // Numéros de téléphone français
+    /\b(?:\+33|0)[1-9](?:\d{8})\b/,         // Numeros de telephone francais
     /\b\d{1,3}\s+(?:rue|avenue|boulevard)/i, // Adresses postales
   ];
   
-  // Vérification des patterns interdits
+  // Verification des patterns interdits
   for (const pattern of forbiddenPatterns) {
     if (pattern.test(text)) {
-      logger.error('Donnée sensible détectée dans input IA', { pattern: pattern.toString() });
+      logger.error('Donnee sensible detectee dans input IA', { pattern: pattern.toString() });
       return false;
     }
   }
@@ -85,7 +85,7 @@ export function validateAIInput(input: any): boolean {
 /**
  * Tag les outputs IA comme brouillons non-contraignants
  * @param output - Output de l'IA
- * @returns Output tagué avec métadonnées de sécurité
+ * @returns Output tague avec metadonnees de securite
  */
 export function tagAIOutput(output: any): any {
   return {
@@ -95,32 +95,32 @@ export function tagAIOutput(output: any): any {
     __requiresHumanValidation: true,
     __notLegalAdvice: true,
     __timestamp: new Date().toISOString(),
-    __disclaimer: 'Ce contenu a été généré par IA et nécessite une validation humaine. Il ne constitue pas un conseil juridique.'
+    __disclaimer: 'Ce contenu a ete genere par IA et necessite une validation humaine. Il ne constitue pas un conseil juridique.'
   };
 }
 
 /**
- * Nettoie un texte généré par IA de toute donnée potentiellement sensible
- * (au cas où l'IA aurait "halluciné" des données)
- * @param text - Texte à nettoyer
- * @returns Texte nettoyé
+ * Nettoie un texte genere par IA de toute donnee potentiellement sensible
+ * (au cas ou l'IA aurait "hallucine" des donnees)
+ * @param text - Texte a nettoyer
+ * @returns Texte nettoye
  */
 export function sanitizeAIOutput(text: string): string {
   let sanitized = text;
   
   // Remplacement patterns sensibles par des placeholders
   sanitized = sanitized.replace(/\b[\w.-]+@[\w.-]+\.\w{2,}\b/g, '[EMAIL]');
-  sanitized = sanitized.replace(/\b(?:\+33|0)[1-9](?:\d{8})\b/g, '[TÉLÉPHONE]');
+  sanitized = sanitized.replace(/\b(?:\+33|0)[1-9](?:\d{8})\b/g, '[TeLePHONE]');
   sanitized = sanitized.replace(/\b[A-Z]{2}\d{6,}\b/g, '[DOCUMENT_ID]');
   
   return sanitized;
 }
 
 /**
- * Prépare un dossier pour l'analyse IA
- * Anonymise et valide les données
- * @param dossier - Dossier à préparer
- * @returns Dossier anonymisé et validé, ou null si non valide
+ * Prepare un dossier pour l'analyse IA
+ * Anonymise et valide les donnees
+ * @param dossier - Dossier a preparer
+ * @returns Dossier anonymise et valide, ou null si non valide
  */
 export function prepareDossierForAI(dossier: any): any | null {
   // Anonymisation
@@ -136,10 +136,10 @@ export function prepareDossierForAI(dossier: any): any | null {
 }
 
 /**
- * Wrapper sécurisé pour les appels IA
- * @param aiFunction - Fonction IA à exécuter
- * @param input - Données d'entrée
- * @returns Output tagué et nettoyé
+ * Wrapper securise pour les appels IA
+ * @param aiFunction - Fonction IA a executer
+ * @param input - Donnees d'entree
+ * @returns Output tague et nettoye
  */
 export async function secureAICall<T>(
   aiFunction: (input: any) => Promise<T>,
@@ -151,7 +151,7 @@ export async function secureAICall<T>(
     
     // 2. Validation
     if (!validateAIInput(anonymized)) {
-      throw new Error('Input contient des données sensibles');
+      throw new Error('Input contient des donnees sensibles');
     }
     
     // 3. Appel IA
@@ -168,7 +168,7 @@ export async function secureAICall<T>(
     return tagged as T;
     
   } catch (error) {
-    logger.error('Erreur appel IA sécurisé', { error });
+    logger.error('Erreur appel IA securise', { error });
     return null;
   }
 }

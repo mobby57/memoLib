@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 
 type ReportType = 'factures' | 'dossiers' | 'clients' | 'activite' | 'financier';
 
-// POST - Générer un rapport PDF
+// POST - Generer un rapport PDF
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -27,14 +27,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'tenantId et type requis' }, { status: 400 });
     }
 
-    // Récupérer les données selon le type de rapport
+    // Recuperer les donnees selon le type de rapport
     const data = await getReportData(tenantId, type, {
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
       ...filters,
     });
 
-    // Générer le rapport
+    // Generer le rapport
     const report = await generateReport(type, data, format);
 
     // Retourner le rapport selon le format
@@ -63,12 +63,12 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Erreur génération rapport:', error);
+    console.error('Erreur generation rapport:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
-// Récupérer les données pour le rapport
+// Recuperer les donnees pour le rapport
 async function getReportData(
   tenantId: string,
   type: ReportType,
@@ -186,7 +186,7 @@ async function getReportData(
   }
 }
 
-// Générer le rapport dans le format demandé
+// Generer le rapport dans le format demande
 async function generateReport(
   type: ReportType,
   data: unknown,
@@ -203,7 +203,7 @@ async function generateReport(
     };
   }
 
-  // Pour PDF, générer un HTML et le convertir
+  // Pour PDF, generer un HTML et le convertir
   const html = generateHTMLReport(type, data);
   
   // En production, utiliser puppeteer ou playwright pour convertir en PDF
@@ -238,14 +238,14 @@ startxref
   };
 }
 
-// Convertir les données en CSV
+// Convertir les donnees en CSV
 function convertToCSV(type: ReportType, data: unknown): string {
   let rows: string[] = [];
   const dataArray = Array.isArray(data) ? data : [];
 
   switch (type) {
     case 'factures':
-      rows.push('Numéro,Client,Montant HT,TVA,Montant TTC,Statut,Date Émission,Date Échéance');
+      rows.push('Numero,Client,Montant HT,TVA,Montant TTC,Statut,Date emission,Date echeance');
       for (const f of dataArray as Array<{
         numero: string;
         client: { firstName: string; lastName: string };
@@ -263,7 +263,7 @@ function convertToCSV(type: ReportType, data: unknown): string {
       break;
 
     case 'dossiers':
-      rows.push('Numéro,Client,Type,Statut,Phase,Date Création');
+      rows.push('Numero,Client,Type,Statut,Phase,Date Creation');
       for (const d of dataArray as Array<{
         numero: string;
         client: { firstName: string; lastName: string };
@@ -279,7 +279,7 @@ function convertToCSV(type: ReportType, data: unknown): string {
       break;
 
     case 'clients':
-      rows.push('Nom,Prénom,Email,Téléphone,Nb Dossiers,Statut');
+      rows.push('Nom,Prenom,Email,Telephone,Nb Dossiers,Statut');
       for (const c of dataArray as Array<{
         lastName: string;
         firstName: string;
@@ -295,20 +295,20 @@ function convertToCSV(type: ReportType, data: unknown): string {
       break;
 
     default:
-      rows.push('Données non formatées');
+      rows.push('Donnees non formatees');
       rows.push(JSON.stringify(data));
   }
 
   return rows.join('\n');
 }
 
-// Générer un rapport HTML
+// Generer un rapport HTML
 function generateHTMLReport(type: ReportType, data: unknown): string {
   const title = {
     factures: 'Rapport des Factures',
     dossiers: 'Rapport des Dossiers',
     clients: 'Rapport des Clients',
-    activite: "Rapport d'Activité",
+    activite: "Rapport d'Activite",
     financier: 'Rapport Financier',
   }[type];
 
@@ -331,10 +331,10 @@ function generateHTMLReport(type: ReportType, data: unknown): string {
 </head>
 <body>
   <h1>${title}</h1>
-  <p>Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+  <p>Genere le ${new Date().toLocaleDateString('fr-FR')} a ${new Date().toLocaleTimeString('fr-FR')}</p>
   
   <div class="summary">
-    <strong>Résumé:</strong> ${Array.isArray(data) ? data.length : 0} enregistrements
+    <strong>Resume:</strong> ${Array.isArray(data) ? data.length : 0} enregistrements
   </div>
 
   <pre>${JSON.stringify(data, null, 2).substring(0, 5000)}</pre>

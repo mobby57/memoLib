@@ -14,19 +14,19 @@ export async function GET(
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
     if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
     const documentId = params.id;
 
-    // Vérifier que le document appartient au client
+    // Verifier que le document appartient au client
     const document = await prisma.document.findFirst({
       where: {
         id: documentId,
@@ -43,7 +43,7 @@ export async function GET(
 
     if (!document) {
       return NextResponse.json(
-        { error: 'Document non trouvé ou accès refusé' },
+        { error: 'Document non trouve ou acces refuse' },
         { status: 404 }
       );
     }
@@ -51,7 +51,7 @@ export async function GET(
     // Lire le fichier
     const fileBuffer = await readFile(document.path);
 
-    logger.info(`Client ${userId} a téléchargé le document ${document.originalName}`);
+    logger.info(`Client ${userId} a telecharge le document ${document.originalName}`);
 
     // Retourner le fichier
     return new NextResponse(fileBuffer, {
@@ -62,9 +62,9 @@ export async function GET(
       },
     });
   } catch (error) {
-    logger.error('Erreur téléchargement document client', { error });
+    logger.error('Erreur telechargement document client', { error });
     return NextResponse.json(
-      { error: 'Erreur serveur lors du téléchargement' },
+      { error: 'Erreur serveur lors du telechargement' },
       { status: 500 }
     );
   } finally {

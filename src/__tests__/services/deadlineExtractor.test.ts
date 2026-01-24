@@ -1,6 +1,6 @@
 /**
  * Tests pour deadlineExtractor avec templates OQTF v2.0
- * Vérifie détection templates, confidence scoring, auto-checklist
+ * Verifie detection templates, confidence scoring, auto-checklist
  */
 
 import {
@@ -21,7 +21,7 @@ jest.mock('@/lib/logger', () => ({
 
 describe('DeadlineExtractor - Templates OQTF v2.0', () => {
   describe('calculateDeadlineStatus()', () => {
-    test('Retourne "depasse" si date passée', () => {
+    test('Retourne "depasse" si date passee', () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       
@@ -72,7 +72,7 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
       expect(calculateDeadlinePriority(in2Days, 'delai_recours_contentieux')).toBe('critique');
     });
 
-    test('Date passée = critique', () => {
+    test('Date passee = critique', () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       
@@ -115,7 +115,7 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
       };
       
       // La fonction enrichDeadlineWithTemplate calcule confidenceLevel
-      // Pour tester, on vérifie la logique directement
+      // Pour tester, on verifie la logique directement
       const confidenceLevel = deadline.aiConfidence! >= 0.9 ? 'high' : 
                               deadline.aiConfidence! >= 0.7 ? 'medium' : 'low';
       
@@ -138,27 +138,27 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
   });
 
   describe('Template OQTF Detection (logique)', () => {
-    test('Détecte OQTF sans délai avec keywords', () => {
-      const text1 = "OQTF sans délai de départ volontaire";
-      const text2 = "Obligation de quitter immédiatement le territoire";
-      const text3 = "OQTF sans délai";
+    test('Detecte OQTF sans delai avec keywords', () => {
+      const text1 = "OQTF sans delai de depart volontaire";
+      const text2 = "Obligation de quitter immediatement le territoire";
+      const text3 = "OQTF sans delai";
       
       const hasOQTFKeyword = (text: string) => 
         text.toLowerCase().includes('oqtf') || 
         text.toLowerCase().includes('obligation de quitter');
       
       const hasSansDelai = (text: string) =>
-        text.toLowerCase().includes('sans délai') ||
-        text.toLowerCase().includes('immédiatement');
+        text.toLowerCase().includes('sans delai') ||
+        text.toLowerCase().includes('immediatement');
       
       expect(hasOQTFKeyword(text1) && hasSansDelai(text1)).toBe(true);
       expect(hasOQTFKeyword(text2) && hasSansDelai(text2)).toBe(true);
       expect(hasOQTFKeyword(text3) && hasSansDelai(text3)).toBe(true);
     });
 
-    test('Détecte OQTF avec délai 30 jours', () => {
-      const text1 = "OQTF avec délai de départ volontaire de 30 jours";
-      const text2 = "Obligation de quitter dans un délai de trente jours";
+    test('Detecte OQTF avec delai 30 jours', () => {
+      const text1 = "OQTF avec delai de depart volontaire de 30 jours";
+      const text2 = "Obligation de quitter dans un delai de trente jours";
       
       const hasOQTF = (text: string) => 
         text.toLowerCase().includes('oqtf') || 
@@ -167,20 +167,20 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
       const hasDelai30j = (text: string) =>
         text.toLowerCase().includes('30 jours') ||
         text.toLowerCase().includes('trente jours') ||
-        text.toLowerCase().includes('délai de départ volontaire');
+        text.toLowerCase().includes('delai de depart volontaire');
       
       expect(hasOQTF(text1) && hasDelai30j(text1)).toBe(true);
       expect(hasOQTF(text2) && hasDelai30j(text2)).toBe(true);
     });
 
-    test('Détecte refus titre de séjour', () => {
-      const text1 = "Décision portant refus de titre de séjour";
-      const text2 = "Nous refusons de vous délivrer un titre de séjour";
+    test('Detecte refus titre de sejour', () => {
+      const text1 = "Decision portant refus de titre de sejour";
+      const text2 = "Nous refusons de vous delivrer un titre de sejour";
       
       const hasRefus = (text: string) => text.toLowerCase().includes('refus');
       const hasTitre = (text: string) => 
-        text.toLowerCase().includes('titre de séjour') ||
-        text.toLowerCase().includes('séjour');
+        text.toLowerCase().includes('titre de sejour') ||
+        text.toLowerCase().includes('sejour');
       
       expect(hasRefus(text1) && hasTitre(text1)).toBe(true);
       expect(hasRefus(text2) && hasTitre(text2)).toBe(true);
@@ -188,44 +188,44 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
   });
 
   describe('Auto-Checklist Templates', () => {
-    test('OQTF 48h génère checklist urgence', () => {
+    test('OQTF 48h genere checklist urgence', () => {
       const expectedChecklist = [
-        'Référé-liberté au TA (48h)',
-        'Vérifier notification en main propre ou domicile',
-        'Préparer recours référé (violation manifeste)',
+        'Refere-liberte au TA (48h)',
+        'Verifier notification en main propre ou domicile',
+        'Preparer recours refere (violation manifeste)',
         'Constituer avocat en urgence',
-        'Rassembler preuves présence France',
-        'Vérifier si OQTF peut être exécutée (assignation à résidence?)',
+        'Rassembler preuves presence France',
+        'Verifier si OQTF peut etre executee (assignation a residence?)',
       ];
       
-      // Test que la checklist contient les éléments clés
-      expect(expectedChecklist).toContain('Référé-liberté au TA (48h)');
+      // Test que la checklist contient les elements cles
+      expect(expectedChecklist).toContain('Refere-liberte au TA (48h)');
       expect(expectedChecklist).toContain('Constituer avocat en urgence');
       expect(expectedChecklist.length).toBe(6);
     });
 
-    test('OQTF 30j génère checklist standard', () => {
+    test('OQTF 30j genere checklist standard', () => {
       const expectedChecklist = [
         'Recours contentieux au TA (30 jours)',
-        'Évaluer recours gracieux préfecture',
-        'Préparer départ volontaire si pertinent',
-        'Vérifier possibilité régularisation',
-        'Documents : preuves attaches France, vie privée/familiale',
+        'evaluer recours gracieux prefecture',
+        'Preparer depart volontaire si pertinent',
+        'Verifier possibilite regularisation',
+        'Documents : preuves attaches France, vie privee/familiale',
         'Consultation juridique CESEDA',
       ];
       
       expect(expectedChecklist).toContain('Recours contentieux au TA (30 jours)');
-      expect(expectedChecklist).toContain('Vérifier possibilité régularisation');
+      expect(expectedChecklist).toContain('Verifier possibilite regularisation');
       expect(expectedChecklist.length).toBe(6);
     });
 
-    test('Refus titre génère checklist recours', () => {
+    test('Refus titre genere checklist recours', () => {
       const expectedChecklist = [
         'Recours contentieux au TA (2 mois)',
         'Analyser motivation refus',
-        'Rassembler pièces complémentaires',
-        'Évaluer recours gracieux',
-        'Vérifier maintien récépissé pendant recours',
+        'Rassembler pieces complementaires',
+        'evaluer recours gracieux',
+        'Verifier maintien recepisse pendant recours',
       ];
       
       expect(expectedChecklist).toContain('Recours contentieux au TA (2 mois)');
@@ -235,23 +235,23 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
   });
 
   describe('Metadata Enrichment', () => {
-    test('Template OQTF 48h ajoute metadata complète', () => {
+    test('Template OQTF 48h ajoute metadata complete', () => {
       const expectedMetadata = {
-        delaiStandard: '48h pour OQTF sans délai de départ',
+        delaiStandard: '48h pour OQTF sans delai de depart',
         articlesApplicables: ['L.512-1', 'L.742-3', 'L.213-9'],
-        templateName: 'OQTF sans délai de départ',
+        templateName: 'OQTF sans delai de depart',
       };
       
       expect(expectedMetadata.delaiStandard).toContain('48h');
       expect(expectedMetadata.articlesApplicables).toContain('L.512-1');
-      expect(expectedMetadata.templateName).toBe('OQTF sans délai de départ');
+      expect(expectedMetadata.templateName).toBe('OQTF sans delai de depart');
     });
 
     test('Template OQTF 30j ajoute metadata avec articles', () => {
       const expectedMetadata = {
-        delaiStandard: '30j pour OQTF avec délai de départ (30 jours)',
+        delaiStandard: '30j pour OQTF avec delai de depart (30 jours)',
         articlesApplicables: ['L.511-1', 'L.512-1'],
-        templateName: 'OQTF avec délai de départ (30 jours)',
+        templateName: 'OQTF avec delai de depart (30 jours)',
       };
       
       expect(expectedMetadata.articlesApplicables).toContain('L.511-1');
@@ -260,9 +260,9 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
 
     test('Refus titre ajoute metadata avec CJA', () => {
       const expectedMetadata = {
-        delaiStandard: '60j pour Refus titre de séjour',
+        delaiStandard: '60j pour Refus titre de sejour',
         articlesApplicables: ['L.313-11', 'R.421-1 CJA'],
-        templateName: 'Refus titre de séjour',
+        templateName: 'Refus titre de sejour',
       };
       
       expect(expectedMetadata.articlesApplicables).toContain('R.421-1 CJA');
@@ -271,7 +271,7 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
   });
 
   describe('Confidence Boost Logic', () => {
-    test('Boost +0.15 si template + keywords détectés', () => {
+    test('Boost +0.15 si template + keywords detectes', () => {
       const initialConfidence = 0.80;
       const hasStrongKeywords = true;
       
@@ -282,7 +282,7 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
       expect(boostedConfidence).toBe(0.95);
     });
 
-    test('Boost ne dépasse pas 0.95', () => {
+    test('Boost ne depasse pas 0.95', () => {
       const initialConfidence = 0.90;
       const hasStrongKeywords = true;
       
@@ -306,61 +306,61 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
   });
 
   describe('Suggested Actions Generation', () => {
-    test('Actions incluent template détecté', () => {
+    test('Actions incluent template detecte', () => {
       const suggestedActions = [
-        'Template détecté : OQTF sans délai de départ',
-        'Délai légal : 48h',
-        '⚠️ URGENCE : Contacter avocat immédiatement',
+        'Template detecte : OQTF sans delai de depart',
+        'Delai legal : 48h',
+        '️ URGENCE : Contacter avocat immediatement',
       ];
       
-      expect(suggestedActions[0]).toContain('Template détecté');
-      expect(suggestedActions[1]).toContain('Délai légal');
+      expect(suggestedActions[0]).toContain('Template detecte');
+      expect(suggestedActions[1]).toContain('Delai legal');
       expect(suggestedActions.length).toBe(3);
     });
 
-    test('Alerte urgence si délai critique', () => {
+    test('Alerte urgence si delai critique', () => {
       const hasCriticalDeadline = true;
       
       const suggestedActions = [
-        'Template détecté : OQTF sans délai de départ',
-        'Délai légal : 48h',
+        'Template detecte : OQTF sans delai de depart',
+        'Delai legal : 48h',
       ];
       
       if (hasCriticalDeadline) {
-        suggestedActions.push('⚠️ URGENCE : Contacter avocat immédiatement');
+        suggestedActions.push('️ URGENCE : Contacter avocat immediatement');
       }
       
-      expect(suggestedActions).toContain('⚠️ URGENCE : Contacter avocat immédiatement');
+      expect(suggestedActions).toContain('️ URGENCE : Contacter avocat immediatement');
     });
 
-    test('Pas d\'alerte urgence si délai normal', () => {
+    test('Pas d\'alerte urgence si delai normal', () => {
       const hasCriticalDeadline = false;
       
       const suggestedActions = [
-        'Template détecté : Refus titre de séjour',
-        'Délai légal : 60j',
+        'Template detecte : Refus titre de sejour',
+        'Delai legal : 60j',
       ];
       
       if (hasCriticalDeadline) {
-        suggestedActions.push('⚠️ URGENCE : Contacter avocat immédiatement');
+        suggestedActions.push('️ URGENCE : Contacter avocat immediatement');
       }
       
-      expect(suggestedActions).not.toContain('⚠️ URGENCE');
+      expect(suggestedActions).not.toContain('️ URGENCE');
       expect(suggestedActions.length).toBe(2);
     });
   });
 
   describe('Edge Cases', () => {
-    test('Gère date invalide gracieusement', () => {
+    test('Gere date invalide gracieusement', () => {
       const invalidDate = new Date('invalid');
       
       expect(isNaN(invalidDate.getTime())).toBe(true);
       
-      // La fonction doit gérer les dates invalides
+      // La fonction doit gerer les dates invalides
       // Sans planter l'application
     });
 
-    test('Gère type de délai inconnu', () => {
+    test('Gere type de delai inconnu', () => {
       const in10Days = new Date();
       in10Days.setDate(in10Days.getDate() + 10);
       
@@ -370,7 +370,7 @@ describe('DeadlineExtractor - Templates OQTF v2.0', () => {
       expect(priority).toBe('normale');
     });
 
-    test('Gère confidence hors limites', () => {
+    test('Gere confidence hors limites', () => {
       const confidence1 = 1.5; // > 1
       const confidence2 = -0.2; // < 0
       

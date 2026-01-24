@@ -1,4 +1,4 @@
-﻿import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export type SearchResultType = 'client' | 'dossier' | 'document' | 'email' | 'user';
 
@@ -25,7 +25,7 @@ export interface SearchOptions {
 }
 
 /**
- * Moteur de recherche intelligent multi-entités
+ * Moteur de recherche intelligent multi-entites
  */
 export class SearchService {
   /**
@@ -46,7 +46,7 @@ export class SearchService {
     const searchTerm = query.toLowerCase().trim();
     const results: SearchResult[] = [];
 
-    // Recherche parallèle dans toutes les entités
+    // Recherche parallele dans toutes les entites
     const [clients, dossiers, documents, emails] = await Promise.all([
       types.includes('client') ? this.searchClients(searchTerm, tenantId, includeArchived) : [],
       types.includes('dossier') ? this.searchDossiers(searchTerm, tenantId, includeArchived) : [],
@@ -54,10 +54,10 @@ export class SearchService {
       types.includes('email') ? this.searchEmails(searchTerm, tenantId) : [],
     ]);
 
-    // Combiner et scorer les résultats
+    // Combiner et scorer les resultats
     results.push(...clients, ...dossiers, ...documents, ...emails);
 
-    // Trier par score (pertinence) décroissant
+    // Trier par score (pertinence) decroissant
     results.sort((a, b) => b.score - a.score);
 
     return results.slice(0, limit);
@@ -118,7 +118,7 @@ export class SearchService {
         type: 'client' as SearchResultType,
         title: fullName,
         subtitle: client.email,
-        description: `${client.nationality || 'Nationalité inconnue'} • ${client.phone || 'Pas de téléphone'}`,
+        description: `${client.nationality || 'Nationalite inconnue'} - ${client.phone || 'Pas de telephone'}`,
         score,
         metadata: {
           status: client.status,
@@ -195,7 +195,7 @@ export class SearchService {
         type: 'dossier' as SearchResultType,
         title: `${dossier.numero} - ${dossier.objet || 'Sans objet'}`,
         subtitle: clientName,
-        description: `${dossier.typeDossier} • ${dossier.statut}`,
+        description: `${dossier.typeDossier} - ${dossier.statut}`,
         score: score + (dossier.priorite === 'critique' ? 10 : dossier.priorite === 'haute' ? 5 : 0),
         metadata: {
           statut: dossier.statut,
@@ -260,7 +260,7 @@ export class SearchService {
         type: 'document' as SearchResultType,
         title: doc.originalName,
         subtitle: doc.dossier ? `${doc.dossier.numero} - ${doc.dossier.objet || 'Sans objet'}` : 'Aucun dossier',
-        description: `${doc.documentType || 'Type inconnu'} • ${this.formatFileSize(doc.size)}`,
+        description: `${doc.documentType || 'Type inconnu'} - ${this.formatFileSize(doc.size)}`,
         score,
         metadata: {
           mimeType: doc.mimeType,
@@ -340,7 +340,7 @@ export class SearchService {
         date: email.receivedDate,
         tags: [
           email.isRead ? 'lu' : 'non-lu',
-          email.classification?.type || 'non-classifié',
+          email.classification?.type || 'non-classifie',
           email.classification?.priority || 'normal',
         ],
       };
@@ -395,7 +395,7 @@ export class SearchService {
   }
 
   /**
-   * Extrait un snippet autour du terme recherché
+   * Extrait un snippet autour du terme recherche
    */
   private extractSnippet(text: string, searchTerm: string, maxLength: number): string {
     const lowerText = text.toLowerCase();
@@ -423,12 +423,12 @@ export class SearchService {
   }
 
   /**
-   * Suggestions basées sur l'historique
+   * Suggestions basees sur l'historique
    */
   async getSuggestions(partial: string, tenantId?: string, limit = 5): Promise<string[]> {
     if (!partial || partial.length < 2) return [];
 
-    // Recherche dans les termes fréquents
+    // Recherche dans les termes frequents
     const suggestions: Set<string> = new Set();
 
     // Suggestions depuis clients

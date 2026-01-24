@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Composant: Bouton de connexion GitHub
- * Permet aux utilisateurs d'autoriser l'application à agir en leur nom
+ * Permet aux utilisateurs d'autoriser l'application a agir en leur nom
  */
 
 'use client';
@@ -55,7 +55,7 @@ export function GitHubAuthButton() {
     }
   };
 
-  // Non connecté - Afficher bouton de connexion
+  // Non connecte - Afficher bouton de connexion
   if (!githubUser) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
@@ -69,15 +69,15 @@ export function GitHubAuthButton() {
               Connecter GitHub
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Autorisez IA Poste Manager à agir pour votre compte GitHub pour :
+              Autorisez IA Poste Manager a agir pour votre compte GitHub pour :
             </p>
             
             <ul className="space-y-2 mb-4">
               {[
-                'Créer des issues automatiquement',
+                'Creer des issues automatiquement',
                 'Synchroniser vos dossiers',
                 'Poster des commentaires',
-                'Gérer vos repositories',
+                'Gerer vos repositories',
               ].map((feature) => (
                 <li key={feature} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                   <CheckCircle className="w-4 h-4 text-green-500" />
@@ -112,7 +112,7 @@ export function GitHubAuthButton() {
             </button>
 
             <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-              Vos actions seront attribuées à votre compte avec le badge de l'application
+              Vos actions seront attribuees a votre compte avec le badge de l'application
             </p>
           </div>
         </div>
@@ -120,7 +120,7 @@ export function GitHubAuthButton() {
     );
   }
 
-  // Connecté - Afficher profil GitHub
+  // Connecte - Afficher profil GitHub
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-start gap-4">
@@ -148,7 +148,7 @@ export function GitHubAuthButton() {
 
           <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
             <p className="text-sm text-green-700 dark:text-green-400">
-              ✓ Connexion active - L'application peut agir pour votre compte
+              [Check] Connexion active - L'application peut agir pour votre compte
             </p>
           </div>
         </div>

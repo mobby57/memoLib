@@ -1,8 +1,8 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // ============================================
 // GET /api/auth/test
-// Route de test simple pour vérifier l'API Auth
+// Route de test simple pour verifier l'API Auth
 // ============================================
 
 export async function GET() {

@@ -1,8 +1,8 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { logger } from '@/lib/dev/advanced-logger';
 
 /**
- * GET /api/dev/metrics - Récupère les métriques de performance
+ * GET /api/dev/metrics - Recupere les metriques de performance
  */
 export async function GET() {
   try {
@@ -10,7 +10,7 @@ export async function GET() {
     return NextResponse.json(metrics);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Erreur récupération métriques' },
+      { error: 'Erreur recuperation metriques' },
       { status: 500 }
     );
   }

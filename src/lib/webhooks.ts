@@ -24,7 +24,7 @@ export async function sendWebhook(url: string, secret: string, payload: WebhookP
 
     return response.ok;
   } catch (error) {
-    logger.error('Échec livraison webhook', { error, url, event: payload.event });
+    logger.error('echec livraison webhook', { error, url, event: payload.event });
     return false;
   }
 }

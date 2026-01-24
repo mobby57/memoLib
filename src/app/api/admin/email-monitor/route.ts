@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import fs from 'fs';
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const priority = searchParams.get('priority');
     const limit = parseInt(searchParams.get('limit') || '50');
 
-    // Lire tous les emails sauvegardés
+    // Lire tous les emails sauvegardes
     const emailsDir = path.join(process.cwd(), 'logs', 'emails');
     
     if (!fs.existsSync(emailsDir)) {
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     const files = fs.readdirSync(emailsDir)
       .filter(file => file.endsWith('.json'))
-      .sort((a, b) => b.localeCompare(a)) // Plus récents en premier
+      .sort((a, b) => b.localeCompare(a)) // Plus recents en premier
       .slice(0, limit);
 
     const emails = files.map(file => {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       return JSON.parse(content);
     });
 
-    // Filtrer selon les paramètres
+    // Filtrer selon les parametres
     let filteredEmails = emails;
     
     if (type) {
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erreur lors de la récupération des emails:', error);
+    console.error('Erreur lors de la recuperation des emails:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
@@ -80,7 +80,7 @@ export async function PATCH(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const { emailId, read } = await request.json();
@@ -95,7 +95,7 @@ export async function PATCH(request: NextRequest) {
     });
 
     if (!emailFile) {
-      return NextResponse.json({ error: 'Email non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Email non trouve' }, { status: 404 });
     }
 
     const filePath = path.join(emailsDir, emailFile);
@@ -106,7 +106,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error('Erreur lors de la mise à jour:', error);
+    console.error('Erreur lors de la mise a jour:', error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

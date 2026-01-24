@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Smile, AtSign, Paperclip, ThumbsUp, Heart, Trash2 } from 'lucide-react'
@@ -64,14 +64,14 @@ export default function Comments({
     setNewComment('')
     setReplyTo(null)
     loadComments()
-    showToast('Commentaire ajouté', 'success')
+    showToast('Commentaire ajoute', 'success')
   }
 
   const handleDelete = (commentId: string) => {
     if (!confirm('Supprimer ce commentaire ?')) return
     deleteComment(commentId)
     loadComments()
-    showToast('Commentaire supprimé', 'success')
+    showToast('Commentaire supprime', 'success')
   }
 
   const handleReaction = (commentId: string, emoji: string) => {
@@ -114,7 +114,7 @@ export default function Comments({
                 })}
               </span>
               {comment.updatedAt > comment.createdAt && (
-                <span className="text-xs text-gray-400">(modifié)</span>
+                <span className="text-xs text-gray-400">(modifie)</span>
               )}
             </div>
             
@@ -137,27 +137,27 @@ export default function Comments({
             )}
 
             <div className="flex items-center gap-3 mt-3">
-              {/* Réactions */}
+              {/* Reactions */}
               <div className="flex gap-1">
                 <button
-                  onClick={() => handleReaction(comment.id, '👍')}
+                  onClick={() => handleReaction(comment.id, '[emoji]')}
                   className={`px-2 py-1 rounded-full text-xs transition-colors ${
-                    hasReacted('👍')
+                    hasReacted('[emoji]')
                       ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
                       : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'
                   }`}
                 >
-                  👍 {comment.reactions?.['👍']?.length || ''}
+                  [emoji] {comment.reactions?.['[emoji]']?.length || ''}
                 </button>
                 <button
-                  onClick={() => handleReaction(comment.id, '❤️')}
+                  onClick={() => handleReaction(comment.id, '️')}
                   className={`px-2 py-1 rounded-full text-xs transition-colors ${
-                    hasReacted('❤️')
+                    hasReacted('️')
                       ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                       : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'
                   }`}
                 >
-                  ❤️ {comment.reactions?.['❤️']?.length || ''}
+                  ️ {comment.reactions?.['️']?.length || ''}
                 </button>
               </div>
 
@@ -165,7 +165,7 @@ export default function Comments({
                 onClick={() => handleReply(comment)}
                 className="text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
               >
-                Répondre
+                Repondre
               </button>
 
               {comment.userId === currentUserId && (
@@ -180,7 +180,7 @@ export default function Comments({
           </div>
         </div>
 
-        {/* Réponses */}
+        {/* Reponses */}
         {comments
           .filter(c => c.parentId === comment.id)
           .map(reply => renderComment(reply, true))}
@@ -196,7 +196,7 @@ export default function Comments({
       <form onSubmit={handleSubmit} className="space-y-3">
         {replyTo && (
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <span>Répondre à {comments.find(c => c.id === replyTo)?.userName}</span>
+            <span>Repondre a {comments.find(c => c.id === replyTo)?.userName}</span>
             <button
               type="button"
               onClick={() => {
@@ -215,7 +215,7 @@ export default function Comments({
             ref={textareaRef}
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Écrivez un commentaire... (utilisez @ pour mentionner)"
+            placeholder="ecrivez un commentaire... (utilisez @ pour mentionner)"
             className="w-full px-4 py-3 pr-24 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none"
             rows={3}
           />
@@ -231,7 +231,7 @@ export default function Comments({
             <button
               type="button"
               className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              title="Pièce jointe"
+              title="Piece jointe"
             >
               <Paperclip className="w-5 h-5" />
             </button>
@@ -246,7 +246,7 @@ export default function Comments({
         </div>
 
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          💡 Utilisez <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded">@nom</span> pour mentionner quelqu'un
+          [emoji] Utilisez <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded">@nom</span> pour mentionner quelqu'un
         </p>
       </form>
 
@@ -254,7 +254,7 @@ export default function Comments({
       <div className="space-y-3">
         {mainComments.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            Aucun commentaire. Soyez le premier à commenter !
+            Aucun commentaire. Soyez le premier a commenter !
           </div>
         ) : (
           mainComments.map(comment => renderComment(comment))

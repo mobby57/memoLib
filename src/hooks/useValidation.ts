@@ -1,6 +1,6 @@
-﻿/**
- * Hook pour gérer les validations IA côté client
- * Basé sur CHARTE_IA_JURIDIQUE.md
+/**
+ * Hook pour gerer les validations IA cote client
+ * Base sur CHARTE_IA_JURIDIQUE.md
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -21,7 +21,7 @@ interface UseValidationReturn {
   alerts: Alert[];
   unreadAlertsCount: number;
   
-  // États de chargement
+  // etats de chargement
   loading: boolean;
   validating: boolean;
   
@@ -34,7 +34,7 @@ interface UseValidationReturn {
   markAlertAsRead: (alertId: string) => Promise<void>;
   snoozeAlert: (alertId: string, until: Date) => Promise<void>;
   
-  // Rafraîchissement
+  // Rafraichissement
   refresh: () => Promise<void>;
   
   // Erreur
@@ -44,7 +44,7 @@ interface UseValidationReturn {
 export function useValidation({
   tenantId,
   autoRefresh = true,
-  refreshInterval = 30000 // 30 secondes par défaut
+  refreshInterval = 30000 // 30 secondes par defaut
 }: UseValidationOptions): UseValidationReturn {
   
   const [pendingActions, setPendingActions] = useState<AIAction[]>([]);
@@ -98,7 +98,7 @@ export function useValidation({
   }, [tenantId]);
   
   /**
-   * Rafraîchit toutes les données
+   * Rafraichit toutes les donnees
    */
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -135,8 +135,8 @@ export function useValidation({
       setPendingActions(prev => prev.filter(a => a.id !== actionId));
       setError(null);
       
-      // Notification de succès (optionnel)
-      // toast.success('Action approuvée avec succès');
+      // Notification de succes (optionnel)
+      // toast.success('Action approuvee avec succes');
       
     } catch (err) {
       logger.error('Erreur approbation action callback', { error: err, actionId });
@@ -243,7 +243,7 @@ export function useValidation({
         throw new Error('Erreur marquage alerte');
       }
       
-      // Mettre à jour localement
+      // Mettre a jour localement
       setAlerts(prev => prev.map(alert => 
         alert.id === alertId 
           ? { ...alert, read: true, readAt: new Date() }

@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/documents/download/[id]
- * Télécharge un document par son ID
+ * Telecharge un document par son ID
  */
 export async function GET(
   request: NextRequest,
@@ -20,7 +20,7 @@ export async function GET(
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as any;
@@ -31,12 +31,12 @@ export async function GET(
       return NextResponse.json({ error: 'ID document requis' }, { status: 400 });
     }
 
-    // Chercher le fichier dans le répertoire du tenant
-    // Note: En production, chercher en base de données d'abord
+    // Chercher le fichier dans le repertoire du tenant
+    // Note: En production, chercher en base de donnees d'abord
     const fs = await import('fs');
     const glob = await import('path');
     
-    // Recherche récursive dans le dossier du tenant
+    // Recherche recursive dans le dossier du tenant
     const tenantDir = path.join(UPLOAD_DIR, tenantId);
     
     const findFile = async (dir: string, fileId: string): Promise<string | null> => {
@@ -62,14 +62,14 @@ export async function GET(
     const filePath = await findFile(tenantDir, id);
 
     if (!filePath) {
-      return NextResponse.json({ error: 'Document non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Document non trouve' }, { status: 404 });
     }
 
     // Lire le fichier
     const fileBuffer = await readFile(filePath);
     const fileStat = await stat(filePath);
     
-    // Déterminer le type MIME
+    // Determiner le type MIME
     const ext = path.extname(filePath).toLowerCase();
     const mimeTypes: Record<string, string> = {
       '.pdf': 'application/pdf',
@@ -100,7 +100,7 @@ export async function GET(
   } catch (error) {
     console.error('[DOWNLOAD] Erreur:', error);
     return NextResponse.json(
-      { error: 'Erreur lors du téléchargement' },
+      { error: 'Erreur lors du telechargement' },
       { status: 500 }
     );
   }

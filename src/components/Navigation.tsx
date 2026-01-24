@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
@@ -52,7 +52,7 @@ const navigationItems: NavItem[] = [
     roles: ['SUPER_ADMIN']
   },
   {
-    label: 'Système',
+    label: 'Systeme',
     href: '/super-admin/system',
     icon: Database,
     roles: ['SUPER_ADMIN']
@@ -132,7 +132,7 @@ export function Navigation() {
     return null;
   }
 
-  // Filtrer les éléments de navigation selon le rôle
+  // Filtrer les elements de navigation selon le role
   const allowedItems = navigationItems.filter(item => 
     item.roles.includes(user.role)
   );
@@ -264,7 +264,7 @@ export function Navigation() {
           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
         >
           <Settings className="w-5 h-5" />
-          Se déconnecter
+          Se deconnecter
         </Link>
       </div>
       </nav>

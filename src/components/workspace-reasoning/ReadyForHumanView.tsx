@@ -1,6 +1,6 @@
-﻿/**
- * Composant d'affichage de l'état READY_FOR_HUMAN
- * Synthèse exécutive + Handoff à l'humain
+/**
+ * Composant d'affichage de l'etat READY_FOR_HUMAN
+ * Synthese executive + Handoff a l'humain
  */
 
 import { WorkspaceReasoning } from '@/types/workspace-reasoning';
@@ -49,9 +49,9 @@ export function ReadyForHumanView({
   const getRecommendation = () => {
     if (blockingMissing.length > 0) {
       return {
-        icon: '🔴',
+        icon: '[emoji]',
         title: 'ACTION IMPOSSIBLE',
-        message: `${blockingMissing.length} élément${blockingMissing.length > 1 ? 's' : ''} bloquant${blockingMissing.length > 1 ? 's' : ''} non résolu${blockingMissing.length > 1 ? 's' : ''}. Toute action serait prématurée et dangereuse.`,
+        message: `${blockingMissing.length} element${blockingMissing.length > 1 ? 's' : ''} bloquant${blockingMissing.length > 1 ? 's' : ''} non resolu${blockingMissing.length > 1 ? 's' : ''}. Toute action serait prematuree et dangereuse.`,
         color: 'border-red-500 bg-red-50',
         canAct: false
       };
@@ -59,9 +59,9 @@ export function ReadyForHumanView({
     
     if (uncertaintyLevel >= 0.8) {
       return {
-        icon: '🔴',
-        title: 'ACTION DÉCONSEILLÉE',
-        message: `Niveau d'incertitude très élevé (${(uncertaintyLevel * 100).toFixed(0)}%). Risques majeurs non maîtrisés.`,
+        icon: '[emoji]',
+        title: 'ACTION DeCONSEILLeE',
+        message: `Niveau d'incertitude tres eleve (${(uncertaintyLevel * 100).toFixed(0)}%). Risques majeurs non maitrises.`,
         color: 'border-red-500 bg-red-50',
         canAct: false
       };
@@ -69,16 +69,16 @@ export function ReadyForHumanView({
     
     if (uncertaintyLevel >= 0.5) {
       return {
-        icon: '🟠',
-        title: 'ACTION RISQUÉE',
-        message: `Niveau d'incertitude modéré (${(uncertaintyLevel * 100).toFixed(0)}%). Validation humaine renforcée requise.`,
+        icon: '[emoji]',
+        title: 'ACTION RISQUeE',
+        message: `Niveau d'incertitude modere (${(uncertaintyLevel * 100).toFixed(0)}%). Validation humaine renforcee requise.`,
         color: 'border-orange-500 bg-orange-50',
         canAct: true
       };
     }
     
     return {
-      icon: '🟢',
+      icon: '[emoji]',
       title: 'ACTION POSSIBLE',
       message: `Niveau d'incertitude acceptable (${(uncertaintyLevel * 100).toFixed(0)}%). Situation suffisamment claire pour agir.`,
       color: 'border-green-500 bg-green-50',
@@ -92,13 +92,13 @@ export function ReadyForHumanView({
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">🎯 Prêt pour décision humaine</h2>
+        <h2 className="text-2xl font-bold text-gray-900">🎯 Pret pour decision humaine</h2>
         <p className="text-gray-600 mt-1">
-          Synthèse du raisonnement et recommandation
+          Synthese du raisonnement et recommandation
         </p>
       </div>
       
-      {/* Métriques principales */}
+      {/* Metriques principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="p-6 border-2 border-gray-300 rounded-lg">
           <div className="flex items-center justify-between mb-3">
@@ -124,7 +124,7 @@ export function ReadyForHumanView({
         
         <div className="p-6 border-2 border-gray-300 rounded-lg">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-gray-700">Qualité du raisonnement</span>
+            <span className="text-sm font-semibold text-gray-700">Qualite du raisonnement</span>
             <span className={`px-3 py-1 text-sm font-bold rounded ${getQualityColor(reasoningQuality)}`}>
               {(reasoningQuality * 100).toFixed(0)}%
             </span>
@@ -159,28 +159,28 @@ export function ReadyForHumanView({
         </div>
       </div>
       
-      {/* Résumé exécutif */}
+      {/* Resume executif */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg text-center">
-          <div className="text-3xl mb-2">✅</div>
+          <div className="text-3xl mb-2"></div>
           <div className="text-2xl font-bold text-blue-900">{facts.length}</div>
           <div className="text-sm text-blue-700">Fait{facts.length > 1 ? 's' : ''} certain{facts.length > 1 ? 's' : ''}</div>
         </div>
         
         <div className="p-4 bg-purple-50 border-2 border-purple-200 rounded-lg text-center">
-          <div className="text-3xl mb-2">🔍</div>
+          <div className="text-3xl mb-2">[emoji]</div>
           <div className="text-2xl font-bold text-purple-900">{contexts.length}</div>
-          <div className="text-sm text-purple-700">Contexte{contexts.length > 1 ? 's' : ''} confirmé{contexts.length > 1 ? 's' : ''}</div>
+          <div className="text-sm text-purple-700">Contexte{contexts.length > 1 ? 's' : ''} confirme{contexts.length > 1 ? 's' : ''}</div>
         </div>
         
         <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg text-center">
-          <div className="text-3xl mb-2">📋</div>
+          <div className="text-3xl mb-2">[emoji]</div>
           <div className="text-2xl font-bold text-orange-900">{obligations.length}</div>
           <div className="text-sm text-orange-700">Obligation{obligations.length > 1 ? 's' : ''}</div>
         </div>
         
         <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg text-center">
-          <div className="text-3xl mb-2">⚠️</div>
+          <div className="text-3xl mb-2">️</div>
           <div className="text-2xl font-bold text-red-900">{risks.length}</div>
           <div className="text-sm text-red-700">Risque{risks.length > 1 ? 's' : ''}</div>
         </div>
@@ -189,12 +189,12 @@ export function ReadyForHumanView({
       {/* Points d'alerte */}
       {(blockingMissing.length > 0 || criticalRisks.length > 0 || criticalObligations.length > 0) && (
         <div className="space-y-3">
-          <h3 className="text-xl font-bold text-red-700">🚨 Points d'alerte critiques</h3>
+          <h3 className="text-xl font-bold text-red-700">[emoji] Points d'alerte critiques</h3>
           
           {blockingMissing.length > 0 && (
             <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
               <div className="font-semibold text-red-900 mb-2">
-                ❌ {blockingMissing.length} élément{blockingMissing.length > 1 ? 's' : ''} bloquant{blockingMissing.length > 1 ? 's' : ''}:
+                 {blockingMissing.length} element{blockingMissing.length > 1 ? 's' : ''} bloquant{blockingMissing.length > 1 ? 's' : ''}:
               </div>
               <ul className="list-disc list-inside text-sm text-red-800 space-y-1">
                 {blockingMissing.map(m => (
@@ -207,7 +207,7 @@ export function ReadyForHumanView({
           {criticalRisks.length > 0 && (
             <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
               <div className="font-semibold text-red-900 mb-2">
-                🔴 {criticalRisks.length} risque{criticalRisks.length > 1 ? 's' : ''} critique{criticalRisks.length > 1 ? 's' : ''}:
+                [emoji] {criticalRisks.length} risque{criticalRisks.length > 1 ? 's' : ''} critique{criticalRisks.length > 1 ? 's' : ''}:
               </div>
               <ul className="list-disc list-inside text-sm text-red-800 space-y-1">
                 {criticalRisks.map(r => (
@@ -220,13 +220,13 @@ export function ReadyForHumanView({
           {criticalObligations.length > 0 && (
             <div className="p-4 bg-orange-50 border-2 border-orange-300 rounded-lg">
               <div className="font-semibold text-orange-900 mb-2">
-                ⚠️ {criticalObligations.length} obligation{criticalObligations.length > 1 ? 's' : ''} critique{criticalObligations.length > 1 ? 's' : ''}:
+                ️ {criticalObligations.length} obligation{criticalObligations.length > 1 ? 's' : ''} critique{criticalObligations.length > 1 ? 's' : ''}:
               </div>
               <ul className="list-disc list-inside text-sm text-orange-800 space-y-1">
                 {criticalObligations.map(o => (
                   <li key={o.id}>
                     {o.description}
-                    {o.deadline && ` (Échéance: ${new Date(o.deadline).toLocaleDateString('fr-FR')})`}
+                    {o.deadline && ` (echeance: ${new Date(o.deadline).toLocaleDateString('fr-FR')})`}
                   </li>
                 ))}
               </ul>
@@ -235,11 +235,11 @@ export function ReadyForHumanView({
         </div>
       )}
       
-      {/* Actions recommandées */}
+      {/* Actions recommandees */}
       {pendingActions.length > 0 && (
         <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
           <div className="font-semibold text-blue-900 mb-2">
-            💡 {pendingActions.length} action{pendingActions.length > 1 ? 's' : ''} recommandée{pendingActions.length > 1 ? 's' : ''}:
+            [emoji] {pendingActions.length} action{pendingActions.length > 1 ? 's' : ''} recommandee{pendingActions.length > 1 ? 's' : ''}:
           </div>
           <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
             {pendingActions.map(a => (
@@ -249,16 +249,16 @@ export function ReadyForHumanView({
         </div>
       )}
       
-      {/* Avertissement méthodologique */}
+      {/* Avertissement methodologique */}
       <div className="p-4 bg-purple-50 border-2 border-purple-200 rounded-lg">
         <div className="flex items-start gap-3">
-          <div className="text-2xl">⚖️</div>
+          <div className="text-2xl">️</div>
           <div className="text-sm text-purple-900">
             <div className="font-semibold mb-1">Rappel important:</div>
             <p>
-              Cette synthèse est une <strong>aide à la décision</strong>, pas une décision. 
-              L'IA a structuré le raisonnement, identifié les incertitudes et les risques. 
-              <strong> C'est à l'humain de décider</strong> en fonction de son expertise juridique et du contexte complet.
+              Cette synthese est une <strong>aide a la decision</strong>, pas une decision. 
+              L'IA a structure le raisonnement, identifie les incertitudes et les risques. 
+              <strong> C'est a l'humain de decider</strong> en fonction de son expertise juridique et du contexte complet.
             </p>
           </div>
         </div>
@@ -281,7 +281,7 @@ export function ReadyForHumanView({
           }`}
         >
           {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-          ❌ Rejeter le raisonnement
+           Rejeter le raisonnement
         </button>
         
         <button
@@ -295,8 +295,8 @@ export function ReadyForHumanView({
         >
           {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
           {recommendation.canAct 
-            ? '✅ Valider et prendre décision'
-            : '🔒 Action bloquée - Résoudre les alertes'
+            ? ' Valider et prendre decision'
+            : '[emoji] Action bloquee - Resoudre les alertes'
           }
         </button>
         

@@ -1,19 +1,19 @@
-﻿/**
- * IA POSTE MANAGER - Système de Logging Juridique Professionnel
+/**
+ * IA POSTE MANAGER - Systeme de Logging Juridique Professionnel
  * 
- * Logging spécialisé pour cabinet d'avocats CESEDA avec:
- * - Conformité RGPD (anonymisation automatique)
- * - Audit trail juridique inaltérable
- * - Traçabilité des actions métier (dossiers, OQTF, recours)
- * - Zero-Trust logging (toutes actions tracées)
+ * Logging specialise pour cabinet d'avocats CESEDA avec:
+ * - Conformite RGPD (anonymisation automatique)
+ * - Audit trail juridique inalterable
+ * - Tracabilite des actions metier (dossiers, OQTF, recours)
+ * - Zero-Trust logging (toutes actions tracees)
  * 
- * Production: Logs structurés et filtrés
- * Développement: Logs détaillés avec contexte
+ * Production: Logs structures et filtres
+ * Developpement: Logs detailles avec contexte
  */
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'critical';
 
-// Types métier spécifiques au cabinet juridique
+// Types metier specifiques au cabinet juridique
 type ActionJuridique = 
   | 'CREATE_DOSSIER'
   | 'UPDATE_DOSSIER'
@@ -63,18 +63,18 @@ class Logger {
   }
 
   /**
-   * Log de debug - uniquement en développement
+   * Log de debug - uniquement en developpement
    */
   debug(message: string, context?: Record<string, any>): void {
     if (!this.isDevelopment) return;
 
     const entry = this.createLogEntry('debug', message, context);
-    console.log(`🔍 [DEBUG] ${message}`, context || '');
+    console.log(`[emoji] [DEBUG] ${message}`, context || '');
     this.bufferLog(entry);
   }
 
   /**
-   * Log d'information - visible en dev, structuré en prod
+   * Log d'information - visible en dev, structure en prod
    */
   info(message: string, context?: Record<string, any>): void {
     const entry = this.createLogEntry('info', message, context);
@@ -89,13 +89,13 @@ class Logger {
   }
 
   /**
-   * Warning - toujours visible, mais formaté selon environnement
+   * Warning - toujours visible, mais formate selon environnement
    */
   warn(message: string, context?: Record<string, any>): void {
     const entry = this.createLogEntry('warn', message, context);
 
     if (this.isDevelopment) {
-      console.warn(`⚠️ [WARN] ${message}`, context || '');
+      console.warn(`️ [WARN] ${message}`, context || '');
     } else {
       this.sendToMonitoring(entry);
     }
@@ -104,7 +104,7 @@ class Logger {
   }
 
   /**
-   * Erreur - toujours loggée avec stack trace
+   * Erreur - toujours loggee avec stack trace
    */
   error(message: string, error?: Error | unknown, context?: Record<string, any>): void {
     const stackTrace = error instanceof Error ? error.stack : undefined;
@@ -116,7 +116,7 @@ class Logger {
     });
 
     if (this.isDevelopment) {
-      console.error(`❌ [ERROR] ${message}`, {
+      console.error(` [ERROR] ${message}`, {
         error: errorMessage,
         context,
         stack: stackTrace,
@@ -129,7 +129,7 @@ class Logger {
   }
 
   /**
-   * Erreur critique - nécessite attention immédiate
+   * Erreur critique - necessite attention immediate
    */
   critical(message: string, error?: Error | unknown, context?: Record<string, any>): void {
     const stackTrace = error instanceof Error ? error.stack : undefined;
@@ -141,7 +141,7 @@ class Logger {
       severity: 'CRITICAL',
     });
 
-    console.error(`🚨 [CRITICAL] ${message}`, {
+    console.error(`[emoji] [CRITICAL] ${message}`, {
       error: errorMessage,
       context,
       stack: stackTrace,
@@ -156,7 +156,7 @@ class Logger {
   }
 
   /**
-   * Log de performance - mesure le temps d'exécution
+   * Log de performance - mesure le temps d'execution
    */
   performance(operation: string, durationMs: number, context?: Record<string, any>): void {
     const message = `${operation} completed in ${durationMs}ms`;
@@ -169,7 +169,7 @@ class Logger {
   }
 
   /**
-   * Log d'audit juridique - CONFORMITÉ RGPD & TRACABILITÉ INALTÉRABLE
+   * Log d'audit juridique - CONFORMITe RGPD & TRACABILITe INALTeRABLE
    */
   audit(action: string, userId: string, tenantId: string, details?: Record<string, any>): void {
     const entry = this.createLogEntry('info', `AUDIT JURIDIQUE: ${action}`, {
@@ -187,12 +187,12 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      console.log(`⚖️ [AUDIT JURIDIQUE] ${action}`, { userId, tenantId, details });
+      console.log(`️ [AUDIT JURIDIQUE] ${action}`, { userId, tenantId, details });
     }
   }
 
   /**
-   * Log spécifique aux actions sur dossiers CESEDA
+   * Log specifique aux actions sur dossiers CESEDA
    */
   logActionDossier(
     action: ActionJuridique,
@@ -226,7 +226,7 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      console.log(`📁 [DOSSIER ${action}]`, {
+      console.log(`[emoji] [DOSSIER ${action}]`, {
         dossierId,
         type: details?.typeDossier,
         client: details?.clientId,
@@ -267,7 +267,7 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      console.log(`🤖 [IA ${operation}]`, {
+      console.log(`[emoji] [IA ${operation}]`, {
         confidence: details.confidence,
         model: details.modelUsed,
         anonymized: details.dataAnonymized !== false,
@@ -276,7 +276,7 @@ class Logger {
   }
 
   /**
-   * Log d'alerte délai critique - URGENCE JURIDIQUE
+   * Log d'alerte delai critique - URGENCE JURIDIQUE
    */
   logDeadlineAlert(
     severity: 'CRITIQUE' | 'URGENT' | 'RAPPEL',
@@ -289,7 +289,7 @@ class Logger {
       typeDossier?: TypeDossier;
     }
   ): void {
-    const message = `⏰ DÉLAI ${severity}: ${deadline.type} dans ${deadline.heuresRestantes}h`;
+    const message = ` DeLAI ${severity}: ${deadline.type} dans ${deadline.heuresRestantes}h`;
     
     const level = severity === 'CRITIQUE' ? 'critical' : severity === 'URGENT' ? 'error' : 'warn';
     
@@ -314,8 +314,8 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      const emoji = severity === 'CRITIQUE' ? '🚨' : severity === 'URGENT' ? '⚠️' : '📅';
-      console.log(`${emoji} [DÉLAI ${severity}]`, {
+      const emoji = severity === 'CRITIQUE' ? '[emoji]' : severity === 'URGENT' ? '️' : '[emoji]';
+      console.log(`${emoji} [DeLAI ${severity}]`, {
         dossier: dossierId,
         type: deadline.type,
         heuresRestantes: deadline.heuresRestantes,
@@ -324,7 +324,7 @@ class Logger {
   }
 
   /**
-   * Log de conformité RGPD
+   * Log de conformite RGPD
    */
   logComplianceAction(
     action: 'EXPORT_DATA' | 'ANONYMIZE' | 'DELETE_PERSONAL_DATA' | 'CONSENT_UPDATE',
@@ -351,7 +351,7 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      console.log(`🔒 [RGPD ${action}]`, {
+      console.log(`[emoji] [RGPD ${action}]`, {
         client: details.clientId,
         type: details.dataType,
         reason: details.reason,
@@ -360,7 +360,7 @@ class Logger {
   }
 
   /**
-   * Créer une entrée de log structurée
+   * Creer une entree de log structuree
    */
   private createLogEntry(
     level: LogLevel,
@@ -376,7 +376,7 @@ class Logger {
   }
 
   /**
-   * Sanitizer le contexte - CONFORMITÉ RGPD RENFORCÉE
+   * Sanitizer le contexte - CONFORMITe RGPD RENFORCeE
    */
   private sanitizeContext(context?: Record<string, any>): Record<string, any> | undefined {
     if (!context) return undefined;
@@ -403,7 +403,7 @@ class Logger {
       }
       
       if (!context.rgpdCompliant && personalData.some((personal) => lowerKey.includes(personal))) {
-        sanitized[key] = '[DONNÉES PERSONNELLES]';
+        sanitized[key] = '[DONNeES PERSONNELLES]';
       }
 
       if (lowerKey.includes('email') && typeof sanitized[key] === 'string') {
@@ -436,29 +436,29 @@ class Logger {
   }
 
   /**
-   * Récupérer les logs du buffer pour consultation admin
+   * Recuperer les logs du buffer pour consultation admin
    */
   public getBufferedLogs(): LogEntry[] {
     return [...this.logBuffer];
   }
 
   /**
-   * Envoyer à monitoring externe
+   * Envoyer a monitoring externe
    */
   private sendToMonitoring(entry: LogEntry): void {
     if (!this.isProduction) return;
-    // TODO: Intégration Sentry, DataDog, etc.
+    // TODO: Integration Sentry, DataDog, etc.
   }
 
   /**
    * Envoyer alerte critique
    */
   private sendCriticalAlert(entry: LogEntry): void {
-    // TODO: Intégration alerting (Slack, Email, PagerDuty)
+    // TODO: Integration alerting (Slack, Email, PagerDuty)
   }
 
   /**
-   * Récupérer logs récents
+   * Recuperer logs recents
    */
   getRecentLogs(count: number = 50): LogEntry[] {
     return this.logBuffer.slice(-count);
@@ -499,7 +499,7 @@ export function withLogging<T extends (...args: any[]) => Promise<any>>(
   }) as T;
 }
 
-// Helpers spécifiques CESEDA
+// Helpers specifiques CESEDA
 
 export function logDossierAction(
   action: ActionJuridique,

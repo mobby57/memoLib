@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -124,7 +124,7 @@ export default function SuperAdminDashboard() {
                   <div>
                     <h3 className="font-semibold">{tenant.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {tenant.users} utilisateurs • {tenant.dossiers} dossiers
+                      {tenant.users} utilisateurs - {tenant.dossiers} dossiers
                     </p>
                   </div>
                 </div>

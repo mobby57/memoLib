@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Créer une facture
+// POST - Creer une facture
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Au moins une ligne requise' }, { status: 400 });
     }
 
-    // Générer le numéro de facture
+    // Generer le numero de facture
     const year = new Date().getFullYear();
     const lastFacture = await prisma.facture.findFirst({
       where: { 
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     const montantTVA = montantHT * (tauxTVA / 100);
     const montantTTC = montantHT + montantTVA;
 
-    // Créer la facture avec les lignes
+    // Creer la facture avec les lignes
     const facture = await prisma.facture.create({
       data: {
         tenantId,
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Notifier si demandé
+    // Notifier si demande
     if (notifyUserId) {
       await NotificationService.factureCreated(notifyUserId, {
         numero: facture.numero,
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PATCH - Mettre à jour le statut d'une facture
+// PATCH - Mettre a jour le statut d'une facture
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();

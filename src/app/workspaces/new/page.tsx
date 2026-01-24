@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -19,7 +19,7 @@ export default function NewWorkspacePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.procedureType) {
-      alert("Veuillez sélectionner un type de procédure")
+      alert("Veuillez selectionner un type de procedure")
       return
     }
 
@@ -31,13 +31,13 @@ export default function NewWorkspacePage() {
         body: JSON.stringify(formData),
       })
 
-      if (!response.ok) throw new Error("Erreur lors de la création")
+      if (!response.ok) throw new Error("Erreur lors de la creation")
 
       const workspace = await response.json()
       router.push(`/workspaces/${workspace.id}`)
     } catch (error) {
       console.error("Error creating workspace:", error)
-      alert("Erreur lors de la création du dossier")
+      alert("Erreur lors de la creation du dossier")
     } finally {
       setLoading(false)
     }
@@ -62,9 +62,9 @@ export default function NewWorkspacePage() {
                 }
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Sélectionner...</option>
-                <option value="sans_delai">Sans délai (48h)</option>
-                <option value="avec_delai">Avec délai de départ volontaire (30j)</option>
+                <option value="">Selectionner...</option>
+                <option value="sans_delai">Sans delai (48h)</option>
+                <option value="avec_delai">Avec delai de depart volontaire (30j)</option>
               </select>
             </div>
             <div>
@@ -105,7 +105,7 @@ export default function NewWorkspacePage() {
             {formData.metadata.interdiction_retour && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Durée interdiction (ans)
+                  Duree interdiction (ans)
                 </label>
                 <input
                   type="number"
@@ -143,14 +143,14 @@ export default function NewWorkspacePage() {
                 }
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Sélectionner...</option>
+                <option value="">Selectionner...</option>
                 <option value="OFPRA">OFPRA</option>
                 <option value="CNDA">CNDA</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Numéro OFPRA/CNDA
+                Numero OFPRA/CNDA
               </label>
               <input
                 type="text"
@@ -172,7 +172,7 @@ export default function NewWorkspacePage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Membres de la famille (séparés par virgules)
+                Membres de la famille (separes par virgules)
               </label>
               <input
                 type="text"
@@ -203,15 +203,15 @@ export default function NewWorkspacePage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Nouveau Dossier CESDA</h1>
           <p className="text-gray-600 mt-1">
-            Créer un nouveau dossier de contentieux des étrangers
+            Creer un nouveau dossier de contentieux des etrangers
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-8 space-y-6">
-          {/* Type de procédure */}
+          {/* Type de procedure */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Type de procédure *
+              Type de procedure *
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {(Object.keys(PROCEDURE_COLORS) as ProcedureType[]).map((type) => (
@@ -259,7 +259,7 @@ export default function NewWorkspacePage() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
-              placeholder="Contexte et détails du dossier..."
+              placeholder="Contexte et details du dossier..."
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -282,7 +282,7 @@ export default function NewWorkspacePage() {
           {formData.procedureType && (
             <div className="border-t pt-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Informations spécifiques
+                Informations specifiques
               </h3>
               {renderMetadataFields()}
             </div>
@@ -302,7 +302,7 @@ export default function NewWorkspacePage() {
               disabled={loading}
               className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
-              {loading ? "Création..." : "Créer le dossier"}
+              {loading ? "Creation..." : "Creer le dossier"}
             </button>
           </div>
         </form>

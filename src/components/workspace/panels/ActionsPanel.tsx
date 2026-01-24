@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 /**
- * Panel Actions Proposées - Réduction d'incertitude
+ * Panel Actions Proposees - Reduction d'incertitude
  */
 
 import { ProposedAction } from '@/types/workspace-reasoning';
@@ -21,11 +21,11 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_ICONS: Record<string, string> = {
-  QUESTION: '❓',
-  DOCUMENT_REQUEST: '📄',
-  ALERT: '🚨',
-  ESCALATION: '⬆️',
-  FORM_SEND: '📋',
+  QUESTION: '',
+  DOCUMENT_REQUEST: '[emoji]',
+  ALERT: '[emoji]',
+  ESCALATION: '️',
+  FORM_SEND: '[emoji]',
 };
 
 const PRIORITY_CONFIG: Record<string, { color: string; label: string }> = {
@@ -42,12 +42,12 @@ export function ActionsPanel({ actions, onExecute }: ActionsPanelProps) {
   if (actions.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">👉</div>
+        <div className="text-6xl mb-4">[emoji]</div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Aucune action proposée
+          Aucune action proposee
         </h3>
         <p className="text-gray-600">
-          L'IA n'a pas encore généré d'actions pour réduire l'incertitude.
+          L'IA n'a pas encore genere d'actions pour reduire l'incertitude.
         </p>
       </div>
     );
@@ -60,10 +60,10 @@ export function ActionsPanel({ actions, onExecute }: ActionsPanelProps) {
         <div>
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <ArrowRight className="w-5 h-5 text-indigo-500" />
-            Actions Proposées
+            Actions Proposees
           </h3>
           <p className="text-sm text-gray-600 mt-1">
-            {pendingActions.length} en attente • {executedActions.length} exécutée(s)
+            {pendingActions.length} en attente - {executedActions.length} executee(s)
           </p>
         </div>
       </div>
@@ -88,13 +88,13 @@ export function ActionsPanel({ actions, onExecute }: ActionsPanelProps) {
         </div>
       )}
       
-      {/* Actions exécutées */}
+      {/* Actions executees */}
       {executedActions.length > 0 && (
         <details className="border border-gray-200 rounded-lg">
           <summary className="cursor-pointer p-4 hover:bg-gray-50 flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-green-500" />
             <span className="text-sm font-semibold text-green-700">
-              EXÉCUTÉES ({executedActions.length})
+              EXeCUTeES ({executedActions.length})
             </span>
           </summary>
           
@@ -131,7 +131,7 @@ function ActionCard({
         ${executed ? 'border-green-200 bg-green-50' : 'border-indigo-200 bg-indigo-50'}
       `}
     >
-      {/* En-tête */}
+      {/* En-tete */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-2xl">{TYPE_ICONS[action.type]}</span>
@@ -140,12 +140,12 @@ function ActionCard({
               {TYPE_LABELS[action.type]}
             </h5>
             <p className="text-xs text-gray-600 mt-1">
-              Cible : {action.target === 'CLIENT' ? 'Client' : action.target === 'INTERNAL_USER' ? 'Interne' : 'Système'}
+              Cible : {action.target === 'CLIENT' ? 'Client' : action.target === 'INTERNAL_USER' ? 'Interne' : 'Systeme'}
             </p>
           </div>
         </div>
         
-        {/* Badge priorité */}
+        {/* Badge priorite */}
         <div className={`px-2 py-1 rounded text-xs font-medium ${priorityConfig.color}`}>
           {priorityConfig.label}
         </div>
@@ -168,14 +168,14 @@ function ActionCard({
         </div>
       </div>
       
-      {/* Résultat si exécuté */}
+      {/* Resultat si execute */}
       {executed && action.result && (
         <div className="ml-8 mb-3 bg-green-50 border border-green-200 rounded p-3">
           <p className="text-xs text-green-800">
-            <strong>Résultat :</strong> {action.result}
+            <strong>Resultat :</strong> {action.result}
           </p>
           <p className="text-xs text-gray-500 mt-2">
-            Exécuté par {action.executedBy} le{' '}
+            Execute par {action.executedBy} le{' '}
             {action.executedAt && new Date(action.executedAt).toLocaleDateString('fr-FR')}
           </p>
         </div>
@@ -188,14 +188,14 @@ function ActionCard({
             onClick={() => onExecute(action.id)}
             className="flex-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-sm font-medium transition-colors"
           >
-            Exécuter l'action
+            Executer l'action
           </button>
         </div>
       )}
       
-      {/* Métadonnées */}
+      {/* Metadonnees */}
       <div className="ml-8 mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
-        Proposé par {action.proposedBy === 'AI' ? 'IA' : 'Humain'} le{' '}
+        Propose par {action.proposedBy === 'AI' ? 'IA' : 'Humain'} le{' '}
         {new Date(action.createdAt).toLocaleDateString('fr-FR')}
       </div>
     </div>

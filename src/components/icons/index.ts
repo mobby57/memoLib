@@ -1,5 +1,5 @@
-﻿/**
- * Icônes pour l'application iaPostemanage
+/**
+ * Icones pour l'application iaPostemanage
  */
 
 export { IconMenu } from './IconMenu';

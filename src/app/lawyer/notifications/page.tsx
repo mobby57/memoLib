@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Alert } from '@/components/ui/Alert';
 
 /**
- * 🔔 Page de Notifications Contextuelles Interactives
+ * [emoji] Page de Notifications Contextuelles Interactives
  */
 
 interface Notification {
@@ -74,8 +74,8 @@ export default function NotificationsPage() {
   };
 
   const getSeverityIcon = (severity: string) => {
-    if (severity === 'critical') return '🚨';
-    if (severity === 'warning') return '⚠️';
+    if (severity === 'critical') return '[emoji]';
+    if (severity === 'warning') return '️';
     return 'ℹ️';
   };
 
@@ -95,9 +95,9 @@ export default function NotificationsPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* En-tête */}
+      {/* En-tete */}
       <div>
-        <h1 className="text-3xl font-bold">🔔 Notifications Interactives</h1>
+        <h1 className="text-3xl font-bold">[emoji] Notifications Interactives</h1>
         <p className="text-gray-600">
           Actions requises pour vos emails et workflows
         </p>
@@ -121,7 +121,7 @@ export default function NotificationsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Nécessitent Action</CardDescription>
+            <CardDescription>Necessitent Action</CardDescription>
             <CardTitle className="text-3xl text-orange-600">
               {notifications.filter(n => n.requiresAction).length}
             </CardTitle>
@@ -132,7 +132,7 @@ export default function NotificationsPage() {
       {/* Notifications Critiques */}
       {criticalNotifications.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-red-600">🚨 Actions Critiques</h2>
+          <h2 className="text-2xl font-bold text-red-600">[emoji] Actions Critiques</h2>
           {criticalNotifications.map((notif) => (
             <Alert
               key={notif.id}
@@ -149,7 +149,7 @@ export default function NotificationsPage() {
                   </AlertDescription>
                   {notif.expiresAt && (
                     <p className="text-sm text-red-600 mt-2">
-                      ⏰ Expire: {new Date(notif.expiresAt).toLocaleString('fr-FR')}
+                       Expire: {new Date(notif.expiresAt).toLocaleString('fr-FR')}
                     </p>
                   )}
                 </div>
@@ -175,7 +175,7 @@ export default function NotificationsPage() {
       {/* Autres Notifications */}
       {otherNotifications.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold">📋 Autres Notifications</h2>
+          <h2 className="text-2xl font-bold">[emoji] Autres Notifications</h2>
           {otherNotifications.map((notif) => (
             <Card key={notif.id} className={`border-l-4 ${getSeverityColor(notif.severity)}`}>
               <CardHeader>
@@ -218,11 +218,11 @@ export default function NotificationsPage() {
         </div>
       )}
 
-      {/* État vide */}
+      {/* etat vide */}
       {notifications.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-2xl mb-2">✅</p>
+            <p className="text-2xl mb-2"></p>
             <p className="text-gray-600">Aucune notification en attente</p>
           </CardContent>
         </Card>

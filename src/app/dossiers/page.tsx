@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -16,8 +16,8 @@ import { Pagination } from '@/components/ui/Pagination';
 import { FileText, Plus, Download, Search, Pencil, Trash2 } from 'lucide-react';
 
 const dossierSchema = z.object({
-  numero: z.string().min(1, 'Le numéro est requis'),
-  titre: z.string().min(3, 'Le titre doit contenir au moins 3 caractères'),
+  numero: z.string().min(1, 'Le numero est requis'),
+  titre: z.string().min(3, 'Le titre doit contenir au moins 3 caracteres'),
   clientId: z.string().min(1, 'Le client est requis'),
   type: z.enum(['CIVIL', 'PENAL', 'COMMERCIAL', 'ADMINISTRATIF']),
   statut: z.enum(['EN_COURS', 'CLOS', 'EN_ATTENTE', 'ARCHIVE']),
@@ -43,7 +43,7 @@ const MOCK_DOSSIERS: Dossier[] = [
     type: 'COMMERCIAL',
     statut: 'EN_COURS',
     dateOuverture: '2024-01-15',
-    description: 'Litige avec fournisseur sur qualité marchandise',
+    description: 'Litige avec fournisseur sur qualite marchandise',
   },
   {
     id: '2',
@@ -68,7 +68,7 @@ const MOCK_DOSSIERS: Dossier[] = [
   {
     id: '4',
     numero: 'DOS-2023-045',
-    titre: 'Défense pénale - Vol',
+    titre: 'Defense penale - Vol',
     clientId: '4',
     clientNom: 'Thomas Bernard',
     type: 'PENAL',
@@ -99,7 +99,7 @@ const MOCK_CLIENTS = [
 
 const TYPE_LABELS = {
   CIVIL: 'Civil',
-  PENAL: 'Pénal',
+  PENAL: 'Penal',
   COMMERCIAL: 'Commercial',
   ADMINISTRATIF: 'Administratif',
 };
@@ -108,7 +108,7 @@ const STATUT_LABELS = {
   EN_COURS: 'En cours',
   CLOS: 'Clos',
   EN_ATTENTE: 'En attente',
-  ARCHIVE: 'Archivé',
+  ARCHIVE: 'Archive',
 };
 
 const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 'default'> = {
@@ -204,8 +204,8 @@ export default function DossiersPage() {
       );
       toast({
         variant: 'success',
-        title: 'Dossier modifié',
-        description: `Le dossier ${data.numero} a été modifié avec succès.`,
+        title: 'Dossier modifie',
+        description: `Le dossier ${data.numero} a ete modifie avec succes.`,
       });
     } else {
       const newDossier: Dossier = {
@@ -216,8 +216,8 @@ export default function DossiersPage() {
       setDossiers(prev => [newDossier, ...prev]);
       toast({
         variant: 'success',
-        title: 'Dossier créé',
-        description: `Le dossier ${data.numero} a été créé avec succès.`,
+        title: 'Dossier cree',
+        description: `Le dossier ${data.numero} a ete cree avec succes.`,
       });
     }
     setIsModalOpen(false);
@@ -225,12 +225,12 @@ export default function DossiersPage() {
 
   const deleteDossier = (id: string) => {
     const dossier = dossiers.find(d => d.id === id);
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer le dossier ${dossier?.numero} ?`)) {
+    if (window.confirm(`etes-vous sur de vouloir supprimer le dossier ${dossier?.numero} ?`)) {
       setDossiers(prev => prev.filter(d => d.id !== id));
       toast({
         variant: 'default',
-        title: 'Dossier supprimé',
-        description: `Le dossier ${dossier?.numero} a été supprimé.`,
+        title: 'Dossier supprime',
+        description: `Le dossier ${dossier?.numero} a ete supprime.`,
       });
     }
   };
@@ -239,12 +239,12 @@ export default function DossiersPage() {
     toast({
       variant: 'default',
       title: 'Export en cours',
-      description: 'Votre fichier CSV sera téléchargé dans quelques instants.',
+      description: 'Votre fichier CSV sera telecharge dans quelques instants.',
     });
   };
 
   const columns = [
-    { key: 'numero', header: 'Numéro' },
+    { key: 'numero', header: 'Numero' },
     { key: 'titre', header: 'Titre' },
     { key: 'clientNom', header: 'Client' },
     { 
@@ -298,7 +298,7 @@ export default function DossiersPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des dossiers</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gérez vos dossiers juridiques et leur suivi
+            Gerez vos dossiers juridiques et leur suivi
           </p>
         </div>
         <div className="flex gap-2">
@@ -346,7 +346,7 @@ export default function DossiersPage() {
 
       {/* Info Alert */}
       <Alert variant="info">
-        Les dossiers archivés ne sont pas inclus dans les statistiques actives ci-dessus.
+        Les dossiers archives ne sont pas inclus dans les statistiques actives ci-dessus.
       </Alert>
 
       {/* Filters */}
@@ -356,7 +356,7 @@ export default function DossiersPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Rechercher par numéro, titre ou client..."
+              placeholder="Rechercher par numero, titre ou client..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -387,7 +387,7 @@ export default function DossiersPage() {
         </div>
         {(searchTerm || typeFilter !== 'ALL' || statutFilter !== 'ALL') && (
           <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-            {filteredDossiers.length} résultat(s) trouvé(s)
+            {filteredDossiers.length} resultat(s) trouve(s)
           </div>
         )}
       </Card>
@@ -412,13 +412,13 @@ export default function DossiersPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingDossier ? 'Modifier le dossier' : 'Créer un dossier'}
+        title={editingDossier ? 'Modifier le dossier' : 'Creer un dossier'}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Numéro *
+                Numero *
               </label>
               <input
                 {...register('numero')}
@@ -437,7 +437,7 @@ export default function DossiersPage() {
                 {...register('clientId')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
-                <option value="">Sélectionner un client</option>
+                <option value="">Selectionner un client</option>
                 {MOCK_CLIENTS.map(client => (
                   <option key={client.id} value={client.id}>{client.nom}</option>
                 ))}
@@ -508,7 +508,7 @@ export default function DossiersPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Date de clôture
+                Date de cloture
               </label>
               <input
                 type="date"
@@ -541,7 +541,7 @@ export default function DossiersPage() {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              {editingDossier ? 'Modifier' : 'Créer'}
+              {editingDossier ? 'Modifier' : 'Creer'}
             </button>
           </div>
         </form>

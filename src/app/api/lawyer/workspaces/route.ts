@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { prisma } from '@/lib/prisma'
@@ -12,17 +12,17 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions)
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 })
     }
     
     const user = session.user as any
     const tenantId = user.tenantId
     
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 400 })
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 400 })
     }
     
-    // Récupérer les paramètres de filtrage
+    // Recuperer les parametres de filtrage
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') || 'reasoning' // 'reasoning' | 'cesda'
     const state = searchParams.get('state')
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search')
     
     if (type === 'reasoning') {
-      // Nouveau système WorkspaceReasoning
+      // Nouveau systeme WorkspaceReasoning
       const where: any = { tenantId }
       
       if (state && state !== 'ALL') {
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    // Ancien système Workspace CESDA (fallback)
+    // Ancien systeme Workspace CESDA (fallback)
     const oldWorkspaces = await prisma.workspace.findMany({
       where: { tenantId },
       include: {
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
     })
     
   } catch (error) {
-    console.error('Erreur récupération workspaces:', error)
+    console.error('Erreur recuperation workspaces:', error)
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
@@ -126,20 +126,20 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions)
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 })
     }
 
     const { role, tenantId, id: userId } = session.user as any
 
     if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 })
     }
 
     const body = await req.json()
     const { type = 'reasoning' } = body
     
     if (type === 'reasoning') {
-      // Nouveau système WorkspaceReasoning
+      // Nouveau systeme WorkspaceReasoning
       const { sourceType, sourceId, sourceRaw, sourceMetadata, procedureType, clientId, dossierId, emailId } = body
       
       if (!sourceType || !sourceRaw) {
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
           fromState: 'RECEIVED',
           toState: 'RECEIVED',
           triggeredBy: 'SYSTEM',
-          reason: 'Création initiale du workspace',
+          reason: 'Creation initiale du workspace',
           metadata: JSON.stringify({ sourceType, procedureType }),
         },
       })
@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
       })
     }
     
-    // Ancien système Workspace CESDA
+    // Ancien systeme Workspace CESDA
     const {
       title,
       description,
@@ -217,7 +217,7 @@ export async function POST(req: NextRequest) {
 
     if (!client) {
       return NextResponse.json(
-        { error: 'Client non trouvé ou accès refusé' },
+        { error: 'Client non trouve ou acces refuse' },
         { status: 404 }
       )
     }
@@ -263,7 +263,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     logger.error('Failed to create workspace', error)
     return NextResponse.json(
-      { error: 'Erreur lors de la création du workspace' },
+      { error: 'Erreur lors de la creation du workspace' },
       { status: 500 }
     )
   } finally {

@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/withAuth';
 import { prisma } from '@/lib/prisma';
 
@@ -9,7 +9,7 @@ async function handler() {
     const uptime = Date.now() - startTime;
     const uptimeFormatted = formatUptime(uptime);
 
-    // Vérifications système
+    // Verifications systeme
     const checks = {
       database: await checkDatabase(),
       ollama: await checkOllama(),

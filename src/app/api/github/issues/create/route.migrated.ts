@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/withAuth';
 import { createIssueAsUser } from '@/lib/github/user-actions';
 import { logger } from '@/lib/logger';
@@ -21,10 +21,10 @@ async function handler(request: NextRequest, context: any) {
 
     const { repo, title, body: issueBody, labels, assignees } = validated;
 
-    // Créer l'issue pour le compte de l'utilisateur
+    // Creer l'issue pour le compte de l'utilisateur
     const issue = await createIssueAsUser(repo, title, issueBody, labels, assignees);
 
-    logger.info('GitHub issue créée via API', {
+    logger.info('GitHub issue creee via API', {
       userId,
       issueNumber: issue.number,
       repo,
@@ -37,25 +37,25 @@ async function handler(request: NextRequest, context: any) {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Paramètres invalides', details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Parametres invalides', details: error.errors }, { status: 400 });
     }
 
-    logger.error('Erreur création issue GitHub', error, { userId });
+    logger.error('Erreur creation issue GitHub', error, { userId });
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     if (errorMessage.includes('not connected to GitHub')) {
       return NextResponse.json(
         {
-          error: 'GitHub non connecté',
-          message: 'Autorisez GitHub dans vos paramètres',
+          error: 'GitHub non connecte',
+          message: 'Autorisez GitHub dans vos parametres',
           code: 'GITHUB_NOT_CONNECTED',
         },
         { status: 403 }
       );
     }
 
-    return NextResponse.json({ error: 'Erreur lors de la création issue' }, { status: 500 });
+    return NextResponse.json({ error: 'Erreur lors de la creation issue' }, { status: 500 });
   }
 }
 

@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from 'react'
 import { Card } from '@/components/ui/Card'
@@ -34,27 +34,27 @@ export default function WorkflowsPage() {
   const handleToggle = (id: string) => {
     toggleWorkflow(id)
     refreshWorkflows()
-    showToast('Workflow mis à jour', 'success')
+    showToast('Workflow mis a jour', 'success')
   }
 
   const handleDelete = (id: string) => {
     if (!confirm('Supprimer ce workflow ?')) return
     deleteWorkflow(id)
     refreshWorkflows()
-    showToast('Workflow supprimé', 'success')
+    showToast('Workflow supprime', 'success')
   }
 
   const handleExecute = async (workflow: Workflow) => {
     try {
-      showToast('Exécution du workflow...', 'info')
+      showToast('Execution du workflow...', 'info')
       await executeWorkflow(workflow.id, {
         test: true,
         triggeredBy: 'manual',
       })
       refreshWorkflows()
-      showToast('Workflow exécuté avec succès', 'success')
+      showToast('Workflow execute avec succes', 'success')
     } catch (error) {
-      showToast('Erreur lors de l\'exécution', 'error')
+      showToast('Erreur lors de l\'execution', 'error')
     }
   }
 
@@ -71,25 +71,25 @@ export default function WorkflowsPage() {
   }
 
   const triggerLabels: Record<TriggerType, string> = {
-    dossier_created: 'Dossier créé',
-    dossier_status_changed: 'Statut dossier modifié',
-    facture_created: 'Facture créée',
+    dossier_created: 'Dossier cree',
+    dossier_status_changed: 'Statut dossier modifie',
+    facture_created: 'Facture creee',
     facture_overdue: 'Facture en retard',
-    echeance_approaching: 'Échéance proche',
-    document_uploaded: 'Document uploadé',
-    client_created: 'Client créé',
-    scheduled: 'Planifié',
+    echeance_approaching: 'echeance proche',
+    document_uploaded: 'Document uploade',
+    client_created: 'Client cree',
+    scheduled: 'Planifie',
   }
 
   const actionLabels: Record<ActionType, string> = {
-    send_email: '📧 Email',
-    create_task: '✅ Tâche',
-    update_status: '🔄 Statut',
-    assign_to_user: '👤 Attribution',
-    generate_document: '📄 Document',
-    create_notification: '🔔 Notification',
-    webhook: '🔗 Webhook',
-    run_script: '⚙️ Script',
+    send_email: '[emoji] Email',
+    create_task: ' Tache',
+    update_status: '[emoji] Statut',
+    assign_to_user: '[emoji] Attribution',
+    generate_document: '[emoji] Document',
+    create_notification: '[emoji] Notification',
+    webhook: '[emoji] Webhook',
+    run_script: '️ Script',
   }
 
   return (
@@ -107,7 +107,7 @@ export default function WorkflowsPage() {
             Automatisation des Workflows
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Automatisez vos processus métier avec des règles personnalisées
+            Automatisez vos processus metier avec des regles personnalisees
           </p>
         </div>
         <Button onClick={() => setShowEditor(true)}>
@@ -131,13 +131,13 @@ export default function WorkflowsPage() {
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Désactivés</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Desactives</p>
           <p className="text-2xl font-bold text-gray-400 mt-1">
             {stats.disabled}
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Exécutions totales</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Executions totales</p>
           <p className="text-2xl font-bold text-blue-600 mt-1">
             {stats.totalExecutions}
           </p>
@@ -161,7 +161,7 @@ export default function WorkflowsPage() {
                         : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                     }`}
                   >
-                    {workflow.enabled ? 'Actif' : 'Désactivé'}
+                    {workflow.enabled ? 'Actif' : 'Desactive'}
                   </span>
                 </div>
                 
@@ -171,7 +171,7 @@ export default function WorkflowsPage() {
 
                 <div className="flex flex-wrap gap-4 text-sm">
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Déclencheur:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Declencheur:</span>
                     <span className="ml-2 font-medium text-gray-900 dark:text-white">
                       {triggerLabels[workflow.trigger.type]}
                     </span>
@@ -183,14 +183,14 @@ export default function WorkflowsPage() {
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500 dark:text-gray-400">Exécutions:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Executions:</span>
                     <span className="ml-2 font-medium text-gray-900 dark:text-white">
                       {workflow.executionCount}
                     </span>
                   </div>
                   {workflow.lastExecuted && (
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">Dernière:</span>
+                      <span className="text-gray-500 dark:text-gray-400">Derniere:</span>
                       <span className="ml-2 font-medium text-gray-900 dark:text-white">
                         {new Date(workflow.lastExecuted).toLocaleString('fr-FR')}
                       </span>
@@ -240,16 +240,16 @@ export default function WorkflowsPage() {
         {workflows.length === 0 && (
           <Card className="p-12 text-center">
             <p className="text-gray-500 dark:text-gray-400">
-              Aucun workflow configuré
+              Aucun workflow configure
             </p>
             <Button onClick={() => setShowEditor(true)} className="mt-4">
-              Créer votre premier workflow
+              Creer votre premier workflow
             </Button>
           </Card>
         )}
       </div>
 
-      {/* Modal des exécutions */}
+      {/* Modal des executions */}
       {showExecutions && selectedWorkflow && (
         <Modal 
           isOpen={showExecutions} 
@@ -279,8 +279,8 @@ export default function WorkflowsPage() {
                         <Clock className="w-5 h-5 text-blue-600 animate-spin" />
                       )}
                       <span className="font-medium text-gray-900 dark:text-white">
-                        {exec.status === 'completed' && 'Réussi'}
-                        {exec.status === 'failed' && 'Échoué'}
+                        {exec.status === 'completed' && 'Reussi'}
+                        {exec.status === 'failed' && 'echoue'}
                         {exec.status === 'running' && 'En cours'}
                         {exec.status === 'pending' && 'En attente'}
                       </span>
@@ -297,14 +297,14 @@ export default function WorkflowsPage() {
                   )}
 
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {exec.results.length} action(s) exécutée(s)
+                    {exec.results.length} action(s) executee(s)
                   </div>
                 </div>
               ))}
 
               {getWorkflowExecutions(selectedWorkflow.id).length === 0 && (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  Aucune exécution enregistrée
+                  Aucune execution enregistree
                 </div>
               )}
             </div>

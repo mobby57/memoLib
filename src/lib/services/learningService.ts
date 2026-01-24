@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Service d'Apprentissage Continu IA
- * Analyse les validations humaines pour améliorer les prédictions
+ * Analyse les validations humaines pour ameliorer les predictions
  */
 
 import { prisma } from '@/lib/prisma';
@@ -13,7 +13,7 @@ export class LearningService {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - periodDays);
 
-    // Récupérer toutes les actions validées de la période
+    // Recuperer toutes les actions validees de la periode
     const validatedActions = await prisma.aIAction.findMany({
       where: {
         tenantId,
@@ -79,17 +79,17 @@ export class LearningService {
         ? (analysis.approved + analysis.modified) / analysis.total 
         : 0;
 
-      // Règles d'ajustement automatique
+      // Regles d'ajustement automatique
       let adjustment = 0;
       let shouldAdjust = false;
 
       if (analysis.total >= 10) { // Minimum 10 actions pour ajuster
         if (successRate > 0.9) {
-          // Excellent taux de succès : augmenter la confiance
+          // Excellent taux de succes : augmenter la confiance
           adjustment = 0.05; // +5%
           shouldAdjust = true;
         } else if (successRate < 0.7) {
-          // Taux de succès faible : diminuer la confiance
+          // Taux de succes faible : diminuer la confiance
           adjustment = -0.1; // -10%
           shouldAdjust = true;
         }
@@ -122,7 +122,7 @@ export class LearningService {
   }
 
   /**
-   * Prédire la probabilité d'approbation d'une action
+   * Predire la probabilite d'approbation d'une action
    */
   static async predictApprovalProbability(
     tenantId: string, 
@@ -133,7 +133,7 @@ export class LearningService {
     recommendation: 'AUTO_APPROVE' | 'VALIDATION' | 'HIGH_RISK';
     reasoning: string;
   }> {
-    // Récupérer l'historique pour ce type d'action
+    // Recuperer l'historique pour ce type d'action
     const historicalActions = await prisma.aIAction.findMany({
       where: {
         tenantId,
@@ -143,18 +143,18 @@ export class LearningService {
         }
       },
       orderBy: { validatedAt: 'desc' },
-      take: 100 // Dernières 100 actions
+      take: 100 // Dernieres 100 actions
     });
 
     if (historicalActions.length < 5) {
       return {
         probability: 0.5,
         recommendation: 'VALIDATION',
-        reasoning: 'Pas assez de données historiques pour prédire'
+        reasoning: 'Pas assez de donnees historiques pour predire'
       };
     }
 
-    // Analyser les actions avec une confiance similaire (±0.1)
+    // Analyser les actions avec une confiance similaire (+/-0.1)
     const similarConfidenceActions = historicalActions.filter(action => 
       Math.abs(action.confidence - confidence) <= 0.1
     );
@@ -170,7 +170,7 @@ export class LearningService {
       ).length;
       
       probability = approved / similarConfidenceActions.length;
-      reasoning = `Basé sur ${similarConfidenceActions.length} actions similaires`;
+      reasoning = `Base sur ${similarConfidenceActions.length} actions similaires`;
     } else {
       // Utiliser toutes les actions du type
       const approved = historicalActions.filter(a => 
@@ -180,10 +180,10 @@ export class LearningService {
       ).length;
       
       probability = approved / historicalActions.length;
-      reasoning = `Basé sur ${historicalActions.length} actions de ce type`;
+      reasoning = `Base sur ${historicalActions.length} actions de ce type`;
     }
 
-    // Déterminer la recommandation
+    // Determiner la recommandation
     let recommendation: 'AUTO_APPROVE' | 'VALIDATION' | 'HIGH_RISK';
     
     if (probability >= 0.9 && confidence >= 0.8) {
@@ -210,14 +210,14 @@ export class LearningService {
 
     for (const actionType of analysis.actionTypes) {
       if (actionType.shouldAdjust) {
-        // Dans une vraie implémentation, on mettrait à jour les paramètres du modèle IA
+        // Dans une vraie implementation, on mettrait a jour les parametres du modele IA
         // Ici on simule en enregistrant l'ajustement
         adjustments.push({
           actionType: actionType.actionType,
           oldConfidence: actionType.avgConfidence,
           adjustment: actionType.adjustment,
           newConfidence: Math.max(0, Math.min(1, actionType.avgConfidence + actionType.adjustment)),
-          reason: actionType.successRate > 0.9 ? 'Excellent taux de succès' : 'Taux de succès faible'
+          reason: actionType.successRate > 0.9 ? 'Excellent taux de succes' : 'Taux de succes faible'
         });
       }
     }
@@ -230,7 +230,7 @@ export class LearningService {
   }
 
   /**
-   * Générer un rapport d'amélioration
+   * Generer un rapport d'amelioration
    */
   static async generateImprovementReport(tenantId: string) {
     const currentPeriod = await this.analyzeValidationPatterns(tenantId, 30);
@@ -269,7 +269,7 @@ export class LearningService {
     });
 
     return {
-      period: '30 derniers jours vs 30-60 jours précédents',
+      period: '30 derniers jours vs 30-60 jours precedents',
       globalImprovement: currentPeriod.globalSuccessRate - previousPeriod.globalSuccessRate,
       improvements,
       generatedAt: new Date()
@@ -277,21 +277,21 @@ export class LearningService {
   }
 
   /**
-   * Obtenir une recommandation basée sur les performances
+   * Obtenir une recommandation basee sur les performances
    */
   private static getRecommendation(successRate: number, totalActions: number): string {
     if (totalActions < 10) {
-      return 'Pas assez de données pour recommander';
+      return 'Pas assez de donnees pour recommander';
     }
 
     if (successRate > 0.9) {
-      return 'Excellent - Considérer l\'auto-approbation';
+      return 'Excellent - Considerer l\'auto-approbation';
     } else if (successRate > 0.8) {
       return 'Bon - Validation rapide possible';
     } else if (successRate > 0.7) {
       return 'Correct - Validation standard';
     } else {
-      return 'Faible - Réviser les prompts système';
+      return 'Faible - Reviser les prompts systeme';
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * Real-Time Notification Center
@@ -102,7 +102,7 @@ export default function NotificationCenter() {
                 <div className={`text-xs px-2 py-0.5 rounded-full ${
                   connected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                 }`}>
-                  {connecting ? 'Connexion...' : connected ? 'En direct' : 'Déconnecté'}
+                  {connecting ? 'Connexion...' : connected ? 'En direct' : 'Deconnecte'}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -128,8 +128,8 @@ export default function NotificationCenter() {
                 { id: 'all', label: 'Tout', count: unreadCount },
                 { id: 'emails', label: 'Emails', count: notifications.emails.length },
                 { id: 'dossiers', label: 'Dossiers', count: notifications.dossiers.length },
-                { id: 'deadlines', label: 'Délais', count: notifications.deadlines.length },
-                { id: 'system', label: 'Système', count: notifications.system.length },
+                { id: 'deadlines', label: 'Delais', count: notifications.deadlines.length },
+                { id: 'system', label: 'Systeme', count: notifications.system.length },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -231,10 +231,10 @@ function NotificationItem({ notification, onMarkRead }: { notification: any; onM
           <>
             <div className="font-medium text-sm">{notification.dossierTitle}</div>
             <div className="text-xs text-gray-600">
-              {notification.action === 'created' && 'Nouveau dossier créé'}
-              {notification.action === 'updated' && 'Dossier mis à jour'}
+              {notification.action === 'created' && 'Nouveau dossier cree'}
+              {notification.action === 'updated' && 'Dossier mis a jour'}
               {notification.action === 'status_changed' && `Statut: ${notification.status}`}
-              {notification.action === 'document_added' && 'Document ajouté'}
+              {notification.action === 'document_added' && 'Document ajoute'}
             </div>
             <div className="text-xs text-blue-600 mt-1">#{notification.dossierNumber}</div>
           </>
@@ -244,7 +244,7 @@ function NotificationItem({ notification, onMarkRead }: { notification: any; onM
           <>
             <div className="font-medium text-sm">{notification.message}</div>
             <div className="text-xs text-gray-600">
-              Dossier #{notification.dossierNumber} • {notification.remainingDays} jour{notification.remainingDays > 1 ? 's' : ''} restant{notification.remainingDays > 1 ? 's' : ''}
+              Dossier #{notification.dossierNumber} - {notification.remainingDays} jour{notification.remainingDays > 1 ? 's' : ''} restant{notification.remainingDays > 1 ? 's' : ''}
             </div>
             <div className="text-xs text-orange-600 mt-1">{notification.deadlineType}</div>
           </>

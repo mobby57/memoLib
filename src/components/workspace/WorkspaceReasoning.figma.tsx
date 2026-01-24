@@ -1,8 +1,8 @@
-﻿/**
+/**
  * 🎨 Figma Code Connect - WorkspaceReasoning FSM
  * 
  * Composant: IA Poste Manager > Reasoning Engine > WorkspaceReasoning
- * Documenter la machine à états du pipeline "Zéro Information Ignorée"
+ * Documenter la machine a etats du pipeline "Zero Information Ignoree"
  */
 
 import { CodeConnect } from '@figma/code-connect';
@@ -46,31 +46,31 @@ CodeConnect.figma(
 );
 
 /**
- * **Machine à états du raisonnement juridique**
+ * **Machine a etats du raisonnement juridique**
  * 
- * Implémente la "Garantie Zéro Information Ignorée" avec:
- * - 8 états immuables (RECEIVED → READY_FOR_HUMAN)
+ * Implemente la "Garantie Zero Information Ignoree" avec:
+ * - 8 etats immuables (RECEIVED [Next] READY_FOR_HUMAN)
  * - Transition unidirectionnelle
  * - Audit trail inviolable
  * - Escalades automatiques
  * 
- * ### États FSM
- * 1. **RECEIVED** - Information brute reçue (max 5 min)
- * 2. **FACTS_EXTRACTED** - Faits certains isolés (max 15 min)
- * 3. **CONTEXT_IDENTIFIED** - Cadre identifié (max 30 min)
+ * ### etats FSM
+ * 1. **RECEIVED** - Information brute recue (max 5 min)
+ * 2. **FACTS_EXTRACTED** - Faits certains isoles (max 15 min)
+ * 3. **CONTEXT_IDENTIFIED** - Cadre identifie (max 30 min)
  * 4. **OBLIGATIONS_DEDUCED** - Obligations requises
- * 5. **MISSING_IDENTIFIED** - Éléments manquants ⭐
- * 6. **RISK_EVALUATED** - Risques évalués
- * 7. **ACTION_PROPOSED** - Actions suggérées
- * 8. **READY_FOR_HUMAN** - Prêt pour validation
+ * 5. **MISSING_IDENTIFIED** - elements manquants 
+ * 6. **RISK_EVALUATED** - Risques evalues
+ * 7. **ACTION_PROPOSED** - Actions suggerees
+ * 8. **READY_FOR_HUMAN** - Pret pour validation
  * 
  * ### Garanties
- * ✅ Pas d'information orpheline
- * ✅ Audit trail immuable (SHA-256)
- * ✅ Escalade auto (48h/72h/96h)
- * ✅ Blocage si éléments manquants
+ *  Pas d'information orpheline
+ *  Audit trail immuable (SHA-256)
+ *  Escalade auto (48h/72h/96h)
+ *  Blocage si elements manquants
  * 
- * ### Intégrations
+ * ### Integrations
  * - IA: Ollama (extraction + raisonnement)
  * - DB: PostgreSQL (InformationUnit table)
  * - Real-time: WebSocket notifications

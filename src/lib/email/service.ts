@@ -1,4 +1,4 @@
-﻿import { google } from 'googleapis';
+import { google } from 'googleapis';
 import { authenticate } from '@google-cloud/local-auth';
 import { simpleParser, ParsedMail } from 'mailparser';
 import * as fs from 'fs';
@@ -12,7 +12,7 @@ const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
 export const emailConfig = {
   labels: {
     inbox: 'INBOX',
-    processed: 'Traité',
+    processed: 'Traite',
     clients: 'Clients',
     laPoste: 'LaPoste',
     urgent: 'Urgent',
@@ -116,7 +116,7 @@ export class EmailService {
       await this.connect();
     }
 
-    console.log('📬 Email monitoring active (Gmail API)');
+    console.log('[emoji] Email monitoring active (Gmail API)');
 
     // Initial check
     await this.processNewEmails();
@@ -175,27 +175,27 @@ export class EmailService {
     let priority: EmailClassification['priority'] = 'medium';
     let confidence = 70;
 
-    // Détection La Poste
+    // Detection La Poste
     if (from.includes('laposte') || from.includes('colissimo') || 
         subject.includes('suivi') || subject.includes('colis')) {
       type = 'laposte_notification';
       priority = 'high';
       confidence = 90;
     }
-    // Détection nouveau client
+    // Detection nouveau client
     else if (subject.includes('nouveau') || subject.includes('demande') ||
-             subject.includes('réclamation')) {
+             subject.includes('reclamation')) {
       type = 'nouveau_client';
       priority = 'high';
       confidence = 85;
     }
-    // Détection urgence
+    // Detection urgence
     else if (subject.includes('urgent') || subject.includes('important')) {
       type = 'urgent';
       priority = 'urgent';
       confidence = 95;
     }
-    // Détection réponse client
+    // Detection reponse client
     else if (subject.includes('re:') || subject.includes('fwd:')) {
       type = 'reponse_client';
       priority = 'medium';
@@ -216,6 +216,6 @@ export class EmailService {
       clearInterval(this.monitoringInterval);
     }
     this.isConnected = false;
-    console.log('📪 Email monitoring stopped');
+    console.log('[emoji] Email monitoring stopped');
   }
 }

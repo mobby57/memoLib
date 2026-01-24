@@ -1,8 +1,8 @@
 /**
  * 🎨 Figma Code Connect - Global Setup
  * 
- * Configuration centralisée pour tous les composants
- * Génère automatiquement la documentation depuis Figma
+ * Configuration centralisee pour tous les composants
+ * Genere automatiquement la documentation depuis Figma
  */
 
 import { CodeConnect } from '@figma/code-connect';
@@ -21,7 +21,7 @@ CodeConnect.config({
   onBuild: true,
   updateStrategy: 'merge',
   
-  // Génération de docs
+  // Generation de docs
   generateDocs: {
     enabled: true,
     format: 'markdown',
@@ -30,36 +30,36 @@ CodeConnect.config({
     includeAccessibility: true
   },
   
-  // Intégrations
+  // Integrations
   integrations: {
-    discord: false, // À activer pour notifications
-    slack: false,   // À activer pour notifications
+    discord: false, // a activer pour notifications
+    slack: false,   // a activer pour notifications
     github: true    // Commit automatiques
   }
 });
 
 /**
- * 📋 REGISTRY: Tous les composants connectés
+ * [emoji] REGISTRY: Tous les composants connectes
  * 
  * Chaque composant a un fichier .figma.tsx correspondant:
  * 
- * ✅ SmartFormBuilder.figma.tsx
- *    └─ Formulaires intelligents avec suggestions IA
+ *  SmartFormBuilder.figma.tsx
+ *     Formulaires intelligents avec suggestions IA
  * 
- * ✅ DossierCard.figma.tsx
- *    └─ Cartes de dossier CESEDA
+ *  DossierCard.figma.tsx
+ *     Cartes de dossier CESEDA
  * 
- * ✅ WorkspaceReasoning.figma.tsx
- *    └─ Machine à états du raisonnement
+ *  WorkspaceReasoning.figma.tsx
+ *     Machine a etats du raisonnement
  * 
- * ✅ dashboard.figma.tsx
- *    └─ Dashboard d'analytics
+ *  dashboard.figma.tsx
+ *     Dashboard d'analytics
  * 
- * 📊 Workflow:
+ * [emoji] Workflow:
  * 1. Designer modifie composant dans Figma
- * 2. Code Connect détecte changement
- * 3. Props mapping appliqué
- * 4. Documentation regénérée
+ * 2. Code Connect detecte changement
+ * 3. Props mapping applique
+ * 4. Documentation regeneree
  * 5. Commit Git si changement code
- * 6. Notification pour équipe dev
+ * 6. Notification pour equipe dev
  */

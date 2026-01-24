@@ -23,21 +23,21 @@ export async function POST(
     const tenantId = user.tenantId;
     const workspaceId = params.id;
     
-    // Vérifier isolation tenant
+    // Verifier isolation tenant
     const workspace = await prisma.workspaceReasoning.findFirst({
       where: { id: workspaceId, tenantId },
     });
     
     if (!workspace) {
       return NextResponse.json(
-        { error: 'Workspace non trouvé' },
+        { error: 'Workspace non trouve' },
         { status: 404 }
       );
     }
     
     if (workspace.locked) {
       return NextResponse.json(
-        { error: 'Workspace verrouillé' },
+        { error: 'Workspace verrouille' },
         { status: 400 }
       );
     }
@@ -62,35 +62,35 @@ export async function POST(
     
     if (!action) {
       return NextResponse.json(
-        { error: 'Action non trouvée' },
+        { error: 'Action non trouvee' },
         { status: 404 }
       );
     }
     
     if (action.executed) {
       return NextResponse.json(
-        { error: 'Action déjà exécutée' },
+        { error: 'Action deja executee' },
         { status: 400 }
       );
     }
     
-    // Marquer comme exécutée
+    // Marquer comme executee
     const updated = await prisma.proposedAction.update({
       where: { id: actionId },
       data: {
         executed: true,
         executedBy: userId,
         executedAt: new Date(),
-        result: result || 'Exécutée avec succès',
+        result: result || 'Executee avec succes',
       },
     });
     
-    // Créer une trace
+    // Creer une trace
     await prisma.reasoningTrace.create({
       data: {
         workspaceId,
-        step: `Exécution action (${action.type})`,
-        explanation: `Action "${action.content}" exécutée par ${userId}. Résultat: ${result || 'Succès'}`,
+        step: `Execution action (${action.type})`,
+        explanation: `Action "${action.content}" executee par ${userId}. Resultat: ${result || 'Succes'}`,
         createdBy: userId,
       },
     });

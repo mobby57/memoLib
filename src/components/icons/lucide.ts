@@ -1,9 +1,9 @@
-﻿/**
- * Icônes Lucide React - Plus de 1000 icônes disponibles
+/**
+ * Icones Lucide React - Plus de 1000 icones disponibles
  * Documentation: https://lucide.dev/icons/
  */
 
-// Exemples d'icônes disponibles
+// Exemples d'icones disponibles
 export {
   Menu,
   X as Close,

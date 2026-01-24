@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { UrgencyLevel, URGENCY_COLORS } from "@/types/cesda"
 
@@ -20,7 +20,7 @@ export default function UrgencyBadge({ level, label, size = "md" }: Readonly<Urg
       case UrgencyLevel.CRITIQUE:
         return "Critique"
       case UrgencyLevel.ELEVE:
-        return "Élevé"
+        return "eleve"
       case UrgencyLevel.MOYEN:
         return "Moyen"
       case UrgencyLevel.FAIBLE:
@@ -31,13 +31,13 @@ export default function UrgencyBadge({ level, label, size = "md" }: Readonly<Urg
   const getLevelIcon = () => {
     switch (level) {
       case UrgencyLevel.CRITIQUE:
-        return "🔴"
+        return "[emoji]"
       case UrgencyLevel.ELEVE:
-        return "🟠"
+        return "[emoji]"
       case UrgencyLevel.MOYEN:
-        return "🟡"
+        return "[emoji]"
       case UrgencyLevel.FAIBLE:
-        return "🟢"
+        return "[emoji]"
     }
   }
 

@@ -1,12 +1,12 @@
 /**
- * Tests d'intégration API Légifrance
+ * Tests d'integration API Legifrance
  * 
- * Vérifie l'intégration avec l'API PISTE/Légifrance
+ * Verifie l'integration avec l'API PISTE/Legifrance
  */
 
 import { legifranceApi, LegifranceConfig } from '@/lib/legifrance/api-client';
 
-describe('Légifrance API Integration', () => {
+describe('Legifrance API Integration', () => {
   const hasApiKeys = Boolean(
     process.env.PISTE_SANDBOX_CLIENT_ID && 
     process.env.PISTE_SANDBOX_CLIENT_SECRET
@@ -31,7 +31,7 @@ describe('Légifrance API Integration', () => {
   describe('CESEDA Search', () => {
     it('should search CESEDA articles', async () => {
       if (!hasApiKeys) {
-        console.log('⚠️ Skipping: PISTE API keys not configured');
+        console.log('️ Skipping: PISTE API keys not configured');
         return;
       }
 
@@ -46,7 +46,7 @@ describe('Légifrance API Integration', () => {
 
     it('should get specific CESEDA article', async () => {
       if (!hasApiKeys) {
-        console.log('⚠️ Skipping: PISTE API keys not configured');
+        console.log('️ Skipping: PISTE API keys not configured');
         return;
       }
 
@@ -57,12 +57,12 @@ describe('Légifrance API Integration', () => {
 
     it('should search by keywords', async () => {
       if (!hasApiKeys) {
-        console.log('⚠️ Skipping: PISTE API keys not configured');
+        console.log('️ Skipping: PISTE API keys not configured');
         return;
       }
 
       const results = await legifranceApi.searchCesedaByKeywords(
-        ['titre de séjour', 'regroupement familial'],
+        ['titre de sejour', 'regroupement familial'],
         { pageSize: 10 }
       );
 
@@ -73,7 +73,7 @@ describe('Légifrance API Integration', () => {
   describe('Jurisprudence Search', () => {
     it('should search administrative jurisprudence', async () => {
       if (!hasApiKeys) {
-        console.log('⚠️ Skipping: PISTE API keys not configured');
+        console.log('️ Skipping: PISTE API keys not configured');
         return;
       }
 
@@ -87,12 +87,12 @@ describe('Légifrance API Integration', () => {
 
     it('should search judicial jurisprudence', async () => {
       if (!hasApiKeys) {
-        console.log('⚠️ Skipping: PISTE API keys not configured');
+        console.log('️ Skipping: PISTE API keys not configured');
         return;
       }
 
       const results = await legifranceApi.searchJurisprudenceJudiciaire({
-        query: 'nationalité',
+        query: 'nationalite',
         pageSize: 5,
       });
 
@@ -101,7 +101,7 @@ describe('Légifrance API Integration', () => {
 
     it('should get recent CESEDA case law', async () => {
       if (!hasApiKeys) {
-        console.log('⚠️ Skipping: PISTE API keys not configured');
+        console.log('️ Skipping: PISTE API keys not configured');
         return;
       }
 
@@ -117,7 +117,7 @@ describe('Légifrance API Integration', () => {
   describe('Error Handling', () => {
     it('should handle invalid queries gracefully', async () => {
       if (!hasApiKeys) {
-        console.log('⚠️ Skipping: PISTE API keys not configured');
+        console.log('️ Skipping: PISTE API keys not configured');
         return;
       }
 

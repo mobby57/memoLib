@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect } from 'react';
 import { logger } from '@/lib/logger';
@@ -12,7 +12,7 @@ export function ServiceWorkerRegistration() {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const registration of registrations) {
           registration.unregister();
-          logger.debug('Service Worker désactivé temporairement');
+          logger.debug('Service Worker desactive temporairement');
         }
       });
     }
@@ -22,9 +22,9 @@ export function ServiceWorkerRegistration() {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
-          logger.debug('Service Worker enregistré', { scope: registration.scope });
+          logger.debug('Service Worker enregistre', { scope: registration.scope });
           
-          // Vérifier les mises à jour
+          // Verifier les mises a jour
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             if (newWorker) {
@@ -40,7 +40,7 @@ export function ServiceWorkerRegistration() {
           });
         })
         .catch((error) => {
-          logger.error('Échec enregistrement Service Worker', { error });
+          logger.error('echec enregistrement Service Worker', { error });
         });
     }
     */

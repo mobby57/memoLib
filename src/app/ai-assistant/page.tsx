@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from 'react'
 import { Card } from '@/components/ui/Card'
@@ -34,10 +34,10 @@ export default function AIAssistantPage() {
   const { showToast } = useToast()
 
   const mockDossier = {
-    titre: 'Recouvrement créance Société ABC',
+    titre: 'Recouvrement creance Societe ABC',
     type: 'Contentieux commercial',
     statut: 'En cours',
-    client: 'Société ABC',
+    client: 'Societe ABC',
     echeances: [
       { date: '2026-02-15', description: 'Audience de conciliation' },
     ],
@@ -50,12 +50,12 @@ export default function AIAssistantPage() {
         parties: 'ABC et XYZ',
         objet: 'Prestation de services',
         duree: '12 mois',
-        conditions: 'Paiement à 30 jours',
+        conditions: 'Paiement a 30 jours',
       })
       setResult({ type: 'document', content: doc })
-      showToast('Document généré avec succès', 'success')
+      showToast('Document genere avec succes', 'success')
     } catch (error) {
-      showToast('Erreur lors de la génération', 'error')
+      showToast('Erreur lors de la generation', 'error')
     } finally {
       setLoading(false)
     }
@@ -66,7 +66,7 @@ export default function AIAssistantPage() {
     try {
       const analysis = await analyzeRisk(mockDossier)
       setResult({ type: 'risk', content: analysis })
-      showToast('Analyse terminée', 'success')
+      showToast('Analyse terminee', 'success')
     } catch (error) {
       showToast('Erreur lors de l\'analyse', 'error')
     } finally {
@@ -79,7 +79,7 @@ export default function AIAssistantPage() {
     try {
       const suggestions = await getSuggestions(mockDossier)
       setResult({ type: 'suggestions', content: suggestions })
-      showToast('Suggestions générées', 'success')
+      showToast('Suggestions generees', 'success')
     } catch (error) {
       showToast('Erreur', 'error')
     } finally {
@@ -93,7 +93,7 @@ export default function AIAssistantPage() {
     const colors = {
       faible: 'text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-300',
       moyen: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-300',
-      élevé: 'text-orange-600 bg-orange-100 dark:bg-orange-900 dark:text-orange-300',
+      eleve: 'text-orange-600 bg-orange-100 dark:bg-orange-900 dark:text-orange-300',
       critique: 'text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-300',
     }
     return colors[level as keyof typeof colors] || colors.moyen
@@ -115,7 +115,7 @@ export default function AIAssistantPage() {
             Assistant Juridique IA
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Génération de documents, analyse de risques, suggestions intelligentes
+            Generation de documents, analyse de risques, suggestions intelligentes
           </p>
         </div>
       </div>
@@ -123,25 +123,25 @@ export default function AIAssistantPage() {
       {/* Statistiques d'utilisation */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Requêtes totales</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Requetes totales</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
             {stats.totalRequests}
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Tokens utilisés</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Tokens utilises</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
             {stats.totalTokens.toLocaleString()}
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Coût estimé</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Cout estime</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
             {stats.estimatedCost.toFixed(2)}€
           </p>
         </Card>
         <Card className="p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Économie de temps</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">economie de temps</p>
           <p className="text-2xl font-bold text-green-600 mt-1">
             ~{stats.totalRequests * 15} min
           </p>
@@ -159,7 +159,7 @@ export default function AIAssistantPage() {
           }`}
         >
           <FileText className="w-4 h-4 inline mr-2" />
-          Génération
+          Generation
         </button>
         <button
           onClick={() => setActiveTab('analyze')}
@@ -203,24 +203,24 @@ export default function AIAssistantPage() {
           <div className="space-y-4">
             <Card className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                Génération de Documents
+                Generation de Documents
               </h2>
               <div className="space-y-3">
                 <Button onClick={handleGenerateDocument} className="w-full justify-start">
                   <FileText className="w-4 h-4 mr-2" />
-                  Générer un contrat
+                  Generer un contrat
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <FileText className="w-4 h-4 mr-2" />
-                  Générer une mise en demeure
+                  Generer une mise en demeure
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <FileText className="w-4 h-4 mr-2" />
-                  Générer une assignation
+                  Generer une assignation
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <FileText className="w-4 h-4 mr-2" />
-                  Générer un courrier
+                  Generer un courrier
                 </Button>
               </div>
             </Card>
@@ -236,10 +236,10 @@ export default function AIAssistantPage() {
             </Card>
           </div>
 
-          {/* Résultats */}
+          {/* Resultats */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Résultat
+              Resultat
             </h2>
             
             {loading ? (
@@ -259,7 +259,7 @@ export default function AIAssistantPage() {
                     Copier
                   </Button>
                   <Button size="sm" variant="outline">
-                    Télécharger PDF
+                    Telecharger PDF
                   </Button>
                 </div>
               </div>
@@ -276,7 +276,7 @@ export default function AIAssistantPage() {
               </div>
             ) : (
               <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                Aucun résultat pour le moment
+                Aucun resultat pour le moment
               </div>
             )}
           </Card>
@@ -292,13 +292,13 @@ export default function AIAssistantPage() {
             <div className="space-y-4">
               <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Dossier à analyser :
+                  Dossier a analyser :
                 </p>
                 <p className="text-gray-900 dark:text-white font-semibold">
                   {mockDossier.titre}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  {mockDossier.type} • {mockDossier.statut}
+                  {mockDossier.type} - {mockDossier.statut}
                 </p>
               </div>
 
@@ -311,7 +311,7 @@ export default function AIAssistantPage() {
 
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Résultat de l'analyse
+              Resultat de l'analyse
             </h2>
 
             {loading ? (
@@ -334,7 +334,7 @@ export default function AIAssistantPage() {
                 {/* Facteurs */}
                 <div>
                   <h3 className="font-medium text-gray-900 dark:text-white mb-3">
-                    Facteurs identifiés :
+                    Facteurs identifies :
                   </h3>
                   <div className="space-y-2">
                     {result.content.factors.map((factor: any, i: number) => (
@@ -347,7 +347,7 @@ export default function AIAssistantPage() {
                         }`}
                       >
                         <p className="font-medium text-sm text-gray-900 dark:text-white">
-                          {factor.impact === 'positif' ? '✅' : '⚠️'} {factor.factor}
+                          {factor.impact === 'positif' ? '' : '️'} {factor.factor}
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                           {factor.description}
@@ -389,7 +389,7 @@ export default function AIAssistantPage() {
           <div className="space-y-4">
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 min-h-[400px]">
               <p className="text-center text-gray-500 dark:text-gray-400 py-12">
-                Interface de chat à venir...
+                Interface de chat a venir...
               </p>
             </div>
             <div className="flex gap-2">
@@ -406,10 +406,10 @@ export default function AIAssistantPage() {
       {activeTab === 'extract' && (
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-            Extraction d'Entités
+            Extraction d'Entites
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Extrayez automatiquement les noms, dates, montants et références légales d'un document
+            Extrayez automatiquement les noms, dates, montants et references legales d'un document
           </p>
           <div className="space-y-4">
             <textarea
@@ -419,7 +419,7 @@ export default function AIAssistantPage() {
             />
             <Button>
               <Search className="w-4 h-4 mr-2" />
-              Extraire les entités
+              Extraire les entites
             </Button>
           </div>
         </Card>

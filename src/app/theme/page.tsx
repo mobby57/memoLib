@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useTheme } from '@/components/ThemeProvider';
 import { Button } from '@/components/forms/Button';
@@ -36,17 +36,17 @@ export default function ThemeDemo() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
             <Palette size={32} />
-            Système de Design Tokens
+            Systeme de Design Tokens
           </h1>
           <p className="text-gray-600">
-            Couleurs et styles extraits depuis Figma et intégrés dans l'application
+            Couleurs et styles extraits depuis Figma et integres dans l'application
           </p>
 
           <div className="mt-6 flex gap-4">
             <Link href="/icons">
               <Button variant="outline">
                 <LayoutDashboard className="mr-2" size={18} />
-                Voir les icônes
+                Voir les icones
               </Button>
             </Link>
             <Button variant="primary">
@@ -149,12 +149,12 @@ export default function ThemeDemo() {
             <div>
               <h3 className="font-medium text-gray-900 mb-2">Type-safe</h3>
               <pre className="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
-{`// Les types sont générés automatiquement
+{`// Les types sont generes automatiquement
 type ColorToken = keyof typeof colors;
 // 'iris-100' | 'fuschia-100' | 'background' | ...
 
-const myColor: ColorToken = 'iris-100'; // ✅
-const invalid: ColorToken = 'invalid'; // ❌ Erreur TypeScript`}
+const myColor: ColorToken = 'iris-100'; // 
+const invalid: ColorToken = 'invalid'; //  Erreur TypeScript`}
               </pre>
             </div>
           </div>
@@ -163,10 +163,10 @@ const invalid: ColorToken = 'invalid'; // ❌ Erreur TypeScript`}
         {/* Synchronisation */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
           <h3 className="text-lg font-semibold text-blue-900 mb-2">
-            🔄 Synchronisation Figma
+            [emoji] Synchronisation Figma
           </h3>
           <p className="text-blue-700 mb-4">
-            Pour mettre à jour les design tokens depuis Figma, exécutez :
+            Pour mettre a jour les design tokens depuis Figma, executez :
           </p>
           <pre className="bg-white p-3 rounded border border-blue-200 text-sm">
             npm run figma:sync

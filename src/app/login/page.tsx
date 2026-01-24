@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-// Redirection vers la véritable page de login
+// Redirection vers la veritable page de login
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 

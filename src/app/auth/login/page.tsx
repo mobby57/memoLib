@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { signIn } from 'next-auth/react';
 import { useState, FormEvent, useEffect } from 'react';
@@ -12,10 +12,10 @@ export default function LoginPage() {
   const [timeoutMessage, setTimeoutMessage] = useState<string>('');
 
   useEffect(() => {
-    // Vérifier si la session a expiré via les paramètres URL
+    // Verifier si la session a expire via les parametres URL
     const params = new URLSearchParams(window.location.search);
     if (params.get('timeout') === 'true') {
-      setTimeoutMessage('⏱️ Votre session a expiré pour des raisons de sécurité. Veuillez vous reconnecter.');
+      setTimeoutMessage('️ Votre session a expire pour des raisons de securite. Veuillez vous reconnecter.');
     } else if (params.get('error')) {
       setError('Une erreur est survenue lors de la connexion');
     }
@@ -56,10 +56,10 @@ export default function LoginPage() {
         {/* Logo et titre */}
         <div className="text-center mb-8">
           <div className="mb-4">
-            <span className="text-6xl">⚖️</span>
+            <span className="text-6xl">️</span>
           </div>
           <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">IA Poste Manager</h1>
-          <p className="text-blue-200 text-lg">Système Multi-Tenant pour Cabinets d'Avocats</p>
+          <p className="text-blue-200 text-lg">Systeme Multi-Tenant pour Cabinets d'Avocats</p>
         </div>
 
         {/* Formulaire de connexion */}
@@ -68,14 +68,14 @@ export default function LoginPage() {
 
           {timeoutMessage && (
             <div className="mb-4 bg-amber-50 border-l-4 border-amber-500 text-amber-800 px-4 py-3 rounded-r">
-              <p className="font-semibold">⏱️ Session expirée</p>
+              <p className="font-semibold">️ Session expiree</p>
               <p className="text-sm">{timeoutMessage}</p>
             </div>
           )}
 
           {error && (
             <div className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r">
-              <p className="font-semibold">❌ Erreur</p>
+              <p className="font-semibold"> Erreur</p>
               <p className="text-sm">{error}</p>
             </div>
           )}
@@ -83,7 +83,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                📧 Email
+                [emoji] Email
               </label>
               <input
                 id="email"
@@ -97,7 +97,7 @@ export default function LoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                🔐 Mot de passe
+                [emoji] Mot de passe
               </label>
               <input
                 id="password"
@@ -105,7 +105,7 @@ export default function LoginPage() {
                 type="password"
                 required
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                placeholder="••••••••"
+                placeholder="--------"
               />
             </div>
 
@@ -114,23 +114,23 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
-              {loading ? '⏳ Connexion...' : '🚀 Se connecter'}
+              {loading ? ' Connexion...' : '[emoji] Se connecter'}
             </button>
           </form>
 
-          {/* Comptes de démonstration */}
+          {/* Comptes de demonstration */}
           <div className="mt-8 pt-6 border-t-2 border-gray-100">
             <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-              <span>💡</span>
-              <span>Comptes de démonstration:</span>
+              <span>[emoji]</span>
+              <span>Comptes de demonstration:</span>
             </h3>
             <div className="space-y-2 text-xs">
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border-2 border-purple-200">
-                <p className="font-bold text-purple-900">👑 Super Admin:</p>
+                <p className="font-bold text-purple-900">[emoji] Super Admin:</p>
                 <p className="text-purple-700 mt-1 font-mono">superadmin@iapostemanager.com | SuperAdmin2026!</p>
               </div>
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border-2 border-blue-200">
-                <p className="font-bold text-blue-900">⚖️ Avocat (Dupont):</p>
+                <p className="font-bold text-blue-900">️ Avocat (Dupont):</p>
                 <p className="text-blue-700 mt-1 font-mono">avocat@cabinet-dupont.fr | Avocat2026!</p>
               </div>
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg border-2 border-green-200">
@@ -143,7 +143,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-6 text-blue-200 text-sm">
-          <p>🔒 Connexion sécurisée | Données chiffrées</p>
+          <p>[emoji] Connexion securisee | Donnees chiffrees</p>
         </div>
       </div>
     </div>

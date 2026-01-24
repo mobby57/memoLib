@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
@@ -23,20 +23,20 @@ export function ActivityMonitor() {
             if (suggestion.priority === 'critical') {
               addNotification({
                 type: 'error',
-                title: 'Échéance critique',
+                title: 'echeance critique',
                 message: suggestion.title
               });
             } else if (suggestion.priority === 'high') {
               addNotification({
                 type: 'warning',
-                title: 'Action recommandée',
+                title: 'Action recommandee',
                 message: suggestion.title
               });
             }
           });
         }
       } catch (error) {
-        logger.error('Erreur vérification activités', { error, tenantId: session?.user?.tenantId });
+        logger.error('Erreur verification activites', { error, tenantId: session?.user?.tenantId });
       }
     };
 

@@ -1,10 +1,10 @@
-﻿/**
+/**
  * Hybrid AI Client - Bascule Automatique Ollama ↔ Cloudflare Workers AI
  * 
- * Stratégie de fallback:
- * 1. Essayer Ollama local (gratuit, privé)
- * 2. Si échec → Cloudflare Workers AI (payant, cloud)
- * 3. Si échec → Erreur explicite
+ * Strategie de fallback:
+ * 1. Essayer Ollama local (gratuit, prive)
+ * 2. Si echec [Next] Cloudflare Workers AI (payant, cloud)
+ * 3. Si echec [Next] Erreur explicite
  */
 
 import { OllamaClient } from '../../../lib/ai/ollama-client';
@@ -32,12 +32,12 @@ export class HybridAIClient {
     );
     this.cloudflare = cloudflareAI;
     
-    // Préférence: Ollama (local) > Cloudflare (cloud)
+    // Preference: Ollama (local) > Cloudflare (cloud)
     this.preferredProvider = process.env.AI_PREFERRED_PROVIDER as AIProvider || 'ollama';
   }
   
   /**
-   * Vérifier la disponibilité de chaque provider
+   * Verifier la disponibilite de chaque provider
    */
   async checkAvailability(): Promise<{
     ollama: boolean;
@@ -64,12 +64,12 @@ export class HybridAIClient {
   }
   
   /**
-   * Générer une réponse avec fallback automatique
+   * Generer une reponse avec fallback automatique
    */
   async generate(prompt: string, systemPrompt?: string): Promise<AIResponse> {
     const startTime = Date.now();
     
-    // Stratégie 1: Provider préféré
+    // Strategie 1: Provider prefere
     if (this.preferredProvider === 'ollama') {
       try {
         const response = await this.ollama.generate(prompt, systemPrompt);
@@ -106,7 +106,7 @@ export class HybridAIClient {
       }
     }
     
-    // Stratégie 2: Fallback sur l'autre provider
+    // Strategie 2: Fallback sur l'autre provider
     const fallbackProvider = this.preferredProvider === 'ollama' ? 'cloudflare' : 'ollama';
     
     if (fallbackProvider === 'ollama') {
@@ -191,10 +191,10 @@ export class HybridAIClient {
   }
   
   /**
-   * Générer des embeddings (pour recherche sémantique)
+   * Generer des embeddings (pour recherche semantique)
    */
   async generateEmbeddings(text: string): Promise<number[]> {
-    // Cloudflare Workers AI a un meilleur modèle d'embeddings
+    // Cloudflare Workers AI a un meilleur modele d'embeddings
     if (await this.cloudflare.isAvailable()) {
       try {
         return await this.cloudflare.generateEmbeddings(text);
@@ -206,15 +206,15 @@ export class HybridAIClient {
     // Fallback Ollama avec nomic-embed-text
     if (await this.ollama.isAvailable()) {
       try {
-        // Utiliser modèle embeddings d'Ollama
+        // Utiliser modele embeddings d'Ollama
         const ollamaEmbeddings = new OllamaClient(
           process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
           'nomic-embed-text'
         );
         
         const response = await ollamaEmbeddings.generate(text);
-        // Convertir réponse en embeddings (simplification - Ollama retourne du texte)
-        // En production, utiliser un vrai modèle d'embeddings
+        // Convertir reponse en embeddings (simplification - Ollama retourne du texte)
+        // En production, utiliser un vrai modele d'embeddings
         return [];
       } catch (error) {
         logger.error('Ollama embeddings failed', error);
@@ -225,7 +225,7 @@ export class HybridAIClient {
   }
   
   /**
-   * Forcer l'utilisation d'un provider spécifique
+   * Forcer l'utilisation d'un provider specifique
    */
   setPreferredProvider(provider: AIProvider): void {
     this.preferredProvider = provider;
@@ -233,7 +233,7 @@ export class HybridAIClient {
   }
   
   /**
-   * Obtenir le provider actuellement utilisé
+   * Obtenir le provider actuellement utilise
    */
   getPreferredProvider(): AIProvider {
     return this.preferredProvider;

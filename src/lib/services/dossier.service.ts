@@ -1,6 +1,6 @@
-﻿/**
- * Service métier centralisé pour la gestion des dossiers
- * Logique réutilisable par toutes les routes API
+/**
+ * Service metier centralise pour la gestion des dossiers
+ * Logique reutilisable par toutes les routes API
  */
 
 import { PrismaClient } from '@prisma/client'
@@ -12,7 +12,7 @@ const prisma = new PrismaClient()
 
 export class DossierService {
   /**
-   * Génère un numéro de dossier unique pour un tenant
+   * Genere un numero de dossier unique pour un tenant
    */
   static async generateNumeroDossier(tenantId: string): Promise<string> {
     const count = await prisma.dossier.count({
@@ -22,13 +22,13 @@ export class DossierService {
   }
 
   /**
-   * Crée un nouveau dossier (utilisé par l'avocat)
+   * Cree un nouveau dossier (utilise par l'avocat)
    */
   static async createDossier(
     data: CreateDossierDTO,
     tenantId: string
   ): Promise<DossierDB> {
-    // Vérifier que le client appartient au tenant
+    // Verifier que le client appartient au tenant
     const client = await prisma.client.findFirst({
       where: {
         id: data.clientId,
@@ -37,13 +37,13 @@ export class DossierService {
     })
 
     if (!client) {
-      throw new Error('Client non trouvé ou accès refusé')
+      throw new Error('Client non trouve ou acces refuse')
     }
 
-    // Générer le numéro
+    // Generer le numero
     const numero = await this.generateNumeroDossier(tenantId)
 
-    // Créer le dossier
+    // Creer le dossier
     const dossier = await prisma.dossier.create({
       data: {
         numero,
@@ -79,20 +79,20 @@ export class DossierService {
   }
 
   /**
-   * Crée une demande client (formulaire simplifié)
+   * Cree une demande client (formulaire simplifie)
    */
   static async createDemandeClient(
     data: CreateDemandeClientDTO,
     tenantId: string,
     clientId: string
   ): Promise<DossierDB> {
-    // Générer le numéro
+    // Generer le numero
     const numero = await this.generateNumeroDossier(tenantId)
 
-    // Déterminer la priorité
+    // Determiner la priorite
     const priorite = data.urgence ? 'haute' : 'normale'
 
-    // Créer le dossier
+    // Creer le dossier
     const dossier = await prisma.dossier.create({
       data: {
         numero,
@@ -128,7 +128,7 @@ export class DossierService {
   }
 
   /**
-   * Récupère tous les dossiers d'un tenant
+   * Recupere tous les dossiers d'un tenant
    */
   static async getDossiersByTenant(tenantId: string): Promise<DossierDB[]> {
     const dossiers = await prisma.dossier.findMany({
@@ -160,7 +160,7 @@ export class DossierService {
   }
 
   /**
-   * Récupère un dossier par ID avec vérification tenant
+   * Recupere un dossier par ID avec verification tenant
    */
   static async getDossierById(
     dossierId: string,
@@ -193,7 +193,7 @@ export class DossierService {
   }
 
   /**
-   * Récupère les dossiers d'un client
+   * Recupere les dossiers d'un client
    */
   static async getDossiersByClient(clientId: string): Promise<DossierDB[]> {
     const dossiers = await prisma.dossier.findMany({
@@ -225,17 +225,17 @@ export class DossierService {
   }
 
   /**
-   * Met à jour un dossier
+   * Met a jour un dossier
    */
   static async updateDossier(
     dossierId: string,
     tenantId: string,
     data: Partial<CreateDossierDTO>
   ): Promise<DossierDB> {
-    // Vérifier que le dossier appartient au tenant
+    // Verifier que le dossier appartient au tenant
     const existing = await this.getDossierById(dossierId, tenantId)
     if (!existing) {
-      throw new Error('Dossier non trouvé')
+      throw new Error('Dossier non trouve')
     }
 
     const updateData: any = {}
@@ -277,10 +277,10 @@ export class DossierService {
    * Supprime un dossier
    */
   static async deleteDossier(dossierId: string, tenantId: string): Promise<void> {
-    // Vérifier que le dossier appartient au tenant
+    // Verifier que le dossier appartient au tenant
     const existing = await this.getDossierById(dossierId, tenantId)
     if (!existing) {
-      throw new Error('Dossier non trouvé')
+      throw new Error('Dossier non trouve')
     }
 
     await prisma.dossier.delete({

@@ -1,10 +1,10 @@
-﻿/**
- * ⚙️ CONFIGURATION AVANCÉE DES WORKFLOWS INTELLIGENTS
- * Personnalisation complète du comportement du système
+/**
+ * ️ CONFIGURATION AVANCeE DES WORKFLOWS INTELLIGENTS
+ * Personnalisation complete du comportement du systeme
  */
 
 export interface WorkflowConfig {
-  // Activation/Désactivation
+  // Activation/Desactivation
   enabled: boolean;
   autoTrigger: boolean;
   
@@ -71,7 +71,7 @@ export interface WorkflowConfig {
     replyTo: string;
   };
   
-  // Règles de Routage
+  // Regles de Routage
   routing: {
     rules: RoutingRule[];
     defaultAssignee: string;
@@ -88,7 +88,7 @@ export interface WorkflowConfig {
     cacheDuration: number;
   };
   
-  // Sécurité & Compliance
+  // Securite & Compliance
   security: {
     encryptData: boolean;
     auditLog: boolean;
@@ -98,7 +98,7 @@ export interface WorkflowConfig {
     dataRetentionDays: number;
   };
   
-  // Intégrations
+  // Integrations
   integrations: {
     gmail: IntegrationConfig;
     outlook: IntegrationConfig;
@@ -184,7 +184,7 @@ export interface WebhookConfig {
 }
 
 /**
- * CONFIGURATION PAR DÉFAUT
+ * CONFIGURATION PAR DeFAUT
  */
 export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
   enabled: true,
@@ -323,11 +323,11 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
 };
 
 /**
- * CONFIGURATIONS PRÉDÉFINIES
+ * CONFIGURATIONS PReDeFINIES
  */
 export const PRESET_CONFIGS = {
   /**
-   * Mode Performance - Maximum de rapidité, minimum de validations
+   * Mode Performance - Maximum de rapidite, minimum de validations
    */
   PERFORMANCE: {
     ...DEFAULT_WORKFLOW_CONFIG,
@@ -352,7 +352,7 @@ export const PRESET_CONFIGS = {
   },
   
   /**
-   * Mode Sécurité - Maximum de contrôles et validations
+   * Mode Securite - Maximum de controles et validations
    */
   SECURITY: {
     ...DEFAULT_WORKFLOW_CONFIG,
@@ -408,7 +408,7 @@ export const PRESET_CONFIGS = {
   },
   
   /**
-   * Mode Cabinet Juridique - Optimisé pour avocats
+   * Mode Cabinet Juridique - Optimise pour avocats
    */
   LAW_FIRM: {
     ...DEFAULT_WORKFLOW_CONFIG,
@@ -450,13 +450,13 @@ export const PRESET_CONFIGS = {
       requireTwoFactor: true,
       allowedDomains: [],
       blockedSenders: [],
-      dataRetentionDays: 2555, // 7 ans (obligation légale)
+      dataRetentionDays: 2555, // 7 ans (obligation legale)
     },
   },
 };
 
 /**
- * Charge la configuration depuis la base de données ou utilise la config par défaut
+ * Charge la configuration depuis la base de donnees ou utilise la config par defaut
  */
 export async function loadWorkflowConfig(tenantId?: string): Promise<WorkflowConfig> {
   // TODO: Charger depuis DB si tenantId fourni
@@ -484,15 +484,15 @@ export function validateWorkflowConfig(config: Partial<WorkflowConfig>): {
   const errors: string[] = [];
   
   if (config.ai?.temperature && (config.ai.temperature < 0 || config.ai.temperature > 1)) {
-    errors.push('AI temperature doit être entre 0 et 1');
+    errors.push('AI temperature doit etre entre 0 et 1');
   }
   
   if (config.performance?.maxConcurrentWorkflows && config.performance.maxConcurrentWorkflows < 1) {
-    errors.push('maxConcurrentWorkflows doit être >= 1');
+    errors.push('maxConcurrentWorkflows doit etre >= 1');
   }
   
   if (config.security?.dataRetentionDays && config.security.dataRetentionDays < 30) {
-    errors.push('dataRetentionDays doit être >= 30 jours');
+    errors.push('dataRetentionDays doit etre >= 30 jours');
   }
   
   return {

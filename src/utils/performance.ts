@@ -14,7 +14,7 @@ export class PerformanceMonitor {
     return PerformanceMonitor.instance;
   }
 
-  // Mesurer le temps d'exécution d'une fonction
+  // Mesurer le temps d'execution d'une fonction
   measure<T>(name: string, fn: () => T): T {
     const start = performance.now();
     const result = fn();
@@ -23,14 +23,14 @@ export class PerformanceMonitor {
 
     this.recordMetric(name, duration);
     
-    if (duration > 16) { // Plus de 16ms = problème potentiel
-      logger.warn('Performance seuil dépassé', { operation: name, durationMs: duration.toFixed(2), threshold: 16 });
+    if (duration > 16) { // Plus de 16ms = probleme potentiel
+      logger.warn('Performance seuil depasse', { operation: name, durationMs: duration.toFixed(2), threshold: 16 });
     }
 
     return result;
   }
 
-  // Mesurer le temps d'exécution d'une fonction async
+  // Mesurer le temps d'execution d'une fonction async
   async measureAsync<T>(name: string, fn: () => Promise<T>): Promise<T> {
     const start = performance.now();
     const result = await fn();
@@ -39,14 +39,14 @@ export class PerformanceMonitor {
 
     this.recordMetric(name, duration);
     
-    if (duration > 100) { // Plus de 100ms pour les opérations async
-      logger.warn('Performance async seuil dépassé', { operation: name, durationMs: duration.toFixed(2), threshold: 100 });
+    if (duration > 100) { // Plus de 100ms pour les operations async
+      logger.warn('Performance async seuil depasse', { operation: name, durationMs: duration.toFixed(2), threshold: 100 });
     }
 
     return result;
   }
 
-  // Enregistrer une métrique
+  // Enregistrer une metrique
   private recordMetric(name: string, duration: number): void {
     if (!this.metrics.has(name)) {
       this.metrics.set(name, []);
@@ -84,7 +84,7 @@ export class PerformanceMonitor {
     logger.info('Statistiques performance', { stats: allStats });
   }
 
-  // Nettoyer les métriques
+  // Nettoyer les metriques
   clear(): void {
     this.metrics.clear();
   }

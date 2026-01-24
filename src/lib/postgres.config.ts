@@ -1,16 +1,16 @@
 /**
- * 🐘 CONFIGURATION POSTGRESQL AVANCÉE - PRODUCTION READY
+ * [emoji] CONFIGURATION POSTGRESQL AVANCeE - PRODUCTION READY
  * 
  * Features:
- * - Connection pooling optimisé
+ * - Connection pooling optimise
  * - SSL/TLS automatique en production
  * - Retry logic avec backoff exponentiel
  * - Health checks et monitoring
- * - Query logging avancé
- * - Métriques de performance
+ * - Query logging avance
+ * - Metriques de performance
  * - Gestion multi-environnement
  * 
- * Compatibilité:
+ * Compatibilite:
  * - Vercel Postgres
  * - Neon.tech
  * - Supabase
@@ -22,7 +22,7 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 
 // ============================================
-// 🔧 TYPES & INTERFACES
+// [emoji] TYPES & INTERFACES
 // ============================================
 
 export type Environment = 'development' | 'production' | 'test';
@@ -64,7 +64,7 @@ export interface QueryMetrics {
 }
 
 // ============================================
-// 🌍 DÉTECTION AUTOMATIQUE ENVIRONNEMENT
+// 🌍 DeTECTION AUTOMATIQUE ENVIRONNEMENT
 // ============================================
 
 function detectEnvironment(): Environment {
@@ -87,7 +87,7 @@ function detectProvider(): DatabaseProvider {
 }
 
 // ============================================
-// ⚙️ CONFIGURATION PAR ENVIRONNEMENT
+// ️ CONFIGURATION PAR ENVIRONNEMENT
 // ============================================
 
 const ENV = detectEnvironment();
@@ -129,14 +129,14 @@ const CONFIG: Record<Environment, Partial<PostgresConfig>> = {
 };
 
 // ============================================
-// 🔌 OPTIMISATIONS PAR PROVIDER
+// [emoji] OPTIMISATIONS PAR PROVIDER
 // ============================================
 
 const PROVIDER_OPTIMIZATIONS: Record<DatabaseProvider, Partial<PostgresConfig>> = {
   vercel: {
     maxConnections: 10, // Vercel limite
     connectionTimeout: 3000,
-    ssl: { rejectUnauthorized: false }, // Vercel gère le certificat
+    ssl: { rejectUnauthorized: false }, // Vercel gere le certificat
   },
   
   neon: {
@@ -171,7 +171,7 @@ const PROVIDER_OPTIMIZATIONS: Record<DatabaseProvider, Partial<PostgresConfig>> 
 };
 
 // ============================================
-// 📊 MÉTRIQUES & MONITORING
+// [emoji] MeTRIQUES & MONITORING
 // ============================================
 
 interface QueryRecord {
@@ -193,7 +193,7 @@ class PostgresMetrics {
       success,
     });
     
-    // Garder seulement les N dernières queries
+    // Garder seulement les N dernieres queries
     if (this.queries.length > this.maxRecords) {
       this.queries = this.queries.slice(-this.maxRecords);
     }
@@ -241,7 +241,7 @@ class PostgresMetrics {
 const metrics = new PostgresMetrics();
 
 // ============================================
-// 🔄 RETRY LOGIC AVEC BACKOFF EXPONENTIEL
+// [emoji] RETRY LOGIC AVEC BACKOFF EXPONENTIEL
 // ============================================
 
 async function retryWithBackoff<T>(
@@ -263,7 +263,7 @@ async function retryWithBackoff<T>(
 }
 
 // ============================================
-// 🐘 PRISMA CLIENT CONFIGURÉ
+// [emoji] PRISMA CLIENT CONFIGURe
 // ============================================
 
 const config = {
@@ -289,7 +289,7 @@ const prismaClientConfig: Prisma.PrismaClientOptions = {
   errorFormat: 'pretty',
 };
 
-// Extension Prisma pour métriques
+// Extension Prisma pour metriques
 const prismaWithExtensions = new PrismaClient(prismaClientConfig).$extends({
   name: 'postgres-metrics',
   query: {
@@ -308,7 +308,7 @@ const prismaWithExtensions = new PrismaClient(prismaClientConfig).$extends({
           const duration = performance.now() - start;
           metrics.record(`${model}.${operation}`, duration, success);
           
-          // Log des requêtes lentes
+          // Log des requetes lentes
           if (duration > 1000 && config.logging) {
             console.warn(
               `[PostgreSQL] Slow query: ${model}.${operation} (${Math.round(duration)}ms)`
@@ -335,7 +335,7 @@ if (ENV !== 'production') {
 }
 
 // ============================================
-// 🔍 HEALTH CHECK
+// [emoji] HEALTH CHECK
 // ============================================
 
 export async function healthCheck(): Promise<HealthCheckResult> {
@@ -345,7 +345,7 @@ export async function healthCheck(): Promise<HealthCheckResult> {
     // Test de connexion basique
     await postgres.$queryRaw`SELECT 1`;
     
-    // Récupérer la version PostgreSQL
+    // Recuperer la version PostgreSQL
     const versionResult = await postgres.$queryRaw<{ version: string }[]>`
       SELECT version() as version
     `;
@@ -394,7 +394,7 @@ export async function healthCheck(): Promise<HealthCheckResult> {
 }
 
 // ============================================
-// 📊 OPTIMISATIONS POSTGRESQL
+// [emoji] OPTIMISATIONS POSTGRESQL
 // ============================================
 
 export async function optimizePostgres() {
@@ -402,17 +402,17 @@ export async function optimizePostgres() {
     // Analyse des tables pour le planner
     await postgres.$executeRawUnsafe('ANALYZE');
     
-    console.log('[PostgreSQL] ✅ Database optimized (ANALYZE complete)');
+    console.log('[PostgreSQL]  Database optimized (ANALYZE complete)');
     
     return { success: true };
   } catch (error) {
-    console.error('[PostgreSQL] ❌ Optimization failed:', error);
+    console.error('[PostgreSQL]  Optimization failed:', error);
     return { success: false, error };
   }
 }
 
 // ============================================
-// 📈 EXPORTS UTILITAIRES
+// [emoji] EXPORTS UTILITAIRES
 // ============================================
 
 export async function getMetrics(): Promise<QueryMetrics> {
@@ -445,7 +445,7 @@ export function getConfig() {
 }
 
 // ============================================
-// 🎯 LOGS ÉVÉNEMENTS PRISMA
+// 🎯 LOGS eVeNEMENTS PRISMA
 // ============================================
 
 if (config.logging && postgres instanceof PrismaClient) {
@@ -469,20 +469,20 @@ if (config.logging && postgres instanceof PrismaClient) {
 }
 
 // ============================================
-// 🚀 INITIALISATION
+// [emoji] INITIALISATION
 // ============================================
 
 console.log(`
-╔═══════════════════════════════════════════════════════════╗
-║  🐘 POSTGRESQL CONFIGURATION                              ║
-╠═══════════════════════════════════════════════════════════╣
-║  Environment: ${ENV.padEnd(43)} ║
-║  Provider:    ${PROVIDER.padEnd(43)} ║
-║  Pool Size:   ${String(config.maxConnections).padEnd(43)} ║
-║  SSL:         ${(typeof config.ssl === 'boolean' ? (config.ssl ? 'enabled' : 'disabled') : 'enabled').padEnd(43)} ║
-║  Logging:     ${(config.logging ? 'enabled' : 'disabled').padEnd(43)} ║
-╚═══════════════════════════════════════════════════════════╝
+
+  [emoji] POSTGRESQL CONFIGURATION                              
+
+  Environment: ${ENV.padEnd(43)} 
+  Provider:    ${PROVIDER.padEnd(43)} 
+  Pool Size:   ${String(config.maxConnections).padEnd(43)} 
+  SSL:         ${(typeof config.ssl === 'boolean' ? (config.ssl ? 'enabled' : 'disabled') : 'enabled').padEnd(43)} 
+  Logging:     ${(config.logging ? 'enabled' : 'disabled').padEnd(43)} 
+
 `);
 
-// Export par défaut
+// Export par defaut
 export default postgres;

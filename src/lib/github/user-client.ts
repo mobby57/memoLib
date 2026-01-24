@@ -1,6 +1,6 @@
-﻿/**
+/**
  * GitHub User Client - Authentication User-to-Server
- * Permet à l'application d'agir pour le compte d'un utilisateur GitHub
+ * Permet a l'application d'agir pour le compte d'un utilisateur GitHub
  */
 
 import { Octokit } from '@octokit/rest';
@@ -15,7 +15,7 @@ export interface GitHubUserClient {
 }
 
 /**
- * Obtenir le client GitHub pour l'utilisateur connecté
+ * Obtenir le client GitHub pour l'utilisateur connecte
  */
 export async function getUserGitHubClient(): Promise<GitHubUserClient> {
   const session = await getServerSession(authOptions);
@@ -34,7 +34,7 @@ export async function getUserGitHubClient(): Promise<GitHubUserClient> {
     auth: githubAccessToken,
   });
 
-  // Vérifier le token et obtenir les infos utilisateur
+  // Verifier le token et obtenir les infos utilisateur
   try {
     const { data: user } = await octokit.users.getAuthenticated();
 
@@ -55,7 +55,7 @@ export async function getUserGitHubClient(): Promise<GitHubUserClient> {
 }
 
 /**
- * Vérifier si l'utilisateur a autorisé GitHub
+ * Verifier si l'utilisateur a autorise GitHub
  */
 export async function isGitHubAuthorized(): Promise<boolean> {
   try {
@@ -95,7 +95,7 @@ export async function getGitHubUserInfo() {
 }
 
 /**
- * Refresh le token GitHub si nécessaire
+ * Refresh le token GitHub si necessaire
  */
 export async function refreshGitHubToken(refreshToken: string) {
   try {

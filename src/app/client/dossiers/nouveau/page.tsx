@@ -1,8 +1,8 @@
-﻿'use client'
+'use client'
 
 /**
- * Interface Client - Formulaire Simplifié de Demande
- * Les clients créent leur demande, l'avocat la transforme en dossier complet
+ * Interface Client - Formulaire Simplifie de Demande
+ * Les clients creent leur demande, l'avocat la transforme en dossier complet
  */
 
 import { useState, useEffect } from 'react'
@@ -20,13 +20,13 @@ import { Badge } from '@/components/ui'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/forms/Button'
 
-// Schéma simplifié pour les clients
+// Schema simplifie pour les clients
 const demandeSchema = z.object({
   typeDossier: z.enum([
     'TITRE_SEJOUR', 'RECOURS_OQTF', 'NATURALISATION', 
     'REGROUPEMENT_FAMILIAL', 'ASILE', 'VISA', 'AUTRE'
   ]),
-  objetDemande: z.string().min(20, 'Décrivez votre demande en minimum 20 caractères'),
+  objetDemande: z.string().min(20, 'Decrivez votre demande en minimum 20 caracteres'),
   dateEcheance: z.string().optional(),
   urgence: z.boolean().optional(),
   complementInfo: z.string().optional(),
@@ -37,45 +37,45 @@ type DemandeFormData = z.infer<typeof demandeSchema>
 const TYPES_DEMANDE = [
   { 
     value: 'TITRE_SEJOUR', 
-    label: 'Titre de Séjour', 
-    icon: '📄',
-    description: 'Première demande ou renouvellement de titre de séjour'
+    label: 'Titre de Sejour', 
+    icon: '[emoji]',
+    description: 'Premiere demande ou renouvellement de titre de sejour'
   },
   { 
     value: 'RECOURS_OQTF', 
     label: 'Recours OQTF', 
-    icon: '⚖️',
+    icon: '️',
     description: 'Contestation d\'une Obligation de Quitter le Territoire'
   },
   { 
     value: 'NATURALISATION', 
     label: 'Naturalisation', 
     icon: '🇫🇷',
-    description: 'Demande de naturalisation française'
+    description: 'Demande de naturalisation francaise'
   },
   { 
     value: 'REGROUPEMENT_FAMILIAL', 
     label: 'Regroupement Familial', 
-    icon: '👨‍👩‍👧‍👦',
+    icon: '[emoji]‍[emoji]‍[emoji]‍[emoji]',
     description: 'Faire venir votre famille en France'
   },
   { 
     value: 'ASILE', 
     label: 'Demande d\'Asile', 
-    icon: '🛡️',
+    icon: '[emoji]️',
     description: 'Protection internationale'
   },
   { 
     value: 'VISA', 
     label: 'Visa', 
-    icon: '✈️',
-    description: 'Demande de visa (court ou long séjour)'
+    icon: '️',
+    description: 'Demande de visa (court ou long sejour)'
   },
   { 
     value: 'AUTRE', 
     label: 'Autre demande', 
-    icon: '📋',
-    description: 'Autre type de démarche administrative'
+    icon: '[emoji]',
+    description: 'Autre type de demarche administrative'
   },
 ]
 
@@ -128,8 +128,8 @@ export default function NouvelleDemandePage() {
       
       toast({
         variant: 'success',
-        title: 'Demande envoyée !',
-        description: 'Votre demande a été transmise à votre avocat qui la traitera dans les plus brefs délais.'
+        title: 'Demande envoyee !',
+        description: 'Votre demande a ete transmise a votre avocat qui la traitera dans les plus brefs delais.'
       })
 
       router.push('/client/dossiers')
@@ -165,17 +165,17 @@ export default function NouvelleDemandePage() {
               Nouvelle Demande
             </h1>
             <p className="text-gray-600 mt-2">
-              Décrivez votre situation et votre demande. Votre avocat vous contactera rapidement.
+              Decrivez votre situation et votre demande. Votre avocat vous contactera rapidement.
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Sélection du type de demande */}
+          {/* Selection du type de demande */}
           <Card className="p-6 bg-white">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Briefcase className="text-blue-600" size={24} />
-              Type de démarche
+              Type de demarche
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -216,7 +216,7 @@ export default function NouvelleDemandePage() {
 
           {/* Description de la demande */}
           <Card className="p-6 bg-white">
-            <h2 className="text-xl font-semibold mb-4">Décrivez votre demande</h2>
+            <h2 className="text-xl font-semibold mb-4">Decrivez votre demande</h2>
 
             <div className="space-y-4">
               <div>
@@ -226,11 +226,11 @@ export default function NouvelleDemandePage() {
                 <textarea
                   {...register('objetDemande')}
                   rows={5}
-                  placeholder="Décrivez votre situation et ce que vous souhaitez obtenir (minimum 20 caractères)...
+                  placeholder="Decrivez votre situation et ce que vous souhaitez obtenir (minimum 20 caracteres)...
 
 Exemples :
-- Je souhaite renouveler mon titre de séjour qui expire le 15/06/2026
-- J'ai reçu une OQTF et je souhaite faire un recours
+- Je souhaite renouveler mon titre de sejour qui expire le 15/06/2026
+- J'ai recu une OQTF et je souhaite faire un recours
 - Je vis en France depuis 5 ans et souhaite demander la naturalisation"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
                 ></textarea>
@@ -243,7 +243,7 @@ Exemples :
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Date échéance */}
+                {/* Date echeance */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Date limite (si applicable)
@@ -279,21 +279,21 @@ Exemples :
                   </div>
                   {urgence && (
                     <Badge variant="danger" >
-                      ⚡ Traitement prioritaire
+                       Traitement prioritaire
                     </Badge>
                   )}
                 </div>
               </div>
 
-              {/* Informations complémentaires */}
+              {/* Informations complementaires */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Informations complémentaires (optionnel)
+                  Informations complementaires (optionnel)
                 </label>
                 <textarea
                   {...register('complementInfo')}
                   rows={3}
-                  placeholder="Ajoutez toute information utile : documents déjà en votre possession, démarches déjà effectuées, questions spécifiques..."
+                  placeholder="Ajoutez toute information utile : documents deja en votre possession, demarches deja effectuees, questions specifiques..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
                 ></textarea>
               </div>
@@ -305,9 +305,9 @@ Exemples :
             <div className="flex items-start gap-3">
               <AlertCircle className="text-blue-600 mt-1" size={20} />
               <div className="text-sm text-blue-900">
-                <p className="font-medium mb-1">À savoir :</p>
+                <p className="font-medium mb-1">a savoir :</p>
                 <ul className="space-y-1 list-disc list-inside">
-                  <li>Votre demande sera transmise à votre avocat</li>
+                  <li>Votre demande sera transmise a votre avocat</li>
                   <li>Vous recevrez une confirmation par email</li>
                   <li>L'avocat vous contactera sous 24-48h</li>
                   <li>Vous pourrez suivre l'avancement dans votre espace "Mes Dossiers"</li>

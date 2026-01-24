@@ -1,12 +1,12 @@
-﻿/**
- * Schémas de validation Zod centralisés
- * Utilisés côté client ET serveur
+/**
+ * Schemas de validation Zod centralises
+ * Utilises cote client ET serveur
  */
 
 import { z } from 'zod'
 import { TYPES_DOSSIER, PRIORITES_UI, STATUTS_UI } from '../constants/dossier.constants'
 
-// Schéma de base pour un dossier
+// Schema de base pour un dossier
 export const dossierBaseSchema = z.object({
   typeDossier: z.enum([
     TYPES_DOSSIER.TITRE_SEJOUR,
@@ -17,7 +17,7 @@ export const dossierBaseSchema = z.object({
     TYPES_DOSSIER.VISA,
     TYPES_DOSSIER.AUTRE,
   ] as const),
-  objetDemande: z.string().min(10, 'Minimum 10 caractères').max(500, 'Maximum 500 caractères'),
+  objetDemande: z.string().min(10, 'Minimum 10 caracteres').max(500, 'Maximum 500 caracteres'),
   priorite: z.enum([
     PRIORITES_UI.NORMALE,
     PRIORITES_UI.HAUTE,
@@ -25,10 +25,10 @@ export const dossierBaseSchema = z.object({
     PRIORITES_UI.CRITIQUE,
   ] as const).default(PRIORITES_UI.NORMALE),
   dateEcheance: z.string().datetime().optional().or(z.literal('')),
-  notes: z.string().max(2000, 'Maximum 2000 caractères').optional(),
+  notes: z.string().max(2000, 'Maximum 2000 caracteres').optional(),
 })
 
-// Schéma pour création par avocat
+// Schema pour creation par avocat
 export const createDossierSchema = dossierBaseSchema.extend({
   clientId: z.string().uuid('ID client invalide'),
   statut: z.enum([
@@ -39,7 +39,7 @@ export const createDossierSchema = dossierBaseSchema.extend({
   ] as const).optional(),
 })
 
-// Schéma pour création par client (simplifié)
+// Schema pour creation par client (simplifie)
 export const createDemandeClientSchema = z.object({
   typeDossier: z.enum([
     TYPES_DOSSIER.TITRE_SEJOUR,
@@ -50,13 +50,13 @@ export const createDemandeClientSchema = z.object({
     TYPES_DOSSIER.VISA,
     TYPES_DOSSIER.AUTRE,
   ] as const),
-  objetDemande: z.string().min(20, 'Décrivez votre demande en minimum 20 caractères').max(500),
+  objetDemande: z.string().min(20, 'Decrivez votre demande en minimum 20 caracteres').max(500),
   dateEcheance: z.string().datetime().optional().or(z.literal('')),
   urgence: z.boolean().optional(),
   complementInfo: z.string().max(1000).optional(),
 })
 
-// Schéma pour mise à jour
+// Schema pour mise a jour
 export const updateDossierSchema = dossierBaseSchema.partial().extend({
   statut: z.enum([
     STATUTS_UI.BROUILLON,
@@ -69,7 +69,7 @@ export const updateDossierSchema = dossierBaseSchema.partial().extend({
   ] as const).optional(),
 })
 
-// Types TypeScript générés depuis Zod
+// Types TypeScript generes depuis Zod
 export type CreateDossierInput = z.infer<typeof createDossierSchema>
 export type CreateDemandeClientInput = z.infer<typeof createDemandeClientSchema>
 export type UpdateDossierInput = z.infer<typeof updateDossierSchema>

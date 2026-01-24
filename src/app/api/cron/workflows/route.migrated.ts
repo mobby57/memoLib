@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { runMonitors } from '@/lib/workflows/monitors';
 import { logger, LogCategory } from '@/lib/logger';
 import { z } from 'zod';
@@ -13,15 +13,15 @@ const CronAuthSchema = z.object({
 
 // ============================================
 // GET /api/cron/workflows
-// Exécution périodique des moniteurs de workflows (Cron Job)
-// À appeler toutes les 15 minutes via cron externe
+// Execution periodique des moniteurs de workflows (Cron Job)
+// a appeler toutes les 15 minutes via cron externe
 // ============================================
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    // Validation du token de sécurité
+    // Validation du token de securite
     const authHeader = request.headers.get('authorization');
     
     CronAuthSchema.parse({ authorization: authHeader });
@@ -34,17 +34,17 @@ export async function GET(request: NextRequest) {
         ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
         userAgent: request.headers.get('user-agent'),
       });
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    logger.log(LogCategory.WORKFLOW, '⏰ Cron execution started: workflow monitors');
+    logger.log(LogCategory.WORKFLOW, ' Cron execution started: workflow monitors');
 
-    // Exécuter les moniteurs
+    // Executer les moniteurs
     const result = await runMonitors();
 
     const executionTime = Date.now() - startTime;
 
-    logger.log(LogCategory.WORKFLOW, `✅ Cron execution completed in ${executionTime}ms`, {
+    logger.log(LogCategory.WORKFLOW, ` Cron execution completed in ${executionTime}ms`, {
       executionTime,
       monitorsRun: result?.monitorsRun || 'unknown',
     });
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
-      message: 'Moniteurs exécutés avec succès',
+      message: 'Moniteurs executes avec succes',
       executionTime,
       result,
     });
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
 
     logger.error(LogCategory.WORKFLOW, 'Error executing cron monitors', { error, executionTime });
     return NextResponse.json(
-      { error: 'Erreur lors de l\'exécution des moniteurs', executionTime },
+      { error: 'Erreur lors de l\'execution des moniteurs', executionTime },
       { status: 500 }
     );
   }

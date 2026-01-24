@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Composant ValidationQueue
- * Affiche et gère les actions IA en attente de validation
+ * Affiche et gere les actions IA en attente de validation
  */
 
 'use client';
@@ -46,9 +46,9 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
   const getValidationLevelBadge = (level: ValidationLevel) => {
     const badges = {
       [ValidationLevel.NONE]: 'Aucune',
-      [ValidationLevel.QUICK]: 'Rapide ⚡',
-      [ValidationLevel.STANDARD]: 'Standard 📋',
-      [ValidationLevel.REINFORCED]: 'Renforcée 🔒'
+      [ValidationLevel.QUICK]: 'Rapide ',
+      [ValidationLevel.STANDARD]: 'Standard [emoji]',
+      [ValidationLevel.REINFORCED]: 'Renforcee [emoji]'
     };
     return badges[level] || level;
   };
@@ -114,7 +114,7 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">❌ {error}</p>
+        <p className="text-red-800"> {error}</p>
       </div>
     );
   }
@@ -122,7 +122,7 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
   if (pendingActions.length === 0) {
     return (
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-        <p className="text-gray-600">✅ Aucune action en attente de validation</p>
+        <p className="text-gray-600"> Aucune action en attente de validation</p>
       </div>
     );
   }
@@ -188,7 +188,7 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
                   disabled={validating}
                   className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 text-sm"
                 >
-                  ✓ Approuver
+                  [Check] Approuver
                 </button>
                 <button
                   onClick={(e) => {
@@ -197,7 +197,7 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
                   }}
                   className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
                 >
-                  👁️ Détails
+                  [emoji]️ Details
                 </button>
               </div>
             </div>
@@ -205,7 +205,7 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
         ))}
       </div>
 
-      {/* Modal de détails */}
+      {/* Modal de details */}
       {showModal && selectedAction && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -228,11 +228,11 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  ✕
+                  
                 </button>
               </div>
 
-              {/* Métadonnées */}
+              {/* Metadonnees */}
               <div className="bg-gray-50 rounded-lg p-4 mb-4">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -250,7 +250,7 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
                     {(selectedAction.confidence * 100).toFixed(0)}%
                   </div>
                   <div>
-                    <span className="font-medium text-gray-700">Créé:</span>{' '}
+                    <span className="font-medium text-gray-700">Cree:</span>{' '}
                     {formatDistanceToNow(new Date(selectedAction.createdAt), { 
                       addSuffix: true, 
                       locale: fr 
@@ -269,7 +269,7 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
 
               {/* Contenu */}
               <div className="mb-4">
-                <h3 className="font-medium text-gray-900 mb-2">Contenu généré</h3>
+                <h3 className="font-medium text-gray-900 mb-2">Contenu genere</h3>
                 <div className="bg-gray-50 p-4 rounded border border-gray-200 max-h-64 overflow-y-auto">
                   <pre className="whitespace-pre-wrap text-sm text-gray-700">
                     {JSON.stringify(modifyContent || selectedAction.content, null, 2)}
@@ -288,7 +288,7 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
                   onChange={(e) => setRejectComment(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg p-3 text-sm"
                   rows={3}
-                  placeholder="Ajoutez un commentaire pour justifier votre décision..."
+                  placeholder="Ajoutez un commentaire pour justifier votre decision..."
                 />
               </div>
 
@@ -299,21 +299,21 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
                   disabled={validating}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
                 >
-                  ❌ Rejeter
+                   Rejeter
                 </button>
                 <button
                   onClick={() => handleModify(selectedAction.id)}
                   disabled={validating}
                   className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50"
                 >
-                  ✏️ Modifier et approuver
+                  ️ Modifier et approuver
                 </button>
                 <button
                   onClick={() => handleApprove(selectedAction.id)}
                   disabled={validating}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                 >
-                  ✓ Approuver tel quel
+                  [Check] Approuver tel quel
                 </button>
               </div>
             </div>

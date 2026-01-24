@@ -1,27 +1,27 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// GET: Récupérer les messages
+// GET: Recuperer les messages
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
     if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
-    // Récupérer les messages du client
+    // Recuperer les messages du client
     const messages = await prisma.message.findMany({
       where: {
         OR: [
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ messages: formattedMessages });
   } catch (error) {
-    logger.error('Erreur récupération messages client', { error });
+    logger.error('Erreur recuperation messages client', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
@@ -70,21 +70,21 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
     if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
     const body = await request.json();
     const { content } = body;
 
     if (!content || content.trim() === '') {
-      return NextResponse.json({ error: 'Le message ne peut pas être vide' }, { status: 400 });
+      return NextResponse.json({ error: 'Le message ne peut pas etre vide' }, { status: 400 });
     }
 
     // Trouver l'avocat du client (premier ADMIN du tenant)
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user?.tenantId) {
-      return NextResponse.json({ error: 'Client non associé à un tenant' }, { status: 400 });
+      return NextResponse.json({ error: 'Client non associe a un tenant' }, { status: 400 });
     }
 
     const avocat = await prisma.user.findFirst({
@@ -105,10 +105,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (!avocat) {
-      return NextResponse.json({ error: 'Aucun avocat trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Aucun avocat trouve' }, { status: 404 });
     }
 
-    // Créer le message
+    // Creer le message
     const message = await prisma.message.create({
       data: {
         subject: 'Message client',
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    logger.info(`Client ${userId} a envoyé un message à ${avocat.id}`);
+    logger.info(`Client ${userId} a envoye un message a ${avocat.id}`);
 
     return NextResponse.json({
       success: true,

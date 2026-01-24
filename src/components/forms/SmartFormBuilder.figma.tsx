@@ -1,10 +1,10 @@
-﻿/**
+/**
  * 🎨 Figma Code Connect - SmartFormBuilder
  * 
  * Synchronisation automatique avec le design Figma
  * Composant: IA Poste Manager > Smart Forms > SmartFormBuilder
  * 
- * Maintient la cohérence entre design et code
+ * Maintient la coherence entre design et code
  */
 
 import { CodeConnect } from '@figma/code-connect';
@@ -49,19 +49,19 @@ CodeConnect.figma(
 /**
  * Documentation automatique pour Figma
  * 
- * **Composant intelligent pour collecte de données**
+ * **Composant intelligent pour collecte de donnees**
  * 
- * ### Fonctionnalités
- * - ✅ Champs conditionnels adaptatifs
- * - ✅ Suggestions IA en temps réel (Ollama)
- * - ✅ Validation multi-niveaux
- * - ✅ Impact scoring (1-20)
- * - ✅ Accessibility (WCAG 2.1 AA)
+ * ### Fonctionnalites
+ * -  Champs conditionnels adaptatifs
+ * -  Suggestions IA en temps reel (Ollama)
+ * -  Validation multi-niveaux
+ * -  Impact scoring (1-20)
+ * -  Accessibility (WCAG 2.1 AA)
  * 
  * ### Variants
  * - **default** - Formulaire standard avec suggestions
- * - **compact** - Mode condensé pour modales
- * - **fullscreen** - Vue complète avec analytics
+ * - **compact** - Mode condense pour modales
+ * - **fullscreen** - Vue complete avec analytics
  * 
  * ### Props Importants
  * - `config`: Configuration du formulaire (title, fields, validation)
@@ -69,7 +69,7 @@ CodeConnect.figma(
  * - `onSubmit`: Callback de soumission
  * - `theme`: Light/Dark mode
  * 
- * ### Intégrations
+ * ### Integrations
  * - IA: Ollama (llama3.2:3b)
  * - Storage: Prisma + PostgreSQL
  * - Validation: Zod schemas

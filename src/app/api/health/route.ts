@@ -1,15 +1,15 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Health Check API Endpoint
- * Utilisé par le CI/CD pour vérifier la santé de l'application
+ * Utilise par le CI/CD pour verifier la sante de l'application
  */
 
 export async function GET(request: NextRequest) {
   try {
     const startTime = Date.now();
     
-    // Vérifications basiques
+    // Verifications basiques
     const checks = {
       timestamp: new Date().toISOString(),
       status: 'healthy',
@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
       uptime: process.uptime(),
       memory: process.memoryUsage(),
       checks: {
-        database: 'ok', // Sera implémenté plus tard
-        redis: 'ok',    // Sera implémenté plus tard
+        database: 'ok', // Sera implemente plus tard
+        redis: 'ok',    // Sera implemente plus tard
         external_apis: 'ok'
       }
     };

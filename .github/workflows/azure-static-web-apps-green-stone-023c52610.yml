@@ -48,6 +48,7 @@ jobs:
           PISTE_SANDBOX_OAUTH_URL: https://sandbox-oauth.piste.gouv.fr/api/oauth/token
           PISTE_SANDBOX_API_URL: https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: npm run build
       
       - name: Deploy to Azure Static Web Apps
@@ -67,6 +68,7 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: 'https://green-stone-023c52610.6.azurestaticapps.net'
           OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

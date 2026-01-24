@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -110,7 +110,7 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-gray-500 mt-1">Tous les tenants</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
-                <span className="text-2xl">👥</span>
+                <span className="text-2xl">[emoji]</span>
               </div>
             </div>
           </div>
@@ -125,7 +125,7 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-green-600 mt-1">+12% ce mois</p>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
-                <span className="text-2xl">💰</span>
+                <span className="text-2xl">[emoji]</span>
               </div>
             </div>
           </div>
@@ -140,7 +140,7 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-gray-500 mt-1">Tous les cabinets</p>
               </div>
               <div className="bg-orange-100 p-3 rounded-lg">
-                <span className="text-2xl">📁</span>
+                <span className="text-2xl">[emoji]</span>
               </div>
             </div>
           </div>
@@ -154,10 +154,10 @@ export default function SuperAdminDashboard() {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-3xl">🏢</span>
-              <span className="text-white/80 group-hover:translate-x-1 transition-transform">→</span>
+              <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
             </div>
-            <h3 className="text-xl font-bold mb-2">Gérer les Tenants</h3>
-            <p className="text-white/80 text-sm">Voir, créer, modifier les cabinets</p>
+            <h3 className="text-xl font-bold mb-2">Gerer les Tenants</h3>
+            <p className="text-white/80 text-sm">Voir, creer, modifier les cabinets</p>
           </Link>
 
           <Link
@@ -165,10 +165,10 @@ export default function SuperAdminDashboard() {
             className="bg-gradient-to-br from-blue-500 to-cyan-600 p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-200 text-white group"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-3xl">💎</span>
-              <span className="text-white/80 group-hover:translate-x-1 transition-transform">→</span>
+              <span className="text-3xl">[emoji]</span>
+              <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
             </div>
-            <h3 className="text-xl font-bold mb-2">Gérer les Plans</h3>
+            <h3 className="text-xl font-bold mb-2">Gerer les Plans</h3>
             <p className="text-white/80 text-sm">Basic, Premium, Enterprise</p>
           </Link>
 
@@ -178,7 +178,7 @@ export default function SuperAdminDashboard() {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-3xl">🎫</span>
-              <span className="text-white/80 group-hover:translate-x-1 transition-transform">→</span>
+              <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
             </div>
             <h3 className="text-xl font-bold mb-2">Support</h3>
             <p className="text-white/80 text-sm">Tickets et assistance</p>
@@ -188,12 +188,12 @@ export default function SuperAdminDashboard() {
         {/* Recent Tenants */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">Tenants Récents</h2>
+            <h2 className="text-xl font-bold text-gray-900">Tenants Recents</h2>
             <Link
               href="/super-admin/tenants"
               className="text-sm text-purple-600 hover:text-purple-700 font-medium"
             >
-              Voir tous →
+              Voir tous [Next]
             </Link>
           </div>
           <div className="overflow-x-auto">
@@ -213,7 +213,7 @@ export default function SuperAdminDashboard() {
                     Users
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Créé le
+                    Cree le
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                     Actions

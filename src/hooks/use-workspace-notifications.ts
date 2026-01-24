@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useEffect, useState, useCallback } from "react"
 import { useSession } from "next-auth/react"
@@ -47,7 +47,7 @@ export function useWorkspaceNotifications() {
       setUnreadCount(prev => prev + 1)
       
       toast({
-        title: "Nouveau dossier créé",
+        title: "Nouveau dossier cree",
         description: data.workspaceTitle,
         variant: "default",
       })
@@ -58,7 +58,7 @@ export function useWorkspaceNotifications() {
       setUnreadCount(prev => prev + 1)
       
       toast({
-        title: "Dossier mis à jour",
+        title: "Dossier mis a jour",
         description: data.message,
         variant: "default",
       })
@@ -70,7 +70,7 @@ export function useWorkspaceNotifications() {
       
       toast({
         title: "Nouveau document",
-        description: `Document ajouté à ${data.workspaceTitle}`,
+        description: `Document ajoute a ${data.workspaceTitle}`,
         variant: "default",
       })
     })
@@ -80,7 +80,7 @@ export function useWorkspaceNotifications() {
       setUnreadCount(prev => prev + 1)
       
       toast({
-        title: "⚠️ Alerte délai",
+        title: "️ Alerte delai",
         description: data.message,
         variant: "destructive",
       })
@@ -91,7 +91,7 @@ export function useWorkspaceNotifications() {
       setUnreadCount(prev => prev + 1)
       
       toast({
-        title: "✓ Tâche complétée",
+        title: "[Check] Tache completee",
         description: data.message,
         variant: "default",
       })

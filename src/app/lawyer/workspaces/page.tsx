@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 /**
- * 📋 Liste des Workspaces - Vue d'ensemble du raisonnement
- * Avec SWR pour auto-refresh temps réel
+ * [emoji] Liste des Workspaces - Vue d'ensemble du raisonnement
+ * Avec SWR pour auto-refresh temps reel
  */
 
 import { useState } from 'react';
@@ -50,7 +50,7 @@ export default function WorkspacesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <span className="text-4xl">🧠</span>
+                <span className="text-4xl">[emoji]</span>
                 Workspaces de Raisonnement
               </h1>
               <p className="text-gray-600 mt-2">
@@ -89,15 +89,15 @@ export default function WorkspacesPage() {
                 onChange={(e) => setFilterState(e.target.value as WorkspaceState | 'ALL')}
                 className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
               >
-                <option value="ALL">Tous les états</option>
-                <option value="RECEIVED">📥 Reçu</option>
-                <option value="FACTS_EXTRACTED">📋 Faits extraits</option>
-                <option value="CONTEXT_IDENTIFIED">🧭 Contexte identifié</option>
-                <option value="OBLIGATIONS_DEDUCED">📜 Obligations déduites</option>
-                <option value="MISSING_IDENTIFIED">❗ Manques identifiés</option>
-                <option value="RISK_EVALUATED">⚠️ Risques évalués</option>
-                <option value="ACTION_PROPOSED">👉 Action proposée</option>
-                <option value="READY_FOR_HUMAN">✅ Prêt pour humain</option>
+                <option value="ALL">Tous les etats</option>
+                <option value="RECEIVED">[emoji] Recu</option>
+                <option value="FACTS_EXTRACTED">[emoji] Faits extraits</option>
+                <option value="CONTEXT_IDENTIFIED">[emoji] Contexte identifie</option>
+                <option value="OBLIGATIONS_DEDUCED">[emoji] Obligations deduites</option>
+                <option value="MISSING_IDENTIFIED"> Manques identifies</option>
+                <option value="RISK_EVALUATED">️ Risques evalues</option>
+                <option value="ACTION_PROPOSED">[emoji] Action proposee</option>
+                <option value="READY_FOR_HUMAN"> Pret pour humain</option>
               </select>
             </div>
           </div>
@@ -108,26 +108,26 @@ export default function WorkspacesPage() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-            <p className="text-red-700">⚠️ Erreur de chargement des workspaces</p>
-            <p className="text-sm text-red-600 mt-1">Vérifiez votre connexion internet</p>
+            <p className="text-red-700">️ Erreur de chargement des workspaces</p>
+            <p className="text-sm text-red-600 mt-1">Verifiez votre connexion internet</p>
           </div>
         )}
         
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="animate-spin text-6xl mb-4">🧠</div>
+            <div className="animate-spin text-6xl mb-4">[emoji]</div>
             <p className="text-gray-600">Chargement des workspaces...</p>
           </div>
         ) : filteredWorkspaces.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
+            <div className="text-6xl mb-4">[emoji]</div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Aucun workspace trouvé
+              Aucun workspace trouve
             </h3>
             <p className="text-gray-600">
               {searchQuery || filterState !== 'ALL'
                 ? 'Essayez de modifier vos filtres.'
-                : 'Créez votre premier workspace de raisonnement.'}
+                : 'Creez votre premier workspace de raisonnement.'}
             </p>
           </div>
         ) : (
@@ -157,30 +157,30 @@ function WorkspaceCard({ workspace }: { workspace: WorkspaceReasoning }) {
                 Workspace #{workspace.id.slice(0, 8)}
               </h3>
               <p className="text-sm text-gray-600 mt-1">
-                {workspace.sourceType} • {new Date(workspace.createdAt).toLocaleDateString('fr-FR')}
+                {workspace.sourceType} - {new Date(workspace.createdAt).toLocaleDateString('fr-FR')}
               </p>
             </div>
           </div>
           
-          {/* État actuel */}
+          {/* etat actuel */}
           <div className={`px-3 py-1 rounded-full text-xs font-medium bg-${stateConfig.color}-100 text-${stateConfig.color}-700`}>
             {stateConfig.label}
           </div>
         </div>
         
-        {/* Aperçu du message */}
+        {/* Apercu du message */}
         <div className="bg-gray-50 rounded p-3 mb-4">
           <p className="text-sm text-gray-700 line-clamp-2">
             {workspace.sourceRaw}
           </p>
         </div>
         
-        {/* Métadonnées */}
+        {/* Metadonnees */}
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              <span>🔒</span>
-              {workspace.locked ? 'Verrouillé' : 'En cours'}
+              <span>[emoji]</span>
+              {workspace.locked ? 'Verrouille' : 'En cours'}
             </span>
             <span>
               Incertitude : {Math.round(workspace.uncertaintyLevel * 100)}%

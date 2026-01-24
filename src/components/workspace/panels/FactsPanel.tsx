@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Panel Faits - Affichage des faits certains
@@ -21,7 +21,7 @@ const SOURCE_ICONS: Record<string, any> = {
 
 const SOURCE_LABELS: Record<string, string> = {
   EXPLICIT_MESSAGE: 'Message explicite',
-  METADATA: 'Métadonnées',
+  METADATA: 'Metadonnees',
   DOCUMENT: 'Document',
   USER_PROVIDED: 'Fourni manuellement',
 };
@@ -30,7 +30,7 @@ export function FactsPanel({ facts, onAddFact }: FactsPanelProps) {
   if (facts.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">📋</div>
+        <div className="text-6xl mb-4">[emoji]</div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           Aucun fait extrait
         </h3>
@@ -78,10 +78,10 @@ export function FactsPanel({ facts, onAddFact }: FactsPanelProps) {
               key={fact.id}
               className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
             >
-              {/* En-tête */}
+              {/* En-tete */}
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">✓</span>
+                  <span className="text-2xl">[Check]</span>
                   <div>
                     <h4 className="font-semibold text-gray-900">{fact.label}</h4>
                     <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
@@ -105,14 +105,14 @@ export function FactsPanel({ facts, onAddFact }: FactsPanelProps) {
                 </div>
               </div>
               
-              {/* Métadonnées */}
+              {/* Metadonnees */}
               <div className="ml-8 mt-3 flex items-center gap-4 text-xs text-gray-500">
                 <span>
                   Extrait par : <span className="font-medium">{fact.extractedBy === 'AI' ? 'IA' : 'Humain'}</span>
                 </span>
                 {fact.sourceRef && (
                   <span>
-                    Réf : <span className="font-medium">{fact.sourceRef}</span>
+                    Ref : <span className="font-medium">{fact.sourceRef}</span>
                   </span>
                 )}
                 <span>
@@ -127,7 +127,7 @@ export function FactsPanel({ facts, onAddFact }: FactsPanelProps) {
       {/* Note explicative */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
         <p className="text-blue-800">
-          <strong>💡 Note :</strong> Les faits ont toujours une confiance de 100% car ils sont extraits directement du message source, sans inférence.
+          <strong>[emoji] Note :</strong> Les faits ont toujours une confiance de 100% car ils sont extraits directement du message source, sans inference.
         </p>
       </div>
     </div>

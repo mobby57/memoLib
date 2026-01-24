@@ -1,11 +1,11 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/auth';
 import { logger, LogCategory } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
 // ============================================
 // GET /api/example/protected
-// Route d'exemple démontrant l'utilisation de withAuth
+// Route d'exemple demontrant l'utilisation de withAuth
 // ============================================
 
 export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
@@ -21,7 +21,7 @@ export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
       tenantId: user.tenantId,
     });
 
-    // Exemple: Récupérer des statistiques pour le tenant
+    // Exemple: Recuperer des statistiques pour le tenant
     const [userCount, dossierCount, clientCount] = await Promise.all([
       prisma.user.count({
         where: { tenantId: user.tenantId },
@@ -34,7 +34,7 @@ export const GET = withAuth(['ADMIN', 'SUPER_ADMIN'], async (
       }),
     ]);
 
-    logger.log(LogCategory.API, `✅ Example data retrieved`, {
+    logger.log(LogCategory.API, ` Example data retrieved`, {
       userId: user.id,
       stats: { users: userCount, dossiers: dossierCount, clients: clientCount },
     });

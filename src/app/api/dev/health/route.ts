@@ -1,16 +1,16 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const startTime = Date.now();
 
 /**
- * GET /api/dev/health - Health check système
+ * GET /api/dev/health - Health check systeme
  */
 export async function GET() {
   try {
     const uptime = Date.now() - startTime;
     const uptimeFormatted = formatUptime(uptime);
 
-    // Vérifications système
+    // Verifications systeme
     const checks = {
       database: await checkDatabase(),
       ollama: await checkOllama(),
@@ -39,7 +39,7 @@ export async function GET() {
 
 async function checkDatabase(): Promise<{ healthy: boolean; message: string }> {
   try {
-    // TODO: Vérifier connexion Prisma
+    // TODO: Verifier connexion Prisma
     return { healthy: true, message: 'Database OK' };
   } catch (error) {
     return { healthy: false, message: 'Database connection failed' };

@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -11,20 +11,20 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as any;
 
     if (user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
     }
 
     // Parse query params
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
 
-    // Récupérer tous les tenants avec leurs statistiques
+    // Recuperer tous les tenants avec leurs statistiques
     const tenants = await prisma.tenant.findMany({
       take: limit,
       include: {
@@ -69,13 +69,13 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as any;
 
     if (user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -83,19 +83,19 @@ export async function POST(request: NextRequest) {
 
     // Validation
     if (!name || !subdomain || !planId || !adminEmail || !adminName || !adminPassword) {
-      return NextResponse.json({ error: 'Données manquantes' }, { status: 400 });
+      return NextResponse.json({ error: 'Donnees manquantes' }, { status: 400 });
     }
 
-    // Vérifier que le subdomain est unique
+    // Verifier que le subdomain est unique
     const existingTenant = await prisma.tenant.findUnique({
       where: { subdomain }
     });
 
     if (existingTenant) {
-      return NextResponse.json({ error: 'Subdomain déjà utilisé' }, { status: 400 });
+      return NextResponse.json({ error: 'Subdomain deja utilise' }, { status: 400 });
     }
 
-    // Créer le tenant
+    // Creer le tenant
     const tenant = await prisma.tenant.create({
       data: {
         name,
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Créer l'utilisateur admin du tenant
+    // Creer l'utilisateur admin du tenant
     const bcrypt = require('bcryptjs');
     const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
-    logger.error('Erreur création tenant', { error });
+    logger.error('Erreur creation tenant', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

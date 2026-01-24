@@ -23,11 +23,11 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Générer une clé de stockage unique
+    // Generer une cle de stockage unique
     const timestamp = Date.now();
     const storageKey = `documents/${tenantId}/${timestamp}-${file.name}`;
 
-    // Créer l'enregistrement du document
+    // Creer l'enregistrement du document
     const document = await prisma.document.create({
       data: {
         tenantId,
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Lancer le traitement OCR en arrière-plan
+    // Lancer le traitement OCR en arriere-plan
     processOCR(document.id, buffer, file.type).catch(console.error);
 
     return NextResponse.json({
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET - Récupérer les documents
+// GET - Recuperer les documents
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -110,13 +110,13 @@ export async function GET(request: NextRequest) {
 // Fonction de traitement OCR
 async function processOCR(documentId: string, buffer: Buffer, mimeType: string) {
   try {
-    console.log(`🔍 Démarrage OCR pour document ${documentId}`);
+    console.log(`[emoji] Demarrage OCR pour document ${documentId}`);
 
     let extractedText = '';
     let confidence = 0;
     let extractedData: Record<string, unknown> = {};
 
-    // Déterminer le type de document et extraire le texte
+    // Determiner le type de document et extraire le texte
     if (mimeType === 'application/pdf') {
       // Pour PDF: utiliser pdf-parse ou appeler un service externe
       const result = await extractTextFromPDF(buffer);
@@ -133,12 +133,12 @@ async function processOCR(documentId: string, buffer: Buffer, mimeType: string) 
       confidence = 1.0;
     }
 
-    // Analyser le contenu avec l'IA pour extraire des données structurées
+    // Analyser le contenu avec l'IA pour extraire des donnees structurees
     if (extractedText.length > 0) {
       extractedData = await analyzeDocumentContent(extractedText);
     }
 
-    // Mettre à jour le document avec les résultats OCR
+    // Mettre a jour le document avec les resultats OCR
     await prisma.document.update({
       where: { id: documentId },
       data: {
@@ -149,16 +149,16 @@ async function processOCR(documentId: string, buffer: Buffer, mimeType: string) 
       },
     });
 
-    console.log(`✅ OCR terminé pour document ${documentId}`);
+    console.log(` OCR termine pour document ${documentId}`);
   } catch (error) {
-    console.error(`❌ Erreur OCR pour document ${documentId}:`, error);
+    console.error(` Erreur OCR pour document ${documentId}:`, error);
     
     await prisma.document.update({
       where: { id: documentId },
       data: {
         ocrProcessed: true,
         ocrConfidence: 0,
-        extractedData: JSON.stringify({ error: 'Échec du traitement OCR' }),
+        extractedData: JSON.stringify({ error: 'echec du traitement OCR' }),
       },
     });
   }
@@ -211,18 +211,18 @@ async function analyzeDocumentContent(text: string): Promise<Record<string, unkn
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'llama3.2:latest',
-        prompt: `Analyse ce document et extrait les informations clés au format JSON:
-- type de document (facture, contrat, identité, courrier, etc.)
-- dates mentionnées
+        prompt: `Analyse ce document et extrait les informations cles au format JSON:
+- type de document (facture, contrat, identite, courrier, etc.)
+- dates mentionnees
 - montants/sommes
 - noms/personnes
-- numéros de référence
-- résumé en 2 phrases
+- numeros de reference
+- resume en 2 phrases
 
 Document:
 ${text.substring(0, 3000)}
 
-Réponds uniquement en JSON valide.`,
+Reponds uniquement en JSON valide.`,
         stream: false,
       }),
     });
@@ -234,7 +234,7 @@ Réponds uniquement en JSON valide.`,
     const data = await response.json();
     const responseText = data.response || '';
 
-    // Essayer d'extraire le JSON de la réponse
+    // Essayer d'extraire le JSON de la reponse
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);

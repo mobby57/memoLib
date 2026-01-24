@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
@@ -107,14 +107,14 @@ export default function EmailMonitoringPage() {
       const data = await response.json();
       
       if (data.success) {
-        alert(`✅ Dossier créé avec succès!\n\nClient: ${data.client.nom} ${data.client.prenom}\nType: ${data.clientInfo.typeDemande}\nDossier ID: ${data.dossier.id}`);
+        alert(`[OK] Dossier cree avec succes!\n\nClient: ${data.client.nom} ${data.client.prenom}\nType: ${data.clientInfo.typeDemande}\nDossier ID: ${data.dossier.id}`);
         fetchEmails();
       } else {
-        alert('❌ Erreur lors de la création du dossier');
+        alert('[ERROR] Erreur lors de la creation du dossier');
       }
     } catch (error) {
       console.error('Erreur:', error);
-      alert('❌ Erreur serveur');
+      alert('[ERROR] Erreur serveur');
     } finally {
       setCreatingDossier(null);
     }
@@ -164,7 +164,7 @@ export default function EmailMonitoringPage() {
             Monitoring Email
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Surveillance en temps réel de votre boîte mail professionnelle
+            Surveillance en temps reel de votre boite mail professionnelle
           </p>
         </div>
 
@@ -235,7 +235,7 @@ export default function EmailMonitoringPage() {
               <option value="nouveau_client">Nouveau Client</option>
               <option value="urgent">Urgent</option>
               <option value="spam">Spam</option>
-              <option value="general">Général</option>
+              <option value="general">General</option>
             </select>
 
             <select
@@ -243,7 +243,7 @@ export default function EmailMonitoringPage() {
               onChange={(e) => setFilter({ ...filter, priority: e.target.value })}
               className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
-              <option value="">Toutes les priorités</option>
+              <option value="">Toutes les priorites</option>
               <option value="urgent">Urgent</option>
               <option value="high">Haute</option>
               <option value="medium">Moyenne</option>
@@ -267,7 +267,7 @@ export default function EmailMonitoringPage() {
               <div className="p-12 text-center">
                 <Mail className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">
-                  Aucun email trouvé
+                  Aucun email trouve
                 </p>
               </div>
             ) : (
@@ -318,7 +318,7 @@ export default function EmailMonitoringPage() {
                         }}
                         disabled={creatingDossier === email.id}
                         className="p-2 hover:bg-green-100 dark:hover:bg-green-900 rounded-lg disabled:opacity-50"
-                        title="Créer un dossier"
+                        title="Creer un dossier"
                       >
                         {creatingDossier === email.id ? (
                           <div className="animate-spin h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full"></div>
@@ -342,7 +342,7 @@ export default function EmailMonitoringPage() {
                   {email.action && (
                     <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                       <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        💡 <strong>Action suggérée:</strong> {email.action}
+                        [emoji] <strong>Action suggeree:</strong> {email.action}
                       </p>
                     </div>
                   )}

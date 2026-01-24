@@ -1,11 +1,11 @@
-﻿/**
- * Service d'extraction intelligente des délais OQTF
- * Amélioration avec templates juridiques et confidence scoring
+/**
+ * Service d'extraction intelligente des delais OQTF
+ * Amelioration avec templates juridiques et confidence scoring
  */
 
 import { logger } from '@/lib/logger';
 
-// Types de dossiers CESEDA avec délais spécifiques
+// Types de dossiers CESEDA avec delais specifiques
 export enum TypeDossierCESEDA {
   OQTF = 'OQTF',
   REFUS_TITRE = 'REFUS_TITRE',
@@ -32,11 +32,11 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
   {
     type: TypeDossierCESEDA.OQTF,
     patterns: [
-      'obligation de quitter le territoire français',
+      'obligation de quitter le territoire francais',
       'OQTF',
-      'décision d\'éloignement',
-      'mesure d\'éloignement',
-      'reconduite à la frontière'
+      'decision d\'eloignement',
+      'mesure d\'eloignement',
+      'reconduite a la frontiere'
     ],
     articles: [
       'L.511-1',
@@ -47,34 +47,34 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
       'Article L.511-1 du CESEDA'
     ],
     delaisStandard: {
-      departVolontaire: 30, // 30 jours pour départ volontaire
-      recoursTA: 48, // 48h si rétention/assignation, sinon 30 jours
+      departVolontaire: 30, // 30 jours pour depart volontaire
+      recoursTA: 48, // 48h si retention/assignation, sinon 30 jours
       recoursCAA: 2 // 2 mois pour appel CAA
     },
     keywords: [
-      'préfecture',
-      'arrêté préfectoral',
-      'territoire français',
-      'séjour irrégulier',
-      'titre de séjour',
+      'prefecture',
+      'arrete prefectoral',
+      'territoire francais',
+      'sejour irregulier',
+      'titre de sejour',
       'visa',
       'reconduite',
-      'éloignement',
+      'eloignement',
       'tribunal administratif',
       'TA',
-      'référé-liberté',
-      'assignation à résidence',
-      'centre de rétention',
+      'refere-liberte',
+      'assignation a residence',
+      'centre de retention',
       'CRA'
     ]
   },
   {
     type: TypeDossierCESEDA.REFUS_TITRE,
     patterns: [
-      'refus de titre de séjour',
+      'refus de titre de sejour',
       'rejet de demande',
       'refus de renouvellement',
-      'décision de refus'
+      'decision de refus'
     ],
     articles: [
       'L.313-11',
@@ -88,12 +88,12 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
       recoursCAA: 2
     },
     keywords: [
-      'vie privée et familiale',
+      'vie privee et familiale',
       'CEDH Article 8',
-      'conjoint de français',
-      'parent d\'enfant français',
+      'conjoint de francais',
+      'parent d\'enfant francais',
       'ressources suffisantes',
-      'intégration républicaine'
+      'integration republicaine'
     ]
   },
   {
@@ -101,7 +101,7 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
     patterns: [
       'demande d\'asile',
       'protection internationale',
-      'statut de réfugié',
+      'statut de refugie',
       'protection subsidiaire',
       'OFPRA',
       'CNDA'
@@ -110,23 +110,23 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
       'L.511-1 IV',
       'L.743-1',
       'L.723-2',
-      'Convention de Genève Article 1A'
+      'Convention de Geneve Article 1A'
     ],
     delaisStandard: {
-      departVolontaire: 0, // Pas de départ volontaire pendant procédure asile
+      departVolontaire: 0, // Pas de depart volontaire pendant procedure asile
       recoursTA: 30, // 1 mois pour recours OFPRA
       recoursCAA: 1 // 1 mois pour recours CNDA
     },
     keywords: [
-      'persécutions',
+      'persecutions',
       'pays d\'origine',
-      'crainte fondée',
+      'crainte fondee',
       'torture',
       'traitement inhumain',
       'OFPRA',
       'CNDA',
       'Dublin',
-      'pays tiers sûr'
+      'pays tiers sur'
     ]
   }
 ];
@@ -144,7 +144,7 @@ interface DelaiExtrait {
 }
 
 /**
- * Calcule le score de confiance basé sur les patterns détectés
+ * Calcule le score de confiance base sur les patterns detectes
  */
 function calculateConfidence(
   text: string,
@@ -229,7 +229,7 @@ export async function extraireDelaisOQTF(
     const identification = identifierTypeDossier(texteDocument);
     
     if (!identification) {
-      logger.warn('Type de dossier CESEDA non identifié', {
+      logger.warn('Type de dossier CESEDA non identifie', {
         dossierId,
         tenantId,
         textLength: texteDocument.length
@@ -242,21 +242,21 @@ export async function extraireDelaisOQTF(
 
     // 2. Patterns de dates juridiques
     const datePatterns = [
-      // Format français: "15 janvier 2024", "15/01/2024"
-      /(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})/gi,
+      // Format francais: "15 janvier 2024", "15/01/2024"
+      /(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/gi,
       /(\d{1,2})\/(\d{1,2})\/(\d{4})/g,
       
-      // Délais relatifs: "dans un délai de 48 heures", "sous 30 jours"
-      /dans un délai de (\d+)\s+(heures?|jours?|mois)/gi,
+      // Delais relatifs: "dans un delai de 48 heures", "sous 30 jours"
+      /dans un delai de (\d+)\s+(heures?|jours?|mois)/gi,
       /sous (\d+)\s+(heures?|jours?|mois)/gi,
-      /avant le (\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})/gi
+      /avant le (\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/gi
     ];
 
     const texteLower = texteDocument.toLowerCase();
 
-    // 3. Détection délai de départ volontaire (OQTF)
+    // 3. Detection delai de depart volontaire (OQTF)
     if (template.type === TypeDossierCESEDA.OQTF) {
-      const departVolontaireMatch = texteLower.match(/départ volontaire.*?(\d{1,2})\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+(\d{4})/i);
+      const departVolontaireMatch = texteLower.match(/depart volontaire.*?(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\s+(\d{4})/i);
       
       if (departVolontaireMatch) {
         const dateDepart = parseDate(departVolontaireMatch[1], departVolontaireMatch[2], departVolontaireMatch[3]);
@@ -265,28 +265,28 @@ export async function extraireDelaisOQTF(
         delais.push({
           type: 'OQTF',
           date: dateDepart,
-          description: `Délai de départ volontaire (${template.delaisStandard.departVolontaire} jours)`,
+          description: `Delai de depart volontaire (${template.delaisStandard.departVolontaire} jours)`,
           priorite: joursRestants <= 7 ? 'CRITIQUE' : joursRestants <= 15 ? 'HAUTE' : 'NORMALE',
           joursRestants,
           confidence: identification.confidence,
           articlesCeseda: identification.articles,
           suggestionsRecours: [
-            'Recours en annulation devant le Tribunal Administratif (48h si rétention)',
-            'Référé-suspension si OQTF manifestement illégale',
-            'Demande d\'aide juridictionnelle si nécessaire'
+            'Recours en annulation devant le Tribunal Administratif (48h si retention)',
+            'Refere-suspension si OQTF manifestement illegale',
+            'Demande d\'aide juridictionnelle si necessaire'
           ],
           checklistRecommandee: [
-            'Rassembler preuves d\'intégration (contrat travail, attestations)',
-            'Certificats médicaux si problèmes de santé',
-            'Preuves de vie privée et familiale (CEDH Article 8)',
+            'Rassembler preuves d\'integration (contrat travail, attestations)',
+            'Certificats medicaux si problemes de sante',
+            'Preuves de vie privee et familiale (CEDH Article 8)',
             'Justificatifs de domicile et ressources',
-            'Certificat de scolarité des enfants si applicable'
+            'Certificat de scolarite des enfants si applicable'
           ]
         });
       }
     }
 
-    // 4. Détection délai de recours TA
+    // 4. Detection delai de recours TA
     const recoursMatch = texteLower.match(/recours.*?tribunal administratif.*?(\d{1,2})\s+(heures?|jours?)/i);
     if (recoursMatch) {
       const delaiJours = recoursMatch[1] === '48' ? 2 : parseInt(recoursMatch[1]);
@@ -296,21 +296,21 @@ export async function extraireDelaisOQTF(
       delais.push({
         type: template.type === TypeDossierCESEDA.OQTF ? 'OQTF' : 'REFUS_TITRE',
         date: dateRecours,
-        description: `Délai de recours devant le TA (${delaiJours} jours)`,
+        description: `Delai de recours devant le TA (${delaiJours} jours)`,
         priorite: joursRestants <= 2 ? 'CRITIQUE' : 'HAUTE',
         joursRestants,
-        confidence: identification.confidence * 0.9, // Légère réduction si détection indirecte
+        confidence: identification.confidence * 0.9, // Legere reduction si detection indirecte
         articlesCeseda: identification.articles,
         suggestionsRecours: [
-          'Préparer requête en annulation avec conclusions détaillées',
-          'Invoquer Article 8 CEDH (vie privée et familiale)',
-          'Référé-liberté si atteinte grave et manifestement illégale'
+          'Preparer requete en annulation avec conclusions detaillees',
+          'Invoquer Article 8 CEDH (vie privee et familiale)',
+          'Refere-liberte si atteinte grave et manifestement illegale'
         ],
         checklistRecommandee: [
-          'Rédiger mémoire juridique avec jurisprudence',
-          'Collecter preuves matérielles',
-          'Préparer audition si nécessaire',
-          'Anticiper référé-suspension si urgence'
+          'Rediger memoire juridique avec jurisprudence',
+          'Collecter preuves materielles',
+          'Preparer audition si necessaire',
+          'Anticiper refere-suspension si urgence'
         ]
       });
     }
@@ -327,7 +327,7 @@ export async function extraireDelaisOQTF(
     return delais;
 
   } catch (error) {
-    logger.error('Erreur extraction délais OQTF intelligente', {
+    logger.error('Erreur extraction delais OQTF intelligente', {
       error,
       dossierId,
       tenantId
@@ -337,13 +337,13 @@ export async function extraireDelaisOQTF(
 }
 
 /**
- * Parse une date française en objet Date
+ * Parse une date francaise en objet Date
  */
 function parseDate(jour: string, mois: string, annee: string): Date {
   const moisMap: Record<string, number> = {
-    'janvier': 0, 'février': 1, 'mars': 2, 'avril': 3,
-    'mai': 4, 'juin': 5, 'juillet': 6, 'août': 7,
-    'septembre': 8, 'octobre': 9, 'novembre': 10, 'décembre': 11
+    'janvier': 0, 'fevrier': 1, 'mars': 2, 'avril': 3,
+    'mai': 4, 'juin': 5, 'juillet': 6, 'aout': 7,
+    'septembre': 8, 'octobre': 9, 'novembre': 10, 'decembre': 11
   };
   
   return new Date(
@@ -354,27 +354,27 @@ function parseDate(jour: string, mois: string, annee: string): Date {
 }
 
 /**
- * Génère une checklist automatique basée sur le type de dossier
+ * Genere une checklist automatique basee sur le type de dossier
  */
 export function genererChecklistOQTF(
   typeDossier: TypeDossierCESEDA,
   delaisCritiques: DelaiExtrait[]
 ): string[] {
   const checklistBase = [
-    '📋 Vérifier la notification de la décision (date et mode)',
-    '📄 Analyser les motifs juridiques de la décision',
-    '⚖️ Identifier les vices de forme ou de fond',
-    '🔍 Collecter les preuves d\'intégration et d\'attaches en France'
+    '[emoji] Verifier la notification de la decision (date et mode)',
+    '[emoji] Analyser les motifs juridiques de la decision',
+    '️ Identifier les vices de forme ou de fond',
+    '[emoji] Collecter les preuves d\'integration et d\'attaches en France'
   ];
 
   const delaiCritique = delaisCritiques.find(d => d.priorite === 'CRITIQUE');
   
   if (delaiCritique && delaiCritique.joursRestants <= 2) {
     return [
-      '🚨 URGENCE ABSOLUE - Action immédiate requise',
-      `⏰ ${delaiCritique.joursRestants} jour(s) restant(s) avant échéance critique`,
-      '⚡ Préparer référé-liberté si assignation/rétention',
-      '📞 Contacter avocat spécialisé droit des étrangers',
+      '[emoji] URGENCE ABSOLUE - Action immediate requise',
+      ` ${delaiCritique.joursRestants} jour(s) restant(s) avant echeance critique`,
+      ' Preparer refere-liberte si assignation/retention',
+      '[emoji] Contacter avocat specialise droit des etrangers',
       ...checklistBase,
       ...delaiCritique.checklistRecommandee
     ];

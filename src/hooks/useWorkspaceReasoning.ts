@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Custom React Hook for Workspace Reasoning
  * 
  * Provides complete interface to workspace reasoning API with:
@@ -134,7 +134,7 @@ export function useWorkspaceReasoning(workspaceId: string): UseWorkspaceReasonin
   const transitionState = useCallback(async (targetState: WorkspaceState, reason?: string) => {
     if (!workspaceId) throw new Error('No workspace ID');
     
-    // Detect if this is an AI extraction operation (RECEIVED → CONTEXT_IDENTIFIED)
+    // Detect if this is an AI extraction operation (RECEIVED [Next] CONTEXT_IDENTIFIED)
     const isAIExtraction = targetState === 'CONTEXT_IDENTIFIED';
     
     setLoadingStates(prev => ({ 
@@ -161,7 +161,7 @@ export function useWorkspaceReasoning(workspaceId: string): UseWorkspaceReasonin
       await swrMutate();
       
       // Success toast
-      toast.showToast(`Transition vers ${targetState} réussie`, 'success');
+      toast.showToast(`Transition vers ${targetState} reussie`, 'success');
       
       return data;
     } catch (error) {
@@ -169,7 +169,7 @@ export function useWorkspaceReasoning(workspaceId: string): UseWorkspaceReasonin
       toast.showToast(
         classified.userMessage, 
         'error',
-        classified.canRetry ? 'Échec de la transition' : undefined
+        classified.canRetry ? 'echec de la transition' : undefined
       );
       throw classified;
     } finally {
@@ -208,7 +208,7 @@ export function useWorkspaceReasoning(workspaceId: string): UseWorkspaceReasonin
       await swrMutate();
       
       // Success toast
-      toast.showToast('Fait ajouté avec succès', 'success');
+      toast.showToast('Fait ajoute avec succes', 'success');
       
       return data.fact;
     } catch (error) {
@@ -245,7 +245,7 @@ export function useWorkspaceReasoning(workspaceId: string): UseWorkspaceReasonin
       await swrMutate();
       
       // Success toast
-      toast.showToast('Contexte confirmé avec succès', 'success');
+      toast.showToast('Contexte confirme avec succes', 'success');
     } catch (error) {
       const classified = classifyError(error);
       toast.showToast(classified.userMessage, 'error');
@@ -280,7 +280,7 @@ export function useWorkspaceReasoning(workspaceId: string): UseWorkspaceReasonin
       await swrMutate();
       
       // Success toast
-      toast.showToast('Contexte rejeté', 'success');
+      toast.showToast('Contexte rejete', 'success');
     } catch (error) {
       const classified = classifyError(error);
       toast.showToast(classified.userMessage, 'error');
@@ -315,7 +315,7 @@ export function useWorkspaceReasoning(workspaceId: string): UseWorkspaceReasonin
       await swrMutate();
       
       // Success toast
-      toast.showToast('Élément manquant résolu', 'success');
+      toast.showToast('element manquant resolu', 'success');
     } catch (error) {
       const classified = classifyError(error);
       toast.showToast(classified.userMessage, 'error');
@@ -350,7 +350,7 @@ export function useWorkspaceReasoning(workspaceId: string): UseWorkspaceReasonin
       await swrMutate();
       
       // Success toast
-      toast.showToast('Action exécutée avec succès', 'success');
+      toast.showToast('Action executee avec succes', 'success');
     } catch (error) {
       const classified = classifyError(error);
       toast.showToast(classified.userMessage, 'error');
@@ -385,7 +385,7 @@ export function useWorkspaceReasoning(workspaceId: string): UseWorkspaceReasonin
       await swrMutate();
       
       // Success toast
-      toast.showToast('✅ Workspace validé et verrouillé', 'success');
+      toast.showToast(' Workspace valide et verrouille', 'success');
     } catch (error) {
       const classified = classifyError(error);
       toast.showToast(classified.userMessage, 'error');

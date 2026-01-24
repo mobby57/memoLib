@@ -34,14 +34,14 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const user = session.user as any;
     const tenantId = user.tenantId;
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 403 });
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 403 });
     }
 
     const formData = await request.formData();
@@ -65,12 +65,12 @@ export async function POST(request: NextRequest) {
     // Validation type MIME
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Type de fichier non autorisé' },
+        { error: 'Type de fichier non autorise' },
         { status: 400 }
       );
     }
 
-    // Vérifier que le dossier appartient au tenant
+    // Verifier que le dossier appartient au tenant
     if (dossierId) {
       const dossier = await prisma.dossier.findFirst({
         where: { id: dossierId, tenantId },
@@ -78,29 +78,29 @@ export async function POST(request: NextRequest) {
 
       if (!dossier) {
         return NextResponse.json(
-          { error: 'Dossier non trouvé ou accès interdit' },
+          { error: 'Dossier non trouve ou acces interdit' },
           { status: 404 }
         );
       }
     }
 
-    // Générer nom de fichier unique
+    // Generer nom de fichier unique
     const ext = path.extname(file.name);
     const uniqueId = randomUUID();
     const fileName = `${uniqueId}${ext}`;
     const relativePath = `${tenantId}/${dossierId || 'general'}/${fileName}`;
     const fullPath = path.join(UPLOAD_DIR, relativePath);
 
-    // Créer le répertoire si nécessaire
+    // Creer le repertoire si necessaire
     const dir = path.dirname(fullPath);
     await mkdir(dir, { recursive: true });
 
-    // Écrire le fichier
+    // ecrire le fichier
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     await writeFile(fullPath, buffer);
 
-    // Calculer hash pour déduplication future
+    // Calculer hash pour deduplication future
     const crypto = await import('crypto');
     const hash = crypto.createHash('sha256').update(buffer).digest('hex');
 
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
       uploadedAt: new Date(),
     };
 
-    console.log('[UPLOAD] Document enregistré:', documentRecord);
+    console.log('[UPLOAD] Document enregistre:', documentRecord);
 
     return NextResponse.json({
       success: true,
@@ -154,14 +154,14 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const dossierId = searchParams.get('dossierId');
 
     // Pour l'instant, retourner une liste vide
-    // À implémenter: lecture depuis la base de données
+    // a implementer: lecture depuis la base de donnees
     return NextResponse.json({
       documents: [],
       total: 0,
@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('[DOCUMENTS] Erreur:', error);
     return NextResponse.json(
-      { error: 'Erreur lors de la récupération' },
+      { error: 'Erreur lors de la recuperation' },
       { status: 500 }
     );
   }

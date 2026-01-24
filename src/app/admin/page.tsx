@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Dashboard Admin/Avocat - Gestion du cabinet
  * Niveau 2 : Gestion clients, dossiers, avec limites plan
  */
@@ -126,8 +126,8 @@ export default function AdminDashboard() {
             className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
           >
             <div className="text-center">
-              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">👥</span>
-              <p className="font-semibold text-gray-900">Gérer les Clients</p>
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">[emoji]</span>
+              <p className="font-semibold text-gray-900">Gerer les Clients</p>
               <p className="text-xs text-gray-500 mt-1">{stats.clients} clients</p>
             </div>
           </Link>
@@ -137,8 +137,8 @@ export default function AdminDashboard() {
             className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
           >
             <div className="text-center">
-              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">📁</span>
-              <p className="font-semibold text-gray-900">Gérer les Dossiers</p>
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">[emoji]</span>
+              <p className="font-semibold text-gray-900">Gerer les Dossiers</p>
               <p className="text-xs text-gray-500 mt-1">{stats.dossiers} dossiers</p>
             </div>
           </Link>
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
             className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
           >
             <div className="text-center">
-              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">💬</span>
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">[emoji]</span>
               <p className="font-semibold text-gray-900">Messages</p>
               <p className="text-xs text-gray-500 mt-1">Conversations clients</p>
             </div>
@@ -159,7 +159,7 @@ export default function AdminDashboard() {
             className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
           >
             <div className="text-center">
-              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">📄</span>
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">[emoji]</span>
               <p className="font-semibold text-gray-900">Documents</p>
               <p className="text-xs text-gray-500 mt-1">Tous les documents</p>
             </div>
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
-                <span className="text-3xl">👥</span>
+                <span className="text-3xl">[emoji]</span>
               </div>
             </div>
             <div className="mt-3">
@@ -204,7 +204,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
-                <span className="text-3xl">📁</span>
+                <span className="text-3xl">[emoji]</span>
               </div>
             </div>
             <div className="mt-3">
@@ -226,10 +226,10 @@ export default function AdminDashboard() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Factures</h3>
                 <p className="text-3xl font-bold text-gray-900 mt-2">{stats.factures}</p>
-                <p className="text-xs text-purple-600 mt-1">Total émises</p>
+                <p className="text-xs text-purple-600 mt-1">Total emises</p>
               </div>
               <div className="bg-purple-100 p-3 rounded-full">
-                <span className="text-3xl">💰</span>
+                <span className="text-3xl">[emoji]</span>
               </div>
             </div>
           </div>
@@ -241,13 +241,13 @@ export default function AdminDashboard() {
                 <p className="text-3xl font-bold text-gray-900 mt-2">Niveau {stats.aiLevel}</p>
                 <p className="text-xs text-indigo-600 mt-1">
                   {stats.aiLevel === 1 ? 'Assistant simple' :
-                   stats.aiLevel === 2 ? 'Pré-rédaction' :
+                   stats.aiLevel === 2 ? 'Pre-redaction' :
                    stats.aiLevel === 3 ? 'Analyse juridique' :
                    'Autonomie maximale'}
                 </p>
               </div>
               <div className="bg-indigo-100 p-3 rounded-full">
-                <span className="text-3xl">🤖</span>
+                <span className="text-3xl">[emoji]</span>
               </div>
             </div>
           </div>
@@ -257,7 +257,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <span>🚨</span> Dossiers Urgents
+              <span>[emoji]</span> Dossiers Urgents
             </h2>
             <button
               onClick={() => router.push('/dossiers')}
@@ -269,7 +269,7 @@ export default function AdminDashboard() {
 
           {dossiers.filter(d => d.statut === 'urgent').length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">✅ Aucun dossier urgent</p>
+              <p className="text-gray-500 text-lg"> Aucun dossier urgent</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
                         </p>
                       </div>
                       <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold">
-                        Traiter →
+                        Traiter [Next]
                       </button>
                     </div>
                   </div>
@@ -309,7 +309,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <span>👥</span> Derniers Clients
+              <span>[emoji]</span> Derniers Clients
             </h2>
             <button
               onClick={() => router.push('/clients')}
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-3 px-4 text-gray-600 font-semibold">Nom</th>
                     <th className="text-left py-3 px-4 text-gray-600 font-semibold">Email</th>
-                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Téléphone</th>
+                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Telephone</th>
                     <th className="text-center py-3 px-4 text-gray-600 font-semibold">Dossiers</th>
                     <th className="text-center py-3 px-4 text-gray-600 font-semibold">Portail</th>
                   </tr>
@@ -350,9 +350,9 @@ export default function AdminDashboard() {
                       </td>
                       <td className="py-4 px-4 text-center">
                         {client.user ? (
-                          <span className="text-green-600 font-semibold">✓ Actif</span>
+                          <span className="text-green-600 font-semibold">[Check] Actif</span>
                         ) : (
-                          <span className="text-gray-400">—</span>
+                          <span className="text-gray-400">-</span>
                         )}
                       </td>
                     </tr>

@@ -1,5 +1,5 @@
-﻿/**
- * API Route: Créer une issue GitHub pour le compte de l'utilisateur
+/**
+ * API Route: Creer une issue GitHub pour le compte de l'utilisateur
  * POST /api/github/issues/create
  */
 
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Créer l'issue pour le compte de l'utilisateur
+    // Creer l'issue pour le compte de l'utilisateur
     const issue = await createIssueAsUser(repo, title, body, labels, assignees);
 
     logger.info('GitHub issue created via API', {

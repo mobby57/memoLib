@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { logger, LogCategory } from '@/lib/dev/advanced-logger';
 
 /**
@@ -9,7 +9,7 @@ export async function GET() {
     const aiMetrics = logger.getPerformanceMetrics('AI');
     const aiLogs = logger.getLogs({ category: LogCategory.AI, limit: 1000 });
 
-    // Analyse des modèles utilisés
+    // Analyse des modeles utilises
     const modelCounts = aiLogs.reduce((acc: any, log: any) => {
       const model = log.context?.model || 'unknown';
       acc[model] = (acc[model] || 0) + 1;

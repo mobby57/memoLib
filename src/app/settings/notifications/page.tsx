@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
@@ -41,10 +41,10 @@ export default function NotificationsPage() {
     // Simuler la sauvegarde
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Sauvegarder dans localStorage pour la démo
+    // Sauvegarder dans localStorage pour la demo
     safeLocalStorage.setItem('notification_config', JSON.stringify(config));
     
-    showToast('Paramètres de notification sauvegardés', 'success');
+    showToast('Parametres de notification sauvegardes', 'success');
     setIsSaving(false);
   };
 
@@ -54,10 +54,10 @@ export default function NotificationsPage() {
     switch (type) {
       case 'echeance':
         template = generateEcheanceReminderEmail({
-          titre: 'Dépôt des conclusions',
+          titre: 'Depot des conclusions',
           date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
           dossier: 'DOS-2026-001',
-          description: 'Dépôt des conclusions au greffe du tribunal'
+          description: 'Depot des conclusions au greffe du tribunal'
         }, 3);
         break;
       
@@ -86,7 +86,7 @@ export default function NotificationsPage() {
       template
     });
     
-    showToast('Email de test envoyé (vérifiez la console)', 'success');
+    showToast('Email de test envoye (verifiez la console)', 'success');
   };
 
   return (
@@ -94,7 +94,7 @@ export default function NotificationsPage() {
       <Breadcrumb
         items={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Paramètres', href: '/settings' },
+          { label: 'Parametres', href: '/settings' },
           { label: 'Notifications', href: '/settings/notifications' }
         ]}
       />
@@ -110,10 +110,10 @@ export default function NotificationsPage() {
 
       <Alert variant="info" className="mb-6">
         <Bell className="h-5 w-5" />
-        Les notifications sont envoyées automatiquement selon vos préférences. Vous pouvez tester chaque type de notification ci-dessous.
+        Les notifications sont envoyees automatiquement selon vos preferences. Vous pouvez tester chaque type de notification ci-dessous.
       </Alert>
 
-      {/* Statut général */}
+      {/* Statut general */}
       <Card className="p-6 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -126,12 +126,12 @@ export default function NotificationsPage() {
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Notifications {config.enabled ? 'activées' : 'désactivées'}
+                Notifications {config.enabled ? 'activees' : 'desactivees'}
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {config.enabled 
-                  ? 'Les emails automatiques seront envoyés selon votre configuration' 
-                  : 'Aucun email automatique ne sera envoyé'}
+                  ? 'Les emails automatiques seront envoyes selon votre configuration' 
+                  : 'Aucun email automatique ne sera envoye'}
               </p>
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function NotificationsPage() {
         </div>
       </Card>
 
-      {/* Rappels d'échéances */}
+      {/* Rappels d'echeances */}
       <Card className="p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -159,7 +159,7 @@ export default function NotificationsPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Rappels d'échéances
+                Rappels d'echeances
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Recevez des rappels avant les dates limites importantes
@@ -183,7 +183,7 @@ export default function NotificationsPage() {
         {config.triggers.echeances.enabled && (
           <div className="space-y-3 pl-12">
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Rappels envoyés avant l'échéance:
+              Rappels envoyes avant l'echeance:
             </p>
             <div className="flex flex-wrap gap-2">
               {config.triggers.echeances.daysBefore.map(days => (
@@ -208,7 +208,7 @@ export default function NotificationsPage() {
         )}
       </Card>
 
-      {/* Relances factures impayées */}
+      {/* Relances factures impayees */}
       <Card className="p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -217,7 +217,7 @@ export default function NotificationsPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Relances factures impayées
+                Relances factures impayees
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Alertes automatiques pour les factures en retard
@@ -241,7 +241,7 @@ export default function NotificationsPage() {
         {config.triggers.facturesOverdue.enabled && (
           <div className="space-y-3 pl-12">
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Relances envoyées après l'échéance:
+              Relances envoyees apres l'echeance:
             </p>
             <div className="flex flex-wrap gap-2">
               {config.triggers.facturesOverdue.daysAfter.map(days => (
@@ -249,7 +249,7 @@ export default function NotificationsPage() {
                   key={days}
                   className="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full text-sm"
                 >
-                  {days} jour{days > 1 ? 's' : ''} après
+                  {days} jour{days > 1 ? 's' : ''} apres
                 </span>
               ))}
             </div>
@@ -266,7 +266,7 @@ export default function NotificationsPage() {
         )}
       </Card>
 
-      {/* Résumé hebdomadaire */}
+      {/* Resume hebdomadaire */}
       <Card className="p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -275,10 +275,10 @@ export default function NotificationsPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Résumé hebdomadaire
+                Resume hebdomadaire
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Synthèse de votre activité chaque semaine
+                Synthese de votre activite chaque semaine
               </p>
             </div>
           </div>
@@ -299,7 +299,7 @@ export default function NotificationsPage() {
         {config.triggers.weeklySummary.enabled && (
           <div className="space-y-3 pl-12">
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Envoyé chaque {['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'][config.triggers.weeklySummary.dayOfWeek]} à {config.triggers.weeklySummary.hour}h00
+              Envoye chaque {['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'][config.triggers.weeklySummary.dayOfWeek]} a {config.triggers.weeklySummary.hour}h00
             </p>
             <Button
               variant="secondary"
@@ -308,7 +308,7 @@ export default function NotificationsPage() {
               className="mt-3"
             >
               <Send className="h-4 w-4 mr-2" />
-              Tester le résumé
+              Tester le resume
             </Button>
           </div>
         )}
@@ -317,7 +317,7 @@ export default function NotificationsPage() {
       {/* Bouton de sauvegarde */}
       <div className="flex justify-end gap-3">
         <Button variant="secondary" onClick={() => setConfig(DEFAULT_REMINDER_CONFIG)}>
-          Réinitialiser
+          Reinitialiser
         </Button>
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving ? (
@@ -328,25 +328,25 @@ export default function NotificationsPage() {
           ) : (
             <>
               <CheckCircle className="h-4 w-4 mr-2" />
-              Sauvegarder les paramètres
+              Sauvegarder les parametres
             </>
           )}
         </Button>
       </div>
 
-      {/* Informations supplémentaires */}
+      {/* Informations supplementaires */}
       <Card className="p-6 mt-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
         <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
           <Zap className="h-5 w-5" />
-          Mode développement
+          Mode developpement
         </h4>
         <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
-          Les emails sont actuellement simulés (affichés dans la console). En production, ils seront envoyés via un service d'emailing.
+          Les emails sont actuellement simules (affiches dans la console). En production, ils seront envoyes via un service d'emailing.
         </p>
         <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-          <p>• <strong>Services recommandés:</strong> Resend, SendGrid, AWS SES, Mailgun</p>
-          <p>• <strong>Configuration:</strong> Définir la clé API dans les variables d'environnement</p>
-          <p>• <strong>Personnalisation:</strong> Les templates HTML peuvent être modifiés dans <code className="bg-blue-100 dark:bg-blue-900/50 px-1 rounded">emailService.ts</code></p>
+          <p>- <strong>Services recommandes:</strong> Resend, SendGrid, AWS SES, Mailgun</p>
+          <p>- <strong>Configuration:</strong> Definir la cle API dans les variables d'environnement</p>
+          <p>- <strong>Personnalisation:</strong> Les templates HTML peuvent etre modifies dans <code className="bg-blue-100 dark:bg-blue-900/50 px-1 rounded">emailService.ts</code></p>
         </div>
       </Card>
     </div>

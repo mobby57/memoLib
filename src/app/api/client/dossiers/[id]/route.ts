@@ -13,23 +13,23 @@ export async function GET(
     const session = await getServerSession();
     
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
 
     if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
+      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
     }
 
     const dossierId = params.id;
 
-    // Récupérer le dossier avec ses relations
+    // Recuperer le dossier avec ses relations
     const dossier = await prisma.dossier.findFirst({
       where: {
         id: dossierId,
-        clientId: userId, // Sécurité: le client ne peut voir que ses propres dossiers
+        clientId: userId, // Securite: le client ne peut voir que ses propres dossiers
       },
       include: {
         documents: {
@@ -54,16 +54,16 @@ export async function GET(
 
     if (!dossier) {
       return NextResponse.json(
-        { error: 'Dossier non trouvé ou accès refusé' },
+        { error: 'Dossier non trouve ou acces refuse' },
         { status: 404 }
       );
     }
 
-    logger.info(`Client ${userId} a consulté le dossier ${dossierId}`);
+    logger.info(`Client ${userId} a consulte le dossier ${dossierId}`);
 
     return NextResponse.json(dossier);
   } catch (error) {
-    logger.error('Erreur récupération détails dossier client', { error });
+    logger.error('Erreur recuperation details dossier client', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

@@ -1,14 +1,14 @@
 /**
- * Service de gestion des transitions d'état du Workspace Reasoning
- * Applique les règles de validation et crée les audit trails
+ * Service de gestion des transitions d'etat du Workspace Reasoning
+ * Applique les regles de validation et cree les audit trails
  */
 
 import { WorkspaceReasoning, WorkspaceState, ReasoningTransition } from '@/types/workspace-reasoning';
 
 export class WorkspaceReasoningService {
   /**
-   * Vérifie si un workspace peut passer à READY_FOR_HUMAN
-   * RÈGLE #5: Pas de passage si blocking = true non résolu
+   * Verifie si un workspace peut passer a READY_FOR_HUMAN
+   * ReGLE #5: Pas de passage si blocking = true non resolu
    */
   static canTransitionToReadyForHuman(workspace: WorkspaceReasoning): {
     canTransition: boolean;
@@ -19,11 +19,11 @@ export class WorkspaceReasoningService {
     if (blockingMissing.length > 0) {
       return {
         canTransition: false,
-        reason: `${blockingMissing.length} élément${blockingMissing.length > 1 ? 's' : ''} bloquant${blockingMissing.length > 1 ? 's' : ''} non résolu${blockingMissing.length > 1 ? 's' : ''}`,
+        reason: `${blockingMissing.length} element${blockingMissing.length > 1 ? 's' : ''} bloquant${blockingMissing.length > 1 ? 's' : ''} non resolu${blockingMissing.length > 1 ? 's' : ''}`,
       };
     }
     
-    // Vérifier que tous les états précédents ont été complétés
+    // Verifier que tous les etats precedents ont ete completes
     const requiredStates: WorkspaceState[] = [
       'RECEIVED',
       'FACTS_EXTRACTED',
@@ -38,7 +38,7 @@ export class WorkspaceReasoningService {
     if (currentStateIndex < requiredStates.length - 1) {
       return {
         canTransition: false,
-        reason: `État actuel (${workspace.currentState}) doit d'abord compléter les étapes précédentes`,
+        reason: `etat actuel (${workspace.currentState}) doit d'abord completer les etapes precedentes`,
       };
     }
     
@@ -46,14 +46,14 @@ export class WorkspaceReasoningService {
   }
   
   /**
-   * Valide une transition d'état
+   * Valide une transition d'etat
    */
   static validateStateTransition(
     currentState: WorkspaceState,
     targetState: WorkspaceState,
     workspace: WorkspaceReasoning
   ): { valid: boolean; reason?: string } {
-    // Ordre des états
+    // Ordre des etats
     const stateOrder: WorkspaceState[] = [
       'RECEIVED',
       'FACTS_EXTRACTED',
@@ -68,33 +68,33 @@ export class WorkspaceReasoningService {
     const currentIndex = stateOrder.indexOf(currentState);
     const targetIndex = stateOrder.indexOf(targetState);
     
-    // On ne peut pas revenir en arrière (sauf pour correction)
+    // On ne peut pas revenir en arriere (sauf pour correction)
     if (targetIndex < currentIndex) {
       return {
         valid: false,
-        reason: 'Impossible de revenir à un état précédent sans validation explicite',
+        reason: 'Impossible de revenir a un etat precedent sans validation explicite',
       };
     }
     
-    // On ne peut pas sauter d'état
+    // On ne peut pas sauter d'etat
     if (targetIndex > currentIndex + 1) {
       return {
         valid: false,
-        reason: 'Impossible de sauter des états - progression séquentielle requise',
+        reason: 'Impossible de sauter des etats - progression sequentielle requise',
       };
     }
     
-    // Validations spécifiques par état cible
+    // Validations specifiques par etat cible
     switch (targetState) {
       case 'FACTS_EXTRACTED':
-        // Aucune validation spéciale
+        // Aucune validation speciale
         break;
         
       case 'CONTEXT_IDENTIFIED':
         if (!workspace.facts || workspace.facts.length === 0) {
           return {
             valid: false,
-            reason: 'Au moins un fait doit être extrait avant d\'identifier le contexte',
+            reason: 'Au moins un fait doit etre extrait avant d\'identifier le contexte',
           };
         }
         break;
@@ -104,21 +104,21 @@ export class WorkspaceReasoningService {
         if (confirmedContexts.length === 0) {
           return {
             valid: false,
-            reason: 'Au moins un contexte doit être confirmé avant de déduire les obligations',
+            reason: 'Au moins un contexte doit etre confirme avant de deduire les obligations',
           };
         }
         break;
         
       case 'MISSING_IDENTIFIED':
-        // Aucune validation spéciale (obligations peuvent être vides)
+        // Aucune validation speciale (obligations peuvent etre vides)
         break;
         
       case 'RISK_EVALUATED':
-        // Aucune validation spéciale (manques peuvent être vides)
+        // Aucune validation speciale (manques peuvent etre vides)
         break;
         
       case 'ACTION_PROPOSED':
-        // Aucune validation spéciale (risques peuvent être vides)
+        // Aucune validation speciale (risques peuvent etre vides)
         break;
         
       case 'READY_FOR_HUMAN':
@@ -136,7 +136,7 @@ export class WorkspaceReasoningService {
   }
   
   /**
-   * Crée un enregistrement de transition (audit trail)
+   * Cree un enregistrement de transition (audit trail)
    */
   static createTransitionRecord(
     workspace: WorkspaceReasoning,
@@ -166,13 +166,13 @@ export class WorkspaceReasoningService {
         uncertaintyLevel: workspace.uncertaintyLevel,
         reasoningQuality: workspace.reasoningQuality,
       }),
-      hash: undefined, // Calculé côté serveur avec données complètes
+      hash: undefined, // Calcule cote serveur avec donnees completes
       createdAt: new Date(),
     };
   }
   
   /**
-   * Calcule le niveau d'incertitude basé sur les manques
+   * Calcule le niveau d'incertitude base sur les manques
    */
   static calculateUncertaintyLevel(workspace: WorkspaceReasoning): number {
     const missingElements = workspace.missingElements || [];
@@ -192,29 +192,29 @@ export class WorkspaceReasoningService {
   }
   
   /**
-   * Calcule la qualité du raisonnement
+   * Calcule la qualite du raisonnement
    */
   static calculateReasoningQuality(workspace: WorkspaceReasoning): number {
     let quality = 1.0;
     
-    // Pénalités
+    // Penalites
     const facts = workspace.facts || [];
     const contexts = workspace.contextHypotheses?.filter(c => c.certaintyLevel === 'CONFIRMED') || [];
     const obligations = workspace.obligations || [];
     
-    // Manque de faits = mauvaise qualité
+    // Manque de faits = mauvaise qualite
     if (facts.length === 0) {
       quality -= 0.4;
     } else if (facts.length < 3) {
       quality -= 0.2;
     }
     
-    // Manque de contextes confirmés
+    // Manque de contextes confirmes
     if (contexts.length === 0) {
       quality -= 0.3;
     }
     
-    // Obligations sans base légale
+    // Obligations sans base legale
     const obligationsWithoutRef = obligations.filter(o => !o.legalRef).length;
     if (obligationsWithoutRef > 0) {
       quality -= 0.1 * (obligationsWithoutRef / obligations.length);
@@ -223,14 +223,14 @@ export class WorkspaceReasoningService {
     // Faits sans source explicite (user_provided)
     const userProvidedFacts = facts.filter(f => f.source === 'USER_PROVIDED').length;
     if (userProvidedFacts > facts.length * 0.5) {
-      quality -= 0.2; // Trop de faits non sourcés
+      quality -= 0.2; // Trop de faits non sources
     }
     
     return Math.max(0.0, quality);
   }
   
   /**
-   * Met à jour les métriques du workspace
+   * Met a jour les metriques du workspace
    */
   static updateWorkspaceMetrics(workspace: WorkspaceReasoning): Partial<WorkspaceReasoning> {
     return {
@@ -241,7 +241,7 @@ export class WorkspaceReasoningService {
   }
   
   /**
-   * Vérifie si le workspace est prêt à être verrouillé
+   * Verifie si le workspace est pret a etre verrouille
    */
   static canLockWorkspace(workspace: WorkspaceReasoning): boolean {
     return (
@@ -252,7 +252,7 @@ export class WorkspaceReasoningService {
   }
   
   /**
-   * Génère un résumé exécutif du workspace
+   * Genere un resume executif du workspace
    */
   static generateExecutiveSummary(workspace: WorkspaceReasoning): string {
     const facts = workspace.facts?.length || 0;
@@ -262,20 +262,20 @@ export class WorkspaceReasoningService {
     const risks = workspace.risks?.filter(r => r.riskScore >= 6).length || 0;
     
     let summary = `Workspace ${workspace.id}\n`;
-    summary += `État: ${workspace.currentState}\n`;
+    summary += `etat: ${workspace.currentState}\n`;
     summary += `Incertitude: ${(workspace.uncertaintyLevel * 100).toFixed(0)}%\n`;
-    summary += `Qualité: ${(workspace.reasoningQuality * 100).toFixed(0)}%\n\n`;
-    summary += `📊 Éléments identifiés:\n`;
+    summary += `Qualite: ${(workspace.reasoningQuality * 100).toFixed(0)}%\n\n`;
+    summary += `[emoji] elements identifies:\n`;
     summary += `- ${facts} fait${facts > 1 ? 's' : ''} certain${facts > 1 ? 's' : ''}\n`;
-    summary += `- ${contexts} contexte${contexts > 1 ? 's' : ''} confirmé${contexts > 1 ? 's' : ''}\n`;
+    summary += `- ${contexts} contexte${contexts > 1 ? 's' : ''} confirme${contexts > 1 ? 's' : ''}\n`;
     summary += `- ${obligations} obligation${obligations > 1 ? 's' : ''}\n`;
     
     if (blocking > 0) {
-      summary += `\n⚠️ ${blocking} élément${blocking > 1 ? 's' : ''} bloquant${blocking > 1 ? 's' : ''}\n`;
+      summary += `\n️ ${blocking} element${blocking > 1 ? 's' : ''} bloquant${blocking > 1 ? 's' : ''}\n`;
     }
     
     if (risks > 0) {
-      summary += `\n🔴 ${risks} risque${risks > 1 ? 's' : ''} critique${risks > 1 ? 's' : ''}\n`;
+      summary += `\n[emoji] ${risks} risque${risks > 1 ? 's' : ''} critique${risks > 1 ? 's' : ''}\n`;
     }
     
     return summary;

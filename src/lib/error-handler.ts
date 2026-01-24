@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Error Handler - Error Classification & User-Friendly Messages
  * - Categorizes errors (network, auth, validation, server, unknown)
  * - Maps to user-friendly messages
@@ -37,7 +37,7 @@ export function classifyError(error: unknown): ClassifiedError {
   const defaultError: ClassifiedError = {
     category: ErrorCategory.UNKNOWN,
     message: 'Unknown error',
-    userMessage: 'Une erreur inattendue est survenue. Veuillez réessayer.',
+    userMessage: 'Une erreur inattendue est survenue. Veuillez reessayer.',
     canRetry: true,
     originalError: error instanceof Error ? error : new Error(String(error)),
   };
@@ -60,14 +60,14 @@ export function classifyError(error: unknown): ClassifiedError {
     return {
       category: ErrorCategory.NETWORK,
       message: error.message,
-      userMessage: 'Erreur de connexion. Vérifiez votre connexion Internet.',
+      userMessage: 'Erreur de connexion. Verifiez votre connexion Internet.',
       canRetry: true,
       retryDelay: 3000,
       originalError: error,
       suggestions: [
-        'Vérifiez votre connexion Internet',
-        'Réessayez dans quelques secondes',
-        'Contactez le support si le problème persiste',
+        'Verifiez votre connexion Internet',
+        'Reessayez dans quelques secondes',
+        'Contactez le support si le probleme persiste',
       ],
     };
   }
@@ -77,11 +77,11 @@ export function classifyError(error: unknown): ClassifiedError {
     return {
       category: ErrorCategory.AUTHENTICATION,
       message: error.message,
-      userMessage: 'Session expirée. Veuillez vous reconnecter.',
+      userMessage: 'Session expiree. Veuillez vous reconnecter.',
       canRetry: false,
       statusCode: 401,
       originalError: error,
-      suggestions: ['Reconnectez-vous', 'Vérifiez vos identifiants'],
+      suggestions: ['Reconnectez-vous', 'Verifiez vos identifiants'],
     };
   }
 
@@ -90,13 +90,13 @@ export function classifyError(error: unknown): ClassifiedError {
     return {
       category: ErrorCategory.AUTHORIZATION,
       message: error.message,
-      userMessage: "Vous n'avez pas les droits nécessaires pour cette action.",
+      userMessage: "Vous n'avez pas les droits necessaires pour cette action.",
       canRetry: false,
       statusCode: 403,
       originalError: error,
       suggestions: [
         'Contactez votre administrateur',
-        'Vérifiez vos permissions',
+        'Verifiez vos permissions',
       ],
     };
   }
@@ -111,7 +111,7 @@ export function classifyError(error: unknown): ClassifiedError {
       statusCode: 404,
       originalError: error,
       suggestions: [
-        'Vérifiez que la ressource existe',
+        'Verifiez que la ressource existe',
         'Actualisez la page',
       ],
     };
@@ -126,13 +126,13 @@ export function classifyError(error: unknown): ClassifiedError {
     return {
       category: ErrorCategory.VALIDATION,
       message: error.message,
-      userMessage: 'Données invalides. Vérifiez votre saisie.',
+      userMessage: 'Donnees invalides. Verifiez votre saisie.',
       canRetry: false,
       statusCode: 400,
       originalError: error,
       suggestions: [
-        'Vérifiez les champs du formulaire',
-        'Assurez-vous que les données sont au bon format',
+        'Verifiez les champs du formulaire',
+        'Assurez-vous que les donnees sont au bon format',
       ],
     };
   }
@@ -142,14 +142,14 @@ export function classifyError(error: unknown): ClassifiedError {
     return {
       category: ErrorCategory.RATE_LIMIT,
       message: error.message,
-      userMessage: 'Trop de requêtes. Veuillez patienter.',
+      userMessage: 'Trop de requetes. Veuillez patienter.',
       canRetry: true,
       retryDelay: 60000, // 1 minute
       statusCode: 429,
       originalError: error,
       suggestions: [
-        'Attendez quelques instants avant de réessayer',
-        'Réduisez la fréquence de vos actions',
+        'Attendez quelques instants avant de reessayer',
+        'Reduisez la frequence de vos actions',
       ],
     };
   }
@@ -159,14 +159,14 @@ export function classifyError(error: unknown): ClassifiedError {
     return {
       category: ErrorCategory.CONFLICT,
       message: error.message,
-      userMessage: 'Conflit détecté. La ressource a peut-être été modifiée.',
+      userMessage: 'Conflit detecte. La ressource a peut-etre ete modifiee.',
       canRetry: true,
       retryDelay: 2000,
       statusCode: 409,
       originalError: error,
       suggestions: [
         'Actualisez la page',
-        'Vérifiez les modifications récentes',
+        'Verifiez les modifications recentes',
       ],
     };
   }
@@ -182,14 +182,14 @@ export function classifyError(error: unknown): ClassifiedError {
     return {
       category: ErrorCategory.SERVER,
       message: error.message,
-      userMessage: 'Erreur serveur. Réessayez dans quelques instants.',
+      userMessage: 'Erreur serveur. Reessayez dans quelques instants.',
       canRetry: true,
       retryDelay: 5000,
       statusCode: 500,
       originalError: error,
       suggestions: [
-        'Réessayez dans quelques minutes',
-        'Contactez le support si le problème persiste',
+        'Reessayez dans quelques minutes',
+        'Contactez le support si le probleme persiste',
       ],
     };
   }

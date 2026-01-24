@@ -1,10 +1,10 @@
-﻿"use client"
+"use client"
 
 import { logger } from '@/lib/logger';
 
 /**
  * Service d'export multi-formats
- * Supporte Excel, Word, CSV avec ExcelJS (sécurisé)
+ * Supporte Excel, Word, CSV avec ExcelJS (securise)
  */
 
 import ExcelJS from 'exceljs'
@@ -24,18 +24,18 @@ export async function exportToExcel(
     const worksheet = workbook.addWorksheet(sheetName)
 
     if (data.length > 0) {
-      // Ajouter les en-têtes (clés du premier objet)
+      // Ajouter les en-tetes (cles du premier objet)
       const headers = Object.keys(data[0])
       worksheet.addRow(headers)
       
-      // Ajouter les données
+      // Ajouter les donnees
       data.forEach(row => {
         const values = headers.map(h => row[h])
         worksheet.addRow(values)
       })
     }
 
-    // Générer et télécharger
+    // Generer et telecharger
     const buffer = await workbook.xlsx.writeBuffer()
     const blob = new Blob([buffer], { 
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
@@ -48,7 +48,7 @@ export async function exportToExcel(
     a.click()
     window.URL.revokeObjectURL(url)
 
-    logger.info('Export Excel réussi', { filename, rowCount: data.length });
+    logger.info('Export Excel reussi', { filename, rowCount: data.length });
   } catch (error) {
     logger.error('Erreur lors de l\'export Excel', error, { filename })
     throw error
@@ -91,7 +91,7 @@ export async function exportToExcelMultiSheet(
     a.click()
     window.URL.revokeObjectURL(url)
 
-    logger.info('Export Excel multi-feuilles réussi', { filename, sheetsCount: Object.keys(sheets).length });
+    logger.info('Export Excel multi-feuilles reussi', { filename, sheetsCount: Object.keys(sheets).length });
   } catch (error) {
     logger.error('Erreur lors de l\'export Excel multi-feuilles', error, { filename })
     throw error
@@ -186,7 +186,7 @@ export async function exportToWord(
       }
     })
 
-    // Créer le document
+    // Creer le document
     const doc = new Document({
       sections: [
         {
@@ -196,7 +196,7 @@ export async function exportToWord(
       ],
     })
 
-    // Générer et télécharger
+    // Generer et telecharger
     const blob = await Packer.toBlob(doc)
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -207,7 +207,7 @@ export async function exportToWord(
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
 
-    logger.info('Export Word réussi', { filename });
+    logger.info('Export Word reussi', { filename });
   } catch (error) {
     logger.error('Erreur lors de l\'export Word', error, { filename })
     throw error
@@ -235,7 +235,7 @@ export function exportToCSV(
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
 
-    logger.info('Export CSV réussi', { filename, rowCount: data.length });
+    logger.info('Export CSV reussi', { filename, rowCount: data.length });
   } catch (error) {
     logger.error('Erreur lors de l\'export CSV', error, { filename })
     throw error
@@ -251,7 +251,7 @@ export async function importFromCSV(file: File): Promise<any[]> {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        logger.info('Import CSV réussi', {
+        logger.info('Import CSV reussi', {
           rowCount: results.data.length,
           filename: file.name
         });
@@ -280,12 +280,12 @@ export async function exportDossiersReport(
     case 'excel':
       await exportToExcel(
         dossiers.map(d => ({
-          Numéro: d.numero,
+          Numero: d.numero,
           Titre: d.titre,
           Client: d.client,
           Type: d.type,
           Statut: d.statut,
-          'Date création': d.createdAt,
+          'Date creation': d.createdAt,
           Responsable: d.responsable,
         })),
         `dossiers_${timestamp}.xlsx`,
@@ -299,7 +299,7 @@ export async function exportDossiersReport(
           title: `Rapport des Dossiers - ${new Date().toLocaleDateString('fr-FR')}`,
           sections: [
             {
-              title: 'Résumé',
+              title: 'Resume',
               paragraphs: [
                 `Nombre total de dossiers: ${dossiers.length}`,
                 `Date du rapport: ${new Date().toLocaleDateString('fr-FR')}`,
@@ -309,7 +309,7 @@ export async function exportDossiersReport(
               title: 'Liste des dossiers',
               paragraphs: [],
               table: {
-                headers: ['Numéro', 'Titre', 'Client', 'Statut'],
+                headers: ['Numero', 'Titre', 'Client', 'Statut'],
                 rows: dossiers.map(d => [
                   d.numero,
                   d.titre,
@@ -327,12 +327,12 @@ export async function exportDossiersReport(
     case 'csv':
       exportToCSV(
         dossiers.map(d => ({
-          Numéro: d.numero,
+          Numero: d.numero,
           Titre: d.titre,
           Client: d.client,
           Type: d.type,
           Statut: d.statut,
-          'Date création': d.createdAt,
+          'Date creation': d.createdAt,
         })),
         `dossiers_${timestamp}.csv`
       )
@@ -354,21 +354,21 @@ export async function exportFinancialReport(
       {
         name: 'Vue d\'ensemble',
         data: [
-          { Métrique: 'Total facturé', Valeur: stats.totalFacture },
-          { Métrique: 'Total payé', Valeur: stats.totalPaye },
-          { Métrique: 'En attente', Valeur: stats.enAttente },
-          { Métrique: 'Taux recouvrement', Valeur: `${stats.tauxRecouvrement}%` },
+          { Metrique: 'Total facture', Valeur: stats.totalFacture },
+          { Metrique: 'Total paye', Valeur: stats.totalPaye },
+          { Metrique: 'En attente', Valeur: stats.enAttente },
+          { Metrique: 'Taux recouvrement', Valeur: `${stats.tauxRecouvrement}%` },
         ],
       },
       {
         name: 'Factures',
         data: factures.map(f => ({
-          Numéro: f.numero,
+          Numero: f.numero,
           Client: f.client,
           Montant: f.montant,
           Statut: f.statut,
-          'Date émission': f.dateEmission,
-          'Date échéance': f.dateEcheance,
+          'Date emission': f.dateEmission,
+          'Date echeance': f.dateEcheance,
         })),
       },
       {
@@ -380,7 +380,7 @@ export async function exportFinancialReport(
           }, {})
         ).map(([client, montant]) => ({
           Client: client,
-          'Total facturé': montant,
+          'Total facture': montant,
         })),
       },
     ],
@@ -398,7 +398,7 @@ export async function importClients(file: File): Promise<any[]> {
   return data.map((row: any) => ({
     nom: row.Nom || row.nom || '',
     email: row.Email || row.email || '',
-    telephone: row.Téléphone || row.telephone || row.phone || '',
+    telephone: row.Telephone || row.telephone || row.phone || '',
     adresse: row.Adresse || row.adresse || '',
     type: row.Type || row.type || 'particulier',
   }))

@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { useState } from 'react'
 import { Card } from '@/components/ui/Card'
@@ -22,12 +22,12 @@ export default function ExportsPage() {
   const [importing, setImporting] = useState(false)
   const { showToast } = useToast()
 
-  // Données mockées pour la démo
+  // Donnees mockees pour la demo
   const mockDossiers = [
     {
       numero: 'DOS-2026-001',
       titre: 'Contentieux commercial ABC',
-      client: 'Société ABC',
+      client: 'Societe ABC',
       type: 'Commercial',
       statut: 'En cours',
       createdAt: '2026-01-01',
@@ -38,7 +38,7 @@ export default function ExportsPage() {
       titre: 'Litige RH XYZ',
       client: 'Entreprise XYZ',
       type: 'RH',
-      statut: 'Terminé',
+      statut: 'Termine',
       createdAt: '2025-12-15',
       responsable: 'Marie Martin',
     },
@@ -47,9 +47,9 @@ export default function ExportsPage() {
   const mockFactures = [
     {
       numero: 'FAC-2026-001',
-      client: 'Société ABC',
+      client: 'Societe ABC',
       montant: 5000,
-      statut: 'Payée',
+      statut: 'Payee',
       dateEmission: '2026-01-01',
       dateEcheance: '2026-01-31',
     },
@@ -73,7 +73,7 @@ export default function ExportsPage() {
   const handleExportDossiers = async (format: 'excel' | 'word' | 'csv') => {
     try {
       await exportDossiersReport(mockDossiers, format)
-      showToast(`Export ${format.toUpperCase()} réussi`, 'success')
+      showToast(`Export ${format.toUpperCase()} reussi`, 'success')
     } catch (error) {
       showToast('Erreur lors de l\'export', 'error')
     }
@@ -82,7 +82,7 @@ export default function ExportsPage() {
   const handleExportFinancial = async () => {
     try {
       await exportFinancialReport(mockFactures, mockStats)
-      showToast('Rapport financier exporté', 'success')
+      showToast('Rapport financier exporte', 'success')
     } catch (error) {
       showToast('Erreur lors de l\'export', 'error')
     }
@@ -95,8 +95,8 @@ export default function ExportsPage() {
     setImporting(true)
     try {
       const clients = await importClients(file)
-      logger.info('Clients importés', { count: clients.length })
-      showToast(`${clients.length} clients importés`, 'success')
+      logger.info('Clients importes', { count: clients.length })
+      showToast(`${clients.length} clients importes`, 'success')
     } catch (error) {
       showToast('Erreur lors de l\'import', 'error')
     } finally {
@@ -118,7 +118,7 @@ export default function ExportsPage() {
           Export & Import Multi-formats
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Exportez vos données en Excel, Word, CSV ou importez des données
+          Exportez vos donnees en Excel, Word, CSV ou importez des donnees
         </p>
       </div>
 
@@ -131,7 +131,7 @@ export default function ExportsPage() {
               Export des Dossiers
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Exportez la liste complète des dossiers
+              Exportez la liste complete des dossiers
             </p>
           </div>
         </div>
@@ -168,12 +168,12 @@ export default function ExportsPage() {
 
         <Button onClick={handleExportFinancial}>
           <Download className="w-4 h-4 mr-2" />
-          Générer rapport Excel multi-feuilles
+          Generer rapport Excel multi-feuilles
         </Button>
 
         <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-300">
-            💡 Le rapport inclut : Vue d'ensemble, liste des factures, analyse par client
+            [emoji] Le rapport inclut : Vue d'ensemble, liste des factures, analyse par client
           </p>
         </div>
       </Card>
@@ -199,7 +199,7 @@ export default function ExportsPage() {
               className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors cursor-pointer"
             >
               <FileUp className="w-4 h-4 mr-2" />
-              {importing ? 'Import en cours...' : 'Sélectionner un fichier CSV'}
+              {importing ? 'Import en cours...' : 'Selectionner un fichier CSV'}
             </label>
             <input
               id="csv-upload"
@@ -216,7 +216,7 @@ export default function ExportsPage() {
               Format attendu :
             </p>
             <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
-{`Nom,Email,Téléphone,Adresse,Type
+{`Nom,Email,Telephone,Adresse,Type
 Dupont SA,contact@dupont.fr,0123456789,1 rue de Paris,entreprise
 Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
             </pre>
@@ -224,7 +224,7 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
         </div>
       </Card>
 
-      {/* Exports personnalisés */}
+      {/* Exports personnalises */}
       <Card className="p-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           Autres Exports Disponibles
@@ -233,7 +233,7 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-              📊 Factures
+              [emoji] Factures
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
               Exportez toutes vos factures avec statistiques
@@ -245,10 +245,10 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
 
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-              👥 Clients
+              [emoji] Clients
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Liste complète avec coordonnées
+              Liste complete avec coordonnees
             </p>
             <Button size="sm" variant="outline">
               Exporter
@@ -257,10 +257,10 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
 
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-              📅 Calendrier
+              [emoji] Calendrier
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Événements et échéances au format iCal
+              evenements et echeances au format iCal
             </p>
             <Button size="sm" variant="outline">
               Exporter
@@ -269,10 +269,10 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
 
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-              📈 Analytics
+              [emoji] Analytics
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Données d'analyse et métriques
+              Donnees d'analyse et metriques
             </p>
             <Button size="sm" variant="outline">
               Exporter

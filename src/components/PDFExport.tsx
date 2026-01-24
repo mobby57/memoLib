@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { FileDown, Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -30,7 +30,7 @@ export function PDFExport({
   const handleExport = async () => {
     setIsGenerating(true);
     try {
-      // Import dynamique de jsPDF pour réduire le bundle initial
+      // Import dynamique de jsPDF pour reduire le bundle initial
       const { jsPDF } = await import('jspdf');
       await import('jspdf-autotable');
       
@@ -51,8 +51,8 @@ export function PDFExport({
       const filename = data.filename || `${data.type}-${Date.now()}.pdf`;
       doc.save(filename);
     } catch (error) {
-      logger.error('Erreur génération PDF', { error });
-      alert('Erreur lors de la génération du PDF');
+      logger.error('Erreur generation PDF', { error });
+      alert('Erreur lors de la generation du PDF');
     } finally {
       setIsGenerating(false);
     }
@@ -87,16 +87,16 @@ export function PDFExport({
       ) : (
         <FileDown className="h-4 w-4" />
       )}
-      {isGenerating ? 'Génération...' : buttonText}
+      {isGenerating ? 'Generation...' : buttonText}
     </button>
   );
 }
 
-// Génération PDF pour facture
+// Generation PDF pour facture
 function generateFacturePDF(doc: any, facture: any) {
   const pageWidth = doc.internal.pageSize.getWidth();
   
-  // En-tête
+  // En-tete
   doc.setFontSize(24);
   doc.setTextColor(30, 58, 138); // Bleu
   doc.text('FACTURE', pageWidth / 2, 20, { align: 'center' });
@@ -117,13 +117,13 @@ function generateFacturePDF(doc: any, facture: any) {
   doc.text(facture.client?.nom || 'N/A', pageWidth - 80, 40);
   doc.text(facture.client?.email || '', pageWidth - 80, 45);
   
-  // Numéro et date
+  // Numero et date
   doc.setFontSize(10);
-  doc.text(`N° ${facture.numero}`, 20, 65);
+  doc.text(`N deg ${facture.numero}`, 20, 65);
   doc.text(`Date: ${new Date(facture.dateEmission).toLocaleDateString('fr-FR')}`, 20, 70);
-  doc.text(`Échéance: ${new Date(facture.dateEcheance).toLocaleDateString('fr-FR')}`, 20, 75);
+  doc.text(`echeance: ${new Date(facture.dateEcheance).toLocaleDateString('fr-FR')}`, 20, 75);
   
-  // Ligne de séparation
+  // Ligne de separation
   doc.setDrawColor(200);
   doc.line(20, 85, pageWidth - 20, 85);
   
@@ -180,7 +180,7 @@ function generateFacturePDF(doc: any, facture: any) {
   doc.text(`Conditions de paiement: Paiement sous 30 jours`, pageWidth / 2, 285, { align: 'center' });
 }
 
-// Génération PDF pour dossier
+// Generation PDF pour dossier
 function generateDossierPDF(doc: any, dossier: any) {
   const pageWidth = doc.internal.pageSize.getWidth();
   
@@ -190,7 +190,7 @@ function generateDossierPDF(doc: any, dossier: any) {
   
   doc.setFontSize(12);
   doc.setTextColor(0);
-  doc.text(`Référence: ${dossier.reference}`, 20, 40);
+  doc.text(`Reference: ${dossier.reference}`, 20, 40);
   doc.text(`Titre: ${dossier.titre}`, 20, 47);
   doc.text(`Client: ${dossier.client?.nom || 'N/A'}`, 20, 54);
   doc.text(`Type: ${dossier.type}`, 20, 61);
@@ -210,15 +210,15 @@ function generateDossierPDF(doc: any, dossier: any) {
   doc.setFontSize(10);
   doc.text(`Date d'ouverture: ${new Date(dossier.dateOuverture).toLocaleDateString('fr-FR')}`, 20, 105 + descHeight);
   if (dossier.dateCloture) {
-    doc.text(`Date de clôture: ${new Date(dossier.dateCloture).toLocaleDateString('fr-FR')}`, 20, 112 + descHeight);
+    doc.text(`Date de cloture: ${new Date(dossier.dateCloture).toLocaleDateString('fr-FR')}`, 20, 112 + descHeight);
   }
   
   doc.setTextColor(100);
   doc.setFontSize(8);
-  doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, pageWidth / 2, 280, { align: 'center' });
+  doc.text(`Genere le ${new Date().toLocaleDateString('fr-FR')} a ${new Date().toLocaleTimeString('fr-FR')}`, pageWidth / 2, 280, { align: 'center' });
 }
 
-// Génération PDF pour liste de clients
+// Generation PDF pour liste de clients
 function generateClientListPDF(doc: any, clients: any[]) {
   const pageWidth = doc.internal.pageSize.getWidth();
   
@@ -240,7 +240,7 @@ function generateClientListPDF(doc: any, clients: any[]) {
   
   (doc as any).autoTable({
     startY: 40,
-    head: [['Nom', 'Email', 'Téléphone', 'Type', 'Statut']],
+    head: [['Nom', 'Email', 'Telephone', 'Type', 'Statut']],
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [30, 58, 138] },
@@ -250,5 +250,5 @@ function generateClientListPDF(doc: any, clients: any[]) {
   
   doc.setTextColor(100);
   doc.setFontSize(8);
-  doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, pageWidth / 2, 280, { align: 'center' });
+  doc.text(`Genere le ${new Date().toLocaleDateString('fr-FR')}`, pageWidth / 2, 280, { align: 'center' });
 }

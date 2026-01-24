@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../auth/[...nextauth]/route';
 import { PrismaClient } from '@prisma/client';
@@ -12,7 +12,7 @@ export async function PUT(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -23,7 +23,7 @@ export async function PUT(request: NextRequest) {
     }
 
     if (newPassword.length < 8) {
-      return NextResponse.json({ error: 'Le mot de passe doit contenir au moins 8 caractères' }, { status: 400 });
+      return NextResponse.json({ error: 'Le mot de passe doit contenir au moins 8 caracteres' }, { status: 400 });
     }
 
     // Get current user
@@ -32,7 +32,7 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Utilisateur non trouve' }, { status: 404 });
     }
 
     // Verify current password

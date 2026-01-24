@@ -1,6 +1,6 @@
 /**
  * Tests pour le webhook GitHub
- * Vérifie signature HMAC, gestion des événements, sécurité
+ * Verifie signature HMAC, gestion des evenements, securite
  */
 
 import { createHmac } from 'node:crypto';
@@ -26,7 +26,7 @@ describe('GitHub Webhook API', () => {
   });
 
   describe('GET /api/webhooks/github', () => {
-    test('Retourne status active avec événements supportés', async () => {
+    test('Retourne status active avec evenements supportes', async () => {
       const response = await GET();
       
       expect(response.status).toBe(200);
@@ -39,7 +39,7 @@ describe('GitHub Webhook API', () => {
     });
   });
 
-  describe('POST /api/webhooks/github - Sécurité', () => {
+  describe('POST /api/webhooks/github - Securite', () => {
     function createSignature(payload: string, secret: string): string {
       return 'sha256=' + createHmac('sha256', secret)
         .update(payload)
@@ -73,7 +73,7 @@ describe('GitHub Webhook API', () => {
       });
     }
 
-    test('Rejette requête sans signature', async () => {
+    test('Rejette requete sans signature', async () => {
       const payload = { action: 'opened' };
       const request = createMockRequest(payload, 'pull_request');
 
@@ -118,7 +118,7 @@ describe('GitHub Webhook API', () => {
       expect(data.message).toContain('received');
     });
 
-    test('Rejette si secret non configuré', async () => {
+    test('Rejette si secret non configure', async () => {
       delete process.env.GITHUB_WEBHOOK_SECRET;
       
       const payload = { action: 'ping' };
@@ -133,7 +133,7 @@ describe('GitHub Webhook API', () => {
     });
   });
 
-  describe('POST /api/webhooks/github - Événements', () => {
+  describe('POST /api/webhooks/github - evenements', () => {
     function createValidRequest(payload: any, event: string): NextRequest {
       const bodyString = JSON.stringify(payload);
       const signature = 'sha256=' + createHmac('sha256', WEBHOOK_SECRET)
@@ -153,7 +153,7 @@ describe('GitHub Webhook API', () => {
       });
     }
 
-    test('Gère événement ping', async () => {
+    test('Gere evenement ping', async () => {
       const payload = {
         zen: 'Design for failure.',
         hook_id: 12345,
@@ -167,7 +167,7 @@ describe('GitHub Webhook API', () => {
       expect(data.message).toContain('ping');
     });
 
-    test('Gère événement push', async () => {
+    test('Gere evenement push', async () => {
       const payload = {
         ref: 'refs/heads/main',
         commits: [
@@ -197,7 +197,7 @@ describe('GitHub Webhook API', () => {
       );
     });
 
-    test('Gère événement pull_request', async () => {
+    test('Gere evenement pull_request', async () => {
       const payload = {
         action: 'opened',
         pull_request: {
@@ -230,7 +230,7 @@ describe('GitHub Webhook API', () => {
       );
     });
 
-    test('Gère événement issues', async () => {
+    test('Gere evenement issues', async () => {
       const payload = {
         action: 'opened',
         issue: {
@@ -262,7 +262,7 @@ describe('GitHub Webhook API', () => {
       );
     });
 
-    test('Log événement non géré comme debug', async () => {
+    test('Log evenement non gere comme debug', async () => {
       const payload = {
         action: 'starred',
         repository: {
@@ -277,7 +277,7 @@ describe('GitHub Webhook API', () => {
       
       const { logger } = require('@/lib/logger');
       expect(logger.debug).toHaveBeenCalledWith(
-        expect.stringContaining('Événement non géré'),
+        expect.stringContaining('evenement non gere'),
         expect.objectContaining({
           event: 'star'
         })
@@ -312,16 +312,16 @@ describe('GitHub Webhook API', () => {
   });
 
   describe('Timing-safe comparison', () => {
-    test('Utilise timingSafeEqual pour prévenir timing attacks', async () => {
+    test('Utilise timingSafeEqual pour prevenir timing attacks', async () => {
       const payload = { test: 'timing' };
       const bodyString = JSON.stringify(payload);
       
-      // Deux signatures différentes mais de même longueur
+      // Deux signatures differentes mais de meme longueur
       const validSignature = 'sha256=' + createHmac('sha256', WEBHOOK_SECRET)
         .update(bodyString)
         .digest('hex');
       
-      const invalidSignature = 'sha256=' + 'a'.repeat(64); // Même longueur
+      const invalidSignature = 'sha256=' + 'a'.repeat(64); // Meme longueur
       
       const headers1 = new Headers();
       headers1.set('x-github-event', 'ping');
@@ -356,8 +356,8 @@ describe('GitHub Webhook API', () => {
       expect(response1.status).toBe(200); // Valid
       expect(response2.status).toBe(401); // Invalid
       
-      // Les temps doivent être similaires (timing-safe)
-      // Tolérance de 50ms pour variations système
+      // Les temps doivent etre similaires (timing-safe)
+      // Tolerance de 50ms pour variations systeme
       expect(Math.abs(time1 - time2)).toBeLessThan(50);
     });
   });
