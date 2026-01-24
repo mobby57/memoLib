@@ -22,7 +22,7 @@ describe('Navigation Component', () => {
     )
     
     // Le composant affiche "IA Poste Manager" (avec espaces)
-    expect(screen.getByText(/IA Poste Manager/i)).toBeInTheDocument()
+    expect(screen.getByText('IA Poste Manager')).toBeInTheDocument()
   })
 
   it('renders navigation without crashing', () => {
