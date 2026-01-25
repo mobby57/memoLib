@@ -5,6 +5,9 @@
 
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, FormEvent } from 'react';

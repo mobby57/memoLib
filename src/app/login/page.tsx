@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with hooks
+export const dynamic = 'force-dynamic';
+
 // Redirection vers la veritable page de login
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';

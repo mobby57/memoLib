@@ -5,6 +5,9 @@
 
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { WorkspaceReasoning, WorkspaceState } from '@/types/workspace-reasoning';
 import { WorkspaceReasoningOrchestrator } from '@/components/workspace-reasoning/WorkspaceReasoningOrchestrator';

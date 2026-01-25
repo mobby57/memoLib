@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 
 export default function LawyerAdvancedPage() {

@@ -8,6 +8,10 @@ import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistratio
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ToastProvider } from '@/components/ui';
 import { LayoutWrapper } from '@/components/LayoutWrapper';
+import { WebVitalsReporter } from '@/components/WebVitalsReporter';
+
+// Force dynamic rendering for all pages to prevent SSG prerender errors
+export const dynamic = 'force-dynamic';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -51,6 +55,7 @@ export default function RootLayout({
                 {children}
               </LayoutWrapper>
               <ServiceWorkerRegistration />
+              <WebVitalsReporter />
             </Providers>
           </ToastProvider>
         </ThemeProvider>
