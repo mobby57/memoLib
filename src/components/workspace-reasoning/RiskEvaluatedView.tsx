@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat RISK_EVALUATED
  * evaluer les risques de se tromper - Impact x Probabilite
  */
@@ -72,7 +72,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
       >
         <div className="flex items-start gap-4">
           <div className="text-4xl">
-            {risk.riskScore >= 6 ? '[emoji]' : risk.riskScore >= 3 ? '[emoji]' : '[emoji]'}
+            {risk.riskScore >= 6 ? '' : risk.riskScore >= 3 ? '' : ''}
           </div>
           
           <div className="flex-1">
@@ -96,7 +96,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
               <div className="p-3 bg-white border border-gray-300 rounded">
                 <div className="text-sm">
-                  <span className="font-semibold text-gray-700">[emoji] Impact:</span>
+                  <span className="font-semibold text-gray-700"> Impact:</span>
                   <div className="mt-1">
                     <span className={`px-2 py-1 text-xs font-medium rounded ${impactBadge.color}`}>
                       {impactBadge.label}
@@ -197,7 +197,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
       {criticalRisks.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-red-700">
-            [emoji] Risques critiques ({criticalRisks.length})
+             risques critiques ({criticalRisks.length})
           </h3>
           <div className="space-y-4">
             {sortedRisks.filter(r => r.riskScore >= 6).map(renderRisk)}
@@ -209,7 +209,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
       {moderateRisks.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-orange-700">
-            [emoji] Risques moderes ({moderateRisks.length})
+             risques moderes ({moderateRisks.length})
           </h3>
           <div className="space-y-4">
             {sortedRisks.filter(r => r.riskScore >= 3 && r.riskScore < 6).map(renderRisk)}
@@ -221,7 +221,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
       {lowRisks.length > 0 && (
         <details className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <summary className="font-semibold text-yellow-900 cursor-pointer">
-            [emoji] Risques faibles ({lowRisks.length})
+             risques faibles ({lowRisks.length})
           </summary>
           <div className="mt-4 space-y-4">
             {sortedRisks.filter(r => r.riskScore < 3).map(renderRisk)}

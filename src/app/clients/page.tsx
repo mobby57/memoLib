@@ -5,7 +5,8 @@ export const dynamic = 'force-dynamic';
 
 import { useSession } from 'next-auth/react';
 import { useState, useMemo } from 'react';
-import { Plus, Search, Edit2, Trash2, Mail, Phone, Building2, User, Users } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Plus, Search, Edit2, Trash2, Mail, Phone, Building2, User, Users, Eye } from 'lucide-react';
 import { Card, StatCard, Badge, Pagination, Breadcrumb, Alert, useToast } from '@/components/ui';
 import { Table } from '@/components/ui/TableSimple';
 import { Modal } from '@/components/forms/Modal';
@@ -74,6 +75,7 @@ const TYPE_LABELS = {
 };
 
 export default function ClientsPage() {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [clients, setClients] = useState<Client[]>(mockClients);
   const [searchTerm, setSearchTerm] = useState('');
@@ -258,7 +260,14 @@ export default function ClientsPage() {
       accessor: 'id' as const,
       header: 'Actions',
       render: (_: string, row: Client) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => router.push(`/clients/${row.id}`)}
+            className="p-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+            title="Consulter"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
           <button
             onClick={() => openEditModal(row)}
             className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -278,6 +287,10 @@ export default function ClientsPage() {
       ),
     },
   ];
+
+  const handleRowClick = (client: Client) => {
+    router.push(`/clients/${client.id}`);
+  };
 
   if (status === 'loading') {
     return (
@@ -390,7 +403,11 @@ export default function ClientsPage() {
 
       {/* Table */}
       <Card>
-        <Table columns={columns} data={paginatedClients} />
+        <Table 
+          columns={columns} 
+          data={paginatedClients} 
+          onRowClick={handleRowClick}
+        />
         {totalPages > 1 && (
           <div className="mt-4">
             <Pagination

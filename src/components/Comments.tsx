@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Smile, AtSign, Paperclip, ThumbsUp, Heart, Trash2 } from 'lucide-react'
@@ -140,14 +140,14 @@ export default function Comments({
               {/* Reactions */}
               <div className="flex gap-1">
                 <button
-                  onClick={() => handleReaction(comment.id, '[emoji]')}
+                  onClick={() => handleReaction(comment.id, '')}
                   className={`px-2 py-1 rounded-full text-xs transition-colors ${
-                    hasReacted('[emoji]')
+                    hasReacted('')
                       ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
                       : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'
                   }`}
                 >
-                  [emoji] {comment.reactions?.['[emoji]']?.length || ''}
+                  [emoji] {comment.reactions?.['']?.length || ''}
                 </button>
                 <button
                   onClick={() => handleReaction(comment.id, '️')}

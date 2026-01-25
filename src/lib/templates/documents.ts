@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TEMPLATES DE DOCUMENTS PRe-VALIDeS
  * Base sur CHARTE_IA_JURIDIQUE.md - Section 2.5
  * 
@@ -447,7 +447,7 @@ Bonjour ${vars.clientName},
 
 Voici un recapitulatif de l'etat d'avancement de votre dossier **${vars.caseType}** (ref. ${vars.dossierRef}).
 
-## [emoji] Informations generales
+## ℹ Informations generales
 
 - **Reference :** ${vars.dossierRef}
 - **Type de dossier :** ${vars.caseType}
@@ -457,7 +457,7 @@ ${vars.nextDeadline ? `- **Prochaine echeance :** ${vars.nextDeadline}` : ''}
 
 ${vars.timeline && vars.timeline.length > 0 
   ? `
-## [emoji] Chronologie
+##  Chronologie
 
 ${vars.timeline.map((event: any) => `- **${event.date}** : ${event.description}`).join('\n')}
 ` 

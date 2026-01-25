@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service de notifications par email
  * Gere l'envoi automatique d'emails pour rappels, resumes et alertes
  */
@@ -102,7 +102,7 @@ export function generateEcheanceReminderEmail(
           <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
-                <td style="padding: 8px 0; color: #6b7280; width: 30%;">[emoji] Date:</td>
+                <td style="padding: 8px 0; color: #6b7280; width: 30%;"> Date:</td>
                 <td style="padding: 8px 0; color: #1f2937; font-weight: bold;">
                   ${echeance.date.toLocaleDateString('fr-FR', { 
                     weekday: 'long', 
@@ -299,7 +299,7 @@ export function generateWeeklySummaryEmail(
     <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
       <div style="max-width: 600px; margin: 0 auto; background-color: white;">
         <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">[emoji] Resume Hebdomadaire</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;"> Resume Hebdomadaire</h1>
           <p style="color: #dbeafe; margin: 10px 0 0 0;">Semaine du ${new Date().toLocaleDateString('fr-FR')}</p>
         </div>
 

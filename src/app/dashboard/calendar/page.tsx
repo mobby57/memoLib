@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -66,13 +66,13 @@ export default function CalendarPage() {
 
   const getTypeIcon = (type: string) => {
     const icons: Record<string, string> = {
-      rdv: '[emoji]',
+      rdv: '',
       audience: '️',
       deadline: '',
-      rappel: '[emoji]',
-      autre: '[emoji]',
+      rappel: '',
+      autre: '',
     };
-    return icons[type] || '[emoji]';
+    return icons[type] || '';
   };
 
   // Generer les jours du mois
@@ -549,7 +549,7 @@ function EventDetailModal({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-gray-500">[emoji] Date:</span>
+            <span className="text-gray-500"> Date:</span>
             <span>
               {new Date(event.startDate).toLocaleDateString('fr-FR')} de{' '}
               {new Date(event.startDate).toLocaleTimeString('fr-FR', {
@@ -566,7 +566,7 @@ function EventDetailModal({
 
           {event.location && (
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">[emoji] Lieu:</span>
+              <span className="text-gray-500"> Lieu:</span>
               <span>{event.location}</span>
             </div>
           )}

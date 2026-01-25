@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -85,11 +85,11 @@ export default function WorkflowsPage() {
   }
 
   const actionLabels: Record<ActionType, string> = {
-    send_email: '[emoji] Email',
+    send_email: ' Email',
     create_task: ' Tache',
     update_status: '[emoji] Statut',
     assign_to_user: '[emoji] Attribution',
-    generate_document: '[emoji] Document',
+    generate_document: ' Document',
     create_notification: '[emoji] Notification',
     webhook: '[emoji] Webhook',
     run_script: '️ Script',

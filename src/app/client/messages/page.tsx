@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -267,7 +267,7 @@ export default function MessagesClient() {
                 disabled={sending || !newMessage.trim()}
                 className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {sending ? '' : '[emoji]'}
+                {sending ? '' : ''}
               </button>
             </div>
           </div>

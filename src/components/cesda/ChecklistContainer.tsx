@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState } from "react"
 import { ChecklistCategory, type ChecklistItemData } from "@/types/cesda"
@@ -60,7 +60,7 @@ export default function ChecklistContainer({
       case ChecklistCategory.VERIFICATIONS:
         return "[Check]"
       case ChecklistCategory.PIECES:
-        return "[emoji]"
+        return ""
       case ChecklistCategory.ACTIONS:
         return ""
       default:

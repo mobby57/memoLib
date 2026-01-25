@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -310,8 +310,8 @@ export default function SmartFormBuilder({
                 'text-green-600'
               }`}>
                 {field.impactAnalysis.level === 'critical' ? '️' :
-                 field.impactAnalysis.level === 'high' ? '[emoji]' :
-                 field.impactAnalysis.level === 'medium' ? '[emoji]' : '[emoji]'}
+                 field.impactAnalysis.level === 'high' ? '' :
+                 field.impactAnalysis.level === 'medium' ? '' : ''}
               </span>
               <div>
                 <p className="text-sm font-medium">
@@ -346,7 +346,7 @@ export default function SmartFormBuilder({
             className="mt-2 text-sm text-blue-600 hover:text-blue-700"
             disabled={isAnalyzing}
           >
-            {isAnalyzing ? '[emoji] Analyse...' : '[emoji] Obtenir une suggestion IA'}
+            {isAnalyzing ? ' Analyse...' : '[emoji] Obtenir une suggestion IA'}
           </button>
         )}
       </div>

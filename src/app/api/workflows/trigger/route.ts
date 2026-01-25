@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { createContextualNotification } from '@/lib/workflows/notification-engine';
 import { executeWorkflow, ALL_WORKFLOWS } from '@/lib/workflows/workflow-engine';
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const { emailData } = await request.json();
 
     // eTAPE 1: Analyse IA de l'email
-    console.log('[emoji] Analyse IA de l\'email...');
+    console.log(' Analyse IA de l\'email...');
     const analysis = await analyzeEmail({
       subject: emailData.subject,
       body: emailData.body,

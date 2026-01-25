@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+﻿import { PrismaClient } from '@prisma/client';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import * as fs from 'fs';
@@ -56,7 +56,7 @@ export class EmailPrismaService {
       });
 
       if (existing) {
-        console.log(`[emoji] Email ${params.messageId} deja en base`);
+        console.log(` Email ${params.messageId} deja en base`);
         return;
       }
 
@@ -162,7 +162,7 @@ export class EmailPrismaService {
           where: { id: email.id },
           data: { clientId: existingClient.id }
         });
-        console.log(`[emoji] Email lie au client existant: ${existingClient.firstName} ${existingClient.lastName}`);
+        console.log(` Email lie au client existant: ${existingClient.firstName} ${existingClient.lastName}`);
         return;
       }
 
@@ -271,7 +271,7 @@ export class EmailPrismaService {
           data: { clientId: client.id }
         });
         
-        console.log(`[emoji] Email lie au client: ${client.firstName} ${client.lastName}`);
+        console.log(` Email lie au client: ${client.firstName} ${client.lastName}`);
       }
 
     } catch (error: any) {

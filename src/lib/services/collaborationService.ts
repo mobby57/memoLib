@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 /**
  * Service de collaboration en temps reel

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat MISSING_IDENTIFIED
  * CoeUR DU MVP - Montrer pourquoi on NE PEUT PAS agir
  */
@@ -22,10 +22,10 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
   const getTypeIcon = (type: MissingElement['type']) => {
     const icons = {
       INFORMATION: '',
-      DOCUMENT: '[emoji]',
-      DECISION: '[emoji]',
+      DOCUMENT: '',
+      DECISION: '',
       VALIDATION: '',
-      HUMAN_EXPERTISE: '[emoji]',
+      HUMAN_EXPERTISE: '',
     };
     return icons[type];
   };
@@ -142,7 +142,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
       }`}>
         <div className="flex items-center gap-3">
           <div className="text-3xl">
-            {workspace.uncertaintyLevel >= 0.8 ? '[emoji]' : workspace.uncertaintyLevel >= 0.5 ? '[emoji]' : '[emoji]'}
+            {workspace.uncertaintyLevel >= 0.8 ? '' : workspace.uncertaintyLevel >= 0.5 ? '' : ''}
           </div>
           <div>
             <div className="font-semibold text-gray-900">

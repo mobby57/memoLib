@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant de Recherche Semantique
  * Interface de recherche intelligente avec IA
  * 
@@ -124,7 +124,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
             disabled={loading || !query.trim()}
             className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '[emoji]' : '[emoji]'} Rechercher
+            {loading ? '' : ''} Rechercher
           </button>
           {results.length > 0 && (
             <button
@@ -132,7 +132,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
               disabled={analyzing}
               className="bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-800 transition disabled:opacity-50"
             >
-              {analyzing ? '' : '[emoji]'} Analyser
+              {analyzing ? '' : ''} Analyser
             </button>
           )}
         </div>
@@ -163,7 +163,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
       {patterns && (
         <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">
-            [emoji] Analyse des Patterns Detectes
+             Analyse des Patterns Detectes
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -192,7 +192,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
           {patterns.commonDocuments.length > 0 && (
             <div className="bg-white rounded-lg p-4 mb-4">
               <div className="font-semibold text-gray-900 mb-2">
-                [emoji] Documents frequemment requis:
+                 Documents frequemment requis:
               </div>
               <div className="flex flex-wrap gap-2">
                 {patterns.commonDocuments.map((doc, index) => (

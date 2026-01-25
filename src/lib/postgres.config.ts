@@ -1,4 +1,4 @@
-/**
+﻿/**
  * [emoji] CONFIGURATION POSTGRESQL AVANCeE - PRODUCTION READY
  * 
  * Features:

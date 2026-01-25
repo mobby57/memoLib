@@ -1,4 +1,4 @@
-/**
+﻿/**
  * [emoji] SERVICE DE RAISONNEMENT IA
  * 
  * Execute le raisonnement structure a travers les 8 etats

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * [emoji] API: Suggestions IA pour formulaires interactifs

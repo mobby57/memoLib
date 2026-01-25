@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel READY FOR HUMAN - etat final actionnable
@@ -83,24 +83,24 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
       {/* Resume du raisonnement */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          [emoji] Resume du Raisonnement
+           Resume du Raisonnement
         </h3>
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <SummaryCard
-            icon="[emoji]"
+            icon=""
             label="Faits Extraits"
             value={summary.factsCount}
             color="blue"
           />
           <SummaryCard
-            icon="[emoji]"
+            icon=""
             label="Contextes Identifies"
             value={summary.contextsCount}
             color="purple"
           />
           <SummaryCard
-            icon="[emoji]"
+            icon=""
             label="Obligations Deduites"
             value={summary.obligationsCount}
             color="orange"
@@ -118,7 +118,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
             color="red"
           />
           <SummaryCard
-            icon="[emoji]"
+            icon=""
             label="Actions Proposees"
             value={summary.actionsProposed}
             color="indigo"
@@ -129,7 +129,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
       {/* Metadonnees workspace */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          [emoji] Informations Workspace
+          ℹ Informations Workspace
         </h3>
         
         <div className="space-y-3 text-sm">
@@ -167,7 +167,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
               px-2 py-1 rounded text-xs font-medium
               ${workspace.locked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}
             `}>
-              {workspace.locked ? '[emoji] Verrouille' : '[emoji] En cours'}
+              {workspace.locked ? ' Verrouille' : '[emoji] En cours'}
             </span>
           </div>
         </div>
