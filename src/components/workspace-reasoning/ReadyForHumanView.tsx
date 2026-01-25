@@ -189,7 +189,7 @@ export function ReadyForHumanView({
       {/* Points d'alerte */}
       {(blockingMissing.length > 0 || criticalRisks.length > 0 || criticalObligations.length > 0) && (
         <div className="space-y-3">
-          <h3 className="text-xl font-bold text-red-700">[emoji] Points d'alerte critiques</h3>
+          <h3 className="text-xl font-bold text-red-700"> Points d'alerte critiques</h3>
           
           {blockingMissing.length > 0 && (
             <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
@@ -296,7 +296,7 @@ export function ReadyForHumanView({
           {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
           {recommendation.canAct 
             ? ' Valider et prendre decision'
-            : '[emoji] Action bloquee - Resoudre les alertes'
+            : ' Action bloquee - Resoudre les alertes'
           }
         </button>
         

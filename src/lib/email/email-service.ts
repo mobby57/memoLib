@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service d'envoi d'emails
  * Compatible avec: Resend, SendGrid, Nodemailer SMTP
  */
@@ -190,7 +190,7 @@ export const emailTemplates = {
     nouveauStatut: string;
     lienDossier: string;
   }) => ({
-    subject: `[emoji] Mise a jour dossier ${data.dossierNumero}: ${data.nouveauStatut}`,
+    subject: ` Mise a jour dossier ${data.dossierNumero}: ${data.nouveauStatut}`,
     html: `
 <!DOCTYPE html>
 <html>
@@ -213,7 +213,7 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">[emoji] Mise a jour de votre dossier</h1>
+      <h1 style="margin: 0; font-size: 24px;"> Mise a jour de votre dossier</h1>
       <p style="margin: 10px 0 0 0; opacity: 0.9;">${data.dossierNumero}</p>
     </div>
     <div class="content">

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Page de demonstration des fonctionnalites avancees
  * Recherche semantique, Suggestions, Analytics
  */

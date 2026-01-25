@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -77,7 +77,7 @@ export default function NotificationsPage() {
   };
 
   const getSeverityIcon = (severity: string) => {
-    if (severity === 'critical') return '[emoji]';
+    if (severity === 'critical') return '';
     if (severity === 'warning') return '️';
     return 'ℹ️';
   };

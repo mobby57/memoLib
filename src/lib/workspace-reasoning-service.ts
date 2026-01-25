@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service de gestion des transitions d'etat du Workspace Reasoning
  * Applique les regles de validation et cree les audit trails
  */
@@ -265,7 +265,7 @@ export class WorkspaceReasoningService {
     summary += `etat: ${workspace.currentState}\n`;
     summary += `Incertitude: ${(workspace.uncertaintyLevel * 100).toFixed(0)}%\n`;
     summary += `Qualite: ${(workspace.reasoningQuality * 100).toFixed(0)}%\n\n`;
-    summary += `[emoji] elements identifies:\n`;
+    summary += ` elements identifies:\n`;
     summary += `- ${facts} fait${facts > 1 ? 's' : ''} certain${facts > 1 ? 's' : ''}\n`;
     summary += `- ${contexts} contexte${contexts > 1 ? 's' : ''} confirme${contexts > 1 ? 's' : ''}\n`;
     summary += `- ${obligations} obligation${obligations > 1 ? 's' : ''}\n`;

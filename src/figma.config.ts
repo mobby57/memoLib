@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🎨 Figma Code Connect - Global Setup
  * 
  * Configuration centralisee pour tous les composants

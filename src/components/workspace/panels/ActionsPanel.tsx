@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel Actions Proposees - Reduction d'incertitude
@@ -22,10 +22,10 @@ const TYPE_LABELS: Record<string, string> = {
 
 const TYPE_ICONS: Record<string, string> = {
   QUESTION: '',
-  DOCUMENT_REQUEST: '[emoji]',
-  ALERT: '[emoji]',
+  DOCUMENT_REQUEST: '',
+  ALERT: '',
   ESCALATION: '️',
-  FORM_SEND: '[emoji]',
+  FORM_SEND: '',
 };
 
 const PRIORITY_CONFIG: Record<string, { color: string; label: string }> = {

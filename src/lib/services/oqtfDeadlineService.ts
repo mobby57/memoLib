@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service d'extraction intelligente des delais OQTF
  * Amelioration avec templates juridiques et confidence scoring
  */
@@ -361,20 +361,20 @@ export function genererChecklistOQTF(
   delaisCritiques: DelaiExtrait[]
 ): string[] {
   const checklistBase = [
-    '[emoji] Verifier la notification de la decision (date et mode)',
-    '[emoji] Analyser les motifs juridiques de la decision',
+    ' Verifier la notification de la decision (date et mode)',
+    ' Analyser les motifs juridiques de la decision',
     '️ Identifier les vices de forme ou de fond',
-    '[emoji] Collecter les preuves d\'integration et d\'attaches en France'
+    ' Collecter les preuves d\'integration et d\'attaches en France'
   ];
 
   const delaiCritique = delaisCritiques.find(d => d.priorite === 'CRITIQUE');
   
   if (delaiCritique && delaiCritique.joursRestants <= 2) {
     return [
-      '[emoji] URGENCE ABSOLUE - Action immediate requise',
+      ' URGENCE ABSOLUE - Action immediate requise',
       ` ${delaiCritique.joursRestants} jour(s) restant(s) avant echeance critique`,
       ' Preparer refere-liberte si assignation/retention',
-      '[emoji] Contacter avocat specialise droit des etrangers',
+      ' Contacter avocat specialise droit des etrangers',
       ...checklistBase,
       ...delaiCritique.checklistRecommandee
     ];

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * IA POSTE MANAGER - Systeme de Logging Juridique Professionnel
  * 
  * Logging specialise pour cabinet d'avocats CESEDA avec:
@@ -314,7 +314,7 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      const emoji = severity === 'CRITIQUE' ? '[emoji]' : severity === 'URGENT' ? '️' : '[emoji]';
+      const emoji = severity === 'CRITIQUE' ? '' : severity === 'URGENT' ? '️' : '';
       console.log(`${emoji} [DeLAI ${severity}]`, {
         dossier: dossierId,
         type: deadline.type,

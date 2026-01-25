@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel Risques - Matrice Probabilite x Severite
@@ -171,7 +171,7 @@ function RiskCard({ risk }: { risk: Risk }) {
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-2xl">
-            {risk.irreversible ? '[emoji]' : severityColor === 'red' ? '[emoji]' : severityColor === 'orange' ? '[emoji]' : '[emoji]'}
+            {risk.irreversible ? '' : severityColor === 'red' ? '' : severityColor === 'orange' ? '' : ''}
           </span>
           <div>
             <h5 className="font-semibold text-gray-900">
