@@ -12,13 +12,36 @@ if (typeof globalThis.TextEncoder === 'undefined') {
   globalThis.TextDecoder = TextDecoder;
 }
 
-// Polyfill fetch, Request, Response for Node.js test environment
-if (typeof globalThis.fetch === 'undefined') {
-  const { fetch, Request, Response, Headers } = require('undici');
-  globalThis.fetch = fetch;
-  globalThis.Request = Request;
-  globalThis.Response = Response;
-  globalThis.Headers = Headers;
+// Polyfill Web APIs for Next.js API route tests
+// These are needed for next/server imports
+if (typeof globalThis.Request === 'undefined') {
+  // Create minimal mock for Request/Response used by Next.js server
+  globalThis.Request = class Request {
+    constructor(input, init = {}) {
+      this.url = typeof input === 'string' ? input : input.url;
+      this.method = init.method || 'GET';
+      this.headers = new Map(Object.entries(init.headers || {}));
+      this.body = init.body;
+    }
+    json() { return Promise.resolve(JSON.parse(this.body || '{}')); }
+    text() { return Promise.resolve(this.body || ''); }
+  };
+  
+  globalThis.Response = class Response {
+    constructor(body, init = {}) {
+      this.body = body;
+      this.status = init.status || 200;
+      this.headers = new Map(Object.entries(init.headers || {}));
+    }
+    json() { return Promise.resolve(JSON.parse(this.body || '{}')); }
+    text() { return Promise.resolve(this.body || ''); }
+  };
+  
+  globalThis.Headers = class Headers extends Map {
+    constructor(init = {}) {
+      super(Object.entries(init));
+    }
+  };
 }
 
 // Mock Next.js router
