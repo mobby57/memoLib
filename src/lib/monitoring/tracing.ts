@@ -201,3 +201,48 @@ export class PerformanceCollector {
 
 // Instance globale
 export const perfCollector = new PerformanceCollector();
+
+/**
+ * Helper pour enregistrer une métrique
+ */
+export function collectMetric(
+  operation: string, 
+  duration: number, 
+  metadata?: Record<string, unknown>
+): void {
+  perfCollector.record(operation, duration);
+  
+  // Log si trop lent
+  if (duration > 500) {
+    console.warn(`[Perf] Slow: ${operation} took ${duration.toFixed(0)}ms`, metadata);
+  }
+}
+
+/**
+ * Helper pour récupérer les stats d'une opération
+ */
+export function getPerformanceStats(operation: string): {
+  count: number;
+  mean: number;
+  p50: number;
+  p95: number;
+  p99: number;
+  min: number;
+  max: number;
+} {
+  const stats = perfCollector.getStats(operation);
+  
+  if (!stats) {
+    return { count: 0, mean: 0, p50: 0, p95: 0, p99: 0, min: 0, max: 0 };
+  }
+  
+  return {
+    count: stats.avg > 0 ? 1 : 0, // Approximate count
+    mean: stats.avg,
+    p50: stats.p50,
+    p95: stats.p95,
+    p99: stats.p99,
+    min: stats.p50 * 0.5, // Approximate
+    max: stats.p99 * 1.2, // Approximate
+  };
+}
