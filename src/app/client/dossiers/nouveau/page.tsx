@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -41,7 +41,7 @@ const TYPES_DEMANDE = [
   { 
     value: 'TITRE_SEJOUR', 
     label: 'Titre de Sejour', 
-    icon: '[emoji]',
+    icon: '',
     description: 'Premiere demande ou renouvellement de titre de sejour'
   },
   { 
@@ -77,7 +77,7 @@ const TYPES_DEMANDE = [
   { 
     value: 'AUTRE', 
     label: 'Autre demande', 
-    icon: '[emoji]',
+    icon: '',
     description: 'Autre type de demarche administrative'
   },
 ]

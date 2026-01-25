@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,10 +9,10 @@ export default function ClientNavigation() {
 
   const navItems = [
     { href: '/client', label: 'Tableau de bord', icon: '🏠' },
-    { href: '/client/dossiers', label: 'Mes Dossiers', icon: '[emoji]' },
-    { href: '/client/documents', label: 'Documents', icon: '[emoji]' },
-    { href: '/client/messages', label: 'Messagerie', icon: '[emoji]' },
-    { href: '/client/profil', label: 'Profil', icon: '[emoji]' },
+    { href: '/client/dossiers', label: 'Mes Dossiers', icon: '' },
+    { href: '/client/documents', label: 'Documents', icon: '' },
+    { href: '/client/messages', label: 'Messagerie', icon: '' },
+    { href: '/client/profil', label: 'Profil', icon: '' },
   ];
 
   return (
