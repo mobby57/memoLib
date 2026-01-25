@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Types et utilitaires pour la gestion des dossiers
  * Synchronise avec le schema Prisma enrichi
  */

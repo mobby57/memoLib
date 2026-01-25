@@ -42,7 +42,7 @@ export function ActionsPanel({ actions, onExecute }: ActionsPanelProps) {
   if (actions.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">[emoji]</div>
+        <div className="text-6xl mb-4"></div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           Aucune action proposee
         </h3>

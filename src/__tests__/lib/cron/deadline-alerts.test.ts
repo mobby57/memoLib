@@ -1,4 +1,4 @@
-import { checkDeadlineAlerts } from '@/lib/cron/deadline-alerts';
+﻿import { checkDeadlineAlerts } from '@/lib/cron/deadline-alerts';
 import prisma from '@/lib/prisma';
 
 jest.mock('@/lib/prisma', () => ({

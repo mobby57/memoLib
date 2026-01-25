@@ -222,7 +222,7 @@ export class EmailPrismaService {
           data: { trackingNumbers: JSON.stringify([...new Set(trackingNumbers)]) }
         });
         
-        console.log(`[emoji] Numeros de suivi extraits: ${trackingNumbers.join(', ')}`);
+        console.log(` Numeros de suivi extraits: ${trackingNumbers.join(', ')}`);
       }
 
     } catch (error: any) {
@@ -247,7 +247,7 @@ export class EmailPrismaService {
         }
       });
 
-      console.log(`[emoji] Alerte urgente creee pour email ${email.id}`);
+      console.log(` Alerte urgente creee pour email ${email.id}`);
 
     } catch (error: any) {
       console.error(' Erreur creation alerte:', error.message);

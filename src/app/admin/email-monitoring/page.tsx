@@ -345,7 +345,7 @@ export default function EmailMonitoringPage() {
                   {email.action && (
                     <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                       <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        [emoji] <strong>Action suggeree:</strong> {email.action}
+                         <strong>Action suggeree:</strong> {email.action}
                       </p>
                     </div>
                   )}

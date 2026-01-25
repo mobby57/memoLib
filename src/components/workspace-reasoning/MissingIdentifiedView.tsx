@@ -61,7 +61,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
             <div className="flex items-center gap-3 mb-2">
               {isBlocking && (
                 <span className="px-2 py-1 text-xs font-bold bg-red-600 text-white rounded">
-                  [emoji] BLOQUANT
+                   BLOQUANT
                 </span>
               )}
               <span className={`px-2 py-1 text-xs font-medium rounded ${typeBadge.color}`}>
@@ -91,7 +91,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
                 }`}
               >
                 {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-                [emoji] Generer action de resolution
+                 Generer action de resolution
               </button>
               
               <button
@@ -165,7 +165,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <h3 className="text-xl font-bold text-red-700">
-              [emoji] Manques bloquants ({blocking.length})
+               Manques bloquants ({blocking.length})
             </h3>
             <span className="text-sm text-gray-600">
               [Next] Empechent le passage a l'action
@@ -183,7 +183,7 @@ export function MissingIdentifiedView({ workspace, onGenerateAction, onResolve, 
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <h3 className="text-xl font-bold text-yellow-700">
-              [emoji] Manques non bloquants ({nonBlocking.length})
+               Manques non bloquants ({nonBlocking.length})
             </h3>
             <span className="text-sm text-gray-600">
               [Next] Recommandes de resoudre

@@ -1,4 +1,4 @@
-// Server Component pour les statistiques du dashboard
+﻿// Server Component pour les statistiques du dashboard
 // https://nextjs.org/docs/app/getting-started/server-and-client-components
 // Ce composant s'exécute côté serveur = 0 JS envoyé au client
 

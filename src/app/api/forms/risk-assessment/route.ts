@@ -129,7 +129,7 @@ async function createCriticalRiskAlert(assessmentId: any, context: any) {
   `;
 
   // Notifier les responsables
-  console.log('[emoji] ALERTE CRITIQUE:', context);
+  console.log(' ALERTE CRITIQUE:', context);
 }
 
 async function generateAIActionPlan(data: any): Promise<any> {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service IA - Utilise Llama via Ollama (local)
  * Configuration: OLLAMA_BASE_URL dans .env
  */

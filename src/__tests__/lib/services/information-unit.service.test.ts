@@ -1,4 +1,4 @@
-/**
+﻿/**
  * InformationUnitService - Closed Pipeline Tests
  * 
  * Tests for Zero Ignored Information Guarantee:

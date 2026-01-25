@@ -1,4 +1,4 @@
-// Robots.txt configuration
+﻿// Robots.txt configuration
 // https://nextjs.org/docs/app/api-reference/file-conventions/metadata/robots
 
 import { MetadataRoute } from 'next';

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Client Stripe pour IA Poste Manager
  * Gestion des paiements et abonnements
  */

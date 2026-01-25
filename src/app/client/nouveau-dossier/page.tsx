@@ -17,10 +17,10 @@ const TYPES_DOSSIER = [
   { value: 'TITRE_SEJOUR', label: ' Demande Titre de Sejour' },
   { value: 'RECOURS_OQTF', label: '️ Recours OQTF' },
   { value: 'NATURALISATION', label: '🇫🇷 Demande Naturalisation' },
-  { value: 'REGROUPEMENT_FAMILIAL', label: '[emoji]‍[emoji]‍[emoji] Regroupement Familial' },
+  { value: 'REGROUPEMENT_FAMILIAL', label: '‍‍ Regroupement Familial' },
   { value: 'ASILE', label: '🏠 Demande Asile' },
   { value: 'VISA', label: '️ Demande Visa' },
-  { value: 'AUTRE', label: '[emoji] Autre' },
+  { value: 'AUTRE', label: ' Autre' },
 ];
 
 const NATIONALITES = [
@@ -281,7 +281,7 @@ export default function NouveauDossierClient() {
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <span className="text-5xl">[emoji]</span>
+            <span className="text-5xl"></span>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Nouveau Dossier
@@ -303,7 +303,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 1 : Type de Dossier */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>[emoji]</span>
+              <span></span>
               Type de Demande
             </h2>
             
@@ -369,7 +369,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 2 : Identite */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>[emoji]</span>
+              <span></span>
               Identite
             </h2>
             
@@ -504,7 +504,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 3 : Contact */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>[emoji]</span>
+              <span></span>
               Contact
             </h2>
             
@@ -634,7 +634,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 5 : Situation Familiale */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>[emoji]‍[emoji]‍[emoji]‍[emoji]</span>
+              <span>‍‍‍</span>
               Situation Familiale
             </h2>
             
@@ -734,7 +734,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 6 : Situation Professionnelle */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>[emoji]</span>
+              <span></span>
               Situation Professionnelle
             </h2>
             
@@ -910,7 +910,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 8 : Situation Administrative */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>[emoji]</span>
+              <span></span>
               Situation Administrative
             </h2>
             
@@ -998,7 +998,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 9 : Informations Complementaires */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>[emoji]</span>
+              <span></span>
               Informations Complementaires
             </h2>
             
@@ -1073,7 +1073,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 10 : Documents */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>[emoji]</span>
+              <span></span>
               Documents a Fournir
             </h2>
 
@@ -1121,7 +1121,7 @@ export default function NouveauDossierClient() {
               disabled={loading}
               className="w-full py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xl font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? ' Envoi en cours...' : '[emoji] Envoyer le Dossier a mon Avocat'}
+              {loading ? ' Envoi en cours...' : ' Envoyer le Dossier a mon Avocat'}
             </button>
 
             <p className="text-center text-sm text-gray-500 mt-4">

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les hooks React
  * Couverture: useDebounce, useLocalStorage, usePagination, useForm
  */

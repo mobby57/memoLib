@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Types pour le système multi-canal
  * Tous les canaux de communication normalisés
  */

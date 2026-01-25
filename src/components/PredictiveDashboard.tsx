@@ -119,7 +119,7 @@ function ResourceOptimization({ score, suggestions }: {
         <div className="mt-3 space-y-2">
           {suggestions.slice(0, 3).map((suggestion, index) => (
             <div key={index} className="text-sm text-gray-600 flex items-start">
-              <span className="text-blue-500 mr-2">[emoji]</span>
+              <span className="text-blue-500 mr-2"></span>
               {suggestion}
             </div>
           ))}

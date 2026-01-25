@@ -87,11 +87,11 @@ export default function WorkflowsPage() {
   const actionLabels: Record<ActionType, string> = {
     send_email: ' Email',
     create_task: ' Tache',
-    update_status: '[emoji] Statut',
-    assign_to_user: '[emoji] Attribution',
+    update_status: ' Statut',
+    assign_to_user: ' Attribution',
     generate_document: ' Document',
-    create_notification: '[emoji] Notification',
-    webhook: '[emoji] Webhook',
+    create_notification: ' Notification',
+    webhook: ' Webhook',
     run_script: '️ Script',
   }
 

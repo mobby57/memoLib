@@ -1,4 +1,4 @@
-import { DefaultAzureCredential } from '@azure/identity';
+﻿import { DefaultAzureCredential } from '@azure/identity';
 import { BlobServiceClient } from '@azure/storage-blob';
 import { SecretClient } from '@azure/keyvault-secrets';
 

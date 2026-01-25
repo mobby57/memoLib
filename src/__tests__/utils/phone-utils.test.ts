@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de validation de numéro de téléphone
  * Couverture: format français, international, formatage
  */

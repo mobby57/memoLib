@@ -199,7 +199,7 @@ export default function EmailsTab({ emails, workspaceId, onRefresh }: EmailsTabP
               
               {email.aiSummary && (
                 <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                  [emoji] {email.aiSummary}
+                   {email.aiSummary}
                 </p>
               )}
 

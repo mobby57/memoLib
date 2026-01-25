@@ -155,7 +155,7 @@ export default function SearchAnalytics({ className = '' }: SearchAnalyticsProps
               ))}
             </div>
             <p className="text-xs text-gray-500 mt-3">
-              [emoji] Ces termes n'ont donne aucun resultat. Envisagez d'ameliorer l'indexation.
+               Ces termes n'ont donne aucun resultat. Envisagez d'ameliorer l'indexation.
             </p>
           </CardContent>
         </Card>

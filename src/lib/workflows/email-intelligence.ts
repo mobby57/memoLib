@@ -1,5 +1,5 @@
 ﻿/**
- * [emoji] Systeme d'Intelligence Email
+ *  Systeme d'Intelligence Email
  * Analyse automatique des emails et generation de workflows contextuels
  */
 

@@ -1,4 +1,4 @@
-// Sitemap dynamique pour SEO
+﻿// Sitemap dynamique pour SEO
 // https://nextjs.org/docs/app/api-reference/functions/generate-sitemaps
 
 import { MetadataRoute } from 'next';

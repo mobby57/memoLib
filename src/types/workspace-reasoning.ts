@@ -1,5 +1,5 @@
 ﻿/**
- * [emoji] SCHeMA DE DONNeES CANONIQUE - IA POSTE MANAGER
+ *  SCHeMA DE DONNeES CANONIQUE - IA POSTE MANAGER
  * 
  * Types stricts pour le systeme de raisonnement Workspace.
  * Conformite absolue au schema canonique MVP.

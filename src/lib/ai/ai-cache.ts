@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Cache IA - Réduit les coûts de 30-50% en évitant les requêtes répétitives
  */
 

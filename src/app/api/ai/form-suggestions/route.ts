@@ -1,7 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * [emoji] API: Suggestions IA pour formulaires interactifs
+ *  API: Suggestions IA pour formulaires interactifs
  * 
  * Analyse le contexte et genere des suggestions intelligentes
  */

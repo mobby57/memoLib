@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Hybrid AI Client - Bascule Automatique Ollama ↔ Cloudflare Workers AI
  * 
  * Strategie de fallback avec CONTROLE DES COUTS:

@@ -215,7 +215,7 @@ Instructions:
 
 La reponse doit etre directement utilisable, sans placeholder ni commentaire entre crochets.`;
 
-      console.log('[emoji] Generation avec IA locale Ollama...');
+      console.log(' Generation avec IA locale Ollama...');
       const response = await ollama.chat(systemPrompt, userPrompt, 1024);
 
       // Sauvegarder le brouillon
@@ -274,7 +274,7 @@ Sujet: ${email.subject}
 
 Genere une version amelioree en suivant les instructions. Garde un ton professionnel.`;
 
-      console.log('[emoji] Amelioration avec IA locale...');
+      console.log(' Amelioration avec IA locale...');
       const improved = await ollama.chat(systemPrompt, userPrompt, 1024);
 
       await prisma.email.update({

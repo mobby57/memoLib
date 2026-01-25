@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🎨 Figma Code Connect - DossierCard
  * 
  * Composant: IA Poste Manager > Dossiers > DossierCard
