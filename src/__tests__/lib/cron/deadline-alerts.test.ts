@@ -1,7 +1,18 @@
 import { checkDeadlineAlerts } from '@/lib/cron/deadline-alerts';
 import prisma from '@/lib/prisma';
 
-jest.mock('@/lib/prisma');
+jest.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  default: {
+    legalDeadline: {
+      findMany: jest.fn(),
+      update: jest.fn(),
+    },
+    deadlineAlert: {
+      create: jest.fn(),
+    },
+  },
+}));
 
 describe('Deadline Alerts Cron', () => {
   beforeEach(() => {
