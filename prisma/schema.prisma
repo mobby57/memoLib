@@ -208,6 +208,10 @@ model Tenant {
   reports            Report[]
   channelMessages    ChannelMessage[]
   channelConfigs     ChannelConfig[]
+  
+  // 🛡️ AI Cost Tracking
+  aiUsageLogs        AIUsageLog[]
+  aiMonthlySummaries AIMonthlySummary[]
 
   @@index([planId])
   @@index([status])
@@ -1197,4 +1201,72 @@ model ChannelConfig {
   @@index([enabled])
   
   @@map("channel_configs")
+}
+
+// ============================================
+// 🛡️ AI USAGE TRACKING - Anti-Faillite
+// ============================================
+
+model AIUsageLog {
+  id        String   @id @default(uuid())
+  
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  provider    String   // 'ollama' | 'cloudflare'
+  operation   String   // 'generate' | 'chat' | 'embeddings'
+  model       String?
+  
+  tokensUsed  Int      @default(0)
+  costEur     Float    @default(0)
+  latencyMs   Int?
+  
+  // Contexte
+  endpoint    String?
+  success     Boolean  @default(true)
+  errorMessage String?
+  
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([provider])
+  @@index([createdAt])
+  @@index([tenantId, createdAt])
+  
+  @@map("ai_usage_logs")
+}
+
+// Résumé mensuel des coûts par tenant
+model AIMonthlySummary {
+  id        String   @id @default(uuid())
+  
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  year      Int
+  month     Int      // 1-12
+  
+  // Totaux
+  totalTokens     Int    @default(0)
+  totalCostEur    Float  @default(0)
+  ollamaTokens    Int    @default(0)
+  cloudflareTokens Int   @default(0)
+  cloudflareCost  Float  @default(0)
+  
+  // Limites
+  budgetLimit     Float  @default(0)
+  budgetUsedPct   Float  @default(0)
+  
+  // Stats
+  requestCount    Int    @default(0)
+  avgLatencyMs    Float?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, year, month])
+  @@index([tenantId])
+  @@index([year, month])
+  
+  @@map("ai_monthly_summaries")
 }

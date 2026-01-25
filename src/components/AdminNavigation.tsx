@@ -45,10 +45,22 @@ export default function AdminNavigation() {
               [emoji] Emails
             </Link>
             <Link
+              href="/admin/ai-usage"
+              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all"
+            >
+              🤖 Usage IA
+            </Link>
+            <Link
+              href="/admin/costs"
+              className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all"
+            >
+              💰 Coûts IA
+            </Link>
+            <Link
               href="/admin/parametres"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              ️ Parametres
+              ⚙️ Parametres
             </Link>
           </div>
 
