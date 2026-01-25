@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 
@@ -82,7 +82,7 @@ async function createApprovalTask(submissionId: any, approver: string, metadata:
 async function sendNotificationEmail(approvers: string[], context: any) {
   // Integration avec le systeme d'email
   // Pour l'instant, log uniquement
-  console.log('[emoji] Email notification:', { approvers, context });
+  console.log(' Email notification:', { approvers, context });
 }
 
 function generateId(): string {

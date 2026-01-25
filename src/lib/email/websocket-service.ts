@@ -1,4 +1,4 @@
-import { Server as SocketIOServer, Socket } from 'socket.io';
+﻿import { Server as SocketIOServer, Socket } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 
 interface EmailNotification {
@@ -93,7 +93,7 @@ export class EmailWebSocketService {
     this.io.to(`lawyer:${lawyerId}`).emit('system:notification', {
       title: notification.alert.title,
       body: notification.alert.message,
-      icon: email.priority === 'critical' ? '[emoji]' : '️',
+      icon: email.priority === 'critical' ? '' : '️',
       requireInteraction: true
     });
 
@@ -112,7 +112,7 @@ export class EmailWebSocketService {
       timestamp: new Date()
     });
 
-    console.log(`[emoji] Nouveau client notifie: ${client.firstName} ${client.lastName}`);
+    console.log(` Nouveau client notifie: ${client.firstName} ${client.lastName}`);
   }
 
   /**

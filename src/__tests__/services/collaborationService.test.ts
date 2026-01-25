@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le service de collaboration
  * Couverture: commentaires, notifications, activités
  */

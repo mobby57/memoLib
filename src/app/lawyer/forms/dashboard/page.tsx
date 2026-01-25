@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -373,7 +373,7 @@ export default function FormsDashboardPage() {
 // Helpers pour le formatage
 function formatFormType(type: string): string {
   const types: Record<string, string> = {
-    'resource-request': '[emoji] Demande de Ressources',
+    'resource-request': ' Demande de Ressources',
     'strategic-decision': '🎯 Decision Strategique',
     'risk-assessment': '️ evaluation de Risque',
   };

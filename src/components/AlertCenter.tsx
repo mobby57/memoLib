@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant AlertCenter
  * Centre d'alertes intelligent avec gestion des priorites
  */
@@ -47,7 +47,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return '[emoji]';
+        return '';
       case 'ALERT':
         return '️';
       case 'WARNING':
@@ -55,7 +55,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
       case 'INFO':
         return 'ℹ️';
       default:
-        return '[emoji]';
+        return '';
     }
   };
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { TrendingUp, TrendingDown, Clock, Target, DollarSign, Users, FileCheck, AlertTriangle, Calendar, Percent } from 'lucide-react';
 
