@@ -61,12 +61,12 @@ Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "🚀 Nouveau workflow créé: ci-cd-production.yml" -ForegroundColor Green
 Write-Host ""
-Write-Host "Ce workflow simplifié:" -ForegroundColor White
-Write-Host "  ✓ Lint & Type check"
-Write-Host "  ✓ Tests unitaires"
-Write-Host "  ✓ Build Next.js"
-Write-Host "  ✓ Deploy sur Vercel (production)"
-Write-Host "  ✓ Deploy sur Azure SWA (optionnel)"
-Write-Host "  ✓ Notifications avec summary"
+Write-Host "Ce workflow simplifie:" -ForegroundColor White
+Write-Host "  - Lint et Type check"
+Write-Host "  - Tests unitaires"
+Write-Host "  - Build Next.js"
+Write-Host "  - Deploy sur Vercel (production)"
+Write-Host "  - Deploy sur Azure SWA (optionnel)"
+Write-Host "  - Notifications avec summary"
 Write-Host ""
 Write-Host "Debug mode disponible via workflow_dispatch!" -ForegroundColor Yellow
