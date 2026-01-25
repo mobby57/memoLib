@@ -1,0 +1,109 @@
+# ============================================================================
+# Azure Static Web Apps - Production Workflow (Clean & Stable)
+# ============================================================================
+# Version: 2.0 - Configuration pro pour déploiement frontend uniquement
+# ⚠️ Ce workflow ne déploie QUE le frontend statique
+# ⚠️ Le backend/API doit être déployé séparément (Azure Functions, App Service)
+# ============================================================================
+
+name: Azure Static Web Apps - Production
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  build_and_deploy:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Frontend
+    
+    steps:
+      # ✅ Checkout SANS submodules (source d'erreurs fréquente)
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+          lfs: false
+
+      # ✅ Setup Node.js avec cache npm
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      # ✅ Installation des dépendances
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      # ✅ Génération Prisma Client (nécessaire pour les types)
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # ✅ Désactivation temporaire de Sentry (évite les erreurs App Router)
+      - name: Disable Sentry for Static Build
+        run: |
+          for file in instrumentation.ts instrumentation-client.ts sentry.server.config.ts sentry.edge.config.ts; do
+            if [ -f "$file" ]; then
+              mv "$file" "$file.disabled"
+              echo "✓ Disabled: $file"
+            fi
+          done
+
+      # ✅ Build Next.js en mode STATIC EXPORT
+      - name: Build Next.js (Static Export)
+        env:
+          # Force static export mode
+          AZURE_STATIC_EXPORT: 'true'
+          NODE_ENV: production
+          # Variables publiques uniquement (pas de secrets backend!)
+          NEXT_PUBLIC_APP_URL: 'https://iapostemanager-swa.azurestaticapps.net'
+        run: npm run build
+
+      # ✅ Restauration des fichiers Sentry
+      - name: Restore Sentry Files
+        if: always()
+        run: |
+          for file in instrumentation.ts instrumentation-client.ts sentry.server.config.ts sentry.edge.config.ts; do
+            if [ -f "$file.disabled" ]; then
+              mv "$file.disabled" "$file"
+              echo "✓ Restored: $file"
+            fi
+          done
+
+      # ✅ Déploiement vers Azure Static Web Apps
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          # Configuration pour static export
+          app_location: "/"
+          api_location: ""
+          output_location: "out"
+          skip_app_build: true
+          skip_api_build: true
+
+  # ✅ Fermeture des PR (cleanup des environnements de preview)
+  close_pull_request:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request
+    steps:
+      - name: Close Pull Request
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: close
+          app_location: "/"

@@ -10,12 +10,22 @@ const isAzure = process.env.AZURE_STATIC_WEB_APPS === 'true';
 const isAzureStaticExport = process.env.AZURE_STATIC_EXPORT === 'true';
 const isStaticExport = isAzureStaticExport; // Only enable for pure static export (no APIs)
 
+// 🔥 Determine output mode based on platform
+// - 'export': Azure SWA static (generates /out folder)
+// - 'standalone': Vercel, Docker, self-hosted (generates .next/standalone)
+// - undefined: Default Next.js behavior
+const getOutputMode = () => {
+  if (isAzureStaticExport) return 'export';
+  if (isVercel) return undefined; // Vercel handles this automatically
+  return 'standalone'; // Default for other platforms
+};
+
 const nextConfig = {
   reactStrictMode: true,
   
-  // 🔥 Use standalone output for Azure SWA with Hybrid rendering
-  // This allows both static pages and API routes
-  output: 'standalone',
+  // 🔥 Dynamic output based on deployment platform
+  // Azure SWA REQUIRES 'export' for static hosting
+  output: getOutputMode(),
   
   // 🖼️ Image optimization - Next.js 16 Best Practices
   images: isStaticExport ? {
