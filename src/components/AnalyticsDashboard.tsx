@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant Dashboard Analytique Avance
  * Visualisation des metriques IA et tendances
  * 
@@ -145,9 +145,9 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
         <div className="space-y-4">
           {analytics.improvements.map((improvement, index) => {
             const statusConfig = {
-              improving: { color: 'bg-green-500', icon: '[emoji]', text: 'En amelioration' },
+              improving: { color: 'bg-green-500', icon: '', text: 'En amelioration' },
               stable: { color: 'bg-blue-500', icon: '️', text: 'Stable' },
-              declining: { color: 'bg-red-500', icon: '[emoji]', text: 'En baisse' }
+              declining: { color: 'bg-red-500', icon: '', text: 'En baisse' }
             };
             
             const config = statusConfig[improvement.status];
