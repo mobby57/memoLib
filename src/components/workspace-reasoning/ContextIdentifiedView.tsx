@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat CONTEXT_IDENTIFIED
  * Presenter des cadres possibles, jamais une verite
  */
@@ -53,12 +53,12 @@ export function ContextIdentifiedView({
       POSSIBLE: { 
         label: 'Possible', 
         color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-        icon: '[emoji]'
+        icon: ''
       },
       PROBABLE: { 
         label: 'Probable', 
         color: 'bg-orange-100 text-orange-800 border-orange-300',
-        icon: '[emoji]'
+        icon: ''
       },
       CONFIRMED: { 
         label: 'Confirme', 

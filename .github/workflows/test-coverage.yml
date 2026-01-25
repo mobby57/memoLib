@@ -19,7 +19,7 @@ on:
 
 env:
   NODE_VERSION: '20'
-  MIN_COVERAGE: 10
+  MIN_COVERAGE: 30
   TARGET_COVERAGE: 80
 
 jobs:
@@ -55,7 +55,8 @@ jobs:
       - name: 🧪 Run Tests with Coverage
         id: test
         run: |
-          npm run test:ci || true
+          npm run test:coverage -- --ci --reporters=default --reporters=jest-junit
+        continue-on-error: true
         env:
           CI: true
           DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
@@ -66,10 +67,10 @@ jobs:
         id: coverage
         run: |
           if [ -f coverage/coverage-summary.json ]; then
-            LINES=$(cat coverage/coverage-summary.json | jq '.total.lines.pct // 0')
-            STATEMENTS=$(cat coverage/coverage-summary.json | jq '.total.statements.pct // 0')
-            BRANCHES=$(cat coverage/coverage-summary.json | jq '.total.branches.pct // 0')
-            FUNCTIONS=$(cat coverage/coverage-summary.json | jq '.total.functions.pct // 0')
+            LINES=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+            STATEMENTS=$(cat coverage/coverage-summary.json | jq '.total.statements.pct')
+            BRANCHES=$(cat coverage/coverage-summary.json | jq '.total.branches.pct')
+            FUNCTIONS=$(cat coverage/coverage-summary.json | jq '.total.functions.pct')
             
             # Moyenne pondérée
             AVG=$(echo "scale=2; ($LINES + $STATEMENTS + $BRANCHES + $FUNCTIONS) / 4" | bc)
@@ -206,13 +207,11 @@ jobs:
             echo "- \`src/lib/auth/\` - Authentification" >> $GITHUB_STEP_SUMMARY
           fi
       
-      - name: 🚨 Coverage Warning (Non-blocking)
+      - name: 🚨 Fail if Coverage Below Minimum
         if: needs.unit-coverage.outputs.coverage_passed != 'true'
         run: |
-          echo "⚠️ Coverage ${{ needs.unit-coverage.outputs.coverage_percentage }}% is below minimum ${{ env.MIN_COVERAGE }}%"
-          echo "📈 Please add more tests to improve coverage"
-          echo "🎯 Target: ${{ env.TARGET_COVERAGE }}%"
-        # Note: Non-blocking - pipeline continues even if coverage is low
+          echo "❌ Coverage ${{ needs.unit-coverage.outputs.coverage_percentage }}% is below minimum ${{ env.MIN_COVERAGE }}%"
+          exit 1
 
   # ========================================
   # 4️⃣ TESTS E2E (OPTIONNEL)

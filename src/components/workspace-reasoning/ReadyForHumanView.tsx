@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat READY_FOR_HUMAN
  * Synthese executive + Handoff a l'humain
  */
@@ -49,7 +49,7 @@ export function ReadyForHumanView({
   const getRecommendation = () => {
     if (blockingMissing.length > 0) {
       return {
-        icon: '[emoji]',
+        icon: '',
         title: 'ACTION IMPOSSIBLE',
         message: `${blockingMissing.length} element${blockingMissing.length > 1 ? 's' : ''} bloquant${blockingMissing.length > 1 ? 's' : ''} non resolu${blockingMissing.length > 1 ? 's' : ''}. Toute action serait prematuree et dangereuse.`,
         color: 'border-red-500 bg-red-50',
@@ -59,7 +59,7 @@ export function ReadyForHumanView({
     
     if (uncertaintyLevel >= 0.8) {
       return {
-        icon: '[emoji]',
+        icon: '',
         title: 'ACTION DeCONSEILLeE',
         message: `Niveau d'incertitude tres eleve (${(uncertaintyLevel * 100).toFixed(0)}%). Risques majeurs non maitrises.`,
         color: 'border-red-500 bg-red-50',
@@ -69,7 +69,7 @@ export function ReadyForHumanView({
     
     if (uncertaintyLevel >= 0.5) {
       return {
-        icon: '[emoji]',
+        icon: '',
         title: 'ACTION RISQUeE',
         message: `Niveau d'incertitude modere (${(uncertaintyLevel * 100).toFixed(0)}%). Validation humaine renforcee requise.`,
         color: 'border-orange-500 bg-orange-50',
@@ -78,7 +78,7 @@ export function ReadyForHumanView({
     }
     
     return {
-      icon: '[emoji]',
+      icon: '',
       title: 'ACTION POSSIBLE',
       message: `Niveau d'incertitude acceptable (${(uncertaintyLevel * 100).toFixed(0)}%). Situation suffisamment claire pour agir.`,
       color: 'border-green-500 bg-green-50',

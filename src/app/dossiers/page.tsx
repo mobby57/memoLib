@@ -4,6 +4,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -16,7 +17,7 @@ import { Alert } from '@/components/ui/Alert';
 import { StatCard } from '@/components/ui/StatCard';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Pagination } from '@/components/ui/Pagination';
-import { FileText, Plus, Download, Search, Pencil, Trash2 } from 'lucide-react';
+import { FileText, Plus, Download, Search, Pencil, Trash2, Eye } from 'lucide-react';
 
 const dossierSchema = z.object({
   numero: z.string().min(1, 'Le numero est requis'),
@@ -122,6 +123,7 @@ const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 
 };
 
 export default function DossiersPage() {
+  const router = useRouter();
   const [dossiers, setDossiers] = useState<Dossier[]>(MOCK_DOSSIERS);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDossier, setEditingDossier] = useState<Dossier | null>(null);
@@ -246,6 +248,10 @@ export default function DossiersPage() {
     });
   };
 
+  const handleRowClick = (dossier: Dossier) => {
+    router.push(`/dossiers/${dossier.id}`);
+  };
+
   const columns = [
     { key: 'numero', header: 'Numero' },
     { key: 'titre', header: 'Titre' },
@@ -267,7 +273,14 @@ export default function DossiersPage() {
       key: 'actions',
       header: 'Actions',
       render: (row: Dossier) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => router.push(`/dossiers/${row.id}`)}
+            className="p-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+            title="Consulter"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
           <button
             onClick={() => openEditModal(row)}
             className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -397,7 +410,11 @@ export default function DossiersPage() {
 
       {/* Table */}
       <Card>
-        <Table columns={columns} data={paginatedDossiers} />
+        <Table 
+          columns={columns} 
+          data={paginatedDossiers} 
+          onRowClick={handleRowClick}
+        />
         {totalPages > 1 && (
           <div className="mt-4">
             <Pagination

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant Suggestions Intelligentes
  * Affiche les suggestions proactives de l'IA
  * 
@@ -81,7 +81,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
           border: 'border-red-300',
           text: 'text-red-800',
           badge: 'bg-red-600',
-          icon: '[emoji]'
+          icon: ''
         };
       case 'HIGH':
         return {
@@ -97,7 +97,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
           border: 'border-yellow-300',
           text: 'text-yellow-800',
           badge: 'bg-yellow-600',
-          icon: '[emoji]'
+          icon: ''
         };
       default:
         return {

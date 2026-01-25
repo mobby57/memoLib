@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests E2E - Validation de toutes les logiques metier
  * IA Poste Manager - Cabinet d'Avocat
  * 
@@ -12,7 +12,7 @@ import { describe, it, expect } from '@jest/globals';
 // SCeNARIOS MeTIER a VALIDER
 // ============================================
 
-describe('[emoji] LOGIQUES MeTIER - IA Poste Manager', () => {
+describe(' LOGIQUES MÉTIER - IA Poste Manager', () => {
   
   // ============================================
   // 1. GESTION DES TENANTS (Multi-Cabinet)
@@ -44,7 +44,7 @@ describe('[emoji] LOGIQUES MeTIER - IA Poste Manager', () => {
   // ============================================
   // 2. AUTHENTIFICATION & AUTORISATIONS
   // ============================================
-  describe('[emoji] Scenario 2: Authentification', () => {
+  describe(' Scenario 2: Authentification', () => {
     
     it.skip('2.1 Auth Providers disponibles (requires running server)', async () => {
       const response = await fetch('https://iapostemanage.vercel.app/api/auth/providers');
@@ -72,7 +72,7 @@ describe('[emoji] LOGIQUES MeTIER - IA Poste Manager', () => {
   // ============================================
   // 3. GESTION DES CLIENTS
   // ============================================
-  describe('[emoji] Scenario 3: Gestion des Clients', () => {
+  describe(' Scenario 3: Gestion des Clients', () => {
     
     it('3.1 Structure donnees client', () => {
       const clientSchema = {
@@ -103,7 +103,7 @@ describe('[emoji] LOGIQUES MeTIER - IA Poste Manager', () => {
   // ============================================
   // 4. GESTION DES DOSSIERS
   // ============================================
-  describe('[emoji] Scenario 4: Gestion des Dossiers', () => {
+  describe(' Scenario 4: Gestion des Dossiers', () => {
     
     it('4.1 Generation numero dossier unique', () => {
       const generateNumeroDossier = (count: number) => {
@@ -192,7 +192,7 @@ describe('[emoji] LOGIQUES MeTIER - IA Poste Manager', () => {
   // ============================================
   // 5. INTELLIGENCE ARTIFICIELLE
   // ============================================
-  describe('[emoji] Scenario 5: IA & Suggestions', () => {
+  describe(' Scenario 5: IA & Suggestions', () => {
     
     it('5.1 Types de suggestions IA', () => {
       const typesSuggestions = [
@@ -237,7 +237,7 @@ describe('[emoji] LOGIQUES MeTIER - IA Poste Manager', () => {
   // ============================================
   // 6. INTeGRATIONS EXTERNES
   // ============================================
-  describe('[emoji] Scenario 6: Integrations', () => {
+  describe(' Scenario 6: Integrations', () => {
     
     it('6.1 Configuration API Legifrance PISTE', () => {
       const pisteConfig = {
@@ -272,7 +272,7 @@ describe('[emoji] LOGIQUES MeTIER - IA Poste Manager', () => {
   // ============================================
   // 7. TABLEAU DE BORD
   // ============================================
-  describe('[emoji] Scenario 7: Dashboard & Analytics', () => {
+  describe(' Scenario 7: Dashboard & Analytics', () => {
     
     it('7.1 Structure statistiques dashboard', () => {
       const statsSchema = {

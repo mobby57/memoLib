@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+﻿import { google } from 'googleapis';
 import { authenticate } from '@google-cloud/local-auth';
 import { simpleParser, ParsedMail } from 'mailparser';
 import * as fs from 'fs';
@@ -116,7 +116,7 @@ export class EmailService {
       await this.connect();
     }
 
-    console.log('[emoji] Email monitoring active (Gmail API)');
+    console.log(' Email monitoring active (Gmail API)');
 
     // Initial check
     await this.processNewEmails();
@@ -216,6 +216,6 @@ export class EmailService {
       clearInterval(this.monitoringInterval);
     }
     this.isConnected = false;
-    console.log('[emoji] Email monitoring stopped');
+    console.log(' Email monitoring stopped');
   }
 }
