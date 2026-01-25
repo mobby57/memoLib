@@ -76,7 +76,10 @@ interface UsageRecord {
 export async function checkAICostBudget(tenantId: string): Promise<CostCheckResult> {
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
-    include: { plan: true },
+    include: { 
+      plan: true,
+      settings: true, // Pour les overrides admin
+    },
   });
 
   if (!tenant || !tenant.plan) {
@@ -90,7 +93,20 @@ export async function checkAICostBudget(tenantId: string): Promise<CostCheckResu
     };
   }
 
+  // Vérifier si l'admin a bloqué l'IA pour ce tenant
+  if (tenant.settings && !tenant.settings.ollamaEnabled) {
+    return {
+      allowed: false,
+      currentCost: 0,
+      limit: 0,
+      percentage: 100,
+      alertLevel: 'blocked',
+      suggestOllama: true,
+    };
+  }
+
   const planName = tenant.plan.name;
+  // L'admin peut override la limite dans les settings (champ future)
   const monthlyLimit = MONTHLY_COST_LIMITS[planName] || MONTHLY_COST_LIMITS.DEFAULT || 5;
 
   // Calculer les coûts du mois en cours
