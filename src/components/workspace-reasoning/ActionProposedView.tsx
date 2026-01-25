@@ -96,7 +96,7 @@ export function ActionProposedView({
             <div className="mb-4 p-4 bg-white border-2 border-blue-300 rounded-lg">
               <div className="text-sm">
                 <div className="font-semibold text-blue-700 mb-2">
-                  [emoji] Pourquoi cette action est necessaire:
+                   Pourquoi cette action est necessaire:
                 </div>
                 <p className="text-gray-600 whitespace-pre-wrap">{action.reasoning}</p>
               </div>
@@ -156,7 +156,7 @@ export function ActionProposedView({
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">[emoji] Actions proposees</h2>
+        <h2 className="text-2xl font-bold text-gray-900"> Actions proposees</h2>
         <p className="text-gray-600 mt-1">
           Actions concretes pour reduire l'incertitude et progresser
         </p>
@@ -179,7 +179,7 @@ export function ActionProposedView({
       {/* Statistiques */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-          <div className="text-3xl text-blue-600 mb-2">[emoji]</div>
+          <div className="text-3xl text-blue-600 mb-2"></div>
           <div className="text-2xl font-bold text-blue-900">{actions.length}</div>
           <div className="text-sm text-blue-700">Action{actions.length > 1 ? 's' : ''} totale{actions.length > 1 ? 's' : ''}</div>
         </div>
@@ -224,7 +224,7 @@ export function ActionProposedView({
       {/* Aucune action */}
       {actions.length === 0 && (
         <div className="p-8 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg text-center">
-          <div className="text-4xl mb-3">[emoji]</div>
+          <div className="text-4xl mb-3"></div>
           <div className="text-gray-600">
             Aucune action proposee pour le moment
           </div>

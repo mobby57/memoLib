@@ -167,13 +167,13 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
       {/* Tableau de bord des risques */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-          <div className="text-3xl text-blue-600 mb-2">[emoji]</div>
+          <div className="text-3xl text-blue-600 mb-2"></div>
           <div className="text-2xl font-bold text-blue-900">{risks.length}</div>
           <div className="text-sm text-blue-700">Risque{risks.length > 1 ? 's' : ''} identifie{risks.length > 1 ? 's' : ''}</div>
         </div>
         
         <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
-          <div className="text-3xl text-red-600 mb-2">[emoji]</div>
+          <div className="text-3xl text-red-600 mb-2"></div>
           <div className="text-2xl font-bold text-red-900">{criticalRisks.length}</div>
           <div className="text-sm text-red-700">Critique{criticalRisks.length > 1 ? 's' : ''}</div>
         </div>
@@ -185,7 +185,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
         </div>
         
         <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
-          <div className="text-3xl text-orange-600 mb-2">[emoji]</div>
+          <div className="text-3xl text-orange-600 mb-2"></div>
           <div className="text-2xl font-bold text-orange-900">
             {maxRiskScore > 0 ? `${maxRiskScore}/9` : 'N/A'}
           </div>
@@ -242,7 +242,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
       {/* Principe methodologique */}
       <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
         <div className="flex items-start gap-3">
-          <div className="text-2xl">[emoji]</div>
+          <div className="text-2xl"></div>
           <div className="text-sm text-blue-900">
             <div className="font-semibold mb-1">Calcul du score de risque:</div>
             <p>

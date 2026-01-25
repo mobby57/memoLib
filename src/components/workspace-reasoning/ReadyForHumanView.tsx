@@ -168,13 +168,13 @@ export function ReadyForHumanView({
         </div>
         
         <div className="p-4 bg-purple-50 border-2 border-purple-200 rounded-lg text-center">
-          <div className="text-3xl mb-2">[emoji]</div>
+          <div className="text-3xl mb-2"></div>
           <div className="text-2xl font-bold text-purple-900">{contexts.length}</div>
           <div className="text-sm text-purple-700">Contexte{contexts.length > 1 ? 's' : ''} confirme{contexts.length > 1 ? 's' : ''}</div>
         </div>
         
         <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg text-center">
-          <div className="text-3xl mb-2">[emoji]</div>
+          <div className="text-3xl mb-2"></div>
           <div className="text-2xl font-bold text-orange-900">{obligations.length}</div>
           <div className="text-sm text-orange-700">Obligation{obligations.length > 1 ? 's' : ''}</div>
         </div>
@@ -207,7 +207,7 @@ export function ReadyForHumanView({
           {criticalRisks.length > 0 && (
             <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
               <div className="font-semibold text-red-900 mb-2">
-                [emoji] {criticalRisks.length} risque{criticalRisks.length > 1 ? 's' : ''} critique{criticalRisks.length > 1 ? 's' : ''}:
+                 {criticalRisks.length} risque{criticalRisks.length > 1 ? 's' : ''} critique{criticalRisks.length > 1 ? 's' : ''}:
               </div>
               <ul className="list-disc list-inside text-sm text-red-800 space-y-1">
                 {criticalRisks.map(r => (
@@ -239,7 +239,7 @@ export function ReadyForHumanView({
       {pendingActions.length > 0 && (
         <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
           <div className="font-semibold text-blue-900 mb-2">
-            [emoji] {pendingActions.length} action{pendingActions.length > 1 ? 's' : ''} recommandee{pendingActions.length > 1 ? 's' : ''}:
+             {pendingActions.length} action{pendingActions.length > 1 ? 's' : ''} recommandee{pendingActions.length > 1 ? 's' : ''}:
           </div>
           <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
             {pendingActions.map(a => (

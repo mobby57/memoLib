@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le système de notifications
  * Couverture: types, priorités, CRUD, SSE
  */

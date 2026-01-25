@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le service de recherche sémantique
  * Couverture: embeddings, similarité, fallback
  */

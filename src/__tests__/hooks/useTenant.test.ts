@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le hook useTenant
  * Couverture: tenant info, features, plans
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le système Toast
  * Couverture: ToastProvider, useToast, variants, auto-dismiss
  */

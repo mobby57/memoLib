@@ -158,7 +158,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
           <p className="text-gray-600">
             {filter === 'unread' 
               ? ' Aucune alerte non lue' 
-              : '[emoji] Aucune alerte'}
+              : ' Aucune alerte'}
           </p>
         </div>
       ) : (
@@ -212,7 +212,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                   {/* Action suggeree */}
                   {alert.suggestedAction && (
                     <div className="bg-white bg-opacity-50 rounded p-2 text-sm mt-2">
-                      <span className="font-medium">[emoji] Action suggeree:</span>{' '}
+                      <span className="font-medium"> Action suggeree:</span>{' '}
                       {alert.suggestedAction}
                     </div>
                   )}
@@ -220,7 +220,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                   {/* Dossier - TODO: Load dossier data if needed */}
                   {/* {alert.dossierId && (
                     <div className="text-xs mt-2 opacity-75">
-                      [emoji] Dossier ID: {alert.dossierId}
+                       Dossier ID: {alert.dossierId}
                     </div>
                   )} */}
                 </div>
@@ -254,7 +254,7 @@ export function AlertCenter({ tenantId }: AlertCenterProps) {
                       className="px-3 py-1 bg-white bg-opacity-70 hover:bg-opacity-100 rounded text-sm font-medium transition-colors"
                       title="Voir le dossier"
                     >
-                      [emoji]️ Voir
+                      ️ Voir
                     </button>
                   )}
                 </div>

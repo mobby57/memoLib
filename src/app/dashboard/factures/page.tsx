@@ -116,7 +116,7 @@ export default function FacturesPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">[emoji] Facturation</h1>
+          <h1 className="text-2xl font-bold text-gray-900"> Facturation</h1>
           <p className="text-gray-600">Gerez vos factures et paiements</p>
         </div>
         <button
@@ -169,7 +169,7 @@ export default function FacturesPage() {
           <div className="p-8 text-center">Chargement...</div>
         ) : filteredFactures.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
-            <p className="text-4xl mb-2">[emoji]</p>
+            <p className="text-4xl mb-2"></p>
             <p>Aucune facture trouvee</p>
             <button
               onClick={() => setShowNewFacture(true)}
@@ -213,9 +213,9 @@ export default function FacturesPage() {
                       onClick={() => setSelectedFacture(facture)}
                       className="text-blue-600 hover:text-blue-800 mr-3"
                     >
-                      [emoji]️ Voir
+                      ️ Voir
                     </button>
-                    <button className="text-gray-600 hover:text-gray-800">[emoji] PDF</button>
+                    <button className="text-gray-600 hover:text-gray-800"> PDF</button>
                   </td>
                 </tr>
               ))}
@@ -373,7 +373,7 @@ function NewFactureModal({
                   onClick={() => removeLigne(index)}
                   className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
                 >
-                  [emoji]️
+                  ️
                 </button>
               </div>
             ))}
@@ -520,7 +520,7 @@ function FactureDetailModal({
                 disabled={loading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
-                [emoji] Envoyer
+                 Envoyer
               </button>
             )}
             {facture.statut === 'envoyee' && (
@@ -532,7 +532,7 @@ function FactureDetailModal({
                  Marquer payee
               </button>
             )}
-            <button className="px-4 py-2 border rounded-lg hover:bg-gray-50">[emoji] Telecharger PDF</button>
+            <button className="px-4 py-2 border rounded-lg hover:bg-gray-50"> Telecharger PDF</button>
           </div>
         </div>
       </div>

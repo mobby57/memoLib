@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+﻿import { NextRequest } from 'next/server';
 import { registerSSEClient, unregisterSSEClient } from '@/lib/notifications';
 
 // GET - Stream SSE pour les notifications en temps reel

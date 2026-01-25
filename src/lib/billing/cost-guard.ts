@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🛡️ Cost Guard - Protection Anti-Faillite
  * 
  * Ce module surveille et limite les coûts IA par tenant
@@ -135,6 +135,9 @@ export async function checkAICostBudget(tenantId: string): Promise<CostCheckResu
     suggestOllama: percentage >= COST_ALERT_THRESHOLDS.WARNING,
   };
 }
+
+// Alias pour compatibilité
+export const checkAICostLimit = checkAICostBudget;
 
 /**
  * Calculer le coût IA mensuel d'un tenant

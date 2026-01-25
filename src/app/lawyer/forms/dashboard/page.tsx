@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 
 /**
- * [emoji] Dashboard de Gestion des Formulaires & Decisions
+ *  Dashboard de Gestion des Formulaires & Decisions
  */
 
 interface Stats {
@@ -109,7 +109,7 @@ export default function FormsDashboardPage() {
       {/* En-tete */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">[emoji] Dashboard Decisionnel</h1>
+          <h1 className="text-3xl font-bold"> Dashboard Decisionnel</h1>
           <p className="text-gray-600">
             Gestion centralisee des formulaires et decisions organisationnelles
           </p>

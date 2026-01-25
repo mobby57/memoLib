@@ -39,7 +39,7 @@ CodeConnect.config({
 });
 
 /**
- * [emoji] REGISTRY: Tous les composants connectes
+ *  REGISTRY: Tous les composants connectes
  * 
  * Chaque composant a un fichier .figma.tsx correspondant:
  * 
@@ -55,7 +55,7 @@ CodeConnect.config({
  *  dashboard.figma.tsx
  *     Dashboard d'analytics
  * 
- * [emoji] Workflow:
+ *  Workflow:
  * 1. Designer modifie composant dans Figma
  * 2. Code Connect detecte changement
  * 3. Props mapping applique

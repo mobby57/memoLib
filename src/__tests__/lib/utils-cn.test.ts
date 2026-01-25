@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour l'utilitaire cn (className merger)
  * Couverture: fusion de classes Tailwind
  */

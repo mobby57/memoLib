@@ -106,7 +106,7 @@ export default function ExportsPage() {
       
       <Card>
         <CardHeader>
-          <CardTitle>[emoji]️ Securite ZeRO RISQUE</CardTitle>
+          <CardTitle>️ Securite ZeRO RISQUE</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm">

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les permissions et RBAC
  * Couverture: rôles, permissions, accès, politiques
  */

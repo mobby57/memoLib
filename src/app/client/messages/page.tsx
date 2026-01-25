@@ -155,7 +155,7 @@ export default function MessagesClient() {
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {messages.length === 0 ? (
               <div className="text-center py-12">
-                <span className="text-6xl mb-4 block">[emoji]</span>
+                <span className="text-6xl mb-4 block"></span>
                 <p className="text-gray-500 text-lg">Aucun message pour le moment</p>
                 <p className="text-gray-400 text-sm mt-2">
                   Commencez une conversation avec votre avocat
@@ -214,7 +214,7 @@ export default function MessagesClient() {
                                     isFromClient ? 'bg-blue-600' : 'bg-gray-200'
                                   }`}
                                 >
-                                  <span className="text-lg">[emoji]</span>
+                                  <span className="text-lg"></span>
                                   <span className="text-sm">{att}</span>
                                 </div>
                               ))}
@@ -260,7 +260,7 @@ export default function MessagesClient() {
                 className="p-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                 title="Joindre un fichier"
               >
-                <span className="text-2xl">[emoji]</span>
+                <span className="text-2xl"></span>
               </button>
               <button
                 type="submit"
@@ -272,7 +272,7 @@ export default function MessagesClient() {
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            [emoji] Votre avocat sera notifie par email de votre message
+             Votre avocat sera notifie par email de votre message
           </p>
         </form>
       </main>

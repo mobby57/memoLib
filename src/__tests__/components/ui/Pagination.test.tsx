@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le composant Pagination
  * Couverture: navigation, pages, états désactivés
  */

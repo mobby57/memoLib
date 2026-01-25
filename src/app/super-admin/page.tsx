@@ -113,7 +113,7 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-gray-500 mt-1">Tous les tenants</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
-                <span className="text-2xl">[emoji]</span>
+                <span className="text-2xl"></span>
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-green-600 mt-1">+12% ce mois</p>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
-                <span className="text-2xl">[emoji]</span>
+                <span className="text-2xl"></span>
               </div>
             </div>
           </div>
@@ -143,7 +143,7 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-gray-500 mt-1">Tous les cabinets</p>
               </div>
               <div className="bg-orange-100 p-3 rounded-lg">
-                <span className="text-2xl">[emoji]</span>
+                <span className="text-2xl"></span>
               </div>
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function SuperAdminDashboard() {
             className="bg-gradient-to-br from-blue-500 to-cyan-600 p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-200 text-white group"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-3xl">[emoji]</span>
+              <span className="text-3xl"></span>
               <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
             </div>
             <h3 className="text-xl font-bold mb-2">Gerer les Plans</h3>

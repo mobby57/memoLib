@@ -1,4 +1,4 @@
-// Composant Image optimisé avec fallback et loading states
+﻿// Composant Image optimisé avec fallback et loading states
 // https://nextjs.org/docs/app/api-reference/components/image
 'use client';
 

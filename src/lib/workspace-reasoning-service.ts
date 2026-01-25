@@ -275,7 +275,7 @@ export class WorkspaceReasoningService {
     }
     
     if (risks > 0) {
-      summary += `\n[emoji] ${risks} risque${risks > 1 ? 's' : ''} critique${risks > 1 ? 's' : ''}\n`;
+      summary += `\n ${risks} risque${risks > 1 ? 's' : ''} critique${risks > 1 ? 's' : ''}\n`;
     }
     
     return summary;

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests unitaires pour EmailService
  * Service de notifications par email
  */

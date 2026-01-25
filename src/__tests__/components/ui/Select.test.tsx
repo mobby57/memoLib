@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les composants Select
  * Couverture: Select, SelectTrigger, SelectValue, SelectContent, SelectItem
  */

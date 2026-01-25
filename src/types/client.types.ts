@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Types et utilitaires pour la gestion des clients
  * Synchronise avec le schema Prisma enrichi
  */

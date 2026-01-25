@@ -269,7 +269,7 @@ export function formatFileSize(bytes: number): string {
  * Recupere l'icone pour un type de fichier
  */
 export function getFileIcon(mimeType: string): string {
-  if (mimeType.startsWith('image/')) return '[emoji]️'
+  if (mimeType.startsWith('image/')) return '️'
   if (mimeType === 'application/pdf') return ''
   if (mimeType.includes('word')) return ''
   if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return ''

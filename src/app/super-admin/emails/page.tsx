@@ -78,15 +78,15 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  'client-urgent': '[emoji] Urgent Client',
+  'client-urgent': ' Urgent Client',
   'new-case': ' Nouveau Dossier',
   'deadline-reminder': ' echeance',
   'invoice': ' Facture',
   'legal-question': '️ Question Juridique',
   'court-document': '🏛️ Document Judiciaire',
-  'client-complaint': '[emoji] Reclamation',
+  'client-complaint': ' Reclamation',
   'document-request': ' Demande Document',
-  'appointment-request': '[emoji] Rendez-vous',
+  'appointment-request': ' Rendez-vous',
   'general-inquiry': ' Demande Generale'
 };
 

@@ -1,4 +1,4 @@
-// Global Loading UI - Affichée pendant le chargement des routes
+﻿// Global Loading UI - Affichée pendant le chargement des routes
 // https://nextjs.org/docs/app/api-reference/file-conventions/loading
 
 export default function Loading() {

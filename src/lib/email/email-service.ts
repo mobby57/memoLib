@@ -284,15 +284,15 @@ export const emailTemplates = {
       
       <div class="features">
         <div class="feature">
-          <span class="feature-icon">[emoji]</span>
+          <span class="feature-icon"></span>
           <div><strong>Suivre vos dossiers</strong><br>Consultez l'avancement de vos dossiers en temps reel</div>
         </div>
         <div class="feature">
-          <span class="feature-icon">[emoji]</span>
+          <span class="feature-icon"></span>
           <div><strong>Partager des documents</strong><br>Envoyez et recevez des documents en toute securite</div>
         </div>
         <div class="feature">
-          <span class="feature-icon">[emoji]</span>
+          <span class="feature-icon"></span>
           <div><strong>Communiquer</strong><br>echangez directement avec votre avocat</div>
         </div>
       </div>

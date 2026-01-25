@@ -166,7 +166,7 @@ const invalid: ColorToken = 'invalid'; //  Erreur TypeScript`}
         {/* Synchronisation */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
           <h3 className="text-lg font-semibold text-blue-900 mb-2">
-            [emoji] Synchronisation Figma
+             Synchronisation Figma
           </h3>
           <p className="text-blue-700 mb-4">
             Pour mettre a jour les design tokens depuis Figma, executez :

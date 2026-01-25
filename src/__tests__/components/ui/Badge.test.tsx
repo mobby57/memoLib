@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le composant Badge
  * Couverture: variants, sizes, rendu
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour l'API REST
  * Couverture: codes HTTP, réponses, pagination, erreurs
  */

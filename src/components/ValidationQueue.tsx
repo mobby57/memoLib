@@ -47,8 +47,8 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
     const badges = {
       [ValidationLevel.NONE]: 'Aucune',
       [ValidationLevel.QUICK]: 'Rapide ',
-      [ValidationLevel.STANDARD]: 'Standard [emoji]',
-      [ValidationLevel.REINFORCED]: 'Renforcee [emoji]'
+      [ValidationLevel.STANDARD]: 'Standard ',
+      [ValidationLevel.REINFORCED]: 'Renforcee '
     };
     return badges[level] || level;
   };
@@ -197,7 +197,7 @@ export function ValidationQueue({ tenantId }: ValidationQueueProps) {
                   }}
                   className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
                 >
-                  [emoji]️ Details
+                  ️ Details
                 </button>
               </div>
             </div>

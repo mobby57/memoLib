@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Endpoint - Dashboard des coûts IA
  * GET /api/billing/ai-costs
  * 

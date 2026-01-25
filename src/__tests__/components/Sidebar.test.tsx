@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour Sidebar component
  * Couverture: navigation, items de menu, expansion
  */

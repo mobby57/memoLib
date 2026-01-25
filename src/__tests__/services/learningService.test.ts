@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le service d'apprentissage IA
  * Couverture: patterns de validation, ajustements de confiance
  */

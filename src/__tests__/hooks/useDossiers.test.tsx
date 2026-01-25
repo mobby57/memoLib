@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le hook useDossiers
  * Couverture: queries, mutations, états de chargement
  */

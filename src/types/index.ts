@@ -1,4 +1,4 @@
-// Types globaux pour l'application
+﻿// Types globaux pour l'application
 // Roles hierarchiques standardises
 export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'CLIENT';
 export type TenantPlan = 'BASIC' | 'PREMIUM' | 'ENTERPRISE';

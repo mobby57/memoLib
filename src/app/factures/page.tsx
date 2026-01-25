@@ -1,11 +1,12 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with useSession hook
 export const dynamic = 'force-dynamic';
 
 import { useSession } from 'next-auth/react';
 import { useState, useMemo } from 'react';
-import { Plus, Search, Edit2, Trash2, Download, Send, FileText, Euro, Clock, CheckCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Plus, Search, Edit2, Trash2, Download, Send, FileText, Euro, Clock, CheckCircle, Eye, RefreshCw, CreditCard } from 'lucide-react';
 import { Card, StatCard, Badge, Pagination, Breadcrumb, Alert, useToast } from '@/components/ui';
 import { Table } from '@/components/ui/TableSimple';
 import { Modal } from '@/components/forms/Modal';
@@ -70,6 +71,7 @@ const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 
 };
 
 export default function FacturesPage() {
+  const router = useRouter();
   const { data: session, status } = useSession();
   const [factures, setFactures] = useState<Facture[]>(mockFactures);
   const [searchTerm, setSearchTerm] = useState('');
@@ -217,10 +219,30 @@ export default function FacturesPage() {
   };
 
   const exportData = () => {
+    // Export CSV functionality
+    const headers = ['Numero', 'Client', 'Dossier', 'Montant HT', 'Montant TTC', 'Statut', 'Date Emission', 'Date Echeance'];
+    const rows = filteredFactures.map(f => [
+      f.numero,
+      f.client,
+      f.dossier || '',
+      f.montantHT.toFixed(2),
+      f.montantTTC.toFixed(2),
+      STATUT_LABELS[f.statut],
+      f.dateEmission,
+      f.dateEcheance
+    ]);
+    
+    const csvContent = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `factures_export_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
     addToast({
-      variant: 'info',
-      title: 'Export en cours',
-      message: 'Votre fichier CSV sera telecharge dans quelques instants.',
+      variant: 'success',
+      title: 'Export termine',
+      message: `${filteredFactures.length} facture(s) exportee(s) en CSV.`,
     });
   };
 
@@ -237,6 +259,35 @@ export default function FacturesPage() {
         message: `La facture ${facture.numero} a ete envoyee au client.`,
       });
     }
+  };
+
+  const markAsPaid = (facture: Facture) => {
+    if (facture.statut === 'envoyee' || facture.statut === 'en_retard') {
+      setFactures(prev =>
+        prev.map(f =>
+          f.id === facture.id 
+            ? { ...f, statut: 'payee' as const, datePaiement: new Date().toISOString().split('T')[0] } 
+            : f
+        )
+      );
+      addToast({
+        variant: 'success',
+        title: 'Paiement enregistre',
+        message: `La facture ${facture.numero} a ete marquee comme payee.`,
+      });
+    }
+  };
+
+  const sendReminder = (facture: Facture) => {
+    addToast({
+      variant: 'info',
+      title: 'Relance envoyee',
+      message: `Une relance a ete envoyee pour la facture ${facture.numero}.`,
+    });
+  };
+
+  const handleRowClick = (facture: Facture) => {
+    router.push(`/factures/${facture.id}`);
   };
 
   const columns = [
@@ -266,7 +317,14 @@ export default function FacturesPage() {
       accessor: 'id' as const,
       header: 'Actions',
       render: (_: string, row: Facture) => (
-        <div className="flex gap-2">
+        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => router.push(`/factures/${row.id}`)}
+            className="p-1 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+            title="Consulter"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
           {row.statut === 'brouillon' && (
             <button
               onClick={() => sendFacture(row)}
@@ -274,6 +332,24 @@ export default function FacturesPage() {
               title="Envoyer"
             >
               <Send className="w-4 h-4" />
+            </button>
+          )}
+          {(row.statut === 'envoyee' || row.statut === 'en_retard') && (
+            <button
+              onClick={() => markAsPaid(row)}
+              className="p-1 text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300"
+              title="Marquer comme payee"
+            >
+              <CreditCard className="w-4 h-4" />
+            </button>
+          )}
+          {row.statut === 'en_retard' && (
+            <button
+              onClick={() => sendReminder(row)}
+              className="p-1 text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
+              title="Envoyer une relance"
+            >
+              <RefreshCw className="w-4 h-4" />
             </button>
           )}
           <button
@@ -403,7 +479,11 @@ export default function FacturesPage() {
 
       {/* Table */}
       <Card>
-        <Table columns={columns} data={paginatedFactures} />
+        <Table 
+          columns={columns} 
+          data={paginatedFactures} 
+          onRowClick={handleRowClick}
+        />
         {totalPages > 1 && (
           <div className="mt-4">
             <Pagination

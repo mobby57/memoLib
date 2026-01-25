@@ -100,7 +100,7 @@ export default function LoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                [emoji] Mot de passe
+                 Mot de passe
               </label>
               <input
                 id="password"
@@ -117,19 +117,19 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:ring-4 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
-              {loading ? ' Connexion...' : '[emoji] Se connecter'}
+              {loading ? ' Connexion...' : ' Se connecter'}
             </button>
           </form>
 
           {/* Comptes de demonstration */}
           <div className="mt-8 pt-6 border-t-2 border-gray-100">
             <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-              <span>[emoji]</span>
+              <span></span>
               <span>Comptes de demonstration:</span>
             </h3>
             <div className="space-y-2 text-xs">
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border-2 border-purple-200">
-                <p className="font-bold text-purple-900">[emoji] Super Admin:</p>
+                <p className="font-bold text-purple-900"> Super Admin:</p>
                 <p className="text-purple-700 mt-1 font-mono">superadmin@iapostemanager.com | SuperAdmin2026!</p>
               </div>
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border-2 border-blue-200">
@@ -146,7 +146,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-6 text-blue-200 text-sm">
-          <p>[emoji] Connexion securisee | Donnees chiffrees</p>
+          <p> Connexion securisee | Donnees chiffrees</p>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Schemas de validation Zod centralises
  * Utilises cote client ET serveur
  */

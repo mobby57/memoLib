@@ -1,4 +1,4 @@
-import prisma from './prisma';
+﻿import prisma from './prisma';
 
 export type NotificationType = 'email' | 'workflow' | 'facture' | 'dossier' | 'calendar' | 'system';
 export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent';

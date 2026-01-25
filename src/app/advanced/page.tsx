@@ -24,7 +24,7 @@ export default function AdvancedFeaturesPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="text-4xl mb-4">[emoji]</div>
+          <div className="text-4xl mb-4"></div>
           <div className="font-semibold text-gray-900">Connexion requise</div>
         </div>
       </div>
@@ -39,7 +39,7 @@ export default function AdvancedFeaturesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-white">
-                [emoji] Fonctionnalites Avancees IA
+                 Fonctionnalites Avancees IA
               </h1>
               <p className="text-blue-100 mt-1">
                 Apprentissage continu, Suggestions intelligentes, Recherche semantique
@@ -67,7 +67,7 @@ export default function AdvancedFeaturesPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              [emoji] Analytics & Apprentissage
+               Analytics & Apprentissage
             </button>
             
             <button
@@ -78,7 +78,7 @@ export default function AdvancedFeaturesPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              [emoji] Suggestions Intelligentes
+               Suggestions Intelligentes
             </button>
             
             <button
@@ -89,7 +89,7 @@ export default function AdvancedFeaturesPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              [emoji] Recherche Semantique
+               Recherche Semantique
             </button>
           </nav>
         </div>
@@ -99,7 +99,7 @@ export default function AdvancedFeaturesPage() {
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                [emoji] Apprentissage Continu
+                 Apprentissage Continu
               </h2>
               <p className="text-gray-700">
                 Le systeme analyse chaque validation humaine pour ameliorer ses predictions.
@@ -132,7 +132,7 @@ export default function AdvancedFeaturesPage() {
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                [emoji] IA Proactive
+                 IA Proactive
               </h2>
               <p className="text-gray-700 mb-4">
                 L'IA analyse en permanence vos dossiers pour identifier les opportunites
@@ -140,11 +140,11 @@ export default function AdvancedFeaturesPage() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div className="bg-white rounded-lg p-3 text-center">
-                  <div className="text-2xl mb-1">[emoji]</div>
+                  <div className="text-2xl mb-1"></div>
                   <div className="text-xs font-medium">Dossiers inactifs</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 text-center">
-                  <div className="text-2xl mb-1">[emoji]</div>
+                  <div className="text-2xl mb-1"></div>
                   <div className="text-xs font-medium">Documents manquants</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 text-center">
@@ -152,7 +152,7 @@ export default function AdvancedFeaturesPage() {
                   <div className="text-xs font-medium">echeances proches</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 text-center">
-                  <div className="text-2xl mb-1">[emoji]</div>
+                  <div className="text-2xl mb-1"></div>
                   <div className="text-xs font-medium">Auto-optimisation</div>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export default function AdvancedFeaturesPage() {
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                [emoji] Recherche par Sens, pas par Mots-Cles
+                 Recherche par Sens, pas par Mots-Cles
               </h2>
               <p className="text-gray-700 mb-4">
                 Utilisez le pouvoir des embeddings IA pour trouver des dossiers similaires
@@ -174,7 +174,7 @@ export default function AdvancedFeaturesPage() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4">
-                  <div className="text-2xl mb-2">[emoji]</div>
+                  <div className="text-2xl mb-2"></div>
                   <div className="font-semibold text-gray-900 mb-1">
                     Comprehension semantique
                   </div>
@@ -183,7 +183,7 @@ export default function AdvancedFeaturesPage() {
                   </div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
-                  <div className="text-2xl mb-2">[emoji]</div>
+                  <div className="text-2xl mb-2"></div>
                   <div className="font-semibold text-gray-900 mb-1">
                     Analyse de patterns
                   </div>

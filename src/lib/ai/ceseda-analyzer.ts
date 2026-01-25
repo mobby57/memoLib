@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CESEDA Case Analyzer - AI-Powered Legal Analysis
  * 
  * Uses Ollama to analyze immigration law cases and provide:

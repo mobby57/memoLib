@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour deadlineExtractor avec templates OQTF v2.0
  * Verifie detection templates, confidence scoring, auto-checklist
  */

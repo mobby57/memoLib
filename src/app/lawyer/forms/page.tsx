@@ -8,7 +8,7 @@ import SmartFormBuilder from '@/components/forms/SmartFormBuilder';
 import { formConfigs } from '@/lib/forms/formConfigs';
 
 /**
- * [emoji] Page: Formulaires Interactifs Intelligents
+ *  Page: Formulaires Interactifs Intelligents
  * 
  * Interface pour acceder aux formulaires adaptatifs qui
  * responsabilisent les utilisateurs et impactent l'organisation
@@ -103,7 +103,7 @@ export default function FormsPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">[emoji]</span>
+                <span className="text-2xl"></span>
               </div>
               <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
                 RESOURCE
@@ -116,7 +116,7 @@ export default function FormsPage() {
               Demander des ressources humaines, materielles ou budgetaires avec analyse d'impact
             </p>
             <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>[emoji] IA activee</span>
+              <span> IA activee</span>
               <span>️ Approbation requise</span>
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function FormsPage() {
               Documenter et valider les decisions strategiques importantes avec analyse de risques
             </p>
             <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>[emoji] IA activee</span>
+              <span> IA activee</span>
               <span>️ Approbation requise</span>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function FormsPage() {
               Analyse systematique des risques avec calcul de probabilite et severite
             </p>
             <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>[emoji] IA activee</span>
+              <span> IA activee</span>
               <span>[Check] Soumission directe</span>
             </div>
           </div>
@@ -179,7 +179,7 @@ export default function FormsPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-start">
-              <span className="text-2xl mr-3">[emoji]</span>
+              <span className="text-2xl mr-3"></span>
               <div>
                 <h3 className="font-medium text-gray-900">Suggestions IA en temps reel</h3>
                 <p className="text-sm text-gray-600">
@@ -188,7 +188,7 @@ export default function FormsPage() {
               </div>
             </div>
             <div className="flex items-start">
-              <span className="text-2xl mr-3">[emoji]</span>
+              <span className="text-2xl mr-3"></span>
               <div>
                 <h3 className="font-medium text-gray-900">Analyse d'impact automatique</h3>
                 <p className="text-sm text-gray-600">
@@ -197,7 +197,7 @@ export default function FormsPage() {
               </div>
             </div>
             <div className="flex items-start">
-              <span className="text-2xl mr-3">[emoji]</span>
+              <span className="text-2xl mr-3"></span>
               <div>
                 <h3 className="font-medium text-gray-900">Workflow d'approbation</h3>
                 <p className="text-sm text-gray-600">
@@ -206,7 +206,7 @@ export default function FormsPage() {
               </div>
             </div>
             <div className="flex items-start">
-              <span className="text-2xl mr-3">[emoji]</span>
+              <span className="text-2xl mr-3"></span>
               <div>
                 <h3 className="font-medium text-gray-900">Tableaux de bord decisionnels</h3>
                 <p className="text-sm text-gray-600">

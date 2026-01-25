@@ -30,7 +30,7 @@ export function ContextPanel({ contexts, onAddContext }: ContextPanelProps) {
   if (contexts.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">[emoji]</div>
+        <div className="text-6xl mb-4"></div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           Aucun contexte identifie
         </h3>
@@ -81,7 +81,7 @@ export function ContextPanel({ contexts, onAddContext }: ContextPanelProps) {
               {/* En-tete */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl">[emoji]</span>
+                  <span className="text-2xl"></span>
                   <div>
                     <h4 className="font-semibold text-gray-900">
                       {TYPE_LABELS[context.type]}
@@ -125,7 +125,7 @@ export function ContextPanel({ contexts, onAddContext }: ContextPanelProps) {
       {/* Note explicative */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm">
         <p className="text-purple-800">
-          <strong>[emoji] Note :</strong> Les contextes sont des hypotheses de cadrage. Plusieurs contextes peuvent coexister jusqu'a confirmation.
+          <strong> Note :</strong> Les contextes sont des hypotheses de cadrage. Plusieurs contextes peuvent coexister jusqu'a confirmation.
         </p>
       </div>
     </div>

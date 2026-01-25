@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs'
+﻿import ExcelJS from 'exceljs'
 
 /**
  * Wrapper securise pour Excel avec ExcelJS
