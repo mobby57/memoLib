@@ -1,4 +1,4 @@
-/**
+﻿/**
  * [emoji] SCHeMA DE DONNeES CANONIQUE - IA POSTE MANAGER
  * 
  * Types stricts pour le systeme de raisonnement Workspace.
@@ -25,13 +25,13 @@ export type WorkspaceState =
   | 'READY_FOR_HUMAN';
 
 export const WORKSPACE_STATES: Record<WorkspaceState, { label: string; color: string; icon: string }> = {
-  RECEIVED: { label: 'Recu', color: 'gray', icon: '[emoji]' },
-  FACTS_EXTRACTED: { label: 'Faits extraits', color: 'blue', icon: '[emoji]' },
-  CONTEXT_IDENTIFIED: { label: 'Contexte identifie', color: 'purple', icon: '[emoji]' },
-  OBLIGATIONS_DEDUCED: { label: 'Obligations deduites', color: 'orange', icon: '[emoji]' },
+  RECEIVED: { label: 'Recu', color: 'gray', icon: '' },
+  FACTS_EXTRACTED: { label: 'Faits extraits', color: 'blue', icon: '' },
+  CONTEXT_IDENTIFIED: { label: 'Contexte identifie', color: 'purple', icon: '' },
+  OBLIGATIONS_DEDUCED: { label: 'Obligations deduites', color: 'orange', icon: '' },
   MISSING_IDENTIFIED: { label: 'Manques identifies', color: 'red', icon: '' },
   RISK_EVALUATED: { label: 'Risques evalues', color: 'yellow', icon: '️' },
-  ACTION_PROPOSED: { label: 'Action proposee', color: 'indigo', icon: '[emoji]' },
+  ACTION_PROPOSED: { label: 'Action proposee', color: 'indigo', icon: '' },
   READY_FOR_HUMAN: { label: 'Pret pour humain', color: 'green', icon: '' },
 };
 
@@ -317,7 +317,7 @@ export function calculateRiskScore(impact: Risk['impact'], probability: Risk['pr
 }
 
 // ============================================
-// [emoji] ReGLES STRUCTURELLES (IMPeRATIVES)
+//  RÈGLES STRUCTURELLES (IMPeRATIVES)
 // ============================================
 
 /**
@@ -431,7 +431,7 @@ export const ALLOWED_TRANSITIONS: Record<WorkspaceState, WorkspaceState[]> = {
 };
 
 // ============================================
-// [emoji] POURQUOI CE SCHeMA EST FORT
+//  POURQUOI CE SCHÉMA EST FORT
 // ============================================
 
 /**
@@ -444,7 +444,7 @@ export const ALLOWED_TRANSITIONS: Record<WorkspaceState, WorkspaceState[]> = {
  *  Il est TRANSMISSIBLE
  *  Il est INDePENDANT du metier
  * 
- * [emoji] On peut ajouter des metiers SANS changer ce noyau.
+ *  On peut ajouter des metiers SANS changer ce noyau.
  */
 
 

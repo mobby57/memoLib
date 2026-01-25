@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -9,10 +9,10 @@ export default function AdvancedFeaturesPage() {
   const [activeTab, setActiveTab] = useState('analytics');
 
   const tabs = [
-    { id: 'analytics', label: '[emoji] Analytics', icon: '[emoji]' },
-    { id: 'predictions', label: '[emoji] Predictions', icon: '[emoji]' },
-    { id: 'chat', label: '[emoji] Assistant IA', icon: '[emoji]' },
-    { id: 'security', label: '[emoji] Securite', icon: '[emoji]' }
+    { id: 'analytics', label: '[emoji] Analytics', icon: '' },
+    { id: 'predictions', label: '[emoji] Predictions', icon: '' },
+    { id: 'chat', label: '[emoji] Assistant IA', icon: '' },
+    { id: 'security', label: '[emoji] Securite', icon: '' }
   ];
 
   return (

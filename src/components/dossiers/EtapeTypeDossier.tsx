@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useFormContext } from 'react-hook-form'
 import { Calendar, AlertTriangle } from 'lucide-react'
@@ -8,7 +8,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'TITRE_SEJOUR', 
     label: 'Titre de Sejour', 
-    icon: '[emoji]',
+    icon: '',
     description: 'Premiere demande ou renouvellement de titre de sejour',
     delais: '60 jours avant expiration recommande',
     urgence: 'normale',
@@ -62,7 +62,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'AUTRE', 
     label: 'Autre Demarche', 
-    icon: '[emoji]',
+    icon: '',
     description: 'Autre type de demarche administrative',
     delais: 'Variable selon demarche',
     urgence: 'normale',
