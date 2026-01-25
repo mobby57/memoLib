@@ -1,4 +1,4 @@
-/**
+﻿/**
  * GitHub User Client - Authentication User-to-Server
  * Permet a l'application d'agir pour le compte d'un utilisateur GitHub
  */

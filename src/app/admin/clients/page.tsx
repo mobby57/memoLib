@@ -157,7 +157,7 @@ export default function ClientsAdmin() {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {filteredClients.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-6xl mb-4 block">[emoji]</span>
+              <span className="text-6xl mb-4 block"></span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filterStatus !== 'all'
                   ? 'Aucun client ne correspond a votre recherche'

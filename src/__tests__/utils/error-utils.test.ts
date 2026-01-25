@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de gestion d'erreurs
  * Couverture: try/catch helpers, error types, retry logic
  */

@@ -32,7 +32,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">[emoji] Faits extraits</h2>
+        <h2 className="text-2xl font-bold text-gray-900"> Faits extraits</h2>
         <p className="text-gray-600 mt-1">
           Uniquement des faits certains et sources
         </p>

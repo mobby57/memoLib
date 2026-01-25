@@ -1,5 +1,5 @@
 ﻿/**
- * [emoji] MOTEUR DE WORKFLOW CONDITIONNEL AVANCe
+ *  MOTEUR DE WORKFLOW CONDITIONNEL AVANCe
  * 
  * Systeme complet de workflows avec declenchements en cascade :
  * - Event [Next] Trigger [Next] Conditions [Next] Actions [Next] Cascade

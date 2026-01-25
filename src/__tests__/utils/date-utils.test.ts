@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de formatage de dates
  * Couverture: formatage, parsing, calculs de délais
  */

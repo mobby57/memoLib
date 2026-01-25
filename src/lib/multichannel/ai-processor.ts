@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service IA pour traitement multi-canal
  * Résumé, catégorisation, détection urgence, extraction entités
  */

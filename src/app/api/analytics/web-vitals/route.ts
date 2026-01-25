@@ -1,4 +1,4 @@
-// API Route pour collecter les Web Vitals
+﻿// API Route pour collecter les Web Vitals
 // https://nextjs.org/docs/app/getting-started/route-handlers
 
 import { NextRequest, NextResponse } from 'next/server';

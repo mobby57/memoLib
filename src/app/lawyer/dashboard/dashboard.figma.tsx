@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🎨 Figma Code Connect - Dashboard Analytics
  * 
  * Composant: IA Poste Manager > Dashboards > AnalyticsDashboard

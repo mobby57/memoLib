@@ -203,7 +203,7 @@ export function generateDeadlineAlerts(
     if (deadline.hoursRemaining <= 48 && !deadline.isExpired) {
       alerts.push({
         workspaceId: workspace.id,
-        title: `[emoji] Delai critique - ${workspace.title}`,
+        title: ` Delai critique - ${workspace.title}`,
         message: `Il reste seulement ${formatTimeRemaining(deadline)}. Action immediate requise.`,
         level: "critical",
         deadline,

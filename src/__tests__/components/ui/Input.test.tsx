@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le composant Input
  * Couverture: props, états, accessibilité
  */

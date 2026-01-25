@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour la facturation
  * Couverture: calculs, TVA, statuts, export
  */

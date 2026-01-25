@@ -240,7 +240,7 @@ export default function ProfilClient() {
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-              [emoji] Securite
+               Securite
             </button>
           </div>
 

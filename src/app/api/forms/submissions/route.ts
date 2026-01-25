@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 
 /**
- * [emoji] API: Liste des soumissions de formulaires
+ *  API: Liste des soumissions de formulaires
  */
 
 export async function GET(request: NextRequest) {

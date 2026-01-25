@@ -167,7 +167,7 @@ export default function DocumentsAdmin() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                [emoji] PDF
+                 PDF
               </button>
               <button
                 onClick={() => setFilterType('image')}
@@ -177,7 +177,7 @@ export default function DocumentsAdmin() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                [emoji]️ Images
+                ️ Images
               </button>
               <button
                 onClick={() => setFilterType('word')}
@@ -187,7 +187,7 @@ export default function DocumentsAdmin() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                [emoji] Word
+                 Word
               </button>
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function DocumentsAdmin() {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {filteredDocuments.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-6xl mb-4 block">[emoji]</span>
+              <span className="text-6xl mb-4 block"></span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filterType !== 'all'
                   ? 'Aucun document ne correspond a votre recherche'

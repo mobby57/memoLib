@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les emails
  * Couverture: templates, envoi, validation
  */

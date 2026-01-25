@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+﻿import prisma from '@/lib/prisma';
 
 export async function checkDeadlineAlerts() {
   const now = new Date();

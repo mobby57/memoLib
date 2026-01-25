@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour la recherche
  * Couverture: recherche texte, filtres, tri, facettes
  */

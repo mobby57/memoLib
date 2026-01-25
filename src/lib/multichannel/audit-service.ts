@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service d'Audit pour conformité RGPD et traçabilité
  * Horodatage, logs immuables, export, suppression
  */

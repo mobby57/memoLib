@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le systeme de logging professionnel
  * Verifie RGPD, anonymisation, niveaux de log, contexte
  */

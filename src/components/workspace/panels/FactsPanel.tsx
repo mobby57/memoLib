@@ -30,7 +30,7 @@ export function FactsPanel({ facts, onAddFact }: FactsPanelProps) {
   if (facts.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">[emoji]</div>
+        <div className="text-6xl mb-4"></div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           Aucun fait extrait
         </h3>
@@ -127,7 +127,7 @@ export function FactsPanel({ facts, onAddFact }: FactsPanelProps) {
       {/* Note explicative */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
         <p className="text-blue-800">
-          <strong>[emoji] Note :</strong> Les faits ont toujours une confiance de 100% car ils sont extraits directement du message source, sans inference.
+          <strong> Note :</strong> Les faits ont toujours une confiance de 100% car ils sont extraits directement du message source, sans inference.
         </p>
       </div>
     </div>

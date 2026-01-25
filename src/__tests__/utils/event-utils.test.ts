@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires d'événements et event emitter
  * Couverture: EventEmitter, pub/sub, debounce, throttle
  */

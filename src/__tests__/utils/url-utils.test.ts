@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de validation d'URL
  * Couverture: format, protocole, sécurité
  */

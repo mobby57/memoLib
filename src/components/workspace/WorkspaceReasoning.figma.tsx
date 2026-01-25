@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🎨 Figma Code Connect - WorkspaceReasoning FSM
  * 
  * Composant: IA Poste Manager > Reasoning Engine > WorkspaceReasoning

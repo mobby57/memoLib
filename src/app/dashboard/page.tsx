@@ -209,7 +209,7 @@ export default function DashboardPage() {
     
     // Nouveau: Fonctionnalites IA Avancees
     actions.push({ 
-      label: '[emoji] IA Avancee', 
+      label: ' IA Avancee', 
       href: '/lawyer/advanced', 
       icon: Shield, 
       color: 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg' 
@@ -281,7 +281,7 @@ export default function DashboardPage() {
             onClick={() => setShowMetrics(!showMetrics)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
-            {showMetrics ? '[emoji] Masquer metriques' : '[emoji] Afficher metriques'}
+            {showMetrics ? ' Masquer metriques' : ' Afficher metriques'}
           </button>
 
           <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
@@ -346,7 +346,7 @@ export default function DashboardPage() {
           className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 text-white p-4 rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 flex items-center justify-between group relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-          <span className="font-medium relative z-10">[emoji] IA Avancee</span>
+          <span className="font-medium relative z-10"> IA Avancee</span>
           <div className="relative z-10 flex items-center">
             <span className="text-xs bg-white/20 px-2 py-1 rounded-full mr-2">NEW</span>
             <ArrowRight className="w-5 h-5 group-hover:scale-110 group-hover:translate-x-1 transition-all" />

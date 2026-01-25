@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Error Handler - Error Classification & User-Friendly Messages
  * - Categorizes errors (network, auth, validation, server, unknown)
  * - Maps to user-friendly messages

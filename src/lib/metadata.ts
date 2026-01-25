@@ -1,4 +1,4 @@
-// Métadonnées partagées pour toutes les pages
+﻿// Métadonnées partagées pour toutes les pages
 // https://nextjs.org/docs/app/getting-started/metadata-and-og-images
 
 import { Metadata } from 'next';

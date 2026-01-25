@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Client OAuth2.0 pour API Legifrance (PISTE)
  * 
  * Gestion des tokens OAuth avec flux Client Credentials

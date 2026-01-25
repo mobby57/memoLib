@@ -92,7 +92,7 @@ export default function DocumentsClient() {
 
   const getFileIcon = (mimeType: string) => {
     if (mimeType.includes('pdf')) return '';
-    if (mimeType.includes('image')) return '[emoji]️';
+    if (mimeType.includes('image')) return '️';
     if (mimeType.includes('word') || mimeType.includes('document')) return '';
     if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '';
     return '';
@@ -178,7 +178,7 @@ export default function DocumentsClient() {
             <div className="flex-1">
               <input
                 type="text"
-                placeholder="[emoji] Rechercher un document..."
+                placeholder=" Rechercher un document..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
@@ -203,7 +203,7 @@ export default function DocumentsClient() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                [emoji] PDF
+                 PDF
               </button>
               <button
                 onClick={() => setFilter('image')}
@@ -213,7 +213,7 @@ export default function DocumentsClient() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                [emoji]️ Images
+                ️ Images
               </button>
               <button
                 onClick={() => setFilter('word')}
@@ -223,7 +223,7 @@ export default function DocumentsClient() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                [emoji] Word
+                 Word
               </button>
             </div>
           </div>
@@ -237,7 +237,7 @@ export default function DocumentsClient() {
 
           {filteredDocuments.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-6xl mb-4 block">[emoji]</span>
+              <span className="text-6xl mb-4 block"></span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filter !== 'all'
                   ? 'Aucun document ne correspond a votre recherche'
@@ -281,7 +281,7 @@ export default function DocumentsClient() {
                         href={`/client/dossiers/${doc.dossier}`}
                         className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                       >
-                        [emoji] {doc.dossier.typeDossier}
+                         {doc.dossier.typeDossier}
                       </Link>
                     </div>
                   )}
@@ -299,7 +299,7 @@ export default function DocumentsClient() {
         {/* Conseils */}
         <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg mt-8">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">[emoji]</span>
+            <span className="text-2xl"></span>
             <div>
               <p className="font-semibold text-blue-900 mb-2">Conseils pour vos documents</p>
               <ul className="text-sm text-blue-800 space-y-1">

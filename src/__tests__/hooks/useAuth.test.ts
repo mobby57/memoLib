@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le hook useAuth
  * Couverture: authentication, roles, permissions
  */

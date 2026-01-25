@@ -2,7 +2,7 @@
 import { PrismaClient } from '@prisma/client';
 
 /**
- * [emoji] Prisma Client Avance - Expert Level
+ *  Prisma Client Avance - Expert Level
  * 
  * Features:
  * - Logging avance avec timing et couleurs
@@ -84,7 +84,7 @@ async function optimizeDatabase() {
 optimizeDatabase();
 
 // ============================================
-// [emoji] LOGGING AVANCe AVEC METRICS
+//  LOGGING AVANCe AVEC METRICS
 // ============================================
 
 if (process.env.NODE_ENV === 'development') {
@@ -167,7 +167,7 @@ prisma.$use(async (params, next) => {
 */
 
 // ============================================
-// [emoji] EXTENSIONS - FONCTIONNALITeS AVANCeES
+//  EXTENSIONS - FONCTIONNALITeS AVANCeES
 // ============================================
 
 export const prismaExtended = prisma.$extends({
@@ -234,7 +234,7 @@ export const prismaExtended = prisma.$extends({
 });
 
 // ============================================
-// [emoji]️ UTILITY FUNCTIONS
+// ️ UTILITY FUNCTIONS
 // ============================================
 
 /**

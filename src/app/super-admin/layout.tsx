@@ -1,4 +1,4 @@
-// Force dynamic rendering for all super-admin pages
+﻿// Force dynamic rendering for all super-admin pages
 // These pages require authentication and cannot be statically generated
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'

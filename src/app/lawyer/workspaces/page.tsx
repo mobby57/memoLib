@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * [emoji] Liste des Workspaces - Vue d'ensemble du raisonnement
+ *  Liste des Workspaces - Vue d'ensemble du raisonnement
  * Avec SWR pour auto-refresh temps reel
  */
 
@@ -53,7 +53,7 @@ export default function WorkspacesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <span className="text-4xl">[emoji]</span>
+                <span className="text-4xl"></span>
                 Workspaces de Raisonnement
               </h1>
               <p className="text-gray-600 mt-2">
@@ -93,13 +93,13 @@ export default function WorkspacesPage() {
                 className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
               >
                 <option value="ALL">Tous les etats</option>
-                <option value="RECEIVED">[emoji] Recu</option>
-                <option value="FACTS_EXTRACTED">[emoji] Faits extraits</option>
-                <option value="CONTEXT_IDENTIFIED">[emoji] Contexte identifie</option>
+                <option value="RECEIVED"> Recu</option>
+                <option value="FACTS_EXTRACTED"> Faits extraits</option>
+                <option value="CONTEXT_IDENTIFIED"> Contexte identifie</option>
                 <option value="OBLIGATIONS_DEDUCED"> Obligations deduites</option>
                 <option value="MISSING_IDENTIFIED"> Manques identifies</option>
                 <option value="RISK_EVALUATED">️ Risques evalues</option>
-                <option value="ACTION_PROPOSED">[emoji] Action proposee</option>
+                <option value="ACTION_PROPOSED"> Action proposee</option>
                 <option value="READY_FOR_HUMAN"> Pret pour humain</option>
               </select>
             </div>
@@ -118,12 +118,12 @@ export default function WorkspacesPage() {
         
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="animate-spin text-6xl mb-4">[emoji]</div>
+            <div className="animate-spin text-6xl mb-4"></div>
             <p className="text-gray-600">Chargement des workspaces...</p>
           </div>
         ) : filteredWorkspaces.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">[emoji]</div>
+            <div className="text-6xl mb-4"></div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Aucun workspace trouve
             </h3>
@@ -182,7 +182,7 @@ function WorkspaceCard({ workspace }: { workspace: WorkspaceReasoning }) {
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              <span>[emoji]</span>
+              <span></span>
               {workspace.locked ? 'Verrouille' : 'En cours'}
             </span>
             <span>

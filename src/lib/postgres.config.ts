@@ -1,5 +1,5 @@
 ﻿/**
- * [emoji] CONFIGURATION POSTGRESQL AVANCeE - PRODUCTION READY
+ *  CONFIGURATION POSTGRESQL AVANCeE - PRODUCTION READY
  * 
  * Features:
  * - Connection pooling optimise
@@ -22,7 +22,7 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 
 // ============================================
-// [emoji] TYPES & INTERFACES
+//  TYPES & INTERFACES
 // ============================================
 
 export type Environment = 'development' | 'production' | 'test';
@@ -129,7 +129,7 @@ const CONFIG: Record<Environment, Partial<PostgresConfig>> = {
 };
 
 // ============================================
-// [emoji] OPTIMISATIONS PAR PROVIDER
+//  OPTIMISATIONS PAR PROVIDER
 // ============================================
 
 const PROVIDER_OPTIMIZATIONS: Record<DatabaseProvider, Partial<PostgresConfig>> = {
@@ -171,7 +171,7 @@ const PROVIDER_OPTIMIZATIONS: Record<DatabaseProvider, Partial<PostgresConfig>> 
 };
 
 // ============================================
-// [emoji] MeTRIQUES & MONITORING
+//  MeTRIQUES & MONITORING
 // ============================================
 
 interface QueryRecord {
@@ -241,7 +241,7 @@ class PostgresMetrics {
 const metrics = new PostgresMetrics();
 
 // ============================================
-// [emoji] RETRY LOGIC AVEC BACKOFF EXPONENTIEL
+//  RETRY LOGIC AVEC BACKOFF EXPONENTIEL
 // ============================================
 
 async function retryWithBackoff<T>(
@@ -263,7 +263,7 @@ async function retryWithBackoff<T>(
 }
 
 // ============================================
-// [emoji] PRISMA CLIENT CONFIGURe
+//  PRISMA CLIENT CONFIGURe
 // ============================================
 
 const config = {
@@ -335,7 +335,7 @@ if (ENV !== 'production') {
 }
 
 // ============================================
-// [emoji] HEALTH CHECK
+//  HEALTH CHECK
 // ============================================
 
 export async function healthCheck(): Promise<HealthCheckResult> {
@@ -394,7 +394,7 @@ export async function healthCheck(): Promise<HealthCheckResult> {
 }
 
 // ============================================
-// [emoji] OPTIMISATIONS POSTGRESQL
+//  OPTIMISATIONS POSTGRESQL
 // ============================================
 
 export async function optimizePostgres() {
@@ -412,7 +412,7 @@ export async function optimizePostgres() {
 }
 
 // ============================================
-// [emoji] EXPORTS UTILITAIRES
+//  ExportS UTILITAIRES
 // ============================================
 
 export async function getMetrics(): Promise<QueryMetrics> {
@@ -469,12 +469,12 @@ if (config.logging && postgres instanceof PrismaClient) {
 }
 
 // ============================================
-// [emoji] INITIALISATION
+//  INITIALISATION
 // ============================================
 
 console.log(`
 
-  [emoji] POSTGRESQL CONFIGURATION                              
+   POSTGRESQL CONFIGURATION                              
 
   Environment: ${ENV.padEnd(43)} 
   Provider:    ${PROVIDER.padEnd(43)} 

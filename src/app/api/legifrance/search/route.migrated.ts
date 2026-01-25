@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/withAuth';
 import { legifranceApi } from '@/lib/legifrance/api-client';
 import { logger } from '@/lib/logger';

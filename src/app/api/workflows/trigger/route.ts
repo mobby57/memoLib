@@ -5,7 +5,7 @@ import { executeWorkflow, ALL_WORKFLOWS } from '@/lib/workflows/workflow-engine'
 import { getServerSession } from 'next-auth';
 
 /**
- * [emoji] API: Declenchement automatique des workflows
+ *  API: Declenchement automatique des workflows
  * Recoit un email, l'analyse avec l'IA, et lance le workflow approprie
  */
 
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     });
 
     // eTAPE 2: Creer notification contextuelle obligatoire
-    console.log('[emoji] Creation notification contextuelle...');
+    console.log(' Creation notification contextuelle...');
     const notification = await createContextualNotification(
       analysis,
       session.user.email

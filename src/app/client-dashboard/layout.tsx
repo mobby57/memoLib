@@ -1,4 +1,4 @@
-// Force dynamic rendering for client dashboard
+﻿// Force dynamic rendering for client dashboard
 // These pages require authentication and cannot be statically generated
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'

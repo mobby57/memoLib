@@ -1,4 +1,4 @@
-declare module 'regression' {
+﻿declare module 'regression' {
   export type DataPoint = [number, number]
   
   export interface RegressionResult {

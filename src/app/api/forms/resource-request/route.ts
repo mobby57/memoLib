@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 
 /**
- * [emoji] API: Soumission de demande de ressources
+ *  API: Soumission de demande de ressources
  */
 
 export async function POST(request: NextRequest) {

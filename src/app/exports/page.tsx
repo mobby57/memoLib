@@ -176,7 +176,7 @@ export default function ExportsPage() {
 
         <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-300">
-            [emoji] Le rapport inclut : Vue d'ensemble, liste des factures, analyse par client
+            ℹ Le rapport inclut : Vue d'ensemble, liste des factures, analyse par client
           </p>
         </div>
       </Card>
@@ -248,7 +248,7 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
 
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-              [emoji] Clients
+               Clients
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
               Liste complete avec coordonnees
@@ -260,7 +260,7 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
 
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-              [emoji] Calendrier
+               Calendrier
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
               evenements et echeances au format iCal
@@ -272,7 +272,7 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
 
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-              [emoji] Analytics
+               Analytics
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
               Donnees d'analyse et metriques

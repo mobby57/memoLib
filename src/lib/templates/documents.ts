@@ -177,10 +177,10 @@ Bonjour ${vars.clientName},
 
 Nous vous confirmons votre rendez-vous pour **${vars.appointmentType}** :
 
-[emoji] **Date :** ${vars.appointmentDate}  
-[emoji] **Heure :** ${vars.appointmentTime}  
-${vars.location ? `[emoji] **Lieu :** ${vars.location}` : ''}
-${vars.visioLink ? `[emoji] **Lien visio :** ${vars.visioLink}` : ''}
+ **Date :** ${vars.appointmentDate}  
+ **Heure :** ${vars.appointmentTime}  
+${vars.location ? ` **Lieu :** ${vars.location}` : ''}
+${vars.visioLink ? ` **Lien visio :** ${vars.visioLink}` : ''}
 
 ${vars.documentsToBring && vars.documentsToBring.length > 0 
   ? `
@@ -271,8 +271,8 @@ ${vars.deadline
   : ''}
 
 ${vars.transmissionMethod 
-  ? `[emoji] **Comment transmettre :** ${vars.transmissionMethod}` 
-  : `[emoji] **Comment transmettre :** Vous pouvez nous envoyer ces documents en repondant directement a cet email.`}
+  ? ` **Comment transmettre :** ${vars.transmissionMethod}` 
+  : ` **Comment transmettre :** Vous pouvez nous envoyer ces documents en repondant directement a cet email.`}
 
 Si vous avez des questions ou rencontrez des difficultes pour obtenir certains documents, n'hesitez pas a nous contacter.
 

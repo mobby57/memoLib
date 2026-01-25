@@ -322,7 +322,7 @@ describe(' LOGIQUES MÉTIER - IA Poste Manager', () => {
   // ============================================
   // 8. SeCURITe & AUDIT
   // ============================================
-  describe('[emoji]️ Scenario 8: Securite', () => {
+  describe('️ Scenario 8: Securite', () => {
     
     it('8.1 Verification tenant sur chaque requete', () => {
       const validateTenantAccess = (

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les statistiques et analytics
  * Couverture: métriques, agrégations, rapports, KPIs
  */

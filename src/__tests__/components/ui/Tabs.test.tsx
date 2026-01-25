@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le composant Tabs
  * Couverture: navigation, variants, contenu dynamique
  */

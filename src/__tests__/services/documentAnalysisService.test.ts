@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le service d'analyse de documents
  * Couverture: extraction délais, parties, types d'affaires
  */

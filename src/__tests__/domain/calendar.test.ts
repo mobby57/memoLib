@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le calendrier et événements
  * Couverture: événements, récurrence, rappels, conflits
  */

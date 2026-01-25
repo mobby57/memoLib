@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Types TypeScript pour l'API Legifrance (PISTE)
  * 
  * Documentation officielle: https://developer.aife.economie.gouv.fr/

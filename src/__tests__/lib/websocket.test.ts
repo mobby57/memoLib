@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le WebSocket service
  * Couverture: connexions, messages, rooms, broadcast
  */

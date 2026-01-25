@@ -1,5 +1,5 @@
 ﻿/**
- * [emoji] SYSTeME DE LOGGING AVANCe POUR DeVELOPPEMENT
+ *  SYSTeME DE LOGGING AVANCe POUR DeVELOPPEMENT
  * Tracabilite complete, metriques temps reel, debugging IA
  */
 
@@ -123,7 +123,7 @@ class AdvancedLogger {
     let result: T;
 
     try {
-      this.log(LogLevel.DEBUG, category, `[emoji] Debut: ${operation}`, details);
+      this.log(LogLevel.DEBUG, category, ` Debut: ${operation}`, details);
       result = await fn();
       return result;
     } catch (error) {
@@ -293,7 +293,7 @@ class AdvancedLogger {
 
     try {
       // TODO: Sauvegarder en DB ou fichier
-      console.log(`[emoji] Flush de ${this.logs.length} logs`);
+      console.log(` Flush de ${this.logs.length} logs`);
       
       // Garder seulement les derniers logs
       if (this.logs.length > this.maxLogsInMemory) {

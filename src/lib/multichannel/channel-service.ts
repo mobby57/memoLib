@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service Multi-Canal Centralisé
  * Gère tous les canaux de communication avec normalisation, IA et audit
  */

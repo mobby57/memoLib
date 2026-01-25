@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de sanitization et sécurité
  * Couverture: XSS, injection SQL, validation input
  */

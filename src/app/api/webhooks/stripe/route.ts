@@ -185,7 +185,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     }
   });
 
-  console.log(`[emoji] Subscription mise a jour pour tenant ${tenantId}`);
+  console.log(` Subscription mise a jour pour tenant ${tenantId}`);
 }
 
 /**
@@ -203,7 +203,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     }
   });
 
-  console.log(`[emoji] Subscription annulee pour tenant ${tenantId}`);
+  console.log(` Subscription annulee pour tenant ${tenantId}`);
 }
 
 /**

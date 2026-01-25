@@ -253,7 +253,7 @@ export default function SuperAdminDashboard() {
             </div>
 
             <div className="mt-4 p-4 bg-purple-50 rounded-lg">
-              <p className="text-sm font-medium text-purple-900">[emoji] Insight</p>
+              <p className="text-sm font-medium text-purple-900"> Insight</p>
               <p className="text-xs text-purple-700 mt-1">
                 Le plan Cabinet represente le meilleur equilibre valeur/prix. Focus commercial recommande.
               </p>

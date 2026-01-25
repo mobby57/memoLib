@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les templates et modèles
  * Couverture: courriers, documents, variables
  */

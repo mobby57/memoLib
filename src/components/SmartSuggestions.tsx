@@ -134,13 +134,13 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-gray-900">
-          [emoji] Suggestions Intelligentes ({suggestions.length})
+           Suggestions Intelligentes ({suggestions.length})
         </h3>
         <button
           onClick={loadSuggestions}
           className="text-sm text-blue-600 hover:text-blue-700 font-medium"
         >
-          [emoji] Actualiser
+           Actualiser
         </button>
       </div>
 
@@ -178,7 +178,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
                     <span>~{suggestion.estimatedTimeMinutes} min</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span>[emoji]</span>
+                    <span></span>
                     <span>{suggestion.actionType}</span>
                   </div>
                 </div>
@@ -186,7 +186,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
                 {/* Raisonnement */}
                 <div className="bg-white bg-opacity-60 rounded p-2 mb-3">
                   <div className="text-xs font-medium text-gray-700 mb-1">
-                    [emoji] Raisonnement:
+                     Raisonnement:
                   </div>
                   <div className="text-xs text-gray-600">{suggestion.reasoning}</div>
                 </div>

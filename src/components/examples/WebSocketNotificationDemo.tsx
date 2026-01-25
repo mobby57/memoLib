@@ -72,7 +72,7 @@ export function WebSocketNotificationDemo({ tenantId }: { tenantId: string }) {
         {
           id: data.id,
           type: 'dossier',
-          message: `[emoji] Dossier ${data.dossierNumber}: ${data.action}`,
+          message: ` Dossier ${data.dossierNumber}: ${data.action}`,
           timestamp: new Date(data.timestamp),
         },
         ...prev,

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 /**
- * [emoji] Smart Form Builder - IA Interactive
+ *  Smart Form Builder - IA Interactive
  * 
  * Genere des formulaires adaptatifs bases sur:
  * - Le contexte de l'utilisateur
@@ -285,7 +285,7 @@ export default function SmartFormBuilder({
         {aiSuggestions[field.id] && (
           <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="flex items-start">
-              <span className="text-blue-600 mr-2">[emoji]</span>
+              <span className="text-blue-600 mr-2"></span>
               <div>
                 <p className="text-sm font-medium text-blue-900">Suggestion IA</p>
                 <p className="text-sm text-blue-700">{aiSuggestions[field.id]}</p>
@@ -346,7 +346,7 @@ export default function SmartFormBuilder({
             className="mt-2 text-sm text-blue-600 hover:text-blue-700"
             disabled={isAnalyzing}
           >
-            {isAnalyzing ? ' Analyse...' : '[emoji] Obtenir une suggestion IA'}
+            {isAnalyzing ? ' Analyse...' : ' Obtenir une suggestion IA'}
           </button>
         )}
       </div>

@@ -27,7 +27,7 @@ const TYPE_ICONS: Record<string, string> = {
   DOCUMENT: '',
   DECISION: '️',
   VALIDATION: '',
-  HUMAN_EXPERTISE: '[emoji]‍️',
+  HUMAN_EXPERTISE: '‍️',
 };
 
 export function MissingPanel({ missingElements, onResolve, onAddMissing }: MissingPanelProps) {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Route: Synchroniser un dossier avec GitHub
  * POST /api/github/sync-dossier
  */

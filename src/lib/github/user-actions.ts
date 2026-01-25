@@ -376,7 +376,7 @@ export async function updateDossierOnGitHub(
 ) {
   try {
     const comment = `
-[emoji] **Mise a jour du dossier**
+ **Mise a jour du dossier**
 
 ${changes.statut ? `- Statut : ${changes.statut}` : ''}
 ${changes.priorite ? `- Priorite : ${changes.priorite}` : ''}

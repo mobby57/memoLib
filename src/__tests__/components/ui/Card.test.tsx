@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les composants Card
  * Couverture: Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter
  */
