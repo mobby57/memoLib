@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 /**
  * [emoji] Liste des Workspaces - Vue d'ensemble du raisonnement
  * Avec SWR pour auto-refresh temps reel

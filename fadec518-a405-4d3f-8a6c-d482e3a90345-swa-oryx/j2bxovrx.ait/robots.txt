@@ -1,0 +1,66 @@
+User-agent: *
+# Allow all crawlers
+
+# Sitemap
+Sitemap: https://iaposte-manager.pages.dev/sitemap.xml
+
+# Allow pages
+Allow: /
+Allow: /auth/signin
+Allow: /auth/signup
+
+# Disallow private areas
+Disallow: /api/
+Disallow: /admin/
+Disallow: /super-admin/
+Disallow: /lawyer/
+Disallow: /client/
+Disallow: /client-dashboard/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /workspaces/
+Disallow: /dossiers/
+Disallow: /documents/
+Disallow: /factures/
+Disallow: /uploads/
+Disallow: /exports/
+
+# Disallow dev/test pages
+Disallow: /test-login
+Disallow: /test-auth
+Disallow: /dev/
+Disallow: /_next/
+Disallow: /static/
+
+# Crawl delay (optional - pour être sympa avec les serveurs)
+# Crawl-delay: 10
+
+# Specific bots
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /super-admin/
+Disallow: /lawyer/
+Disallow: /client/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /super-admin/
+Disallow: /lawyer/
+Disallow: /client/
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

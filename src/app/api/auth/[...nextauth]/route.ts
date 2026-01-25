@@ -119,6 +119,11 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
     async jwt({ token, user, account }) {
       if (user) {
         token.id = (user as any).id;
@@ -179,17 +184,21 @@ export const authOptions: NextAuthOptions = {
   },
   cookies: {
     sessionToken: {
-      name: '__Secure-next-auth.session-token',
+      name: process.env.NODE_ENV === 'production' 
+        ? '__Secure-next-auth.session-token' 
+        : 'next-auth.session-token',
       options: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax', // 'lax' permet les redirections apres connexion
         path: '/',
         maxAge: 2 * 60 * 60,
       },
     },
     callbackUrl: {
-      name: '__Secure-next-auth.callback-url',
+      name: process.env.NODE_ENV === 'production'
+        ? '__Secure-next-auth.callback-url'
+        : 'next-auth.callback-url',
       options: {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -197,7 +206,9 @@ export const authOptions: NextAuthOptions = {
       },
     },
     csrfToken: {
-      name: '__Host-next-auth.csrf-token',
+      name: process.env.NODE_ENV === 'production'
+        ? '__Host-next-auth.csrf-token'
+        : 'next-auth.csrf-token',
       options: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 import { useTheme } from '@/components/ThemeProvider';
 import { Button } from '@/components/forms/Button';
 import { LayoutDashboard, Palette, Code } from 'lucide-react';

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { SessionTimeoutManager } from '@/components/SessionTimeoutManager';
 import { NotificationProvider } from '@/components/NotificationProvider';
+import { ToastProvider } from '@/components/ui/Toast';
 
 export function Providers({ children }: Readonly<{ children: React.ReactNode }>) {
   const queryClient = useMemo(
@@ -36,10 +37,12 @@ export function Providers({ children }: Readonly<{ children: React.ReactNode }>)
       refetchWhenOffline={false}
     >
       <QueryClientProvider client={queryClient}>
-        <NotificationProvider>
-          <SessionTimeoutManager />
-          {children}
-        </NotificationProvider>
+        <ToastProvider>
+          <NotificationProvider>
+            <SessionTimeoutManager />
+            {children}
+          </NotificationProvider>
+        </ToastProvider>
       </QueryClientProvider>
     </SessionProvider>
   );

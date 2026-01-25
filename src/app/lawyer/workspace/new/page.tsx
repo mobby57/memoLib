@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 /**
  * 🆕 Nouveau Workspace - Creation d'un espace de raisonnement
  * Formulaire intelligent pour initialiser un workspace depuis differentes sources

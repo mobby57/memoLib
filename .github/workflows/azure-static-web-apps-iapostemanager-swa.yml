@@ -1,0 +1,153 @@
+name: Azure Static Web Apps - iapostemanager-swa
+
+on:
+  push:
+    branches:
+      - main
+      - deploy/azure-swa-fix
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      build_mode:
+        description: 'Build mode (hybrid or static)'
+        required: false
+        default: 'hybrid'
+        type: choice
+        options:
+          - hybrid
+          - static
+
+env:
+  NODE_VERSION: '20.x'
+  # Default to hybrid mode unless static is specified
+  AZURE_STATIC_WEB_APPS: ${{ github.event.inputs.build_mode != 'static' && 'true' || 'false' }}
+  AZURE_STATIC_EXPORT: ${{ github.event.inputs.build_mode == 'static' && 'true' || 'false' }}
+
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+      
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # Temporarily disable Sentry to avoid Html import errors in App Router
+      - name: Disable Sentry for Azure Build
+        run: |
+          for file in instrumentation.ts instrumentation-client.ts sentry.server.config.ts sentry.edge.config.ts; do
+            if [ -f "$file" ]; then
+              mv "$file" "$file.azure-disabled"
+              echo "Disabled: $file"
+            fi
+          done
+      
+      - name: Build Next.js Application (Hybrid Mode)
+        if: env.AZURE_STATIC_EXPORT != 'true'
+        env:
+          AZURE_STATIC_WEB_APPS: 'true'
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
+          PISTE_ENVIRONMENT: sandbox
+          PISTE_SANDBOX_CLIENT_ID: ${{ secrets.PISTE_SANDBOX_CLIENT_ID }}
+          PISTE_SANDBOX_CLIENT_SECRET: ${{ secrets.PISTE_SANDBOX_CLIENT_SECRET }}
+          PISTE_SANDBOX_OAUTH_URL: https://sandbox-oauth.piste.gouv.fr/api/oauth/token
+          PISTE_SANDBOX_API_URL: https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
+          AZURE_KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
+        run: npm run build
+      
+      - name: Build Next.js Application (Static Export)
+        if: env.AZURE_STATIC_EXPORT == 'true'
+        env:
+          AZURE_STATIC_EXPORT: 'true'
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+        run: npm run build
+
+      # Restore Sentry files after build
+      - name: Restore Sentry Files
+        if: always()
+        run: |
+          for file in instrumentation.ts instrumentation-client.ts sentry.server.config.ts sentry.edge.config.ts; do
+            if [ -f "$file.azure-disabled" ]; then
+              mv "$file.azure-disabled" "$file"
+              echo "Restored: $file"
+            fi
+          done
+
+      - name: Deploy Hybrid to Azure Static Web Apps
+        if: env.AZURE_STATIC_EXPORT != 'true'
+        id: builddeploy-hybrid
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_IAPOSTEMANAGER_SWA }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "/"
+          api_location: ""
+          output_location: ".next"
+          skip_app_build: true
+          skip_api_build: true
+        env:
+          IS_STATIC_EXPORT: 'false'
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
+          AZURE_KEY_VAULT_NAME: ${{ secrets.AZURE_KEY_VAULT_NAME }}
+
+      - name: Deploy Static to Azure Static Web Apps
+        if: env.AZURE_STATIC_EXPORT == 'true'
+        id: builddeploy-static
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_IAPOSTEMANAGER_SWA }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "/"
+          api_location: ""
+          output_location: "out"
+          skip_app_build: true
+          skip_api_build: true
+        env:
+          IS_STATIC_EXPORT: 'true'
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_IAPOSTEMANAGER_SWA }}
+          action: "close"
+          app_location: "/"

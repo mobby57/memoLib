@@ -1,31 +1,9 @@
 // This file configures the initialization of Sentry on the client.
-// The added config here will be used whenever a users loads a page in their browser.
-// https://docs.sentry.io/platforms/javascript/guides/nextjs/
+// Disabled for Cloudflare/Azure Static Web Apps builds to avoid Html import errors
 
-import * as Sentry from "@sentry/nextjs";
+// Empty export to prevent any Sentry-related code from running during build
+export {};
 
-Sentry.init({
-  dsn: "https://b8f483c8abdb798e1a9d63cb2c85f158@o4510691517464576.ingest.de.sentry.io/4510691539222608",
-
-  // Add optional integrations for additional features
-  integrations: [Sentry.replayIntegration()],
-
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
-
-  // Define how likely Replay events are sampled.
-  // This sets the sample rate to be 10%. You may want this to be 100% while
-  // in development and sample at a lower rate in production
-  replaysSessionSampleRate: 0.1,
-
-  // Define how likely Replay events are sampled when an error occurs.
-  replaysOnErrorSampleRate: 1.0,
-
-  // Enable sending user PII (Personally Identifiable Information)
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
-  sendDefaultPii: true,
-});
-
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+// Sentry client initialization is disabled to avoid build errors
+// with Next.js 15 static page generation.
+// If you need Sentry, enable it only in production after deployment.

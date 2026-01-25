@@ -1,0 +1,39 @@
+// 🔥 Sentry instrumentation - conditionally loaded
+// Disabled for Azure Static Web Apps builds to avoid Html import errors
+
+const isAzureBuild = process.env.AZURE_STATIC_WEB_APPS === 'true' || 
+                     process.env.AZURE_STATIC_EXPORT === 'true';
+
+export async function register() {
+  // Skip Sentry initialization for Azure builds
+  if (isAzureBuild) {
+    console.log('⚠️ Sentry instrumentation disabled for Azure SWA build');
+    return;
+  }
+
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    const Sentry = await import("@sentry/nextjs");
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN || "https://b8f483c8abdb798e1a9d63cb2c85f158@o4510691517464576.ingest.de.sentry.io/4510691539222608",
+      tracesSampleRate: 1,
+      enableLogs: true,
+      sendDefaultPii: true,
+    });
+  }
+
+  if (process.env.NEXT_RUNTIME === "edge") {
+    const Sentry = await import("@sentry/nextjs");
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN || "https://b8f483c8abdb798e1a9d63cb2c85f158@o4510691517464576.ingest.de.sentry.io/4510691539222608",
+      tracesSampleRate: 1,
+    });
+  }
+}
+
+// Only export error handler if not Azure build
+export const onRequestError = isAzureBuild 
+  ? undefined 
+  : async (error: unknown, request: Request) => {
+      const Sentry = await import("@sentry/nextjs");
+      Sentry.captureException(error);
+    };
