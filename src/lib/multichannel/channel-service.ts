@@ -483,9 +483,30 @@ class SMSAdapter implements ChannelAdapter {
   }
 
   validateSignature(signature: string, payload: string, secret: string): boolean {
-    // Validation signature Twilio
-    const twilio = require('twilio');
-    return twilio.validateRequest(secret, signature, process.env.TWILIO_WEBHOOK_URL!, JSON.parse(payload));
+    // Validation signature Twilio - implémentation manuelle sans dépendance
+    // Référence: https://www.twilio.com/docs/usage/security
+    try {
+      const crypto = require('crypto');
+      const url = process.env.TWILIO_WEBHOOK_URL || '';
+      const params = JSON.parse(payload);
+      
+      // Construire la chaîne de données à signer
+      let data = url;
+      Object.keys(params).sort().forEach(key => {
+        data += key + params[key];
+      });
+      
+      // Calculer le HMAC-SHA1
+      const computedSignature = crypto
+        .createHmac('sha1', secret)
+        .update(Buffer.from(data, 'utf-8'))
+        .digest('base64');
+      
+      return signature === computedSignature;
+    } catch (error) {
+      console.error('[SMS] Signature validation error:', error);
+      return false;
+    }
   }
 }
 
