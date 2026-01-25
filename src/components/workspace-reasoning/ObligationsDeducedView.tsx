@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat OBLIGATIONS_DEDUCED
  * Obligations conditionnelles : "SI contexte X ALORS obligation Y"
  */
@@ -66,7 +66,7 @@ export function ObligationsDeducedView({
       >
         <div className="flex items-start gap-4">
           <div className="text-3xl">
-            {obligation.critical ? '️' : '[emoji]'}
+            {obligation.critical ? '️' : ''}
           </div>
           
           <div className="flex-1">
@@ -105,7 +105,7 @@ export function ObligationsDeducedView({
             {obligation.legalRef && (
               <div className="mb-3 p-3 bg-gray-50 border border-gray-300 rounded">
                 <div className="text-sm">
-                  <span className="font-semibold text-gray-700">[emoji] Base legale:</span>
+                  <span className="font-semibold text-gray-700"> Base legale:</span>
                   <span className="text-gray-600 ml-2">{obligation.legalRef}</span>
                 </div>
               </div>
@@ -159,7 +159,7 @@ export function ObligationsDeducedView({
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">[emoji] Obligations deduites</h2>
+        <h2 className="text-2xl font-bold text-gray-900"> Obligations deduites</h2>
         <p className="text-gray-600 mt-1">
           Obligations conditionnelles selon les contextes identifies
         </p>
@@ -208,7 +208,7 @@ export function ObligationsDeducedView({
         return (
           <div key={contextId} className="space-y-4">
             <h3 className="text-xl font-bold text-blue-700">
-              [emoji] SI: {context?.description || 'Contexte inconnu'}
+               SI: {context?.description || 'Contexte inconnu'}
             </h3>
             <div className="space-y-4">
               {nonCritical.map(renderObligation)}

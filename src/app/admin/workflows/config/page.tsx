@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -80,7 +80,7 @@ export default function WorkflowConfigPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={loadConfig}>
-            [emoji] Recharger
+             Recharger
           </Button>
           <Button onClick={saveConfig} disabled={saving}>
             {saving ? '[emoji] Sauvegarde...' : '[emoji] Sauvegarder'}

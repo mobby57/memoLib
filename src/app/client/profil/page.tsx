@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -230,7 +230,7 @@ export default function ProfilClient() {
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-              [emoji] Informations Personnelles
+              ℹ Informations Personnelles
             </button>
             <button
               onClick={() => setActiveTab('securite')}

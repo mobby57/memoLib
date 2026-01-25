@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat RECEIVED
  * Objectif: Confirmer ce qui est recu, rien de plus
  */
@@ -64,7 +64,7 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">[emoji] Nouveau dossier recu</h2>
+        <h2 className="text-2xl font-bold text-gray-900"> Nouveau dossier recu</h2>
         <p className="text-gray-600 mt-1">
           etat initial - Aucune interpretation effectuee
         </p>
@@ -161,7 +161,7 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
               </>
             ) : (
               <>
-                [emoji] Extraire avec IA
+                 Extraire avec IA
               </>
             )}
           </button>

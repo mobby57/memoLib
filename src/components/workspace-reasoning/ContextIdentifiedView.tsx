@@ -30,9 +30,9 @@ export function ContextIdentifiedView({
     const icons = {
       LEGAL: '️',
       ADMINISTRATIVE: '🏛️',
-      PROCEDURAL: '[emoji]',
+      PROCEDURAL: '',
       TEMPORAL: '',
-      RELATIONAL: '[emoji]',
+      RELATIONAL: '',
     };
     return icons[type];
   };

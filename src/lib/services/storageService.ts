@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { safeLocalStorage } from '@/lib/localStorage';
 import { logger } from '@/lib/logger';
@@ -270,11 +270,11 @@ export function formatFileSize(bytes: number): string {
  */
 export function getFileIcon(mimeType: string): string {
   if (mimeType.startsWith('image/')) return '[emoji]️'
-  if (mimeType === 'application/pdf') return '[emoji]'
-  if (mimeType.includes('word')) return '[emoji]'
-  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '[emoji]'
-  if (mimeType.includes('text')) return '[emoji]'
-  return '[emoji]'
+  if (mimeType === 'application/pdf') return ''
+  if (mimeType.includes('word')) return ''
+  if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return ''
+  if (mimeType.includes('text')) return ''
+  return ''
 }
 
 /**

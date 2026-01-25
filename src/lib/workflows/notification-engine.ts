@@ -1,4 +1,4 @@
-/**
+﻿/**
  * [emoji] Moteur de Notifications Contextuelles
  * Genere des notifications interactives obligatoires avec actions
  */
@@ -497,17 +497,17 @@ function mapUrgencyToSeverity(urgency: string): 'info' | 'warning' | 'critical' 
 
 function generateNotificationTitle(emailAnalysis: EmailAnalysis): string {
   const titles: Record<string, string> = {
-    'client-urgent': '[emoji] Demande Client Urgente',
-    'new-case': '[emoji] Nouveau Dossier a Traiter',
+    'client-urgent': ' Demande Client Urgente',
+    'new-case': ' Nouveau Dossier a Traiter',
     'deadline-reminder': ' Rappel de Delai',
-    'invoice': '[emoji] Facture Recue',
+    'invoice': ' Facture Recue',
     'legal-question': ' Question Juridique',
-    'appointment-request': '[emoji] Demande de Rendez-vous',
+    'appointment-request': ' Demande de Rendez-vous',
     'court-document': '️ Document Tribunal',
     'client-complaint': '️ Reclamation Client',
   };
   
-  return titles[emailAnalysis.category] || '[emoji] Email Necessite Action';
+  return titles[emailAnalysis.category] || ' Email Necessite Action';
 }
 
 function generateNotificationMessage(emailAnalysis: EmailAnalysis): string {

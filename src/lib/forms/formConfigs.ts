@@ -1,4 +1,4 @@
-import { SmartFormConfig } from '@/components/forms/SmartFormBuilder';
+﻿import { SmartFormConfig } from '@/components/forms/SmartFormBuilder';
 
 /**
  * [emoji] Configurations de formulaires intelligents

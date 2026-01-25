@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat ACTION_PROPOSED
  * Proposer UNE SEULE action utile pour reduire l'incertitude
  */
@@ -30,10 +30,10 @@ export function ActionProposedView({
   const getTypeIcon = (type: ProposedAction['type']) => {
     const icons = {
       QUESTION: '',
-      DOCUMENT_REQUEST: '[emoji]',
-      ALERT: '[emoji]',
+      DOCUMENT_REQUEST: '',
+      ALERT: '',
       ESCALATION: '️',
-      FORM_SEND: '[emoji]',
+      FORM_SEND: '',
     };
     return icons[type];
   };

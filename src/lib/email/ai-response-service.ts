@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+﻿import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -336,7 +336,7 @@ Format de reponse STRICT (JSON uniquement):
   "urgencyMarkers": ["..."]
 }`;
 
-      console.log('[emoji] Extraction avec IA locale...');
+      console.log(' Extraction avec IA locale...');
       const jsonStr = await ollama.chat(systemPrompt, userPrompt, 512);
 
       // Nettoyer la reponse (enlever markdown si present)
@@ -395,7 +395,7 @@ ${email.bodyText}
 
 Resume concis (${maxLength} caracteres max):`;
 
-      console.log('[emoji] Resume avec IA locale...');
+      console.log(' Resume avec IA locale...');
       const summary = await ollama.chat(systemPrompt, userPrompt, 100);
 
       return summary.substring(0, maxLength);

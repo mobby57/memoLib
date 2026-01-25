@@ -1,4 +1,4 @@
-/**
+﻿/**
  * [emoji] MOTEUR DE WORKFLOW CONDITIONNEL AVANCe
  * 
  * Systeme complet de workflows avec declenchements en cascade :
@@ -358,7 +358,7 @@ export class AdvancedWorkflowEngine {
    * Point d'entree principal : traite un evenement
    */
   public async processEvent(event: WorkflowEvent): Promise<WorkflowExecution[]> {
-    logger.info(`[emoji] evenement recu: ${event.type}`, { 
+    logger.info(` evenement recu: ${event.type}`, { 
       eventId: event.id, 
       tenantId: event.tenantId 
     });
@@ -695,7 +695,7 @@ export class AdvancedWorkflowEngine {
   ): Promise<WorkflowActionResult> {
     const startedAt = new Date();
     
-    logger.debug(`[emoji] Execution action: ${action.name} (${action.type})`);
+    logger.debug(` Execution action: ${action.name} (${action.type})`);
     
     // Delai si specifie
     if (action.delay && action.delay > 0) {
@@ -839,13 +839,13 @@ export class AdvancedWorkflowEngine {
   // ============================================
   
   private async sendEmail(params: Record<string, any>): Promise<any> {
-    logger.info('[emoji] Envoi email', { to: params.to, subject: params.subject });
+    logger.info(' Envoi email', { to: params.to, subject: params.subject });
     // TODO: Implementer envoi email reel
     return { sent: true, to: params.to };
   }
   
   private async sendNotification(params: Record<string, any>): Promise<any> {
-    logger.info('[emoji] Envoi notification', { userId: params.userId, message: params.message });
+    logger.info(' Envoi notification', { userId: params.userId, message: params.message });
     // TODO: Implementer via WebSocket
     return { sent: true, userId: params.userId };
   }
@@ -869,7 +869,7 @@ export class AdvancedWorkflowEngine {
       },
     });
     
-    logger.info('[emoji] Message cree', { messageId: message.id, workspaceId: params.workspaceId });
+    logger.info(' Message cree', { messageId: message.id, workspaceId: params.workspaceId });
     return message;
   }
   
@@ -889,7 +889,7 @@ export class AdvancedWorkflowEngine {
       },
     });
     
-    logger.info('[emoji] Workspace cree', { workspaceId: workspace.id, clientId: params.clientId });
+    logger.info(' Workspace cree', { workspaceId: workspace.id, clientId: params.clientId });
     return workspace;
   }
   
@@ -962,13 +962,13 @@ export class AdvancedWorkflowEngine {
   }
   
   private async updateStatus(params: Record<string, any>): Promise<any> {
-    logger.info('[emoji] Mise a jour statut', { entityType: params.entityType, newStatus: params.status });
+    logger.info(' Mise a jour statut', { entityType: params.entityType, newStatus: params.status });
     // TODO: Implementer update statut selon entityType
     return { updated: true, status: params.status };
   }
   
   private async assignUser(params: Record<string, any>): Promise<any> {
-    logger.info('[emoji] Assignation utilisateur', { userId: params.userId, entityId: params.entityId });
+    logger.info(' Assignation utilisateur', { userId: params.userId, entityId: params.entityId });
     // TODO: Implementer assignation
     return { assigned: true, userId: params.userId };
   }
@@ -985,12 +985,12 @@ export class AdvancedWorkflowEngine {
     
     const analysis = await this.ollama.generate(`${prompt}\n\n${content}`);
     
-    logger.info('[emoji] Analyse IA effectuee', { length: analysis.length });
+    logger.info(' Analyse IA effectuee', { length: analysis.length });
     return { analyzed: true, result: analysis };
   }
   
   private async extractData(params: Record<string, any>): Promise<any> {
-    logger.info('[emoji] Extraction de donnees', { source: params.source });
+    logger.info(' Extraction de donnees', { source: params.source });
     // TODO: Implementer extraction selon le type
     return { extracted: true };
   }
@@ -1018,7 +1018,7 @@ Reponds uniquement avec la categorie.`;
     params: Record<string, any>,
     execution: WorkflowExecution
   ): Promise<any> {
-    logger.info('[emoji] Declenchement workflow en cascade', { targetWorkflow: params.workflowId });
+    logger.info(' Declenchement workflow en cascade', { targetWorkflow: params.workflowId });
     
     // Creer un nouvel evenement
     const cascadeEvent: WorkflowEvent = {
@@ -1106,7 +1106,7 @@ Reponds par OUI ou NON avec une justification breve.`;
     const response = await this.ollama.generate(prompt);
     const approved = response.toLowerCase().includes('oui');
     
-    logger.info(`[emoji] Decision IA: ${approved ? 'APPROUVe' : 'REFUSe'}`, { response });
+    logger.info(` Decision IA: ${approved ? 'APPROUVe' : 'REFUSe'}`, { response });
     
     return approved;
   }
@@ -1172,7 +1172,7 @@ Reponds par OUI ou NON avec une justification breve.`;
   
   private async logExecution(execution: WorkflowExecution): Promise<void> {
     // TODO: Persister dans DB
-    logger.info('[emoji] Execution enregistree', {
+    logger.info(' Execution enregistree', {
       executionId: execution.id,
       status: execution.status,
       duration: execution.duration,
@@ -1187,7 +1187,7 @@ Reponds par OUI ou NON avec une justification breve.`;
     // ReGLE 1: Email urgent [Next] Workspace [Next] Procedure [Next] Alert en cascade
     this.registerRule({
       id: 'rule_urgent_email_cascade',
-      name: '[emoji] Email Urgent [Next] Cascade Complete',
+      name: ' Email Urgent [Next] Cascade Complete',
       description: 'Email urgent declenche creation workspace, procedure et alertes en cascade',
       enabled: true,
       priority: 100,
@@ -1243,7 +1243,7 @@ Reponds par OUI ou NON avec une justification breve.`;
                       name: 'Notifier avocat',
                       params: {
                         userId: '{{event.userId}}',
-                        title: '[emoji] Email urgent recu',
+                        title: ' Email urgent recu',
                         message: 'Workspace et procedure OQTF crees automatiquement',
                         priority: 'critical',
                       },
@@ -1281,7 +1281,7 @@ Reponds par OUI ou NON avec une justification breve.`;
     // ReGLE 2: Document uploade [Next] Extraction IA [Next] Classification [Next] Alerte si manquant
     this.registerRule({
       id: 'rule_document_processing',
-      name: '[emoji] Document [Next] Extraction IA [Next] Classification',
+      name: ' Document [Next] Extraction IA [Next] Classification',
       description: 'Document uploade declenche analyse IA et classification automatique',
       enabled: true,
       priority: 80,

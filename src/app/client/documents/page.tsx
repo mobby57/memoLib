@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -91,11 +91,11 @@ export default function DocumentsClient() {
   };
 
   const getFileIcon = (mimeType: string) => {
-    if (mimeType.includes('pdf')) return '[emoji]';
+    if (mimeType.includes('pdf')) return '';
     if (mimeType.includes('image')) return '[emoji]️';
-    if (mimeType.includes('word') || mimeType.includes('document')) return '[emoji]';
-    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '[emoji]';
-    return '[emoji]';
+    if (mimeType.includes('word') || mimeType.includes('document')) return '';
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '';
+    return '';
   };
 
   const filteredDocuments = documents.filter(doc => {
@@ -160,7 +160,7 @@ export default function DocumentsClient() {
             />
             <label htmlFor="file-upload" className="cursor-pointer">
               <div className="flex flex-col items-center gap-3">
-                <span className="text-6xl">{uploading ? '' : '[emoji]'}</span>
+                <span className="text-6xl">{uploading ? '' : ''}</span>
                 <span className="font-semibold text-gray-900 text-lg">
                   {uploading ? 'Televersement en cours...' : 'Cliquez pour ajouter un fichier'}
                 </span>

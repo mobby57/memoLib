@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Formulaire Complet - Client remplit son dossier
  * Toutes informations + documents + listes deroulantes
  */
@@ -14,7 +14,7 @@ import { useEffect, useState, FormEvent } from 'react';
 
 // Types de dossiers CESEDA
 const TYPES_DOSSIER = [
-  { value: 'TITRE_SEJOUR', label: '[emoji] Demande Titre de Sejour' },
+  { value: 'TITRE_SEJOUR', label: ' Demande Titre de Sejour' },
   { value: 'RECOURS_OQTF', label: '️ Recours OQTF' },
   { value: 'NATURALISATION', label: '🇫🇷 Demande Naturalisation' },
   { value: 'REGROUPEMENT_FAMILIAL', label: '[emoji]‍[emoji]‍[emoji] Regroupement Familial' },

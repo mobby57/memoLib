@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat FACTS_EXTRACTED
  * Objectif: Lister uniquement des faits certains
  */

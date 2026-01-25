@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel Obligations - Ce qui est requis
@@ -132,7 +132,7 @@ function ObligationCard({ obligation }: { obligation: Obligation }) {
       {/* En-tete */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-xl">{obligation.mandatory ? '' : '[emoji]'}</span>
+          <span className="text-xl">{obligation.mandatory ? '' : ''}</span>
           <div>
             <h5 className="font-semibold text-gray-900">
               {obligation.mandatory ? 'OBLIGATOIRE' : 'Optionnel'}
@@ -164,7 +164,7 @@ function ObligationCard({ obligation }: { obligation: Obligation }) {
         {obligation.legalRef && (
           <div className="bg-white border border-orange-200 rounded p-2 mb-2">
             <p className="text-xs text-orange-800">
-              <strong>[emoji] Base legale :</strong> {obligation.legalRef}
+              <strong> Base legale :</strong> {obligation.legalRef}
             </p>
           </div>
         )}

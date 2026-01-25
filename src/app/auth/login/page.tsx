@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -86,7 +86,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                [emoji] Email
+                 Email
               </label>
               <input
                 id="email"

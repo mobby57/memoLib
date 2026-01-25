@@ -1,4 +1,4 @@
-/**
+﻿/**
  * GitHub User Actions - Agir pour le compte d'un utilisateur
  * Toutes les actions sont attribuees a l'utilisateur avec le badge de l'application
  */
