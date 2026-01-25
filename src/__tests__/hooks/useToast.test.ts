@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le hook useToast
  * Couverture: création, dismiss, variants
  */

@@ -18,13 +18,13 @@ export default function AdminNavigation() {
               href="/admin/clients"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              [emoji] Clients
+               Clients
             </Link>
             <Link
               href="/admin/dossiers"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              [emoji] Dossiers
+               Dossiers
             </Link>
             <Link
               href="/admin/documents"

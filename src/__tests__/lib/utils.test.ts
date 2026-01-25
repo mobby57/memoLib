@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour la fonction utilitaire cn (class merge)
  * Couverture: fusion de classes, tailwind merge
  */

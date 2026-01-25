@@ -105,7 +105,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
     <div className="space-y-6">
       {/* Zone de recherche */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-        <h2 className="text-2xl font-bold mb-4">[emoji] Recherche Semantique IA</h2>
+        <h2 className="text-2xl font-bold mb-4"> Recherche Semantique IA</h2>
         <p className="text-blue-100 mb-4">
           Recherchez par sens, pas par mots-cles. L'IA comprend votre intention.
         </p>
@@ -209,7 +209,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
 
           {patterns.recommendations.length > 0 && (
             <div className="space-y-2">
-              <div className="font-semibold text-gray-900">[emoji] Recommandations:</div>
+              <div className="font-semibold text-gray-900"> Recommandations:</div>
               {patterns.recommendations.map((rec, index) => (
                 <div key={index} className="flex items-start gap-2 text-sm text-gray-700">
                   <span className="flex-shrink-0 mt-0.5">-</span>
@@ -320,7 +320,7 @@ export function SemanticSearch({ tenantId }: { tenantId: string }) {
       {/* etat vide */}
       {!loading && results.length === 0 && query && (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <div className="text-4xl mb-2">[emoji]</div>
+          <div className="text-4xl mb-2"></div>
           <div className="font-medium text-gray-900 mb-1">Aucun resultat trouve</div>
           <div className="text-sm text-gray-600">
             Essayez une recherche differente ou plus generale

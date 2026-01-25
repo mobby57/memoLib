@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Custom React Hook for Workspace Reasoning
  * 
  * Provides complete interface to workspace reasoning API with:

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le système d'authentification
  * Couverture: sessions, tokens, rôles, permissions
  */

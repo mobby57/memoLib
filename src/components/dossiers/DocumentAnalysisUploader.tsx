@@ -249,7 +249,7 @@ export default function DocumentAnalysisUploader({ onAnalysisComplete }: Documen
                             {deadline.description}
                           </p>
                           <div className="flex items-center gap-4 text-xs text-gray-600">
-                            <span>[emoji] {new Date(deadline.date).toLocaleDateString('fr-FR')}</span>
+                            <span> {new Date(deadline.date).toLocaleDateString('fr-FR')}</span>
                             {deadline.daysRemaining !== undefined && (
                               <span className={
                                 deadline.daysRemaining < 7

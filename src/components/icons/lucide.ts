@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Icones Lucide React - Plus de 1000 icones disponibles
  * Documentation: https://lucide.dev/icons/
  */

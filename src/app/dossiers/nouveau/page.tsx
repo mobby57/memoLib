@@ -104,7 +104,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'REGROUPEMENT_FAMILIAL', 
     label: 'Regroupement Familial', 
-    icon: '[emoji]‍[emoji]‍[emoji]',
+    icon: '‍‍',
     description: 'Faire venir sa famille en France',
     delais: ['6 mois instruction', 'Visite logement'],
     documents: ['Titre sejour', 'Justificatif ressources', 'Acte mariage', 'Bail']
@@ -354,13 +354,13 @@ export default function NouveauDossierAvance() {
             </div>
             <div className="text-right space-y-2">
               <Badge variant="default">
-                [emoji] Super Admin
+                 Super Admin
               </Badge>
               <div className="text-sm text-gray-600">
                 Avocat: <span className="font-medium text-blue-600">Me. Dupont</span> (backup)
               </div>
               <div className="text-xs text-gray-500 bg-yellow-50 px-3 py-1 rounded border border-yellow-200">
-                [emoji] Donnees anonymisees
+                 Donnees anonymisees
               </div>
             </div>
           </div>
@@ -694,7 +694,7 @@ function EtapeValidation() {
           [Check] <strong>Mode Super Admin:</strong> Ce dossier sera cree avec des donnees anonymisees. L'avocat (Me. Dupont) sera notifie en backup et pourra acceder au dossier pour traitement.
         </p>
         <p className="text-xs text-blue-600 mt-2">
-          [emoji] Les donnees personnelles sont masquees pour des raisons de confidentialite.
+           Les donnees personnelles sont masquees pour des raisons de confidentialite.
         </p>
       </div>
     </div>

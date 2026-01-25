@@ -99,7 +99,7 @@ export function ContextIdentifiedView({
             <div className="bg-white border border-gray-300 rounded-lg p-4 mb-4">
               <div className="text-sm">
                 <div className="font-semibold text-gray-700 mb-2">
-                  [emoji] Raisonnement qui a conduit a cette hypothese:
+                   Raisonnement qui a conduit a cette hypothese:
                 </div>
                 <p className="text-gray-600 whitespace-pre-wrap">{context.reasoning}</p>
               </div>
@@ -154,7 +154,7 @@ export function ContextIdentifiedView({
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">[emoji] Contextes identifies</h2>
+        <h2 className="text-2xl font-bold text-gray-900"> Contextes identifies</h2>
         <p className="text-gray-600 mt-1">
           Cadres d'interpretation possibles - Aucune verite absolue
         </p>
@@ -163,7 +163,7 @@ export function ContextIdentifiedView({
       {/* Avertissement methodologique */}
       <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
         <div className="flex items-start gap-3">
-          <div className="text-2xl">[emoji]</div>
+          <div className="text-2xl"></div>
           <div className="text-sm text-blue-900">
             <div className="font-semibold mb-1">Principe methodologique:</div>
             <p>
@@ -191,7 +191,7 @@ export function ContextIdentifiedView({
       {probable.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-orange-700">
-            [emoji] Contextes probables ({probable.length})
+             Contextes probables ({probable.length})
           </h3>
           <div className="space-y-4">
             {probable.map(renderContext)}
@@ -203,7 +203,7 @@ export function ContextIdentifiedView({
       {possible.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-yellow-700">
-            [emoji] Contextes possibles ({possible.length})
+             Contextes possibles ({possible.length})
           </h3>
           <div className="space-y-4">
             {possible.map(renderContext)}
@@ -214,7 +214,7 @@ export function ContextIdentifiedView({
       {/* Aucun contexte */}
       {contexts.length === 0 && (
         <div className="p-8 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg text-center">
-          <div className="text-4xl mb-3">[emoji]</div>
+          <div className="text-4xl mb-3"></div>
           <div className="text-gray-600">
             Aucun contexte identifie pour le moment
           </div>

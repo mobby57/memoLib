@@ -1,5 +1,5 @@
 ﻿/**
- * [emoji] SERVICE DE RAISONNEMENT IA
+ *  SERVICE DE RAISONNEMENT IA
  * 
  * Execute le raisonnement structure a travers les 8 etats
  * en utilisant Ollama (llama3.2) avec les prompts definis.
@@ -76,8 +76,8 @@ export async function executeReasoning(
       };
     }
 
-    console.log(`[emoji] Executing reasoning: ${fromState} [Next] ${toState}`);
-    console.log(`[emoji] Prompt length: ${prompt.length} chars`);
+    console.log(` Executing reasoning: ${fromState} [Next] ${toState}`);
+    console.log(` Prompt length: ${prompt.length} chars`);
 
     const aiResponse = await ollama.generateJSON(prompt);
 

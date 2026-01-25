@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les helpers RGPD
  * Couverture: anonymisation, consentement, export
  */

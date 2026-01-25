@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les statistiques du dashboard (logique pure)
  * Couverture: structure stats, calculs, tendances
  */

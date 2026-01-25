@@ -2,7 +2,7 @@
 import { runMonitors } from '@/lib/workflows/monitors';
 
 /**
- * [emoji] API Cron: Execution periodique des moniteurs
+ *  API Cron: Execution periodique des moniteurs
  * 
  * a appeler toutes les 15 minutes via un cron job
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests unitaires pour l'API /api/dossiers
  * Endpoints de gestion des dossiers
  */

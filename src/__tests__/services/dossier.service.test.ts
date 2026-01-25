@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests unitaires pour DossierService
  * Service métier central pour la gestion des dossiers
  */

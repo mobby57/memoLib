@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les préférences utilisateur
  * Couverture: paramètres, thème, langue, notifications
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Basic Health Check Test
  * Ensures the test suite is working properly
  */

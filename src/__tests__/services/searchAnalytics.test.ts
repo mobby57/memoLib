@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le service d'analytics de recherche
  * Couverture: logging, recherches populaires, historique
  */

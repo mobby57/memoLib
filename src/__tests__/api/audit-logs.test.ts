@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+﻿import { NextRequest } from 'next/server';
 import { GET, POST, PATCH, DELETE } from '@/app/api/audit-logs/route';
 import prisma from '@/lib/prisma';
 

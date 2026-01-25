@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour NotificationBell component
  * Couverture: affichage, compteur, interactions
  */

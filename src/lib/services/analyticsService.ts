@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service d'analytics predictifs
  * Utilise la regression lineaire pour prevoir les tendances
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API RGPD - Consentement et droits des clients
  * Export données, suppression, gestion consentements
  */

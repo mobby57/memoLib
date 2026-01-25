@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires cryptographiques
  * Couverture: hash, vérification, audit events
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les statuts de dossier
  * Couverture: workflow, transitions, validations
  */

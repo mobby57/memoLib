@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le composant LoadingSpinner
  * Couverture: tailles, couleurs, accessibilité, skeleton
  */

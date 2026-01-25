@@ -113,14 +113,14 @@ export function generateEcheanceReminderEmail(
                 </td>
               </tr>
               <tr>
-                <td style="padding: 8px 0; color: #6b7280;">[emoji] Dossier:</td>
+                <td style="padding: 8px 0; color: #6b7280;"> Dossier:</td>
                 <td style="padding: 8px 0; color: #1f2937; font-weight: bold;">${echeance.dossier}</td>
               </tr>
               ${echeance.description ? `
               <tr>
                 <td colspan="2" style="padding: 8px 0; color: #6b7280;">
                   <br>
-                  [emoji] Description:<br>
+                   Description:<br>
                   <span style="color: #1f2937;">${echeance.description}</span>
                 </td>
               </tr>
@@ -359,9 +359,9 @@ Resume hebdomadaire - ${new Date().toLocaleDateString('fr-FR')}
 
 Votre activite cette semaine:
 
-[emoji] ${summary.newDossiers} nouveaux dossiers
-[emoji] ${summary.totalRevenue.toFixed(2)} € de chiffre d'affaires
-[emoji] ${summary.upcomingEcheances} echeances a venir
+ ${summary.newDossiers} nouveaux dossiers
+ ${summary.totalRevenue.toFixed(2)} € de chiffre d'affaires
+ ${summary.upcomingEcheances} echeances a venir
 ️ ${summary.overdueFactures} factures en retard
 
 Voir le dashboard: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard

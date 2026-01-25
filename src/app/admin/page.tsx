@@ -129,7 +129,7 @@ export default function AdminDashboard() {
             className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
           >
             <div className="text-center">
-              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">[emoji]</span>
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform"></span>
               <p className="font-semibold text-gray-900">Gerer les Clients</p>
               <p className="text-xs text-gray-500 mt-1">{stats.clients} clients</p>
             </div>
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
             className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
           >
             <div className="text-center">
-              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">[emoji]</span>
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform"></span>
               <p className="font-semibold text-gray-900">Gerer les Dossiers</p>
               <p className="text-xs text-gray-500 mt-1">{stats.dossiers} dossiers</p>
             </div>
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
             className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
           >
             <div className="text-center">
-              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">[emoji]</span>
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform"></span>
               <p className="font-semibold text-gray-900">Messages</p>
               <p className="text-xs text-gray-500 mt-1">Conversations clients</p>
             </div>
@@ -162,7 +162,7 @@ export default function AdminDashboard() {
             className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all cursor-pointer group"
           >
             <div className="text-center">
-              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform">[emoji]</span>
+              <span className="text-5xl mb-3 block group-hover:scale-110 transition-transform"></span>
               <p className="font-semibold text-gray-900">Documents</p>
               <p className="text-xs text-gray-500 mt-1">Tous les documents</p>
             </div>
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
-                <span className="text-3xl">[emoji]</span>
+                <span className="text-3xl"></span>
               </div>
             </div>
             <div className="mt-3">
@@ -207,7 +207,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
-                <span className="text-3xl">[emoji]</span>
+                <span className="text-3xl"></span>
               </div>
             </div>
             <div className="mt-3">
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
                 <p className="text-xs text-purple-600 mt-1">Total emises</p>
               </div>
               <div className="bg-purple-100 p-3 rounded-full">
-                <span className="text-3xl">[emoji]</span>
+                <span className="text-3xl"></span>
               </div>
             </div>
           </div>
@@ -250,7 +250,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
               <div className="bg-indigo-100 p-3 rounded-full">
-                <span className="text-3xl">[emoji]</span>
+                <span className="text-3xl"></span>
               </div>
             </div>
           </div>
@@ -260,7 +260,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <span>[emoji]</span> Dossiers Urgents
+              <span></span> Dossiers Urgents
             </h2>
             <button
               onClick={() => router.push('/dossiers')}
@@ -312,7 +312,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <span>[emoji]</span> Derniers Clients
+              <span></span> Derniers Clients
             </h2>
             <button
               onClick={() => router.push('/clients')}

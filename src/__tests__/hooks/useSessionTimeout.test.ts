@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le hook useSessionTimeout
  * Couverture: timeout, warning, events
  */

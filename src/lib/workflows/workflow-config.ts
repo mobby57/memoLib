@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ️ CONFIGURATION AVANCeE DES WORKFLOWS INTELLIGENTS
  * Personnalisation complete du comportement du systeme
  */

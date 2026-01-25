@@ -13,7 +13,7 @@ export default function LawyerAdvancedPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
-              <span>[emoji]</span>
+              <span></span>
               Fonctionnalites IA Avancees
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
@@ -34,7 +34,7 @@ export default function LawyerAdvancedPage() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-violet-200 dark:border-violet-700 hover:shadow-lg transition-shadow">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900 flex items-center justify-center text-2xl">
-                [emoji]
+                
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-1">
@@ -59,7 +59,7 @@ export default function LawyerAdvancedPage() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-blue-200 dark:border-blue-700 hover:shadow-lg transition-shadow">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-2xl">
-                [emoji]
+                
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-1">
@@ -82,7 +82,7 @@ export default function LawyerAdvancedPage() {
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-emerald-200 dark:border-emerald-700 hover:shadow-lg transition-shadow">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center text-2xl">
-                [emoji]
+                
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-1">

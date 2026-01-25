@@ -161,7 +161,7 @@ function SearchContent() {
         {/* Guide de recherche */}
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-3 text-blue-900 dark:text-blue-100">
-            [emoji] Conseils de recherche
+             Conseils de recherche
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800 dark:text-blue-200">
             <div>

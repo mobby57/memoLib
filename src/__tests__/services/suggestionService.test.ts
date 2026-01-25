@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le service de suggestions intelligentes
  * Couverture: suggestions, priorités, actions contextuelles
  */

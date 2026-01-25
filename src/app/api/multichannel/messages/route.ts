@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Messages Multi-Canal
  * Récupération et gestion des messages de tous les canaux
  */

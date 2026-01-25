@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
 // Fonction de traitement OCR
 async function processOCR(documentId: string, buffer: Buffer, mimeType: string) {
   try {
-    console.log(`[emoji] Demarrage OCR pour document ${documentId}`);
+    console.log(` Demarrage OCR pour document ${documentId}`);
 
     let extractedText = '';
     let confidence = 0;

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Métriques de Performance
  * 
  * Endpoint pour récupérer les métriques de performance du système

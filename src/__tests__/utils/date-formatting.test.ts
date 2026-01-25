@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le formatage des dates
  * Couverture: formats français, relatif, délais
  */

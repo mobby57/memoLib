@@ -1,7 +1,7 @@
 ﻿import { SmartFormConfig } from '@/components/forms/SmartFormBuilder';
 
 /**
- * [emoji] Configurations de formulaires intelligents
+ *  Configurations de formulaires intelligents
  * 
  * Formulaires adaptatifs qui responsabilisent les utilisateurs
  * et impactent les decisions organisationnelles

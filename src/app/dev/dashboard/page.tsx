@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 
 /**
- * [emoji] DASHBOARD DeVELOPPEMENT AVANCe
+ *  Dashboard DeVELOPPEMENT AVANCe
  * Monitoring temps reel, debugging IA, metriques performance
  */
 
@@ -72,18 +72,18 @@ export default function DevDashboard() {
       {/* En-tete */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">[emoji] Dashboard Developpement</h1>
+          <h1 className="text-3xl font-bold"> Dashboard Developpement</h1>
           <p className="text-gray-600">Monitoring temps reel & debugging avance</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => exportLogs('json')}>
-            [emoji] Export JSON
+             Export JSON
           </Button>
           <Button variant="outline" onClick={() => exportLogs('csv')}>
-            [emoji] Export CSV
+             Export CSV
           </Button>
           <Button variant="destructive" onClick={clearLogs}>
-            [emoji]️ Clear Logs
+            ️ Clear Logs
           </Button>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function DevDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {systemHealth.status === 'healthy' ? '[emoji] Operationnel' : '[emoji] Probleme'}
+              {systemHealth.status === 'healthy' ? ' Operationnel' : ' Probleme'}
             </div>
             <p className="text-xs text-gray-500">Uptime: {systemHealth.uptime}</p>
           </CardContent>
@@ -144,9 +144,9 @@ export default function DevDashboard() {
       {/* Tabs */}
       <Tabs defaultValue="logs" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="logs">[emoji] Logs</TabsTrigger>
-          <TabsTrigger value="ai">[emoji] IA</TabsTrigger>
-          <TabsTrigger value="workflows">[emoji] Workflows</TabsTrigger>
+          <TabsTrigger value="logs"> Logs</TabsTrigger>
+          <TabsTrigger value="ai"> IA</TabsTrigger>
+          <TabsTrigger value="workflows"> Workflows</TabsTrigger>
           <TabsTrigger value="performance"> Performance</TabsTrigger>
         </TabsList>
 

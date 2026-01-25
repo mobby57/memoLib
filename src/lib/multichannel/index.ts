@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Module Multi-Canal - Export centralisé
  * Tous les canaux de communication pour cabinets d'avocats
  */

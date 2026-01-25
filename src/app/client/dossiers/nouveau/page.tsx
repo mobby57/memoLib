@@ -59,13 +59,13 @@ const TYPES_DEMANDE = [
   { 
     value: 'REGROUPEMENT_FAMILIAL', 
     label: 'Regroupement Familial', 
-    icon: '[emoji]‍[emoji]‍[emoji]‍[emoji]',
+    icon: '‍‍‍',
     description: 'Faire venir votre famille en France'
   },
   { 
     value: 'ASILE', 
     label: 'Demande d\'Asile', 
-    icon: '[emoji]️',
+    icon: '️',
     description: 'Protection internationale'
   },
   { 

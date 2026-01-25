@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les clients
  * Couverture: CRUD, validation, recherche
  */

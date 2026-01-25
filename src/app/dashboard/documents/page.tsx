@@ -161,7 +161,7 @@ export default function DocumentUploadPage() {
       error: 'bg-red-100 text-red-800',
     };
     const labels: Record<string, string> = {
-      uploading: '[emoji] Upload...',
+      uploading: ' Upload...',
       processing: ' Analyse OCR...',
       completed: ' Termine',
       error: ' Erreur',
@@ -195,7 +195,7 @@ export default function DocumentUploadPage() {
             : 'border-gray-300 hover:border-gray-400'
         }`}
       >
-        <div className="text-6xl mb-4">[emoji]</div>
+        <div className="text-6xl mb-4"></div>
         <p className="text-lg font-medium text-gray-700 mb-2">
           Glissez-deposez vos fichiers ici
         </p>
@@ -234,7 +234,7 @@ export default function DocumentUploadPage() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">
-                      {doc.filename.endsWith('.pdf') ? '' : '[emoji]️'}
+                      {doc.filename.endsWith('.pdf') ? '' : '️'}
                     </span>
                     <div>
                       <p className="font-medium">{doc.filename}</p>
@@ -257,7 +257,7 @@ export default function DocumentUploadPage() {
                     {/* Texte extrait */}
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-1">
-                        [emoji] Texte extrait:
+                         Texte extrait:
                       </p>
                       <div className="bg-gray-50 rounded-lg p-3 max-h-40 overflow-y-auto text-sm font-mono">
                         {doc.ocrText.substring(0, 1000)}
@@ -269,7 +269,7 @@ export default function DocumentUploadPage() {
                     {doc.extractedData && Object.keys(doc.extractedData).length > 0 && (
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">
-                          [emoji] Donnees analysees:
+                           Donnees analysees:
                         </p>
                         <div className="bg-blue-50 rounded-lg p-3">
                           {Object.entries(doc.extractedData).map(([key, value]) => (
@@ -298,21 +298,21 @@ export default function DocumentUploadPage() {
         <h3 className="font-semibold mb-3"> Comment ca marche ?</h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div className="text-center">
-            <div className="text-4xl mb-2">[emoji]</div>
+            <div className="text-4xl mb-2"></div>
             <p className="font-medium">1. Upload</p>
             <p className="text-sm text-gray-500">
               Importez vos documents (factures, contrats, pieces d&apos;identite...)
             </p>
           </div>
           <div className="text-center">
-            <div className="text-4xl mb-2">[emoji]</div>
+            <div className="text-4xl mb-2"></div>
             <p className="font-medium">2. Analyse OCR</p>
             <p className="text-sm text-gray-500">
               Le texte est automatiquement extrait par reconnaissance optique
             </p>
           </div>
           <div className="text-center">
-            <div className="text-4xl mb-2">[emoji]</div>
+            <div className="text-4xl mb-2"></div>
             <p className="font-medium">3. IA</p>
             <p className="text-sm text-gray-500">
               L&apos;IA identifie les informations cles (dates, montants, noms...)

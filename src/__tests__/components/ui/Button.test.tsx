@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le composant Button
  * Couverture: variants, sizes, états, accessibilité
  */

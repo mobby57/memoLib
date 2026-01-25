@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WebSocket Server for Real-Time Notifications
  * - Email arrivals
  * - Dossier updates

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le service d'analytics prédictifs
  * Couverture: prédictions revenus, taux de recouvrement, rentabilité
  */
