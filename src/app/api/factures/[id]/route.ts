@@ -6,12 +6,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
-import { withCache, invalidateByPrefix, CACHE_TTL } from '@/lib/cache';
-import { createServerLogger } from '@/lib/server-logger';
-
-const logger = createServerLogger('api-factures-id');
+import { cacheGet, cacheSet, cacheDelete, cacheInvalidatePattern, CACHE_TTL } from '@/lib/cache';
+import { logger } from '@/lib/logger';
 
 // Types
 interface RouteContext {
@@ -24,7 +23,7 @@ export async function GET(
   context: RouteContext
 ) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
@@ -37,11 +36,14 @@ export async function GET(
     // Cache key
     const cacheKey = `facture:${id}`;
 
-    const facture = await withCache(
-      cacheKey,
-      async () => {
-        // Vérifie que le modèle existe
-        const factureData = await (prisma as any).invoice?.findUnique({
+    // Try cache first
+    const cached = await cacheGet<any>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
+    // Fetch from DB
+    const factureData = await (prisma as any).invoice?.findUnique({
           where: { id },
           include: {
             client: {
@@ -66,11 +68,11 @@ export async function GET(
         });
 
         if (!factureData) {
-          return null;
+          return NextResponse.json({ error: 'Facture non trouvée' }, { status: 404 });
         }
 
         // Transformer la réponse
-        return {
+        const facture = {
           id: factureData.id,
           numero: factureData.number,
           reference: factureData.reference,
@@ -108,14 +110,9 @@ export async function GET(
           createdAt: factureData.createdAt,
           updatedAt: factureData.updatedAt,
         };
-      },
-      { ttl: CACHE_TTL.WARM }
-    );
 
-    if (!facture) {
-      return NextResponse.json({ error: 'Facture non trouvée' }, { status: 404 });
-    }
-
+    // Cache and return
+    await cacheSet(cacheKey, facture, 'WARM');
     return NextResponse.json(facture);
   } catch (error) {
     logger.error('Erreur GET facture:', error);
@@ -132,7 +129,7 @@ export async function PATCH(
   context: RouteContext
 ) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
@@ -232,7 +229,7 @@ export async function DELETE(
   context: RouteContext
 ) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
