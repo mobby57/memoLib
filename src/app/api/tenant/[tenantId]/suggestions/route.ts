@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 interface SuggestionsParams {
-  params: { tenantId: string };
+  params: Promise<{ tenantId: string }>;
 }
 
 export async function GET(
@@ -15,16 +15,26 @@ export async function GET(
   { params }: SuggestionsParams
 ) {
   try {
-    const { tenantId } = params;
+    const { tenantId } = await params;
     const now = new Date();
-    const suggestions = [];
+    const suggestions: Array<{
+      id: string;
+      type: string;
+      priority: string;
+      title: string;
+      description: string;
+      confidence: number;
+      actionSuggested: string;
+      details: unknown[];
+      estimatedTimeGain: string;
+    }> = [];
 
-    // 1. Dossiers inactifs (> 14 jours)
+    // 1. Dossiers inactifs (> 14 jours) - utilise updatedAt au lieu de lastActivityAt
     const inactiveDossiers = await prisma.dossier.findMany({
       where: {
         tenantId,
         statut: 'en_cours',
-        lastActivityAt: {
+        updatedAt: {
           lt: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
         }
       },
@@ -48,7 +58,7 @@ export async function GET(
         details: inactiveDossiers.map(d => ({
           dossierId: d.id,
           clientName: `${d.client.firstName} ${d.client.lastName}`,
-          daysSinceActivity: Math.floor((now.getTime() - new Date(d.lastActivityAt).getTime()) / (24 * 60 * 60 * 1000))
+          daysSinceActivity: Math.floor((now.getTime() - new Date(d.updatedAt).getTime()) / (24 * 60 * 60 * 1000))
         })),
         estimatedTimeGain: '30 minutes/jour'
       });
@@ -88,15 +98,17 @@ export async function GET(
       });
     }
 
-    // 3. Échéances proches (< 14 jours)
-    const echeancesProches = await prisma.echeance.findMany({
+    // 3. Échéances proches (< 14 jours) - utilise LegalDeadline
+    const echeancesProches = await prisma.legalDeadline.findMany({
       where: {
-        tenantId,
-        dateEcheance: {
+        dossier: {
+          tenantId
+        },
+        dueDate: {
           gte: now,
           lte: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000)
         },
-        statut: 'a_venir'
+        status: 'PENDING'
       },
       include: {
         dossier: {
@@ -107,13 +119,13 @@ export async function GET(
           }
         }
       },
-      orderBy: { dateEcheance: 'asc' },
+      orderBy: { dueDate: 'asc' },
       take: 10
     });
 
     if (echeancesProches.length > 0) {
       const critiques = echeancesProches.filter(e => 
-        new Date(e.dateEcheance).getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000
+        new Date(e.dueDate).getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000
       );
 
       suggestions.push({
@@ -130,25 +142,26 @@ export async function GET(
           echeanceId: e.id,
           type: e.type,
           clientName: `${e.dossier.client.firstName} ${e.dossier.client.lastName}`,
-          daysUntilDeadline: Math.ceil((new Date(e.dateEcheance).getTime() - now.getTime()) / (24 * 60 * 60 * 1000)),
-          isCritical: new Date(e.dateEcheance).getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000
+          daysUntilDeadline: Math.ceil((new Date(e.dueDate).getTime() - now.getTime()) / (24 * 60 * 60 * 1000)),
+          isCritical: new Date(e.dueDate).getTime() - now.getTime() < 3 * 24 * 60 * 60 * 1000
         })),
         estimatedTimeGain: '1 heure/jour'
       });
     }
 
-    // 4. Opportunités d'automatisation (actions répétitives)
-    const aiActions = await prisma.aIAction.findMany({
+    // 4. Opportunités d'automatisation (basé sur les audits récents)
+    const recentAudits = await prisma.auditLog.findMany({
       where: {
         tenantId,
         createdAt: {
           gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
         }
-      }
+      },
+      take: 100
     });
 
-    const actionsByType = aiActions.reduce((acc, action) => {
-      acc[action.actionType] = (acc[action.actionType] || 0) + 1;
+    const actionsByType = recentAudits.reduce((acc, audit) => {
+      acc[audit.action] = (acc[audit.action] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
