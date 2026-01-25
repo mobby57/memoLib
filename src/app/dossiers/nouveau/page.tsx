@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -80,7 +80,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'TITRE_SEJOUR', 
     label: 'Titre de Sejour', 
-    icon: '[emoji]',
+    icon: '',
     description: 'Premiere demande ou renouvellement',
     delais: ['60 jours avant expiration', 'Recepisse', 'Decision prefecture'],
     documents: ['Passeport', 'Photos', 'Justificatif domicile', 'Contrat travail']

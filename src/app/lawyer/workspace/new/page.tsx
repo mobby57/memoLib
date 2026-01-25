@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -16,17 +16,17 @@ type SourceType = 'EMAIL' | 'FORM' | 'PHONE' | 'COURRIER' | 'MANUAL';
 
 const SOURCE_TYPE_CONFIG = {
   EMAIL: {
-    icon: '[emoji]',
+    icon: '',
     label: 'Email',
     description: 'Creer depuis un email recu',
   },
   FORM: {
-    icon: '[emoji]',
+    icon: '',
     label: 'Formulaire',
     description: 'Creer depuis une soumission de formulaire',
   },
   PHONE: {
-    icon: '[emoji]',
+    icon: '',
     label: 'Telephone',
     description: 'Creer depuis un appel telephonique',
   },
