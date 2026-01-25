@@ -36,7 +36,6 @@ jobs:
       with:
         sarif_file: 'trivy-results-fs.sarif'
         category: 'trivy-dependencies'
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Generate readable report
       uses: aquasecurity/trivy-action@master
@@ -84,7 +83,6 @@ jobs:
       with:
         sarif_file: 'trivy-results-docker.sarif'
         category: 'trivy-docker'
-        token: ${{ secrets.GITHUB_TOKEN }}
 
   scan-config:
     name: Scan Configuration Files
@@ -112,7 +110,6 @@ jobs:
       with:
         sarif_file: 'trivy-results-config.sarif'
         category: 'trivy-config'
-        token: ${{ secrets.GITHUB_TOKEN }}
 
   scan-secrets:
     name: Scan for Secrets
@@ -142,7 +139,6 @@ jobs:
       with:
         sarif_file: 'trivy-results-secrets.sarif'
         category: 'trivy-secrets'
-        token: ${{ secrets.GITHUB_TOKEN }}
 
   summary:
     name: Security Summary

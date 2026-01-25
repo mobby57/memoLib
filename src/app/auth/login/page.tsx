@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 import { signIn } from 'next-auth/react';
 import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -40,8 +43,8 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Email ou mot de passe incorrect');
         setLoading(false);
-      } else {
-        router.push('/dashboard');
+      } else if (result?.ok) {
+        window.location.href = '/dashboard';
       }
     } catch (error) {
       logger.error('Erreur connexion utilisateur', { error, email });

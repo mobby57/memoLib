@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { Mail, Send, CheckCircle, Loader2, AlertCircle, User, Building } from 'lucide-react';
 

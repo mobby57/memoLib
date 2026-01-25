@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 import { 
   Menu, X, Search, User, FileText, LayoutDashboard, Settings, 
   Check, AlertCircle, LogOut, Home, Users, Folder, Mail, Bell,
