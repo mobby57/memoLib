@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -236,7 +236,7 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
             <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-              [emoji] Factures
+               Factures
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
               Exportez toutes vos factures avec statistiques

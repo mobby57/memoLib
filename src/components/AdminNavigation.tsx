@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 
@@ -30,19 +30,19 @@ export default function AdminNavigation() {
               href="/admin/documents"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              [emoji] Documents
+               Documents
             </Link>
             <Link
               href="/admin/messages"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              [emoji] Messages
+               Messages
             </Link>
             <Link
               href="/admin/email-monitoring"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              [emoji] Emails
+               Emails
             </Link>
             <Link
               href="/admin/ai-usage"

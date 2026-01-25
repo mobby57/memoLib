@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Orchestrateur principal du Workspace Reasoning
  * Route vers le bon composant d'etat + Timeline de progression
  */
@@ -322,7 +322,7 @@ export function WorkspaceReasoningOrchestrator({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
-            [emoji] Workspace Reasoning Engine
+             Workspace Reasoning Engine
           </h1>
           <p className="text-gray-600 mt-1">
             Raisonnement structure - etat actuel: <strong>{WORKSPACE_STATES[workspace.currentState].label}</strong>
@@ -339,7 +339,7 @@ export function WorkspaceReasoningOrchestrator({
           
           {workspace.locked && (
             <span className="px-4 py-2 text-sm font-bold bg-purple-600 text-white rounded">
-              [emoji] Verrouille
+               Verrouille
             </span>
           )}
         </div>
@@ -360,7 +360,7 @@ export function WorkspaceReasoningOrchestrator({
       {showHistory && transitions.length > 0 && (
         <details open className="bg-gray-50 border-2 border-gray-300 rounded-lg p-4">
           <summary className="font-semibold text-gray-900 cursor-pointer mb-3">
-            [emoji] Historique des transitions ({transitions.length})
+             Historique des transitions ({transitions.length})
           </summary>
           <div className="space-y-2">
             {transitions.map((t, index) => (

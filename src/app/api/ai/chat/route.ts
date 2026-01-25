@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { traceAsync, collectMetric } from '@/lib/monitoring';
 import { checkAICostLimit, recordAIUsage } from '@/lib/billing/cost-guard';
 

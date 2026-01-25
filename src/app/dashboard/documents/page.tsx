@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -162,7 +162,7 @@ export default function DocumentUploadPage() {
     };
     const labels: Record<string, string> = {
       uploading: '[emoji] Upload...',
-      processing: '[emoji] Analyse OCR...',
+      processing: ' Analyse OCR...',
       completed: ' Termine',
       error: ' Erreur',
     };
@@ -177,7 +177,7 @@ export default function DocumentUploadPage() {
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">[emoji] Documents & OCR</h1>
+        <h1 className="text-2xl font-bold text-gray-900"> Documents & OCR</h1>
         <p className="text-gray-600">
           Importez vos documents pour extraction automatique du texte et des donnees
         </p>
@@ -234,7 +234,7 @@ export default function DocumentUploadPage() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">
-                      {doc.filename.endsWith('.pdf') ? '[emoji]' : '[emoji]️'}
+                      {doc.filename.endsWith('.pdf') ? '' : '[emoji]️'}
                     </span>
                     <div>
                       <p className="font-medium">{doc.filename}</p>
@@ -295,7 +295,7 @@ export default function DocumentUploadPage() {
 
       {/* Instructions */}
       <div className="mt-8 bg-white rounded-lg shadow p-6">
-        <h3 className="font-semibold mb-3">[emoji] Comment ca marche ?</h3>
+        <h3 className="font-semibold mb-3"> Comment ca marche ?</h3>
         <div className="grid md:grid-cols-3 gap-4">
           <div className="text-center">
             <div className="text-4xl mb-2">[emoji]</div>

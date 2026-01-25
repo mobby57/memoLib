@@ -1,4 +1,4 @@
-/**
+﻿/**
  * [emoji] PROMPTS SYSTeME - Moteur de Raisonnement IA
  * 
  * Prompts structures pour guider l'IA (Ollama llama3.2) a travers

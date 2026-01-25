@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -96,7 +96,7 @@ export default function WorkspacesPage() {
                 <option value="RECEIVED">[emoji] Recu</option>
                 <option value="FACTS_EXTRACTED">[emoji] Faits extraits</option>
                 <option value="CONTEXT_IDENTIFIED">[emoji] Contexte identifie</option>
-                <option value="OBLIGATIONS_DEDUCED">[emoji] Obligations deduites</option>
+                <option value="OBLIGATIONS_DEDUCED"> Obligations deduites</option>
                 <option value="MISSING_IDENTIFIED"> Manques identifies</option>
                 <option value="RISK_EVALUATED">️ Risques evalues</option>
                 <option value="ACTION_PROPOSED">[emoji] Action proposee</option>

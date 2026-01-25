@@ -1,4 +1,4 @@
-/**
+﻿/**
  * [emoji] SYSTeME DE LOGGING AVANCe POUR DeVELOPPEMENT
  * Tracabilite complete, metriques temps reel, debugging IA
  */
@@ -150,7 +150,7 @@ class AdvancedLogger {
       this.metrics.push(metric);
 
       const emoji = success ? '' : '';
-      const color = duration < 100 ? '[emoji]' : duration < 500 ? '[emoji]' : '[emoji]';
+      const color = duration < 100 ? '' : duration < 500 ? '' : '';
       this.log(
         LogLevel.INFO,
         category,
@@ -170,7 +170,7 @@ class AdvancedLogger {
     duration: number,
     tokens?: { prompt: number; completion: number; total: number }
   ): void {
-    this.log(LogLevel.INFO, LogCategory.AI, '[emoji] Analyse IA completee', {
+    this.log(LogLevel.INFO, LogCategory.AI, ' Analyse IA completee', {
       model,
       promptLength: prompt.length,
       responseLength: response.length,
@@ -208,7 +208,7 @@ class AdvancedLogger {
     status: 'started' | 'completed' | 'failed',
     data?: Record<string, any>
   ): void {
-    const emoji = status === 'completed' ? '' : status === 'failed' ? '' : '[emoji]';
+    const emoji = status === 'completed' ? '' : status === 'failed' ? '' : '';
     const level = status === 'failed' ? LogLevel.ERROR : LogLevel.INFO;
 
     this.log(
@@ -227,7 +227,7 @@ class AdvancedLogger {
     action: string,
     metadata?: Record<string, any>
   ): void {
-    this.log(LogLevel.INFO, LogCategory.EMAIL, `[emoji] Email ${action}`, {
+    this.log(LogLevel.INFO, LogCategory.EMAIL, ` Email ${action}`, {
       emailId,
       action,
       ...metadata,
@@ -243,7 +243,7 @@ class AdvancedLogger {
     details: Record<string, any>
   ): void {
     const level = severity === 'critical' ? LogLevel.CRITICAL : LogLevel.WARN;
-    this.log(level, LogCategory.SECURITY, `[emoji] evenement securite: ${eventType}`, {
+    this.log(level, LogCategory.SECURITY, ` evenement securite: ${eventType}`, {
       severity,
       ...details,
     });
@@ -262,14 +262,14 @@ class AdvancedLogger {
     };
 
     const categoryEmojis = {
-      [LogCategory.AI]: '[emoji]',
-      [LogCategory.WORKFLOW]: '[emoji]',
-      [LogCategory.EMAIL]: '[emoji]',
-      [LogCategory.NOTIFICATION]: '[emoji]',
-      [LogCategory.FORM]: '[emoji]',
-      [LogCategory.CALENDAR]: '[emoji]',
-      [LogCategory.DATABASE]: '[emoji]',
-      [LogCategory.SECURITY]: '[emoji]',
+      [LogCategory.AI]: '',
+      [LogCategory.WORKFLOW]: '',
+      [LogCategory.EMAIL]: '',
+      [LogCategory.NOTIFICATION]: '',
+      [LogCategory.FORM]: '',
+      [LogCategory.CALENDAR]: '',
+      [LogCategory.DATABASE]: '',
+      [LogCategory.SECURITY]: '',
       [LogCategory.PERFORMANCE]: '',
       [LogCategory.API]: '🌐',
     };

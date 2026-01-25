@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Webhook Stripe - Gestion des evenements de paiement
  * IMPORTANT: Cette route doit etre en mode RAW body (pas de parsing JSON automatique)
  */
