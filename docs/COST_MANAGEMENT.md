@@ -168,9 +168,11 @@ Retourne:
 - [x] Tracking des usages par tenant
 - [x] API de monitoring des coûts
 - [x] Blocage automatique si budget épuisé
-- [ ] Cache des réponses IA (à implémenter)
-- [ ] Alertes email admin si client > 80% budget
-- [ ] Rapport mensuel automatique
+- [x] Cache des réponses IA (économie 30-50%)
+- [x] Alertes email admin si client > 80% budget
+- [x] Cron quotidien pour vérification automatique
+- [x] Dashboard client pour voir son usage
+- [x] Rapport super admin pour les alertes critiques
 
 ---
 

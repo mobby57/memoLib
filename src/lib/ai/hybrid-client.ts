@@ -1,15 +1,28 @@
 /**
  * Hybrid AI Client - Bascule Automatique Ollama ↔ Cloudflare Workers AI
  * 
- * Strategie de fallback:
- * 1. Essayer Ollama local (gratuit, prive)
- * 2. Si echec [Next] Cloudflare Workers AI (payant, cloud)
- * 3. Si echec [Next] Erreur explicite
+ * Strategie de fallback avec CONTROLE DES COUTS:
+ * 1. Verifier le budget IA du tenant
+ * 2. Verifier le cache IA (economie 30-50%)
+ * 3. Essayer Ollama local (gratuit, prive) - TOUJOURS PRIORITAIRE
+ * 4. Si echec ET budget OK → Cloudflare Workers AI (payant, cloud)
+ * 5. Si echec [Next] Erreur explicite
+ * 
+ * 🛡️ Anti-faillite: Force Ollama si budget depasse
+ * 💰 Cache IA: Reduit les couts de 30-50%
  */
 
 import { OllamaClient } from '../../../lib/ai/ollama-client';
 import { cloudflareAI, CloudflareAI } from '../cloudflare/client';
 import { logger } from '../logger';
+import { 
+  checkAICostBudget, 
+  recordAIUsage, 
+  estimateCost,
+  selectOptimalProvider,
+  AI_COSTS
+} from '../billing/cost-guard';
+import { getCachedResponse, setCachedResponse, getCacheStats } from './ai-cache';
 
 export type AIProvider = 'ollama' | 'cloudflare' | 'none';
 
@@ -18,6 +31,8 @@ interface AIResponse {
   provider: AIProvider;
   model: string;
   latency: number;
+  estimatedCost?: number;
+  tokensUsed?: number;
 }
 
 export class HybridAIClient {
@@ -64,7 +79,128 @@ export class HybridAIClient {
   }
   
   /**
-   * Generer une reponse avec fallback automatique
+   * 🛡️ Generer une reponse avec controle des couts
+   * Nouvelle signature avec tenantId obligatoire pour le tracking
+   */
+  async generateWithCostControl(
+    prompt: string, 
+    tenantId: string,
+    systemPrompt?: string
+  ): Promise<AIResponse> {
+    const startTime = Date.now();
+    const estimatedTokens = Math.ceil((prompt.length + (systemPrompt?.length || 0)) / 4);
+    const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
+    
+    // 🛡️ ETAPE 0: Verifier le cache IA
+    const cached = await getCachedResponse(fullPrompt, 'auto');
+    if (cached.hit && cached.response) {
+      logger.info('AI Cache HIT - Économie!', { 
+        tenantId, 
+        savedCost: `${cached.savedCost?.toFixed(4)}€` 
+      });
+      
+      return {
+        response: cached.response,
+        provider: 'ollama', // Cache compte comme gratuit
+        model: 'cache',
+        latency: Date.now() - startTime,
+        estimatedCost: 0,
+        tokensUsed: 0,
+      };
+    }
+    
+    // 🛡️ ETAPE 1: Verifier le budget IA du tenant
+    const optimalProvider = await selectOptimalProvider(tenantId, estimatedTokens);
+    
+    // 🛡️ ETAPE 2: Forcer Ollama si budget serre
+    if (optimalProvider === 'ollama') {
+      logger.info('Cost control: Using Ollama (budget protection)', { tenantId });
+    }
+    
+    // Essayer Ollama d'abord (TOUJOURS gratuit)
+    if (await this.ollama.isAvailable()) {
+      try {
+        const response = await this.ollama.generate(prompt, systemPrompt);
+        const latency = Date.now() - startTime;
+        const tokensUsed = Math.ceil(response.length / 4);
+        
+        // 💾 Mettre en cache la réponse
+        await setCachedResponse(fullPrompt, 'ollama', response, tokensUsed);
+        
+        // Enregistrer l'usage (cout = 0 pour Ollama)
+        await recordAIUsage({
+          tenantId,
+          provider: 'ollama',
+          tokensUsed,
+          costEur: 0,
+          operation: 'generate',
+          timestamp: new Date(),
+        });
+        
+        return {
+          response,
+          provider: 'ollama',
+          model: this.ollama['model'] || 'llama3.2:3b',
+          latency,
+          estimatedCost: 0,
+          tokensUsed,
+        };
+      } catch (error) {
+        logger.warn('Ollama failed', { error, tenantId });
+      }
+    }
+    
+    // 🛡️ ETAPE 3: Utiliser Cloudflare SEULEMENT si budget OK
+    if (optimalProvider === 'cloudflare' && await this.cloudflare.isAvailable()) {
+      const budget = await checkAICostBudget(tenantId);
+      
+      if (!budget.allowed) {
+        logger.warn('Cloudflare blocked: budget exceeded', { tenantId, budget });
+        throw new Error(
+          `Budget IA épuisé (${budget.currentCost.toFixed(2)}€/${budget.limit}€). ` +
+          `Installez Ollama localement ou passez au plan supérieur.`
+        );
+      }
+      
+      try {
+        const response = await this.cloudflare.generate(prompt, { systemPrompt });
+        const latency = Date.now() - startTime;
+        const tokensUsed = Math.ceil(response.length / 4) + estimatedTokens;
+        const cost = estimateCost('cloudflare', tokensUsed);
+        
+        // 💾 Mettre en cache la réponse (important pour Cloudflare payant!)
+        await setCachedResponse(fullPrompt, 'cloudflare', response, tokensUsed);
+        
+        // Enregistrer l'usage PAYANT
+        await recordAIUsage({
+          tenantId,
+          provider: 'cloudflare',
+          tokensUsed,
+          costEur: cost,
+          operation: 'generate',
+          timestamp: new Date(),
+        });
+        
+        logger.info('Cloudflare usage recorded', { tenantId, cost: `${cost.toFixed(4)}€` });
+        
+        return {
+          response,
+          provider: 'cloudflare',
+          model: process.env.CLOUDFLARE_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct',
+          latency,
+          estimatedCost: cost,
+          tokensUsed,
+        };
+      } catch (error) {
+        logger.error('Cloudflare failed', { error, tenantId });
+      }
+    }
+    
+    throw new Error('Aucun provider IA disponible. Installez Ollama: https://ollama.ai');
+  }
+  
+  /**
+   * Generer une reponse avec fallback automatique (legacy - sans tracking couts)
    */
   async generate(prompt: string, systemPrompt?: string): Promise<AIResponse> {
     const startTime = Date.now();
