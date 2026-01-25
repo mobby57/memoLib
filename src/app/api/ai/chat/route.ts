@@ -1,9 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { traceAsync, collectMetric } from '@/lib/monitoring';
+import { checkAICostLimit, recordAIUsage } from '@/lib/billing/cost-guard';
 
 export async function POST(request: NextRequest) {
+  const startTime = performance.now();
+  
   try {
     const { message, tenantId, context } = await request.json();
-    const response = await processAIChat(message, tenantId, context);
+    
+    // Vérifier la limite de coûts IA
+    if (tenantId) {
+      const costCheck = await checkAICostLimit(tenantId, 'gpt-4-turbo');
+      if (!costCheck.allowed) {
+        return NextResponse.json(
+          { success: false, error: 'AI budget limit reached', budgetRemaining: costCheck.budgetRemaining },
+          { status: 429 }
+        );
+      }
+    }
+    
+    const response = await traceAsync(
+      'ai.chat.process',
+      () => processAIChat(message, tenantId, context),
+      { operation: 'ai.inference', tags: { model: 'local' } }
+    );
+    
+    // Enregistrer l'utilisation (coût approximatif)
+    if (tenantId) {
+      await recordAIUsage(tenantId, 'local-llm', message.length, response.content.length);
+    }
+    
+    // Collecter la métrique de performance
+    collectMetric('api.ai.chat', performance.now() - startTime);
     
     return NextResponse.json({
       success: true,
@@ -11,6 +39,7 @@ export async function POST(request: NextRequest) {
       suggestedActions: response.actions
     });
   } catch (error) {
+    collectMetric('api.ai.chat.error', performance.now() - startTime);
     return NextResponse.json(
       { success: false, error: 'Failed to process chat message' },
       { status: 500 }
