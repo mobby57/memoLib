@@ -1,0 +1,25 @@
+# Cloudflare Pages Redirects Configuration
+# Documentation: https://developers.cloudflare.com/pages/platform/redirects
+
+# Force HTTPS
+http://:project.pages.dev/* https://:project.pages.dev/:splat 301!
+
+# Redirect old paths to new workspace system
+/dossiers/* /workspaces/:splat 301
+/cases/* /workspaces/:splat 301
+
+# API redirects (si backend séparé)
+# /api/v1/* https://api.iaposte-manager.com/v1/:splat 200
+
+# Redirect root to dashboard based on role (géré par Next.js)
+# /dashboard /lawyer/dashboard 302
+
+# Trailing slash normalization
+/*/ /:splat 301
+
+# Legacy routes
+/admin /super-admin 301
+/settings/profile /settings/account 301
+
+# 404 fallback (Next.js gère le 404)
+# /* /404.html 404
