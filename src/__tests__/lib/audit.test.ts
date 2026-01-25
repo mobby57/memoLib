@@ -1,7 +1,15 @@
 import { createAuditLog, getAuditContext } from '@/lib/audit';
 import prisma from '@/lib/prisma';
 
-jest.mock('@/lib/prisma');
+jest.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  default: {
+    auditLog: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+    },
+  },
+}));
 
 describe('Audit Middleware', () => {
   beforeEach(() => {
