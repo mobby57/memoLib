@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { cacheThrough, cacheDelete, cacheInvalidatePattern, TTL_TIERS } from '@/lib/cache';
 
 // GET - Liste des clients d'un tenant
 export async function GET(request: NextRequest) {
@@ -12,20 +13,28 @@ export async function GET(request: NextRequest) {
     const limit = Math.max(1, parseInt(searchParams.get('limit') || '100', 10) || 100);
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10) || 0);
 
-    // Recuperer un client specifique
+    // Recuperer un client specifique (avec cache)
     if (clientId) {
       if (!tenantId) {
         return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
       }
-      const client = await prisma.client.findFirst({
-        where: { id: clientId, tenantId },
-        include: {
-          dossiers: true,
-          emails: { take: 10, orderBy: { receivedAt: 'desc' } },
-          factures: { take: 10, orderBy: { dateEmission: 'desc' } },
-          _count: { select: { dossiers: true, emails: true, factures: true } },
+      
+      const client = await cacheThrough(
+        `client:${tenantId}:${clientId}`,
+        async () => {
+          return prisma.client.findFirst({
+            where: { id: clientId, tenantId },
+            include: {
+              dossiers: true,
+              emails: { take: 10, orderBy: { receivedAt: 'desc' } },
+              factures: { take: 10, orderBy: { dateEmission: 'desc' } },
+              _count: { select: { dossiers: true, emails: true, factures: true } },
+            },
+          });
         },
-      });
+        TTL_TIERS.WARM // 5 min cache
+      );
+      
       if (!client) {
         return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
       }
@@ -36,41 +45,47 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
     }
 
-    // Construire la requete
-    const where: Record<string, unknown> = search
-      ? {
-          AND: [
-            { tenantId },
-            ...(status ? [{ status }] : []),
-            {
-              OR: [
-                { firstName: { contains: search, mode: 'insensitive' } },
-                { lastName: { contains: search, mode: 'insensitive' } },
-                { email: { contains: search, mode: 'insensitive' } },
-              ],
-            },
-          ],
-        }
-      : { tenantId, ...(status && { status }) };
+    // Liste avec cache (seulement si pas de recherche)
+    const cacheKey = search ? null : `clients:${tenantId}:${status || 'all'}:${limit}:${offset}`;
+    
+    const fetchClients = async () => {
+      const where: Record<string, unknown> = search
+        ? {
+            AND: [
+              { tenantId },
+              ...(status ? [{ status }] : []),
+              {
+                OR: [
+                  { firstName: { contains: search, mode: 'insensitive' } },
+                  { lastName: { contains: search, mode: 'insensitive' } },
+                  { email: { contains: search, mode: 'insensitive' } },
+                ],
+              },
+            ],
+          }
+        : { tenantId, ...(status && { status }) };
 
-    const [clients, total] = await Promise.all([
-      prisma.client.findMany({
-        where,
-        include: {
-          _count: { select: { dossiers: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        skip: offset,
-      }),
-      prisma.client.count({ where }),
-    ]);
+      const [clients, total] = await Promise.all([
+        prisma.client.findMany({
+          where,
+          include: {
+            _count: { select: { dossiers: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          skip: offset,
+        }),
+        prisma.client.count({ where }),
+      ]);
 
-    return NextResponse.json({ 
-      clients, 
-      total,
-      hasMore: offset + clients.length < total,
-    });
+      return { clients, total, hasMore: offset + clients.length < total };
+    };
+
+    const result = cacheKey 
+      ? await cacheThrough(cacheKey, fetchClients, TTL_TIERS.HOT)
+      : await fetchClients();
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Erreur GET clients:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
@@ -141,6 +156,9 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
+    // Invalider le cache des listes clients
+    await cacheInvalidatePattern(`clients:${tenantId}:*`);
+
     return NextResponse.json({ success: true, client });
   } catch (error) {
     console.error('Erreur POST client:', error);
@@ -187,6 +205,12 @@ export async function PATCH(request: NextRequest) {
       data: updateData,
     });
 
+    // Invalider le cache du client et des listes
+    await Promise.all([
+      cacheDelete(`client:${existing.tenantId}:${clientId}`),
+      cacheInvalidatePattern(`clients:${existing.tenantId}:*`),
+    ]);
+
     return NextResponse.json({ success: true, client });
   } catch (error) {
     console.error('Erreur PATCH client:', error);
@@ -219,6 +243,12 @@ export async function DELETE(request: NextRequest) {
         where: { id: client.tenantId },
         data: { currentClients: { decrement: 1 } },
       }),
+    ]);
+
+    // Invalider le cache
+    await Promise.all([
+      cacheDelete(`client:${client.tenantId}:${clientId}`),
+      cacheInvalidatePattern(`clients:${client.tenantId}:*`),
     ]);
 
     return NextResponse.json({ success: true });
