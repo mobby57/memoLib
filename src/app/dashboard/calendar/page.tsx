@@ -149,7 +149,7 @@ export default function CalendarPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">[emoji] Calendrier</h1>
+          <h1 className="text-2xl font-bold text-gray-900"> Calendrier</h1>
           <p className="text-gray-600">Gerez vos rendez-vous et echeances</p>
         </div>
         <button
@@ -276,7 +276,7 @@ export default function CalendarPage() {
 
       {/* Prochains evenements */}
       <div className="mt-6 bg-white rounded-lg shadow p-4">
-        <h3 className="font-semibold mb-3">[emoji] Prochains evenements</h3>
+        <h3 className="font-semibold mb-3"> Prochains evenements</h3>
         {events
           .filter((e) => new Date(e.startDate) >= new Date())
           .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
@@ -429,11 +429,11 @@ function NewEventModal({
               onChange={(e) => setType(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg"
             >
-              <option value="rdv">[emoji] Rendez-vous</option>
+              <option value="rdv"> Rendez-vous</option>
               <option value="audience">️ Audience</option>
               <option value="deadline"> echeance</option>
-              <option value="rappel">[emoji] Rappel</option>
-              <option value="autre">[emoji] Autre</option>
+              <option value="rappel"> Rappel</option>
+              <option value="autre"> Autre</option>
             </select>
           </div>
 
@@ -525,11 +525,11 @@ function EventDetailModal({
   };
 
   const typeLabels: Record<string, string> = {
-    rdv: '[emoji] Rendez-vous',
+    rdv: ' Rendez-vous',
     audience: '️ Audience',
     deadline: ' echeance',
-    rappel: '[emoji] Rappel',
-    autre: '[emoji] Autre',
+    rappel: ' Rappel',
+    autre: ' Autre',
   };
 
   return (
@@ -573,14 +573,14 @@ function EventDetailModal({
 
           {event.description && (
             <div>
-              <span className="text-gray-500">[emoji] Description:</span>
+              <span className="text-gray-500"> Description:</span>
               <p className="mt-1">{event.description}</p>
             </div>
           )}
 
           {event.client && (
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">[emoji] Client:</span>
+              <span className="text-gray-500"> Client:</span>
               <span>
                 {event.client.firstName} {event.client.lastName}
               </span>
@@ -589,7 +589,7 @@ function EventDetailModal({
 
           {event.dossier && (
             <div className="flex items-center gap-2">
-              <span className="text-gray-500">[emoji] Dossier:</span>
+              <span className="text-gray-500"> Dossier:</span>
               <span>{event.dossier.numero}</span>
             </div>
           )}
@@ -601,7 +601,7 @@ function EventDetailModal({
             disabled={loading}
             className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50"
           >
-            [emoji]️ Supprimer
+            ️ Supprimer
           </button>
           <button onClick={onClose} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
             Fermer

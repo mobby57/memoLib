@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Checkout Stripe
  * Cree une session de paiement pour s'abonner a un plan
  */

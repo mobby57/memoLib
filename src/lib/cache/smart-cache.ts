@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SMART CACHE - Cache multi-couche avec Redis Upstash
  * Pattern Cache-Aside avec invalidation automatique
  */
@@ -31,6 +31,9 @@ export const CACHE_TTL = {
   STATIC: 86400,    // 24h - référentiels (CESEDA, etc.)
   SESSION: 1800,    // 30 min - sessions utilisateur
 } as const;
+
+// Alias pour compatibilité
+export const TTL_TIERS = CACHE_TTL;
 
 export type CacheTier = keyof typeof CACHE_TTL;
 

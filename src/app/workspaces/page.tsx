@@ -92,10 +92,10 @@ export default function WorkspacesPage() {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Tous</option>
-                <option value="CRITIQUE">[emoji] Critique</option>
-                <option value="ELEVE">[emoji] eleve</option>
-                <option value="MOYEN">[emoji] Moyen</option>
-                <option value="FAIBLE">[emoji] Faible</option>
+                <option value="CRITIQUE"> Critique</option>
+                <option value="ELEVE"> eleve</option>
+                <option value="MOYEN"> Moyen</option>
+                <option value="FAIBLE"> Faible</option>
               </select>
             </div>
 

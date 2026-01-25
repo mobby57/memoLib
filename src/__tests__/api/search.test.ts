@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de recherche (logique pure)
  * Couverture: validation query, filtrage types, analytics
  */

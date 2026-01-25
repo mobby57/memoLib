@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de validation de mot de passe
  * Couverture: force, règles, sécurité
  */

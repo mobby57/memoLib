@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour l'audit et les logs
  * Couverture: journalisation, actions, traçabilité
  */

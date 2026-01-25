@@ -46,7 +46,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">
-            [emoji] Niveau d'Incertitude
+             Niveau d'Incertitude
           </h3>
           <span className={`
             px-3 py-1 rounded-full text-sm font-medium
@@ -75,8 +75,8 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
         <p className="text-sm text-gray-600 mt-2">
           {uncertaintyPercent < 20 ? ' Tres faible incertitude - Actionnable' :
            uncertaintyPercent < 50 ? '️ Incertitude moderee - Validation recommandee' :
-           uncertaintyPercent < 80 ? '[emoji] Incertitude elevee - Validation requise' :
-           '[emoji] Incertitude critique - Investigation approfondie necessaire'}
+           uncertaintyPercent < 80 ? ' Incertitude elevee - Validation requise' :
+           ' Incertitude critique - Investigation approfondie necessaire'}
         </p>
       </div>
       
@@ -167,7 +167,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
               px-2 py-1 rounded text-xs font-medium
               ${workspace.locked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}
             `}>
-              {workspace.locked ? ' Verrouille' : '[emoji] En cours'}
+              {workspace.locked ? ' Verrouille' : ' En cours'}
             </span>
           </div>
         </div>

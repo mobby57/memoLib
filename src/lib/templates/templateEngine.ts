@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Moteur de templates pour generation de documents
  * Supporte les variables dynamiques: {{nom_client}}, {{date}}, etc.
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les intégrations tierces
  * Couverture: OAuth, API externes, webhooks
  */

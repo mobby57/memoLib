@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour la logique des rapports (logique pure)
  * Couverture: types de rapports, formats, validation
  */

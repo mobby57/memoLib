@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Alert } from '@/components/ui/Alert';
 
 /**
- * [emoji] Page de Notifications Contextuelles Interactives
+ *  Page de Notifications Contextuelles Interactives
  */
 
 interface Notification {
@@ -100,7 +100,7 @@ export default function NotificationsPage() {
     <div className="container mx-auto p-6 space-y-6">
       {/* En-tete */}
       <div>
-        <h1 className="text-3xl font-bold">[emoji] Notifications Interactives</h1>
+        <h1 className="text-3xl font-bold"> Notifications Interactives</h1>
         <p className="text-gray-600">
           Actions requises pour vos emails et workflows
         </p>
@@ -135,7 +135,7 @@ export default function NotificationsPage() {
       {/* Notifications Critiques */}
       {criticalNotifications.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-red-600">[emoji] Actions Critiques</h2>
+          <h2 className="text-2xl font-bold text-red-600"> Actions Critiques</h2>
           {criticalNotifications.map((notif) => (
             <Alert
               key={notif.id}
@@ -178,7 +178,7 @@ export default function NotificationsPage() {
       {/* Autres Notifications */}
       {otherNotifications.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold">[emoji] Autres Notifications</h2>
+          <h2 className="text-2xl font-bold"> Autres Notifications</h2>
           {otherNotifications.map((notif) => (
             <Card key={notif.id} className={`border-l-4 ${getSeverityColor(notif.severity)}`}>
               <CardHeader>

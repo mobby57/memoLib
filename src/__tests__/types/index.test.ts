@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les types globaux
  * Couverture: UserRole, TenantPlan, permissions, structures
  */

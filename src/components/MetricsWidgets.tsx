@@ -156,7 +156,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            [emoji] Tableau de bord metriques
+             Tableau de bord metriques
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Suivi en temps reel de vos indicateurs cles de performance
@@ -249,7 +249,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
               <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400 flex-shrink-0" />
               <div>
                 <h3 className="text-lg font-bold text-red-900 dark:text-red-200 mb-2">
-                  [emoji] {data.overdueFiles} Dossier{data.overdueFiles > 1 ? 's' : ''} en retard
+                   {data.overdueFiles} Dossier{data.overdueFiles > 1 ? 's' : ''} en retard
                 </h3>
                 <p className="text-sm text-red-800 dark:text-red-300 mb-3">
                   Ces dossiers depassent le delai de traitement standard (14 jours)
@@ -313,7 +313,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
       {/* Mini graphiques de tendance (placeholder pour future implementation) */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          [emoji] Tendances sur 30 jours
+           Tendances sur 30 jours
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">

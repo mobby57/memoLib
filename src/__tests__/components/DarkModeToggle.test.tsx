@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le composant DarkModeToggle
  * Couverture: toggle, localStorage, préférences système
  */

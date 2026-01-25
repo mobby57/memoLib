@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les workflows
  * Couverture: états, transitions, actions automatiques
  */

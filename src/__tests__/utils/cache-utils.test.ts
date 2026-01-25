@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de cache et memoization
  * Couverture: LRU cache, TTL cache, memoization
  */

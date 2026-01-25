@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de fichiers
  * Couverture: extension, taille, MIME type, validation
  */

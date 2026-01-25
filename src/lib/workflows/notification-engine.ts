@@ -1,5 +1,5 @@
 ﻿/**
- * [emoji] Moteur de Notifications Contextuelles
+ *  Moteur de Notifications Contextuelles
  * Genere des notifications interactives obligatoires avec actions
  */
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Utilitaires cryptographiques pour l'integrite des donnees
  * Zero-Trust Architecture - IA Poste Manager
  */

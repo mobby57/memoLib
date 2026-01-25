@@ -83,7 +83,7 @@ export default function WorkflowConfigPage() {
              Recharger
           </Button>
           <Button onClick={saveConfig} disabled={saving}>
-            {saving ? '[emoji] Sauvegarde...' : '[emoji] Sauvegarder'}
+            {saving ? ' Sauvegarde...' : ' Sauvegarder'}
           </Button>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function WorkflowConfigPage() {
               variant={preset === 'default' ? 'default' : 'outline'}
               onClick={() => loadPreset('default')}
             >
-              [emoji] Par Defaut
+               Par Defaut
             </Button>
             <Button
               variant={preset === 'performance' ? 'default' : 'outline'}
@@ -112,13 +112,13 @@ export default function WorkflowConfigPage() {
               variant={preset === 'security' ? 'default' : 'outline'}
               onClick={() => loadPreset('security')}
             >
-              [emoji] Securite
+               Securite
             </Button>
             <Button
               variant={preset === 'automated' ? 'default' : 'outline'}
               onClick={() => loadPreset('automated')}
             >
-              [emoji] Automatique
+               Automatique
             </Button>
             <Button
               variant={preset === 'law-firm' ? 'default' : 'outline'}
@@ -134,11 +134,11 @@ export default function WorkflowConfigPage() {
       {/* Tabs de Configuration */}
       <Tabs defaultValue="ai" className="space-y-4">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="ai">[emoji] IA</TabsTrigger>
-          <TabsTrigger value="notifications">[emoji] Notifications</TabsTrigger>
-          <TabsTrigger value="forms">[emoji] Formulaires</TabsTrigger>
-          <TabsTrigger value="calendar">[emoji] Calendrier</TabsTrigger>
-          <TabsTrigger value="security">[emoji] Securite</TabsTrigger>
+          <TabsTrigger value="ai"> IA</TabsTrigger>
+          <TabsTrigger value="notifications"> Notifications</TabsTrigger>
+          <TabsTrigger value="forms"> Formulaires</TabsTrigger>
+          <TabsTrigger value="calendar"> Calendrier</TabsTrigger>
+          <TabsTrigger value="security"> Securite</TabsTrigger>
         </TabsList>
 
         {/* Configuration IA */}
@@ -225,8 +225,8 @@ export default function WorkflowConfigPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="quick"> Rapide</SelectItem>
-                      <SelectItem value="standard">[emoji] Standard</SelectItem>
-                      <SelectItem value="deep">[emoji] Approfondie</SelectItem>
+                      <SelectItem value="standard"> Standard</SelectItem>
+                      <SelectItem value="deep"> Approfondie</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -327,7 +327,7 @@ export default function WorkflowConfigPage() {
                             },
                           })}
                         />
-                        <Label>[emoji] Son</Label>
+                        <Label> Son</Label>
                       </div>
 
                       <div className="flex items-center space-x-2">

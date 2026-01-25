@@ -69,7 +69,7 @@ class Logger {
     if (!this.isDevelopment) return;
 
     const entry = this.createLogEntry('debug', message, context);
-    console.log(`[emoji] [DEBUG] ${message}`, context || '');
+    console.log(` [DEBUG] ${message}`, context || '');
     this.bufferLog(entry);
   }
 
@@ -141,7 +141,7 @@ class Logger {
       severity: 'CRITICAL',
     });
 
-    console.error(`[emoji] [CRITICAL] ${message}`, {
+    console.error(` [CRITICAL] ${message}`, {
       error: errorMessage,
       context,
       stack: stackTrace,
@@ -226,7 +226,7 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      console.log(`[emoji] [DOSSIER ${action}]`, {
+      console.log(` [DOSSIER ${action}]`, {
         dossierId,
         type: details?.typeDossier,
         client: details?.clientId,
@@ -267,7 +267,7 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      console.log(`[emoji] [IA ${operation}]`, {
+      console.log(` [IA ${operation}]`, {
         confidence: details.confidence,
         model: details.modelUsed,
         anonymized: details.dataAnonymized !== false,
@@ -351,7 +351,7 @@ class Logger {
     this.bufferLog(entry);
 
     if (this.isDevelopment) {
-      console.log(`[emoji] [RGPD ${action}]`, {
+      console.log(` [RGPD ${action}]`, {
         client: details.clientId,
         type: details.dataType,
         reason: details.reason,

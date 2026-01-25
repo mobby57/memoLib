@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Isolation et securisation des interactions avec l'IA
  * Zero-Trust Architecture - IA Poste Manager
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de manipulation de chaînes
  * Couverture: formatage, transformation, recherche
  */

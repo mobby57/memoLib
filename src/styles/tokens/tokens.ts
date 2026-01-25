@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Design Tokens extraits depuis Figma
  * Genere automatiquement - NE PAS MODIFIER MANUELLEMENT
  */

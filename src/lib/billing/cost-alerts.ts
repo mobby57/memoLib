@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Système d'alertes pour les dépassements de budget IA
  */
 

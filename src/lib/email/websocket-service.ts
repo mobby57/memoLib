@@ -26,12 +26,12 @@ export class EmailWebSocketService {
     });
 
     this.io.on('connection', (socket: Socket) => {
-      console.log(`[emoji] Client connecte: ${socket.id}`);
+      console.log(` Client connecte: ${socket.id}`);
 
       // Rejoindre une room tenant-specific
       socket.on('join-tenant', (tenantId: string) => {
         socket.join(`tenant:${tenantId}`);
-        console.log(`[emoji] Client ${socket.id} rejoint tenant: ${tenantId}`);
+        console.log(` Client ${socket.id} rejoint tenant: ${tenantId}`);
       });
 
       // Rejoindre une room avocat-specific
@@ -41,7 +41,7 @@ export class EmailWebSocketService {
       });
 
       socket.on('disconnect', () => {
-        console.log(`[emoji] Client deconnecte: ${socket.id}`);
+        console.log(` Client deconnecte: ${socket.id}`);
       });
     });
 
@@ -66,7 +66,7 @@ export class EmailWebSocketService {
     // Envoyer a tous les clients du tenant
     this.io.to(`tenant:${tenantId}`).emit('email:new', notification);
 
-    console.log(`[emoji] Notification envoyee au tenant ${tenantId}`);
+    console.log(` Notification envoyee au tenant ${tenantId}`);
   }
 
   /**
@@ -97,7 +97,7 @@ export class EmailWebSocketService {
       requireInteraction: true
     });
 
-    console.log(`[emoji] Notification urgente envoyee a l'avocat ${lawyerId}`);
+    console.log(` Notification urgente envoyee a l'avocat ${lawyerId}`);
   }
 
   /**
@@ -127,7 +127,7 @@ export class EmailWebSocketService {
       timestamp: new Date()
     });
 
-    console.log(`[emoji] Numeros de suivi notifies: ${data.trackingNumbers.join(', ')}`);
+    console.log(` Numeros de suivi notifies: ${data.trackingNumbers.join(', ')}`);
   }
 
   /**

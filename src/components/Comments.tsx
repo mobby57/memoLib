@@ -87,7 +87,7 @@ export default function Comments({
 
   const renderComment = (comment: Comment, isReply: boolean = false) => {
     const hasReacted = (emoji: string) => {
-      return comment.reactions?.[emoji]?.includes(currentUserId) || false
+      return comment.reactions?.?.includes(currentUserId) || false
     }
 
     return (
@@ -147,7 +147,7 @@ export default function Comments({
                       : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'
                   }`}
                 >
-                  [emoji] {comment.reactions?.['']?.length || ''}
+                   {comment.reactions?.['']?.length || ''}
                 </button>
                 <button
                   onClick={() => handleReaction(comment.id, '️')}
@@ -246,7 +246,7 @@ export default function Comments({
         </div>
 
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          [emoji] Utilisez <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded">@nom</span> pour mentionner quelqu'un
+           Utilisez <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded">@nom</span> pour mentionner quelqu'un
         </p>
       </form>
 

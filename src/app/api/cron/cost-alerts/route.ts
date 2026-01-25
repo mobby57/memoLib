@@ -1,4 +1,4 @@
-/**
+﻿/**
  * API Cron pour vérifier les alertes de coûts
  * Appeler quotidiennement via Vercel Cron ou externe
  * 

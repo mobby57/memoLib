@@ -35,7 +35,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'REGROUPEMENT_FAMILIAL', 
     label: 'Regroupement Familial', 
-    icon: '[emoji]‍[emoji]‍[emoji]',
+    icon: '‍‍',
     description: 'Faire venir sa famille en France (conjoint, enfants)',
     delais: 'Instruction 6 mois, visite logement',
     urgence: 'normale',

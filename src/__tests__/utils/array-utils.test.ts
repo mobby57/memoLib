@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour les utilitaires de manipulation de tableaux
  * Couverture: filtrage, tri, groupage, pagination
  */

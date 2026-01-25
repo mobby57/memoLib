@@ -1,4 +1,4 @@
-/**
+﻿/**
  * InformationUnitService
  * 
  * Core service for the "Zero Ignored Information" guarantee

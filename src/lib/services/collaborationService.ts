@@ -167,10 +167,10 @@ export function addReaction(commentId: string, emoji: string, userId: string): v
 
   if (comment) {
     if (!comment.reactions) comment.reactions = {}
-    if (!comment.reactions[emoji]) comment.reactions[emoji] = []
+    if (!comment.reactions) comment.reactions = []
     
-    if (!comment.reactions[emoji].includes(userId)) {
-      comment.reactions[emoji].push(userId)
+    if (!comment.reactions.includes(userId)) {
+      comment.reactions.push(userId)
       safeLocalStorage.setItem('comments', JSON.stringify(comments))
       logger.debug('Reaction ajoutee', { emoji, commentId, userId })
     }

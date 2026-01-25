@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le localStorage sécurisé SSR
  * Couverture: getItem, setItem, removeItem, clear, SSR safety
  */

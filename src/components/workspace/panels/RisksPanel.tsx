@@ -202,7 +202,7 @@ function RiskCard({ risk }: { risk: Risk }) {
         {risk.irreversible && (
           <div className="mt-3 bg-red-100 border border-red-300 rounded p-3">
             <p className="text-xs text-red-900">
-              <strong>[emoji] ATTENTION :</strong> Ce risque est irreversible. 
+              <strong> ATTENTION :</strong> Ce risque est irreversible. 
               Aucun retour en arriere possible une fois l'action entreprise.
             </p>
           </div>

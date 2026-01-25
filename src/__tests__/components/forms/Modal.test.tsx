@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le composant Modal
  * Couverture: ouverture/fermeture, tailles, accessibilité, événements clavier
  */

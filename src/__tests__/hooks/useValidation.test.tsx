@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour la logique de validation IA
  * Couverture: statuts, API endpoints, données de validation
  */

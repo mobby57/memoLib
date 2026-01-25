@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests unitaires pour SearchService
  * Moteur de recherche intelligent multi-entités
  */

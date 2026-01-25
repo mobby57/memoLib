@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour SearchBar component
  * Couverture: recherche, filtres, résultats
  */

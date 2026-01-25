@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests unitaires pour le middleware global
  * Couvre rate limiting, RBAC, headers sécurité
  */

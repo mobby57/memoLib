@@ -21,7 +21,7 @@ export function ObligationsPanel({ obligations, contexts = [], onAddObligation }
   if (obligations.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">[emoji]</div>
+        <div className="text-6xl mb-4"></div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           Aucune obligation identifiee
         </h3>
@@ -93,7 +93,7 @@ export function ObligationsPanel({ obligations, contexts = [], onAddObligation }
               {context && (
                 <div className="bg-orange-50 px-4 py-3 border-b border-orange-200">
                   <h4 className="font-semibold text-orange-900">
-                    [emoji] Contexte : {context.type}
+                     Contexte : {context.type}
                   </h4>
                   <p className="text-xs text-orange-700 mt-1">{context.description}</p>
                 </div>
@@ -139,7 +139,7 @@ function ObligationCard({ obligation }: { obligation: Obligation }) {
             </h5>
             {obligation.critical && (
               <span className="text-xs text-red-600 font-medium">
-                [emoji] DeLAI CRITIQUE
+                 DeLAI CRITIQUE
               </span>
             )}
           </div>

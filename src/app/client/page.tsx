@@ -109,21 +109,21 @@ export default function ClientDashboard() {
             href="/client/documents"
             className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
           >
-            <span className="text-2xl">[emoji]</span>
+            <span className="text-2xl"></span>
             <span>Mes Documents</span>
           </Link>
           <Link
             href="/client/messages"
             className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-green-500 to-teal-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
           >
-            <span className="text-2xl">[emoji]</span>
+            <span className="text-2xl"></span>
             <span>Messagerie</span>
           </Link>
           <Link
             href="/client/profil"
             className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all"
           >
-            <span className="text-2xl">[emoji]</span>
+            <span className="text-2xl"></span>
             <span>Mon Profil</span>
           </Link>
         </div>
@@ -138,7 +138,7 @@ export default function ClientDashboard() {
                 <p className="text-xs text-blue-600 mt-1">{dossierEnCours.length} en cours</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-full">
-                <span className="text-3xl">[emoji]</span>
+                <span className="text-3xl"></span>
               </div>
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function ClientDashboard() {
                 <p className="text-xs text-orange-600 mt-1">{facturesEnAttente.length} en attente</p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
-                <span className="text-3xl">[emoji]</span>
+                <span className="text-3xl"></span>
               </div>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function ClientDashboard() {
                 <p className="text-xs text-purple-600 mt-1">Total</p>
               </div>
               <div className="bg-purple-100 p-3 rounded-full">
-                <span className="text-3xl">[emoji]</span>
+                <span className="text-3xl"></span>
               </div>
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function ClientDashboard() {
         {/* Mes Dossiers */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <span>[emoji]</span> Mes Dossiers
+            <span></span> Mes Dossiers
           </h2>
 
           {dossiers.length === 0 ? (
@@ -206,11 +206,11 @@ export default function ClientDashboard() {
                       </div>
                       <p className="text-gray-600 mb-2">{dossier.objet}</p>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>[emoji] Numero: {dossier.numero}</span>
+                        <span> Numero: {dossier.numero}</span>
                         {dossier.dateEcheance && (
                           <span> echeance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
                         )}
-                        <span>[emoji] {dossier._count?.documents || 0} documents</span>
+                        <span> {dossier._count?.documents || 0} documents</span>
                       </div>
                     </div>
                     <Link
@@ -229,7 +229,7 @@ export default function ClientDashboard() {
         {/* Mes Factures */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <span>[emoji]</span> Mes Factures
+            <span></span> Mes Factures
           </h2>
 
           {factures.length === 0 ? (

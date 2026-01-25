@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 🎨 Figma Code Connect - SmartFormBuilder
  * 
  * Synchronisation automatique avec le design Figma

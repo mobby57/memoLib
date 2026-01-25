@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour la sécurité
  * Couverture: XSS, CSRF, injection, headers
  */

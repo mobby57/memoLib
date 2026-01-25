@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour le composant Alert
  * Couverture: variants, title, onClose, accessibilité
  */

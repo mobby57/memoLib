@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { checkDeadlineAlerts } from '@/lib/cron/deadline-alerts';
 
 export async function POST(request: NextRequest) {

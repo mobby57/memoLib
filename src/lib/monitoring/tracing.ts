@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TRACING & OBSERVABILITÉ
  * Intégration Sentry Performance avec métriques custom
  */

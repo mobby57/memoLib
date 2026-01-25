@@ -309,21 +309,21 @@ export default function MonitoringPage() {
 
         {/* Actions Rapides */}
         <div className="mt-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-8 text-white">
-          <h2 className="text-2xl font-bold mb-4">[emoji] Actions Rapides</h2>
+          <h2 className="text-2xl font-bold mb-4"> Actions Rapides</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-colors border border-white/30">
-              <div className="font-semibold mb-1">[emoji] Voir les Emails</div>
+              <div className="font-semibold mb-1"> Voir les Emails</div>
               <div className="text-sm text-white/80">Consulter les emails classifies</div>
             </button>
             
             <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-colors border border-white/30">
-              <div className="font-semibold mb-1">[emoji] Analytics IA</div>
+              <div className="font-semibold mb-1"> Analytics IA</div>
               <div className="text-sm text-white/80">Dashboard d'apprentissage</div>
             </button>
             
             <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 text-left transition-colors border border-white/30">
-              <div className="font-semibold mb-1">[emoji] Recherche Semantique</div>
+              <div className="font-semibold mb-1"> Recherche Semantique</div>
               <div className="text-sm text-white/80">Chercher dans les dossiers</div>
             </button>
           </div>

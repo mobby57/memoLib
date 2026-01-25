@@ -80,7 +80,7 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
     <div className="space-y-6">
       {/* Header avec selection de periode */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">[emoji] Analytics IA</h2>
+        <h2 className="text-2xl font-bold text-gray-900"> Analytics IA</h2>
         <div className="flex gap-2">
           {(['7d', '30d', '90d'] as const).map(range => (
             <button
@@ -140,7 +140,7 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
       {/* Tendances par type d'action */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">
-          [emoji] Performance par Type d'Action
+           Performance par Type d'Action
         </h3>
         <div className="space-y-4">
           {analytics.improvements.map((improvement, index) => {
@@ -236,7 +236,7 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
       {/* Timeline de validations (graphique simple) */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">
-          [emoji] Tendance des Validations
+           Tendance des Validations
         </h3>
         {analytics.validationTrends && analytics.validationTrends.length > 0 ? (
           <div className="space-y-3">
@@ -302,7 +302,7 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
       {/* Recommandations */}
       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200 p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-3">
-          [emoji] Recommandations d'Amelioration
+           Recommandations d'Amelioration
         </h3>
         <div className="space-y-2">
           {analytics.improvements
