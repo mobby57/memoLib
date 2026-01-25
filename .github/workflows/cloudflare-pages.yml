@@ -38,6 +38,7 @@ jobs:
           NEXTAUTH_URL: https://iapostemanager.pages.dev
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXT_TELEMETRY_DISABLED: 1
+          AZURE_STATIC_WEB_APPS: 'false'
       
       - name: 🚀 Deploy to Cloudflare Pages
         id: deploy

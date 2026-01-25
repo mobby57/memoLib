@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with useSession hook
+export const dynamic = 'force-dynamic';
+
 import { useSession } from 'next-auth/react';
 import { useState, useMemo } from 'react';
 import { Plus, Search, Edit2, Trash2, Download, Send, FileText, Euro, Clock, CheckCircle } from 'lucide-react';

@@ -7,19 +7,39 @@
 // 🔥 Detect platform for optimal build output
 const isVercel = process.env.VERCEL === '1';
 const isAzure = process.env.AZURE_STATIC_WEB_APPS === 'true';
-const isStaticExport = false; // Disable static export for API routes
+const isAzureStaticExport = process.env.AZURE_STATIC_EXPORT === 'true';
+const isStaticExport = isAzureStaticExport; // Only enable for pure static export (no APIs)
 
 const nextConfig = {
   reactStrictMode: true,
   
-  // 🔥 Use standalone ONLY for self-hosted/Docker, not for Vercel
-  // Vercel handles this automatically
-  ...(isVercel ? {} : isAzure ? { output: 'standalone' } : {}),
+  // 🔥 Use standalone output for Azure SWA with Hybrid rendering
+  // This allows both static pages and API routes
+  output: 'standalone',
   
-  // Image optimization
-  images: {
+  // 🖼️ Image optimization - Next.js 16 Best Practices
+  images: isStaticExport ? {
+    unoptimized: true, // Required for static export
+  } : {
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 31536000,
+    minimumCacheTTL: 31536000, // 1 an de cache
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Domaines autorisés pour les images externes
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+    ],
   },
   
   // Ignore TypeScript errors for build
@@ -27,14 +47,36 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   
-  // Performance optimizations
+  //  Performance optimizations - Next.js 16 Best Practices
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ['react-icons', '@tanstack/react-query'],
+    // Optimise les imports de packages lourds (tree-shaking automatique)
+    optimizePackageImports: [
+      'react-icons',
+      '@tanstack/react-query',
+      'lucide-react',
+      'date-fns',
+      'recharts',
+      'lodash',
+    ],
+    // Partial Prerendering (PPR) - Next.js 15+ feature
+    // ppr: true, // Décommenter quand stable
   },
+  
+  // 🔒 Désactiver le header X-Powered-By pour la sécurité
+  poweredByHeader: false,
   
   // Compression (only works with server mode)
   compress: !isStaticExport,
+  
+  // 🔥 Empty turbopack config to enable Turbopack (Next.js 16 default)
+  turbopack: {},
+  
+  // 🔥 Minimal webpack config - DO NOT override resolve.alias (legacy fallback)
+  webpack: (config, { isServer }) => {
+    // Just return config without modifications
+    return config;
+  },
   
   // ⚠️ headers() and rewrites() are NOT supported with output: 'export'
   // Security headers must be configured in:
@@ -154,16 +196,33 @@ const nextConfig = {
   }), // End of conditional headers/rewrites block
 }
 
-// Bundle analyzer wrapper désactivé pour Cloudflare
+// 🔐 Sentry Configuration - DISABLED for Azure builds (Sentry was uninstalled)
+// For Azure deployments, Sentry monitoring is not available
+// To re-enable: npm install @sentry/nextjs and uncomment the code below
+
+/*
+const { withSentryConfig } = require("@sentry/nextjs");
+
+const sentryWebpackPluginOptions = {
+  silent: true,
+  org: process.env.SENTRY_ORG || "iapostemanager",
+  project: process.env.SENTRY_PROJECT || "iapostemanager",
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  dryRun: process.env.NODE_ENV !== 'production',
+  disableServerWebpackPlugin: process.env.NODE_ENV === 'development',
+  disableClientWebpackPlugin: process.env.NODE_ENV === 'development',
+};
+
+const sentryOptions = {
+  hideSourceMaps: true,
+  disableLogger: true,
+  transpileClientSDK: true,
+  autoInstrumentServerFunctions: true,
+  autoInstrumentMiddleware: true,
+  autoInstrumentAppDirectory: true,
+};
+*/
+
+// Export config directly (Sentry disabled)
 module.exports = nextConfig;
-// module.exports = withBundleAnalyzer(nextConfig);
 
-
-// ⚠️  Sentry disabled for Cloudflare Pages (Windows build issue with node:inspector colons)
-// TODO: Re-enable after Next.js / Turbopack fix for Windows path issues
-// const { withSentryConfig } = require("@sentry/nextjs");
-// 
-// module.exports = withSentryConfig(module.exports, { ... })
-
-// Fallback: export config without Sentry for now
-// module.exports = nextConfig;

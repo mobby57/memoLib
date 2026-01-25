@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { Breadcrumb, Card, Alert, Tabs, useToast } from '@/components/ui';
 import { User, Bell, Shield, Palette } from 'lucide-react';

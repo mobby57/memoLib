@@ -194,7 +194,7 @@ jobs:
           name: build-${{ github.sha }}
           path: .next/
       
-      - name: 🔄 Fallback: Rebuild if artifact missing
+      - name: "🔄 Fallback: Rebuild if artifact missing"
         if: steps.download_build.outcome == 'failure'
         run: |
           echo "⚠️ Artifact download failed - Rebuilding from source..."
@@ -212,7 +212,7 @@ jobs:
           NEXTAUTH_SECRET: build-secret-key
           NEXTAUTH_URL: http://localhost:3000
       
-      - name: ✅ Verify Build Ready
+      - name: "✅ Verify Build Ready"
         run: |
           if [ ! -d ".next" ]; then
             echo "❌ Build directory still missing after fallback!"

@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 /**
  * Page Workspace Client Unifié - COMPLET ✅
  * Vue 360° d'un client avec tous ses échanges et procédures

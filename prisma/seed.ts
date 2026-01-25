@@ -230,16 +230,19 @@ async function main() {
   console.log('👤 Création du super admin...');
 
   const bcrypt = require('bcryptjs');
-  const hashedPassword = await bcrypt.hash('Admin123!', 10);
+  const hashedPassword = await bcrypt.hash('SuperAdmin2026!', 10);
 
   const superAdmin = await prisma.user.upsert({
-    where: { email: 'admin@iapostemanage.com' },
-    update: {},
+    where: { email: 'superadmin@iapostemanager.com' },
+    update: {
+      password: hashedPassword,
+      role: 'SUPER_ADMIN',
+    },
     create: {
-      email: 'admin@iapostemanage.com',
+      email: 'superadmin@iapostemanager.com',
       name: 'Super Admin',
       password: hashedPassword,
-      role: 'super_admin',
+      role: 'SUPER_ADMIN',
       status: 'active',
       language: 'fr',
       timezone: 'Europe/Paris',

@@ -1,4 +1,7 @@
-"use client"
+"use client";
+
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
