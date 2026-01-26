@@ -1,77 +1,77 @@
 # Tests Backend Python
 # Version: 1.0
-# Date: 19 janvier 2026
 
-Write-Host @"
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   🧪 TESTS BACKEND PYTHON - IA POSTE MANAGER               ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-"@ -ForegroundColor Cyan
+Write-Output "=============================================="
+Write-Output "  TESTS BACKEND PYTHON - IA POSTE MANAGER"
+Write-Output "=============================================="
 
 # Activer environnement
-Write-Host "`n[1/5] 🐍 Activation environnement..." -ForegroundColor Yellow
+Write-Output ""
+Write-Output "[1/5] Activation environnement..."
 conda activate iapostemanager
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "  ❌ Environnement non trouvé. Exécutez: .\setup-conda.ps1" -ForegroundColor Red
+    Write-Output "  [ERREUR] Environnement non trouve. Executez: .\setup-conda.ps1"
     pause
     exit 1
 }
-Write-Host "  ✅ Environnement activé" -ForegroundColor Green
+Write-Output "  [OK] Environnement active"
 
 # Test imports critiques
-Write-Host "`n[2/5] 🔍 Test imports critiques..." -ForegroundColor Yellow
+Write-Output ""
+Write-Output "[2/5] Test imports critiques..."
 $importTest = @"
 import sys
 print('  Python version:', sys.version.split()[0])
 
 try:
     import fastapi
-    print('  ✅ FastAPI:', fastapi.__version__)
+    print('  [OK] FastAPI:', fastapi.__version__)
 except Exception as e:
-    print(f'  ❌ FastAPI: {e}')
+    print(f'  [ERREUR] FastAPI: {e}')
     sys.exit(1)
 
 try:
     import numpy
-    print('  ✅ NumPy:', numpy.__version__)
+    print('  [OK] NumPy:', numpy.__version__)
 except Exception as e:
-    print(f'  ❌ NumPy: {e}')
+    print(f'  [ERREUR] NumPy: {e}')
     sys.exit(1)
 
 try:
     import flask
-    print('  ✅ Flask:', flask.__version__)
+    print('  [OK] Flask:', flask.__version__)
 except Exception as e:
-    print(f'  ❌ Flask: {e}')
+    print(f'  [ERREUR] Flask: {e}')
 
 try:
     import ollama
-    print('  ✅ Ollama: OK')
+    print('  [OK] Ollama: OK')
 except:
-    print('  ⚠️  Ollama: Non installé (optionnel)')
+    print('  [WARN] Ollama: Non installe (optionnel)')
 
 try:
     import uvicorn
-    print('  ✅ Uvicorn:', uvicorn.__version__)
+    print('  [OK] Uvicorn:', uvicorn.__version__)
 except Exception as e:
-    print(f'  ❌ Uvicorn: {e}')
+    print(f'  [ERREUR] Uvicorn: {e}')
     sys.exit(1)
 
-print('`n  🎉 Tous les imports critiques OK!')
+print('')
+print('  Tous les imports critiques OK!')
 "@
 
 python -c $importTest
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "`n❌ Échec tests imports" -ForegroundColor Red
+    Write-Output ""
+    Write-Output "[ERREUR] Echec tests imports"
     pause
     exit 1
 }
 
 # Test services IA
-Write-Host "`n[3/5] 🤖 Test services IA..." -ForegroundColor Yellow
+Write-Output ""
+Write-Output "[3/5] Test services IA..."
 $aiTest = @"
 import sys
 sys.path.insert(0, 'src/backend')
@@ -79,54 +79,51 @@ sys.path.insert(0, 'src/backend')
 try:
     from services.predictive_ai import PredictiveLegalAI
     ai = PredictiveLegalAI()
-    print('  ✅ Predictive AI service OK')
+    print('  [OK] Predictive AI service OK')
 except Exception as e:
-    print(f'  ⚠️  Predictive AI: {e}')
+    print(f'  [WARN] Predictive AI: {e}')
 
-print('  🎉 Services IA testés!')
+print('  Services IA testes!')
 "@
 
 python -c $aiTest
 
 # Tests unitaires (si disponibles)
-Write-Host "`n[4/5] 📝 Tests unitaires..." -ForegroundColor Yellow
+Write-Output ""
+Write-Output "[4/5] Tests unitaires..."
 if (Test-Path "src/backend/tests") {
-    Write-Host "  Lancement pytest..." -ForegroundColor Cyan
+    Write-Output "  Lancement pytest..."
     pytest src/backend/tests -v --tb=short
 } else {
-    Write-Host "  ⚠️  Dossier tests non trouvé - création recommandée" -ForegroundColor Yellow
+    Write-Output "  [WARN] Dossier tests non trouve - creation recommandee"
 }
 
-# Test API endpoint (si serveur lancé)
-Write-Host "`n[5/5] 🌐 Test endpoints API..." -ForegroundColor Yellow
-try {
-    $response = Invoke-RestMethod -Uri "http://localhost:8000/health" -Method GET -ErrorAction SilentlyContinue
-    Write-Host "  ✅ Health check OK" -ForegroundColor Green
-    Write-Host "  Response: $($response | ConvertTo-Json -Compress)" -ForegroundColor Cyan
-} catch {
-    Write-Host "  ⚠️  Serveur non accessible sur http://localhost:8000" -ForegroundColor Yellow
-    Write-Host "  💡 Lancez le backend avec: .\start-python-backend.ps1" -ForegroundColor Cyan
-}
+# Test API endpoint (si serveur lance)
+Write-Output ""
+Write-Output "[5/5] Test endpoints API..."
 
-Write-Host @"
+$apiTest = @"
+import requests
+import sys
 
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   ✅ TESTS TERMINÉS!                                        ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
+try:
+    response = requests.get('http://localhost:8000/health', timeout=5)
+    if response.status_code == 200:
+        print('  [OK] API Backend accessible')
+        print(f'  Response: {response.json()}')
+    else:
+        print(f'  [WARN] API returned status {response.status_code}')
+except requests.exceptions.ConnectionError:
+    print('  [INFO] Serveur backend non demarre (normal si pas lance)')
+except Exception as e:
+    print(f'  [WARN] Test API: {e}')
+"@
 
-📊 Résumé:
-   - Imports: ✅
-   - Services IA: ✅
-   - Tests unitaires: (si disponibles)
-   - API: (si serveur lancé)
+python -c $apiTest
 
-💡 Prochaines étapes:
-   1️⃣  Lancer backend: .\start-python-backend.ps1
-   2️⃣  Tester API: http://localhost:8000/docs
-   3️⃣  Développer: code .
-
-"@ -ForegroundColor Green
-
-pause
+Write-Output ""
+Write-Output "=============================================="
+Write-Output "  TESTS TERMINES"
+Write-Output "=============================================="
+Write-Output ""
+Write-Output "Pour demarrer le backend: .\start-python-backend.ps1"

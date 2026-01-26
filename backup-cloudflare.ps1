@@ -1,161 +1,167 @@
-#!/usr/bin/env pwsh
-# Script de backup automatique Cloudflare
+# Backup Cloudflare Resources
 # IA Poste Manager
 
 param(
-    [string]$BackupDir = "backups/cloudflare",
-    [switch]$IncludeR2
+    [switch]$D1,
+    [switch]$KV,
+    [switch]$Pages,
+    [switch]$All
 )
 
-$date = Get-Date -Format "yyyyMMdd-HHmmss"
-$dateShort = Get-Date -Format "yyyyMMdd"
+$ErrorActionPreference = "Stop"
+$ProjectName = "iapostemanager"
+$BackupDir = "backups/cloudflare-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 
-Write-Host "💾 Backup Cloudflare - IA Poste Manager" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "📅 Date: $date" -ForegroundColor White
+Write-Output ""
+Write-Output "========================================"
+Write-Output "  BACKUP CLOUDFLARE"
+Write-Output "========================================"
+Write-Output ""
 
-# Créer le dossier de backup
-if (-not (Test-Path $BackupDir)) {
-    New-Item -ItemType Directory -Force -Path $BackupDir | Out-Null
-    Write-Host "📁 Dossier de backup créé: $BackupDir" -ForegroundColor Green
-}
+# Creer dossier backup
+New-Item -ItemType Directory -Path $BackupDir -Force | Out-Null
+Write-Output "[OK] Dossier backup: $BackupDir"
+Write-Output ""
 
-# Variables
-$DB_NAME = "iaposte-production-db"
-$R2_BUCKET = "iaposte-documents"
-$PROJECT_NAME = "iaposte-manager"
-
-# 1. Backup D1 Database
-Write-Host "`n1️⃣ Backup D1 Database..." -ForegroundColor Yellow
-
-try {
-    $d1File = "$BackupDir/d1-backup-$date.sql"
-    wrangler d1 export $DB_NAME --output=$d1File --remote
+# ========================================
+# Backup D1 Database
+# ========================================
+if ($D1 -or $All) {
+    Write-Output "[1] Backup D1 Database..."
+    Write-Output "----------------------------------------"
     
-    if ($LASTEXITCODE -eq 0) {
-        $fileSize = (Get-Item $d1File).Length / 1MB
-        Write-Host "   ✅ D1 exporté: $d1File ($([math]::Round($fileSize, 2)) MB)" -ForegroundColor Green
-    } else {
-        Write-Host "   ❌ Erreur export D1!" -ForegroundColor Red
-    }
-} catch {
-    Write-Host "   ❌ Erreur: $_" -ForegroundColor Red
-}
-
-# 2. Backup KV Namespaces (si utilisé)
-Write-Host "`n2️⃣ Backup KV Namespaces..." -ForegroundColor Yellow
-
-try {
-    # Lister les namespaces
-    $kvList = wrangler kv:namespace list 2>&1
-    
-    if ($kvList -match "SESSIONS" -or $kvList -match "CACHE") {
-        $kvFile = "$BackupDir/kv-keys-$date.json"
-        wrangler kv:key list --binding=SESSIONS 2>$null | Out-File -Encoding UTF8 $kvFile
-        Write-Host "   ✅ KV keys listées: $kvFile" -ForegroundColor Green
-    } else {
-        Write-Host "   ℹ️  Pas de KV namespace configuré - skip" -ForegroundColor Gray
-    }
-} catch {
-    Write-Host "   ℹ️  KV non disponible - skip" -ForegroundColor Gray
-}
-
-# 3. Backup R2 Object List
-Write-Host "`n3️⃣ Backup R2 Storage..." -ForegroundColor Yellow
-
-if ($IncludeR2) {
     try {
-        $r2File = "$BackupDir/r2-list-$date.json"
-        wrangler r2 object list $R2_BUCKET 2>$null | Out-File -Encoding UTF8 $r2File
+        # Lister les bases D1
+        $databases = wrangler d1 list --json 2>$null | ConvertFrom-Json
         
-        if (Test-Path $r2File) {
-            Write-Host "   ✅ R2 objects listés: $r2File" -ForegroundColor Green
-            Write-Host "   ℹ️  Note: Seule la liste est sauvegardée, pas les fichiers" -ForegroundColor Gray
-        } else {
-            Write-Host "   ℹ️  R2 non configuré - skip" -ForegroundColor Gray
+        foreach ($db in $databases) {
+            Write-Output "   [INFO] Backup: $($db.name)"
+            
+            $dbBackupDir = "$BackupDir/d1-$($db.name)"
+            New-Item -ItemType Directory -Path $dbBackupDir -Force | Out-Null
+            
+            # Export schema
+            wrangler d1 execute $db.name --command=".schema" --remote > "$dbBackupDir/schema.sql"
+            
+            # Export data (tables principales)
+            $tables = @("User", "Client", "Dossier", "Document", "Message", "Invoice", "Notification")
+            foreach ($table in $tables) {
+                try {
+                    wrangler d1 execute $db.name --command="SELECT * FROM $table;" --remote --json > "$dbBackupDir/$table.json"
+                    Write-Output "      [OK] $table"
+                } catch {
+                    Write-Output "      [WARN] $table (non trouve)"
+                }
+            }
         }
+        
+        Write-Output "   [OK] Backup D1 termine"
+        
     } catch {
-        Write-Host "   ℹ️  R2 non disponible - skip" -ForegroundColor Gray
+        Write-Output "   [ERREUR] Backup D1: $_"
     }
-} else {
-    Write-Host "   ℹ️  R2 skip (utiliser --IncludeR2 pour inclure)" -ForegroundColor Gray
+    Write-Output ""
 }
 
-# 4. Backup Configuration
-Write-Host "`n4️⃣ Backup Configuration..." -ForegroundColor Yellow
-
-try {
-    $configFile = "$BackupDir/config-$date.json"
+# ========================================
+# Backup KV Namespace
+# ========================================
+if ($KV -or $All) {
+    Write-Output "[2] Backup KV Namespace..."
+    Write-Output "----------------------------------------"
     
-    $config = @{
-        timestamp = $date
-        project = $PROJECT_NAME
-        database = $DB_NAME
-        r2_bucket = $R2_BUCKET
-        wrangler_version = (wrangler --version 2>&1)
-        deployment_url = "https://$PROJECT_NAME.pages.dev"
+    try {
+        # Lister les namespaces KV
+        $namespaces = wrangler kv:namespace list --json 2>$null | ConvertFrom-Json
+        
+        foreach ($ns in $namespaces) {
+            Write-Output "   [INFO] Backup: $($ns.title)"
+            
+            $kvBackupDir = "$BackupDir/kv-$($ns.title)"
+            New-Item -ItemType Directory -Path $kvBackupDir -Force | Out-Null
+            
+            # Lister les cles
+            $keys = wrangler kv:key list --namespace-id=$($ns.id) --json 2>$null | ConvertFrom-Json
+            
+            # Sauvegarder info
+            $keys | ConvertTo-Json | Out-File "$kvBackupDir/keys.json"
+            
+            # Sauvegarder quelques cles importantes
+            $importantKeys = $keys | Select-Object -First 100
+            foreach ($key in $importantKeys) {
+                try {
+                    $value = wrangler kv:key get $key.name --namespace-id=$($ns.id) 2>$null
+                    @{ key = $key.name; value = $value } | ConvertTo-Json | Out-File "$kvBackupDir/key-$($key.name -replace '[^a-zA-Z0-9]', '_').json"
+                } catch {
+                    # Ignorer les erreurs silencieusement
+                }
+            }
+            
+            Write-Output "      [OK] $($keys.Count) cles sauvegardees"
+        }
+        
+        Write-Output "   [OK] Backup KV termine"
+        
+    } catch {
+        Write-Output "   [ERREUR] Backup KV: $_"
     }
-    
-    $config | ConvertTo-Json -Depth 5 | Out-File -Encoding UTF8 $configFile
-    Write-Host "   ✅ Configuration sauvegardée: $configFile" -ForegroundColor Green
-} catch {
-    Write-Host "   ⚠️  Erreur sauvegarde config: $_" -ForegroundColor Yellow
+    Write-Output ""
 }
 
-# 5. Nettoyage des vieux backups (> 30 jours)
-Write-Host "`n5️⃣ Nettoyage des anciens backups..." -ForegroundColor Yellow
-
-try {
-    $oldBackups = Get-ChildItem -Path $BackupDir -Filter "*.sql" | Where-Object {
-        $_.LastWriteTime -lt (Get-Date).AddDays(-30)
-    }
+# ========================================
+# Backup Pages Config
+# ========================================
+if ($Pages -or $All) {
+    Write-Output "[3] Backup Pages Configuration..."
+    Write-Output "----------------------------------------"
     
-    if ($oldBackups) {
-        $count = $oldBackups.Count
-        $oldBackups | Remove-Item -Force
-        Write-Host "   🗑️  $count ancien(s) backup(s) supprimé(s)" -ForegroundColor Yellow
+    try {
+        $pagesBackupDir = "$BackupDir/pages"
+        New-Item -ItemType Directory -Path $pagesBackupDir -Force | Out-Null
+        
+        # Sauvegarder wrangler.toml
+        if (Test-Path "wrangler.toml") {
+            Copy-Item "wrangler.toml" "$pagesBackupDir/wrangler.toml"
+            Write-Output "   [OK] wrangler.toml"
+        }
+        
+        # Lister les projets Pages
+        $projects = wrangler pages project list 2>$null
+        $projects | Out-File "$pagesBackupDir/projects.txt"
+        Write-Output "   [OK] Liste projets"
+        
+        # Lister les domaines
+        wrangler pages domain list --project-name=$ProjectName 2>$null | Out-File "$pagesBackupDir/domains.txt"
+        Write-Output "   [OK] Liste domaines"
+        
+        Write-Output "   [OK] Backup Pages termine"
+        
+    } catch {
+        Write-Output "   [ERREUR] Backup Pages: $_"
+    }
+    Write-Output ""
+}
+
+# ========================================
+# Resume
+# ========================================
+Write-Output "========================================"
+Write-Output "  BACKUP TERMINE"
+Write-Output "========================================"
+Write-Output ""
+Write-Output "Dossier: $BackupDir"
+Write-Output ""
+
+# Lister le contenu
+Get-ChildItem -Path $BackupDir -Recurse | ForEach-Object {
+    $relativePath = $_.FullName.Replace("$BackupDir\", "")
+    if ($_.PSIsContainer) {
+        Write-Output "  [DIR] $relativePath"
     } else {
-        Write-Host "   ℹ️  Pas de vieux backups à supprimer" -ForegroundColor Gray
+        $sizeKB = [math]::Round($_.Length / 1KB, 2)
+        Write-Output "  [FILE] $relativePath ($sizeKB KB)"
     }
-} catch {
-    Write-Host "   ⚠️  Erreur nettoyage: $_" -ForegroundColor Yellow
 }
 
-# 6. Résumé
-Write-Host "`n════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "✅ Backup terminé!" -ForegroundColor Green
-Write-Host "════════════════════════════════════════════" -ForegroundColor Cyan
-
-$backupFiles = Get-ChildItem -Path $BackupDir -Filter "*$dateShort*"
-$totalSize = ($backupFiles | Measure-Object -Property Length -Sum).Sum / 1MB
-
-Write-Host "`n📊 Résumé:" -ForegroundColor Yellow
-Write-Host "   📁 Dossier: $BackupDir" -ForegroundColor White
-Write-Host "   📦 Fichiers: $($backupFiles.Count)" -ForegroundColor White
-Write-Host "   💾 Taille totale: $([math]::Round($totalSize, 2)) MB" -ForegroundColor White
-
-Write-Host "`n📝 Fichiers de backup:" -ForegroundColor Yellow
-$backupFiles | ForEach-Object {
-    Write-Host "   - $($_.Name)" -ForegroundColor Gray
-}
-
-Write-Host "`n💡 Conseil: Sauvegardez ces fichiers hors-site régulièrement!" -ForegroundColor Cyan
-Write-Host "   Exemple: Copier vers OneDrive, Google Drive, ou S3" -ForegroundColor White
-
-# Créer un script de restauration
-$restoreScript = @"
-#!/usr/bin/env pwsh
-# Script de restauration généré automatiquement
-# Date: $date
-
-Write-Host "🔄 Restauration du backup $date" -ForegroundColor Cyan
-
-# Restaurer D1
-wrangler d1 execute $DB_NAME --file="$BackupDir/d1-backup-$date.sql" --remote
-
-Write-Host "✅ Restauration terminée!" -ForegroundColor Green
-"@
-
-$restoreFile = "$BackupDir/restore-$date.ps1"
-$restoreScript | Out-File -Encoding UTF8 $restoreFile
-Write-Host "`n📝 Script de restauration créé: $restoreFile" -ForegroundColor Cyan
+Write-Output ""
+Write-Output "[INFO] Pour restaurer, utilisez wrangler d1 execute avec les fichiers SQL"

@@ -1,106 +1,103 @@
-# Installation de curl sur Windows
-# Script automatique avec plusieurs méthodes
+# Installation de curl pour Windows
+# IA Poste Manager
 
-Write-Host "`n🔧 INSTALLATION CURL`n" -ForegroundColor Cyan
+Write-Output "========================================"
+Write-Output "  INSTALLATION CURL"
+Write-Output "========================================"
+Write-Output ""
 
-# Vérifier si curl existe déjà
-Write-Host "📋 Vérification de curl existant..." -ForegroundColor Yellow
-$curlPath = Get-Command curl.exe -ErrorAction SilentlyContinue
+# Verifier si curl est deja installe
+$curlPath = Get-Command curl -ErrorAction SilentlyContinue
 
 if ($curlPath) {
-    Write-Host "✅ curl.exe déjà installé: $($curlPath.Source)" -ForegroundColor Green
-    curl.exe --version
-    Write-Host "`nℹ️  Utilisez 'curl.exe' au lieu de 'curl' dans PowerShell" -ForegroundColor Cyan
+    Write-Output "[OK] curl est deja installe:"
+    Write-Output "   Path: $($curlPath.Source)"
+    curl --version | Select-Object -First 1
     exit 0
 }
 
-Write-Host "❌ curl.exe non trouvé dans PATH" -ForegroundColor Red
-Write-Host "`n🚀 Installation en cours...`n" -ForegroundColor Yellow
+Write-Output "[INFO] curl non trouve. Installation..."
+Write-Output ""
 
-# Méthode 1: Winget (Windows 10/11 moderne)
-Write-Host "Méthode 1: Tentative via winget..." -ForegroundColor Cyan
+# Methode 1: Via winget (Windows 10/11)
+Write-Output "[1] Tentative via winget..."
 try {
-    $winget = Get-Command winget -ErrorAction Stop
-    Write-Host "✅ winget disponible" -ForegroundColor Green
-    
-    Write-Host "Installation de curl..." -ForegroundColor Yellow
-    winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements
-    
-    # Git for Windows inclut curl
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    
-    $curlPath = Get-Command curl.exe -ErrorAction SilentlyContinue
-    if ($curlPath) {
-        Write-Host "`n✅ CURL INSTALLÉ AVEC SUCCÈS!" -ForegroundColor Green
-        curl.exe --version
+    winget install cURL.cURL --silent --accept-package-agreements
+    if ($LASTEXITCODE -eq 0) {
+        Write-Output "[OK] curl installe via winget"
         exit 0
     }
 } catch {
-    Write-Host "⚠️  winget non disponible" -ForegroundColor Yellow
+    Write-Output "[WARN] winget non disponible"
 }
 
-# Méthode 2: Chocolatey
-Write-Host "`nMéthode 2: Tentative via Chocolatey..." -ForegroundColor Cyan
-try {
-    $choco = Get-Command choco -ErrorAction Stop
-    Write-Host "✅ Chocolatey disponible" -ForegroundColor Green
-    
-    choco install curl -y
-    
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    
-    $curlPath = Get-Command curl.exe -ErrorAction SilentlyContinue
-    if ($curlPath) {
-        Write-Host "`n✅ CURL INSTALLÉ AVEC SUCCÈS!" -ForegroundColor Green
-        curl.exe --version
-        exit 0
+# Methode 2: Via chocolatey
+Write-Output ""
+Write-Output "[2] Tentative via Chocolatey..."
+if (Get-Command choco -ErrorAction SilentlyContinue) {
+    try {
+        choco install curl -y
+        if ($LASTEXITCODE -eq 0) {
+            Write-Output "[OK] curl installe via Chocolatey"
+            exit 0
+        }
+    } catch {
+        Write-Output "[WARN] Echec Chocolatey"
     }
-} catch {
-    Write-Host "⚠️  Chocolatey non disponible" -ForegroundColor Yellow
-    Write-Host "   Installer Chocolatey: https://chocolatey.org/install" -ForegroundColor Gray
+} else {
+    Write-Output "[WARN] Chocolatey non installe"
 }
 
-# Méthode 3: Téléchargement direct
-Write-Host "`nMéthode 3: Téléchargement direct depuis curl.se..." -ForegroundColor Cyan
+# Methode 3: Telechargement manuel
+Write-Output ""
+Write-Output "[3] Telechargement manuel..."
 
-$curlUrl = "https://curl.se/windows/dl-8.5.0_3/curl-8.5.0_3-win64-mingw.zip"
-$downloadPath = "$env:TEMP\curl.zip"
-$extractPath = "$env:ProgramFiles\curl"
+$curlVersion = "8.5.0"
+$downloadUrl = "https://curl.se/windows/dl-$curlVersion/curl-$curlVersion-win64-mingw.zip"
+$tempDir = "$env:TEMP\curl-install"
+$installDir = "$env:ProgramFiles\curl"
 
 try {
-    Write-Host "Téléchargement..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri $curlUrl -OutFile $downloadPath
+    # Creer dossier temp
+    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
     
-    Write-Host "Extraction..." -ForegroundColor Yellow
-    Expand-Archive -Path $downloadPath -DestinationPath $extractPath -Force
+    # Telecharger
+    Write-Output "[INFO] Telechargement de curl $curlVersion..."
+    Invoke-WebRequest -Uri $downloadUrl -OutFile "$tempDir\curl.zip"
+    
+    # Extraire
+    Write-Output "[INFO] Extraction..."
+    Expand-Archive -Path "$tempDir\curl.zip" -DestinationPath $tempDir -Force
+    
+    # Installer
+    Write-Output "[INFO] Installation dans $installDir..."
+    $extractedFolder = Get-ChildItem -Path $tempDir -Directory | Select-Object -First 1
+    
+    if (-not (Test-Path $installDir)) {
+        New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+    }
+    
+    Copy-Item -Path "$($extractedFolder.FullName)\bin\*" -Destination $installDir -Recurse -Force
     
     # Ajouter au PATH
-    $curlBinPath = Join-Path $extractPath "curl-8.5.0_3-win64-mingw\bin"
+    Write-Output "[INFO] Ajout au PATH..."
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "Machine")
-    
-    if ($currentPath -notlike "*$curlBinPath*") {
-        Write-Host "Ajout au PATH système..." -ForegroundColor Yellow
-        [Environment]::SetEnvironmentVariable("Path", "$currentPath;$curlBinPath", "Machine")
-        $env:Path += ";$curlBinPath"
+    if ($currentPath -notlike "*$installDir*") {
+        [Environment]::SetEnvironmentVariable("Path", "$currentPath;$installDir", "Machine")
+        Write-Output "[OK] PATH mis a jour"
     }
     
-    # Nettoyage
-    Remove-Item $downloadPath -Force
+    # Nettoyer
+    Remove-Item -Path $tempDir -Recurse -Force
     
-    Write-Host "`n✅ CURL INSTALLÉ AVEC SUCCÈS!" -ForegroundColor Green
-    Write-Host "📍 Emplacement: $curlBinPath" -ForegroundColor Cyan
-    Write-Host "`n⚠️  IMPORTANT: Redémarrez PowerShell pour utiliser curl.exe" -ForegroundColor Yellow
+    Write-Output ""
+    Write-Output "[OK] curl installe avec succes!"
+    Write-Output "[INFO] Redemarrez votre terminal pour utiliser curl"
     
 } catch {
-    Write-Host "`n❌ Échec du téléchargement direct" -ForegroundColor Red
-    Write-Host "Erreur: $_" -ForegroundColor Red
+    Write-Output "[ERREUR] Echec de l'installation: $_"
+    Write-Output ""
+    Write-Output "Alternative: Telecharger manuellement depuis:"
+    Write-Output "  https://curl.se/windows/"
+    exit 1
 }
-
-Write-Host "`n📝 INSTALLATION MANUELLE (si tout a échoué):" -ForegroundColor Yellow
-Write-Host "   1. Téléchargez: https://curl.se/windows/" -ForegroundColor White
-Write-Host "   2. Extrayez dans C:\Program Files\curl" -ForegroundColor White
-Write-Host "   3. Ajoutez au PATH: C:\Program Files\curl\bin" -ForegroundColor White
-Write-Host "`n   OU" -ForegroundColor Cyan
-Write-Host "   Installez Git for Windows (inclut curl):" -ForegroundColor White
-Write-Host "   https://git-scm.com/download/win" -ForegroundColor Gray
-Write-Host ""

@@ -1,7 +1,7 @@
 # =========================================
-# 🌐 Configuration Domaine Custom - Cloudflare Pages
+# Configuration Domaine Custom - Cloudflare Pages
 # =========================================
-# Script pour ajouter et configurer un domaine personnalisé
+# Script pour ajouter et configurer un domaine personnalise
 # sur Cloudflare Pages pour IA Poste Manager
 # =========================================
 
@@ -22,43 +22,43 @@ param(
 $ProjectName = "iapostemanage"
 $ErrorActionPreference = "Stop"
 
-Write-Host ""
-Write-Host "=====================================" -ForegroundColor Cyan
-Write-Host "🌐 Cloudflare Pages - Custom Domain" -ForegroundColor Cyan
-Write-Host "=====================================" -ForegroundColor Cyan
-Write-Host ""
+Write-Output ""
+Write-Output "====================================="
+Write-Output "  Cloudflare Pages - Custom Domain"
+Write-Output "====================================="
+Write-Output ""
 
 # =========================================
 # Fonction: Afficher les domaines actuels
 # =========================================
 function Show-CurrentDomains {
-    Write-Host "📋 Domaines configurés actuellement:" -ForegroundColor Yellow
-    Write-Host ""
+    Write-Output "[INFO] Domaines configures actuellement:"
+    Write-Output ""
     
     try {
         wrangler pages domain list --project-name $ProjectName
     } catch {
-        Write-Host "❌ Erreur lors de la récupération des domaines" -ForegroundColor Red
-        Write-Host $_.Exception.Message -ForegroundColor Gray
+        Write-Output "[ERREUR] Erreur lors de la recuperation des domaines"
+        Write-Output $_.Exception.Message
         exit 1
     }
 }
 
 # =========================================
-# Fonction: Vérifier la connexion Wrangler
+# Fonction: Verifier la connexion Wrangler
 # =========================================
 function Test-WranglerAuth {
-    Write-Host "🔐 Vérification de l'authentification Wrangler..." -ForegroundColor Cyan
+    Write-Output "[INFO] Verification de l'authentification Wrangler..."
     
     try {
         $projects = wrangler pages project list 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Non authentifié. Exécutez: wrangler login" -ForegroundColor Red
+            Write-Output "[ERREUR] Non authentifie. Executez: wrangler login"
             exit 1
         }
-        Write-Host "✓ Authentifié avec succès" -ForegroundColor Green
+        Write-Output "[OK] Authentifie avec succes"
     } catch {
-        Write-Host "❌ Erreur d'authentification" -ForegroundColor Red
+        Write-Output "[ERREUR] Erreur d'authentification"
         exit 1
     }
 }
@@ -69,244 +69,100 @@ function Test-WranglerAuth {
 function Add-CustomDomain {
     param([string]$DomainToAdd)
     
-    Write-Host ""
-    Write-Host "➕ Ajout du domaine: $DomainToAdd" -ForegroundColor Green
-    Write-Host ""
+    Write-Output ""
+    Write-Output "[INFO] Ajout du domaine: $DomainToAdd"
+    Write-Output ""
     
     try {
         wrangler pages domain add $DomainToAdd --project-name $ProjectName
         
-        Write-Host ""
-        Write-Host "✓ Domaine ajouté avec succès!" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "📝 Prochaines étapes:" -ForegroundColor Yellow
-        Write-Host "  1. Configurer les enregistrements DNS (voir ci-dessous)"
-        Write-Host "  2. Attendre la propagation DNS (5-30 minutes)"
-        Write-Host "  3. Vérifier le certificat SSL (automatique)"
-        Write-Host "  4. Mettre à jour les variables d'environnement"
-        Write-Host ""
-        
-        Show-DNSRecords -Domain $DomainToAdd
+        Write-Output ""
+        Write-Output "[OK] Domaine ajoute avec succes!"
+        Write-Output ""
+        Write-Output "=== CONFIGURATION DNS REQUISE ==="
+        Write-Output ""
+        Write-Output "Ajoutez ces enregistrements DNS chez votre registrar:"
+        Write-Output ""
+        Write-Output "Type: CNAME"
+        Write-Output "Nom:  $DomainToAdd"
+        Write-Output "Cible: $ProjectName.pages.dev"
+        Write-Output ""
+        Write-Output "OU pour un apex domain (sans www):"
+        Write-Output ""
+        Write-Output "Type: CNAME (ou ALIAS/ANAME si supporte)"
+        Write-Output "Nom:  @"
+        Write-Output "Cible: $ProjectName.pages.dev"
+        Write-Output ""
         
     } catch {
-        Write-Host "❌ Erreur lors de l'ajout du domaine" -ForegroundColor Red
-        Write-Host $_.Exception.Message -ForegroundColor Gray
-        
-        if ($_.Exception.Message -match "already exists") {
-            Write-Host ""
-            Write-Host "ℹ️  Le domaine est peut-être déjà configuré." -ForegroundColor Yellow
-            Show-CurrentDomains
-        }
-        
-        exit 1
+        Write-Output "[ERREUR] Erreur lors de l'ajout du domaine"
+        Write-Output $_.Exception.Message
     }
 }
 
 # =========================================
-# Fonction: Afficher les DNS requis
+# Fonction: Verifier DNS
 # =========================================
-function Show-DNSRecords {
-    param([string]$Domain)
+function Test-DomainDNS {
+    param([string]$DomainToCheck)
     
-    Write-Host "=====================================" -ForegroundColor Cyan
-    Write-Host "📋 Enregistrements DNS à configurer" -ForegroundColor Cyan
-    Write-Host "=====================================" -ForegroundColor Cyan
-    Write-Host ""
-    
-    Write-Host "Pour le domaine: $Domain" -ForegroundColor White
-    Write-Host ""
-    
-    # Domaine racine vs sous-domaine
-    if ($Domain -match "^([^.]+)\.([^.]+)\.([^.]+)$") {
-        # Sous-domaine (ex: app.example.com)
-        Write-Host "📌 Configuration pour sous-domaine:" -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "Type   Nom/Host          Valeur/Target" -ForegroundColor White
-        Write-Host "────────────────────────────────────────────────────────" -ForegroundColor Gray
-        Write-Host "CNAME  $Domain    $ProjectName.pages.dev" -ForegroundColor Green
-        
-    } else {
-        # Domaine racine (ex: example.com)
-        Write-Host "📌 Configuration pour domaine racine:" -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "Type   Nom/Host  Valeur/Target" -ForegroundColor White
-        Write-Host "────────────────────────────────────────────────────────" -ForegroundColor Gray
-        Write-Host "CNAME  @         $ProjectName.pages.dev" -ForegroundColor Green
-        Write-Host "CNAME  www       $ProjectName.pages.dev" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "Si CNAME @ n'est pas supporte (certains registrars):" -ForegroundColor Yellow
-        Write-Host "A      @         104.21.0.0" -ForegroundColor Cyan
-        Write-Host "AAAA   @         2606:4700:0:0:0:0:6810:1500" -ForegroundColor Cyan
-        Write-Host "CNAME  www       $ProjectName.pages.dev" -ForegroundColor Green
-    }
-    
-    Write-Host ""
-    Write-Host "💡 TTL recommandé: Auto ou 3600 (1 heure)" -ForegroundColor Gray
-    Write-Host ""
-}
-
-# =========================================
-# Fonction: Vérifier DNS
-# =========================================
-function Test-DNSConfiguration {
-    param([string]$Domain)
-    
-    Write-Host ""
-    Write-Host "🔍 Vérification DNS pour: $Domain" -ForegroundColor Cyan
-    Write-Host ""
+    Write-Output ""
+    Write-Output "[INFO] Verification DNS pour: $DomainToCheck"
+    Write-Output ""
     
     try {
-        $dnsResult = Resolve-DnsName -Name $Domain -Type A -ErrorAction SilentlyContinue
+        $dnsResult = Resolve-DnsName -Name $DomainToCheck -Type CNAME -ErrorAction SilentlyContinue
         
         if ($dnsResult) {
-            Write-Host "✓ Domaine résout vers:" -ForegroundColor Green
-            foreach ($record in $dnsResult) {
-                if ($record.Type -eq "A") {
-                    Write-Host "  IP: $($record.IPAddress)" -ForegroundColor White
-                }
+            Write-Output "[OK] DNS configure:"
+            Write-Output "  Type:  CNAME"
+            Write-Output "  Cible: $($dnsResult.NameHost)"
+            
+            if ($dnsResult.NameHost -like "*pages.dev") {
+                Write-Output "[OK] Pointe vers Cloudflare Pages"
+            } else {
+                Write-Output "[WARN] Ne pointe pas vers pages.dev"
             }
         } else {
-            Write-Host "Avertissement: Domaine ne resout pas encore" -ForegroundColor Yellow
-            Write-Host "   Propagation DNS en cours (peut prendre jusqu'a 48h)" -ForegroundColor Gray
+            # Essayer A record
+            $aRecord = Resolve-DnsName -Name $DomainToCheck -Type A -ErrorAction SilentlyContinue
+            if ($aRecord) {
+                Write-Output "[INFO] Enregistrement A trouve:"
+                Write-Output "  IP: $($aRecord.IPAddress)"
+            } else {
+                Write-Output "[WARN] Aucun enregistrement DNS trouve"
+            }
         }
-        
-        # Test CNAME
-        $cnameResult = Resolve-DnsName -Name $Domain -Type CNAME -ErrorAction SilentlyContinue
-        if ($cnameResult) {
-            Write-Host "OK CNAME pointe vers: $($cnameResult.NameHost)" -ForegroundColor Green
-        }
-        
     } catch {
-        Write-Host "Avertissement: Impossible de verifier le DNS" -ForegroundColor Yellow
-        Write-Host "   $($_.Exception.Message)" -ForegroundColor Gray
+        Write-Output "[WARN] Impossible de resoudre le DNS"
     }
-    
-    Write-Host ""
-    
-    # Test HTTPS
-    Write-Host "🔒 Test HTTPS..." -ForegroundColor Cyan
-    try {
-        $response = Invoke-WebRequest -Uri "https://$Domain" -Method GET -UseBasicParsing -TimeoutSec 10
-        Write-Host "✓ HTTPS accessible (HTTP $($response.StatusCode))" -ForegroundColor Green
-        
-        # Vérifier le certificat SSL
-        Write-Host "✓ Certificat SSL actif" -ForegroundColor Green
-        
-    } catch {
-        Write-Host "✗ HTTPS non accessible" -ForegroundColor Red
-        Write-Host "   Attendez la propagation DNS et l'émission du certificat SSL" -ForegroundColor Gray
-    }
-    
-    Write-Host ""
 }
 
 # =========================================
-# Fonction: Mettre à jour variables d'env
+# Fonction: Mettre a jour variables d'env
 # =========================================
 function Update-EnvironmentVariables {
-    param([string]$Domain)
+    param([string]$NewDomain)
     
-    Write-Host ""
-    Write-Host "⚙️  Mise à jour des variables d'environnement" -ForegroundColor Cyan
-    Write-Host ""
+    Write-Output ""
+    Write-Output "[INFO] Mise a jour des variables d'environnement..."
+    Write-Output ""
     
-    $newUrl = "https://$Domain"
+    # Mettre a jour NEXT_PUBLIC_APP_URL
+    $appUrl = "https://$NewDomain"
     
-    Write-Host "NEXTAUTH_URL -> $newUrl" -ForegroundColor Yellow
     try {
-        wrangler pages secret put NEXTAUTH_URL --project-name $ProjectName
-        # Note: L'utilisateur devra entrer la valeur interactivement
-        Write-Host "✓ NEXTAUTH_URL mis à jour" -ForegroundColor Green
-    } catch {
-        Write-Host "❌ Erreur lors de la mise à jour de NEXTAUTH_URL" -ForegroundColor Red
-    }
-    
-    Write-Host ""
-    Write-Host "NEXT_PUBLIC_APP_URL -> $newUrl" -ForegroundColor Yellow
-    try {
+        Write-Output "[INFO] Setting NEXT_PUBLIC_APP_URL=$appUrl"
         wrangler pages secret put NEXT_PUBLIC_APP_URL --project-name $ProjectName
-        Write-Host "✓ NEXT_PUBLIC_APP_URL mis à jour" -ForegroundColor Green
+        
+        Write-Output "[INFO] Setting NEXTAUTH_URL=$appUrl"
+        wrangler pages secret put NEXTAUTH_URL --project-name $ProjectName
+        
+        Write-Output ""
+        Write-Output "[OK] Variables mises a jour!"
+        
     } catch {
-        Write-Host "❌ Erreur lors de la mise à jour de NEXT_PUBLIC_APP_URL" -ForegroundColor Red
-    }
-    
-    Write-Host ""
-    Write-Host "📝 Redéploiement nécessaire pour appliquer les changements" -ForegroundColor Yellow
-    Write-Host "   Exécutez: git push origin main" -ForegroundColor Gray
-    Write-Host ""
-}
-
-# =========================================
-# Menu Interactif
-# =========================================
-function Show-InteractiveMenu {
-    Write-Host ""
-    Write-Host "=====================================" -ForegroundColor Cyan
-    Write-Host "Menu Configuration Domaine Custom" -ForegroundColor Cyan
-    Write-Host "=====================================" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "1. Lister les domaines actuels"
-    Write-Host "2. Ajouter un nouveau domaine"
-    Write-Host "3. Vérifier DNS d'un domaine"
-    Write-Host "4. Mettre à jour les variables d'environnement"
-    Write-Host "5. Afficher la documentation DNS"
-    Write-Host "6. Ouvrir le dashboard Cloudflare"
-    Write-Host "0. Quitter"
-    Write-Host ""
-    
-    $choice = Read-Host "Sélectionnez une option"
-    
-    switch ($choice) {
-        "1" {
-            Show-CurrentDomains
-            Show-InteractiveMenu
-        }
-        "2" {
-            $newDomain = Read-Host "Entrez le domaine (ex: iapostemanager.com ou app.iapostemanager.com)"
-            if ($newDomain) {
-                Add-CustomDomain -DomainToAdd $newDomain
-            } else {
-                Write-Host "❌ Domaine invalide" -ForegroundColor Red
-            }
-            Show-InteractiveMenu
-        }
-        "3" {
-            $checkDomain = Read-Host "Entrez le domaine à vérifier"
-            if ($checkDomain) {
-                Test-DNSConfiguration -Domain $checkDomain
-            }
-            Show-InteractiveMenu
-        }
-        "4" {
-            $updateDomain = Read-Host "Entrez le nouveau domaine pour les variables d'env"
-            if ($updateDomain) {
-                Update-EnvironmentVariables -Domain $updateDomain
-            }
-            Show-InteractiveMenu
-        }
-        "5" {
-            $docDomain = Read-Host "Entrez le domaine pour voir la config DNS"
-            if ($docDomain) {
-                Show-DNSRecords -Domain $docDomain
-            }
-            Show-InteractiveMenu
-        }
-        "6" {
-            Write-Host ""
-            Write-Host "🌐 Ouverture du dashboard Cloudflare..." -ForegroundColor Cyan
-            Start-Process "https://dash.cloudflare.com/b8fe52a9c1217b3bb71b53c26d0acfab/pages/view/$ProjectName"
-            Show-InteractiveMenu
-        }
-        "0" {
-            Write-Host ""
-            Write-Host "✓ Au revoir!" -ForegroundColor Green
-            Write-Host ""
-            exit 0
-        }
-        default {
-            Write-Host "❌ Option invalide" -ForegroundColor Red
-            Show-InteractiveMenu
-        }
+        Write-Output "[WARN] Certaines variables n'ont pas ete mises a jour"
     }
 }
 
@@ -314,50 +170,64 @@ function Show-InteractiveMenu {
 # MAIN
 # =========================================
 
-# Vérifier l'authentification
+# Verifier authentification
 Test-WranglerAuth
 
-# Mode liste uniquement
+# Mode ListOnly
 if ($ListOnly) {
     Show-CurrentDomains
     exit 0
 }
 
-# Mode vérification DNS
-if ($CheckDNS) {
-    if (-not $Domain) {
-        $Domain = Read-Host "Entrez le domaine à vérifier"
-    }
-    Test-DNSConfiguration -Domain $Domain
+# Mode CheckDNS
+if ($CheckDNS -and $Domain) {
+    Test-DomainDNS -DomainToCheck $Domain
     exit 0
 }
 
-# Mode mise à jour variables d'env
-if ($UpdateEnvVars) {
-    if (-not $Domain) {
-        $Domain = Read-Host "Entrez le domaine pour les variables d'env"
-    }
-    Update-EnvironmentVariables -Domain $Domain
+# Mode UpdateEnvVars
+if ($UpdateEnvVars -and $Domain) {
+    Update-EnvironmentVariables -NewDomain $Domain
     exit 0
 }
 
-# Si domaine fourni en paramètre
-if ($Domain) {
-    Add-CustomDomain -DomainToAdd $Domain
-    Test-DNSConfiguration -Domain $Domain
+# Mode interactif si pas de domaine specifie
+if ([string]::IsNullOrEmpty($Domain)) {
+    Write-Output "Utilisation:"
+    Write-Output "  .\cloudflare-custom-domain.ps1 -Domain 'example.com'"
+    Write-Output "  .\cloudflare-custom-domain.ps1 -ListOnly"
+    Write-Output "  .\cloudflare-custom-domain.ps1 -Domain 'example.com' -CheckDNS"
+    Write-Output "  .\cloudflare-custom-domain.ps1 -Domain 'example.com' -UpdateEnvVars"
+    Write-Output ""
     
-    Write-Host ""
-    $updateVars = Read-Host "Voulez-vous mettre à jour les variables d'environnement maintenant? (O/N)"
-    if ($updateVars -eq "O" -or $updateVars -eq "o") {
-        Update-EnvironmentVariables -Domain $Domain
-    }
+    Show-CurrentDomains
     
-    exit 0
+    Write-Output ""
+    $Domain = Read-Host "Entrez le domaine a ajouter (ou Entree pour quitter)"
+    
+    if ([string]::IsNullOrEmpty($Domain)) {
+        Write-Output "Annule."
+        exit 0
+    }
 }
 
-# Sinon, menu interactif
-Show-InteractiveMenu
+# Ajouter le domaine
+Add-CustomDomain -DomainToAdd $Domain
 
-Write-Host ""
-Write-Host "✓ Script terminé" -ForegroundColor Green
-Write-Host ""
+# Proposer de verifier DNS
+Write-Output ""
+$checkDns = Read-Host "Voulez-vous verifier le DNS maintenant? (o/N)"
+if ($checkDns -eq "o" -or $checkDns -eq "O") {
+    Test-DomainDNS -DomainToCheck $Domain
+}
+
+# Proposer de mettre a jour les variables
+Write-Output ""
+$updateVars = Read-Host "Mettre a jour les variables d'environnement? (o/N)"
+if ($updateVars -eq "o" -or $updateVars -eq "O") {
+    Update-EnvironmentVariables -NewDomain $Domain
+}
+
+Write-Output ""
+Write-Output "[OK] Configuration terminee!"
+Write-Output ""

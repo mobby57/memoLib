@@ -16,126 +16,92 @@ $PROJECT_NAME = "iaposte-manager"
 $PRODUCTION_URL = "https://iapostemanager.pages.dev"
 $CLOUDFLARE_DASHBOARD = "https://dash.cloudflare.com"
 
-Write-Host "`n╔════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║   CLOUDFLARE PAGES - IA POSTE MANAGER STATUS         ║" -ForegroundColor Cyan
-Write-Host "╚════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
+Write-Output ""
+Write-Output "========================================"
+Write-Output "   CLOUDFLARE PAGES - STATUS"
+Write-Output "   IA POSTE MANAGER"
+Write-Output "========================================"
+Write-Output ""
 
 # ============================================
-# 1️⃣ TEST DISPONIBILITÉ
+# 1. TEST DISPONIBILITE
 # ============================================
-Write-Host "📡 Test de disponibilité..." -ForegroundColor Yellow
+Write-Output "[TEST] Disponibilite..."
 
 try {
     $response = Invoke-WebRequest -Uri $PRODUCTION_URL -Method Head -UseBasicParsing -TimeoutSec 10
     
     if ($response.StatusCode -eq 200) {
-        Write-Host "✅ SITE OPÉRATIONNEL" -ForegroundColor Green
-        Write-Host "   Status: $($response.StatusCode) $($response.StatusDescription)" -ForegroundColor Gray
+        Write-Output "[OK] SITE OPERATIONNEL"
+        Write-Output "   Status: $($response.StatusCode) $($response.StatusDescription)"
         
         # Extraire headers Cloudflare
         $cfRay = $response.Headers['CF-Ray']
         $cfCacheStatus = $response.Headers['CF-Cache-Status']
         
         if ($cfRay) {
-            Write-Host "   CDN: Cloudflare (Ray: $cfRay)" -ForegroundColor Gray
+            Write-Output "   CDN: Cloudflare (Ray: $cfRay)"
         }
         if ($cfCacheStatus) {
-            Write-Host "   Cache: $cfCacheStatus" -ForegroundColor Gray
+            Write-Output "   Cache: $cfCacheStatus"
         }
     }
 } catch {
-    Write-Host "❌ SITE INACCESSIBLE" -ForegroundColor Red
-    Write-Host "   Erreur: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Output "[ERREUR] SITE INACCESSIBLE"
+    Write-Output "   Erreur: $($_.Exception.Message)"
 }
 
-Write-Host ""
+Write-Output ""
 
 # ============================================
-# 2️⃣ INFORMATIONS DÉPLOIEMENT
+# 2. INFORMATIONS WRANGLER
 # ============================================
-Write-Host "📊 Informations de déploiement..." -ForegroundColor Yellow
+Write-Output "[INFO] Wrangler Status..."
 
-try {
-    $deployments = wrangler pages deployment list --project-name=$PROJECT_NAME 2>&1
+$wranglerInstalled = Get-Command wrangler -ErrorAction SilentlyContinue
+if ($wranglerInstalled) {
+    Write-Output "   Wrangler: Installe"
     
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ Projet: $PROJECT_NAME" -ForegroundColor Green
-        Write-Host ""
-        $deployments | Select-Object -First 10
+    # Whoami
+    $whoami = wrangler whoami 2>&1 | Out-String
+    if ($whoami -match "You are logged in") {
+        Write-Output "   Auth: Connecte"
     } else {
-        Write-Host "⚠️  Impossible de récupérer les déploiements" -ForegroundColor Yellow
-        Write-Host "   Assurez-vous d'être authentifié: wrangler login" -ForegroundColor Gray
+        Write-Output "   Auth: Non connecte"
     }
-} catch {
-    Write-Host "⚠️  Erreur: $($_.Exception.Message)" -ForegroundColor Yellow
+} else {
+    Write-Output "   Wrangler: Non installe"
 }
 
-Write-Host ""
+Write-Output ""
 
 # ============================================
-# 3️⃣ URLS IMPORTANTES
+# 3. OPTIONS
 # ============================================
-Write-Host "🔗 URLs importantes:" -ForegroundColor Cyan
-Write-Host "   Production:  $PRODUCTION_URL" -ForegroundColor White
-Write-Host "   Dashboard:   $CLOUDFLARE_DASHBOARD" -ForegroundColor White
-Write-Host "   Wrangler:    https://developers.cloudflare.com/workers/wrangler/" -ForegroundColor White
-Write-Host ""
 
-# ============================================
-# 4️⃣ ACTIONS RAPIDES
-# ============================================
+if ($Logs) {
+    Write-Output "[LOGS] Ouverture des logs..."
+    wrangler pages deployment tail $PROJECT_NAME
+}
+
 if ($Open) {
-    Write-Host "🌐 Ouverture du site..." -ForegroundColor Yellow
+    Write-Output "[OPEN] Ouverture du site..."
     Start-Process $PRODUCTION_URL
 }
 
-if ($Logs) {
-    Write-Host "📋 Récupération des logs..." -ForegroundColor Yellow
-    wrangler pages deployment list --project-name=$PROJECT_NAME
-}
-
 if ($Deploy) {
-    Write-Host "🚀 Déploiement..." -ForegroundColor Yellow
-    & "$PSScriptRoot\deploy-cloudflare.ps1"
+    Write-Output "[DEPLOY] Lancement du deploiement..."
+    & ".\deploy-cloudflare.ps1"
 }
 
 # ============================================
-# 5️⃣ COMMANDES UTILES
+# 4. RESUME
 # ============================================
-Write-Host "💡 Commandes utiles:" -ForegroundColor Cyan
-Write-Host "   .\cloudflare-status.ps1 -Open     → Ouvrir le site" -ForegroundColor Gray
-Write-Host "   .\cloudflare-status.ps1 -Logs     → Voir les logs" -ForegroundColor Gray
-Write-Host "   .\cloudflare-status.ps1 -Deploy   → Redéployer" -ForegroundColor Gray
-Write-Host ""
-Write-Host "   wrangler pages deployment list    → Liste déploiements" -ForegroundColor Gray
-Write-Host "   wrangler login                    → Se connecter" -ForegroundColor Gray
-Write-Host "   wrangler whoami                   → Voir compte actuel" -ForegroundColor Gray
-Write-Host ""
-
-# ============================================
-# 6️⃣ HEALTH CHECK
-# ============================================
-Write-Host "🏥 Health Check:" -ForegroundColor Yellow
-
-$healthEndpoints = @(
-    "/api/health",
-    "/api/auth/session"
-)
-
-foreach ($endpoint in $healthEndpoints) {
-    $url = "$PRODUCTION_URL$endpoint"
-    try {
-        $healthResponse = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5 -ErrorAction SilentlyContinue
-        if ($healthResponse.StatusCode -eq 200) {
-            Write-Host "   ✅ $endpoint" -ForegroundColor Green
-        } else {
-            Write-Host "   ⚠️  $endpoint ($($healthResponse.StatusCode))" -ForegroundColor Yellow
-        }
-    } catch {
-        Write-Host "   ❌ $endpoint (Erreur)" -ForegroundColor Red
-    }
-}
-
-Write-Host ""
-Write-Host "✅ Vérification terminée!" -ForegroundColor Green
-Write-Host ""
+Write-Output "========================================"
+Write-Output "   LIENS UTILES"
+Write-Output "========================================"
+Write-Output "   Production: $PRODUCTION_URL"
+Write-Output "   Dashboard:  $CLOUDFLARE_DASHBOARD"
+Write-Output "   Logs:       .\cloudflare-status.ps1 -Logs"
+Write-Output "   Deploy:     .\cloudflare-status.ps1 -Deploy"
+Write-Output ""
