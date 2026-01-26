@@ -23,7 +23,7 @@ interface Tenant {
 }
 
 export default function TenantsPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,12 +31,13 @@ export default function TenantsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    if (session?.user?.role !== 'SUPER_ADMIN') {
+    if (status === 'loading') return;
+    if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
       router.push('/auth/login');
       return;
     }
     loadTenants();
-  }, [session, router]);
+  }, [session, status, router]);
 
   const loadTenants = async () => {
     try {
