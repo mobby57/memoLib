@@ -179,8 +179,9 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 2 * 60 * 60,
-    updateAge: 30 * 60,
+    // Session expire apres 1 heure d'inactivite pour la securite
+    maxAge: 60 * 60, // 1 heure (3600 secondes)
+    updateAge: 5 * 60, // Mise a jour toutes les 5 minutes
   },
   cookies: {
     sessionToken: {
@@ -190,7 +191,7 @@ export const authOptions: NextAuthOptions = {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 2 * 60 * 60,
+        maxAge: 60 * 60, // 1 heure
       },
     },
     callbackUrl: {

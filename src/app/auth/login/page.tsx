@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 import { signIn } from 'next-auth/react';
 import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { logger } from '@/lib/logger';
 
 export default function LoginPage() {
@@ -110,6 +111,14 @@ export default function LoginPage() {
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="--------"
               />
+              <div className="mt-2 text-right">
+                <Link 
+                  href="/auth/forgot-password" 
+                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  Mot de passe oublie ?
+                </Link>
+              </div>
             </div>
 
             <button
@@ -145,8 +154,19 @@ export default function LoginPage() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-6 text-blue-200 text-sm">
-          <p> Connexion securisee | Donnees chiffrees</p>
+        <div className="text-center mt-6 space-y-3">
+          <p className="text-blue-200 text-sm">
+            Vous n'avez pas de compte ?{' '}
+            <Link href="/auth/register" className="font-semibold text-white hover:underline">
+              Creer un compte avocat
+            </Link>
+          </p>
+          <p className="text-blue-300/70 text-xs">
+             Connexion securisee | Donnees chiffrees | Session expire apres 1h d'inactivite
+          </p>
+          <Link href="/" className="inline-block text-blue-200 hover:text-white text-sm hover:underline">
+             Retour a l'accueil
+          </Link>
         </div>
       </div>
     </div>

@@ -83,6 +83,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Azure Sanity Check
+        run: az account show
+
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
