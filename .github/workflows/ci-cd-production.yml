@@ -92,6 +92,15 @@ jobs:
           echo "📊 Build size:"
           du -sh .next/
           
+          # Fix: Renommer les fichiers avec ':' (colons) qui cassent GitHub Artifacts
+          echo ""
+          echo "🔧 Fixing file names with colons (Windows/NTFS incompatible)..."
+          find .next -name '*:*' 2>/dev/null | while read file; do
+            newname=$(echo "$file" | sed 's/:/_/g')
+            mv "$file" "$newname" 2>/dev/null || true
+          done
+          echo "✅ File names fixed"
+          
           echo "success=true" >> $GITHUB_OUTPUT
         env:
           NEXT_TELEMETRY_DISABLED: '1'
