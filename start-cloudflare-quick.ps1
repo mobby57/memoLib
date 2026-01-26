@@ -1,68 +1,76 @@
-# 🚀 Quick Start - Cloudflare Tunnel (sans domaine requis)
-# Démarre automatiquement un tunnel avec URL .trycloudflare.com
+# Quick Start - Cloudflare Tunnel (sans domaine requis)
+# Demarre automatiquement un tunnel avec URL .trycloudflare.com
 
-Write-Host "`n☁️  CLOUDFLARE QUICK TUNNEL" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════`n" -ForegroundColor Cyan
+Write-Output ""
+Write-Output "========================================"
+Write-Output "   CLOUDFLARE QUICK TUNNEL"
+Write-Output "========================================"
+Write-Output ""
 
-# Vérifier si cloudflared existe
+# Verifier si cloudflared existe
 if (-not (Test-Path "cloudflared.exe")) {
-    Write-Host "❌ cloudflared.exe manquant" -ForegroundColor Red
-    Write-Host "   Téléchargement..." -ForegroundColor Yellow
+    Write-Output "[WARN] cloudflared.exe manquant"
+    Write-Output "   Telechargement..."
     Invoke-WebRequest -Uri "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" -OutFile "cloudflared.exe"
-    Write-Host "✅ Téléchargé`n" -ForegroundColor Green
+    Write-Output "[OK] Telecharge"
+    Write-Output ""
 }
 
-# Vérifier si Next.js tourne
-Write-Host "🔍 Vérification Next.js..." -ForegroundColor Yellow
+# Verifier si Next.js tourne
+Write-Output "[INFO] Verification Next.js..."
 $port3000 = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
 if (-not $port3000) {
-    Write-Host "⚠️  Next.js ne tourne pas sur le port 3000" -ForegroundColor Yellow
-    Write-Host "   Lancer dans un autre terminal: npm run dev`n" -ForegroundColor Gray
-    $continue = Read-Host "Continuer quand même? (O/N)"
+    Write-Output "[WARN] Next.js ne tourne pas sur le port 3000"
+    Write-Output "   Lancer dans un autre terminal: npm run dev"
+    Write-Output ""
+    $continue = Read-Host "Continuer quand meme? (O/N)"
     if ($continue -ne "O" -and $continue -ne "o") {
         exit
     }
 } else {
-    Write-Host "✅ Next.js détecté sur port 3000`n" -ForegroundColor Green
+    Write-Output "[OK] Next.js detecte sur port 3000"
+    Write-Output ""
 }
 
-Write-Host "🌐 Démarrage du tunnel Cloudflare..." -ForegroundColor Cyan
-Write-Host "   Cible: http://localhost:3000`n" -ForegroundColor Gray
+Write-Output "[INFO] Demarrage du tunnel Cloudflare..."
+Write-Output "   Cible: http://localhost:3000"
+Write-Output ""
 
-Write-Host "═══════════════════════════════════════" -ForegroundColor Green
-Write-Host "⏳ Génération de l'URL publique..." -ForegroundColor Yellow
-Write-Host "   (Cela peut prendre 10-15 secondes)" -ForegroundColor Gray
-Write-Host "═══════════════════════════════════════`n" -ForegroundColor Green
+Write-Output "========================================"
+Write-Output "[WAIT] Generation de l'URL publique..."
+Write-Output "   (Cela peut prendre 10-15 secondes)"
+Write-Output "========================================"
+Write-Output ""
 
 # Options pour Windows
 $env:TUNNEL_TRANSPORT_PROTOCOL = "http2"
 
-# Démarrer le tunnel en mode quick (--no-autoupdate pour éviter les erreurs Windows)
+# Demarrer le tunnel en mode quick
 .\cloudflared.exe tunnel --url http://localhost:3000 --no-autoupdate --logfile cloudflare-tunnel.log 2>&1 | ForEach-Object {
     $line = $_.ToString()
     
-    # Détecter l'URL générée
+    # Detecter l'URL generee
     if ($line -match "https://.*\.trycloudflare\.com") {
         $url = $matches[0]
-        Write-Host "`n═══════════════════════════════════════" -ForegroundColor Green
-        Write-Host "✅ TUNNEL ACTIF!" -ForegroundColor Green
-        Write-Host "═══════════════════════════════════════`n" -ForegroundColor Green
-        Write-Host "🌍 URL Publique:" -ForegroundColor Cyan
-        Write-Host "   $url`n" -ForegroundColor White -BackgroundColor DarkGreen
-        Write-Host "📋 Webhook GitHub:" -ForegroundColor Cyan
-        Write-Host "   ${url}/api/webhooks/github`n" -ForegroundColor White
-        Write-Host "`n═══════════════════════════════════════" -ForegroundColor Green
-        Write-Host "IMPORTANT - Mettez a jour .env:" -ForegroundColor Yellow
-        Write-Host "CLOUDFLARE_TUNNEL_URL=`"$url`"" -ForegroundColor White
-        Write-Host "PUBLIC_WEBHOOK_URL=`"${url}/api/webhooks/github`"" -ForegroundColor White
-        Write-Host "═══════════════════════════════════════`n" -ForegroundColor Green
+        Write-Output ""
+        Write-Output "========================================"
+        Write-Output "[OK] TUNNEL ACTIF!"
+        Write-Output "========================================"
+        Write-Output ""
+        Write-Output "[URL] URL Publique:"
+        Write-Output "   $url"
+        Write-Output ""
+        Write-Output "[WEBHOOK] Webhook GitHub:"
+        Write-Output "   ${url}/api/webhooks/github"
+        Write-Output ""
+        Write-Output "========================================"
+        Write-Output "IMPORTANT - Mettez a jour .env:"
+        Write-Output "CLOUDFLARE_TUNNEL_URL=`"$url`""
+        Write-Output "PUBLIC_WEBHOOK_URL=`"${url}/api/webhooks/github`""
+        Write-Output "========================================"
+        Write-Output ""
     }
     
-    # Afficher les logs importants
-    if ($line -match "ERR|error" -and $line -notmatch "certificate") {
-        Write-Host "⚠️  $line" -ForegroundColor Yellow
-    }
-    elseif ($line -match "INF|Registered tunnel connection") {
-        Write-Host "✓ $line" -ForegroundColor Gray
-    }
+    # Afficher les logs
+    Write-Output $line
 }

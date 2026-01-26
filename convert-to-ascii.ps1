@@ -4,115 +4,51 @@
 $srcPath = "c:\Users\moros\Desktop\iaPostemanage\src"
 $logFile = "c:\Users\moros\Desktop\iaPostemanage\ascii-conversion-report.txt"
 
-# Mapping des caracteres accentues vers ASCII
-$replacements = @{
-    # Voyelles accentuees
-    'e' = '[éèêë]'
-    'a' = '[àâä]'
-    'u' = '[ùûü]'
-    'i' = '[îï]'
-    'o' = '[ôö]'
-    'c' = 'ç'
-    'E' = '[ÉÈÊË]'
-    'A' = '[ÀÂÄ]'
-    'U' = '[ÙÛÜ]'
-    'I' = '[ÎÏ]'
-    'O' = '[ÔÖ]'
-    'C' = 'Ç'
-    
-    # Ligatures
-    'oe' = 'œ'
-    'ae' = 'æ'
-    'OE' = 'Œ'
-    'AE' = 'Æ'
-    
-    # Guillemets et apostrophes
-    '"' = '«'
-    '"' = '»'
-    "'" = '''
-    "'" = '''
-    
-    # Ponctuation
-    '...' = '…'
-    '-' = '—'
-    '-' = '–'
-}
-
-# Emojis courants -> texte descriptif
+# Emojis courants -> texte descriptif (utilise codes Unicode)
 $emojiReplacements = @{
-    '[Chart]' = '📊'
-    '[Search]' = '🔍'
-    '[Back]' = '←'
-    '[+]' = '➕'
-    '[OK]' = '✅'
-    '[ERROR]' = '❌'
-    '[Warning]' = '⚠️'
-    '[Alert]' = '🚨'
-    '[Info]' = 'ℹ️'
-    '[User]' = '👤'
-    '[Lock]' = '🔒'
-    '[Chat]' = '💬'
-    '[Folder]' = '📁'
-    '[File]' = '📄'
-    '[PDF]' = '📄'
-    '[IMG]' = '🖼️'
-    '[DOC]' = '📝'
-    '[XLS]' = '📊'
-    '[Clip]' = '📎'
-    '[Mail]' = '📧'
-    '[Calendar]' = '📅'
-    '[Clock]' = '⏰'
-    '[Star]' = '⭐'
-    '[Check]' = '✓'
-    '[X]' = '✗'
-    '[Arrow]' = '→'
-    '[Refresh]' = '🔄'
-    '[Download]' = '📥'
-    '[Upload]' = '📤'
-    '[Play]' = '▶️'
-    '[Pause]' = '⏸️'
-    '[Settings]' = '⚙️'
-    '[Home]' = '🏠'
-    '[Bell]' = '🔔'
-    '[Key]' = '🔑'
-    '[Shield]' = '🛡️'
-    '[Fire]' = '🔥'
-    '[Sparkle]' = '✨'
-    '[Rocket]' = '🚀'
-    '[Money]' = '💰'
-    '[Dollar]' = '💵'
-    '[Euro]' = '💶'
-    '[Credit]' = '💳'
-    '[Phone]' = '📞'
-    '[Globe]' = '🌍'
-    '[Cloud]' = '☁️'
-    '[Sun]' = '☀️'
-    '[Moon]' = '🌙'
-    '[Thumb]' = '👍'
-    '[Heart]' = '❤️'
-    '[Smile]' = '😊'
-    '[Think]' = '🤔'
-    '[Party]' = '🎉'
-    '[Gift]' = '🎁'
-    '[Bulb]' = '💡'
-    '[Pencil]' = '✏️'
-    '[Trash]' = '🗑️'
-    '[Link]' = '🔗'
-    '[Pin]' = '📌'
-    '[Tag]' = '🏷️'
-    '[Book]' = '📖'
-    '[List]' = '📋'
-    '[Eye]' = '👁️'
-    '[Success]' = '✅'
-    '[Fail]' = '❌'
+    '[Chart]' = [char]::ConvertFromUtf32(0x1F4CA)
+    '[Search]' = [char]::ConvertFromUtf32(0x1F50D)
+    '[+]' = [char]::ConvertFromUtf32(0x2795)
+    '[OK]' = [char]::ConvertFromUtf32(0x2705)
+    '[ERROR]' = [char]::ConvertFromUtf32(0x274C)
+    '[Warning]' = [char]::ConvertFromUtf32(0x26A0)
+    '[Alert]' = [char]::ConvertFromUtf32(0x1F6A8)
+    '[User]' = [char]::ConvertFromUtf32(0x1F464)
+    '[Lock]' = [char]::ConvertFromUtf32(0x1F512)
+    '[Chat]' = [char]::ConvertFromUtf32(0x1F4AC)
+    '[Folder]' = [char]::ConvertFromUtf32(0x1F4C1)
+    '[File]' = [char]::ConvertFromUtf32(0x1F4C4)
+    '[Mail]' = [char]::ConvertFromUtf32(0x1F4E7)
+    '[Calendar]' = [char]::ConvertFromUtf32(0x1F4C5)
+    '[Star]' = [char]::ConvertFromUtf32(0x2B50)
+    '[Arrow]' = [char]::ConvertFromUtf32(0x2192)
+    '[Refresh]' = [char]::ConvertFromUtf32(0x1F504)
+    '[Download]' = [char]::ConvertFromUtf32(0x1F4E5)
+    '[Upload]' = [char]::ConvertFromUtf32(0x1F4E4)
+    '[Settings]' = [char]::ConvertFromUtf32(0x2699)
+    '[Home]' = [char]::ConvertFromUtf32(0x1F3E0)
+    '[Bell]' = [char]::ConvertFromUtf32(0x1F514)
+    '[Key]' = [char]::ConvertFromUtf32(0x1F511)
+    '[Shield]' = [char]::ConvertFromUtf32(0x1F6E1)
+    '[Fire]' = [char]::ConvertFromUtf32(0x1F525)
+    '[Rocket]' = [char]::ConvertFromUtf32(0x1F680)
+    '[Money]' = [char]::ConvertFromUtf32(0x1F4B0)
+    '[Phone]' = [char]::ConvertFromUtf32(0x1F4DE)
+    '[Globe]' = [char]::ConvertFromUtf32(0x1F30D)
+    '[Cloud]' = [char]::ConvertFromUtf32(0x2601)
+    '[Heart]' = [char]::ConvertFromUtf32(0x2764)
+    '[Bulb]' = [char]::ConvertFromUtf32(0x1F4A1)
+    '[Trash]' = [char]::ConvertFromUtf32(0x1F5D1)
+    '[Link]' = [char]::ConvertFromUtf32(0x1F517)
+    '[Eye]' = [char]::ConvertFromUtf32(0x1F441)
 }
 
 $modifiedFiles = @()
 $totalReplacements = 0
 
-Write-Host "=== Conversion des fichiers en ASCII pur ===" -ForegroundColor Cyan
-Write-Host "Repertoire source: $srcPath" -ForegroundColor Yellow
-Write-Host ""
+Write-Output "=== Conversion des fichiers en ASCII pur ==="
+Write-Output "Repertoire source: $srcPath"
+Write-Output ""
 
 # Trouver tous les fichiers TypeScript/JavaScript avec caracteres non-ASCII
 $files = Get-ChildItem -Path $srcPath -Recurse -Include *.ts,*.tsx,*.js,*.jsx | Where-Object {
@@ -124,8 +60,8 @@ $files = Get-ChildItem -Path $srcPath -Recurse -Include *.ts,*.tsx,*.js,*.jsx | 
 }
 
 $totalFiles = $files.Count
-Write-Host "Fichiers avec caracteres non-ASCII trouves: $totalFiles" -ForegroundColor Green
-Write-Host ""
+Write-Output "Fichiers avec caracteres non-ASCII trouves: $totalFiles"
+Write-Output ""
 
 $counter = 0
 foreach ($file in $files) {
@@ -142,79 +78,74 @@ foreach ($file in $files) {
         }
     }
     
-    # Remplacer les caracteres accentues
-    # e accentue
-    $content = $content -replace 'é', 'e'
-    $content = $content -replace 'è', 'e'
-    $content = $content -replace 'ê', 'e'
-    $content = $content -replace 'ë', 'e'
-    $content = $content -replace 'É', 'E'
-    $content = $content -replace 'È', 'E'
-    $content = $content -replace 'Ê', 'E'
-    $content = $content -replace 'Ë', 'E'
+    # Remplacer les caracteres accentues (e)
+    $content = $content -replace [char]0x00E9, 'e'
+    $content = $content -replace [char]0x00E8, 'e'
+    $content = $content -replace [char]0x00EA, 'e'
+    $content = $content -replace [char]0x00EB, 'e'
+    $content = $content -replace [char]0x00C9, 'E'
+    $content = $content -replace [char]0x00C8, 'E'
+    $content = $content -replace [char]0x00CA, 'E'
+    $content = $content -replace [char]0x00CB, 'E'
     
     # a accentue
-    $content = $content -replace 'à', 'a'
-    $content = $content -replace 'â', 'a'
-    $content = $content -replace 'ä', 'a'
-    $content = $content -replace 'À', 'A'
-    $content = $content -replace 'Â', 'A'
-    $content = $content -replace 'Ä', 'A'
+    $content = $content -replace [char]0x00E0, 'a'
+    $content = $content -replace [char]0x00E2, 'a'
+    $content = $content -replace [char]0x00E4, 'a'
+    $content = $content -replace [char]0x00C0, 'A'
+    $content = $content -replace [char]0x00C2, 'A'
+    $content = $content -replace [char]0x00C4, 'A'
     
     # u accentue
-    $content = $content -replace 'ù', 'u'
-    $content = $content -replace 'û', 'u'
-    $content = $content -replace 'ü', 'u'
-    $content = $content -replace 'Ù', 'U'
-    $content = $content -replace 'Û', 'U'
-    $content = $content -replace 'Ü', 'U'
+    $content = $content -replace [char]0x00F9, 'u'
+    $content = $content -replace [char]0x00FB, 'u'
+    $content = $content -replace [char]0x00FC, 'u'
+    $content = $content -replace [char]0x00D9, 'U'
+    $content = $content -replace [char]0x00DB, 'U'
+    $content = $content -replace [char]0x00DC, 'U'
     
     # i accentue
-    $content = $content -replace 'î', 'i'
-    $content = $content -replace 'ï', 'i'
-    $content = $content -replace 'Î', 'I'
-    $content = $content -replace 'Ï', 'I'
+    $content = $content -replace [char]0x00EE, 'i'
+    $content = $content -replace [char]0x00EF, 'i'
+    $content = $content -replace [char]0x00CE, 'I'
+    $content = $content -replace [char]0x00CF, 'I'
     
     # o accentue
-    $content = $content -replace 'ô', 'o'
-    $content = $content -replace 'ö', 'o'
-    $content = $content -replace 'Ô', 'O'
-    $content = $content -replace 'Ö', 'O'
+    $content = $content -replace [char]0x00F4, 'o'
+    $content = $content -replace [char]0x00F6, 'o'
+    $content = $content -replace [char]0x00D4, 'O'
+    $content = $content -replace [char]0x00D6, 'O'
     
     # c cedille
-    $content = $content -replace 'ç', 'c'
-    $content = $content -replace 'Ç', 'C'
+    $content = $content -replace [char]0x00E7, 'c'
+    $content = $content -replace [char]0x00C7, 'C'
     
     # Ligatures
-    $content = $content -replace 'œ', 'oe'
-    $content = $content -replace 'æ', 'ae'
-    $content = $content -replace 'Œ', 'OE'
-    $content = $content -replace 'Æ', 'AE'
+    $content = $content -replace [char]0x0153, 'oe'
+    $content = $content -replace [char]0x00E6, 'ae'
+    $content = $content -replace [char]0x0152, 'OE'
+    $content = $content -replace [char]0x00C6, 'AE'
     
     # Guillemets francais
-    $content = $content -replace '«', '"'
-    $content = $content -replace '»', '"'
+    $content = $content -replace [char]0x00AB, '"'
+    $content = $content -replace [char]0x00BB, '"'
     
     # Apostrophes typographiques
-    $content = $content -replace ''', "'"
-    $content = $content -replace ''', "'"
+    $content = $content -replace [char]0x2018, "'"
+    $content = $content -replace [char]0x2019, "'"
     
     # Points de suspension
-    $content = $content -replace '…', '...'
+    $content = $content -replace [char]0x2026, '...'
     
     # Tirets longs
-    $content = $content -replace '—', '-'
-    $content = $content -replace '–', '-'
+    $content = $content -replace [char]0x2014, '-'
+    $content = $content -replace [char]0x2013, '-'
     
     # Espaces insecables
-    $content = $content -replace ' ', ' '
-    
-    # Degre
-    $content = $content -replace '°', 'deg'
+    $content = $content -replace [char]0x00A0, ' '
     
     # Verifier si le fichier a ete modifie
     if ($content -ne $originalContent) {
-        # Sauvegarder avec encodage UTF8 sans BOM
         $utf8NoBom = New-Object System.Text.UTF8Encoding $false
         [System.IO.File]::WriteAllText($file.FullName, $content, $utf8NoBom)
         
@@ -222,48 +153,22 @@ foreach ($file in $files) {
         $totalReplacements++
         
         $relativePath = $file.FullName.Replace($srcPath, "src")
-        Write-Host "[$counter/$totalFiles] Modifie: $relativePath" -ForegroundColor Green
+        Write-Output "[$counter/$totalFiles] Modifie: $relativePath"
     } else {
         $relativePath = $file.FullName.Replace($srcPath, "src")
-        Write-Host "[$counter/$totalFiles] Inchange: $relativePath" -ForegroundColor DarkGray
+        Write-Output "[$counter/$totalFiles] Inchange: $relativePath"
     }
 }
 
 # Generer le rapport
-$report = @"
-===========================================
-RAPPORT DE CONVERSION ASCII
-===========================================
-Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-Repertoire: $srcPath
+$reportContent = "RAPPORT DE CONVERSION ASCII`n"
+$reportContent += "Date: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n"
+$reportContent += "Fichiers analyses: $totalFiles`n"
+$reportContent += "Fichiers modifies: $($modifiedFiles.Count)`n"
 
-STATISTIQUES:
-- Fichiers analyses: $totalFiles
-- Fichiers modifies: $($modifiedFiles.Count)
+$reportContent | Out-File -FilePath $logFile -Encoding UTF8
 
-FICHIERS MODIFIES:
-$($modifiedFiles | ForEach-Object { "  - $_" } | Out-String)
-
-CARACTERES REMPLACES:
-  e <- e, e, e, e (et majuscules)
-  a <- a, a, a (et majuscules)
-  u <- u, u, u (et majuscules)
-  i <- i, i (et majuscules)
-  o <- o, o (et majuscules)
-  c <- c (et majuscule)
-  oe <- oe
-  ae <- ae
-  " <- << >>
-  ' <- typographic quotes
-  ... <- ...
-  - <- - -
-  Emojis -> [Description]
-===========================================
-"@
-
-$report | Out-File -FilePath $logFile -Encoding UTF8
-
-Write-Host ""
-Write-Host "=== CONVERSION TERMINEE ===" -ForegroundColor Cyan
-Write-Host "Fichiers modifies: $($modifiedFiles.Count) / $totalFiles" -ForegroundColor Green
-Write-Host "Rapport sauvegarde: $logFile" -ForegroundColor Yellow
+Write-Output ""
+Write-Output "=== CONVERSION TERMINEE ==="
+Write-Output "Fichiers modifies: $($modifiedFiles.Count) / $totalFiles"
+Write-Output "Rapport sauvegarde: $logFile"
