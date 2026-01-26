@@ -162,6 +162,12 @@ jobs:
         run: |
           echo "🚀 Deploying to Vercel..."
           npm i -g vercel@latest
+          
+          # Supprimer l'ancien dossier .vercel s'il existe (évite les conflits)
+          rm -rf .vercel
+          
+          # Link le projet proprement
+          vercel link --yes --token=${{ secrets.VERCEL_TOKEN }}
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
