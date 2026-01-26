@@ -57,12 +57,23 @@ jobs:
       - name: Build Next.js (standalone mode)
         env:
           NODE_ENV: production
+          FORCE_STANDALONE: true
           NEXT_PUBLIC_APP_URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net
           # Build-time placeholders (real values in App Service)
           DATABASE_URL: 'postgresql://placeholder:placeholder@localhost:5432/placeholder'
           NEXTAUTH_SECRET: 'placeholder-secret-for-build-only-32chars!'
           NEXTAUTH_URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net
-        run: npm run build
+        run: |
+          echo "🏗️ Building Next.js in standalone mode for Azure..."
+          npm run build
+          echo ""
+          echo "📦 Checking build output..."
+          if [ -d ".next/standalone" ]; then
+            echo "✅ Standalone build successful"
+          else
+            echo "❌ Standalone output not found - checking output type in next.config.js"
+            exit 1
+          fi
 
       - name: Prepare deployment package
         run: |
@@ -100,12 +111,28 @@ jobs:
           echo "📁 Taille totale:"
           du -sh .next/standalone/
 
+      - name: Verify build output exists
+        run: |
+          echo "🔍 Verifying Next.js standalone build..."
+          if [ ! -d ".next/standalone" ]; then
+            echo "❌ ERROR: .next/standalone directory not found!"
+            echo "The build may have failed or standalone output is not configured."
+            exit 1
+          fi
+          if [ ! -f ".next/standalone/server.js" ]; then
+            echo "❌ ERROR: server.js not found in standalone build!"
+            exit 1
+          fi
+          echo "✅ Standalone build verified successfully"
+          ls -la .next/standalone/
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-app
           path: .next/standalone
           retention-days: 1
+          if-no-files-found: error
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Deploy Job - Push to Azure App Service
@@ -129,11 +156,26 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          # Désactiver Azure PowerShell session (évite problèmes de parsing)
+          enable-AzPSSession: false
 
-      - name: Verify Azure connection
+      - name: Azure sanity check
         run: |
-          echo "🔐 Connected to Azure:"
-          az account show --query "{Name:name, ID:id}" -o table
+          echo "🔐 Testing Azure connection..."
+          # Désactiver les warnings CLI qui peuvent casser le JSON
+          export AZURE_CORE_ONLY_SHOW_ERRORS=true
+          
+          # Test simple de connexion
+          if az account show --query "name" -o tsv 2>/dev/null; then
+            echo ""
+            echo "✅ Azure CLI authenticated successfully"
+            echo "📋 Subscription: $(az account show --query 'name' -o tsv)"
+            echo "🆔 ID: $(az account show --query 'id' -o tsv)"
+          else
+            echo "❌ Azure authentication failed"
+            echo "Vérifiez que AZURE_CREDENTIALS contient un JSON valide"
+            exit 1
+          fi
 
       - name: Ensure App Service is running
         run: |
