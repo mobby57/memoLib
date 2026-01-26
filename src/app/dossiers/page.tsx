@@ -1,9 +1,6 @@
 ﻿'use client';
 
-// Force dynamic to prevent prerendering errors with React hooks
-export const dynamic = 'force-dynamic';
-
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +14,9 @@ import { Alert } from '@/components/ui/Alert';
 import { StatCard } from '@/components/ui/StatCard';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Pagination } from '@/components/ui/Pagination';
-import { FileText, Plus, Download, Search, Pencil, Trash2, Eye } from 'lucide-react';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { FilterSelect } from '@/components/ui/FilterSelect';
+import { FileText, Plus, Download, Pencil, Trash2, Eye, Filter, RefreshCw } from 'lucide-react';
 
 const dossierSchema = z.object({
   numero: z.string().min(1, 'Le numero est requis'),
@@ -112,7 +111,7 @@ const STATUT_LABELS = {
   EN_COURS: 'En cours',
   CLOS: 'Clos',
   EN_ATTENTE: 'En attente',
-  ARCHIVE: 'Archive',
+  ARCHIVE: 'Archivé',
 };
 
 const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 'default'> = {
@@ -121,6 +120,17 @@ const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 
   EN_ATTENTE: 'warning',
   ARCHIVE: 'default',
 };
+
+// Options for filter selects
+const TYPE_OPTIONS = [
+  { value: 'ALL', label: 'Tous les types' },
+  ...Object.entries(TYPE_LABELS).map(([value, label]) => ({ value, label })),
+];
+
+const STATUT_OPTIONS = [
+  { value: 'ALL', label: 'Tous les statuts' },
+  ...Object.entries(STATUT_LABELS).map(([value, label]) => ({ value, label })),
+];
 
 export default function DossiersPage() {
   const router = useRouter();
@@ -131,6 +141,7 @@ export default function DossiersPage() {
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
   const [statutFilter, setStatutFilter] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const itemsPerPage = 10;
 
   const { toast } = useToast();
@@ -228,38 +239,103 @@ export default function DossiersPage() {
     setIsModalOpen(false);
   };
 
-  const deleteDossier = (id: string) => {
+  const deleteDossier = useCallback((id: string) => {
     const dossier = dossiers.find(d => d.id === id);
-    if (window.confirm(`etes-vous sur de vouloir supprimer le dossier ${dossier?.numero} ?`)) {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer le dossier ${dossier?.numero} ?`)) {
       setDossiers(prev => prev.filter(d => d.id !== id));
       toast({
         variant: 'default',
-        title: 'Dossier supprime',
-        description: `Le dossier ${dossier?.numero} a ete supprime.`,
+        title: 'Dossier supprimé',
+        description: `Le dossier ${dossier?.numero} a été supprimé.`,
       });
     }
-  };
+  }, [dossiers, toast]);
 
-  const exportData = () => {
+  const exportData = useCallback(() => {
+    // Export CSV
+    const headers = ['Numéro', 'Titre', 'Client', 'Type', 'Statut', 'Date ouverture'];
+    const rows = filteredDossiers.map(d => [
+      d.numero,
+      d.titre,
+      d.clientNom,
+      TYPE_LABELS[d.type],
+      STATUT_LABELS[d.statut],
+      d.dateOuverture
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `dossiers_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
     toast({
-      variant: 'default',
-      title: 'Export en cours',
-      description: 'Votre fichier CSV sera telecharge dans quelques instants.',
+      variant: 'success',
+      title: 'Export réussi',
+      description: `${filteredDossiers.length} dossier(s) exporté(s) en CSV.`,
     });
-  };
+  }, [filteredDossiers, toast]);
 
-  const handleRowClick = (dossier: Dossier) => {
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    // Simulate API refresh
+    setTimeout(() => {
+      setIsRefreshing(false);
+      toast({
+        variant: 'success',
+        title: 'Données actualisées',
+        description: 'La liste des dossiers a été mise à jour.',
+      });
+    }, 500);
+  }, [toast]);
+
+  const clearFilters = useCallback(() => {
+    setSearchTerm('');
+    setTypeFilter('ALL');
+    setStatutFilter('ALL');
+    setCurrentPage(1);
+  }, []);
+
+  const hasActiveFilters = searchTerm || typeFilter !== 'ALL' || statutFilter !== 'ALL';
+
+  const handleRowClick = useCallback((dossier: Dossier) => {
     router.push(`/dossiers/${dossier.id}`);
-  };
+  }, [router]);
 
-  const columns = [
-    { key: 'numero', header: 'Numero' },
+  const handleClientClick = useCallback((e: React.MouseEvent, clientId: string) => {
+    e.stopPropagation();
+    router.push(`/clients/${clientId}`);
+  }, [router]);
+
+  const columns = useMemo(() => [
+    { key: 'numero', header: 'Numéro' },
     { key: 'titre', header: 'Titre' },
-    { key: 'clientNom', header: 'Client' },
+    { 
+      key: 'clientNom', 
+      header: 'Client',
+      render: (row: Dossier) => (
+        <button
+          onClick={(e) => handleClientClick(e, row.clientId)}
+          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline font-medium transition-colors"
+          title={`Voir le profil de ${row.clientNom}`}
+        >
+          {row.clientNom}
+        </button>
+      )
+    },
     { 
       key: 'type', 
       header: 'Type',
-      render: (row: Dossier) => TYPE_LABELS[row.type]
+      render: (row: Dossier) => (
+        <span className="px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 rounded">
+          {TYPE_LABELS[row.type]}
+        </span>
+      )
     },
     {
       key: 'statut',
@@ -268,37 +344,48 @@ export default function DossiersPage() {
         <Badge variant={STATUT_COLORS[row.statut]}>{STATUT_LABELS[row.statut]}</Badge>
       ),
     },
-    { key: 'dateOuverture', header: 'Date ouverture' },
+    { 
+      key: 'dateOuverture', 
+      header: 'Date ouverture',
+      render: (row: Dossier) => (
+        <span className="text-gray-600 dark:text-gray-400">
+          {new Date(row.dateOuverture).toLocaleDateString('fr-FR')}
+        </span>
+      )
+    },
     {
       key: 'actions',
       header: 'Actions',
       render: (row: Dossier) => (
-        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => router.push(`/dossiers/${row.id}`)}
-            className="p-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
-            title="Consulter"
+            className="p-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30 rounded transition-colors"
+            title="Consulter le dossier"
+            aria-label={`Consulter le dossier ${row.numero}`}
           >
             <Eye className="w-4 h-4" />
           </button>
           <button
             onClick={() => openEditModal(row)}
-            className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-            title="Modifier"
+            className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30 rounded transition-colors"
+            title="Modifier le dossier"
+            aria-label={`Modifier le dossier ${row.numero}`}
           >
             <Pencil className="w-4 h-4" />
           </button>
           <button
             onClick={() => deleteDossier(row.id)}
-            className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-            title="Supprimer"
+            className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30 rounded transition-colors"
+            title="Supprimer le dossier"
+            aria-label={`Supprimer le dossier ${row.numero}`}
           >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
       ),
     },
-  ];
+  ], [router, openEditModal, deleteDossier, handleClientClick]);
 
   return (
     <div className="p-6 space-y-6">
@@ -310,14 +397,23 @@ export default function DossiersPage() {
       />
 
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des dossiers</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gerez vos dossiers juridiques et leur suivi
+            Gérez vos dossiers juridiques et leur suivi
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+            title="Actualiser la liste"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Actualiser</span>
+          </button>
           <button
             onClick={exportData}
             className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -362,48 +458,67 @@ export default function DossiersPage() {
 
       {/* Info Alert */}
       <Alert variant="info">
-        Les dossiers archives ne sont pas inclus dans les statistiques actives ci-dessus.
+        Les dossiers archivés ne sont pas inclus dans les statistiques actives ci-dessus.
       </Alert>
 
-      {/* Filters */}
+      {/* Filters - Using specialized components to prevent hydration mismatch from browser extensions */}
       <Card>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Rechercher par numero, titre ou client..."
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
+            <SearchInput
+              placeholder="Rechercher par numéro, titre ou client..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              onClear={() => {
+                setSearchTerm('');
+                setCurrentPage(1);
+              }}
+              aria-label="Rechercher des dossiers"
             />
           </div>
-          <div className="flex gap-2">
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            >
-              <option value="ALL">Tous les types</option>
-              {Object.entries(TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-            <select
-              value={statutFilter}
-              onChange={(e) => setStatutFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            >
-              <option value="ALL">Tous les statuts</option>
-              {Object.entries(STATUT_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
+          <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-gray-400 hidden sm:block" aria-hidden="true" />
+              <FilterSelect
+                value={typeFilter}
+                onChange={(e) => {
+                  setTypeFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                options={TYPE_OPTIONS.slice(1)} // Remove first "ALL" option since we use placeholder
+                placeholder="Tous les types"
+                label="Filtrer par type"
+              />
+              <FilterSelect
+                value={statutFilter}
+                onChange={(e) => {
+                  setStatutFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                options={STATUT_OPTIONS.slice(1)}
+                placeholder="Tous les statuts"
+                label="Filtrer par statut"
+              />
+            </div>
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title="Effacer tous les filtres"
+              >
+                Effacer les filtres
+              </button>
+            )}
           </div>
         </div>
-        {(searchTerm || typeFilter !== 'ALL' || statutFilter !== 'ALL') && (
-          <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-            {filteredDossiers.length} resultat(s) trouve(s)
+        {hasActiveFilters && (
+          <div className="mt-3 flex items-center justify-between text-sm">
+            <span className="text-gray-600 dark:text-gray-400">
+              {filteredDossiers.length} résultat{filteredDossiers.length > 1 ? 's' : ''} trouvé{filteredDossiers.length > 1 ? 's' : ''}
+            </span>
           </div>
         )}
       </Card>

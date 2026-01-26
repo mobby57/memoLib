@@ -1,8 +1,5 @@
 'use client';
 
-// Force dynamic to prevent prerendering errors with React hooks
-export const dynamic = 'force-dynamic';
-
 /**
  * Page détail d'un client
  * Affiche toutes les informations du client avec onglets
@@ -14,138 +11,156 @@ import Link from 'next/link';
 import { 
   User, ArrowLeft, Building2, Mail, Phone, MapPin,
   FileText, Calendar, Euro, Edit, Download, Plus,
-  Briefcase, Clock, AlertCircle, CheckCircle
+  Briefcase, Clock, AlertCircle, CheckCircle, RefreshCw
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { useToast } from '@/hooks/use-toast';
+import { useSession } from 'next-auth/react';
 
 interface Dossier {
   id: string;
   numero: string;
   titre: string;
   type: string;
-  statut: string;
-  dateOuverture: string;
+  status: string;
+  priorite?: string;
+  createdAt: string;
 }
 
 interface Facture {
   id: string;
   numero: string;
-  montant: number;
-  statut: 'payee' | 'en_attente' | 'retard';
+  montantHT: number;
+  montantTTC: number;
+  statut: string;
   dateEmission: string;
   dateEcheance: string;
 }
 
 interface Client {
   id: string;
-  nom: string;
-  prenom?: string;
-  type: 'particulier' | 'entreprise';
+  firstName: string;
+  lastName: string;
   email: string;
-  telephone: string;
-  adresse: string;
-  ville: string;
-  codePostal: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  company?: string;
   siret?: string;
-  dateNaissance?: string;
-  nationalite?: string;
-  statut: 'actif' | 'inactif' | 'prospect';
-  dateCreation: string;
+  status: string;
+  createdAt: string;
   notes?: string;
   dossiers: Dossier[];
   factures: Facture[];
+  _count?: {
+    dossiers: number;
+    factures: number;
+    documents: number;
+  };
 }
 
-const STATUT_LABELS = {
-  actif: 'Actif',
-  inactif: 'Inactif',
+const STATUT_LABELS: Record<string, string> = {
+  active: 'Actif',
+  inactive: 'Inactif',
   prospect: 'Prospect',
+  ACTIVE: 'Actif',
+  INACTIVE: 'Inactif',
+  PROSPECT: 'Prospect',
 };
 
 const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 'default'> = {
-  actif: 'success',
-  inactif: 'default',
+  active: 'success',
+  inactive: 'default',
   prospect: 'info',
+  ACTIVE: 'success',
+  INACTIVE: 'default',
+  PROSPECT: 'info',
 };
 
 const DOSSIER_STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 'default'> = {
   EN_COURS: 'info',
+  en_cours: 'info',
   CLOS: 'success',
+  clos: 'success',
   EN_ATTENTE: 'warning',
+  en_attente: 'warning',
   ARCHIVE: 'default',
+  archive: 'default',
+  OUVERT: 'info',
+  ouvert: 'info',
 };
 
 const FACTURE_STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 'default'> = {
   payee: 'success',
+  PAYEE: 'success',
   en_attente: 'warning',
+  EN_ATTENTE: 'warning',
   retard: 'danger',
-};
-
-// Mock data for demonstration
-const MOCK_CLIENT: Client = {
-  id: '1',
-  nom: 'SARL Martin',
-  type: 'entreprise',
-  email: 'contact@sarl-martin.fr',
-  telephone: '0145678901',
-  adresse: '12 Rue de la Paix',
-  ville: 'Paris',
-  codePostal: '75001',
-  siret: '12345678901234',
-  statut: 'actif',
-  dateCreation: '2023-06-15',
-  notes: 'Client fidèle depuis 2023. Contrat cadre en place pour les litiges commerciaux.',
-  dossiers: [
-    { id: '1', numero: 'DOS-2024-001', titre: 'Litige commercial fournisseur', type: 'COMMERCIAL', statut: 'EN_COURS', dateOuverture: '2024-01-15' },
-    { id: '2', numero: 'DOS-2023-045', titre: 'Recouvrement créance', type: 'COMMERCIAL', statut: 'CLOS', dateOuverture: '2023-09-20' },
-    { id: '3', numero: 'DOS-2023-032', titre: 'Conseil juridique restructuration', type: 'COMMERCIAL', statut: 'ARCHIVE', dateOuverture: '2023-06-15' },
-  ],
-  factures: [
-    { id: '1', numero: 'FAC-2024-001', montant: 2500, statut: 'payee', dateEmission: '2024-01-20', dateEcheance: '2024-02-20' },
-    { id: '2', numero: 'FAC-2024-015', montant: 1800, statut: 'en_attente', dateEmission: '2024-01-25', dateEcheance: '2024-02-25' },
-    { id: '3', numero: 'FAC-2023-089', montant: 3200, statut: 'payee', dateEmission: '2023-12-10', dateEcheance: '2024-01-10' },
-  ],
+  RETARD: 'danger',
+  impayee: 'danger',
+  IMPAYEE: 'danger',
 };
 
 export default function ClientDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const { data: session } = useSession();
   const { toast } = useToast();
   
   const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<'info' | 'dossiers' | 'factures' | 'historique'>('info');
 
   const clientId = params.id as string;
+  const tenantId = (session?.user as { tenantId?: string })?.tenantId;
 
   useEffect(() => {
-    if (clientId) {
+    if (clientId && tenantId) {
+      fetchClient();
+    } else if (clientId && !tenantId && session !== undefined) {
+      // Session loaded but no tenantId - use demo mode
       fetchClient();
     }
-  }, [clientId]);
+  }, [clientId, tenantId, session]);
 
   const fetchClient = async () => {
     try {
       setLoading(true);
-      // TODO: Remplacer par un appel API réel
-      // const res = await fetch(`/api/clients/${clientId}`);
-      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Simulate finding client by ID
-      const found = { ...MOCK_CLIENT, id: clientId };
-      setClient(found);
+      // Use tenantId from session or default for demo
+      const effectiveTenantId = tenantId || 'demo-tenant';
+      const res = await fetch(`/api/clients/${clientId}?tenantId=${effectiveTenantId}&includeDossiers=true&includeFactures=true`);
+      
+      if (!res.ok) {
+        if (res.status === 404) {
+          setClient(null);
+          return;
+        }
+        throw new Error('Erreur lors du chargement');
+      }
+      
+      const data = await res.json();
+      setClient(data.client);
     } catch (error) {
+      console.error('Erreur fetch client:', error);
       toast({
         variant: 'destructive',
         title: 'Erreur',
-        description: 'Impossible de charger le client'
+        description: 'Impossible de charger les données du client'
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchClient();
   };
 
   const formatCurrency = (amount: number): string => {
@@ -153,23 +168,38 @@ export default function ClientDetailPage() {
   };
 
   const getFactureStatusIcon = (statut: string) => {
-    switch (statut) {
+    const s = statut?.toLowerCase();
+    switch (s) {
       case 'payee':
         return <CheckCircle className="w-5 h-5 text-green-500" />;
       case 'retard':
+      case 'impayee':
         return <AlertCircle className="w-5 h-5 text-red-500" />;
       default:
         return <Clock className="w-5 h-5 text-yellow-500" />;
     }
   };
 
+  const formatDate = (dateStr: string): string => {
+    try {
+      return new Date(dateStr).toLocaleDateString('fr-FR');
+    } catch {
+      return dateStr;
+    }
+  };
+
   // Calculate stats
   const stats = client ? {
-    totalDossiers: client.dossiers.length,
-    dossiersEnCours: client.dossiers.filter(d => d.statut === 'EN_COURS').length,
-    totalFacture: client.factures.reduce((sum, f) => sum + f.montant, 0),
-    facturesImpayees: client.factures.filter(f => f.statut !== 'payee').reduce((sum, f) => sum + f.montant, 0),
+    totalDossiers: client._count?.dossiers ?? client.dossiers?.length ?? 0,
+    dossiersEnCours: client.dossiers?.filter(d => ['EN_COURS', 'en_cours', 'OUVERT', 'ouvert'].includes(d.status)).length ?? 0,
+    totalFacture: client.factures?.reduce((sum, f) => sum + (f.montantTTC || f.montantHT || 0), 0) ?? 0,
+    facturesImpayees: client.factures?.filter(f => !['payee', 'PAYEE'].includes(f.statut)).reduce((sum, f) => sum + (f.montantTTC || f.montantHT || 0), 0) ?? 0,
   } : { totalDossiers: 0, dossiersEnCours: 0, totalFacture: 0, facturesImpayees: 0 };
+
+  // Get display name
+  const clientDisplayName = client ? 
+    (client.company || `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Client') : '';
+  const isEntreprise = !!client?.company;
 
   if (loading) {
     return (
@@ -210,7 +240,7 @@ export default function ClientDetailPage() {
       <Breadcrumb
         items={[
           { label: 'Clients', href: '/clients' },
-          { label: client.nom },
+          { label: clientDisplayName },
         ]}
       />
 
@@ -225,7 +255,7 @@ export default function ClientDetailPage() {
           </Link>
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-              {client.type === 'entreprise' ? (
+              {isEntreprise ? (
                 <Building2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               ) : (
                 <User className="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -234,19 +264,27 @@ export default function ClientDetailPage() {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {client.nom}
+                  {clientDisplayName}
                 </h1>
-                <Badge variant={STATUT_COLORS[client.statut]}>
-                  {STATUT_LABELS[client.statut]}
+                <Badge variant={STATUT_COLORS[client.status] || 'default'}>
+                  {STATUT_LABELS[client.status] || client.status}
                 </Badge>
               </div>
               <p className="text-gray-600 dark:text-gray-400">
-                {client.type === 'entreprise' ? 'Entreprise' : 'Particulier'} • Client depuis le {client.dateCreation}
+                {isEntreprise ? 'Entreprise' : 'Particulier'} • Client depuis le {formatDate(client.createdAt)}
               </p>
             </div>
           </div>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Actualiser
+          </button>
           <button
             onClick={() => router.push(`/clients/${client.id}/edit`)}
             className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -323,8 +361,8 @@ export default function ClientDetailPage() {
         <nav className="flex gap-6">
           {[
             { id: 'info', label: 'Informations', icon: User },
-            { id: 'dossiers', label: 'Dossiers', icon: Briefcase, count: client.dossiers.length },
-            { id: 'factures', label: 'Factures', icon: Euro, count: client.factures.length },
+            { id: 'dossiers', label: 'Dossiers', icon: Briefcase, count: client.dossiers?.length || 0 },
+            { id: 'factures', label: 'Factures', icon: Euro, count: client.factures?.length || 0 },
             { id: 'historique', label: 'Historique', icon: Calendar },
           ].map((tab) => (
             <button
@@ -368,27 +406,31 @@ export default function ClientDetailPage() {
                   </dd>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-gray-400" />
-                <div>
-                  <dt className="text-sm text-gray-500 dark:text-gray-400">Téléphone</dt>
-                  <dd className="text-sm font-medium text-gray-900 dark:text-white">
-                    <a href={`tel:${client.telephone}`} className="text-blue-600 hover:underline">
-                      {client.telephone}
-                    </a>
-                  </dd>
+              {client.phone && (
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <dt className="text-sm text-gray-500 dark:text-gray-400">Téléphone</dt>
+                    <dd className="text-sm font-medium text-gray-900 dark:text-white">
+                      <a href={`tel:${client.phone}`} className="text-blue-600 hover:underline">
+                        {client.phone}
+                      </a>
+                    </dd>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                <div>
-                  <dt className="text-sm text-gray-500 dark:text-gray-400">Adresse</dt>
-                  <dd className="text-sm font-medium text-gray-900 dark:text-white">
-                    {client.adresse}<br />
-                    {client.codePostal} {client.ville}
-                  </dd>
+              )}
+              {(client.address || client.city) && (
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <dt className="text-sm text-gray-500 dark:text-gray-400">Adresse</dt>
+                    <dd className="text-sm font-medium text-gray-900 dark:text-white">
+                      {client.address && <>{client.address}<br /></>}
+                      {client.postalCode} {client.city}
+                    </dd>
+                  </div>
                 </div>
-              </div>
+              )}
             </dl>
           </Card>
 
@@ -400,8 +442,16 @@ export default function ClientDetailPage() {
             <dl className="space-y-4">
               <div>
                 <dt className="text-sm text-gray-500 dark:text-gray-400">Type de client</dt>
-                <dd className="text-sm font-medium text-gray-900 dark:text-white capitalize">{client.type}</dd>
+                <dd className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                  {isEntreprise ? 'Entreprise' : 'Particulier'}
+                </dd>
               </div>
+              {client.company && (
+                <div>
+                  <dt className="text-sm text-gray-500 dark:text-gray-400">Société</dt>
+                  <dd className="text-sm font-medium text-gray-900 dark:text-white">{client.company}</dd>
+                </div>
+              )}
               {client.siret && (
                 <div>
                   <dt className="text-sm text-gray-500 dark:text-gray-400">SIRET</dt>
@@ -410,7 +460,7 @@ export default function ClientDetailPage() {
               )}
               <div>
                 <dt className="text-sm text-gray-500 dark:text-gray-400">Date de création</dt>
-                <dd className="text-sm font-medium text-gray-900 dark:text-white">{client.dateCreation}</dd>
+                <dd className="text-sm font-medium text-gray-900 dark:text-white">{formatDate(client.createdAt)}</dd>
               </div>
             </dl>
             {client.notes && (
@@ -427,7 +477,7 @@ export default function ClientDetailPage() {
         <Card>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Dossiers ({client.dossiers.length})
+              Dossiers ({client.dossiers?.length || 0})
             </h3>
             <Link
               href={`/dossiers/nouveau?clientId=${client.id}`}
@@ -437,7 +487,7 @@ export default function ClientDetailPage() {
               Nouveau dossier
             </Link>
           </div>
-          {client.dossiers.length === 0 ? (
+          {!client.dossiers || client.dossiers.length === 0 ? (
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">
               <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>Aucun dossier pour ce client</p>
@@ -458,9 +508,9 @@ export default function ClientDetailPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{dossier.dateOuverture}</span>
-                    <Badge variant={DOSSIER_STATUT_COLORS[dossier.statut] || 'default'}>
-                      {dossier.statut.replace('_', ' ')}
+                    <span className="text-sm text-gray-500 dark:text-gray-400">{formatDate(dossier.createdAt)}</span>
+                    <Badge variant={DOSSIER_STATUT_COLORS[dossier.status] || 'default'}>
+                      {(dossier.status || '').replace('_', ' ')}
                     </Badge>
                   </div>
                 </Link>
@@ -474,7 +524,7 @@ export default function ClientDetailPage() {
         <Card>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Factures ({client.factures.length})
+              Factures ({client.factures?.length || 0})
             </h3>
             <Link
               href={`/factures/nouveau?clientId=${client.id}`}
@@ -484,43 +534,46 @@ export default function ClientDetailPage() {
               Nouvelle facture
             </Link>
           </div>
-          {client.factures.length === 0 ? (
+          {!client.factures || client.factures.length === 0 ? (
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">
               <Euro className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>Aucune facture pour ce client</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {client.factures.map((facture) => (
-                <div
-                  key={facture.id}
-                  className={`flex items-center justify-between p-4 rounded-lg ${
-                    facture.statut === 'retard'
-                      ? 'bg-red-50 dark:bg-red-900/20'
-                      : facture.statut === 'payee'
-                      ? 'bg-green-50 dark:bg-green-900/20'
-                      : 'bg-yellow-50 dark:bg-yellow-900/20'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    {getFactureStatusIcon(facture.statut)}
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{facture.numero}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Émise le {facture.dateEmission} • Échéance {facture.dateEcheance}
-                      </p>
+              {client.factures.map((facture) => {
+                const s = facture.statut?.toLowerCase();
+                return (
+                  <div
+                    key={facture.id}
+                    className={`flex items-center justify-between p-4 rounded-lg ${
+                      s === 'retard' || s === 'impayee'
+                        ? 'bg-red-50 dark:bg-red-900/20'
+                        : s === 'payee'
+                        ? 'bg-green-50 dark:bg-green-900/20'
+                        : 'bg-yellow-50 dark:bg-yellow-900/20'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {getFactureStatusIcon(facture.statut)}
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white">{facture.numero}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Émise le {formatDate(facture.dateEmission)} • Échéance {formatDate(facture.dateEcheance)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {formatCurrency(facture.montantTTC || facture.montantHT || 0)}
+                      </span>
+                      <Badge variant={FACTURE_STATUT_COLORS[facture.statut] || 'default'}>
+                        {s === 'payee' ? 'Payée' : s === 'retard' || s === 'impayee' ? 'En retard' : 'En attente'}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {formatCurrency(facture.montant)}
-                    </span>
-                    <Badge variant={FACTURE_STATUT_COLORS[facture.statut]}>
-                      {facture.statut === 'payee' ? 'Payée' : facture.statut === 'retard' ? 'En retard' : 'En attente'}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </Card>

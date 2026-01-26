@@ -10,6 +10,7 @@
     },
     {
       "route": "/api/*",
+      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
       "allowedRoles": ["anonymous", "authenticated"]
     },
     {
@@ -27,6 +28,12 @@
       }
     },
     {
+      "route": "/_next/image/*",
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
+    },
+    {
       "route": "/*.{js,css,png,jpg,jpeg,gif,svg,ico,woff,woff2}",
       "headers": {
         "Cache-Control": "public, max-age=31536000, immutable"
@@ -37,18 +44,10 @@
       "allowedRoles": ["anonymous"]
     }
   ],
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/_next/*", "/api/*", "/*.ico", "/*.svg", "/*.png", "/*.json", "/.swa/*"]
-  },
   "responseOverrides": {
     "401": {
       "statusCode": 302,
       "redirect": "/auth/login"
-    },
-    "404": {
-      "rewrite": "/404.html",
-      "statusCode": 404
     }
   },
   "globalHeaders": {
