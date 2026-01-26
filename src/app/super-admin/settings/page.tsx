@@ -9,14 +9,15 @@ import { useSession } from 'next-auth/react';
 import SuperAdminNavigation from '@/components/SuperAdminNavigation';
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (session?.user?.role !== 'SUPER_ADMIN') {
+    if (status === 'loading') return;
+    if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
       router.push('/auth/login');
     }
-  }, [session, router]);
+  }, [session, status, router]);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -155,14 +155,28 @@ jobs:
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --docker-container-logging filesystem
 
-      - name: Deploy to Azure App Service
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ./app
+      - name: Deploy via ZIP (bypasses Site Disabled)
+        run: |
+          # Créer un ZIP du package
+          cd ./app
+          zip -r ../app.zip .
+          cd ..
+          
+          # Réactiver l'app juste avant le deploy
+          az webapp start --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || true
+          
+          # Déployer via ZIP deploy (plus robuste)
+          az webapp deploy \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --src-path app.zip \
+            --type zip \
+            --async true
+          
+          echo "✅ Déploiement ZIP initié"
 
       - name: Wait for deployment
-        run: sleep 60
+        run: sleep 90
 
       - name: Health check
         run: |
