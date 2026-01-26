@@ -274,9 +274,9 @@ export default function EmailMonitoringPage() {
                 </p>
               </div>
             ) : (
-              emails.map((email) => (
+              emails.map((email, index) => (
                 <div
-                  key={email.id}
+                  key={email.id || `email-${index}`}
                   className={`p-6 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition ${
                     !email.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                   }`}

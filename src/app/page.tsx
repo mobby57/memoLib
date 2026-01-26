@@ -3,34 +3,15 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { FileText, Users, DollarSign, Shield, Zap, TrendingUp, ChevronRight, CheckCircle } from 'lucide-react';
+import { FileText, Users, DollarSign, Shield, Zap, TrendingUp, ChevronRight, CheckCircle, LogIn, UserPlus } from 'lucide-react';
 
 export default function HomePage() {
-  const router = useRouter();
   const { data: session, status } = useSession();
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/dashboard');
-    } else if (status === 'unauthenticated') {
-      router.push('/auth/login');
-    }
-  }, [status, router]);
-
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Chargement...</p>
-        </div>
-      </div>
-    );
-  }
+  // Afficher la landing page sans redirection automatique
+  // L'utilisateur doit cliquer sur "Dashboard" ou "Connexion" pour naviguer
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -51,19 +32,34 @@ export default function HomePage() {
               optimisee par l'intelligence artificielle
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/auth/login"
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-              >
-                Connexion
-                <ChevronRight className="ml-2 w-5 h-5" />
-              </Link>
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border-2 border-blue-600 dark:border-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                Voir le Dashboard
-              </Link>
+              {status === 'authenticated' ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    <LogIn className="mr-2 w-5 h-5" />
+                    Acceder au Dashboard
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
+                  >
+                    <LogIn className="mr-2 w-5 h-5" />
+                    Connexion
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border-2 border-blue-600 dark:border-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <UserPlus className="mr-2 w-5 h-5" />
+                    Creer un compte
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
