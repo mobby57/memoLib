@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { FileText, Users, DollarSign, Shield, Zap, TrendingUp, ChevronRight, CheckCircle, LogIn, UserPlus } from 'lucide-react';
+import { FileText, Users, DollarSign, Shield, Zap, TrendingUp, ChevronRight, CheckCircle, LogIn, UserPlus, Calendar, MessageSquare, CreditCard } from 'lucide-react';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -15,6 +15,41 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Navigation */}
+      <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/" className="text-xl font-bold text-blue-600 dark:text-blue-400">
+              IA Poste Manager
+            </Link>
+            <div className="hidden md:flex items-center gap-6">
+              <Link href="/pricing" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Tarifs
+              </Link>
+              <Link href="/demo" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Demo
+              </Link>
+              <Link href="/contact" className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Contact
+              </Link>
+              {status === 'authenticated' ? (
+                <Link href="/dashboard" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link href="/auth/login" className="text-blue-600 dark:text-blue-400 hover:underline">
+                    Connexion
+                  </Link>
+                  <Link href="/auth/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    S'inscrire
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
@@ -198,11 +233,44 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-gray-600 dark:text-gray-400">
-             2026 IA Poste Manager. Tous droits reserves.
-          </p>
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h4 className="font-bold text-gray-900 dark:text-white mb-4">IA Poste Manager</h4>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                La solution intelligente pour les cabinets d'avocats modernes.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Produit</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/pricing" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Tarifs</Link></li>
+                <li><Link href="/demo" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Demander une demo</Link></li>
+                <li><Link href="/auth/register" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">S'inscrire</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Ressources</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Contact</Link></li>
+                <li><Link href="/contact?type=support" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Support</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">CGU</a></li>
+                <li><a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">Confidentialite</a></li>
+                <li><a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">RGPD</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
+            <p className="text-center text-gray-600 dark:text-gray-400">
+               2026 IA Poste Manager. Tous droits reserves.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
