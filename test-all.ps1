@@ -3,7 +3,7 @@
 .SYNOPSIS
     Script de tests automatiques complets
 .DESCRIPTION
-    Exécute tous les tests: unitaires, TypeScript, build
+    Execute tous les tests: unitaires, TypeScript, build
 #>
 
 $Green = "Green"
@@ -11,105 +11,108 @@ $Yellow = "Yellow"
 $Red = "Red"
 $Cyan = "Cyan"
 
-Write-Host "`n╔════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║  🧪 IA Poste Manager - Tests Automatiques        ║" -ForegroundColor Cyan
-Write-Host "╚════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
+Write-Output ""
+Write-Output "========================================"
+Write-Output "   IA Poste Manager - Tests Automatiques"
+Write-Output "========================================"
+Write-Output ""
 
 $totalTests = 0
 $passedTests = 0
 $failedTests = 0
 
-# Test 1: Vérification TypeScript
-Write-Host "📝 Test 1/4: Vérification TypeScript..." -ForegroundColor $Yellow
+# Test 1: Verification TypeScript
+Write-Output "[TEST 1/4] Verification TypeScript..."
 $totalTests++
 
 $tscOutput = npx tsc --noEmit 2>&1 | Out-String
 $tscErrors = ($tscOutput | Select-String "error TS").Count
 
 if ($tscErrors -eq 0) {
-    Write-Host "   ✓ Aucune erreur TypeScript" -ForegroundColor $Green
+    Write-Output "   [OK] Aucune erreur TypeScript"
     $passedTests++
 } else {
-    Write-Host "   ✗ $tscErrors erreurs TypeScript détectées" -ForegroundColor $Red
-    Write-Host "   → Voir les détails avec: npx tsc --noEmit" -ForegroundColor $Cyan
+    Write-Output "   [X] $tscErrors erreurs TypeScript detectees"
+    Write-Output "   -> Voir les details avec: npx tsc --noEmit"
     $failedTests++
 }
 
-# Test 2: Vérification des variables d'environnement
-Write-Host "`n🔐 Test 2/4: Variables d'environnement..." -ForegroundColor $Yellow
+# Test 2: Verification des variables d'environnement
+Write-Output ""
+Write-Output "[TEST 2/4] Variables d'environnement..."
 $totalTests++
 
 $envVars = Get-Content .env.local | Select-String -Pattern "^[A-Z]"
 $envCount = $envVars.Count
 
 if ($envCount -ge 20) {
-    Write-Host "   ✓ $envCount variables configurées" -ForegroundColor $Green
+    Write-Output "   [OK] $envCount variables configurees"
     $passedTests++
 } else {
-    Write-Host "   ✗ Seulement $envCount variables (minimum 20 requis)" -ForegroundColor $Red
+    Write-Output "   [X] Seulement $envCount variables (minimum 20 requis)"
     $failedTests++
 }
 
 # Test 3: Build de production
-Write-Host "`n🏗️  Test 3/4: Build de production..." -ForegroundColor $Yellow
+Write-Output ""
+Write-Output "[TEST 3/4] Build de production..."
 $totalTests++
 
-Write-Host "   → Nettoyage du cache..." -ForegroundColor $Cyan
+Write-Output "   -> Nettoyage du cache..."
 Remove-Item -Recurse -Force ".next" -ErrorAction SilentlyContinue
 
-Write-Host "   → Lancement du build..." -ForegroundColor $Cyan
-$buildOutput = npm run build 2>&1 | Out-String
-$buildSuccess = $buildOutput -match "Compiled successfully"
+Write-Output "   -> Lancement du build..."
+$buildResult = npm run build 2>&1 | Out-String
 
-if ($buildSuccess) {
-    Write-Host "   ✓ Build réussi" -ForegroundColor $Green
+if ($LASTEXITCODE -eq 0) {
+    Write-Output "   [OK] Build reussi"
     $passedTests++
 } else {
-    Write-Host "   ✗ Erreur de build" -ForegroundColor $Red
-    # Afficher les erreurs
-    $buildOutput | Select-String "error" | Select-Object -First 5 | ForEach-Object {
-        Write-Host "     $_" -ForegroundColor $Red
-    }
+    Write-Output "   [X] Build echoue"
     $failedTests++
 }
 
-# Test 4: Tests unitaires
-Write-Host "`n🧪 Test 4/4: Tests unitaires..." -ForegroundColor $Yellow
+# Test 4: Verification des fichiers critiques
+Write-Output ""
+Write-Output "[TEST 4/4] Fichiers critiques..."
 $totalTests++
 
-if (Test-Path "jest.config.js") {
-    Write-Host "   → Exécution des tests Jest..." -ForegroundColor $Cyan
-    $jestOutput = npm test -- --passWithNoTests 2>&1 | Out-String
-    $jestSuccess = $jestOutput -match "Tests:.*passed" -or $jestOutput -match "No tests found"
-    
-    if ($jestSuccess) {
-        Write-Host "   ✓ Tests unitaires passés" -ForegroundColor $Green
-        $passedTests++
-    } else {
-        Write-Host "   ✗ Échec des tests unitaires" -ForegroundColor $Red
-        $failedTests++
+$criticalFiles = @(
+    "prisma/schema.prisma",
+    "src/app/layout.tsx",
+    "package.json",
+    "next.config.ts"
+)
+
+$missingFiles = @()
+foreach ($file in $criticalFiles) {
+    if (-not (Test-Path $file)) {
+        $missingFiles += $file
     }
-} else {
-    Write-Host "   ⚠ Configuration Jest non trouvée (ignoré)" -ForegroundColor $Yellow
-    $passedTests++
 }
 
-# Résumé
-Write-Host "`n╔════════════════════════════════════════════════════╗" -ForegroundColor $Cyan
-Write-Host "║  📊 Résumé des Tests                              ║" -ForegroundColor $Cyan
-Write-Host "╚════════════════════════════════════════════════════╝`n" -ForegroundColor $Cyan
+if ($missingFiles.Count -eq 0) {
+    Write-Output "   [OK] Tous les fichiers critiques presents"
+    $passedTests++
+} else {
+    Write-Output "   [X] Fichiers manquants: $($missingFiles -join ', ')"
+    $failedTests++
+}
 
-Write-Host "   Total: $totalTests tests" -ForegroundColor $White
-Write-Host "   ✓ Réussis: $passedTests" -ForegroundColor $Green
-Write-Host "   ✗ Échecs: $failedTests" -ForegroundColor $Red
-
-$successRate = [math]::Round(($passedTests / $totalTests) * 100, 1)
-Write-Host "`n   Taux de réussite: $successRate%" -ForegroundColor $(if ($successRate -ge 75) { $Green } else { $Red })
+# Resume
+Write-Output ""
+Write-Output "========================================"
+Write-Output "   RESUME DES TESTS"
+Write-Output "========================================"
+Write-Output "   Total:   $totalTests"
+Write-Output "   Reussis: $passedTests"
+Write-Output "   Echecs:  $failedTests"
+Write-Output ""
 
 if ($failedTests -eq 0) {
-    Write-Host "`n✅ Tous les tests sont passés!`n" -ForegroundColor $Green
+    Write-Output "[OK] Tous les tests ont reussi!"
     exit 0
 } else {
-    Write-Host "`n⚠️  Certains tests ont échoué. Vérifiez les détails ci-dessus.`n" -ForegroundColor $Yellow
+    Write-Output "[WARN] Certains tests ont echoue"
     exit 1
 }

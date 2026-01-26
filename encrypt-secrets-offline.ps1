@@ -3,76 +3,77 @@
 # Methode: Chiffrement local avec dotenv-vault
 # ============================================
 
-Write-Host "
-╔════════════════════════════════════════════════════════╗
-║   Chiffrement Offline des Secrets pour Vercel        ║
-║   dotenv-vault 1.27.0 - Methode Sans Cloud          ║
-╚════════════════════════════════════════════════════════╝
-" -ForegroundColor Cyan
+Write-Output ""
+Write-Output "========================================"
+Write-Output "   Chiffrement Offline des Secrets"
+Write-Output "   dotenv-vault - Methode Sans Cloud"
+Write-Output "========================================"
+Write-Output ""
 
 # [1] Charger la cle master
-Write-Host "`n[1/4] Chargement de la cle master..." -ForegroundColor Yellow
-$masterKeyContent = Get-Content .env.keys
-$masterKey = ($masterKeyContent | Select-String "DOTENV_KEY=").Line.Split("=")[1].Trim()
-
-if (-not $masterKey) {
-    Write-Host "❌ Erreur: DOTENV_KEY non trouvee dans .env.keys" -ForegroundColor Red
+Write-Output "[1/4] Chargement de la cle master..."
+$masterKeyContent = Get-Content .env.keys -ErrorAction SilentlyContinue
+if (-not $masterKeyContent) {
+    Write-Output "[ERREUR] Fichier .env.keys non trouve"
     exit 1
 }
 
-Write-Host "✅ Cle chargee: $($masterKey.Substring(0,10))..." -ForegroundColor Green
+$masterKey = ($masterKeyContent | Select-String "DOTENV_KEY=").Line.Split("=")[1].Trim()
+
+if (-not $masterKey) {
+    Write-Output "[ERREUR] DOTENV_KEY non trouvee dans .env.keys"
+    exit 1
+}
+
+Write-Output "[OK] Cle chargee: $($masterKey.Substring(0,10))..."
 
 # [2] Creer un .env.production pour stockage du master key
-Write-Host "`n[2/4] Configuration de dotenv-vault..." -ForegroundColor Yellow
+Write-Output ""
+Write-Output "[2/4] Configuration de dotenv-vault..."
 
 # Exporter la variable d'environnement
 $env:DOTENV_KEY = $masterKey
 $env:DOTENV_VAULT = "vlt_" + (Get-Random -Minimum 100000 -Maximum 999999)
 
-Write-Host "✅ Variables d'environnement configurees" -ForegroundColor Green
+Write-Output "[OK] Variables d'environnement configurees"
 
 # [3] Copier .env.local en .env.production
-Write-Host "`n[3/4] Preparation du fichier production..." -ForegroundColor Yellow
+Write-Output ""
+Write-Output "[3/4] Preparation du fichier production..."
 Copy-Item .env.local .env.production -Force
-Write-Host "✅ .env.production cree a partir de .env.local" -ForegroundColor Green
+Write-Output "[OK] .env.production cree a partir de .env.local"
 
-# [4] Vérifier les fichiers disponibles
-Write-Host "`n[4/4] Verif des fichiers de secrets..." -ForegroundColor Yellow
+# [4] Verifier les fichiers disponibles
+Write-Output ""
+Write-Output "[4/4] Verif des fichiers de secrets..."
 Get-ChildItem .env* -File | Where-Object {$_.Name -match "^\.env\.(local|production|vault)" } | ForEach-Object {
-    Write-Host "  📄 $($_.Name) - $($_.Length) bytes"
+    Write-Output "   - $($_.Name) ($($_.Length) bytes)"
 }
 
-Write-Host "`n════════════════════════════════════════════════════════════════"
-Write-Host "✅ PREPARATION COMPLETE" -ForegroundColor Green
-Write-Host "════════════════════════════════════════════════════════════════"
-
-Write-Host @"
-
-PROCHAINES ETAPES:
-
-1. Se connecter au compte dotenv.org (creer un compte gratuit si besoin):
-   npx dotenv-vault@latest login
-
-2. Pusher les secrets vers le vault cloud:
-   npx dotenv-vault@latest push production
-
-3. Builder le vault chiffre localement:
-   npx dotenv-vault@latest build
-
-4. Verifier le contenu chiffre:
-   Get-Content .env.vault
-
-5. Une fois chiffre, vous pouvez:
-   - Committer .env.vault a Git (sûr - chiffre)
-   - Deployer sur Vercel avec DOTENV_KEY
-   - Partager la cle via Dashlane
-
-═══════════════════════════════════════════════════════════════
-
-IMPORTANT:
-⚠️  Le master key: $masterKey
-🔐 doit etre sauvegarde dans Dashlane
-📤 .env.vault sera chiffre et peut etre committe
-🚫 Ne JAMAIS committer .env.keys (deja gitignore)
-
-"@ -ForegroundColor Cyan
+Write-Output ""
+Write-Output "========================================"
+Write-Output "[OK] PREPARATION COMPLETE"
+Write-Output "========================================"
+Write-Output ""
+Write-Output "PROCHAINES ETAPES:"
+Write-Output ""
+Write-Output "1. Se connecter au compte dotenv.org:"
+Write-Output "   npx dotenv-vault@latest login"
+Write-Output ""
+Write-Output "2. Pusher les secrets vers le vault:"
+Write-Output "   npx dotenv-vault@latest push production"
+Write-Output ""
+Write-Output "3. Builder le vault chiffre:"
+Write-Output "   npx dotenv-vault@latest build"
+Write-Output ""
+Write-Output "4. Verifier le contenu chiffre:"
+Write-Output "   Get-Content .env.vault"
+Write-Output ""
+Write-Output "========================================"
+Write-Output ""
+Write-Output "IMPORTANT:"
+Write-Output "   - Master key: $masterKey"
+Write-Output "   - Sauvegarder dans un gestionnaire de mots de passe"
+Write-Output "   - .env.vault peut etre committe (chiffre)"
+Write-Output "   - Ne JAMAIS committer .env.keys"
+Write-Output ""

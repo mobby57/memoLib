@@ -1,53 +1,53 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Build optimisé pour Cloudflare Pages (Windows PowerShell)
+    Build optimise pour Cloudflare Pages (Windows PowerShell)
 .DESCRIPTION
-    Build Next.js avec vérifications et optimisations pour déploiement Cloudflare
+    Build Next.js avec verifications et optimisations pour deploiement Cloudflare
 #>
 
-Write-Host "🚀 Starting Cloudflare Pages Build..." -ForegroundColor Cyan
-Write-Host ""
+Write-Output "[START] Starting Cloudflare Pages Build..."
+Write-Output ""
 
 # ============================================
-# 1. VÉRIFICATIONS PRÉ-BUILD
+# 1. VERIFICATIONS PRE-BUILD
 # ============================================
-Write-Host "📋 Step 1: Pre-build checks..." -ForegroundColor Yellow
+Write-Output "[STEP 1] Pre-build checks..."
 
-# Vérifier Node.js version
+# Verifier Node.js version
 $nodeVersion = node --version
-Write-Host "   Node.js version: $nodeVersion" -ForegroundColor Gray
+Write-Output "   Node.js version: $nodeVersion"
 
 if ([int]$nodeVersion.Split('.')[0].Substring(1) -lt 18) {
-    Write-Host "❌ Node.js 18+ required!" -ForegroundColor Red
+    Write-Output "[ERREUR] Node.js 18+ required!"
     exit 1
 }
 
-Write-Host "✅ Pre-build checks passed" -ForegroundColor Green
-Write-Host ""
+Write-Output "[OK] Pre-build checks passed"
+Write-Output ""
 
 # ============================================
 # 2. NETTOYAGE
 # ============================================
-Write-Host "🧹 Step 2: Cleaning previous builds..." -ForegroundColor Yellow
+Write-Output "[STEP 2] Cleaning previous builds..."
 
 if (Test-Path "out") {
     Remove-Item -Recurse -Force "out"
-    Write-Host "   ✓ Removed out/" -ForegroundColor Gray
+    Write-Output "   - Removed out/"
 }
 
 if (Test-Path ".next") {
     Remove-Item -Recurse -Force ".next"
-    Write-Host "   ✓ Removed .next/" -ForegroundColor Gray
+    Write-Output "   - Removed .next/"
 }
 
-Write-Host "✅ Cleanup done" -ForegroundColor Green
-Write-Host ""
+Write-Output "[OK] Cleanup done"
+Write-Output ""
 
 # ============================================
 # 3. BUILD NEXT.JS
 # ============================================
-Write-Host "⚙️  Step 3: Building Next.js application..." -ForegroundColor Yellow
+Write-Output "[STEP 3] Building Next.js application..."
 
 $env:NODE_OPTIONS = "--max-old-space-size=4096"
 $env:NODE_ENV = "production"
@@ -57,18 +57,18 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Next.js build failed"
     }
-    Write-Host "✅ Next.js build completed" -ForegroundColor Green
+    Write-Output "[OK] Next.js build completed"
 } catch {
-    Write-Host "❌ Build failed: $_" -ForegroundColor Red
+    Write-Output "[ERREUR] Build failed: $_"
     exit 1
 }
 
-Write-Host ""
+Write-Output ""
 
 # ============================================
 # 4. POST-BUILD OPTIMISATIONS
 # ============================================
-Write-Host "🎨 Step 4: Post-build optimizations..." -ForegroundColor Yellow
+Write-Output "[STEP 4] Post-build optimizations..."
 
 # Copier fichiers statiques
 $filesToCopy = @(
@@ -82,39 +82,33 @@ $filesToCopy = @(
 foreach ($file in $filesToCopy) {
     if (Test-Path $file.src) {
         Copy-Item $file.src $file.dest -Force
-        Write-Host "   ✓ Copied $($file.src)" -ForegroundColor Gray
+        Write-Output "   - Copied $($file.src)"
     }
 }
 
-Write-Host "✅ Optimizations done" -ForegroundColor Green
-Write-Host ""
+Write-Output "[OK] Post-build done"
+Write-Output ""
 
 # ============================================
-# 5. STATISTIQUES BUILD
+# 5. VERIFICATION FINALE
 # ============================================
-Write-Host "📊 Build Statistics:" -ForegroundColor Yellow
+Write-Output "[STEP 5] Final verification..."
 
 if (Test-Path "out") {
-    $files = Get-ChildItem -Path "out" -Recurse -File
-    $totalFiles = $files.Count
-    $totalSize = ($files | Measure-Object -Property Length -Sum).Sum
-    $totalSizeMB = [math]::Round($totalSize / 1MB, 2)
+    $fileCount = (Get-ChildItem -Recurse "out" -File).Count
+    $totalSize = [math]::Round((Get-ChildItem -Recurse "out" | Measure-Object -Property Length -Sum).Sum / 1MB, 2)
     
-    Write-Host "   📁 Total files: $totalFiles" -ForegroundColor Gray
-    Write-Host "   💾 Total size: $totalSizeMB MB" -ForegroundColor Gray
+    Write-Output "   Files: $fileCount"
+    Write-Output "   Total size: ${totalSize} MB"
+    Write-Output "[OK] Build ready for deployment"
+} else {
+    Write-Output "[WARN] Output directory not found"
 }
 
-Write-Host ""
-Write-Host "🎉 Build completed successfully!" -ForegroundColor Green
-Write-Host "📦 Output directory: .\out" -ForegroundColor Cyan
-Write-Host "🚀 Ready for Cloudflare Pages deployment" -ForegroundColor Cyan
-Write-Host ""
-
-# ============================================
-# 6. INSTRUCTIONS DÉPLOIEMENT
-# ============================================
-Write-Host "Next steps:" -ForegroundColor Yellow
-Write-Host "  1. Deploy: wrangler pages deploy out --project-name=iaposte-manager" -ForegroundColor Gray
-Write-Host "  2. Or push to GitHub (auto-deploy)" -ForegroundColor Gray
-Write-Host "  3. Configure secrets in Cloudflare Dashboard" -ForegroundColor Gray
-Write-Host ""
+Write-Output ""
+Write-Output "========================================"
+Write-Output "  BUILD COMPLETE"
+Write-Output "========================================"
+Write-Output ""
+Write-Output "Deploy with: wrangler pages deploy out"
+Write-Output ""

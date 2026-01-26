@@ -1,24 +1,24 @@
 # Configuration GitHub User-to-Server Authentication
-# Ce script aide à configurer l'authentification utilisateur
+# Ce script aide a configurer l'authentification utilisateur
 
-Write-Host "🔐 GitHub User-to-Server Authentication - Configuration" -ForegroundColor Cyan
-Write-Host ""
+Write-Output "[INFO] GitHub User-to-Server Authentication - Configuration"
+Write-Output ""
 
-# Vérifier si .env.local existe
+# Verifier si .env.local existe
 if (-not (Test-Path ".env.local")) {
-    Write-Host "⚠️  Fichier .env.local non trouvé" -ForegroundColor Yellow
-    Write-Host "📝 Création depuis .env.local.example..." -ForegroundColor Gray
+    Write-Output "[WARN] Fichier .env.local non trouve"
+    Write-Output "[INFO] Creation depuis .env.local.example..."
     Copy-Item ".env.local.example" ".env.local"
-    Write-Host "✅ Fichier .env.local créé" -ForegroundColor Green
-    Write-Host ""
+    Write-Output "[OK] Fichier .env.local cree"
+    Write-Output ""
 }
 
 # Lire le fichier .env.local
 $envContent = Get-Content ".env.local" -Raw
 
-# Vérifier les variables critiques
-Write-Host "📋 Vérification de la configuration:" -ForegroundColor Cyan
-Write-Host ""
+# Verifier les variables critiques
+Write-Output "[INFO] Verification de la configuration:"
+Write-Output ""
 
 $checks = @(
     @{
@@ -49,56 +49,38 @@ foreach ($check in $checks) {
     if ($envContent -match $check.Pattern) {
         $value = $Matches[1]
         if ($value -match "your-|example") {
-            Write-Host "  ❌ $($check.Name): À configurer" -ForegroundColor Red
+            Write-Output "  [X] $($check.Name): A configurer"
             $allValid = $false
         } else {
             if ($check.Name -eq "GITHUB_CLIENT_SECRET") {
-                Write-Host "  ✅ $($check.Name): Configuré" -ForegroundColor Green
+                Write-Output "  [OK] $($check.Name): Configure"
             } else {
-                Write-Host "  ✅ $($check.Name): $value" -ForegroundColor Green
+                Write-Output "  [OK] $($check.Name): $value"
             }
         }
     } else {
-        Write-Host "  ❌ $($check.Name): Manquant" -ForegroundColor Red
+        Write-Output "  [X] $($check.Name): Manquant"
         $allValid = $false
     }
 }
 
-Write-Host ""
+Write-Output ""
 
 if ($allValid) {
-    Write-Host "✅ Configuration complète!" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "🧪 Lancement du test..." -ForegroundColor Cyan
-    npx tsx scripts/test-github-user-auth.ts
+    Write-Output "[OK] Configuration complete!"
+    Write-Output ""
+    Write-Output "Prochaines etapes:"
+    Write-Output "1. Tester la connexion: npm run dev"
+    Write-Output "2. Aller sur http://localhost:3000/login"
+    Write-Output "3. Cliquer sur 'Se connecter avec GitHub'"
 } else {
-    Write-Host "⚠️  Configuration incomplète" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "📝 Étapes à suivre:" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "1. Aller sur: https://github.com/settings/apps" -ForegroundColor White
-    Write-Host ""
-    Write-Host "2. Sélectionner votre application GitHub" -ForegroundColor White
-    Write-Host ""
-    Write-Host "3. Activer 'Request user authorization (OAuth) during installation'" -ForegroundColor White
-    Write-Host ""
-    Write-Host "4. Configurer Callback URL:" -ForegroundColor White
-    Write-Host "   http://localhost:3000/api/auth/callback/github" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "5. Copier Client ID et Client Secret dans .env.local" -ForegroundColor White
-    Write-Host ""
-    Write-Host "6. Relancer ce script pour vérifier" -ForegroundColor White
-    Write-Host ""
-    
-    # Proposer d'ouvrir le fichier .env.local
-    $openFile = Read-Host "Voulez-vous ouvrir .env.local maintenant? (y/n)"
-    if ($openFile -eq "y") {
-        code .env.local
-    }
+    Write-Output "[ERREUR] Configuration incomplete"
+    Write-Output ""
+    Write-Output "Actions requises:"
+    Write-Output "1. Aller sur https://github.com/settings/apps"
+    Write-Output "2. Configurer votre GitHub App"
+    Write-Output "3. Mettre a jour .env.local avec les valeurs"
+    Write-Output ""
+    Write-Output "Documentation: docs/github-oauth-setup.md"
 }
-
-Write-Host ""
-Write-Host "Documentation:" -ForegroundColor Cyan
-Write-Host "  - Guide complet: GITHUB_USER_AUTH.md" -ForegroundColor Gray
-Write-Host "  - Demarrage rapide: GITHUB_USER_AUTH_QUICKSTART.md" -ForegroundColor Gray
-Write-Host ""
+Write-Output ""

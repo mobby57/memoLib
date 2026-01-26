@@ -1,205 +1,127 @@
-# ========================================
-# 📊 CONFIGURATION MONITORING AVANCÉ
-# ========================================
-# Cloudflare Analytics + Sentry + Custom Metrics
-# ========================================
+# Monitoring Setup
+# IA Poste Manager - Configure monitoring tools
 
-param(
-    [string]$ProjectName = "iapostemanager",
-    [switch]$EnableSentry,
-    [switch]$EnableCustomMetrics,
-    [switch]$EnableAlerts
-)
+$ErrorActionPreference = "Stop"
 
-Write-Host "📊 CONFIGURATION MONITORING CLOUDFLARE" -ForegroundColor Cyan
-Write-Host "========================================`n" -ForegroundColor Cyan
+Write-Output ""
+Write-Output "========================================"
+Write-Output "  MONITORING SETUP"
+Write-Output "========================================"
+Write-Output ""
 
 # ========================================
-# CLOUDFLARE WEB ANALYTICS
+# Verifier les outils installes
 # ========================================
+Write-Output "[1] Verification des outils"
+Write-Output "----------------------------------------"
 
-Write-Host "1️⃣ Cloudflare Web Analytics" -ForegroundColor Yellow
-
-$analyticsScript = @"
-<!-- Cloudflare Web Analytics -->
-<script defer src='https://static.cloudflareinsights.com/beacon.min.js' 
-        data-cf-beacon='{"token": "YOUR_ANALYTICS_TOKEN"}'></script>
-<!-- End Cloudflare Web Analytics -->
-"@
-
-Write-Host "Ajouter ce script dans src/app/layout.tsx:" -ForegroundColor Gray
-Write-Host $analyticsScript -ForegroundColor Green
-
-Write-Host "`n📝 Pour obtenir le token:" -ForegroundColor Gray
-Write-Host "1. Dashboard Cloudflare → Analytics → Web Analytics" -ForegroundColor Gray
-Write-Host "2. Ajouter un site → Copier le token" -ForegroundColor Gray
-Write-Host "3. Remplacer YOUR_ANALYTICS_TOKEN" -ForegroundColor Gray
-
-# ========================================
-# SENTRY INTEGRATION
-# ========================================
-
-if ($EnableSentry) {
-    Write-Host "`n2️⃣ Sentry Error Tracking" -ForegroundColor Yellow
-    
-    Write-Host "Installation Sentry SDK..." -ForegroundColor Gray
-    npm install --save @sentry/nextjs
-    
-    Write-Host "`n📝 Configuration dans next.config.js:" -ForegroundColor Gray
-    
-    $sentryConfig = @"
-const { withSentryConfig } = require('@sentry/nextjs');
-
-module.exports = withSentryConfig(
-  {
-    // Next.js config
-  },
-  {
-    silent: true,
-    org: "your-org",
-    project: "$ProjectName",
-  }
-);
-"@
-    
-    Write-Host $sentryConfig -ForegroundColor Green
-    
-    Write-Host "`n📝 Ajouter SENTRY_DSN dans variables Cloudflare" -ForegroundColor Gray
+$tools = @{
+    "node" = "Node.js"
+    "npm" = "NPM"
+    "npx" = "NPX"
 }
 
-# ========================================
-# CUSTOM METRICS
-# ========================================
-
-if ($EnableCustomMetrics) {
-    Write-Host "`n3️⃣ Custom Metrics (Cloudflare Analytics Engine)" -ForegroundColor Yellow
-    
-    $metricsCode = @"
-// lib/metrics.ts
-export async function trackMetric(metric: string, value: number) {
-  if (typeof window !== 'undefined') {
-    // Client-side: Beacon API
-    navigator.sendBeacon('/api/metrics', JSON.stringify({
-      metric,
-      value,
-      timestamp: Date.now(),
-    }));
-  } else {
-    // Server-side: Cloudflare Analytics Engine
-    // Configuré via Workers
-  }
+foreach ($tool in $tools.GetEnumerator()) {
+    $cmd = Get-Command $tool.Key -ErrorAction SilentlyContinue
+    if ($cmd) {
+        $version = & $tool.Key --version 2>$null
+        Write-Output "   [OK] $($tool.Value): $version"
+    } else {
+        Write-Output "   [WARN] $($tool.Value): Non installe"
+    }
 }
 
-// Exemples d'utilisation
-trackMetric('auth_success', 1);
-trackMetric('api_latency', 150);
-trackMetric('redis_hit', 1);
-"@
-    
-    Write-Host $metricsCode -ForegroundColor Green
+Write-Output ""
+
+# ========================================
+# Configuration Sentry (optionnel)
+# ========================================
+Write-Output "[2] Sentry (Error Tracking)"
+Write-Output "----------------------------------------"
+
+$sentryDsn = $env:SENTRY_DSN
+if ($sentryDsn) {
+    Write-Output "   [OK] SENTRY_DSN configure"
+} else {
+    Write-Output "   [INFO] SENTRY_DSN non configure (optionnel)"
+    Write-Output "   Pour activer: ajoutez SENTRY_DSN dans .env"
 }
 
-# ========================================
-# ALERTES AUTOMATIQUES
-# ========================================
+Write-Output ""
 
-if ($EnableAlerts) {
-    Write-Host "`n4️⃣ Alertes Automatiques" -ForegroundColor Yellow
-    
-    Write-Host "Configurer dans Dashboard Cloudflare:" -ForegroundColor Gray
-    Write-Host "1. Notifications → Nouvelle notification" -ForegroundColor Gray
-    Write-Host "2. Type: Pages deployment failed" -ForegroundColor Gray
-    Write-Host "3. Type: Health check failed" -ForegroundColor Gray
-    Write-Host "4. Type: Traffic anomaly" -ForegroundColor Gray
-    
-    Write-Host "`nDestinations possibles:" -ForegroundColor Gray
-    Write-Host "- Email: admin@iapostemanager.com" -ForegroundColor Gray
-    Write-Host "- Webhook: https://hooks.slack.com/..." -ForegroundColor Gray
-    Write-Host "- PagerDuty integration" -ForegroundColor Gray
+# ========================================
+# Configuration Vercel Analytics
+# ========================================
+Write-Output "[3] Vercel Analytics"
+Write-Output "----------------------------------------"
+
+$vercelAnalytics = $env:VERCEL_ANALYTICS_ID
+if ($vercelAnalytics) {
+    Write-Output "   [OK] Vercel Analytics configure"
+} else {
+    Write-Output "   [INFO] Analytics via Vercel Dashboard"
+    Write-Output "   Activez dans: vercel.com/dashboard/analytics"
 }
 
-# ========================================
-# DASHBOARD CUSTOM
-# ========================================
-
-Write-Host "`n5️⃣ Dashboard Custom (Grafana)" -ForegroundColor Yellow
-
-$grafanaSetup = @"
-# docker-compose.yml - Ajout Grafana
-grafana:
-  image: grafana/grafana:latest
-  ports:
-    - "3001:3000"
-  environment:
-    - GF_SECURITY_ADMIN_PASSWORD=admin123
-    - GF_INSTALL_PLUGINS=cloudflare-app
-  volumes:
-    - grafana_data:/var/lib/grafana
-    - ./monitoring/grafana-dashboards:/etc/grafana/provisioning/dashboards
-"@
-
-Write-Host $grafanaSetup -ForegroundColor Green
+Write-Output ""
 
 # ========================================
-# EXEMPLE API METRICS
+# Health Check Endpoint
 # ========================================
+Write-Output "[4] Health Check"
+Write-Output "----------------------------------------"
 
-Write-Host "`n6️⃣ API Endpoint Metrics" -ForegroundColor Yellow
-
-$metricsApi = @"
-// src/app/api/metrics/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-
-export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { metric, value, timestamp } = body;
-  
-  // Envoyer à Cloudflare Analytics Engine
-  if (process.env.CLOUDFLARE_ANALYTICS_TOKEN) {
-    await fetch('https://api.cloudflare.com/client/v4/accounts/YOUR_ACCOUNT/analytics_engine/sql', {
-      method: 'POST',
-      headers: {
-        'Authorization': \`Bearer \${process.env.CLOUDFLARE_API_TOKEN}\`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        metric,
-        value,
-        timestamp,
-      }),
-    });
-  }
-  
-  return NextResponse.json({ ok: true });
+$healthUrl = "http://localhost:3000/api/health"
+try {
+    $response = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 5
+    Write-Output "   [OK] Health endpoint accessible"
+    Write-Output "   Status: $($response.StatusCode)"
+} catch {
+    Write-Output "   [INFO] Serveur local non demarre"
+    Write-Output "   Demarrez avec: npm run dev"
 }
-"@
 
-Write-Host $metricsApi -ForegroundColor Green
+Write-Output ""
 
 # ========================================
-# CHECKLIST
+# Logs Configuration
 # ========================================
+Write-Output "[5] Configuration Logs"
+Write-Output "----------------------------------------"
 
-Write-Host "`n✅ CHECKLIST MONITORING" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
+$logLevel = $env:LOG_LEVEL
+if ($logLevel) {
+    Write-Output "   [OK] LOG_LEVEL: $logLevel"
+} else {
+    Write-Output "   [INFO] LOG_LEVEL par defaut (info)"
+}
 
-$checklist = @"
-[ ] Web Analytics activé
-[ ] Token Analytics dans layout.tsx
-[ ] Sentry installé et configuré
-[ ] SENTRY_DSN dans variables Cloudflare
-[ ] Custom metrics API créée
-[ ] Alertes configurées (email/webhook)
-[ ] Dashboard Grafana (optionnel)
-[ ] Tests monitoring: curl /api/health
-[ ] Vérifier métriques Dashboard Cloudflare
-"@
+# Verifier dossier logs
+$logsDir = "logs"
+if (-not (Test-Path $logsDir)) {
+    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+    Write-Output "   [OK] Dossier logs cree"
+} else {
+    $logFiles = Get-ChildItem -Path $logsDir -Filter "*.log" -ErrorAction SilentlyContinue
+    Write-Output "   [OK] Dossier logs: $($logFiles.Count) fichier(s)"
+}
 
-Write-Host $checklist -ForegroundColor Yellow
+Write-Output ""
 
-Write-Host "`n📚 Documentation:" -ForegroundColor Cyan
-Write-Host "- Analytics: https://developers.cloudflare.com/analytics/" -ForegroundColor Gray
-Write-Host "- Sentry: https://docs.sentry.io/platforms/javascript/guides/nextjs/" -ForegroundColor Gray
-Write-Host "- Custom Metrics: https://developers.cloudflare.com/analytics/analytics-engine/" -ForegroundColor Gray
-
-Write-Host "`n✅ Configuration monitoring prête!" -ForegroundColor Green
+# ========================================
+# Resume
+# ========================================
+Write-Output "========================================"
+Write-Output "  CONFIGURATION TERMINEE"
+Write-Output "========================================"
+Write-Output ""
+Write-Output "Monitoring actif:"
+Write-Output "  - Health Check: /api/health"
+Write-Output "  - Logs: ./logs/"
+Write-Output "  - Dev Dashboard: /dev/dashboard"
+Write-Output ""
+Write-Output "Pour plus d'options:"
+Write-Output "  - Sentry: sentry.io"
+Write-Output "  - Datadog: datadoghq.com"
+Write-Output "  - Grafana: grafana.com"
+Write-Output ""
