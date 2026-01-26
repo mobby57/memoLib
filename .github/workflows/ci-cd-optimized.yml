@@ -1,0 +1,303 @@
+# ===========================================
+# CI/CD OPTIMISÉ - ALIGNÉ AVEC VS CODE
+# IAPosteManager
+# ===========================================
+# Ce workflow est conçu pour fonctionner en synergie avec VS Code:
+# - Mêmes checks que les tâches VS Code
+# - Résultats visibles dans l'extension GitHub Actions
+# - Erreurs navigables directement depuis VS Code
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ===========================================
+  # PHASE 1: CHECKS RAPIDES (< 2 min)
+  # ===========================================
+
+  lint-and-typecheck:
+    name: 🔍 Lint & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd src/frontend
+          npm ci
+
+      - name: ESLint
+        run: |
+          cd src/frontend
+          npm run lint -- --format=stylish
+
+      - name: TypeScript Type Check
+        run: |
+          cd src/frontend
+          npx tsc --noEmit
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Python Lint (flake8)
+        run: |
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  # ===========================================
+  # PHASE 2: TESTS (parallèle)
+  # ===========================================
+
+  test-frontend:
+    name: 🧪 Frontend Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd src/frontend
+          npm ci
+
+      - name: Run Tests
+        run: |
+          cd src/frontend
+          npm test -- --coverage --watchAll=false
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: src/frontend/coverage/lcov.info
+          flags: frontend
+          fail_ci_if_error: false
+
+  test-backend:
+    name: 🧪 Backend Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: test_iaposte
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run Tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_iaposte
+          FLASK_ENV: testing
+        run: |
+          pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage.xml
+          flags: backend
+          fail_ci_if_error: false
+
+  # ===========================================
+  # PHASE 3: BUILD
+  # ===========================================
+
+  build:
+    name: 🏗️ Build
+    runs-on: ubuntu-latest
+    needs: [test-frontend, test-backend]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd src/frontend
+          npm ci
+
+      - name: Build Next.js
+        run: |
+          cd src/frontend
+          npm run build
+        env:
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL || 'https://iapostemanager.azurestaticapps.net' }}
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: src/frontend/.next
+          retention-days: 7
+
+  # ===========================================
+  # PHASE 4: SECURITY
+  # ===========================================
+
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: NPM Audit
+        run: |
+          cd src/frontend
+          npm audit --audit-level=high || true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Python Safety Check
+        run: |
+          pip install safety
+          safety check --file requirements.txt || true
+
+      - name: Gitleaks (Secret Detection)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ===========================================
+  # PHASE 5: DEPLOY (main only)
+  # ===========================================
+
+  deploy-azure:
+    name: 🚀 Deploy to Azure
+    runs-on: ubuntu-latest
+    needs: [build, security-scan]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-build
+          path: src/frontend/.next
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "src/frontend"
+          api_location: "src/frontend/api"
+          output_location: ".next"
+          skip_app_build: true
+        env:
+          # Secrets injectés depuis GitHub Secrets
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+
+  # ===========================================
+  # NOTIFICATIONS
+  # ===========================================
+
+  notify-failure:
+    name: 📢 Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [lint-and-typecheck, test-frontend, test-backend, build]
+    if: failure()
+
+    steps:
+      - name: Create Issue on Failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `CI Failed: ${context.workflow} on ${context.ref}`;
+            const body = `
+            ## ❌ CI Pipeline Failed
+
+            **Workflow:** ${context.workflow}
+            **Branch:** ${context.ref}
+            **Commit:** ${context.sha}
+            **Author:** @${context.actor}
+
+            [View Run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            `;
+
+            // Optionnel: créer une issue automatiquement
+            // await github.rest.issues.create({
+            //   owner: context.repo.owner,
+            //   repo: context.repo.repo,
+            //   title: title,
+            //   body: body,
+            //   labels: ['ci-failure']
+            // });
+
+            console.log(body);

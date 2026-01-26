@@ -80,7 +80,9 @@ coverage/
 *.lcov
 
 # IDE
-.vscode/
+# .vscode/ - On garde la config partagée, on exclut les settings locaux
+.vscode/*.code-snippets
+.vscode/settings.local.json
 .idea/
 *.swp
 *.swo
