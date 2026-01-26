@@ -135,6 +135,12 @@ jobs:
           echo "🔐 Connected to Azure:"
           az account show --query "{Name:name, ID:id}" -o table
 
+      - name: Ensure App Service is running
+        run: |
+          echo "🔄 S'assurer que l'App Service est active..."
+          az webapp start --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || true
+          sleep 5
+
       - name: Configure App Service startup
         run: |
           # Configurer la commande de démarrage

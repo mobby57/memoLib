@@ -27,19 +27,22 @@ interface RecentTenant {
 }
 
 export default function SuperAdminDashboard() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentTenants, setRecentTenants] = useState<RecentTenant[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.user?.role !== 'SUPER_ADMIN') {
+    // Attendre que la session soit chargée avant de vérifier le rôle
+    if (status === 'loading') return;
+    
+    if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
       router.push('/auth/login');
       return;
     }
     loadData();
-  }, [session, router]);
+  }, [session, status, router]);
 
   const loadData = async () => {
     try {
