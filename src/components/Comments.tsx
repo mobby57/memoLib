@@ -87,7 +87,7 @@ export default function Comments({
 
   const renderComment = (comment: Comment, isReply: boolean = false) => {
     const hasReacted = (emoji: string) => {
-      return comment.reactions?.?.includes(currentUserId) || false
+      return comment.reactions?.[emoji]?.includes(currentUserId) || false
     }
 
     return (
