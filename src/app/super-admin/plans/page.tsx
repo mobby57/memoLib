@@ -24,18 +24,19 @@ interface Plan {
 }
 
 export default function PlansPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.user?.role !== 'SUPER_ADMIN') {
+    if (status === 'loading') return;
+    if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
       router.push('/auth/login');
       return;
     }
     loadPlans();
-  }, [session, router]);
+  }, [session, status, router]);
 
   const loadPlans = async () => {
     try {
