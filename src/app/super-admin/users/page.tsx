@@ -20,7 +20,7 @@ interface User {
 }
 
 export default function UsersPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,12 +28,13 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState('all');
 
   useEffect(() => {
-    if (session?.user?.role !== 'SUPER_ADMIN') {
+    if (status === 'loading') return;
+    if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
       router.push('/auth/login');
       return;
     }
     loadUsers();
-  }, [session, router]);
+  }, [session, status, router]);
 
   const loadUsers = async () => {
     try {
