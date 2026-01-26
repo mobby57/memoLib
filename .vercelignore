@@ -1,74 +1,88 @@
-# Vercel Ignore - Fichiers à ne pas déployer
+# Dependencies
+node_modules
+node_modules_backup
+.pnp
+.pnp.js
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-venv/
-ENV/
-env/
-*.egg-info/
+# Testing
+coverage
+__tests__
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-data/*.enc
-data/databases/
+# Build outputs (Vercel rebuilds from source)
+.next
+out
+dist
+build
+.turbo
+
+# Cache
+.cache
+*.cache
+.parcel-cache
 
 # Logs
+logs
 *.log
-logs/
-*.pid
-
-# Tests
-tests/
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Documentation
-docs/
-*.md
-!README.md
-
-# Development
-.vscode/
-.cursor/
-.idea/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
 # OS
 .DS_Store
+*.pem
 Thumbs.db
 
+# Local env files (pulled from Vercel)
+.env*.local
+
+# Vercel
+.vercel
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+*.db
+*.db-journal
+
+# Scripts
+scripts/*.ps1
+scripts/*.sh
+scripts/*.bat
+
+# Documentation
+*.md
+!README.md
+
 # Git
-.git/
+.git
 .gitignore
+.gitattributes
 
-# Config files
-.env
-.env.local
-*.env.*
-
-# Backups
-backups/
+# Temporary files
+tmp
+temp
+*.tmp
+*.bak
 *.backup
 
-# Credentials
-credentials/
-ssl/
-*.pem
-*.key
+# Build artifacts
+build-*.txt
+*.txt
+!package.json
 
-# Generated
-generated_code/
-data/cache/
-data/uploads/
-
-# Node
-node_modules/
-
-# Frontend (si séparé)
-frontend/
-src/frontend/
+# Test files
+test-*.ps1
+*.test.js

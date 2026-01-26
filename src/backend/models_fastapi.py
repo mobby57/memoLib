@@ -1,6 +1,6 @@
 """
 Models pour IAPosteManager v4.0
-Architecture MCP + Ollama
+Architecture Ollama locale
 """
 from datetime import datetime
 from typing import Optional, List
@@ -92,7 +92,7 @@ class Document(DocumentBase):
 # ==================== ANALYSE ====================
 
 class AnalyseDocument(BaseModel):
-    """Résultat de l'analyse par MCP_AGENT_ANALYSE"""
+    """Résultat de l'analyse par IA locale (Ollama)"""
     type_document: DocumentType
     organisme: str
     sujet: str
@@ -180,7 +180,7 @@ class Dossier(DossierBase):
 # ==================== TRANSCRIPTION ====================
 
 class TranscriptionAudio(BaseModel):
-    """Résultat MCP_TRANSCRIPTION"""
+    """Résultat de transcription audio (Whisper via Ollama)"""
     fichier_audio: str
     texte: str
     langue: str = "fr"

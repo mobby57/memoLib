@@ -1,19 +1,23 @@
 @echo off
-echo 📥 Installation Heroku CLI...
+echo === INSTALLATION HEROKU CLI ===
+echo.
 
-REM Download Heroku CLI installer
-echo Téléchargement Heroku CLI...
+echo 1. Telechargement Heroku CLI...
 powershell -Command "Invoke-WebRequest -Uri 'https://cli-assets.heroku.com/heroku-x64.exe' -OutFile 'heroku-installer.exe'"
 
-REM Run installer
-echo Installation en cours...
+echo 2. Installation...
 start /wait heroku-installer.exe
 
-REM Clean up
-del heroku-installer.exe
+echo 3. Verification...
+heroku --version
 
-echo ✅ Heroku CLI installé!
-echo 🔄 Redémarrez votre terminal puis exécutez:
-echo heroku login
+echo.
+echo === DEPLOIEMENT AUTOMATIQUE ===
+heroku login
+heroku create iapostemanager --region eu
+heroku config:set SECRET_KEY="RmuekVcRKUvQrDLqTQWgnNem1hWog-R6IoByxAOgk1Q"
+heroku config:set FLASK_ENV="production"
+git push heroku main
+heroku open
 
 pause

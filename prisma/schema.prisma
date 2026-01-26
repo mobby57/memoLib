@@ -1,6 +1,11 @@
+// ============================================
+// PRISMA SCHEMA FINAL — WORKSPACE JURIDIQUE
+// Version fondatrice — Figée et opposable
+// ============================================
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -8,332 +13,1264 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  avatar    String?
-  role      Role     @default(USER)
-  profile   Profile?
-  
-  emails    Email[]
-  templates Template[]
-  contacts  Contact[]
-  
+// ============================================
+// ENUMS
+// ============================================
+
+enum InformationUnitStatus {
+  RECEIVED                // Information reçue, non traitée
+  CLASSIFIED              // Catégorisée (client, dossier, type)
+  ANALYZED                // Analysée par IA ou humain
+  INCOMPLETE              // Manque des éléments
+  AMBIGUOUS               // Nécessite clarification
+  HUMAN_ACTION_REQUIRED   // Escalade obligatoire
+  RESOLVED                // Traitée complètement
+  CLOSED                  // Archivée
+}
+
+enum InformationUnitSource {
+  EMAIL
+  UPLOAD
+  API
+  MANUAL
+  SCAN
+  FAX
+}
+
+enum DeadlineType {
+  RECOURS_GRACIEUX       // 2 mois
+  RECOURS_HIERARCHIQUE   // 2 mois
+  RECOURS_CONTENTIEUX    // 2 mois TA
+  APPEL                  // 1 mois CAA
+  CASSATION              // 2 mois CE
+  REPONSE_PREFECTURE     // Variable
+  CONVOCATION_AUDIENCE   // Variable
+  PRODUCTION_PIECES      // Fixé par juge
+  EXECUTION_DECISION     // Variable
+  OQTF                   // 30/90 jours
+  RETENTION              // 48h/28j/45j/90j
+  CUSTOM                 // Personnalisé
+}
+
+enum DeadlineStatus {
+  PENDING      // En attente
+  APPROACHING  // J-7
+  URGENT       // J-3
+  CRITICAL     // J-1
+  OVERDUE      // Dépassé
+  COMPLETED    // Respecté
+  CANCELLED    // Annulé
+}
+
+enum ProofType {
+  DOCUMENT_RECEPTION
+  DOCUMENT_ENVOI
+  ACCUSE_RECEPTION
+  DEPOT_RECOURS
+  NOTIFICATION_DECISION
+  AUDIENCE_PRESENCE
+  SIGNATURE_ELECTRONIQUE
+  HORODATAGE_CERTIFIE
+  CAPTURE_EMAIL
+  SCREENSHOT
+  RAPPORT_IA
+  AUTRE
+}
+
+enum ProofStatus {
+  PENDING_VALIDATION
+  VALIDATED
+  REJECTED
+  ARCHIVED
+}
+
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  IMPORT
+  APPROVE
+  REJECT
+  ESCALATE
+  ARCHIVE
+}
+
+enum ArchiveStatus {
+  ACTIVE
+  PENDING_ARCHIVE
+  ARCHIVED
+  PENDING_DELETION
+  DELETED
+}
+
+enum ReportType {
+  DOSSIER_SUMMARY
+  CLIENT_PORTFOLIO
+  DEADLINE_STATUS
+  FINANCIAL_STATEMENT
+  AUDIT_TRAIL
+  COMPLIANCE_CHECK
+  AI_ANALYSIS
+  CUSTOM
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+  ARCHIVED
+}
+
+// ============================================
+// NIVEAU 1 : PLATEFORME
+// ============================================
+
+model Plan {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  displayName String
+  description String?
+
+  priceMonthly Float
+  priceYearly  Float
+  currency     String @default("EUR")
+
+  maxWorkspaces Int @default(1)
+  maxDossiers   Int @default(100)
+  maxClients    Int @default(20)
+  maxStorageGb  Int @default(5)
+  maxUsers      Int @default(5)
+
+  aiAutonomyLevel   Int     @default(1)
+  humanValidation   Boolean @default(true)
+  advancedAnalytics Boolean @default(false)
+  externalAiAccess  Boolean @default(false)
+
+  prioritySupport Boolean @default(false)
+  customBranding  Boolean @default(false)
+  apiAccess       Boolean @default(false)
+
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("users")
+
+  tenants       Tenant[]
+  subscriptions Subscription[]
+
+  @@index([isActive])
 }
 
-model Profile {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Tenant {
+  id        String  @id @default(uuid())
+  name      String
+  subdomain String  @unique
+  domain    String? @unique
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  status      String    @default("active")
+  trialEndsAt DateTime?
+
+  billingEmail   String?
+  billingAddress String?
+  vatNumber      String?
+
+  currentWorkspaces Int   @default(0)
+  currentDossiers   Int   @default(0)
+  currentClients    Int   @default(0)
+  currentStorageGb  Float @default(0)
+  currentUsers      Int   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users              User[]
+  clients            Client[]
+  dossiers           Dossier[]
+  settings           TenantSettings?
+  subscription       Subscription?
+  emails             Email[]
+  workflowExecutions WorkflowExecution[]
+  factures           Facture[]
+  calendarEvents     CalendarEvent[]
+  documents          Document[]
+  informationUnits   InformationUnit[]
+  legalDeadlines     LegalDeadline[]
+  proofs             Proof[]
+  auditLogs          AuditLog[]
+  archivePolicies    ArchivePolicy[]
+  reports            Report[]
+  channelMessages    ChannelMessage[]
+  channelConfigs     ChannelConfig[]
   
-  accessibility AccessibilitySettings?
-  preferences   UserPreferences?
-  
-  @@map("profiles")
+  // 🛡️ AI Cost Tracking
+  aiUsageLogs        AIUsageLog[]
+  aiMonthlySummaries AIMonthlySummary[]
+
+  @@index([planId])
+  @@index([status])
 }
 
-model AccessibilitySettings {
-  id        String  @id @default(cuid())
-  profileId String  @unique
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  
-  screenReader    Boolean @default(false)
-  highContrast    Boolean @default(false)
-  largeText       Boolean @default(false)
-  ttsEnabled      Boolean @default(false)
-  ttsSpeed        Float   @default(1.0)
-  voiceControl    Boolean @default(false)
-  
-  @@map("accessibility_settings")
+model TenantSettings {
+  id       String @id @default(uuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  ollamaEnabled Boolean @default(true)
+  ollamaUrl     String  @default("http://localhost:11434")
+  ollamaModel   String  @default("llama3.2:latest")
+
+  emailEnabled Boolean @default(false)
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUser     String?
+  smtpPass     String?
+
+  maxDossiers  Int @default(100)
+  maxUsers     Int @default(5)
+  storageLimit Int @default(1000)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model UserPreferences {
-  id        String  @id @default(cuid())
-  profileId String  @unique
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  
-  theme           String  @default("light")
-  language        String  @default("fr")
-  emailProvider   String  @default("gmail")
-  autoSave        Boolean @default(true)
-  notifications   Boolean @default(true)
-  
-  @@map("user_preferences")
+model Subscription {
+  id       String @id @default(uuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  status String @default("active")
+
+  billingCycle String @default("monthly")
+
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  trialEnd           DateTime?
+  canceledAt         DateTime?
+  endedAt            DateTime?
+
+  pricePerMonth Float
+  currency      String @default("EUR")
+
+  autoRenew Boolean @default(true)
+
+  metadata String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
 }
+
+// ============================================
+// NIVEAU 2 : UTILISATEURS
+// ============================================
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  name     String
+  password String
+
+  role String
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  clientId String? @unique
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  avatar    String?
+  phone     String?
+  status    String    @default("active")
+  lastLogin DateTime?
+
+  // Reinitialisation de mot de passe
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  language String @default("fr")
+  timezone String @default("Europe/Paris")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  notifications  Notification[]
+  calendarEvents CalendarEvent[]
+  documents      Document[]
+
+  @@index([tenantId, email])
+  @@index([role])
+  @@index([status])
+}
+
+// ============================================
+// NIVEAU 3 : OPÉRATIONNEL
+// ============================================
+
+model Client {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  civilite     String?
+  firstName    String
+  lastName     String
+  nomNaissance String?
+  prenomUsuel  String?
+
+  email            String
+  emailSecondaire  String?
+  phone            String?
+  phoneSecondaire  String?
+  telephoneUrgence String?
+
+  dateOfBirth        DateTime?
+  lieuNaissance      String?
+  nationality        String?
+  nationaliteOrigine String?
+
+  address    String?
+  codePostal String?
+  ville      String?
+  pays       String  @default("France")
+
+  user User?
+
+  passportNumber  String?
+  passportExpiry  DateTime?
+  passportCountry String?
+
+  status String @default("actif")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dossiers       Dossier[]
+  emails         Email[]
+  factures       Facture[]
+  calendarEvents CalendarEvent[]
+  documents      Document[]
+  legalDeadlines LegalDeadline[]
+  channelMessages ChannelMessage[] @relation("ChannelMessages")
+  rgpdConsents    RGPDConsent[]    @relation("RGPDConsents")
+
+  @@unique([tenantId, email])
+  @@index([tenantId, email])
+  @@index([tenantId, status])
+}
+
+model Dossier {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  numero String
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  typeDossier        String
+  articleCeseda      String?
+  categorieJuridique String?
+
+  statut   String @default("en_cours")
+  priorite String @default("normale")
+  phase    String @default("instruction")
+
+  dateCreation       DateTime  @default(now())
+  dateOuverture      DateTime?
+  dateEcheance       DateTime?
+  dateProchaineEtape DateTime?
+  dateCloture        DateTime?
+
+  juridiction       String?
+  numeroJuridiction String?
+  typeRecours       String?
+
+  responsableId  String?
+  collaborateurs String?
+
+  objet       String?
+  description String?
+  notes       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emails         Email[]
+  factures       Facture[]
+  calendarEvents CalendarEvent[]
+  documents      Document[]
+  legalDeadlines LegalDeadline[]
+  proofs         Proof[]
+  channelMessages ChannelMessage[] @relation("ChannelMessages")
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, statut])
+  @@index([clientId])
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  storageKey  String
+
+  category    String?
+  description String?
+
+  ocrProcessed Boolean @default(false)
+  ocrText      String?
+  ocrConfidence Float?
+  extractedData String?
+
+  aiAnalyzed  Boolean @default(false)
+  aiSummary   String?
+  aiMetadata  String?
+
+  uploadedBy  String
+  uploader    User     @relation(fields: [uploadedBy], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  proofs Proof[]
+
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([clientId])
+}
+
+// ============================================
+// NIVEAU 4 : FACTURATION
+// ============================================
+
+model Facture {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  numero        String
+  reference     String?
+  description   String?
+
+  montantHT     Float
+  tauxTVA       Float    @default(20)
+  montantTVA    Float
+  montantTTC    Float
+
+  statut        String   @default("brouillon")
+  
+  dateEmission  DateTime @default(now())
+  dateEcheance  DateTime
+  datePaiement  DateTime?
+
+  modePaiement  String?
+  referencePayment String?
+
+  notes         String?
+  conditions    String?
+
+  pdfUrl        String?
+  stripeInvoiceId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lignes    LigneFacture[]
+  paiements Paiement[]
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, statut])
+  @@index([clientId])
+  @@index([dateEcheance])
+}
+
+model LigneFacture {
+  id        String  @id @default(uuid())
+  factureId String
+  facture   Facture @relation(fields: [factureId], references: [id], onDelete: Cascade)
+
+  description String
+  quantite    Float   @default(1)
+  prixUnitaire Float
+  montantHT   Float
+
+  ordre       Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([factureId])
+}
+
+model Paiement {
+  id        String   @id @default(uuid())
+  factureId String
+  facture   Facture  @relation(fields: [factureId], references: [id], onDelete: Cascade)
+
+  montant   Float
+  date      DateTime @default(now())
+  mode      String
+  reference String?
+  notes     String?
+
+  stripePaymentId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([factureId])
+}
+
+// ============================================
+// NIVEAU 5 : EMAIL & WORKFLOW
+// ============================================
 
 model Email {
-  id        String      @id @default(cuid())
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  messageId   String?  @unique
+  from        String
+  to          String
+  subject     String
+  body        String
+  htmlBody    String?
+  preview     String?
+
+  category    String   @default("general-inquiry")
+  urgency     String   @default("medium")
+  sentiment   String   @default("neutral")
+  
+  isRead      Boolean  @default(false)
+  isStarred   Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+  isProcessed Boolean  @default(false)
+
+  aiAnalysis  String?
+  tags        String?
+
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id])
+  
+  dossierId   String?
+  dossier     Dossier? @relation(fields: [dossierId], references: [id])
+
+  receivedAt  DateTime @default(now())
+  readAt      DateTime?
+  processedAt DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workflows   WorkflowExecution[]
+  attachments EmailAttachment[]
+
+  @@index([tenantId, isProcessed])
+  @@index([tenantId, category])
+  @@index([from])
+}
+
+model EmailAttachment {
+  id       String @id @default(uuid())
+  emailId  String
+  email    Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  filename    String
+  mimeType    String
+  size        Int
+  storageKey  String?
+  
+  createdAt DateTime @default(now())
+
+  @@index([emailId])
+}
+
+model WorkflowExecution {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  workflowId   String
+  workflowName String
+  
+  emailId      String?
+  email        Email?   @relation(fields: [emailId], references: [id])
+
+  status       String   @default("pending")
+  currentStep  String?
+  progress     Int      @default(0)
+
+  triggerType  String   @default("email")
+  triggerData  String?
+
+  steps        String?
+  result       String?
+  error        String?
+
+  startedAt    DateTime?
+  completedAt  DateTime?
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([tenantId, status])
+  @@index([workflowId])
+  @@index([emailId])
+}
+
+// ============================================
+// NIVEAU 6 : CALENDAR & NOTIFICATIONS
+// ============================================
+
+model CalendarEvent {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   userId    String
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  recipient String
-  subject   String
-  body      String      @db.Text
-  status    EmailStatus @default(DRAFT)
-  
-  templateId String?
-  template   Template? @relation(fields: [templateId], references: [id])
-  
-  sentAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
-  @@map("emails")
-}
+  user      User     @relation(fields: [userId], references: [id])
 
-model Template {
-  id       String @id @default(cuid())
-  userId   String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+
+  title     String
+  description String?
+  location  String?
+
+  startDate DateTime
+  endDate   DateTime
+  allDay    Boolean  @default(false)
+
+  type      String   @default("rdv")
+  status    String   @default("confirmed")
+
+  googleEventId String?
+  outlookEventId String?
+
+  reminders String?
   
-  name     String
-  subject  String
-  body     String @db.Text
-  category String @default("general")
-  
-  emails Email[]
-  
+  isRecurring Boolean @default(false)
+  recurrenceRule String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  @@map("templates")
+
+  @@index([tenantId, startDate])
+  @@index([userId])
+  @@index([dossierId])
 }
 
-model Contact {
-  id           String  @id @default(cuid())
-  userId       String
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  name         String
-  email        String
-  organization String?
-  category     String  @default("general")
-  
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      String
+  title     String
+  message   String
+  data      String?
+
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+
+  priority  String   @default("normal")
+
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([userId, email])
-  @@map("contacts")
+
+  @@index([userId, isRead])
+  @@index([createdAt])
 }
 
-enum Role {
-  USER
-  ADMIN
-}
+// ============================================
+// NIVEAU 7 : JURIDIQUE (CŒUR DU SYSTÈME)
+// ============================================
 
-enum EmailStatus {
-  DRAFT
-  SENT
-  FAILED
-  SCHEDULED
-}
-
-// ===== POSTAL SERVICE MODELS =====
-
-model Postman {
-  id            String   @id @default(cuid())
-  employeeId    String   @unique
-  name          String
-  email         String   @unique
-  phone         String?
-  status        PostmanStatus @default(ACTIVE)
+model LegalDeadline {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   
-  // Performance metrics
-  totalDeliveries     Int      @default(0)
-  successfulDeliveries Int     @default(0)
-  averageRating       Float    @default(0)
+  dossierId String
+  dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
   
-  deliveries    Delivery[]
-  shifts        PostmanShift[]
-  incidents     Incident[]
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
   
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  @@map("postmen")
-}
-
-model Route {
-  id          String   @id @default(cuid())
-  routeCode   String   @unique
-  areaCode    String
-  areaName    String
+  type      DeadlineType
+  label     String
   description String?
   
-  // Waze integration
-  wazeRouteId String?
-  estimatedDuration Int?  // minutes
-  distance    Float?   // km
+  referenceDate DateTime
+  dueDate       DateTime
   
-  // GeoJSON polygon for route area
-  geoJson     String?  @db.Text
+  status    DeadlineStatus @default(PENDING)
   
-  deliveries  Delivery[]
-  incidents   Incident[]
+  legalBasis    String?
+  legalDays     Int?
   
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  alertJ7Sent   Boolean @default(false)
+  alertJ3Sent   Boolean @default(false)
+  alertJ1Sent   Boolean @default(false)
   
-  @@map("routes")
+  completedAt   DateTime?
+  completedBy   String?
+  completionNote String?
+  
+  proofId       String?
+  
+  createdBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  alerts        DeadlineAlert[]
+
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([status, dueDate])
 }
 
-model Delivery {
-  id            String   @id @default(cuid())
-  trackingNumber String  @unique
+model DeadlineAlert {
+  id          String   @id @default(uuid())
+  deadlineId  String
+  deadline    LegalDeadline @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
   
-  postmanId     String
-  postman       Postman  @relation(fields: [postmanId], references: [id])
+  alertType   String
+  sentAt      DateTime @default(now())
+  sentTo      String
+  channel     String
   
-  routeId       String
-  route         Route    @relation(fields: [routeId], references: [id])
-  
-  // Delivery details
-  recipientName    String
-  recipientAddress String
-  recipientPhone   String?
-  
-  packageType      String   @default("letter")
-  priority         Priority @default(NORMAL)
-  status           DeliveryStatus @default(PENDING)
-  
-  // Timing
-  deliveryDate     DateTime
-  startedAt        DateTime?
-  completedAt      DateTime?
-  
-  // Performance
-  customerRating   Float?
-  deliveryNotes    String?  @db.Text
-  
-  // Coordinates
-  latitude         Float?
-  longitude        Float?
-  
-  incidents        Incident[]
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
-  @@index([postmanId, deliveryDate])
-  @@index([status, deliveryDate])
-  @@map("deliveries")
+  acknowledged Boolean @default(false)
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+
+  @@index([deadlineId])
 }
 
-model Incident {
-  id          String   @id @default(cuid())
+model LegalReference {
+  id        String   @id @default(uuid())
   
-  postmanId   String
-  postman     Postman  @relation(fields: [postmanId], references: [id])
+  code      String
+  article   String
+  version   String?
   
-  deliveryId  String?
-  delivery    Delivery? @relation(fields: [deliveryId], references: [id])
+  title     String
+  content   String
+  summary   String?
   
-  routeId     String?
-  route       Route?   @relation(fields: [routeId], references: [id])
+  category  String
+  keywords  String?
   
-  // Incident details
-  type        IncidentType
-  severity    IncidentSeverity @default(MEDIUM)
-  status      IncidentStatus @default(OPEN)
+  defaultDeadlineDays Int?
+  deadlineType        String?
   
-  title       String
-  description String   @db.Text
+  legifrance_url String?
+  eurlex_url     String?
   
-  // Resolution
-  resolvedAt  DateTime?
-  resolution  String?  @db.Text
-  rerouteApplied Boolean @default(false)
+  isActive  Boolean  @default(true)
+  validFrom DateTime?
+  validUntil DateTime?
   
-  // Location
-  latitude    Float?
-  longitude   Float?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([status, severity])
-  @@index([postmanId, createdAt])
-  @@map("incidents")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code, article, version])
+  @@index([code])
+  @@index([category])
+  @@index([isActive])
 }
 
-model PostmanShift {
-  id          String   @id @default(cuid())
+// ============================================
+// NIVEAU 8 : TRAÇABILITÉ (IMMUABLE)
+// ============================================
+
+model InformationUnit {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   
-  postmanId   String
-  postman     Postman  @relation(fields: [postmanId], references: [id])
+  source        InformationUnitSource
+  content       String
+  contentHash   String   @unique
   
-  shiftDate   DateTime
-  startTime   DateTime
-  endTime     DateTime?
+  currentStatus InformationUnitStatus @default(RECEIVED)
   
-  // Performance
-  plannedHours    Float
-  actualHours     Float?
-  overtimeHours   Float    @default(0)
+  sourceMetadata    String?
+  linkedWorkspaceId String?
+  metadata          String?
   
-  breakMinutes    Int      @default(0)
-  deliveriesCount Int      @default(0)
+  lastStatusChangeBy String?
+  lastStatusChangeAt DateTime?
   
-  notes       String?  @db.Text
+  receivedAt    DateTime @default(now())
+  classifiedAt  DateTime?
+  analyzedAt    DateTime?
+  resolvedAt    DateTime?
+  closedAt      DateTime?
   
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([postmanId, shiftDate])
-  @@map("postman_shifts")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  statusHistory InformationStatusHistory[]
+  proofs        Proof[]
+
+  @@index([tenantId])
+  @@index([currentStatus])
+  @@index([contentHash])
+  @@index([tenantId, currentStatus])
 }
 
-enum PostmanStatus {
-  ACTIVE
-  ON_LEAVE
-  INACTIVE
-  SUSPENDED
+model InformationStatusHistory {
+  id          String   @id @default(uuid())
+  unitId      String
+  unit        InformationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  fromStatus  InformationUnitStatus?
+  toStatus    InformationUnitStatus
+  reason      String?
+  
+  changedBy   String
+  changedAt   DateTime @default(now())
+  
+  timestampHash String?
+  
+  @@index([unitId])
+  @@index([changedAt])
 }
 
-enum DeliveryStatus {
-  PENDING
-  IN_PROGRESS
-  DELIVERED
+model Proof {
+  id                String   @id @default(uuid())
+  tenantId          String
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  type              ProofType
+  title             String
+  description       String?
+  
+  dossierId         String?
+  dossier           Dossier? @relation(fields: [dossierId], references: [id])
+  
+  clientId          String?
+  
+  documentId        String?
+  document          Document? @relation(fields: [documentId], references: [id])
+  
+  informationUnitId String?
+  informationUnit   InformationUnit? @relation(fields: [informationUnitId], references: [id])
+  
+  fileStorageKey    String?
+  fileHash          String?
+  fileMimeType      String?
+  fileSize          Int?
+  
+  proofDate         DateTime
+  capturedAt        DateTime @default(now())
+  capturedBy        String
+  
+  status            ProofStatus @default(PENDING_VALIDATION)
+  validatedBy       String?
+  validatedAt       DateTime?
+  rejectionReason   String?
+  
+  timestampHash     String?
+  chainPreviousId   String?
+  
+  metadata          String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([type])
+  @@index([status])
+  @@index([proofDate])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  userEmail String
+  userRole  String
+  
+  action    AuditAction
+  entityType String
+  entityId  String
+  
+  oldValue  String?
+  newValue  String?
+  
+  ipAddress String?
+  userAgent String?
+  
+  timestamp DateTime @default(now())
+  timestampHash String?
+  previousLogId String?
+  
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@index([action])
+}
+
+// ============================================
+// NIVEAU 9 : CONFORMITÉ & ARCHIVAGE
+// ============================================
+
+model ArchivePolicy {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  entityType String
+  entityId   String
+  
+  status     ArchiveStatus @default(ACTIVE)
+  
+  retentionDays    Int
+  retentionReason  String?
+  
+  lastAccessAt     DateTime?
+  archiveAt        DateTime?
+  deleteAt         DateTime?
+  
+  archivedAt       DateTime?
+  archivedBy       String?
+  deletedAt        DateTime?
+  deletedBy        String?
+  
+  holdUntil        DateTime?
+  holdReason       String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([entityType, entityId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([archiveAt])
+  @@index([deleteAt])
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  type      ReportType
+  title     String
+  description String?
+  
+  parameters String?
+  
+  dossierId String?
+  clientId  String?
+  
+  periodStart DateTime?
+  periodEnd   DateTime?
+  
+  status    ReportStatus @default(PENDING)
+  fileStorageKey String?
+  fileMimeType   String?
+  fileSize       Int?
+  
+  generatedAt DateTime?
+  generatedBy String
+  
+  isPublic    Boolean @default(false)
+  accessCount Int     @default(0)
+  lastAccessAt DateTime?
+  
+  expiresAt   DateTime?
+  
+  error       String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([type])
+  @@index([status])
+  @@index([dossierId])
+}
+
+// ============================================
+// NIVEAU 10 : MULTI-CANAL COMMUNICATION
+// ============================================
+
+enum ChannelType {
+  EMAIL
+  WHATSAPP
+  SMS
+  VOICE
+  SLACK
+  TEAMS
+  LINKEDIN
+  TWITTER
+  FORM
+  DOCUMENT
+  DECLAN
+  INTERNAL
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum MessageStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
   FAILED
-  RETURNED
-  CANCELLED
+  ARCHIVED
 }
 
-enum Priority {
-  LOW
-  NORMAL
-  HIGH
-  URGENT
-}
-
-enum IncidentType {
-  ROAD_CLOSURE
-  TRAFFIC_JAM
-  MISSING_PACKAGE
-  WRONG_ADDRESS
-  RECIPIENT_ABSENT
-  VEHICLE_ISSUE
-  WEATHER_DELAY
-  SAFETY_CONCERN
-  OTHER
-}
-
-enum IncidentSeverity {
+enum UrgencyLevel {
   LOW
   MEDIUM
   HIGH
   CRITICAL
 }
 
-enum IncidentStatus {
-  OPEN
-  IN_PROGRESS
-  RESOLVED
-  CLOSED
+enum ConsentStatus {
+  PENDING
+  GRANTED
+  REVOKED
+  NOT_REQUIRED
+}
+
+model ChannelMessage {
+  id        String   @id @default(uuid())
+  
+  channel   ChannelType
+  direction MessageDirection @default(INBOUND)
+  status    MessageStatus @default(RECEIVED)
+  
+  // Expéditeur/Destinataire (JSON)
+  senderData    Json
+  recipientData Json?
+  
+  // Contenu
+  subject   String?
+  body      String   @db.Text
+  bodyHtml  String?  @db.Text
+  
+  // Pièces jointes (JSON array)
+  attachments Json @default("[]")
+  
+  // Métadonnées canal (JSON)
+  channelMetadata Json @default("{}")
+  
+  // Analyse IA
+  aiSummary   String?  @db.Text
+  aiCategory  String?
+  aiTags      String[] @default([])
+  aiUrgency   UrgencyLevel?
+  aiSentiment String?
+  aiEntities  Json?
+  
+  // Horodatage
+  receivedAt  DateTime @default(now())
+  processedAt DateTime?
+  archivedAt  DateTime?
+  
+  // RGPD
+  consentStatus ConsentStatus @default(PENDING)
+  
+  // Liens métier
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  clientId  String?
+  client    Client?  @relation("ChannelMessages", fields: [clientId], references: [id], onDelete: SetNull)
+  dossierId String?
+  dossier   Dossier? @relation("ChannelMessages", fields: [dossierId], references: [id], onDelete: SetNull)
+  
+  // Audit trail (JSON array)
+  auditTrail Json @default("[]")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([channel])
+  @@index([status])
+  @@index([aiUrgency])
+  @@index([receivedAt])
+  @@index([consentStatus])
+  
+  @@map("channel_messages")
+}
+
+model RGPDConsent {
+  id        String   @id @default(uuid())
+  
+  clientId  String
+  client    Client   @relation("RGPDConsents", fields: [clientId], references: [id], onDelete: Cascade)
+  
+  channel   ChannelType
+  purpose   String
+  
+  granted   Boolean
+  grantedAt DateTime?
+  revokedAt DateTime?
+  expiresAt DateTime?
+  
+  proofDocument String?
+  ipAddress     String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([channel])
+  @@index([granted])
+  @@index([expiresAt])
+  
+  @@map("rgpd_consents")
+}
+
+model ChannelConfig {
+  id        String   @id @default(uuid())
+  
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  channel   ChannelType
+  enabled   Boolean  @default(true)
+  
+  // Configuration
+  consentRequired  Boolean @default(true)
+  autoArchive      Boolean @default(false)
+  archiveAfterDays Int     @default(365)
+  aiProcessing     Boolean @default(true)
+  
+  // Webhook (si applicable)
+  webhookUrl       String?
+  webhookSecret    String?
+  
+  // Credentials Key Vault reference
+  keyVaultSecretName String?
+  
+  // Métadonnées spécifiques au canal
+  settings Json @default("{}")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, channel])
+  @@index([tenantId])
+  @@index([channel])
+  @@index([enabled])
+  
+  @@map("channel_configs")
+}
+
+// ============================================
+// 🛡️ AI USAGE TRACKING - Anti-Faillite
+// ============================================
+
+model AIUsageLog {
+  id        String   @id @default(uuid())
+  
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  provider    String   // 'ollama' | 'cloudflare'
+  operation   String   // 'generate' | 'chat' | 'embeddings'
+  model       String?
+  
+  tokensUsed  Int      @default(0)
+  costEur     Float    @default(0)
+  latencyMs   Int?
+  
+  // Contexte
+  endpoint    String?
+  success     Boolean  @default(true)
+  errorMessage String?
+  
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([provider])
+  @@index([createdAt])
+  @@index([tenantId, createdAt])
+  
+  @@map("ai_usage_logs")
+}
+
+// Résumé mensuel des coûts par tenant
+model AIMonthlySummary {
+  id        String   @id @default(uuid())
+  
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  year      Int
+  month     Int      // 1-12
+  
+  // Totaux
+  totalTokens     Int    @default(0)
+  totalCostEur    Float  @default(0)
+  ollamaTokens    Int    @default(0)
+  cloudflareTokens Int   @default(0)
+  cloudflareCost  Float  @default(0)
+  
+  // Limites
+  budgetLimit     Float  @default(0)
+  budgetUsedPct   Float  @default(0)
+  
+  // Stats
+  requestCount    Int    @default(0)
+  avgLatencyMs    Float?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, year, month])
+  @@index([tenantId])
+  @@index([year, month])
+  
+  @@map("ai_monthly_summaries")
 }

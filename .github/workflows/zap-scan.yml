@@ -1,0 +1,105 @@
+name: OWASP ZAP Security Scan
+
+# ⚠️ DÉSACTIVÉ - Utiliser owasp-zap.yml qui scanne la production Cloudflare
+# Ce workflow nécessite un serveur local qui ne peut pas démarrer en CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'URL to scan (default: production)'
+        required: false
+        default: 'https://iapostemanager.pages.dev'
+  # push:
+  #   branches: [main, develop]
+  # pull_request:
+  #   branches: [main, develop]
+  # schedule:
+  #   - cron: '0 2 * * 0'  # Weekly Sunday 02:00 UTC
+
+jobs:
+  zap-scan:
+    if: false  # Désactivé - utiliser owasp-zap.yml à la place
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build application
+        run: npm run build
+        env:
+          NEXTAUTH_SECRET: test-secret-zap-scan
+          DATABASE_URL: postgresql://test:test@localhost/test
+          NEXTAUTH_URL: http://localhost:3000
+
+      - name: Start application
+        run: npm run dev &
+        env:
+          NEXTAUTH_SECRET: test-secret-zap-scan
+          DATABASE_URL: postgresql://test:test@localhost/test
+          NEXTAUTH_URL: http://localhost:3000
+        continue-on-error: true
+
+      - name: Wait for server
+        run: sleep 15
+
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: http://localhost:3000
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: >
+            -I
+            -a
+            -r zap-report.html
+
+      - name: Check ZAP report for critical vulnerabilities
+        if: always()
+        run: |
+          if grep -q 'Risk: High' zap-report.html; then
+            echo '❌ HIGH vulnerabilities detected'
+            exit 1
+          else
+            echo '✅ No HIGH vulnerabilities found'
+          fi
+
+      - name: Upload ZAP report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report-${{ github.run_id }}
+          path: zap-report.html
+          retention-days: 90
+
+      - name: Comment PR with ZAP results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            try {
+              const report = fs.readFileSync('zap-report.html', 'utf8');
+              const hasHighRisk = report.includes('Risk: High');
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: hasHighRisk 
+                  ? '⚠️ ZAP scan found HIGH risk vulnerabilities. Review the artifact in the Actions tab.'
+                  : '✅ ZAP scan passed. Check artifact for details (Medium/Low/Info alerts documented).'
+              });
+            } catch (e) {
+              console.log('Could not read ZAP report');
+            }

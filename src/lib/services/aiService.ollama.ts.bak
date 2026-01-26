@@ -1,0 +1,438 @@
+﻿/**
+ * Service IA - Intégration Ollama
+ * Génère des actions IA basées sur les prompts système
+ * Conforme à CHARTE_IA_JURIDIQUE.md
+ */
+
+import { 
+  AIActionType, 
+  AutonomyLevel, 
+  ValidationLevel,
+  UrgencyLevel,
+  DocumentType 
+} from '@/types';
+import { DOCUMENT_TEMPLATES, generateDocument } from '@/lib/templates/documents';
+
+interface OllamaResponse {
+  model: string;
+  created_at: string;
+  response: string;
+  done: boolean;
+}
+
+interface AIServiceConfig {
+  ollamaUrl: string;
+  ollamaModel: string;
+}
+
+/**
+ * Classe principale du service IA
+ */
+export class AIService {
+  private config: AIServiceConfig;
+  
+  constructor(config: AIServiceConfig) {
+    this.config = config;
+  }
+
+  /**
+   * Appel générique à Ollama
+   */
+  private async callOllama(prompt: string, systemPrompt?: string): Promise<string> {
+    try {
+      const response = await fetch(`${this.config.ollamaUrl}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: this.config.ollamaModel,
+          prompt: prompt,
+          system: systemPrompt,
+          stream: false
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ollama error: ${response.statusText}`);
+      }
+
+      const data: OllamaResponse = await response.json();
+      return data.response;
+    } catch (error) {
+      console.error('Erreur appel Ollama:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Parse une réponse JSON de l'IA
+   */
+  private parseAIResponse<T>(response: string): T {
+    try {
+      // Extraire le JSON s'il est enrobé dans du texte
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+      return JSON.parse(response);
+    } catch (error) {
+      console.error('Erreur parsing réponse IA:', error);
+      throw new Error('Impossible de parser la réponse de l\'IA');
+    }
+  }
+
+  /**
+   * NIVEAU VERT : Triage d'email
+   */
+  async triageEmail(emailContent: string, emailSubject: string): Promise<{
+    senderType: 'client' | 'prospect' | 'adverse' | 'court' | 'other';
+    requestType: 'new_case' | 'follow_up' | 'information' | 'urgent' | 'other';
+    urgency: UrgencyLevel;
+    legalDeadline?: string;
+    confidence: number;
+  }> {
+    const systemPrompt = `Tu es IA Poste Manager. Ton rôle: trier les emails entrants.
+Réponds UNIQUEMENT avec un objet JSON valide.
+Ne jamais décider, seulement classifier.`;
+
+    const prompt = `Analyse cet email et réponds avec un JSON:
+
+Objet: ${emailSubject}
+Contenu:
+${emailContent}
+
+Format de réponse (JSON uniquement):
+{
+  "senderType": "client|prospect|adverse|court|other",
+  "requestType": "new_case|follow_up|information|urgent|other",
+  "urgency": "CRITICAL|HIGH|NORMAL|LOW",
+  "legalDeadline": "YYYY-MM-DD ou null",
+  "confidence": 0.0-1.0
+}`;
+
+    const response = await this.callOllama(prompt, systemPrompt);
+    return this.parseAIResponse(response);
+  }
+
+  /**
+   * NIVEAU VERT : Analyse de dossier
+   */
+  async analyzeCaseType(caseDescription: string): Promise<{
+    caseType: string;
+    caseSubtype?: string;
+    confidence: number;
+    parties: Array<{ role: string; name: string }>;
+    timeline: Array<{ date: string; event: string }>;
+    missingDocuments: string[];
+    redFlags: string[];
+  }> {
+    const systemPrompt = `Tu es IA Poste Manager. Analyse les dossiers juridiques.
+Tu NE décides PAS, tu structures.
+Réponds en JSON uniquement.`;
+
+    const prompt = `Analyse ce dossier:
+
+${caseDescription}
+
+Réponds en JSON avec:
+{
+  "caseType": "divorce|succession|commercial|penal|immigration|other",
+  "caseSubtype": "...",
+  "confidence": 0.0-1.0,
+  "parties": [{"role": "plaintiff", "name": "..."}],
+  "timeline": [{"date": "YYYY-MM-DD", "event": "..."}],
+  "missingDocuments": ["..."],
+  "redFlags": ["..."]
+}`;
+
+    const response = await this.callOllama(prompt, systemPrompt);
+    return this.parseAIResponse(response);
+  }
+
+  /**
+   * NIVEAU ORANGE : Génération de formulaire de collecte
+   */
+  async generateCollectionForm(caseType: string, existingInfo: any): Promise<{
+    questions: Array<{
+      id: string;
+      type: 'text' | 'date' | 'file' | 'select' | 'number';
+      label: string;
+      helpText?: string;
+      required: boolean;
+      options?: string[];
+    }>;
+    estimatedTime: string;
+  }> {
+    const systemPrompt = `Tu es IA Poste Manager. Génère des formulaires de collecte.
+Formulations polies et claires uniquement.
+JAMAIS de formulations obligatoires ou menaçantes.
+Réponds en JSON.`;
+
+    const prompt = `Génère un formulaire pour collecter les informations manquantes.
+
+Type de dossier: ${caseType}
+Informations déjà collectées:
+${JSON.stringify(existingInfo, null, 2)}
+
+Règles:
+- Max 10 questions
+- Formulations polies: "Pourriez-vous...", "Merci de..."
+- INTERDIT: "Vous devez", "Obligatoire", "Sans cela..."
+- Expliquer POURQUOI chaque document est nécessaire
+
+Réponds en JSON:
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "text|date|file|select|number",
+      "label": "...",
+      "helpText": "Nécessaire pour...",
+      "required": true|false,
+      "options": ["..."] // si type=select
+    }
+  ],
+  "estimatedTime": "5 minutes"
+}`;
+
+    const response = await this.callOllama(prompt, systemPrompt);
+    return this.parseAIResponse(response);
+  }
+
+  /**
+   * NIVEAU ORANGE : Génération de brouillon de document
+   */
+  async generateDraft(
+    templateId: string,
+    variables: Record<string, any>
+  ): Promise<{
+    success: boolean;
+    content?: string;
+    subject?: string;
+    placeholders?: Array<{ marker: string; reason: string }>;
+    error?: string;
+  }> {
+    // Utiliser les templates pré-validés
+    const result = generateDocument(templateId, variables);
+    
+    if (!result.success) {
+      return result;
+    }
+
+    // Pour les templates ORANGE, identifier les zones à valider
+    const placeholders: Array<{ marker: string; reason: string }> = [];
+    
+    // Regex pour détecter [À VALIDER:...], [À COMPLÉTER:...]
+    const placeholderRegex = /\[À (VALIDER|COMPLÉTER|VÉRIFIER):\s*([^\]]+)\]/g;
+    let match;
+    
+    while ((match = placeholderRegex.exec(result.content || '')) !== null) {
+      placeholders.push({
+        marker: match[0],
+        reason: match[2]
+      });
+    }
+
+    return {
+      success: true,
+      content: result.content,
+      subject: result.subject,
+      placeholders
+    };
+  }
+
+  /**
+   * NIVEAU ORANGE : Détection d'alertes
+   */
+  async detectAlerts(dossierData: any): Promise<Array<{
+    alertType: 'legal_deadline' | 'inconsistency' | 'blocked_case' | 'missing_document';
+    severity: 'INFO' | 'WARNING' | 'ALERT' | 'CRITICAL';
+    message: string;
+    deadline?: string;
+    suggestedAction?: string;
+  }>> {
+    const systemPrompt = `Tu es IA Poste Manager. Détecte les alertes dans les dossiers.
+Formulations factuelles, pas alarmistes.
+INTERDIT: "Urgence absolue", "Risque majeur", "Faute professionnelle"
+Réponds en JSON.`;
+
+    const prompt = `Analyse ce dossier et détecte les alertes:
+
+${JSON.stringify(dossierData, null, 2)}
+
+Réponds en JSON:
+{
+  "alerts": [
+    {
+      "alertType": "legal_deadline|inconsistency|blocked_case|missing_document",
+      "severity": "INFO|WARNING|ALERT|CRITICAL",
+      "message": "...",
+      "deadline": "YYYY-MM-DD" ou null,
+      "suggestedAction": "..."
+    }
+  ]
+}
+
+Règles de sévérité:
+- CRITICAL: < 48h
+- ALERT: < 7 jours
+- WARNING: < 30 jours
+- INFO: > 30 jours
+
+Formulations autorisées:
+- "Attention : délai de recours dans X jours"
+- "À vérifier : incohérence entre..."
+- "Dossier en attente depuis X jours"
+
+Formulations INTERDITES:
+- "Urgence absolue"
+- "Risque majeur"
+- "Vous devez absolument"`;
+
+    const response = await this.callOllama(prompt, systemPrompt);
+    const parsed = this.parseAIResponse<{ alerts: any[] }>(response);
+    return parsed.alerts || [];
+  }
+
+  /**
+   * NIVEAU ROUGE : Proposition d'options stratégiques
+   * L'IA ne décide PAS, elle PROPOSE
+   */
+  async proposeOptions(context: any): Promise<{
+    options: Array<{
+      option: string;
+      pros: string[];
+      cons: string[];
+      requirements: string[];
+    }>;
+    clarificationsNeeded: string[];
+  }> {
+    const systemPrompt = `Tu es IA Poste Manager. Tu PROPOSES des options, tu ne DÉCIDES jamais.
+INTERDIT: "Vous devez", "Je vous conseille", "La meilleure stratégie"
+AUTORISÉ: "Trois options possibles", "Points à considérer"
+Réponds en JSON.`;
+
+    const prompt = `Présente les options disponibles pour ce dossier:
+
+${JSON.stringify(context, null, 2)}
+
+RÈGLE FONDAMENTALE: Tu ne choisis PAS, tu présentes.
+
+Réponds en JSON:
+{
+  "options": [
+    {
+      "option": "Engager un recours",
+      "pros": ["...", "..."],
+      "cons": ["...", "..."],
+      "requirements": ["...", "..."]
+    }
+  ],
+  "clarificationsNeeded": [
+    "Quel est le budget du client ?",
+    "..."
+  ]
+}
+
+Message final à inclure:
+"J'ai préparé une synthèse des options disponibles. La décision finale vous appartient."`;
+
+    const response = await this.callOllama(prompt, systemPrompt);
+    return this.parseAIResponse(response);
+  }
+
+  /**
+   * Déterminer le niveau d'autonomie et de validation requis
+   */
+  determineValidationRequirements(actionType: AIActionType, confidence: number): {
+    autonomyLevel: AutonomyLevel;
+    validationLevel: ValidationLevel;
+    requiresValidation: boolean;
+  } {
+    // Actions niveau GREEN (automatiques)
+    const greenActions = [
+      AIActionType.EMAIL_TRIAGE,
+      AIActionType.WORKSPACE_CREATION,
+      AIActionType.METADATA_EXTRACTION,
+      AIActionType.URGENCY_DETECTION,
+      AIActionType.CLASSIFICATION
+    ];
+
+    // Actions niveau ORANGE (semi-automatiques)
+    const orangeActions = [
+      AIActionType.FORM_GENERATION,
+      AIActionType.DOCUMENT_REQUEST,
+      AIActionType.DRAFT_GENERATION,
+      AIActionType.ALERT_CREATION
+    ];
+
+    // Actions niveau RED (manuelles)
+    const redActions = [
+      AIActionType.DOCUMENT_SEND,
+      AIActionType.LEGAL_ADVICE,
+      AIActionType.STRATEGY_CHOICE,
+      AIActionType.LEGAL_INTERPRETATION
+    ];
+
+    if (greenActions.includes(actionType)) {
+      // VERT: confiance haute = auto, sinon validation rapide
+      if (confidence >= 0.95) {
+        return {
+          autonomyLevel: AutonomyLevel.GREEN,
+          validationLevel: ValidationLevel.NONE,
+          requiresValidation: false
+        };
+      } else if (confidence >= 0.80) {
+        return {
+          autonomyLevel: AutonomyLevel.GREEN,
+          validationLevel: ValidationLevel.QUICK,
+          requiresValidation: true
+        };
+      } else {
+        return {
+          autonomyLevel: AutonomyLevel.GREEN,
+          validationLevel: ValidationLevel.STANDARD,
+          requiresValidation: true
+        };
+      }
+    }
+
+    if (orangeActions.includes(actionType)) {
+      // ORANGE: toujours validation, niveau selon confiance
+      if (confidence >= 0.90) {
+        return {
+          autonomyLevel: AutonomyLevel.ORANGE,
+          validationLevel: ValidationLevel.QUICK,
+          requiresValidation: true
+        };
+      } else {
+        return {
+          autonomyLevel: AutonomyLevel.ORANGE,
+          validationLevel: ValidationLevel.STANDARD,
+          requiresValidation: true
+        };
+      }
+    }
+
+    // ROUGE: toujours validation renforcée
+    return {
+      autonomyLevel: AutonomyLevel.RED,
+      validationLevel: ValidationLevel.REINFORCED,
+      requiresValidation: true
+    };
+  }
+}
+
+/**
+ * Instance singleton du service IA
+ */
+let aiServiceInstance: AIService | null = null;
+
+export function getAIService(): AIService {
+  if (!aiServiceInstance) {
+    aiServiceInstance = new AIService({
+      ollamaUrl: process.env.OLLAMA_URL || 'http://localhost:11434',
+      ollamaModel: process.env.OLLAMA_MODEL || 'llama3.2:latest'
+    });
+  }
+  return aiServiceInstance;
+}
