@@ -70,6 +70,15 @@ jobs:
           cp -r .next/static .next/standalone/.next/
           cp -r public .next/standalone/ 2>/dev/null || true
           
+          # Créer un script de démarrage qui utilise le PORT d'Azure
+          cat > .next/standalone/startup.js << 'STARTUP'
+          // Azure App Service startup wrapper
+          process.env.PORT = process.env.PORT || process.env.WEBSITES_PORT || '8080';
+          process.env.HOSTNAME = '0.0.0.0';
+          console.log(`Starting Next.js on port ${process.env.PORT}...`);
+          require('./server.js');
+          STARTUP
+          
           # Créer un package.json minimal pour Azure
           cat > .next/standalone/package.json << 'EOF'
           {
@@ -77,7 +86,7 @@ jobs:
             "version": "1.0.0",
             "private": true,
             "scripts": {
-              "start": "node server.js"
+              "start": "node startup.js"
             },
             "engines": {
               "node": ">=20"
