@@ -84,6 +84,8 @@
     "email:setup": "tsx scripts/email-setup.ts",
     "email:to-workspace": "tsx scripts/email-to-workspace.ts",
     "email:to-workspace:ai": "tsx scripts/email-to-workspace-ai.ts",
+    "email:monitor": "tsx scripts/start-gmail-monitor.ts",
+    "gmail:auth": "node scripts/gmail-auth.js",
     "ai:test": "tsx scripts/ai-test.ts",
     "ai:test:ceseda": "tsx scripts/ai-test-ceseda.ts",
     "seed:demo": "tsx prisma/seeds/demo-workspaces.ts",
