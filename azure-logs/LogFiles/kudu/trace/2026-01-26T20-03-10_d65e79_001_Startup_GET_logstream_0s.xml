@@ -1,3 +1,0 @@
-<step title="Startup Request" date="2026-01-26T20:03:10.974" instance="d65e79" url="/logstream" method="GET" type="request" pid="831,1,7" ScmType="ExternalGit" >
-  <step title="Cleanup Xml Logs" date="2026-01-26T20:03:10.979" /><!-- duration: 6ms -->
-</step><!-- duration: 17ms -->
