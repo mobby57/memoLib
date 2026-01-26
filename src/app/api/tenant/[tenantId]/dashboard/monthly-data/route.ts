@@ -1,87 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { logger } from '@/lib/logger';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: { tenantId: string } }
 ) {
+  const session = await getServerSession(authOptions);
+  
+  if (!session?.user || (session.user as any).tenantId !== params.tenantId) {
+    return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+  }
+
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-    }
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'];
+    const data = await Promise.all(
+      months.map(async (month, index) => {
+        const startDate = new Date(2024, index, 1);
+        const endDate = new Date(2024, index + 1, 0);
 
-    const user = session.user as any;
-    const { tenantId } = params;
-
-    // Vérifications d'accès
-    if (user.role === 'CLIENT') {
-      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
-    }
-
-    if (user.role === 'ADMIN' && user.tenantId !== tenantId) {
-      return NextResponse.json({ error: 'Accès interdit - Mauvais tenant' }, { status: 403 });
-    }
-
-    // Générer les 6 derniers mois
-    const monthlyData = [];
-    const now = new Date();
-    
-    for (let i = 5; i >= 0; i--) {
-      const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const nextMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-      
-      const monthName = month.toLocaleDateString('fr-FR', { month: 'short' });
-      
-      // Compter uniquement ce qui est nécessaire pour les graphiques
-      const [dossiersCount, facturesCount, revenusSum] = await Promise.all([
-        prisma.dossier.count({
-          where: {
-            tenantId,
-            createdAt: {
-              gte: month,
-              lt: nextMonth
+        const [dossiers, factures, revenus] = await Promise.all([
+          prisma.dossier.count({
+            where: {
+              tenantId: params.tenantId,
+              createdAt: { gte: startDate, lte: endDate }
             }
-          }
-        }),
-        prisma.facture.count({
-          where: {
-            tenantId,
-            createdAt: {
-              gte: month,
-              lt: nextMonth
+          }),
+          prisma.facture.count({
+            where: {
+              tenantId: params.tenantId,
+              dateEmission: { gte: startDate, lte: endDate }
             }
-          }
-        }),
-        prisma.facture.aggregate({
-          where: {
-            tenantId,
-            statut: 'payee',
-            createdAt: {
-              gte: month,
-              lt: nextMonth
-            }
-          },
-          _sum: { montant: true }
-        })
-      ]);
+          }),
+          prisma.facture.aggregate({
+            where: {
+              tenantId: params.tenantId,
+              dateEmission: { gte: startDate, lte: endDate },
+              statut: 'payee'
+            },
+            _sum: { montantTTC: true }
+          })
+        ]);
 
-      monthlyData.push({
-        month: monthName,
-        dossiers: dossiersCount,
-        factures: facturesCount,
-        revenus: revenusSum._sum.montant || 0
-      });
-    }
+        return {
+          month,
+          dossiers,
+          factures,
+          revenus: revenus._sum.montantTTC || 0
+        };
+      })
+    );
 
-    return NextResponse.json(monthlyData);
-
+    return NextResponse.json(data);
   } catch (error) {
-    logger.error('Erreur API monthly data', { error, tenantId: params.tenantId });
+    console.error('Erreur monthly-data:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

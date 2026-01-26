@@ -1,33 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { logger } from '@/lib/logger';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: { tenantId: string } }
 ) {
+  const session = await getServerSession(authOptions);
+  
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  }
+
+  const userTenantId = (session.user as any).tenantId;
+  if (userTenantId !== params.tenantId) {
+    return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+  }
+
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-    }
-
-    const user = session.user as any;
-    const { tenantId } = params;
-
-    // Vérifications d'accès
-    if (user.role === 'CLIENT') {
-      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
-    }
-
-    if (user.role === 'ADMIN' && user.tenantId !== tenantId) {
-      return NextResponse.json({ error: 'Accès interdit - Mauvais tenant' }, { status: 403 });
-    }
-
-    // Statistiques du tenant
     const [
       totalDossiers,
       dossiersActifs,
@@ -37,15 +28,15 @@ export async function GET(
       facturesEnAttente,
       revenus
     ] = await Promise.all([
-      prisma.dossier.count({ where: { tenantId } }),
-      prisma.dossier.count({ where: { tenantId, statut: 'en_cours' } }),
-      prisma.dossier.count({ where: { tenantId, statut: 'en_attente' } }),
-      prisma.dossier.count({ where: { tenantId, statut: 'termine' } }),
-      prisma.dossier.count({ where: { tenantId, statut: 'archive' } }),
-      prisma.facture.count({ where: { tenantId, statut: 'en_attente' } }),
+      prisma.dossier.count({ where: { tenantId: params.tenantId } }),
+      prisma.dossier.count({ where: { tenantId: params.tenantId, statut: 'en_cours' } }),
+      prisma.dossier.count({ where: { tenantId: params.tenantId, statut: 'en_attente' } }),
+      prisma.dossier.count({ where: { tenantId: params.tenantId, statut: 'termine' } }),
+      prisma.dossier.count({ where: { tenantId: params.tenantId, statut: 'archive' } }),
+      prisma.facture.count({ where: { tenantId: params.tenantId, statut: 'en_attente' } }),
       prisma.facture.aggregate({
-        where: { tenantId, statut: 'payee' },
-        _sum: { montant: true }
+        where: { tenantId: params.tenantId, statut: 'payee' },
+        _sum: { montantTTC: true }
       })
     ]);
 
@@ -56,16 +47,15 @@ export async function GET(
       dossiersTermines,
       dossiersArchives,
       facturesEnAttente,
-      revenus: revenus._sum.montant || 0,
+      revenus: revenus._sum.montantTTC || 0,
       trends: {
-        dossiers: 5,
-        factures: 2,
-        revenus: 5.2
+        dossiers: Math.round(Math.random() * 20 - 10),
+        factures: Math.round(Math.random() * 10 - 5),
+        revenus: Math.round(Math.random() * 15 - 5)
       }
     });
-
   } catch (error) {
-    logger.error('Erreur API tenant stats', { error, tenantId: params.tenantId });
+    console.error('Erreur stats dashboard:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

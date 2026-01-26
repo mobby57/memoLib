@@ -67,6 +67,9 @@ jobs:
         env:
           CI: true
           NODE_ENV: test
+          DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
+          NEXTAUTH_SECRET: 'test-secret-key-for-ci-32chars!!'
+          NEXTAUTH_URL: 'http://localhost:3000'
         continue-on-error: true
 
       - name: 🏗️ Build Next.js
@@ -75,15 +78,21 @@ jobs:
           echo "🏗️ Building application..."
           npm run build
           
-          if [ -d ".next" ]; then
-            echo "success=true" >> $GITHUB_OUTPUT
-            echo "✅ Build successful!"
-            ls -la .next/
-          else
-            echo "success=false" >> $GITHUB_OUTPUT
-            echo "❌ Build failed - .next directory not found"
+          echo ""
+          echo "📋 Verifying build output..."
+          if [ ! -d ".next" ]; then
+            echo "❌ CRITICAL: .next directory not found"
             exit 1
           fi
+          
+          echo "✅ .next/ directory exists"
+          ls -la .next/ | head -20
+          
+          echo ""
+          echo "📊 Build size:"
+          du -sh .next/
+          
+          echo "success=true" >> $GITHUB_OUTPUT
         env:
           NEXT_TELEMETRY_DISABLED: '1'
           NODE_ENV: production
