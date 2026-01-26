@@ -1,0 +1,201 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ===== NEXT.JS / FRONTEND =====
+    {
+      "label": "Frontend: Dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/src/frontend"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "ready started server"
+        }
+      },
+      "group": "build"
+    },
+    {
+      "label": "Frontend: Build",
+      "type": "shell",
+      "command": "npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/src/frontend"
+      },
+      "group": "build",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "Frontend: Lint",
+      "type": "shell",
+      "command": "npm run lint",
+      "options": {
+        "cwd": "${workspaceFolder}/src/frontend"
+      },
+      "problemMatcher": "$eslint-stylish"
+    },
+    {
+      "label": "Frontend: Type Check",
+      "type": "shell",
+      "command": "npx tsc --noEmit",
+      "options": {
+        "cwd": "${workspaceFolder}/src/frontend"
+      },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "Frontend: Test",
+      "type": "shell",
+      "command": "npm test",
+      "options": {
+        "cwd": "${workspaceFolder}/src/frontend"
+      },
+      "group": "test"
+    },
+
+    // ===== PYTHON / BACKEND =====
+    {
+      "label": "Backend: Flask Dev",
+      "type": "shell",
+      "command": "python -m flask run --debug --port 5000",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "FLASK_APP": "app.py",
+          "FLASK_ENV": "development"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "group": "build"
+    },
+    {
+      "label": "Backend: Pytest",
+      "type": "shell",
+      "command": "python -m pytest -v --tb=short",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Lint (flake8)",
+      "type": "shell",
+      "command": "python -m flake8 .",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+
+    // ===== FULL STACK =====
+    {
+      "label": "Full Stack: Start All",
+      "dependsOn": ["Frontend: Dev", "Backend: Flask Dev"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Full Stack: Lint All",
+      "dependsOn": ["Frontend: Lint", "Backend: Lint (flake8)"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    },
+    {
+      "label": "Full Stack: Test All",
+      "dependsOn": ["Frontend: Test", "Backend: Pytest"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+
+    // ===== PRE-COMMIT / CI CHECK =====
+    {
+      "label": "Pre-Commit: Full Check",
+      "type": "shell",
+      "command": "npm run lint && npx tsc --noEmit && npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/src/frontend"
+      },
+      "problemMatcher": ["$tsc", "$eslint-stylish"]
+    },
+
+    // ===== DOCKER =====
+    {
+      "type": "docker-build",
+      "label": "docker-build",
+      "platform": "node",
+      "dockerBuild": {
+        "dockerfile": "${workspaceFolder}/src/backend/Dockerfile",
+        "context": "${workspaceFolder}/src/backend",
+        "pull": true
+      },
+      "node": {
+        "package": "${workspaceFolder}/src/backend/package.json"
+      }
+    },
+    {
+      "type": "docker-run",
+      "label": "docker-run: release",
+      "dependsOn": ["docker-build"],
+      "platform": "node",
+      "node": {
+        "package": "${workspaceFolder}/src/backend/package.json"
+      }
+    },
+    {
+      "type": "docker-run",
+      "label": "docker-run: debug",
+      "dependsOn": ["docker-build"],
+      "dockerRun": {
+        "env": {
+          "DEBUG": "*",
+          "NODE_ENV": "development"
+        }
+      },
+      "node": {
+        "package": "${workspaceFolder}/src/backend/package.json",
+        "enableDebugging": true
+      }
+    },
+
+    // ===== UTILITAIRES =====
+    {
+      "label": "Install: All Dependencies",
+      "type": "shell",
+      "command": "cd src/frontend && npm install && cd ../.. && pip install -r requirements.txt",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean: Build Artifacts",
+      "type": "shell",
+      "command": "rm -rf src/frontend/.next src/frontend/out __pycache__ .pytest_cache coverage",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
