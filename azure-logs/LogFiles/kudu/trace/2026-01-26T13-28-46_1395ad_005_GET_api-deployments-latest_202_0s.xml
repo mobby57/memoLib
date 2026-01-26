@@ -1,0 +1,8 @@
+<step title="Incoming Request" date="2026-01-26T13:28:46.998" instance="1395ad" url="/api/deployments/latest?deployer=OneDeploy&amp;time=2026-01-26_13-28-46Z" method="GET" type="request" pid="831,1,17" Host="iapostemanager-app.scm.azurewebsites.net" User-Agent="GITHUBACTIONS_DeployWebAppToAzure_a8c58f0552325ea3696ebede1fd68b5a44eb522b46a983af5286a10de2635278" Authorization="Bea..." Content-Type="application/json; charset=utf-8" Cookie="ARRAffinity=1395ad1ed709ad12a07cd1210dcc56f73cf1aec53db200adb6222159061ec345;Path=/;HttpOnly;Secure;Domain=iapostemanager-app.scm.azurewebsites.net; ARRAffinitySameSite=1395ad1ed709ad12a07cd1210dcc56f73cf1aec53db200adb6222159061ec345;Path=/;HttpOnly;SameSite=None;Secure;Domain=iapostemanager-app.scm.azurewebsites.net" Content-Length="0" X-ARR-LOG-ID="68338dd4-f968-4ea4-879a-cbeddb73799d" CLIENT-IP="135.232.224.98:64448" X-SITE-DEPLOYMENT-ID="iapostemanager-app" WAS-DEFAULT-HOSTNAME="iapostemanager-app.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/deployments/latest?deployer=OneDeploy&amp;time=2026-01-26_13-28-46Z" X-Client-IP="135.232.224.98" X-Client-Port="64448" >
+  <step title="DeploymentService.GetResult" date="2026-01-26T13:28:47.055" >
+    <step title="DeploymentService.GetLatestDeployment" date="2026-01-26T13:28:47.058" >
+      <step title="DeploymentManager.GetResults" date="2026-01-26T13:28:47.062" /><!-- duration: 281ms -->
+    </step><!-- duration: 292ms -->
+  </step><!-- duration: 300ms -->
+  <step title="Outgoing response" date="2026-01-26T13:28:47.370" type="response" statusCode="202" statusText="Accepted" /><!-- duration: 3ms -->
+</step><!-- duration: 378ms -->
