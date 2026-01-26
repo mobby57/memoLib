@@ -1,120 +1,112 @@
-# Démarrer Backend Python FastAPI
+# Demarrer Backend Python FastAPI
 # Version: 1.0
-# Date: 19 janvier 2026
 
-Write-Host @"
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   🚀 DÉMARRAGE BACKEND PYTHON - IA POSTE MANAGER           ║
-║                                                              ║
-║   FastAPI + Uvicorn + Ollama                                ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
-"@ -ForegroundColor Cyan
+Write-Output "=============================================="
+Write-Output "  DEMARRAGE BACKEND PYTHON - IA POSTE MANAGER"
+Write-Output "  FastAPI + Uvicorn + Ollama"
+Write-Output "=============================================="
 
-# Vérifier environnement Conda
-Write-Host "`n[1/4] 🔍 Vérification environnement Conda..." -ForegroundColor Yellow
+# Verifier environnement Conda
+Write-Output ""
+Write-Output "[1/4] Verification environnement Conda..."
 try {
     $envExists = conda env list | Select-String "iapostemanager"
     if (-not $envExists) {
-        Write-Host "  ❌ Environnement 'iapostemanager' non trouvé!" -ForegroundColor Red
-        Write-Host "  💡 Exécutez d'abord: .\setup-conda.ps1" -ForegroundColor Yellow
+        Write-Output "  [ERREUR] Environnement 'iapostemanager' non trouve!"
+        Write-Output "  [INFO] Executez d'abord: .\setup-conda.ps1"
         pause
         exit 1
     }
-    Write-Host "  ✅ Environnement trouvé" -ForegroundColor Green
+    Write-Output "  [OK] Environnement trouve"
 } catch {
-    Write-Host "  ❌ Conda non installé!" -ForegroundColor Red
-    Write-Host "  💡 Installez Conda puis exécutez: .\setup-conda.ps1" -ForegroundColor Yellow
+    Write-Output "  [ERREUR] Conda non installe!"
+    Write-Output "  [INFO] Installez Conda puis executez: .\setup-conda.ps1"
     pause
     exit 1
 }
 
 # Activer environnement
-Write-Host "`n[2/4] 🐍 Activation environnement..." -ForegroundColor Yellow
+Write-Output ""
+Write-Output "[2/4] Activation environnement..."
 conda activate iapostemanager
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "  ❌ Erreur activation environnement" -ForegroundColor Red
+    Write-Output "  [ERREUR] Erreur activation environnement"
     pause
     exit 1
 }
-Write-Host "  ✅ Environnement activé" -ForegroundColor Green
+Write-Output "  [OK] Environnement active"
 
-# Vérifier Ollama (optionnel)
-Write-Host "`n[3/4] 🤖 Vérification Ollama..." -ForegroundColor Yellow
+# Verifier Ollama (optionnel)
+Write-Output ""
+Write-Output "[3/4] Verification Ollama..."
 try {
     $ollamaStatus = Invoke-RestMethod -Uri "http://localhost:11434" -ErrorAction SilentlyContinue
-    Write-Host "  ✅ Ollama actif sur http://localhost:11434" -ForegroundColor Green
+    Write-Output "  [OK] Ollama actif sur http://localhost:11434"
 } catch {
-    Write-Host "  ⚠️  Ollama non accessible (optionnel)" -ForegroundColor Yellow
-    Write-Host "  💡 Pour activer IA locale: ollama serve" -ForegroundColor Cyan
+    Write-Output "  [WARN] Ollama non accessible (optionnel)"
+    Write-Output "  [INFO] Pour activer IA locale: ollama serve"
 }
 
-# Choisir backend à lancer
-Write-Host "`n[4/4] 🎯 Sélection backend:" -ForegroundColor Yellow
-Write-Host "  1️⃣  FastAPI Principal (src/backend/main.py) - Recommandé" -ForegroundColor Cyan
-Write-Host "  2️⃣  Flask Simple (backend-python/app.py)" -ForegroundColor Cyan
-Write-Host "  3️⃣  FastAPI Simple (src/backend/main_simple.py)" -ForegroundColor Cyan
-Write-Host "  4️⃣  Production (Gunicorn + Uvicorn workers)" -ForegroundColor Cyan
+# Choisir backend a lancer
+Write-Output ""
+Write-Output "[4/4] Selection backend:"
+Write-Output "  1. FastAPI Principal (src/backend/main.py) - Recommande"
+Write-Output "  2. Flask Simple (backend-python/app.py)"
+Write-Output "  3. FastAPI Simple (src/backend/main_simple.py)"
+Write-Output "  4. Production (Gunicorn + Uvicorn workers)"
 
-$choice = Read-Host "`n  Votre choix (1-4, défaut: 1)"
+$choice = Read-Host "  Votre choix (1-4, defaut: 1)"
 if ([string]::IsNullOrWhiteSpace($choice)) { $choice = "1" }
 
-Write-Host ""
+Write-Output ""
 
 switch ($choice) {
     "1" {
         # FastAPI Principal
-        Write-Host "🔥 Lancement FastAPI Principal..." -ForegroundColor Green
-        Write-Host ""
-        Write-Host "  📡 API: http://localhost:8000" -ForegroundColor Cyan
-        Write-Host "  📚 Docs: http://localhost:8000/docs" -ForegroundColor Cyan
-        Write-Host "  🔄 Mode reload activé" -ForegroundColor Yellow
-        Write-Host "  ⚡ Modifications auto-rechargées" -ForegroundColor Yellow
-        Write-Host ""
+        Write-Output "[INFO] Lancement FastAPI Principal..."
+        Write-Output ""
+        Write-Output "  API: http://localhost:8000"
+        Write-Output "  Docs: http://localhost:8000/docs"
+        Write-Output "  Mode reload active"
+        Write-Output ""
         
         Set-Location -Path "src\backend"
         uvicorn main:app --reload --host 0.0.0.0 --port 8000 --log-level info
     }
     "2" {
         # Flask Simple
-        Write-Host "🔥 Lancement Flask Simple..." -ForegroundColor Green
-        Write-Host ""
-        Write-Host "  📡 API: http://localhost:5000" -ForegroundColor Cyan
-        Write-Host "  🔄 Mode debug activé" -ForegroundColor Yellow
-        Write-Host ""
+        Write-Output "[INFO] Lancement Flask Simple..."
+        Write-Output ""
+        Write-Output "  URL: http://localhost:5000"
+        Write-Output ""
         
         Set-Location -Path "backend-python"
-        $env:FLASK_APP = "app.py"
-        $env:FLASK_ENV = "development"
         python app.py
     }
     "3" {
         # FastAPI Simple
-        Write-Host "🔥 Lancement FastAPI Simple..." -ForegroundColor Green
-        Write-Host ""
-        Write-Host "  📡 API: http://localhost:8000" -ForegroundColor Cyan
-        Write-Host "  📚 Docs: http://localhost:8000/docs" -ForegroundColor Cyan
-        Write-Host ""
+        Write-Output "[INFO] Lancement FastAPI Simple..."
+        Write-Output ""
+        Write-Output "  API: http://localhost:8000"
+        Write-Output ""
         
         Set-Location -Path "src\backend"
         uvicorn main_simple:app --reload --host 0.0.0.0 --port 8000
     }
     "4" {
-        # Production avec Gunicorn
-        Write-Host "🔥 Lancement Production (Gunicorn)..." -ForegroundColor Green
-        Write-Host ""
-        Write-Host "  📡 API: http://localhost:8000" -ForegroundColor Cyan
-        Write-Host "  👷 Workers: 4" -ForegroundColor Yellow
-        Write-Host "  ⚙️  Worker class: Uvicorn" -ForegroundColor Yellow
-        Write-Host ""
+        # Production
+        Write-Output "[INFO] Lancement en mode Production..."
+        Write-Output ""
+        Write-Output "  Workers: 4"
+        Write-Output "  Port: 8000"
+        Write-Output ""
         
         Set-Location -Path "src\backend"
-        gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --log-level info
+        gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
     }
     default {
-        Write-Host "❌ Choix invalide" -ForegroundColor Red
-        pause
-        exit 1
+        Write-Output "[ERREUR] Choix invalide. Lancement FastAPI par defaut..."
+        Set-Location -Path "src\backend"
+        uvicorn main:app --reload --host 0.0.0.0 --port 8000
     }
 }
