@@ -36,6 +36,7 @@ const prismaClientConfig = {
 const globalForPrisma = global as unknown as { 
   prisma: PrismaClient;
   prismaMetrics: QueryMetrics[];
+  optimized: boolean;
 };
 
 export const prisma = globalForPrisma.prisma || new PrismaClient(prismaClientConfig);
@@ -50,6 +51,9 @@ if (process.env.NODE_ENV !== 'production') {
 // ============================================
 
 async function optimizeDatabase() {
+  // Skip si déjà optimisé ou en mode Azure SWA warm-up
+  if (globalForPrisma.optimized) return;
+  
   try {
     // Detecter le type de base de donnees
     const databaseUrl = process.env.DATABASE_URL || '';
@@ -73,6 +77,8 @@ async function optimizeDatabase() {
         console.log(' PostgreSQL connection ready');
       }
     }
+    
+    globalForPrisma.optimized = true;
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
       console.warn('️  Could not apply database optimizations:', error);
@@ -80,8 +86,13 @@ async function optimizeDatabase() {
   }
 }
 
-// Appliquer les optimisations au demarrage
-optimizeDatabase();
+// ⚠️ NE PAS appeler optimizeDatabase() au démarrage - lazy loading
+// Les optimisations seront appliquées à la première requête via ensureDbOptimized()
+export async function ensureDbOptimized() {
+  if (!globalForPrisma.optimized) {
+    await optimizeDatabase();
+  }
+}
 
 // ============================================
 //  LOGGING AVANCe AVEC METRICS
