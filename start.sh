@@ -1,76 +1,24 @@
 #!/bin/bash
+# IA Poste Manager v2.3 - Start Script for Linux/Mac
+# Equivalent to START.bat
 
-# IA Poste Manager - Auto Setup Script
-# Compatible Linux/macOS
+echo "Starting IA Poste Manager v2.3..."
 
-set -e
-
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Functions
-log() {
-    echo -e "${BLUE}[$(date +'%H:%M:%S')] $1${NC}"
-}
-
-success() {
-    echo -e "${GREEN}✅ $1${NC}"
-}
-
-error() {
-    echo -e "${RED}❌ $1${NC}"
-    exit 1
-}
-
-warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
-}
-
-# Banner
-echo -e "${GREEN}"
-cat << "EOF"
- ██╗ █████╗     ██████╗  ██████╗ ███████╗████████╗███████╗
- ██║██╔══██╗    ██╔══██╗██╔═══██╗██╔════╝╚══██╔══╝██╔════╝
- ██║███████║    ██████╔╝██║   ██║███████╗   ██║   █████╗  
- ██║██╔══██║    ██╔═══╝ ██║   ██║╚════██║   ██║   ██╔══╝  
- ██║██║  ██║    ██║     ╚██████╔╝███████║   ██║   ███████╗
- ╚═╝╚═╝  ╚═╝    ╚═╝      ╚═════╝ ╚══════╝   ╚═╝   ╚══════╝
-
-                    MANAGER - Auto Setup
-EOF
-echo -e "${NC}"
-
-# Check requirements
-log "Vérification des prérequis..."
-
-if ! command -v node &> /dev/null; then
-    error "Node.js non trouvé. Installez depuis https://nodejs.org"
+# Create virtual environment if it doesn't exist
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
 fi
 
-if ! command -v npm &> /dev/null; then
-    error "npm non trouvé. Réinstallez Node.js"
-fi
+echo "Activating virtual environment..."
+source venv/bin/activate
 
-success "Node.js $(node --version) détecté"
-success "npm $(npm --version) détecté"
-
-# Make scripts executable
-chmod +x auto-setup.js 2>/dev/null || true
-
-# Run auto-setup
-log "🚀 Démarrage de l'auto-configuration..."
-echo
-
-if node auto-setup.js; then
-    echo
-    success "Configuration terminée avec succès!"
-    echo
-    echo -e "${BLUE}📖 Consultez SECURITY_AUDIT_REPORT.md pour les détails de sécurité${NC}"
-    echo
+echo "Installing dependencies..."
+if [ -f "requirements.txt" ]; then
+    pip install -r requirements.txt
 else
-    error "Erreur lors de la configuration"
+    echo "Warning: requirements.txt not found, skipping dependency installation"
 fi
+
+echo "Starting Flask server..."
+python3 app.py
