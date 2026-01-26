@@ -1,0 +1,59 @@
+# =============================================================================
+# IA Poste Manager - Docker Compose (Development)
+# =============================================================================
+# Hot-reload enabled for local development
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up
+#   docker compose -f docker-compose.dev.yml up --build  # Rebuild images
+# =============================================================================
+
+version: '3.9'
+
+services:
+  # ===========================================================================
+  # AI Service - Python FastAPI (Development with hot-reload)
+  # ===========================================================================
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+      target: production
+    container_name: iapm-ai-service-dev
+    ports:
+      - '8000:8000'
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LOG_LEVEL=DEBUG
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      # Mount source code for hot-reload
+      - ./ai-service/app:/app/app:ro
+      - ai-uploads-dev:/app/uploads
+    command:
+      ['python', '-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000', '--reload']
+    depends_on:
+      - redis
+    networks:
+      - iapm-dev-network
+
+  # ===========================================================================
+  # Redis - Caching
+  # ===========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: iapm-redis-dev
+    ports:
+      - '6379:6379'
+    networks:
+      - iapm-dev-network
+
+volumes:
+  ai-uploads-dev:
+    driver: local
+
+networks:
+  iapm-dev-network:
+    driver: bridge
