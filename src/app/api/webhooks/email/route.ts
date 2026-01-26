@@ -1,50 +1,42 @@
-﻿/**
- * API Route - Webhook Email Entrant (simplifie)
- * POST /api/webhooks/email - Recoit un email via webhook
- */
-
 import { NextRequest, NextResponse } from 'next/server';
+import { emailMonitor } from '@/lib/email/email-monitor-service';
 
-export async function POST(request: NextRequest) {
+// Webhook pour recevoir les emails (ex: depuis Resend, SendGrid, etc.)
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    const { from, to, subject, body: emailBody, messageId } = body;
-
-    if (!from || !to || !subject) {
-      return NextResponse.json(
-        { error: 'from, to et subject sont requis' },
-        { status: 400 }
-      );
+    const body = await req.json();
+    
+    // Vérifier le secret webhook
+    const webhookSecret = req.headers.get('x-webhook-secret');
+    if (webhookSecret !== process.env.EMAIL_WEBHOOK_SECRET) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Log pour debug
-    console.log('[WEBHOOK EMAIL]', { from, to, subject, messageId });
+    // Extraire les données selon le provider
+    const { tenantId, rawEmail, from, subject, text } = body;
+
+    if (!tenantId) {
+      return NextResponse.json({ error: 'tenantId required' }, { status: 400 });
+    }
+
+    // Traiter l'email
+    const result = await emailMonitor.processEmail(tenantId, rawEmail || text);
 
     return NextResponse.json({
       success: true,
-      message: 'Email recu',
-      data: {
-        from,
-        to,
-        subject,
-        receivedAt: new Date().toISOString()
-      }
+      ...result,
+      message: result.action === 'created' 
+        ? `Nouveau dossier ${result.dossierId} créé`
+        : result.action === 'linked'
+        ? `Email lié au dossier ${result.dossierId}`
+        : 'Email enregistré, action manuelle requise'
     });
-  } catch (error) {
-    console.error('[WEBHOOK EMAIL ERROR]', error);
-    return NextResponse.json(
-      { error: 'Erreur lors du traitement de l\'email' },
-      { status: 500 }
-    );
-  }
-}
 
-export async function GET() {
-  return NextResponse.json({
-    endpoint: '/api/webhooks/email',
-    method: 'POST',
-    description: 'Webhook pour recevoir les emails entrants',
-    requiredFields: ['from', 'to', 'subject'],
-    optionalFields: ['body', 'messageId', 'attachments']
-  });
+  } catch (error) {
+    console.error('Erreur webhook email:', error);
+    return NextResponse.json({ 
+      error: 'Internal error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
 }

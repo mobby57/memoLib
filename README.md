@@ -1,0 +1,198 @@
+# 🚀 IA POSTE MANAGER
+
+> **Plateforme SaaS multi-canal pour cabinets d'avocats** — Gestion intelligente des communications clients (Email, WhatsApp, SMS, Voice, Slack, Teams...)
+
+[![CI/CD](https://github.com/mobby57/iapostemanager/workflows/Production%20CI/CD/badge.svg)](https://github.com/mobby57/iapostemanager/actions)
+[![Coverage](https://img.shields.io/badge/coverage-0%25-red)](https://github.com/mobby57/iapostemanager)
+[![License](https://img.shields.io/badge/license-Proprietary-blue)](./LICENSE)
+
+---
+
+## 📋 Vue d'ensemble
+
+**IA Poste Manager** centralise tous les canaux de communication d'un cabinet d'avocats :
+- ✅ **12 canaux** : Email, WhatsApp, SMS, Voice, Slack, Teams, LinkedIn, Twitter, Forms, Documents, Declan, Internal
+- ✅ **Traitement IA** : Résumé automatique, catégorisation, détection d'urgence, extraction d'entités
+- ✅ **Auto-linking** : Association automatique client/dossier par email/téléphone
+- ✅ **Audit RGPD** : Trail immutable, consentements, export/suppression données
+- ✅ **Alertes temps réel** : WebSocket, notifications urgentes, escalade
+
+---
+
+## 🏗️ Architecture
+
+```
+Canaux externes → Webhooks → MultiChannelService → [IA + Audit + Notifications] → PostgreSQL → Dashboard
+```
+
+**Stack technique :**
+- **Frontend :** Next.js 14 (App Router), React, TailwindCSS
+- **Backend :** Next.js API Routes, Prisma ORM
+- **Base de données :** PostgreSQL (Azure/Vercel)
+- **IA :** OpenAI GPT-4, Azure OpenAI
+- **Déploiement :** Vercel (frontend), Azure (services)
+- **CI/CD :** GitHub Actions
+
+---
+
+## 🚀 Démarrage rapide
+
+### Prérequis
+
+```bash
+Node.js 20+
+PostgreSQL 15+
+npm ou pnpm
+```
+
+### Installation
+
+```bash
+# Cloner le repo
+git clone https://github.com/mobby57/iapostemanager.git
+cd iapostemanager
+
+# Installer les dépendances
+npm install
+
+# Configurer les variables d'environnement
+cp .env.example .env.local
+# Éditer .env.local avec vos valeurs
+
+# Migrer la base de données
+npx prisma migrate deploy
+npx prisma generate
+
+# Démarrer en dev
+npm run dev
+```
+
+Ouvrir [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 📡 Configuration des canaux
+
+### Email
+
+```env
+RESEND_API_KEY=re_...
+EMAIL_FROM=noreply@iapostemanager.com
+```
+
+### WhatsApp
+
+```env
+WHATSAPP_ACCESS_TOKEN=EAAxxxxx
+WHATSAPP_VERIFY_TOKEN=your-token
+WHATSAPP_PHONE_NUMBER_ID=123456789
+```
+
+### SMS/Voice (Twilio)
+
+```env
+TWILIO_ACCOUNT_SID=ACxxxxx
+TWILIO_AUTH_TOKEN=xxxxx
+```
+
+### Slack
+
+```env
+SLACK_BOT_TOKEN=xoxb-xxxxx
+SLACK_SIGNING_SECRET=xxxxx
+```
+
+### Teams
+
+```env
+TEAMS_APP_ID=xxxxx
+TEAMS_APP_SECRET=xxxxx
+```
+
+---
+
+## 🧪 Tests
+
+```bash
+# Tests unitaires
+npm test
+
+# Tests avec coverage
+npm run test:coverage
+
+# Tests E2E
+npm run test:e2e
+
+# Tests d'intégration
+npm run test:integration
+```
+
+---
+
+## 📚 Documentation
+
+- [Architecture système complète](./docs/SYSTEM_ARCHITECTURE_REAL.md)
+- [Diagrammes Mermaid](./docs/SYSTEM_DIAGRAMS.md)
+- [Guide de test rapide](./docs/QUICK_TEST_GUIDE.md)
+- [Plan d'action immédiat](./docs/ACTION_PLAN_IMMEDIATE.md)
+- [Système multi-canal](./docs/MULTICHANNEL_SYSTEM.md)
+
+---
+
+## 🔐 Sécurité
+
+- ✅ Validation signature webhooks (HMAC-SHA256, JWT)
+- ✅ Secrets dans Azure Key Vault
+- ✅ Audit trail immutable (chaînage cryptographique)
+- ✅ Conformité RGPD (consentements, export, suppression)
+- ✅ Chiffrement E2E des données sensibles
+
+---
+
+## 🚀 Déploiement
+
+### Production (Vercel)
+
+```bash
+# Déploiement automatique via GitHub
+git push origin main
+
+# Ou déploiement manuel
+npx vercel --prod
+```
+
+### Azure (optionnel)
+
+```bash
+# Via GitHub Actions
+# Workflow: .github/workflows/azure-deploy.yml
+```
+
+---
+
+## 📊 Monitoring
+
+- **Vercel Dashboard** : Métriques temps réel
+- **Logs** : `vercel logs --follow`
+- **Health check** : `GET /api/health`
+- **Stats canaux** : `GET /api/multichannel/stats`
+
+---
+
+## 🤝 Contribution
+
+Ce projet est **propriétaire**. Contributions internes uniquement.
+
+---
+
+## 📞 Support
+
+- 📧 Email : support@iapostemanager.com
+- 📚 Docs : https://docs.iapostemanager.com
+- 🐛 Issues : https://github.com/mobby57/iapostemanager/issues
+
+---
+
+## 📄 Licence
+
+Propriétaire © 2026 IA Poste Manager

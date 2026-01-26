@@ -1,114 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { logger } from '@/lib/logger';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: { tenantId: string } }
 ) {
+  const session = await getServerSession(authOptions);
+  
+  if (!session?.user || (session.user as any).tenantId !== params.tenantId) {
+    return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+  }
+
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-    }
+    const [recentDossiers, recentFactures, recentClients] = await Promise.all([
+      prisma.dossier.findMany({
+        where: { tenantId: params.tenantId },
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+        select: { id: true, numero: true, typeDossier: true, createdAt: true, statut: true }
+      }),
+      prisma.facture.findMany({
+        where: { tenantId: params.tenantId },
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+        select: { id: true, numero: true, montantTTC: true, createdAt: true, statut: true }
+      }),
+      prisma.client.findMany({
+        where: { tenantId: params.tenantId },
+        orderBy: { createdAt: 'desc' },
+        take: 2,
+        select: { id: true, firstName: true, lastName: true, createdAt: true }
+      })
+    ]);
 
-    const user = session.user as any;
-    const { tenantId } = params;
+    const activities = [
+      ...recentDossiers.map(d => ({
+        id: d.id,
+        type: 'dossier' as const,
+        title: `Dossier ${d.numero} - ${d.typeDossier}`,
+        date: d.createdAt.toISOString(),
+        status: d.statut === 'en_cours' ? 'info' as const : 'success' as const
+      })),
+      ...recentFactures.map(f => ({
+        id: f.id,
+        type: 'facture' as const,
+        title: `Facture ${f.numero} - ${f.montantTTC}€`,
+        date: f.createdAt.toISOString(),
+        status: f.statut === 'payee' ? 'success' as const : 'warning' as const
+      })),
+      ...recentClients.map(c => ({
+        id: c.id,
+        type: 'client' as const,
+        title: `Nouveau client: ${c.firstName} ${c.lastName}`,
+        date: c.createdAt.toISOString(),
+        status: 'info' as const
+      }))
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 8);
 
-    // Vérifications d'accès
-    if (user.role === 'CLIENT') {
-      return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
-    }
-
-    if (user.role === 'ADMIN' && user.tenantId !== tenantId) {
-      return NextResponse.json({ error: 'Accès interdit - Mauvais tenant' }, { status: 403 });
-    }
-
-    // LIMITE: Seulement 5 dernières activités de chaque type
-    const LIMIT = 5;
-    const activities: any[] = [];
-
-    // 5 derniers dossiers (au lieu de tous)
-    const recentDossiers = await prisma.dossier.findMany({
-      where: { tenantId },
-      orderBy: { createdAt: 'desc' },
-      take: LIMIT,
-      select: {
-        id: true,
-        objet: true,
-        createdAt: true,
-        statut: true
-      }
-    });
-
-    recentDossiers.forEach(dossier => {
-      activities.push({
-        id: `dossier-${dossier.id}`,
-        type: 'dossier',
-        title: `Nouveau dossier: ${dossier.objet || 'Sans objet'}`,
-        date: dossier.createdAt.toISOString(),
-        status: dossier.statut === 'en_cours' ? 'success' : 'info'
-      });
-    });
-
-    // 5 dernières factures (au lieu de toutes)
-    const recentFactures = await prisma.facture.findMany({
-      where: { tenantId },
-      orderBy: { createdAt: 'desc' },
-      take: LIMIT,
-      select: {
-        id: true,
-        numero: true,
-        createdAt: true,
-        statut: true,
-        montant: true
-      }
-    });
-
-    recentFactures.forEach(facture => {
-      activities.push({
-        id: `facture-${facture.id}`,
-        type: 'facture',
-        title: `Facture ${facture.numero} - ${facture.montant}€`,
-        date: facture.createdAt.toISOString(),
-        status: facture.statut === 'en_retard' ? 'warning' : 'info'
-      });
-    });
-
-    // 5 derniers clients (au lieu de tous)
-    const recentClients = await prisma.client.findMany({
-      where: { tenantId },
-      orderBy: { createdAt: 'desc' },
-      take: LIMIT,
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        createdAt: true
-      }
-    });
-
-    recentClients.forEach(client => {
-      activities.push({
-        id: `client-${client.id}`,
-        type: 'client',
-        title: `Nouveau client: ${client.firstName} ${client.lastName}`,
-        date: client.createdAt.toISOString(),
-        status: 'success'
-      });
-    });
-
-    // Trier par date décroissante et limiter à 10 activités max
-    activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    const limitedActivities = activities.slice(0, 10);
-
-    return NextResponse.json(limitedActivities);
-
+    return NextResponse.json(activities);
   } catch (error) {
-    logger.error('Erreur API recent activities', { error, tenantId: params.tenantId });
+    console.error('Erreur recent-activities:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
