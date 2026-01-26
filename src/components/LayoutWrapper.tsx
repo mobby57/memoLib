@@ -6,6 +6,7 @@ import { SidebarLayoutAdjuster } from '@/components/SidebarLayoutAdjuster';
 import { GlobalCommandPalette } from '@/components/GlobalCommandPalette';
 import { CommandPalette } from '@/components/CommandPalette';
 import { ActivityMonitor } from '@/components/ActivityMonitor';
+import { SessionTimeoutMonitor } from '@/components/SessionTimeoutMonitor';
 import NotificationCenter from '@/components/NotificationCenter';
 
 interface LayoutWrapperProps {
@@ -45,6 +46,9 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
     <>
       <SidebarLayoutAdjuster />
       <Navigation />
+      
+      {/* Session Timeout Monitor - Securite inactivite 1h */}
+      <SessionTimeoutMonitor />
       
       {/* Real-time Notification Center - Fixed top-right */}
       <div className="fixed top-4 right-4 z-50">

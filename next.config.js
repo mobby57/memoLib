@@ -9,15 +9,17 @@ const isVercel = process.env.VERCEL === '1';
 const isAzure = process.env.AZURE_STATIC_WEB_APPS === 'true';
 const isAzureStaticExport = process.env.AZURE_STATIC_EXPORT === 'true';
 const isStaticExport = isAzureStaticExport; // Only enable for pure static export (no APIs)
+const isWindows = process.platform === 'win32';
 
 // 🔥 Determine output mode based on platform
 // - 'export': Azure SWA static (generates /out folder)
 // - 'standalone': Vercel, Docker, self-hosted (generates .next/standalone)
-// - undefined: Default Next.js behavior
+// - undefined: Default Next.js behavior (Windows avoids standalone due to colon issues)
 const getOutputMode = () => {
   if (isAzureStaticExport) return 'export';
   if (isVercel) return undefined; // Vercel handles this automatically
-  return 'standalone'; // Default for other platforms
+  if (isWindows && !process.env.FORCE_STANDALONE) return undefined; // Avoid Windows path issues
+  return 'standalone'; // Default for other platforms (Linux, macOS)
 };
 
 const nextConfig = {

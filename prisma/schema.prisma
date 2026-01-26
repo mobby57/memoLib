@@ -295,6 +295,10 @@ model User {
   status    String    @default("active")
   lastLogin DateTime?
 
+  // Reinitialisation de mot de passe
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
   language String @default("fr")
   timezone String @default("Europe/Paris")
 
