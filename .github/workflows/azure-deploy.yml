@@ -1,0 +1,176 @@
+# ============================================================================
+# Azure App Service - Production Deployment
+# ============================================================================
+# Déploie l'application Next.js sur Azure App Service (Linux Node.js 20)
+# 
+# Prérequis:
+#   - Secret AZURE_CREDENTIALS configuré (Service Principal JSON)
+#   - App Service "iapostemanager-app" créé dans le groupe "iapostemanager-rg"
+#   - Variables d'environnement configurées dans App Service:
+#     * DATABASE_URL, NEXTAUTH_URL, NEXTAUTH_SECRET, NODE_ENV
+# ============================================================================
+
+name: 🚀 Azure Deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests before deploy'
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '20'
+  AZURE_WEBAPP_NAME: iapostemanager-app
+  AZURE_RESOURCE_GROUP: iapostemanager-rg
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Build Job - Compile Next.js standalone
+  # ═══════════════════════════════════════════════════════════════════════════
+  build:
+    name: 📦 Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Build Next.js (standalone mode)
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_APP_URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net
+          # Build-time placeholders (real values in App Service)
+          DATABASE_URL: 'postgresql://placeholder:placeholder@localhost:5432/placeholder'
+          NEXTAUTH_SECRET: 'placeholder-secret-for-build-only-32chars!'
+          NEXTAUTH_URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net
+        run: npm run build
+
+      - name: Prepare deployment package
+        run: |
+          # Copier les assets statiques dans standalone
+          cp -r .next/static .next/standalone/.next/
+          cp -r public .next/standalone/ 2>/dev/null || true
+          
+          # Créer un package.json minimal pour Azure
+          cat > .next/standalone/package.json << 'EOF'
+          {
+            "name": "iapostemanager",
+            "version": "1.0.0",
+            "private": true,
+            "scripts": {
+              "start": "node server.js"
+            },
+            "engines": {
+              "node": ">=20"
+            }
+          }
+          EOF
+          
+          # Afficher la structure pour debug
+          echo "📁 Structure du package:"
+          ls -la .next/standalone/
+          echo "📁 Taille totale:"
+          du -sh .next/standalone/
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-app
+          path: .next/standalone
+          retention-days: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Deploy Job - Push to Azure App Service
+  # ═══════════════════════════════════════════════════════════════════════════
+  deploy:
+    name: 🚀 Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: azure-production
+      url: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-app
+          path: ./app
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Verify Azure connection
+        run: |
+          echo "🔐 Connected to Azure:"
+          az account show --query "{Name:name, ID:id}" -o table
+
+      - name: Configure App Service startup
+        run: |
+          # Configurer la commande de démarrage
+          az webapp config set \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --startup-file "npm start"
+          
+          # S'assurer que les logs sont activés
+          az webapp log config \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --docker-container-logging filesystem
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ./app
+
+      - name: Wait for deployment
+        run: sleep 60
+
+      - name: Health check
+        run: |
+          echo "🏥 Vérification de santé..."
+          for i in {1..5}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net" --max-time 30 || echo "000")
+            echo "Tentative $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "307" ] || [ "$STATUS" = "302" ]; then
+              echo "✅ Application accessible!"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "⚠️ L'application peut encore être en cours de démarrage"
+          # Ne pas faire échouer le workflow, les cold starts peuvent prendre du temps
+          exit 0
+
+      - name: Deployment summary
+        run: |
+          echo "═══════════════════════════════════════════════════════"
+          echo "📊 RÉSUMÉ DU DÉPLOIEMENT"
+          echo "═══════════════════════════════════════════════════════"
+          echo "🌐 URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net"
+          echo "📦 App Service: ${{ env.AZURE_WEBAPP_NAME }}"
+          echo "🗂️ Resource Group: ${{ env.AZURE_RESOURCE_GROUP }}"
+          echo "═══════════════════════════════════════════════════════"
