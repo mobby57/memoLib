@@ -153,11 +153,11 @@ describe('Collaboration Service', () => {
       userId: string
     ): Record<string, string[]> => {
       const updated = { ...reactions };
-      if (!updated) {
-        updated = [];
+      if (!updated[emoji]) {
+        updated[emoji] = [];
       }
-      if (!updated.includes(userId)) {
-        updated.push(userId);
+      if (!updated[emoji].includes(userId)) {
+        updated[emoji].push(userId);
       }
       return updated;
     };
@@ -168,10 +168,10 @@ describe('Collaboration Service', () => {
       userId: string
     ): Record<string, string[]> => {
       const updated = { ...reactions };
-      if (updated) {
-        updated = updated.filter(id => id !== userId);
-        if (updated.length === 0) {
-          delete updated;
+      if (updated[emoji]) {
+        updated[emoji] = updated[emoji].filter(id => id !== userId);
+        if (updated[emoji].length === 0) {
+          delete updated[emoji];
         }
       }
       return updated;
