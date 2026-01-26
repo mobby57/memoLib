@@ -22,15 +22,8 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
 
   // ===== ESLINT =====
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
-  "eslint.workingDirectories": [
-    { "directory": "./src/frontend", "changeProcessCWD": true }
-  ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+  "eslint.workingDirectories": [{ "directory": "./src/frontend", "changeProcessCWD": true }],
 
   // ===== PRETTIER =====
   "[javascript]": {
@@ -105,9 +98,7 @@
   "git.enableSmartCommit": true,
 
   // ===== TAILWIND CSS =====
-  "tailwindCSS.experimental.classRegex": [
-    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
-  ],
+  "tailwindCSS.experimental.classRegex": [["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]],
 
   // ===== PERFORMANCE =====
   "files.watcherExclude": {
@@ -119,5 +110,6 @@
   },
 
   // ===== DOCKER =====
-  "docker.showStartPage": false
+  "docker.showStartPage": false,
+  "python-envs.pythonProjects": []
 }

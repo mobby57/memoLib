@@ -95,7 +95,7 @@ async def health_check():
         'ai': 'healthy' if ai_service.provider else 'unavailable',
         'voice': 'healthy' if voice_service.tts_engine else 'unavailable'
     }
-    
+
     return HealthResponse(
         status="healthy",
         version="2.3.0",
@@ -116,7 +116,7 @@ async def send_email(
             ai_result = await ai_service.enhance_email(content)
             if not ai_result.get('error'):
                 content = ai_result['content']
-        
+
         # Envoi de l'email
         result = await email_service.send_email(
             to=email.to,
@@ -125,7 +125,7 @@ async def send_email(
             provider=email.provider,
             attachments=email.attachments
         )
-        
+
         return EmailResponse(
             id=result['message_id'],
             status=result['status'],
@@ -133,7 +133,7 @@ async def send_email(
             provider=email.provider,
             message_id=result['message_id']
         )
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -156,10 +156,10 @@ async def generate_content(
 ):
     try:
         result = await ai_service.generate_email(request.prompt, request.context)
-        
+
         if result.get('error'):
             raise HTTPException(status_code=500, detail=result.get('content', 'Erreur IA'))
-        
+
         return AIResponse(
             content=result['content'],
             tokens_used=result['tokens_used'],
@@ -167,7 +167,7 @@ async def generate_content(
             model=result['model'],
             generated_at=datetime.fromisoformat(result['generated_at'])
         )
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -213,14 +213,14 @@ async def text_to_speech(
 ):
     try:
         result = await voice_service.text_to_speech(request.text, request.save_file)
-        
+
         return VoiceResponse(
             success=result['success'],
             text=result.get('text'),
             file_path=result.get('file_path'),
             error=result.get('error')
         )
-        
+
     except Exception as e:
         return VoiceResponse(success=False, error=str(e))
 
@@ -237,17 +237,17 @@ async def speech_to_text(
             with open(temp_path, "wb") as f:
                 content = await audio_file.read()
                 f.write(content)
-            
+
             result = await voice_service.speech_to_text(temp_path)
-            
+
             # Nettoyer le fichier temporaire
             os.remove(temp_path)
         else:
             # Utiliser le microphone
             result = await voice_service.speech_to_text(timeout=timeout)
-        
+
         return result
-        
+
     except Exception as e:
         return {"success": False, "error": str(e)}
 
