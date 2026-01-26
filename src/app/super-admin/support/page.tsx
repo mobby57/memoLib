@@ -20,19 +20,20 @@ interface SupportTicket {
 }
 
 export default function SupportPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
-    if (session?.user?.role !== 'SUPER_ADMIN') {
+    if (status === 'loading') return;
+    if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
       router.push('/auth/login');
       return;
     }
     loadTickets();
-  }, [session, router]);
+  }, [session, status, router]);
 
   const loadTickets = async () => {
     try {

@@ -67,22 +67,29 @@ export default function DashboardPage() {
 
   // Redirection selon le role
   useEffect(() => {
-    if (isAuthenticated && isClient) {
+    // Attendre que la session soit chargée
+    if (isLoading) return;
+    
+    if (!isAuthenticated) {
+      window.location.href = '/auth/login';
+      return;
+    }
+    if (isClient) {
       window.location.href = '/client-dashboard';
       return;
     }
-    if (isAuthenticated && isSuperAdmin) {
+    if (isSuperAdmin) {
       window.location.href = '/super-admin';
       return;
     }
-  }, [isAuthenticated, isClient, isSuperAdmin]);
+  }, [isLoading, isAuthenticated, isClient, isSuperAdmin]);
 
   // Charger les donnees du dashboard
   useEffect(() => {
-    if (isAuthenticated && isAdmin) {
+    if (!isLoading && isAuthenticated && isAdmin) {
       loadDashboardData();
     }
-  }, [isAuthenticated, isAdmin]);
+  }, [isLoading, isAuthenticated, isAdmin]);
 
   const calculateMetrics = (statsData: any) => {
     const totalDossiers = statsData.totalDossiers || 0;
