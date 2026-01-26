@@ -1,0 +1,10 @@
+services:
+  iapostemanagerbackend:
+    image: iapostemanagerbackend
+    build:
+      context: src/backend
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
