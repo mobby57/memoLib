@@ -1,4 +1,5 @@
 ﻿/**
+import { logger } from '@/lib/logger';
  * API Route: POST /api/workspace-reasoning/create
  * Cree un nouveau workspace reasoning
  */
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Error creating workspace:', error);
+    logger.error('Error creating workspace:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

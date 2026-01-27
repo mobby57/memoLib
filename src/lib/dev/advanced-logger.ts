@@ -1,4 +1,4 @@
-﻿/**
+/**
  *  SYSTeME DE LOGGING AVANCe POUR DeVELOPPEMENT
  * Tracabilite complete, metriques temps reel, debugging IA
  */
@@ -137,7 +137,7 @@ class AdvancedLogger {
       throw error;
     } finally {
       const duration = performance.now() - startTime;
-      
+
       const metric: PerformanceMetrics = {
         category: category.toString(),
         operation,
@@ -292,9 +292,22 @@ class AdvancedLogger {
     if (this.logs.length === 0) return;
 
     try {
-      // TODO: Sauvegarder en DB ou fichier
+      // En production, envoyer à Sentry comme breadcrumbs
+      if (process.env.NODE_ENV === 'production') {
+        import('@sentry/nextjs').then((Sentry) => {
+          this.logs.slice(-50).forEach(log => {
+            Sentry.addBreadcrumb({
+              category: log.category,
+              message: log.message,
+              level: log.level === 'error' ? 'error' : 'info',
+              data: log.context,
+            });
+          });
+        }).catch(() => {});
+      }
+
       console.log(` Flush de ${this.logs.length} logs`);
-      
+
       // Garder seulement les derniers logs
       if (this.logs.length > this.maxLogsInMemory) {
         this.logs = this.logs.slice(-this.maxLogsInMemory / 2);

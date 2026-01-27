@@ -1,8 +1,9 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+﻿import { authOptions } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import fs from 'fs';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 
 interface ClientInfo {
@@ -31,7 +32,7 @@ function extractClientInfo(emailData: any): ClientInfo {
 
   // Detecter le type de demande
   const text = `${emailData.subject} ${emailData.snippet} ${emailData.body || ''}`.toLowerCase();
-  
+
   if (text.includes('titre de sejour') || text.includes('titre de sejour')) {
     info.typeDemande = 'Titre de sejour';
   } else if (text.includes('visa')) {
@@ -43,7 +44,7 @@ function extractClientInfo(emailData: any): ClientInfo {
   } else if (text.includes('oqtf') || text.includes('expulsion')) {
     info.typeDemande = 'OQTF / Expulsion';
   } else if (text.includes('asile') || text.includes('refugie')) {
-    info.typeDemande = 'Demande d\'asile';
+    info.typeDemande = "Demande d'asile";
   } else {
     info.typeDemande = 'Demande generale';
   }
@@ -58,7 +59,7 @@ function extractClientInfo(emailData: any): ClientInfo {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     // Trouver l'email dans les logs
     const emailsDir = path.join(process.cwd(), 'logs', 'emails');
     const files = fs.readdirSync(emailsDir);
-    
+
     const emailFile = files.find(file => {
       const content = fs.readFileSync(path.join(emailsDir, file), 'utf-8');
       const email = JSON.parse(content);
@@ -79,16 +80,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email non trouve' }, { status: 404 });
     }
 
-    const emailData = JSON.parse(
-      fs.readFileSync(path.join(emailsDir, emailFile), 'utf-8')
-    );
+    const emailData = JSON.parse(fs.readFileSync(path.join(emailsDir, emailFile), 'utf-8'));
 
     // Extraire les informations
     const clientInfo = extractClientInfo(emailData);
 
     // Creer ou recuperer le client
     let client = await prisma.client.findFirst({
-      where: { email: clientInfo.email }
+      where: { email: clientInfo.email },
     });
 
     if (!client) {
@@ -104,7 +103,7 @@ export async function POST(request: NextRequest) {
           codePostal: '',
           ville: '',
           userId: session.user.id,
-        }
+        },
       });
     }
 
@@ -117,7 +116,7 @@ export async function POST(request: NextRequest) {
         description: `Demande recue par email le ${new Date(emailData.date).toLocaleDateString('fr-FR')}\n\nSujet: ${emailData.subject}\n\n${emailData.snippet}`,
         dateOuverture: new Date(emailData.date),
         clientId: client.id,
-      }
+      },
     });
 
     // Si urgent, creer une echeance
@@ -129,7 +128,7 @@ export async function POST(request: NextRequest) {
           dateEcheance: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           statut: 'en_attente',
           dossierId: dossier.id,
-        }
+        },
       });
     }
 
@@ -139,12 +138,12 @@ export async function POST(request: NextRequest) {
       dossier,
       clientInfo,
     });
-
   } catch (error) {
-    console.error('Erreur lors de la creation du dossier:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
+    logger.error(
+      'Erreur lors de la creation du dossier',
+      error instanceof Error ? error : undefined,
+      { route: '/api/admin/create-dossier-from-email' }
     );
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

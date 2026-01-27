@@ -1,4 +1,5 @@
 /**
+import { logger } from '@/lib/logger';
  * API Route: POST /api/workspace-reasoning/[id]/actions/[actionId]
  * Marque une action comme exécutée
  */
@@ -87,7 +88,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Error executing action:', error);
+    logger.error('Error executing action:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

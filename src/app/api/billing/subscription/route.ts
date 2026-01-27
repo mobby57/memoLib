@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
       subscription 
     });
   } catch (error) {
-    console.error('Erreur recuperation subscription:', error);
+    logger.error('Erreur recuperation subscription:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

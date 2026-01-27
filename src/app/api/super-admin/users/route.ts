@@ -2,11 +2,12 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -22,7 +23,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    const usersWithTenantName = users.map((user) => ({
+    const usersWithTenantName = users.map(user => ({
       id: user.id,
       email: user.email,
       name: user.name,
@@ -35,10 +36,9 @@ export async function GET() {
 
     return NextResponse.json(usersWithTenantName);
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Erreur GET users', error instanceof Error ? error : undefined, {
+      route: '/api/super-admin/users',
+    });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

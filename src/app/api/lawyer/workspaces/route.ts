@@ -1,54 +1,54 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { prisma } from '@/lib/prisma'
-import { logger } from '@/lib/logger'
+﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/lawyer/workspaces - List workspaces (CESDA old + Reasoning new)
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    
+    const session = await getServerSession(authOptions);
+
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 })
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    
-    const user = session.user as any
-    const tenantId = user.tenantId
-    
+
+    const user = session.user as any;
+    const tenantId = user.tenantId;
+
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 400 })
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 400 });
     }
-    
+
     // Recuperer les parametres de filtrage
-    const { searchParams } = new URL(request.url)
-    const type = searchParams.get('type') || 'reasoning' // 'reasoning' | 'cesda'
-    const state = searchParams.get('state')
-    const locked = searchParams.get('locked')
-    const search = searchParams.get('search')
-    
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type') || 'reasoning'; // 'reasoning' | 'cesda'
+    const state = searchParams.get('state');
+    const locked = searchParams.get('locked');
+    const search = searchParams.get('search');
+
     if (type === 'reasoning') {
       // Nouveau systeme WorkspaceReasoning
-      const where: any = { tenantId }
-      
+      const where: any = { tenantId };
+
       if (state && state !== 'ALL') {
-        where.currentState = state
+        where.currentState = state;
       }
-      
+
       if (locked !== null) {
-        where.locked = locked === 'true'
+        where.locked = locked === 'true';
       }
-      
+
       if (search) {
         where.OR = [
           { id: { contains: search } },
           { sourceRaw: { contains: search } },
           { procedureType: { contains: search } },
-        ]
+        ];
       }
-      
+
       const workspaces = await prisma.workspaceReasoning.findMany({
         where,
         include: {
@@ -70,16 +70,16 @@ export async function GET(request: NextRequest) {
         },
         orderBy: { createdAt: 'desc' },
         take: 100,
-      })
-      
+      });
+
       return NextResponse.json({
         success: true,
         workspaces,
         count: workspaces.length,
         type: 'reasoning',
-      })
+      });
     }
-    
+
     // Ancien systeme Workspace CESDA (fallback)
     const oldWorkspaces = await prisma.workspace.findMany({
       where: { tenantId },
@@ -100,21 +100,19 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
       take: 100,
-    })
-    
+    });
+
     return NextResponse.json({
       success: true,
       workspaces: oldWorkspaces,
       count: oldWorkspaces.length,
       type: 'cesda',
-    })
-    
+    });
   } catch (error) {
-    console.error('Erreur recuperation workspaces:', error)
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    )
+    logger.error('Erreur recuperation workspaces', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -123,32 +121,38 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    
+    const session = await getServerSession(authOptions);
+
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 })
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const { role, tenantId, id: userId } = session.user as any
+    const { role, tenantId, id: userId } = session.user as any;
 
     if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 })
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
     }
 
-    const body = await req.json()
-    const { type = 'reasoning' } = body
-    
+    const body = await req.json();
+    const { type = 'reasoning' } = body;
+
     if (type === 'reasoning') {
       // Nouveau systeme WorkspaceReasoning
-      const { sourceType, sourceId, sourceRaw, sourceMetadata, procedureType, clientId, dossierId, emailId } = body
-      
+      const {
+        sourceType,
+        sourceId,
+        sourceRaw,
+        sourceMetadata,
+        procedureType,
+        clientId,
+        dossierId,
+        emailId,
+      } = body;
+
       if (!sourceType || !sourceRaw) {
-        return NextResponse.json(
-          { error: 'sourceType et sourceRaw requis' },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'sourceType et sourceRaw requis' }, { status: 400 });
       }
-      
+
       const workspace = await prisma.workspaceReasoning.create({
         data: {
           tenantId,
@@ -167,8 +171,8 @@ export async function POST(req: NextRequest) {
           uncertaintyLevel: 1.0,
           locked: false,
         },
-      })
-      
+      });
+
       await prisma.reasoningTransition.create({
         data: {
           workspaceId: workspace.id,
@@ -178,15 +182,15 @@ export async function POST(req: NextRequest) {
           reason: 'Creation initiale du workspace',
           metadata: JSON.stringify({ sourceType, procedureType }),
         },
-      })
-      
+      });
+
       return NextResponse.json({
         success: true,
         workspace,
         type: 'reasoning',
-      })
+      });
     }
-    
+
     // Ancien systeme Workspace CESDA
     const {
       title,
@@ -197,14 +201,14 @@ export async function POST(req: NextRequest) {
       clientId,
       deadlineDate,
       notificationDate,
-    } = body
+    } = body;
 
     // Validation
     if (!title || !procedureType || !clientId) {
       return NextResponse.json(
         { error: 'Champs requis manquants: title, procedureType, clientId' },
         { status: 400 }
-      )
+      );
     }
 
     // Verify client belongs to tenant
@@ -213,13 +217,10 @@ export async function POST(req: NextRequest) {
         id: clientId,
         tenantId,
       },
-    })
+    });
 
     if (!client) {
-      return NextResponse.json(
-        { error: 'Client non trouve ou acces refuse' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Client non trouve ou acces refuse' }, { status: 404 });
     }
 
     // Create workspace
@@ -249,7 +250,7 @@ export async function POST(req: NextRequest) {
         documents: true,
         alerts: true,
       },
-    })
+    });
 
     // Log action
     logger.info('Workspace created', {
@@ -257,14 +258,11 @@ export async function POST(req: NextRequest) {
       tenantId,
       userId,
       procedureType,
-    })
+    });
 
-    return NextResponse.json(workspace, { status: 201 })
+    return NextResponse.json(workspace, { status: 201 });
   } catch (error: any) {
-    logger.error('Failed to create workspace', error)
-    return NextResponse.json(
-      { error: 'Erreur lors de la creation du workspace' },
-      { status: 500 }
-    )
+    logger.error('Failed to create workspace', error);
+    return NextResponse.json({ error: 'Erreur lors de la creation du workspace' }, { status: 500 });
   }
 }

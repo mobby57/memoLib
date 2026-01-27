@@ -4,18 +4,16 @@
  * PATCH /api/lawyer/workspaces/[id]/emails - Actions (marquer lu, favoris, archiver)
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * PATCH - Actions sur emails
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions as any);
     if (!session?.user) {
@@ -65,21 +63,17 @@ export async function PATCH(
       email,
     });
   } catch (error) {
-    console.error('Erreur PATCH email:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur PATCH email', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/emails',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
 /**
  * GET - Liste emails avec filtres
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions as any);
     if (!session?.user) {
@@ -101,7 +95,7 @@ export async function GET(
     if (priority) where.priority = priority;
     if (isRead !== null) where.isRead = isRead === 'true';
     if (needsResponse !== null) where.needsResponse = needsResponse === 'true';
-    
+
     if (search) {
       where.OR = [
         { from: { contains: search, mode: 'insensitive' } },
@@ -121,17 +115,15 @@ export async function GET(
       emails,
       count: emails.length,
     });
-
   } catch (error) {
-    console.error('Erreur récupération emails:', error);
+    logger.error('Erreur récupération emails', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/emails',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions as any);
     if (!session?.user) {
@@ -142,10 +134,7 @@ export async function POST(
     const { emailId, action } = body;
 
     if (!emailId || !action) {
-      return NextResponse.json(
-        { error: 'emailId et action requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'emailId et action requis' }, { status: 400 });
     }
 
     const updateData: any = {};
@@ -172,10 +161,7 @@ export async function POST(
         updateData.isArchived = false;
         break;
       default:
-        return NextResponse.json(
-          { error: 'Action invalide' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Action invalide' }, { status: 400 });
     }
 
     const email = await prisma.workspaceEmail.update({
@@ -187,9 +173,10 @@ export async function POST(
       success: true,
       email,
     });
-
   } catch (error) {
-    console.error('Erreur action email:', error);
+    logger.error('Erreur action email', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/emails',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

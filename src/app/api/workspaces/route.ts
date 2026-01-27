@@ -1,11 +1,12 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+﻿import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -36,10 +37,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(workspaces);
   } catch (error) {
-    console.error('Erreur lors de la recuperation des workspaces:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
+    logger.error(
+      'Erreur lors de la recuperation des workspaces',
+      error instanceof Error ? error : undefined,
+      { route: '/api/workspaces' }
     );
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

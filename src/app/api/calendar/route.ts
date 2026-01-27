@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import { NotificationService } from '@/lib/notifications';
 
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ events });
   } catch (error) {
-    console.error('Erreur GET calendar:', error);
+    logger.error('Erreur GET calendar:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, event });
   } catch (error) {
-    console.error('Erreur POST calendar:', error);
+    logger.error('Erreur POST calendar:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -141,7 +142,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, event });
   } catch (error) {
-    console.error('Erreur PATCH calendar:', error);
+    logger.error('Erreur PATCH calendar:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -162,7 +163,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erreur DELETE calendar:', error);
+    logger.error('Erreur DELETE calendar:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -194,7 +195,7 @@ async function scheduleReminders(
               id: eventId,
             });
           } catch (error) {
-            console.error('Erreur envoi rappel:', error);
+            logger.error('Erreur envoi rappel:', { error });
           }
         }, delay);
       }

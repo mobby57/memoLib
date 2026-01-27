@@ -1,22 +1,23 @@
 /**
  * 🧠 API - EXÉCUTION DU RAISONNEMENT IA
- * 
+ *
  * POST /api/lawyer/workspace/[id]/execute-reasoning
- * 
+ *
  * Déclenche le raisonnement IA structuré pour faire progresser
  * le workspace à travers les états de la machine à états.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma';
 import {
-  executeReasoning,
   executeFullReasoning,
   executeNextStep,
+  executeReasoning,
 } from '@/lib/reasoning/reasoning-service';
 import { WorkspaceState } from '@/types/workspace-reasoning';
-import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 interface ExecuteReasoningBody {
   mode?: 'single' | 'next' | 'full';
@@ -26,10 +27,7 @@ interface ExecuteReasoningBody {
 /**
  * POST - Exécuter le raisonnement IA
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -126,7 +124,9 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error('❌ Execute reasoning error:', error);
+    logger.error('Execute reasoning error', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspace/[id]/execute-reasoning',
+    });
     return NextResponse.json(
       {
         error: 'Internal server error',

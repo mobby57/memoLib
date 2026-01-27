@@ -1,4 +1,5 @@
 ﻿/**
+import { logger } from '@/lib/logger';
  * API Checkout Stripe
  * Cree une session de paiement pour s'abonner a un plan
  */
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
       sessionId: checkoutSession.id,
     });
   } catch (error) {
-    console.error('Erreur creation checkout:', error);
+    logger.error('Erreur creation checkout:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

@@ -235,7 +235,7 @@ describe('Dossier Mapper', () => {
       ];
 
       const result = mapDossiersToUI(dossiers);
-      
+
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe('dossier-1');
       expect(result[1].id).toBe('dossier-2');

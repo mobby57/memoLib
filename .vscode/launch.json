@@ -10,6 +10,14 @@
       "justMyCode": true
     },
     {
+      "name": "Debugpy Old: Current File",
+      "type": "debugpy-old",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
       "name": "Attach to Chrome",
       "port": 9222,
       "request": "attach",

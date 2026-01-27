@@ -1,5 +1,6 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+﻿import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,13 +30,23 @@ export async function GET(request: NextRequest) {
 
     const delais = await prisma.delai.findMany({
       where,
-      include: { dossier: { select: { numero: true, titre: true, client: { select: { firstName: true, lastName: true } } } } },
+      include: {
+        dossier: {
+          select: {
+            numero: true,
+            titre: true,
+            client: { select: { firstName: true, lastName: true } },
+          },
+        },
+      },
       orderBy: { dateEcheance: 'asc' },
     });
 
     return NextResponse.json({ delais });
   } catch (error) {
-    console.error('Erreur GET delais:', error);
+    logger.error('Erreur GET delais', error instanceof Error ? error : undefined, {
+      route: '/api/delais',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -43,17 +54,30 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { tenantId, dossierId, titre, description, type, fondementLegal, dateEcheance, priorite } = body;
+    const {
+      tenantId,
+      dossierId,
+      titre,
+      description,
+      type,
+      fondementLegal,
+      dateEcheance,
+      priorite,
+    } = body;
 
     if (!tenantId || !dossierId || !titre || !type || !dateEcheance) {
-      return NextResponse.json({ error: 'tenantId, dossierId, titre, type et dateEcheance requis' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'tenantId, dossierId, titre, type et dateEcheance requis' },
+        { status: 400 }
+      );
     }
 
     const dossier = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
     if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
 
     const echeance = new Date(dateEcheance);
-    if (isNaN(echeance.getTime())) return NextResponse.json({ error: 'Format dateEcheance invalide' }, { status: 400 });
+    if (isNaN(echeance.getTime()))
+      return NextResponse.json({ error: 'Format dateEcheance invalide' }, { status: 400 });
 
     const [delai] = await prisma.$transaction([
       prisma.delai.create({
@@ -86,7 +110,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, delai });
   } catch (error) {
-    console.error('Erreur POST delai:', error);
+    logger.error('Erreur POST delai', error instanceof Error ? error : undefined, {
+      route: '/api/delais',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -96,7 +122,8 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const { delaiId, tenantId, status, respecteLe } = body;
 
-    if (!delaiId || !tenantId) return NextResponse.json({ error: 'delaiId et tenantId requis' }, { status: 400 });
+    if (!delaiId || !tenantId)
+      return NextResponse.json({ error: 'delaiId et tenantId requis' }, { status: 400 });
 
     const existing = await prisma.delai.findFirst({ where: { id: delaiId, tenantId } });
     if (!existing) return NextResponse.json({ error: 'Delai non trouve' }, { status: 404 });
@@ -108,7 +135,9 @@ export async function PATCH(request: NextRequest) {
     const delai = await prisma.delai.update({ where: { id: delaiId }, data: updateData });
     return NextResponse.json({ success: true, delai });
   } catch (error) {
-    console.error('Erreur PATCH delai:', error);
+    logger.error('Erreur PATCH delai', error instanceof Error ? error : undefined, {
+      route: '/api/delais',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

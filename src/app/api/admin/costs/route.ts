@@ -1,24 +1,25 @@
 ﻿/**
  * 🛡️ Admin Cost Management API
- * 
+ *
  * Permet à l'admin de :
  * - Voir les coûts IA de tous les tenants
  * - Ajuster les limites de budget
  * - Facturer les surcoûts
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 import { MONTHLY_COST_LIMITS } from '@/lib/billing/cost-guard';
+import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Liste tous les tenants avec leurs coûts
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const userRole = (session?.user as { role?: string })?.role;
-    
+
     if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
@@ -41,14 +42,14 @@ export async function GET(request: NextRequest) {
             users: true,
             dossiers: true,
             clients: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     // Calculer les coûts par tenant
     const tenantsWithCosts = await Promise.all(
-      tenants.map(async (tenant) => {
+      tenants.map(async tenant => {
         // Coûts IA du mois
         let aiCost = 0;
         let aiTokens = 0;
@@ -80,10 +81,12 @@ export async function GET(request: NextRequest) {
             displayName: tenant.plan.displayName,
             priceMonthly: tenant.plan.priceMonthly,
           },
-          subscription: tenant.subscription ? {
-            status: tenant.subscription.status,
-            billingCycle: tenant.subscription.billingCycle,
-          } : null,
+          subscription: tenant.subscription
+            ? {
+                status: tenant.subscription.status,
+                billingCycle: tenant.subscription.billingCycle,
+              }
+            : null,
           usage: {
             users: tenant._count.users,
             dossiers: tenant._count.dossiers,
@@ -95,13 +98,17 @@ export async function GET(request: NextRequest) {
             overage: parseFloat(overage.toFixed(4)),
             percentage: parseFloat(usagePercentage.toFixed(1)),
             tokens: aiTokens,
-            status: usagePercentage >= 100 ? 'exceeded' : usagePercentage >= 80 ? 'warning' : 'normal',
+            status:
+              usagePercentage >= 100 ? 'exceeded' : usagePercentage >= 80 ? 'warning' : 'normal',
           },
           // Montant facturable pour surcoût
-          billableOverage: overage > 0 ? {
-            amount: parseFloat((overage * 1.5).toFixed(2)), // Majoration 50%
-            description: `Surcoût IA - ${aiTokens} tokens au-delà du forfait`,
-          } : null,
+          billableOverage:
+            overage > 0
+              ? {
+                  amount: parseFloat((overage * 1.5).toFixed(2)), // Majoration 50%
+                  description: `Surcoût IA - ${aiTokens} tokens au-delà du forfait`,
+                }
+              : null,
         };
       })
     );
@@ -127,7 +134,7 @@ export async function GET(request: NextRequest) {
       tenants: tenantsWithCosts,
     });
   } catch (error) {
-    console.error('Erreur admin costs:', error);
+    logger.error('Erreur admin costs:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -137,7 +144,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const userRole = (session?.user as { role?: string })?.role;
-    
+
     if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
@@ -170,7 +177,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Action inconnue' }, { status: 400 });
     }
   } catch (error) {
-    console.error('Erreur action admin:', error);
+    logger.error('Erreur action admin', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -193,7 +200,7 @@ async function adjustBudgetLimit(tenantId: string, newLimit: number) {
   });
 
   // Pour l'instant, on log l'action
-  console.log(`Budget limit adjusted for ${tenantId}: ${newLimit}€`);
+  logger.info(`Budget limit adjusted`, { tenantId, newLimit: `${newLimit}€` });
 
   return NextResponse.json({
     success: true,
@@ -204,11 +211,14 @@ async function adjustBudgetLimit(tenantId: string, newLimit: number) {
 }
 
 // Créer une facture de surcoût
-async function createOverageInvoice(tenantId: string, data: {
-  amount: number;
-  description: string;
-  period: { month: number; year: number };
-}) {
+async function createOverageInvoice(
+  tenantId: string,
+  data: {
+    amount: number;
+    description: string;
+    period: { month: number; year: number };
+  }
+) {
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
     include: { subscription: true },
@@ -229,8 +239,8 @@ async function createOverageInvoice(tenantId: string, data: {
       invoiceNumber,
       status: 'PENDING',
       subtotal: data.amount,
-      taxAmount: data.amount * 0.20, // TVA 20%
-      totalAmount: data.amount * 1.20,
+      taxAmount: data.amount * 0.2, // TVA 20%
+      totalAmount: data.amount * 1.2,
       currency: 'EUR',
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // +30 jours
       description: data.description,
@@ -240,7 +250,7 @@ async function createOverageInvoice(tenantId: string, data: {
           quantity: 1,
           unitPrice: data.amount,
           total: data.amount,
-        }
+        },
       ],
     },
   });
@@ -309,10 +319,13 @@ async function resetMonthlyUsage(tenantId: string) {
       },
     });
   } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: 'Erreur lors du reset',
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Erreur lors du reset',
+      },
+      { status: 500 }
+    );
   }
 }
 
