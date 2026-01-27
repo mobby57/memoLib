@@ -17,14 +17,17 @@ Tier 3: OpenAI public API (PAYANT)
 ### Installation Ollama
 
 #### Sur Linux/Mac:
+
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ```
 
 #### Sur Windows:
+
 Télécharger depuis [ollama.com](https://ollama.com/download)
 
 #### Vérification:
+
 ```bash
 ollama --version
 ```
@@ -32,12 +35,14 @@ ollama --version
 ### Configuration
 
 1. **Démarrer Ollama** (automatique après installation)
+
 ```bash
 # Si besoin de démarrer manuellement:
 ollama serve
 ```
 
 2. **Télécharger un modèle gratuit**:
+
 ```bash
 # Modèle recommandé (léger, performant)
 ollama pull llama3.2:latest
@@ -49,6 +54,7 @@ ollama pull codellama:latest     # Spécialisé code
 ```
 
 3. **Variables d'environnement**:
+
 ```bash
 # Dans .env ou .env.local
 OLLAMA_BASE_URL=http://localhost:11434
@@ -56,6 +62,7 @@ OLLAMA_MODEL=llama3.2:latest
 ```
 
 4. **Test de connexion**:
+
 ```bash
 curl http://localhost:11434/api/tags
 ```
@@ -113,12 +120,12 @@ L'application essaie dans l'ordre:
 
 ## 📊 Comparaison Modèles
 
-| Modèle | Coût | Qualité | Vitesse | GPT-5.1 | Offline |
-|--------|------|---------|---------|---------|---------|
-| Ollama llama3.2 | **Gratuit** | ⭐⭐⭐⭐ | Rapide | ❌ | ✅ |
-| Ollama mistral | **Gratuit** | ⭐⭐⭐⭐ | Rapide | ❌ | ✅ |
-| Azure GPT-5.1 | ~$0.03/1k tokens | ⭐⭐⭐⭐⭐ | Moyen | ✅ | ❌ |
-| OpenAI GPT-4 | ~$0.01/1k tokens | ⭐⭐⭐⭐⭐ | Moyen | ❌ | ❌ |
+| Modèle          | Coût             | Qualité    | Vitesse | GPT-5.1 | Offline |
+| --------------- | ---------------- | ---------- | ------- | ------- | ------- |
+| Ollama llama3.2 | **Gratuit**      | ⭐⭐⭐⭐   | Rapide  | ❌      | ✅      |
+| Ollama mistral  | **Gratuit**      | ⭐⭐⭐⭐   | Rapide  | ❌      | ✅      |
+| Azure GPT-5.1   | ~$0.03/1k tokens | ⭐⭐⭐⭐⭐ | Moyen   | ✅      | ❌      |
+| OpenAI GPT-4    | ~$0.01/1k tokens | ⭐⭐⭐⭐⭐ | Moyen   | ❌      | ❌      |
 
 ## 🚀 Démarrage Rapide (100% Gratuit)
 
@@ -142,6 +149,7 @@ npm run dev
 ## 🔧 Dépannage
 
 ### Ollama ne répond pas
+
 ```bash
 # Redémarrer le service
 killall ollama
@@ -149,12 +157,14 @@ ollama serve &
 ```
 
 ### Port déjà utilisé
+
 ```bash
 # Changer le port dans .env
 OLLAMA_BASE_URL=http://localhost:11435
 ```
 
 ### Modèle introuvable
+
 ```bash
 # Lister les modèles installés
 ollama list
