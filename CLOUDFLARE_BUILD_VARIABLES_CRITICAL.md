@@ -1,9 +1,11 @@
 # 🚀 Configuration Finale Cloudflare Pages - BUILD VARIABLES (CRITIQUE!)
 
 ## 🔴 Problème Actuel
+
 Build échoué sur GitHub Actions → Artifact not found
 
 ## ✅ Cause & Solution
+
 Les variables d'environnement **BUILD TIME** ne sont PAS configurées dans Cloudflare Pages Settings.
 
 ---
@@ -11,6 +13,7 @@ Les variables d'environnement **BUILD TIME** ne sont PAS configurées dans Cloud
 ## 📋 Configuration Requise (PAS LES CHAMPS RUNTIME!)
 
 ### Navigation Exacte:
+
 ```
 https://dash.cloudflare.com/
   ↓
@@ -38,16 +41,17 @@ Cliquer: "Add variable" (ou "Add environment" si absent)
 
 Configurer ces 6 variables EXACTEMENT:
 
-| # | Variable Name | Value | Environnement |
-|---|---|---|---|
-| 1 | `DATABASE_URL` | `postgresql://neondb_owner:npg_CIFzKUeAgN81@ep-wild-cell-aecqj50l-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require` | Production |
-| 2 | `NEXTAUTH_SECRET` | `udsJr6MiZLDL0v81yDSf0Bfhcg91YiXFVNHXjP2DVNQ=` | Production |
-| 3 | `NEXTAUTH_URL` | `https://9fd537bc.iapostemanage.pages.dev` | Production |
-| 4 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Production |
-| 5 | `NODE_ENV` | `production` | Production |
-| 6 | `NEXT_PUBLIC_APP_NAME` | `IA Poste Manager` | Production |
+| #   | Variable Name          | Value                                                            | Environnement |
+| --- | ---------------------- | ---------------------------------------------------------------- | ------------- |
+| 1   | `DATABASE_URL`         | `YOUR_NEON_DATABASE_URL`                                         | Production    |
+| 2   | `NEXTAUTH_SECRET`      | `YOUR_NEXTAUTH_SECRET` (générer avec: `openssl rand -base64 32`) | Production    |
+| 3   | `NEXTAUTH_URL`         | `https://your-app.pages.dev`                                     | Production    |
+| 4   | `OLLAMA_BASE_URL`      | `http://localhost:11434`                                         | Production    |
+| 5   | `NODE_ENV`             | ⚠️ **NE PAS DÉFINIR** - géré automatiquement par Next.js         | Production    |
+| 6   | `NEXT_PUBLIC_APP_NAME` | `IA Poste Manager`                                               | Production    |
 
 **Pour chaque variable:**
+
 1. Cliquer: "Add variable"
 2. Remplir: Variable name (ex: DATABASE_URL)
 3. Remplir: Value (copier-coller depuis .env.cloudflare)
@@ -59,6 +63,7 @@ Configurer ces 6 variables EXACTEMENT:
 Aller à: **Settings → Build & deployments → Build settings**
 
 Vérifier:
+
 - [ ] Framework preset: **Next.js**
 - [ ] Build command: **npm run build**
 - [ ] Build output directory: **.next**
@@ -80,6 +85,7 @@ Vérifier:
 ## 📸 Screenshots Attendus
 
 ### Settings → Environment variables
+
 ```
 Production environment
 ├─ DATABASE_URL = postgresql://...
@@ -91,6 +97,7 @@ Production environment
 ```
 
 ### Settings → Build Settings
+
 ```
 Framework preset: Next.js ✓
 Build command: npm run build ✓
@@ -127,6 +134,7 @@ Node.js version: 20.x ✓
 5. Envoyer pour diagnostique
 
 **Erreurs courantes attendues:**
+
 ```
 ✘ ERROR: env variable DATABASE_URL not found
   → Solution: Ajouter DATABASE_URL en Settings > Environment variables
@@ -161,4 +169,3 @@ Node.js version: 20.x ✓
 5. Aller à Deployments
 6. Redeploy
 7. Attendre & Tester
-

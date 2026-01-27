@@ -3,6 +3,7 @@ app = "iaposte-manager"
 primary_region = "cdg"  # Paris
 
 [build]
+  dockerfile = "Dockerfile.fly"
   [build.args]
     NEXT_TELEMETRY_DISABLED = "1"
 
