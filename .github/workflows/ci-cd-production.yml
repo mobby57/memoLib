@@ -2,15 +2,13 @@
 # 🚀 CI/CD PRODUCTION - IA POSTE MANAGER
 # ============================================================================
 # Version 4.0 - Simplifié et Robuste
+# ⚠️ DÉSACTIVÉ - Utiliser ci-cd-optimized.yml à la place
 # ============================================================================
 
 name: 🚀 Production CI/CD
 
+# ⚡ OPTIMISÉ: Manuel uniquement pour éviter doublon avec ci-cd-optimized.yml
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
     inputs:
       debug:
@@ -34,10 +32,10 @@ jobs:
     name: 🏗️ Build & Test
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    
+
     outputs:
       build_success: ${{ steps.build.outputs.success }}
-    
+
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
@@ -77,21 +75,21 @@ jobs:
         run: |
           echo "🏗️ Building application..."
           npm run build
-          
+
           echo ""
           echo "📋 Verifying build output..."
           if [ ! -d ".next" ]; then
             echo "❌ CRITICAL: .next directory not found"
             exit 1
           fi
-          
+
           echo "✅ .next/ directory exists"
           ls -la .next/ | head -20
-          
+
           echo ""
           echo "📊 Build size:"
           du -sh .next/
-          
+
           # Fix: Renommer les fichiers avec ':' (colons) qui cassent GitHub Artifacts
           echo ""
           echo "🔧 Fixing file names with colons (Windows/NTFS incompatible)..."
@@ -100,7 +98,7 @@ jobs:
             mv "$file" "$newname" 2>/dev/null || true
           done
           echo "✅ File names fixed"
-          
+
           echo "success=true" >> $GITHUB_OUTPUT
         env:
           NEXT_TELEMETRY_DISABLED: '1'
@@ -127,15 +125,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-test
     if: |
-      github.ref == 'refs/heads/main' && 
+      github.ref == 'refs/heads/main' &&
       github.event_name == 'push' &&
       needs.build-and-test.outputs.build_success == 'true'
     timeout-minutes: 10
-    
+
     environment:
       name: production
       url: https://iapostemanager.vercel.app
-    
+
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
@@ -162,10 +160,10 @@ jobs:
         run: |
           echo "🚀 Deploying to Vercel..."
           npm i -g vercel@latest
-          
+
           # Supprimer l'ancien dossier .vercel s'il existe (évite les conflits)
           rm -rf .vercel
-          
+
           # Link le projet proprement
           vercel link --yes --token=${{ secrets.VERCEL_TOKEN }}
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
@@ -178,12 +176,12 @@ jobs:
         run: |
           echo "⏳ Waiting for deployment to propagate..."
           sleep 15
-          
+
           echo "🏥 Running health checks..."
           MAIN=$(curl -s -o /dev/null -w "%{http_code}" https://iapostemanager.vercel.app || echo "000")
           API=$(curl -s -o /dev/null -w "%{http_code}" https://iapostemanager.vercel.app/api/health || echo "000")
           AUTH=$(curl -s -o /dev/null -w "%{http_code}" https://iapostemanager.vercel.app/api/auth/providers || echo "000")
-          
+
           echo "========================================"
           echo "🎉 DEPLOYMENT RESULTS"
           echo "========================================"
@@ -194,7 +192,7 @@ jobs:
           echo "📍 URL: https://iapostemanager.vercel.app"
           echo "🔗 Commit: ${{ github.sha }}"
           echo "========================================"
-          
+
           if [ "$MAIN" = "200" ]; then
             echo "✅ Site is live!"
           else
@@ -211,7 +209,7 @@ jobs:
     needs: [build-and-test, deploy]
     if: always()
     timeout-minutes: 2
-    
+
     steps:
       - name: 📊 Create Summary
         run: |
