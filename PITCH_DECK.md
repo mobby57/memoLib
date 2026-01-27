@@ -660,6 +660,6 @@ APPENDICE : Key Metrics
 
 ---
 
-**Pitch Deck — iaPosteManager**  
-**Statut : PRÊT PRÉSENTATION**  
+**Pitch Deck — iaPosteManager**
+**Statut : PRÊT PRÉSENTATION**
 **Dernière mise à jour : 27 janvier 2026**

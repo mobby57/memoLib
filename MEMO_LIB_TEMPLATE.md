@@ -92,11 +92,17 @@ Utilisez SemVer. Exemple de bloc de release :
 ### SECTION 4 — ARCHITECTURE (exemple)
 
 ```
-Next.js (frontend)
+Next.js 16 (frontend) + Turbopack
 Node/Express or Next API (backend)
 Postgres (Neon) via Prisma
 Redis (Upstash) pour cache/ratelimit
 ```
+
+**Configuration Turbopack:**
+
+- `resolveAlias`: @/components, @/lib, @/hooks, @/utils, etc.
+- `rules`: SVG → React components via @svgr/webpack
+- `debugIds`: Activé en développement
 
 ---
 

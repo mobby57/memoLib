@@ -1,5 +1,5 @@
-import { IntegrationConnectorFactory, GoogleCalendarConnector } from '@/lib/oauth/integrations';
 import type { CalendarEvent } from '@/lib/calendar/calendar-service';
+import { IntegrationConnectorFactory } from '@/lib/oauth/integrations';
 
 /**
  * Bridge between external calendar APIs and IaPosteManager CalendarService
