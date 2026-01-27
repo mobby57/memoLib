@@ -135,6 +135,83 @@ class InputValidator:
         r"windows/system32",
     ]
 
+    # Patterns SSRF dangereux
+    SSRF_PATTERNS = [
+        r"^https?://127\.",
+        r"^https?://localhost",
+        r"^https?://0\.0\.0\.0",
+        r"^https?://\[::1\]",
+        r"^https?://169\.254\.",  # AWS metadata
+        r"^https?://10\.",  # Private IP
+        r"^https?://172\.(1[6-9]|2[0-9]|3[0-1])\.",  # Private IP
+        r"^https?://192\.168\.",  # Private IP
+        r"^file://",
+        r"^gopher://",
+        r"^dict://",
+        r"^ftp://localhost",
+        r"^ldap://",
+    ]
+
+    # Patterns XXE dangereux
+    XXE_PATTERNS = [
+        r"<!DOCTYPE[^>]*\[",
+        r"<!ENTITY",
+        r"SYSTEM\s+['\"]",
+        r"PUBLIC\s+['\"]",
+        r"%[a-zA-Z0-9]+;",  # Parameter entity
+        r"&[a-zA-Z0-9]+;",  # General entity (sauf standards)
+    ]
+
+    # Patterns JWT suspects
+    JWT_PATTERNS = [
+        r'"alg"\s*:\s*"none"',
+        r'"alg"\s*:\s*"None"',
+        r'"alg"\s*:\s*"NONE"',
+        r"eyJhbGciOiJub25lI",  # Base64 de {"alg":"none"
+        r'"kid"\s*:\s*"[^"]*\.\.',  # Path traversal in kid
+        r'"jku"\s*:',  # JKU header injection
+        r'"jwk"\s*:',  # JWK header injection
+        r'"x5u"\s*:',  # X5U header injection
+    ]
+
+    # Patterns Open Redirect
+    REDIRECT_PATTERNS = [
+        r"^https?://[^/]*\.[^/]+",  # External URL
+        r"^//[^/]",  # Protocol-relative URL
+        r"^/\\",  # Backslash after slash (bypass)
+        r"^javascript:",
+        r"^data:",
+        r"^vbscript:",
+        r"@[^/]+\.[^/]+",  # URL with @ (user@host bypass)
+    ]
+
+    # Patterns Template Injection (SSTI)
+    SSTI_PATTERNS = [
+        r"\{\{.*\}\}",  # Jinja2/Twig/Angular
+        r"\$\{.*\}",  # EL/Spring
+        r"<%.*%>",  # JSP/ERB
+        r"\{%.*%\}",  # Jinja2 statements
+        r"#\{.*\}",  # Ruby/Thymeleaf
+    ]
+
+    # Patterns LDAP Injection
+    LDAP_PATTERNS = [
+        r"\*\)",
+        r"\(\|",
+        r"\(\&",
+        r"\)\(",
+        r"objectClass=\*",
+        r"%00",  # Null byte
+        r"\)\(\|",
+    ]
+
+    # Patterns Header Injection
+    HEADER_PATTERNS = [
+        r"[\r\n]",  # CRLF
+        r"%0[dDaA]",  # URL-encoded CRLF
+        r"\\r|\\n",  # Escaped CRLF
+    ]
+
     @classmethod
     def check_sql_injection(cls, value: str) -> bool:
         """Vérifie la présence de patterns SQL dangereux"""
@@ -186,6 +263,83 @@ class InputValidator:
             return False
 
         for pattern in cls.PATH_PATTERNS:
+            if re.search(pattern, value, re.IGNORECASE):
+                return True
+        return False
+
+    @classmethod
+    def check_ssrf(cls, value: str) -> bool:
+        """Vérifie la présence de patterns SSRF dangereux"""
+        if not isinstance(value, str):
+            return False
+
+        for pattern in cls.SSRF_PATTERNS:
+            if re.search(pattern, value, re.IGNORECASE):
+                return True
+        return False
+
+    @classmethod
+    def check_xxe(cls, value: str) -> bool:
+        """Vérifie la présence de patterns XXE dangereux"""
+        if not isinstance(value, str):
+            return False
+
+        for pattern in cls.XXE_PATTERNS:
+            if re.search(pattern, value, re.IGNORECASE):
+                return True
+        return False
+
+    @classmethod
+    def check_jwt_attack(cls, value: str) -> bool:
+        """Vérifie la présence de patterns JWT malveillants"""
+        if not isinstance(value, str):
+            return False
+
+        for pattern in cls.JWT_PATTERNS:
+            if re.search(pattern, value, re.IGNORECASE):
+                return True
+        return False
+
+    @classmethod
+    def check_open_redirect(cls, value: str) -> bool:
+        """Vérifie la présence de patterns Open Redirect dangereux"""
+        if not isinstance(value, str):
+            return False
+
+        for pattern in cls.REDIRECT_PATTERNS:
+            if re.search(pattern, value, re.IGNORECASE):
+                return True
+        return False
+
+    @classmethod
+    def check_ssti(cls, value: str) -> bool:
+        """Vérifie la présence de patterns Template Injection dangereux"""
+        if not isinstance(value, str):
+            return False
+
+        for pattern in cls.SSTI_PATTERNS:
+            if re.search(pattern, value, re.IGNORECASE):
+                return True
+        return False
+
+    @classmethod
+    def check_ldap_injection(cls, value: str) -> bool:
+        """Vérifie la présence de patterns LDAP Injection dangereux"""
+        if not isinstance(value, str):
+            return False
+
+        for pattern in cls.LDAP_PATTERNS:
+            if re.search(pattern, value, re.IGNORECASE):
+                return True
+        return False
+
+    @classmethod
+    def check_header_injection(cls, value: str) -> bool:
+        """Vérifie la présence de patterns Header Injection dangereux"""
+        if not isinstance(value, str):
+            return False
+
+        for pattern in cls.HEADER_PATTERNS:
             if re.search(pattern, value, re.IGNORECASE):
                 return True
         return False
@@ -278,6 +432,20 @@ class InputValidator:
                 attacks_detected.append("COMMAND_INJECTION")
             if cls.check_path_traversal(value):
                 attacks_detected.append("PATH_TRAVERSAL")
+            if cls.check_ssrf(value):
+                attacks_detected.append("SSRF")
+            if cls.check_xxe(value):
+                attacks_detected.append("XXE")
+            if cls.check_jwt_attack(value):
+                attacks_detected.append("JWT_ATTACK")
+            if cls.check_open_redirect(value):
+                attacks_detected.append("OPEN_REDIRECT")
+            if cls.check_ssti(value):
+                attacks_detected.append("SSTI")
+            if cls.check_ldap_injection(value):
+                attacks_detected.append("LDAP_INJECTION")
+            if cls.check_header_injection(value):
+                attacks_detected.append("HEADER_INJECTION")
 
         if attacks_detected:
             logger.warning(

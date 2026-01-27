@@ -14,10 +14,15 @@ interface FactsExtractedViewProps {
   loading?: { mutation?: boolean };
 }
 
-export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }: FactsExtractedViewProps) {
+export function FactsExtractedView({
+  workspace,
+  onContinue,
+  onAddFact,
+  loading,
+}: FactsExtractedViewProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const facts = workspace.facts || [];
-  
+
   const getSourceBadge = (source: Fact['source']) => {
     const badges = {
       EXPLICIT_MESSAGE: { label: 'Message', color: 'bg-blue-100 text-blue-800' },
@@ -27,17 +32,15 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
     };
     return badges[source];
   };
-  
+
   return (
     <div className="space-y-6">
       {/* Titre */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900"> Faits extraits</h2>
-        <p className="text-gray-600 mt-1">
-          Uniquement des faits certains et sources
-        </p>
+        <p className="text-gray-600 mt-1">Uniquement des faits certains et sources</p>
       </div>
-      
+
       {/* Liste des faits */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
@@ -45,42 +48,39 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
             {facts.length} fait{facts.length > 1 ? 's' : ''} extrait{facts.length > 1 ? 's' : ''}
           </h3>
         </div>
-        
+
         {facts.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            Aucun fait extrait automatiquement
-          </div>
+          <div className="p-8 text-center text-gray-500">Aucun fait extrait automatiquement</div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {facts.map((fact) => {
+            {facts.map(fact => {
               const sourceBadge = getSourceBadge(fact.source);
-              
+
               return (
                 <div key={fact.id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="font-medium text-gray-900">{fact.label}</span>
-                        <span className={`px-2 py-1 text-xs font-medium rounded ${sourceBadge.color}`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded ${sourceBadge.color}`}
+                        >
                           {sourceBadge.label}
                         </span>
                       </div>
-                      
-                      <div className="text-lg text-blue-600 font-semibold mb-2">
-                        {fact.value}
-                      </div>
-                      
+
+                      <div className="text-lg text-blue-600 font-semibold mb-2">{fact.value}</div>
+
                       {fact.sourceRef && (
-                        <div className="text-sm text-gray-500">
-                          Source: {fact.sourceRef}
-                        </div>
+                        <div className="text-sm text-gray-500">Source: {fact.sourceRef}</div>
                       )}
-                      
+
                       <div className="text-xs text-gray-400 mt-2">
-                        Extrait par {fact.extractedBy} - {new Date(fact.createdAt).toLocaleString('fr-FR')}
+                        Extrait par {fact.extractedBy} -{' '}
+                        {new Date(fact.createdAt).toLocaleString('fr-FR')}
                       </div>
                     </div>
-                    
+
                     <div className="ml-4">
                       <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                         <span className="text-2xl">[Check]</span>
@@ -96,7 +96,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
           </div>
         )}
       </div>
-      
+
       {/* Ajouter un fait manuel */}
       {onAddFact && (
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -111,7 +111,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
               {showAddForm ? 'Annuler' : ' Ajouter'}
             </button>
           </div>
-          
+
           {showAddForm && (
             <div className="space-y-3 mt-4">
               <div className="bg-white p-4 rounded border border-purple-200">
@@ -119,21 +119,101 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
                   ️ Toute modification manuelle sera tracee et necessitera une justification
                 </p>
               </div>
-              {/* TODO: Formulaire d'ajout */}
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const newFact = {
+                    id: `manual-${Date.now()}`,
+                    label: formData.get('label') as string,
+                    value: formData.get('value') as string,
+                    source: 'Manuel',
+                    confidence: 1.0,
+                    verified: false,
+                  };
+                  onFactUpdate?.(newFact.id, newFact);
+                  setShowAddForm(false);
+                  e.currentTarget.reset();
+                }}
+                className="space-y-3"
+              >
+                <div>
+                  <label
+                    htmlFor="fact-label"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Type de fait
+                  </label>
+                  <input
+                    id="fact-label"
+                    name="label"
+                    type="text"
+                    required
+                    placeholder="Ex: Date de naissance, Nationalité..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="fact-value"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Valeur
+                  </label>
+                  <input
+                    id="fact-value"
+                    name="value"
+                    type="text"
+                    required
+                    placeholder="Entrez la valeur du fait"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="fact-justification"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Justification
+                  </label>
+                  <textarea
+                    id="fact-justification"
+                    name="justification"
+                    required
+                    rows={2}
+                    placeholder="Expliquez pourquoi vous ajoutez ce fait manuellement"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddForm(false)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                  >
+                    Ajouter le fait
+                  </button>
+                </div>
+              </form>
             </div>
           )}
         </div>
       )}
-      
+
       {/* Actions */}
       <div className="flex items-center justify-between pt-4 border-t border-gray-200">
         <div className="text-sm text-gray-500">
-          {facts.length > 0 
-            ? ' Faits extraits et verifies' 
-            : '️ Aucun fait extrait - Verifiez la source'
-          }
+          {facts.length > 0
+            ? ' Faits extraits et verifies'
+            : '️ Aucun fait extrait - Verifiez la source'}
         </div>
-        
+
         <button
           onClick={onContinue}
           disabled={facts.length === 0 || !!loading?.mutation}

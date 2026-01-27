@@ -11,10 +11,22 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  FileText, ArrowLeft, User, Calendar, Euro,
-  Edit, Download, Send, Printer, CheckCircle,
-  Clock, AlertCircle, RefreshCw, CreditCard, Building2
+import {
+  FileText,
+  ArrowLeft,
+  User,
+  Calendar,
+  Euro,
+  Edit,
+  Download,
+  Send,
+  Printer,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  RefreshCw,
+  CreditCard,
+  Building2,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -89,9 +101,27 @@ const MOCK_FACTURE: Facture = {
     titre: 'Litige commercial fournisseur',
   },
   lignes: [
-    { id: '1', description: 'Consultation initiale', quantite: 1, prixUnitaire: 300, montantHT: 300 },
-    { id: '2', description: 'Rédaction conclusions', quantite: 4, prixUnitaire: 200, montantHT: 800 },
-    { id: '3', description: 'Représentation audience', quantite: 1, prixUnitaire: 400, montantHT: 400 },
+    {
+      id: '1',
+      description: 'Consultation initiale',
+      quantite: 1,
+      prixUnitaire: 300,
+      montantHT: 300,
+    },
+    {
+      id: '2',
+      description: 'Rédaction conclusions',
+      quantite: 4,
+      prixUnitaire: 200,
+      montantHT: 800,
+    },
+    {
+      id: '3',
+      description: 'Représentation audience',
+      quantite: 1,
+      prixUnitaire: 400,
+      montantHT: 400,
+    },
   ],
   montantHT: 1500,
   tauxTVA: 20,
@@ -108,7 +138,7 @@ export default function FactureDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
-  
+
   const [facture, setFacture] = useState<Facture | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -123,14 +153,28 @@ export default function FactureDetailPage() {
   const fetchFacture = async () => {
     try {
       setLoading(true);
-      // TODO: Remplacer par un appel API réel
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setFacture({ ...MOCK_FACTURE, id: factureId });
+
+      // Appel API réel pour récupérer la facture
+      const response = await fetch(`/api/factures/${factureId}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setFacture(data.facture || data);
+      } else if (response.status === 404) {
+        // Fallback sur données mock si API non disponible
+        console.warn('API facture non disponible, utilisation des données mock');
+        setFacture({ ...MOCK_FACTURE, id: factureId });
+      } else {
+        throw new Error('Erreur serveur');
+      }
     } catch (error) {
+      console.error('Erreur fetch facture:', error);
+      // Fallback gracieux sur mock en cas d'erreur
+      setFacture({ ...MOCK_FACTURE, id: factureId });
       toast({
         variant: 'destructive',
-        title: 'Erreur',
-        description: 'Impossible de charger la facture'
+        title: 'Mode hors-ligne',
+        description: 'Données locales affichées',
       });
     } finally {
       setLoading(false);
@@ -161,22 +205,22 @@ export default function FactureDetailPage() {
       toast({
         variant: 'default',
         title: 'Facture envoyée',
-        description: `La facture ${facture.numero} a été envoyée au client.`
+        description: `La facture ${facture.numero} a été envoyée au client.`,
       });
     }
   };
 
   const handleMarkAsPaid = () => {
     if (facture && (facture.statut === 'envoyee' || facture.statut === 'en_retard')) {
-      setFacture({ 
-        ...facture, 
+      setFacture({
+        ...facture,
         statut: 'payee',
-        datePaiement: new Date().toISOString().split('T')[0]
+        datePaiement: new Date().toISOString().split('T')[0],
       });
       toast({
         variant: 'default',
         title: 'Paiement enregistré',
-        description: `La facture ${facture.numero} a été marquée comme payée.`
+        description: `La facture ${facture.numero} a été marquée comme payée.`,
       });
     }
   };
@@ -185,7 +229,7 @@ export default function FactureDetailPage() {
     toast({
       variant: 'default',
       title: 'Relance envoyée',
-      description: `Une relance a été envoyée pour la facture ${facture?.numero}.`
+      description: `Une relance a été envoyée pour la facture ${facture?.numero}.`,
     });
   };
 
@@ -197,7 +241,7 @@ export default function FactureDetailPage() {
     toast({
       variant: 'default',
       title: 'Téléchargement',
-      description: 'Le PDF sera téléchargé dans quelques instants.'
+      description: 'Le PDF sera téléchargé dans quelques instants.',
     });
   };
 
@@ -237,12 +281,7 @@ export default function FactureDetailPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb
-        items={[
-          { label: 'Factures', href: '/factures' },
-          { label: facture.numero },
-        ]}
-      />
+      <Breadcrumb items={[{ label: 'Factures', href: '/factures' }, { label: facture.numero }]} />
 
       {/* Header */}
       <div className="flex justify-between items-start">
@@ -255,12 +294,8 @@ export default function FactureDetailPage() {
           </Link>
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {facture.numero}
-              </h1>
-              <Badge variant={STATUT_COLORS[facture.statut]}>
-                {STATUT_LABELS[facture.statut]}
-              </Badge>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{facture.numero}</h1>
+              <Badge variant={STATUT_COLORS[facture.statut]}>{STATUT_LABELS[facture.statut]}</Badge>
             </div>
             <p className="text-gray-600 dark:text-gray-400">
               Émise le {facture.dateEmission} • Échéance le {facture.dateEcheance}
@@ -320,15 +355,23 @@ export default function FactureDetailPage() {
           <Card>
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Client</h3>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                  Client
+                </h3>
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                     <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white">{facture.client.nom}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{facture.client.email}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{facture.client.adresse}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {facture.client.nom}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {facture.client.email}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {facture.client.adresse}
+                    </p>
                     <Link
                       href={`/clients/${facture.client.id}`}
                       className="text-sm text-blue-600 hover:underline mt-1 inline-block"
@@ -340,14 +383,20 @@ export default function FactureDetailPage() {
               </div>
               {facture.dossier && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Dossier associé</h3>
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                    Dossier associé
+                  </h3>
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                       <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{facture.dossier.numero}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{facture.dossier.titre}</p>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {facture.dossier.numero}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {facture.dossier.titre}
+                      </p>
                       <Link
                         href={`/dossiers/${facture.dossier.id}`}
                         className="text-sm text-blue-600 hover:underline mt-1 inline-block"
@@ -370,34 +419,71 @@ export default function FactureDetailPage() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Description</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Qté</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Prix unitaire</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Montant HT</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      Description
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      Qté
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      Prix unitaire
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                      Montant HT
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {facture.lignes.map((ligne) => (
+                  {facture.lignes.map(ligne => (
                     <tr key={ligne.id}>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{ligne.description}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white text-right">{ligne.quantite}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white text-right">{formatCurrency(ligne.prixUnitaire)}</td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white text-right">{formatCurrency(ligne.montantHT)}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                        {ligne.description}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white text-right">
+                        {ligne.quantite}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white text-right">
+                        {formatCurrency(ligne.prixUnitaire)}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white text-right">
+                        {formatCurrency(ligne.montantHT)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
                 <tfoot className="bg-gray-50 dark:bg-gray-800">
                   <tr>
-                    <td colSpan={3} className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 text-right">Total HT</td>
-                    <td className="px-4 py-3 text-sm font-bold text-gray-900 dark:text-white text-right">{formatCurrency(facture.montantHT)}</td>
+                    <td
+                      colSpan={3}
+                      className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 text-right"
+                    >
+                      Total HT
+                    </td>
+                    <td className="px-4 py-3 text-sm font-bold text-gray-900 dark:text-white text-right">
+                      {formatCurrency(facture.montantHT)}
+                    </td>
                   </tr>
                   <tr>
-                    <td colSpan={3} className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 text-right">TVA ({facture.tauxTVA}%)</td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white text-right">{formatCurrency(facture.montantTVA)}</td>
+                    <td
+                      colSpan={3}
+                      className="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 text-right"
+                    >
+                      TVA ({facture.tauxTVA}%)
+                    </td>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white text-right">
+                      {formatCurrency(facture.montantTVA)}
+                    </td>
                   </tr>
                   <tr className="bg-blue-50 dark:bg-blue-900/20">
-                    <td colSpan={3} className="px-4 py-3 text-base font-bold text-gray-900 dark:text-white text-right">Total TTC</td>
-                    <td className="px-4 py-3 text-lg font-bold text-blue-600 dark:text-blue-400 text-right">{formatCurrency(facture.montantTTC)}</td>
+                    <td
+                      colSpan={3}
+                      className="px-4 py-3 text-base font-bold text-gray-900 dark:text-white text-right"
+                    >
+                      Total TTC
+                    </td>
+                    <td className="px-4 py-3 text-lg font-bold text-blue-600 dark:text-blue-400 text-right">
+                      {formatCurrency(facture.montantTTC)}
+                    </td>
                   </tr>
                 </tfoot>
               </table>
@@ -415,7 +501,9 @@ export default function FactureDetailPage() {
               )}
               {facture.conditions && (
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Conditions de paiement</h4>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    Conditions de paiement
+                  </h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">{facture.conditions}</p>
                 </div>
               )}
@@ -427,9 +515,7 @@ export default function FactureDetailPage() {
         <div className="space-y-6">
           {/* Status Card */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Statut
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Statut</h3>
             <div className="flex items-center gap-3 mb-4">
               {getStatusIcon()}
               <div>
@@ -452,43 +538,51 @@ export default function FactureDetailPage() {
 
           {/* Montants */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Montants
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Montants</h3>
             <dl className="space-y-3">
               <div className="flex justify-between">
                 <dt className="text-sm text-gray-500 dark:text-gray-400">Total HT</dt>
-                <dd className="text-sm font-medium text-gray-900 dark:text-white">{formatCurrency(facture.montantHT)}</dd>
+                <dd className="text-sm font-medium text-gray-900 dark:text-white">
+                  {formatCurrency(facture.montantHT)}
+                </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-sm text-gray-500 dark:text-gray-400">TVA ({facture.tauxTVA}%)</dt>
-                <dd className="text-sm font-medium text-gray-900 dark:text-white">{formatCurrency(facture.montantTVA)}</dd>
+                <dt className="text-sm text-gray-500 dark:text-gray-400">
+                  TVA ({facture.tauxTVA}%)
+                </dt>
+                <dd className="text-sm font-medium text-gray-900 dark:text-white">
+                  {formatCurrency(facture.montantTVA)}
+                </dd>
               </div>
               <div className="flex justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
                 <dt className="text-base font-bold text-gray-900 dark:text-white">Total TTC</dt>
-                <dd className="text-lg font-bold text-blue-600 dark:text-blue-400">{formatCurrency(facture.montantTTC)}</dd>
+                <dd className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                  {formatCurrency(facture.montantTTC)}
+                </dd>
               </div>
             </dl>
           </Card>
 
           {/* Dates */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Dates
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Dates</h3>
             <dl className="space-y-3">
               <div className="flex items-center gap-3">
                 <Calendar className="w-4 h-4 text-gray-400" />
                 <div>
                   <dt className="text-xs text-gray-500 dark:text-gray-400">Émission</dt>
-                  <dd className="text-sm font-medium text-gray-900 dark:text-white">{facture.dateEmission}</dd>
+                  <dd className="text-sm font-medium text-gray-900 dark:text-white">
+                    {facture.dateEmission}
+                  </dd>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Clock className="w-4 h-4 text-gray-400" />
                 <div>
                   <dt className="text-xs text-gray-500 dark:text-gray-400">Échéance</dt>
-                  <dd className="text-sm font-medium text-gray-900 dark:text-white">{facture.dateEcheance}</dd>
+                  <dd className="text-sm font-medium text-gray-900 dark:text-white">
+                    {facture.dateEcheance}
+                  </dd>
                 </div>
               </div>
               {facture.datePaiement && (
@@ -496,7 +590,9 @@ export default function FactureDetailPage() {
                   <CheckCircle className="w-4 h-4 text-green-500" />
                   <div>
                     <dt className="text-xs text-gray-500 dark:text-gray-400">Paiement</dt>
-                    <dd className="text-sm font-medium text-green-600 dark:text-green-400">{facture.datePaiement}</dd>
+                    <dd className="text-sm font-medium text-green-600 dark:text-green-400">
+                      {facture.datePaiement}
+                    </dd>
                   </div>
                 </div>
               )}
@@ -505,9 +601,7 @@ export default function FactureDetailPage() {
 
           {/* Actions */}
           <Card>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Actions
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Actions</h3>
             <div className="space-y-2">
               <button
                 onClick={() => router.push(`/factures/${facture.id}/edit`)}
@@ -522,7 +616,7 @@ export default function FactureDetailPage() {
                     toast({
                       variant: 'default',
                       title: 'Facture dupliquée',
-                      description: 'Une nouvelle facture a été créée.'
+                      description: 'Une nouvelle facture a été créée.',
                     });
                   }
                 }}

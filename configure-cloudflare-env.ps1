@@ -1,5 +1,6 @@
 # Configuration Variables Cloudflare Pages
 # Script PowerShell pour configurer automatiquement les variables d'environnement
+# ⚠️ IMPORTANT: Ne jamais commiter de vrais secrets - utiliser des placeholders
 
 Write-Output ""
 Write-Output "=== CONFIGURATION CLOUDFLARE PAGES ==="
@@ -7,39 +8,40 @@ Write-Output "Projet: iapostemanager"
 Write-Output ""
 
 # Variables a configurer (Production)
+# ⚠️ Remplacer les valeurs par vos vrais secrets via le Dashboard Cloudflare
 $variables = @{
     # Database
-    "DATABASE_URL" = "file:./prisma/dev.db"  # A remplacer par PostgreSQL en prod
-    
+    "DATABASE_URL" = "YOUR_DATABASE_URL_HERE"  # PostgreSQL connection string
+
     # NextAuth
     "NEXTAUTH_URL" = "https://iapostemanager.pages.dev"
-    "NEXTAUTH_SECRET" = "vquobyYX9ptr8LfgJ0fcs7HtiA7B3HrC/0ji30D39OA="
-    
+    "NEXTAUTH_SECRET" = "YOUR_NEXTAUTH_SECRET_HERE"  # Générer avec: openssl rand -base64 32
+
     # Node.js
     "NODE_VERSION" = "20"
-    
+
     # Ollama IA
     "OLLAMA_BASE_URL" = "https://api.ollama.com"
     "OLLAMA_MODEL" = "llama3.2:latest"
-    
+
     # Upstash Redis
-    "UPSTASH_REDIS_REST_URL" = "https://intimate-bull-28349.upstash.io"
-    "UPSTASH_REDIS_REST_TOKEN" = "YOUR_TOKEN_HERE"
+    "UPSTASH_REDIS_REST_URL" = "YOUR_UPSTASH_URL_HERE"
+    "UPSTASH_REDIS_REST_TOKEN" = "YOUR_UPSTASH_TOKEN_HERE"
     "REDIS_ENABLED" = "true"
-    
-    # Push Notifications
-    "NEXT_PUBLIC_VAPID_PUBLIC_KEY" = "BOHhFbSY-KGfgPGMuyq_jv1qhQysJ4QlbZGfaxiDFQMxFWhDc0_FBlGRWJ--_wjw2Mbo-YnUNQU7hhOO5vMmH7E"
-    "VAPID_PRIVATE_KEY" = "Fu-CvQXhZpFknNf1WGE6EL3LhXXufXiZ5OvqxH8OK-w"
-    
-    # Azure AD
-    "AZURE_AD_CLIENT_ID" = "db09cb06-7111-4981-9bd4-cbaf914ad908"
-    "AZURE_AD_TENANT_ID" = "e918e8cf-5b1e-4faa-a9ee-32c3a542a18d"
-    "AZURE_AD_CLIENT_SECRET" = "797810c1-98af-4248-b432-5c033e178c0f"
-    "NEXT_PUBLIC_AZURE_AD_ENABLED" = "true"
-    
+
+    # Push Notifications (Générer avec: npx web-push generate-vapid-keys)
+    "NEXT_PUBLIC_VAPID_PUBLIC_KEY" = "YOUR_VAPID_PUBLIC_KEY_HERE"
+    "VAPID_PRIVATE_KEY" = "YOUR_VAPID_PRIVATE_KEY_HERE"
+
+    # Azure AD (optionnel - configurer dans Azure Portal)
+    "AZURE_AD_CLIENT_ID" = "YOUR_AZURE_AD_CLIENT_ID_HERE"
+    "AZURE_AD_TENANT_ID" = "YOUR_AZURE_AD_TENANT_ID_HERE"
+    "AZURE_AD_CLIENT_SECRET" = "YOUR_AZURE_AD_CLIENT_SECRET_HERE"
+    "NEXT_PUBLIC_AZURE_AD_ENABLED" = "false"
+
     # JIT Provisioning
     "JIT_PROVISIONING" = "true"
-    "ALLOWED_DOMAIN" = "cabinetmartin.com,cabinetdupont.fr"
+    "ALLOWED_DOMAIN" = "YOUR_ALLOWED_DOMAINS_HERE"
 }
 
 Write-Output "[INFO] Variables a configurer: $($variables.Count)"
