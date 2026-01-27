@@ -6,44 +6,64 @@ import requests
 
 class AdvancedLegalAI:
     def __init__(self):
-        # Configuration OpenAI publique (fallback)
+        # Ollama (gratuit, local - tier 1)
+        self.ollama_base_url = os.getenv('OLLAMA_BASE_URL') or os.getenv('OLLAMA_URL')
+        self.ollama_model = os.getenv('OLLAMA_MODEL', 'llama3.2:latest')
+
+        # Configuration OpenAI publique (tier 3 fallback)
         self.openai_key = os.getenv('OPENAI_API_KEY')
         if self.openai_key:
             openai.api_key = self.openai_key
 
-        # Configuration Azure OpenAI (prioritaire si complète)
+        # Configuration Azure OpenAI (tier 2 premium)
         self.azure_endpoint = os.getenv('AZURE_OPENAI_ENDPOINT')
         self.azure_api_key = os.getenv('AZURE_OPENAI_API_KEY')
         self.azure_deployment = os.getenv('AZURE_OPENAI_DEPLOYMENT')
         self.azure_api_version = os.getenv('AZURE_OPENAI_API_VERSION', '2025-01-01-preview')
 
     def advanced_case_analysis(self, case_description, procedure_type):
-        """Advanced AI analysis using Azure OpenAI (GPT-5.1) or fallback OpenAI"""
-        # Vérifier si Azure OpenAI est configuré
-        use_azure = self.azure_endpoint and self.azure_api_key and self.azure_deployment
-
-        if not use_azure and not self.openai_key:
-            return self.fallback_analysis(case_description, procedure_type)
-        
+        """Advanced AI analysis: Ollama (gratuit) > Azure GPT-5.1 (premium) > OpenAI (fallback)"""
         prompt = f"""
         En tant qu'avocat expert en droit des étrangers, analysez ce dossier CESEDA:
-        
+
         Type de procédure: {procedure_type}
         Description: {case_description}
-        
+
         Fournissez une analyse structurée avec:
         1. Points juridiques clés
         2. Stratégie recommandée
         3. Jurisprudence applicable
         4. Probabilité de succès (%)
         5. Actions prioritaires
-        
+
         Réponse en format JSON.
         """
-        
+
         try:
+                        # Tier 1: Ollama (gratuit, local)
+                        if self.ollama_base_url:
+                            try:
+                                url = f"{self.ollama_base_url}/api/chat"
+                                payload = {
+                                    'model': self.ollama_model,
+                                    'messages': [{'role': 'user', 'content': prompt}],
+                                    'stream': False,
+                                    'options': {
+                                        'temperature': 0.3,
+                                        'num_predict': 1500
+                                    }
+                                }
+                                response = requests.post(url, json=payload, timeout=30)
+                                if response.status_code == 200:
+                                    result = response.json()
+                                    content = result.get('message', {}).get('content', '')
+                                    return json.loads(content)
+                            except Exception as e:
+                                print(f"Ollama indisponible, fallback Azure/OpenAI: {e}")
+
+                        # Tier 2: Azure OpenAI (premium)
+                        use_azure = self.azure_endpoint and self.azure_api_key and self.azure_deployment
             if use_azure:
-                # Appel Azure OpenAI
                 url = f"{self.azure_endpoint.rstrip('/')}/openai/deployments/{self.azure_deployment}/chat/completions?api-version={self.azure_api_version}"
                 headers = {
                     'Content-Type': 'application/json',
@@ -58,16 +78,22 @@ class AdvancedLegalAI:
                 response.raise_for_status()
                 result = response.json()
                 return json.loads(result['choices'][0]['message']['content'])
-            else:
-                # Fallback OpenAI public
+
+            # Tier 3: OpenAI public (fallback)
+            if self.openai_key:
                 response = openai.chat.completions.create(
                     model="gpt-4",
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0.3
                 )
                 return json.loads(response.choices[0].message.content)
+
+                    # Aucune IA disponible
+                    return self.fallback_analysis(case_description, procedure_type)
+
         except Exception as e:
             print(f"Erreur AI: {e}")
+            return self.fallback_analysis(case_description, procedure_type)
 
     def fallback_analysis(self, case_description, procedure_type):
         """Fallback analysis without OpenAI"""

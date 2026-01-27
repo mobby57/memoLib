@@ -3,20 +3,36 @@
  * Résumé, catégorisation, détection urgence, extraction entités
  */
 
-import { AIAnalysis, ExtractedEntity, NormalizedMessage, SuggestedAction, UrgencyLevel } from './types';
+import {
+  AIAnalysis,
+  ExtractedEntity,
+  NormalizedMessage,
+  SuggestedAction,
+  UrgencyLevel,
+} from './types';
 
 export class AIService {
-  // Clé publique OpenAI (fallback)
+  // Ollama (gratuit, local - tier 1)
+  private ollamaBaseUrl?: string;
+  private ollamaModel: string;
+
+  // Clé publique OpenAI (fallback tier 3)
   private openaiApiKey: string;
 
-  // Configuration Azure OpenAI (prioritaire si complète)
+  // Configuration Azure OpenAI (premium tier 2)
   private azureEndpoint?: string;
   private azureApiKey?: string;
   private azureDeployment?: string;
   private azureApiVersion: string;
 
   constructor() {
+    // Tier 1: Ollama (gratuit, local)
+    this.ollamaBaseUrl = process.env.OLLAMA_BASE_URL || process.env.OLLAMA_URL;
+    this.ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2:latest';
+
+    // Tier 3: OpenAI fallback
     this.openaiApiKey = process.env.OPENAI_API_KEY || '';
+    // Tier 2: Azure OpenAI (premium)
 
     this.azureEndpoint = process.env.AZURE_OPENAI_ENDPOINT;
     this.azureApiKey = process.env.AZURE_OPENAI_API_KEY;
@@ -111,7 +127,10 @@ export class AIService {
   /**
    * Classifier le message
    */
-  private async classifyMessage(content: string, channel: string): Promise<{
+  private async classifyMessage(
+    content: string,
+    channel: string
+  ): Promise<{
     category: string;
     tags: string[];
     sentiment: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE';
@@ -227,8 +246,23 @@ export class AIService {
    */
   private async detectUrgency(content: string, channel: string): Promise<UrgencyLevel> {
     // Mots-clés d'urgence
-    const criticalKeywords = ['urgent', 'immédiat', 'critique', 'deadline', 'expulsion', 'garde à vue', 'arrestation'];
-    const highKeywords = ['important', 'prioritaire', 'rapidement', 'dès que possible', 'délai', 'audience'];
+    const criticalKeywords = [
+      'urgent',
+      'immédiat',
+      'critique',
+      'deadline',
+      'expulsion',
+      'garde à vue',
+      'arrestation',
+    ];
+    const highKeywords = [
+      'important',
+      'prioritaire',
+      'rapidement',
+      'dès que possible',
+      'délai',
+      'audience',
+    ];
 
     const contentLower = content.toLowerCase();
 
@@ -288,7 +322,7 @@ export class AIService {
     if (urgency === 'CRITICAL' || urgency === 'HIGH') {
       actions.push({
         type: 'ALERT',
-        description: 'Notifier l\'avocat responsable',
+        description: "Notifier l'avocat responsable",
         priority: 1,
         automated: true,
       });
@@ -334,7 +368,7 @@ export class AIService {
     const missing: string[] = [];
 
     if (!message.sender.email && !message.sender.phone) {
-      missing.push('Contact de l\'expéditeur (email ou téléphone)');
+      missing.push("Contact de l'expéditeur (email ou téléphone)");
     }
 
     if (!entities.some(e => e.type === 'REFERENCE')) {
@@ -368,7 +402,7 @@ export class AIService {
   }
 
   /**
-   * Appel OpenAI
+   * Appel IA multi-tier: Ollama (gratuit) > Azure (premium) > OpenAI (fallback)
    */
   private async callOpenAI(params: {
     model: string;
@@ -377,7 +411,44 @@ export class AIService {
     temperature: number;
     response_format?: { type: string };
   }): Promise<any> {
-    // Priorité à Azure OpenAI si configuration complète disponible
+    // Tier 1: Ollama (gratuit, local)
+    if (this.ollamaBaseUrl) {
+      try {
+        const ollamaUrl = `${this.ollamaBaseUrl}/api/chat`;
+        const response = await fetch(ollamaUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: this.ollamaModel,
+            messages: params.messages,
+            stream: false,
+            options: {
+              temperature: params.temperature,
+              num_predict: params.max_tokens,
+            },
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Format Ollama -> OpenAI
+          return {
+            choices: [
+              {
+                message: {
+                  role: 'assistant',
+                  content: data.message?.content || '',
+                },
+              },
+            ],
+          };
+        }
+      } catch (error) {
+        console.warn('Ollama indisponible, fallback Azure/OpenAI:', error);
+      }
+    }
+
+    // Tier 2: Azure OpenAI (premium si configuration complète disponible)
     const useAzure = this.azureEndpoint && this.azureApiKey && this.azureDeployment;
 
     if (useAzure) {
@@ -390,7 +461,6 @@ export class AIService {
           'Content-Type': 'application/json',
           'api-key': this.azureApiKey!,
         },
-        // Azure ignore le champ model quand le déploiement est dans l'URL, on peut le laisser tel quel
         body: JSON.stringify(params),
       });
 
@@ -401,12 +471,12 @@ export class AIService {
       return response.json();
     }
 
-    // Fallback vers l'API OpenAI publique
+    // Tier 3: OpenAI public API (fallback)
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.openaiApiKey}`,
+        Authorization: `Bearer ${this.openaiApiKey}`,
       },
       body: JSON.stringify(params),
     });
@@ -438,7 +508,7 @@ export class AIService {
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.openaiApiKey}`,
+        Authorization: `Bearer ${this.openaiApiKey}`,
       },
       body: formData,
     });
