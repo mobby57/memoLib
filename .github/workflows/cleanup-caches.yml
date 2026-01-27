@@ -1,0 +1,75 @@
+name: Cleanup GitHub Actions Caches
+
+on:
+  pull_request:
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      delete_all:
+        description: 'Delete ALL caches (not just PR caches)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Cleanup PR caches
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "🧹 Fetching caches for PR #${{ github.event.pull_request.number }}"
+          
+          cacheKeysForPR=$(gh cache list --ref refs/pull/${{ github.event.pull_request.number }}/merge --limit 100 --json id --jq '.[].id')
+          
+          if [ -z "$cacheKeysForPR" ]; then
+            echo "✅ No caches found for this PR"
+            exit 0
+          fi
+          
+          set +e
+          echo "🗑️ Deleting caches..."
+          for cacheKey in $cacheKeysForPR; do
+            gh cache delete $cacheKey && echo "  ✓ Deleted: $cacheKey"
+          done
+          echo "✅ Done"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Cleanup ALL caches (manual trigger)
+        if: github.event_name == 'workflow_dispatch' && inputs.delete_all == 'true'
+        run: |
+          echo "🧹 Fetching ALL caches..."
+          
+          cacheKeys=$(gh cache list --limit 100 --json id --jq '.[].id')
+          
+          if [ -z "$cacheKeys" ]; then
+            echo "✅ No caches found"
+            exit 0
+          fi
+          
+          set +e
+          echo "🗑️ Deleting all caches..."
+          for cacheKey in $cacheKeys; do
+            gh cache delete $cacheKey && echo "  ✓ Deleted: $cacheKey"
+          done
+          
+          # Continue if more than 100 caches
+          while true; do
+            remaining=$(gh cache list --limit 100 --json id --jq '.[].id')
+            if [ -z "$remaining" ]; then
+              break
+            fi
+            for cacheKey in $remaining; do
+              gh cache delete $cacheKey && echo "  ✓ Deleted: $cacheKey"
+            done
+          done
+          
+          echo "✅ All caches deleted"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
