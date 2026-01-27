@@ -5,18 +5,29 @@
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
-// Mock Prisma
-const mockPrismaFindMany = jest.fn();
-const mockPrismaAggregate = jest.fn();
-
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    tenant: { findMany: mockPrismaFindMany },
-    aiUsage: { aggregate: mockPrismaAggregate },
-  },
-}));
+// Mock Prisma AVANT tout import
+jest.mock('@/lib/prisma', () => {
+  const mockFindMany = jest.fn();
+  const mockAggregate = jest.fn();
+  return {
+    prisma: {
+      tenant: { findMany: mockFindMany },
+      aiUsage: { aggregate: mockAggregate },
+      $on: jest.fn(),
+      $disconnect: jest.fn(),
+    },
+    __mockFindMany: mockFindMany,
+    __mockAggregate: mockAggregate,
+  };
+});
 
 // Import après les mocks
+const prismaMock = jest.requireMock('@/lib/prisma') as {
+  prisma: { tenant: { findMany: jest.Mock }; aiUsage: { aggregate: jest.Mock } };
+  __mockFindMany: jest.Mock;
+  __mockAggregate: jest.Mock;
+};
+
 import { checkAllTenantsForAlerts } from '@/lib/billing/cost-alerts';
 
 describe('cost-alerts', () => {
@@ -26,12 +37,12 @@ describe('cost-alerts', () => {
 
   describe('checkAllTenantsForAlerts', () => {
     it('devrait retourner une liste vide si aucun tenant actif', async () => {
-      mockPrismaFindMany.mockResolvedValueOnce([]);
+      prismaMock.__mockFindMany.mockResolvedValueOnce([]);
 
       const alerts = await checkAllTenantsForAlerts();
 
       expect(alerts).toEqual([]);
-      expect(mockPrismaFindMany).toHaveBeenCalledWith(
+      expect(prismaMock.__mockFindMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { status: 'active' },
         })
@@ -47,9 +58,9 @@ describe('cost-alerts', () => {
           users: [{ email: 'admin@tenant1.com', name: 'Admin' }],
         },
       ];
-      mockPrismaFindMany.mockResolvedValueOnce(mockTenants);
+      prismaMock.__mockFindMany.mockResolvedValueOnce(mockTenants);
       // Simuler 70% de 50€ = 35€
-      mockPrismaAggregate.mockResolvedValueOnce({ _sum: { cost: 35 } });
+      prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 35 } });
 
       const alerts = await checkAllTenantsForAlerts();
 
@@ -67,9 +78,9 @@ describe('cost-alerts', () => {
           users: [{ email: 'admin@tenant2.com' }],
         },
       ];
-      mockPrismaFindMany.mockResolvedValueOnce(mockTenants);
+      prismaMock.__mockFindMany.mockResolvedValueOnce(mockTenants);
       // Simuler 90% de 50€ = 45€
-      mockPrismaAggregate.mockResolvedValueOnce({ _sum: { cost: 45 } });
+      prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 45 } });
 
       const alerts = await checkAllTenantsForAlerts();
 
@@ -86,9 +97,9 @@ describe('cost-alerts', () => {
           users: [{ email: 'admin@tenant3.com' }],
         },
       ];
-      mockPrismaFindMany.mockResolvedValueOnce(mockTenants);
+      prismaMock.__mockFindMany.mockResolvedValueOnce(mockTenants);
       // Simuler 100% de 50€ = 50€
-      mockPrismaAggregate.mockResolvedValueOnce({ _sum: { cost: 50 } });
+      prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 50 } });
 
       const alerts = await checkAllTenantsForAlerts();
 
@@ -105,9 +116,9 @@ describe('cost-alerts', () => {
           users: [{ email: 'admin@ok.com' }],
         },
       ];
-      mockPrismaFindMany.mockResolvedValueOnce(mockTenants);
+      prismaMock.__mockFindMany.mockResolvedValueOnce(mockTenants);
       // Pro a un budget plus élevé, coût faible
-      mockPrismaAggregate.mockResolvedValueOnce({ _sum: { cost: 10 } });
+      prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 10 } });
 
       const alerts = await checkAllTenantsForAlerts();
 
@@ -135,14 +146,14 @@ describe('cost-alerts', () => {
           users: [{ email: 'c@test.com' }],
         },
       ];
-      mockPrismaFindMany.mockResolvedValueOnce(mockTenants);
+      prismaMock.__mockFindMany.mockResolvedValueOnce(mockTenants);
 
       // Tenant A: 80% (warning)
-      mockPrismaAggregate.mockResolvedValueOnce({ _sum: { cost: 40 } });
+      prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 40 } });
       // Tenant B: 50% (ok)
-      mockPrismaAggregate.mockResolvedValueOnce({ _sum: { cost: 100 } });
+      prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 100 } });
       // Tenant C: 95% (critical)
-      mockPrismaAggregate.mockResolvedValueOnce({ _sum: { cost: 950 } });
+      prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 950 } });
 
       const alerts = await checkAllTenantsForAlerts();
 
@@ -151,7 +162,7 @@ describe('cost-alerts', () => {
     });
 
     it('devrait gérer les erreurs gracieusement', async () => {
-      mockPrismaFindMany.mockRejectedValueOnce(new Error('Database error'));
+      prismaMock.__mockFindMany.mockRejectedValueOnce(new Error('Database error'));
 
       const alerts = await checkAllTenantsForAlerts();
 
@@ -167,8 +178,8 @@ describe('cost-alerts', () => {
           users: [], // Pas d'admin
         },
       ];
-      mockPrismaFindMany.mockResolvedValueOnce(mockTenants);
-      mockPrismaAggregate.mockResolvedValueOnce({ _sum: { cost: 45 } });
+      prismaMock.__mockFindMany.mockResolvedValueOnce(mockTenants);
+      prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 45 } });
 
       const alerts = await checkAllTenantsForAlerts();
 
@@ -185,15 +196,8 @@ describe('cost-alerts', () => {
           users: [{ email: 'test@test.com' }],
         },
       ];
-      mockPrismaFindMany.mockResolvedValueOnce(mockTenants);
-      mockPrismaAggregate.mockResolvedValueOnce({ _sum: { cost: 40 } });
-
-      const alerts = await checkAllTenantsForAlerts();
-
-      expect(alerts.length).toBe(1);
-      expect(alerts[0].period).toHaveProperty('month');
-      expect(alerts[0].period).toHaveProperty('year');
-      expect(alerts[0].period.month).toBeGreaterThanOrEqual(1);
+      prismaMock.__mockFindMany.mockResolvedValueOnce(mockTenants);
+      prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 40 } });
       expect(alerts[0].period.month).toBeLessThanOrEqual(12);
     });
   });

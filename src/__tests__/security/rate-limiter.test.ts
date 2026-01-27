@@ -13,7 +13,7 @@ describe('rate-limiter', () => {
   beforeEach(async () => {
     // Reset le cache de modules pour avoir un store propre
     jest.resetModules();
-    
+
     // Réimporter le module
     const rateLimiter = await import('@/lib/security/rate-limiter');
     checkRateLimit = rateLimiter.checkRateLimit;
@@ -74,7 +74,7 @@ describe('rate-limiter', () => {
 
     it('devrait bloquer après max requêtes', () => {
       const identifier = 'user_blocked';
-      
+
       checkRateLimit(identifier, testConfig);
       checkRateLimit(identifier, testConfig);
       checkRateLimit(identifier, testConfig);
@@ -93,7 +93,7 @@ describe('rate-limiter', () => {
 
     it('devrait isoler les identifiants différents', () => {
       const config = { windowMs: 1000, maxRequests: 1 };
-      
+
       checkRateLimit('user_a', config);
       const resultA = checkRateLimit('user_a', config);
       const resultB = checkRateLimit('user_b', config);
@@ -115,10 +115,10 @@ describe('rate-limiter', () => {
         blockDuration: 10000,
       };
       const identifier = 'blocked_user';
-      
+
       checkRateLimit(identifier, configWithBlock);
       checkRateLimit(identifier, configWithBlock);
-      
+
       // Après blocage, toutes les requêtes devraient être refusées
       const result = checkRateLimit(identifier, configWithBlock);
       expect(result.allowed).toBe(false);
