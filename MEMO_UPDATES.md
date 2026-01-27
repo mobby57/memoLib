@@ -40,6 +40,7 @@ turbopack: {
 ```
 
 **Avantages:**
+
 - Build jusqu'à 10x plus rapide en dev
 - Imports SVG comme composants React
 - Alias @ pour imports propres

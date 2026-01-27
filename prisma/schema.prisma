@@ -308,10 +308,35 @@ model User {
   notifications  Notification[]
   calendarEvents CalendarEvent[]
   documents      Document[]
+  oauthTokens    OAuthToken[]
 
   @@index([tenantId, email])
   @@index([role])
   @@index([status])
+}
+
+model OAuthToken {
+  id       String @id @default(uuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  provider     String // 'google' | 'microsoft' | 'github'
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime?
+  scope        String? // space-separated scopes
+
+  connectedAt DateTime @default(now())
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@index([provider])
+  @@index([revokedAt])
 }
 
 // ============================================
