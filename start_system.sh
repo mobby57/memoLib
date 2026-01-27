@@ -17,6 +17,7 @@ fi
 sleep 3
 
 echo "[2/3] Starting Frontend Development Server..."
+FRONTEND_PID=""
 if [ -d "src/frontend" ]; then
     (cd src/frontend && npm run dev) &
     FRONTEND_PID=$!
@@ -45,5 +46,5 @@ echo ""
 echo "Press Ctrl+C to stop all services"
 
 # Wait for user interrupt
-trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null" EXIT
+trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit 0" EXIT INT TERM
 wait

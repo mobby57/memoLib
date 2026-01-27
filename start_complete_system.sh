@@ -33,6 +33,7 @@ else
 fi
 
 echo "[3/4] Starting Frontend..."
+FRONTEND_PID=""
 if [ -d "src/frontend" ]; then
     (cd src/frontend && npm run dev) &
     FRONTEND_PID=$!
@@ -63,5 +64,5 @@ echo ""
 echo "System is running! Press Ctrl+C to exit..."
 
 # Wait for user interrupt
-trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null" EXIT
+trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit 0" EXIT INT TERM
 wait
