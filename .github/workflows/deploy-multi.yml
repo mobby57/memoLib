@@ -1,0 +1,144 @@
+# ============================================================================
+# 🌐 Deploy Multi - Choix flexible (Azure, Fly.io, Vercel, Cloudflare)
+# ============================================================================
+# Déploie sur la plateforme choisie via variables `DEPLOY_TARGET`
+# Supporte: azure | fly | vercel | cloudflare
+# ============================================================================
+
+name: 🌐 Deploy Multi
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Deployment target (azure|fly|vercel|cloudflare)'
+        required: true
+        type: choice
+        options: [azure, fly, vercel, cloudflare]
+      ref:
+        description: 'Git ref to deploy (branch or tag)'
+        required: false
+        default: 'main'
+        type: string
+      run_build:
+        description: 'Run build before deploy'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  deployments: write
+  id-token: write
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: 🔧 Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://x:x@localhost/x' }}
+
+      - name: 🏗️ Build Application
+        if: inputs.run_build == true
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://x:x@localhost/x' }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'build-secret-32-characters-long!' }}
+          NEXTAUTH_URL: 'http://localhost:3000'
+
+      - name: Select Deploy Target
+        id: target
+        run: echo "target=${{ inputs.target }}" >> $GITHUB_OUTPUT
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # Azure App Service
+      # ═══════════════════════════════════════════════════════════════════════
+      - name: 🔐 Azure Login
+        if: steps.target.outputs.target == 'azure'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 🚀 Deploy to Azure App Service
+        if: steps.target.outputs.target == 'azure'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: iapostemanager-app
+          package: .
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # Fly.io
+      # ═══════════════════════════════════════════════════════════════════════
+      - name: 🔧 Setup Flyctl
+        if: steps.target.outputs.target == 'fly'
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: 🚀 Deploy to Fly.io
+        if: steps.target.outputs.target == 'fly'
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # Vercel
+      # ═══════════════════════════════════════════════════════════════════════
+      - name: 🔐 Vercel Auth
+        if: steps.target.outputs.target == 'vercel'
+        run: npx vercel login --token ${{ secrets.VERCEL_TOKEN }}
+
+      - name: 🚀 Deploy to Vercel
+        if: steps.target.outputs.target == 'vercel'
+        run: npx vercel --prod --confirm --token ${{ secrets.VERCEL_TOKEN }}
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # Cloudflare Pages
+      # ═══════════════════════════════════════════════════════════════════════
+      - name: 🚀 Deploy to Cloudflare Pages
+        if: steps.target.outputs.target == 'cloudflare'
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: iapostemanager
+          directory: ./out
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Deploy Summary
+        run: |
+          echo "## 🌐 Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- Target: ${{ inputs.target }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Ref: ${{ inputs.ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Build: ${{ inputs.run_build }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📣 Notify Slack
+        if: success() && secrets.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Deployment completed: ${{ inputs.target }} (${{ inputs.ref }})"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
