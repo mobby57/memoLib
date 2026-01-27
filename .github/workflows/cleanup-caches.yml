@@ -9,7 +9,7 @@ on:
       delete_all:
         description: 'Delete ALL caches (not just PR caches)'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 jobs:
