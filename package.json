@@ -172,7 +172,7 @@
   },
   "devDependencies": {
     "@cloudflare/next-on-pages": "^1.13.16",
-    "@cloudflare/workers-types": "^4.20260113.0",
+    "@cloudflare/workers-types": "^4.20260127.0",
     "@commitlint/cli": "^20.3.0",
     "@commitlint/config-conventional": "^20.3.0",
     "@eslint/eslintrc": "^3.3.3",
