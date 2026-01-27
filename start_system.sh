@@ -4,6 +4,10 @@
 
 echo "Starting IA Poste Manager Complete System..."
 
+# Initialize PID variables to avoid undefined variable errors in trap handler
+BACKEND_PID=""
+FRONTEND_PID=""
+
 # Get the script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR" || exit 1
