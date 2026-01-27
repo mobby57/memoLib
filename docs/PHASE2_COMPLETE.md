@@ -2,20 +2,20 @@
 
 ## Fichiers complétés
 
-| Fichier | Statut |
-|---------|--------|
-| `src/lib/oauth/oauth-service.ts` | ✅ Connecteurs OAuth base |
-| `src/lib/oauth/integrations.ts` | ✅ Google/Microsoft APIs |
-| `src/lib/oauth/calendar-bridge.ts` | ✅ Bridge externe → interne |
-| `src/lib/oauth/token-service.ts` | ✅ **NOUVEAU** - Gestion DB tokens |
-| `src/lib/oauth/middleware.ts` | ✅ **NOUVEAU** - Middleware refresh |
-| `src/app/api/oauth/authorize/route.ts` | ✅ Generate auth URL |
-| `src/app/api/oauth/callback/route.ts` | ✅ **MISE À JOUR** - Token storage DB |
-| `src/app/api/oauth/tokens/route.ts` | ✅ **NOUVEAU** - List/revoke tokens |
-| `src/app/api/integrations/sync/route.ts` | ✅ **NOUVEAU** - Sync calendar/contacts |
-| `src/hooks/useOAuth.ts` | ✅ OAuth login flow |
-| `src/hooks/useConnectedProviders.ts` | ✅ **NOUVEAU** - Manage connected accounts |
-| `prisma/schema.prisma` | ✅ **MISE À JOUR** - OAuthToken model |
+| Fichier                                  | Statut                                     |
+| ---------------------------------------- | ------------------------------------------ |
+| `src/lib/oauth/oauth-service.ts`         | ✅ Connecteurs OAuth base                  |
+| `src/lib/oauth/integrations.ts`          | ✅ Google/Microsoft APIs                   |
+| `src/lib/oauth/calendar-bridge.ts`       | ✅ Bridge externe → interne                |
+| `src/lib/oauth/token-service.ts`         | ✅ **NOUVEAU** - Gestion DB tokens         |
+| `src/lib/oauth/middleware.ts`            | ✅ **NOUVEAU** - Middleware refresh        |
+| `src/app/api/oauth/authorize/route.ts`   | ✅ Generate auth URL                       |
+| `src/app/api/oauth/callback/route.ts`    | ✅ **MISE À JOUR** - Token storage DB      |
+| `src/app/api/oauth/tokens/route.ts`      | ✅ **NOUVEAU** - List/revoke tokens        |
+| `src/app/api/integrations/sync/route.ts` | ✅ **NOUVEAU** - Sync calendar/contacts    |
+| `src/hooks/useOAuth.ts`                  | ✅ OAuth login flow                        |
+| `src/hooks/useConnectedProviders.ts`     | ✅ **NOUVEAU** - Manage connected accounts |
+| `prisma/schema.prisma`                   | ✅ **MISE À JOUR** - OAuthToken model      |
 
 ---
 
@@ -144,7 +144,7 @@ export function ConnectedAccounts() {
 
   return (
     <ul>
-      {providers.map((p) => (
+      {providers.map(p => (
         <li key={p.provider}>
           {p.provider}
           <button onClick={() => revoke(p.provider)}>Disconnect</button>
@@ -164,10 +164,7 @@ export function ConnectedAccounts() {
 ```ts
 // Dans une API route ou action serveur
 const accessToken = await oauthTokenService.ensureValidToken(userId, 'google');
-const events = await ExternalCalendarBridge.syncGoogleCalendar(
-  accessToken,
-  userId
-);
+const events = await ExternalCalendarBridge.syncGoogleCalendar(accessToken, userId);
 ```
 
 ### Token Refresh Automatique
@@ -181,13 +178,13 @@ const validToken = await oauthTokenService.ensureValidToken(userId, 'microsoft')
 
 ## API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/oauth/authorize` | GET | Get OAuth authorization URL |
-| `/api/oauth/callback` | POST | Exchange code for token |
-| `/api/oauth/tokens` | GET | List connected providers |
-| `/api/oauth/tokens` | DELETE | Revoke provider access |
-| `/api/integrations/sync` | POST | Sync calendar/contacts |
+| Endpoint                 | Method | Description                 |
+| ------------------------ | ------ | --------------------------- |
+| `/api/oauth/authorize`   | GET    | Get OAuth authorization URL |
+| `/api/oauth/callback`    | POST   | Exchange code for token     |
+| `/api/oauth/tokens`      | GET    | List connected providers    |
+| `/api/oauth/tokens`      | DELETE | Revoke provider access      |
+| `/api/integrations/sync` | POST   | Sync calendar/contacts      |
 
 ---
 
