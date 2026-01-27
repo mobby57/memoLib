@@ -3,20 +3,18 @@
  * GET /api/github/user
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getGitHubUserInfo, isGitHubAuthorized } from '@/lib/github/user-client';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getGitHubUserInfo, isGitHubAuthorized } from '@/lib/github/user-client';
+import { logger } from '@/lib/logger';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const isAuthorized = await isGitHubAuthorized();
@@ -35,7 +33,9 @@ export async function GET(req: NextRequest) {
       user: userInfo,
     });
   } catch (error) {
-    console.error('GitHub user info API error:', error);
+    logger.error('GitHub user info API error', error instanceof Error ? error : undefined, {
+      route: '/api/github/user',
+    });
 
     return NextResponse.json(
       {

@@ -7,7 +7,7 @@ export interface WorkflowConfig {
   // Activation/Desactivation
   enabled: boolean;
   autoTrigger: boolean;
-  
+
   // Intelligence Artificielle
   ai: {
     provider: 'ollama' | 'openai' | 'anthropic';
@@ -18,7 +18,7 @@ export interface WorkflowConfig {
     confidenceThreshold: number; // 0-1
     analysisDepth: 'quick' | 'standard' | 'deep';
   };
-  
+
   // Notifications
   notifications: {
     enabled: boolean;
@@ -32,10 +32,10 @@ export interface WorkflowConfig {
     quietHours: {
       enabled: boolean;
       start: string; // "22:00"
-      end: string;   // "08:00"
+      end: string; // "08:00"
     };
   };
-  
+
   // Formulaires Dynamiques
   forms: {
     autofill: boolean;
@@ -45,7 +45,7 @@ export interface WorkflowConfig {
     requiredFields: 'strict' | 'flexible';
     validationLevel: 'basic' | 'advanced';
   };
-  
+
   // Calendrier & Planning
   calendar: {
     provider: 'google' | 'outlook' | 'internal';
@@ -59,7 +59,7 @@ export interface WorkflowConfig {
     defaultDuration: number; // minutes
     reminderMinutes: number[];
   };
-  
+
   // Emails Automatiques
   email: {
     autoReply: boolean;
@@ -70,7 +70,7 @@ export interface WorkflowConfig {
     bcc: string[];
     replyTo: string;
   };
-  
+
   // Regles de Routage
   routing: {
     rules: RoutingRule[];
@@ -78,7 +78,7 @@ export interface WorkflowConfig {
     escalationRules: EscalationRule[];
     loadBalancing: 'round-robin' | 'least-busy' | 'skill-based';
   };
-  
+
   // Performance & Limites
   performance: {
     maxConcurrentWorkflows: number;
@@ -87,7 +87,7 @@ export interface WorkflowConfig {
     retryDelayMs: number;
     cacheDuration: number;
   };
-  
+
   // Securite & Compliance
   security: {
     encryptData: boolean;
@@ -97,7 +97,7 @@ export interface WorkflowConfig {
     blockedSenders: string[];
     dataRetentionDays: number;
   };
-  
+
   // Integrations
   integrations: {
     gmail: IntegrationConfig;
@@ -106,7 +106,7 @@ export interface WorkflowConfig {
     teams: IntegrationConfig;
     webhook: WebhookConfig[];
   };
-  
+
   // Analytics & Reporting
   analytics: {
     enabled: boolean;
@@ -189,7 +189,7 @@ export interface WebhookConfig {
 export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
   enabled: true,
   autoTrigger: true,
-  
+
   ai: {
     provider: 'ollama',
     model: 'llama3.2:latest',
@@ -199,7 +199,7 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
     confidenceThreshold: 0.7,
     analysisDepth: 'standard',
   },
-  
+
   notifications: {
     enabled: true,
     channels: ['web', 'email'],
@@ -243,7 +243,7 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
       end: '08:00',
     },
   },
-  
+
   forms: {
     autofill: true,
     aiSuggestions: true,
@@ -252,7 +252,7 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
     requiredFields: 'flexible',
     validationLevel: 'advanced',
   },
-  
+
   calendar: {
     provider: 'internal',
     autoSchedule: false,
@@ -265,7 +265,7 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
     defaultDuration: 60,
     reminderMinutes: [1440, 60, 15], // 1 jour, 1h, 15min
   },
-  
+
   email: {
     autoReply: false,
     requireApproval: true,
@@ -275,14 +275,14 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
     bcc: [],
     replyTo: '',
   },
-  
+
   routing: {
     rules: [],
     defaultAssignee: 'auto',
     escalationRules: [],
     loadBalancing: 'skill-based',
   },
-  
+
   performance: {
     maxConcurrentWorkflows: 10,
     timeoutSeconds: 300,
@@ -290,7 +290,7 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
     retryDelayMs: 5000,
     cacheDuration: 3600,
   },
-  
+
   security: {
     encryptData: true,
     auditLog: true,
@@ -299,7 +299,7 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
     blockedSenders: [],
     dataRetentionDays: 365,
   },
-  
+
   integrations: {
     gmail: { enabled: false },
     outlook: { enabled: false },
@@ -307,7 +307,7 @@ export const DEFAULT_WORKFLOW_CONFIG: WorkflowConfig = {
     teams: { enabled: false },
     webhook: [],
   },
-  
+
   analytics: {
     enabled: true,
     trackEvents: [
@@ -350,7 +350,7 @@ export const PRESET_CONFIGS = {
       cacheDuration: 7200,
     },
   },
-  
+
   /**
    * Mode Securite - Maximum de controles et validations
    */
@@ -380,7 +380,7 @@ export const PRESET_CONFIGS = {
       dataRetentionDays: 730,
     },
   },
-  
+
   /**
    * Mode Automatique - Maximum d'automation, minimum d'intervention
    */
@@ -406,7 +406,7 @@ export const PRESET_CONFIGS = {
       loadBalancing: 'least-busy',
     },
   },
-  
+
   /**
    * Mode Cabinet Juridique - Optimise pour avocats
    */
@@ -459,7 +459,28 @@ export const PRESET_CONFIGS = {
  * Charge la configuration depuis la base de donnees ou utilise la config par defaut
  */
 export async function loadWorkflowConfig(tenantId?: string): Promise<WorkflowConfig> {
-  // TODO: Charger depuis DB si tenantId fourni
+  if (tenantId) {
+    try {
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient();
+
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: tenantId },
+        select: { settings: true },
+      });
+
+      await prisma.$disconnect();
+
+      if (tenant?.settings && typeof tenant.settings === 'object') {
+        const settings = tenant.settings as Record<string, any>;
+        if (settings.workflowConfig) {
+          return { ...DEFAULT_WORKFLOW_CONFIG, ...settings.workflowConfig };
+        }
+      }
+    } catch (error) {
+      console.error('[WorkflowConfig] Erreur chargement:', error);
+    }
+  }
   return DEFAULT_WORKFLOW_CONFIG;
 }
 
@@ -470,8 +491,40 @@ export async function saveWorkflowConfig(
   config: Partial<WorkflowConfig>,
   tenantId?: string
 ): Promise<void> {
-  // TODO: Sauvegarder en DB
-  console.log('Sauvegarde configuration:', config);
+  if (!tenantId) {
+    console.warn('[WorkflowConfig] tenantId requis pour sauvegarder');
+    return;
+  }
+
+  try {
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+
+    // Charger les settings existants
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { settings: true },
+    });
+
+    const currentSettings = (tenant?.settings as Record<string, any>) || {};
+
+    // Fusionner la config workflow
+    await prisma.tenant.update({
+      where: { id: tenantId },
+      data: {
+        settings: {
+          ...currentSettings,
+          workflowConfig: { ...currentSettings.workflowConfig, ...config },
+        },
+      },
+    });
+
+    await prisma.$disconnect();
+    console.log('[WorkflowConfig] Configuration sauvegardée pour tenant:', tenantId);
+  } catch (error) {
+    console.error('[WorkflowConfig] Erreur sauvegarde:', error);
+    throw error;
+  }
 }
 
 /**
@@ -482,19 +535,19 @@ export function validateWorkflowConfig(config: Partial<WorkflowConfig>): {
   errors: string[];
 } {
   const errors: string[] = [];
-  
+
   if (config.ai?.temperature && (config.ai.temperature < 0 || config.ai.temperature > 1)) {
     errors.push('AI temperature doit etre entre 0 et 1');
   }
-  
+
   if (config.performance?.maxConcurrentWorkflows && config.performance.maxConcurrentWorkflows < 1) {
     errors.push('maxConcurrentWorkflows doit etre >= 1');
   }
-  
+
   if (config.security?.dataRetentionDays && config.security.dataRetentionDays < 30) {
     errors.push('dataRetentionDays doit etre >= 30 jours');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors,

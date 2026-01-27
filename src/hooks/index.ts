@@ -1,6 +1,7 @@
-﻿export { useAuth } from './useAuth';
-export { useTenant } from './useTenant';
-export { useDossiers } from './useDossiers';
-export { useFactures } from './useFactures';
+﻿export { useToast } from '@/components/ui/Toast';
+export { useAuth } from './useAuth';
+export { usePerformance } from './usePerformance';
 export { useSessionTimeout } from './useSessionTimeout';
-export { useToast } from '@/components/ui/Toast';
+export { useValidation } from './useValidation';
+export { useWebSocket } from './useWebSocket';
+export { useWorkspaceReasoning } from './useWorkspaceReasoning';

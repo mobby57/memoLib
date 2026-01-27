@@ -1,18 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * DELETE /api/admin/dossiers/[id]
  * Supprimer un dossier (avocat uniquement)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -43,11 +41,10 @@ export async function DELETE(
 
     return NextResponse.json({ message: 'Dossier supprime' }, { status: 200 });
   } catch (error) {
-    console.error('Erreur suppression dossier:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur suppression dossier', error instanceof Error ? error : undefined, {
+      route: '/api/admin/dossiers/[id]',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -55,13 +52,10 @@ export async function DELETE(
  * GET /api/admin/dossiers/[id]
  * Recuperer un dossier specifique
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -92,11 +86,10 @@ export async function GET(
 
     return NextResponse.json({ dossier });
   } catch (error) {
-    console.error('Erreur recuperation dossier:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur recuperation dossier', error instanceof Error ? error : undefined, {
+      route: '/api/admin/dossiers/[id]',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -104,13 +97,10 @@ export async function GET(
  * PUT /api/admin/dossiers/[id]
  * Mettre a jour un dossier
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -154,7 +144,7 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       dossier: {
         ...dossier,
         client: {
@@ -162,13 +152,12 @@ export async function PUT(
           prenom: dossier.client.firstName,
           email: dossier.client.email,
         },
-      }
+      },
     });
   } catch (error) {
-    console.error('Erreur mise a jour dossier:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur mise a jour dossier', error instanceof Error ? error : undefined, {
+      route: '/api/admin/dossiers/[id]',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

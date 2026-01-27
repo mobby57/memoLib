@@ -1,4 +1,5 @@
 ﻿/**
+import { logger } from '@/lib/logger';
  * API Endpoint - Dashboard des coûts IA
  * GET /api/billing/ai-costs
  * 
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Erreur API ai-costs:', error);
+    logger.error('Erreur API ai-costs:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

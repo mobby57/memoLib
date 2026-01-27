@@ -2,14 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { clientId: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { clientId: string } }) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
@@ -35,11 +33,11 @@ export async function GET(
             priorite: true,
             dateCreation: true,
             dateEcheance: true,
-            description: true
+            description: true,
           },
-          take: 1 // Un client n'a generalement qu'un dossier principal
-        }
-      }
+          take: 1, // Un client n'a generalement qu'un dossier principal
+        },
+      },
     });
 
     if (!client) {
@@ -50,14 +48,14 @@ export async function GET(
     const factures = await prisma.facture.findMany({
       where: {
         tenantId: client.tenantId,
-        clientName: `${client.firstName} ${client.lastName}`
+        clientName: `${client.firstName} ${client.lastName}`,
       },
       select: {
         id: true,
         montant: true,
         statut: true,
-        dateEcheance: true
-      }
+        dateEcheance: true,
+      },
     });
 
     // Calculer les statistiques des factures
@@ -66,12 +64,11 @@ export async function GET(
       payees: factures.filter(f => f.statut === 'payee').length,
       enAttente: factures.filter(f => f.statut === 'en_attente').length,
       enRetard: factures.filter(f => {
-        return f.statut === 'en_attente' && 
-               new Date(f.dateEcheance) < new Date();
+        return f.statut === 'en_attente' && new Date(f.dateEcheance) < new Date();
       }).length,
       prochaine: factures
         .filter(f => f.statut === 'en_attente')
-        .sort((a, b) => new Date(a.dateEcheance).getTime() - new Date(b.dateEcheance).getTime())[0]
+        .sort((a, b) => new Date(a.dateEcheance).getTime() - new Date(b.dateEcheance).getTime())[0],
     };
 
     // Recuperer les dernieres activites (simplifiees pour le client)
@@ -79,16 +76,16 @@ export async function GET(
       where: {
         tenantId: client.tenantId,
         objectType: 'Dossier',
-        objectId: client.dossiers[0]?.id
+        objectId: client.dossiers[0]?.id,
       },
       select: {
         id: true,
         action: true,
         timestamp: true,
-        objectType: true
+        objectType: true,
       },
       orderBy: { timestamp: 'desc' },
-      take: 5
+      take: 5,
     });
 
     return NextResponse.json({
@@ -98,12 +95,13 @@ export async function GET(
         id: activity.id,
         type: activity.objectType.toLowerCase(),
         titre: `${activity.action} - ${activity.objectType}`,
-        date: activity.timestamp
-      }))
+        date: activity.timestamp,
+      })),
     });
-
   } catch (error) {
-    console.error('Erreur API client dashboard:', error);
+    logger.error('Erreur API client dashboard', error instanceof Error ? error : undefined, {
+      route: '/api/client/[clientId]/dashboard',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

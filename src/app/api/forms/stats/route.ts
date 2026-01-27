@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
       averageImpactScore,
     });
   } catch (error) {
-    console.error('Erreur statistiques:', error);
+    logger.error('Erreur statistiques:', { error });
     return NextResponse.json(
       { error: 'Erreur lors du chargement des statistiques' },
       { status: 500 }

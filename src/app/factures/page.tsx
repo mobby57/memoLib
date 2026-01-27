@@ -6,7 +6,24 @@ export const dynamic = 'force-dynamic';
 import { useSession } from 'next-auth/react';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Search, Edit2, Trash2, Download, Send, FileText, Euro, Clock, CheckCircle, Eye, RefreshCw, CreditCard } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
+  Download,
+  Send,
+  FileText,
+  Euro,
+  Clock,
+  CheckCircle,
+  Eye,
+  RefreshCw,
+  CreditCard,
+  TrendingUp,
+  AlertTriangle,
+  BarChart3,
+} from 'lucide-react';
 import { Card, StatCard, Badge, Pagination, Breadcrumb, Alert, useToast } from '@/components/ui';
 import { Table } from '@/components/ui/TableSimple';
 import { Modal } from '@/components/forms/Modal';
@@ -36,22 +53,102 @@ const factureSchema = z.object({
   montantHT: z.string().min(1, 'Montant HT requis'),
   tauxTVA: z.string().min(1, 'Taux TVA requis'),
   statut: z.enum(['brouillon', 'envoyee', 'payee', 'en_retard', 'annulee']),
-  dateEmission: z.string().min(1, 'Date d\'emission requise'),
-  dateEcheance: z.string().min(1, 'Date d\'echeance requise'),
+  dateEmission: z.string().min(1, "Date d'emission requise"),
+  dateEcheance: z.string().min(1, "Date d'echeance requise"),
   datePaiement: z.string().optional(),
 });
 
 type FactureFormData = z.infer<typeof factureSchema>;
 
 const mockFactures: Facture[] = [
-  { id: '1', numero: 'FACT-2024-001', client: 'SARL Martin', dossier: 'DOS-2024-001', montantHT: 1500, montantTTC: 1800, statut: 'payee', dateEmission: '2024-01-05', dateEcheance: '2024-02-05', datePaiement: '2024-01-28' },
-  { id: '2', numero: 'FACT-2024-002', client: 'SAS TechCorp', dossier: 'DOS-2024-002', montantHT: 2200, montantTTC: 2640, statut: 'envoyee', dateEmission: '2024-01-10', dateEcheance: '2024-02-10' },
-  { id: '3', numero: 'FACT-2024-003', client: 'EURL Dupont', montantHT: 850, montantTTC: 1020, statut: 'brouillon', dateEmission: '2024-01-15', dateEcheance: '2024-02-15' },
-  { id: '4', numero: 'FACT-2024-004', client: 'SCI Investissement', dossier: 'DOS-2024-004', montantHT: 3500, montantTTC: 4200, statut: 'en_retard', dateEmission: '2023-12-20', dateEcheance: '2024-01-20' },
-  { id: '5', numero: 'FACT-2023-125', client: 'M. Bernard', dossier: 'DOS-2023-125', montantHT: 1200, montantTTC: 1440, statut: 'payee', dateEmission: '2023-12-01', dateEcheance: '2024-01-01', datePaiement: '2023-12-28' },
-  { id: '6', numero: 'FACT-2024-005', client: 'SARL Dubois', montantHT: 1800, montantTTC: 2160, statut: 'envoyee', dateEmission: '2024-01-12', dateEcheance: '2024-02-12' },
-  { id: '7', numero: 'FACT-2024-006', client: 'Entreprise ABC', dossier: 'DOS-2024-006', montantHT: 2500, montantTTC: 3000, statut: 'brouillon', dateEmission: '2024-01-18', dateEcheance: '2024-02-18' },
-  { id: '8', numero: 'FACT-2024-007', client: 'Client XYZ', montantHT: 950, montantTTC: 1140, statut: 'payee', dateEmission: '2024-01-08', dateEcheance: '2024-02-08', datePaiement: '2024-02-05' },
+  {
+    id: '1',
+    numero: 'FACT-2024-001',
+    client: 'SARL Martin',
+    dossier: 'DOS-2024-001',
+    montantHT: 1500,
+    montantTTC: 1800,
+    statut: 'payee',
+    dateEmission: '2024-01-05',
+    dateEcheance: '2024-02-05',
+    datePaiement: '2024-01-28',
+  },
+  {
+    id: '2',
+    numero: 'FACT-2024-002',
+    client: 'SAS TechCorp',
+    dossier: 'DOS-2024-002',
+    montantHT: 2200,
+    montantTTC: 2640,
+    statut: 'envoyee',
+    dateEmission: '2024-01-10',
+    dateEcheance: '2024-02-10',
+  },
+  {
+    id: '3',
+    numero: 'FACT-2024-003',
+    client: 'EURL Dupont',
+    montantHT: 850,
+    montantTTC: 1020,
+    statut: 'brouillon',
+    dateEmission: '2024-01-15',
+    dateEcheance: '2024-02-15',
+  },
+  {
+    id: '4',
+    numero: 'FACT-2024-004',
+    client: 'SCI Investissement',
+    dossier: 'DOS-2024-004',
+    montantHT: 3500,
+    montantTTC: 4200,
+    statut: 'en_retard',
+    dateEmission: '2023-12-20',
+    dateEcheance: '2024-01-20',
+  },
+  {
+    id: '5',
+    numero: 'FACT-2023-125',
+    client: 'M. Bernard',
+    dossier: 'DOS-2023-125',
+    montantHT: 1200,
+    montantTTC: 1440,
+    statut: 'payee',
+    dateEmission: '2023-12-01',
+    dateEcheance: '2024-01-01',
+    datePaiement: '2023-12-28',
+  },
+  {
+    id: '6',
+    numero: 'FACT-2024-005',
+    client: 'SARL Dubois',
+    montantHT: 1800,
+    montantTTC: 2160,
+    statut: 'envoyee',
+    dateEmission: '2024-01-12',
+    dateEcheance: '2024-02-12',
+  },
+  {
+    id: '7',
+    numero: 'FACT-2024-006',
+    client: 'Entreprise ABC',
+    dossier: 'DOS-2024-006',
+    montantHT: 2500,
+    montantTTC: 3000,
+    statut: 'brouillon',
+    dateEmission: '2024-01-18',
+    dateEcheance: '2024-02-18',
+  },
+  {
+    id: '8',
+    numero: 'FACT-2024-007',
+    client: 'Client XYZ',
+    montantHT: 950,
+    montantTTC: 1140,
+    statut: 'payee',
+    dateEmission: '2024-01-08',
+    dateEcheance: '2024-02-08',
+    datePaiement: '2024-02-05',
+  },
 ];
 
 const STATUT_LABELS = {
@@ -83,7 +180,13 @@ export default function FacturesPage() {
 
   const { addToast } = useToast();
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<FactureFormData>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<FactureFormData>({
     resolver: zodResolver(factureSchema),
   });
 
@@ -99,13 +202,13 @@ export default function FacturesPage() {
   // Filtrage et recherche
   const filteredFactures = useMemo(() => {
     return factures.filter(facture => {
-      const matchSearch = 
+      const matchSearch =
         facture.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
         facture.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
         facture.dossier?.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchStatut = filterStatut === 'all' || facture.statut === filterStatut;
-      
+
       return matchSearch && matchStatut;
     });
   }, [factures, searchTerm, filterStatut]);
@@ -220,7 +323,16 @@ export default function FacturesPage() {
 
   const exportData = () => {
     // Export CSV functionality
-    const headers = ['Numero', 'Client', 'Dossier', 'Montant HT', 'Montant TTC', 'Statut', 'Date Emission', 'Date Echeance'];
+    const headers = [
+      'Numero',
+      'Client',
+      'Dossier',
+      'Montant HT',
+      'Montant TTC',
+      'Statut',
+      'Date Emission',
+      'Date Echeance',
+    ];
     const rows = filteredFactures.map(f => [
       f.numero,
       f.client,
@@ -229,16 +341,16 @@ export default function FacturesPage() {
       f.montantTTC.toFixed(2),
       STATUT_LABELS[f.statut],
       f.dateEmission,
-      f.dateEcheance
+      f.dateEcheance,
     ]);
-    
+
     const csvContent = [headers.join(';'), ...rows.map(r => r.join(';'))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `factures_export_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
-    
+
     addToast({
       variant: 'success',
       title: 'Export termine',
@@ -249,9 +361,7 @@ export default function FacturesPage() {
   const sendFacture = (facture: Facture) => {
     if (facture.statut === 'brouillon') {
       setFactures(prev =>
-        prev.map(f =>
-          f.id === facture.id ? { ...f, statut: 'envoyee' as const } : f
-        )
+        prev.map(f => (f.id === facture.id ? { ...f, statut: 'envoyee' as const } : f))
       );
       addToast({
         variant: 'success',
@@ -265,8 +375,12 @@ export default function FacturesPage() {
     if (facture.statut === 'envoyee' || facture.statut === 'en_retard') {
       setFactures(prev =>
         prev.map(f =>
-          f.id === facture.id 
-            ? { ...f, statut: 'payee' as const, datePaiement: new Date().toISOString().split('T')[0] } 
+          f.id === facture.id
+            ? {
+                ...f,
+                statut: 'payee' as const,
+                datePaiement: new Date().toISOString().split('T')[0],
+              }
             : f
         )
       );
@@ -293,16 +407,20 @@ export default function FacturesPage() {
   const columns = [
     { accessor: 'numero' as const, header: 'Numero' },
     { accessor: 'client' as const, header: 'Client' },
-    { accessor: 'dossier' as const, header: 'Dossier', render: (value: string | undefined) => value || '-' },
-    { 
-      accessor: 'montantHT' as const, 
-      header: 'Montant HT',
-      render: (value: number) => `${value.toFixed(2)} €`
+    {
+      accessor: 'dossier' as const,
+      header: 'Dossier',
+      render: (value: string | undefined) => value || '-',
     },
-    { 
-      accessor: 'montantTTC' as const, 
+    {
+      accessor: 'montantHT' as const,
+      header: 'Montant HT',
+      render: (value: number) => `${value.toFixed(2)} €`,
+    },
+    {
+      accessor: 'montantTTC' as const,
       header: 'Montant TTC',
-      render: (value: number) => `${value.toFixed(2)} €`
+      render: (value: number) => `${value.toFixed(2)} €`,
     },
     {
       accessor: 'statut' as const,
@@ -317,7 +435,7 @@ export default function FacturesPage() {
       accessor: 'id' as const,
       header: 'Actions',
       render: (_: string, row: Facture) => (
-        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+        <div className="flex gap-1" onClick={e => e.stopPropagation()}>
           <button
             onClick={() => router.push(`/factures/${row.id}`)}
             className="p-1 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
@@ -380,69 +498,166 @@ export default function FacturesPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 animate-fadeIn">
       {/* Breadcrumb */}
-      <Breadcrumb
-        items={[
-          { label: 'Factures' },
-        ]}
-      />
+      <Breadcrumb items={[{ label: 'Factures' }]} />
 
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gestion des factures</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Gerez vos factures et suivez les paiements
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={exportData}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
-            <Download className="w-4 h-4" />
-            Exporter
-          </button>
-          <button
-            onClick={openCreateModal}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4" />
-            Nouvelle facture
-          </button>
+      {/* Header avec gradient */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 rounded-2xl p-8 text-white shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.5))]" />
+        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Euro className="w-8 h-8" />
+              Gestion des factures
+            </h1>
+            <p className="text-emerald-100 mt-2 max-w-lg">
+              CA Total: {stats.total.toFixed(2)} € - Dont {stats.montantPaye.toFixed(2)} € encaissé
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={exportData}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-lg hover:bg-white/30 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Exporter
+            </button>
+            <button
+              onClick={openCreateModal}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-emerald-700 rounded-lg hover:bg-emerald-50 font-medium shadow-lg"
+            >
+              <Plus className="w-4 h-4" />
+              Nouvelle facture
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Graphique simple du CA */}
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-emerald-600" />
+            Répartition du chiffre d&apos;affaires
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Barre de progression CA encaissé */}
+          <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                Encaissé
+              </span>
+              <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                {stats.montantPaye.toFixed(2)} €
+              </span>
+            </div>
+            <div className="w-full bg-emerald-200 dark:bg-emerald-800 rounded-full h-3">
+              <div
+                className="bg-emerald-600 h-3 rounded-full transition-all duration-500"
+                style={{
+                  width: `${stats.total > 0 ? (stats.montantPaye / stats.total) * 100 : 0}%`,
+                }}
+              />
+            </div>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
+              {stats.total > 0 ? ((stats.montantPaye / stats.total) * 100).toFixed(1) : 0}% du CA
+              total
+            </p>
+          </div>
+          {/* Barre de progression en attente */}
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                En attente
+              </span>
+              <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
+                {stats.montantEnAttente.toFixed(2)} €
+              </span>
+            </div>
+            <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-3">
+              <div
+                className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                style={{
+                  width: `${stats.total > 0 ? (stats.montantEnAttente / stats.total) * 100 : 0}%`,
+                }}
+              />
+            </div>
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+              {stats.total > 0 ? ((stats.montantEnAttente / stats.total) * 100).toFixed(1) : 0}% du
+              CA total
+            </p>
+          </div>
+          {/* Factures en retard */}
+          <div
+            className={`p-4 rounded-xl ${stats.enRetard > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-800'}`}
+          >
+            <div className="flex justify-between items-center mb-2">
+              <span
+                className={`text-sm font-medium ${stats.enRetard > 0 ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}
+              >
+                En retard
+              </span>
+              <span
+                className={`text-sm font-bold ${stats.enRetard > 0 ? 'text-red-700 dark:text-red-300' : 'text-gray-700 dark:text-gray-300'}`}
+              >
+                {stats.enRetard} facture(s)
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              {stats.enRetard > 0 ? (
+                <>
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                  <span className="text-xs text-red-600 dark:text-red-400">Action requise</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <span className="text-xs text-green-600 dark:text-green-400">
+                    Tout est à jour
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="CA Total"
-          value={`${stats.total.toFixed(2)} €`}
-          icon={Euro}
-          trend={{ value: 15, isPositive: true }}
-        />
-        <StatCard
-          title="Montant paye"
-          value={`${stats.montantPaye.toFixed(2)} €`}
-          icon={CheckCircle}
-        />
-        <StatCard
-          title="En attente"
-          value={`${stats.montantEnAttente.toFixed(2)} €`}
-          icon={Clock}
-        />
-        <StatCard
-          title="En retard"
-          value={stats.enRetard}
-          icon={FileText}
-        />
+        <div className="transform hover:scale-105 transition-transform duration-300">
+          <StatCard
+            title="CA Total"
+            value={`${stats.total.toFixed(2)} €`}
+            icon={TrendingUp}
+            trend={{ value: 15, isPositive: true }}
+          />
+        </div>
+        <div className="transform hover:scale-105 transition-transform duration-300">
+          <StatCard
+            title="Montant paye"
+            value={`${stats.montantPaye.toFixed(2)} €`}
+            icon={CheckCircle}
+          />
+        </div>
+        <div className="transform hover:scale-105 transition-transform duration-300">
+          <StatCard
+            title="En attente"
+            value={`${stats.montantEnAttente.toFixed(2)} €`}
+            icon={Clock}
+          />
+        </div>
+        <div className="transform hover:scale-105 transition-transform duration-300">
+          <StatCard title="En retard" value={stats.enRetard} icon={AlertTriangle} />
+        </div>
       </div>
 
       {/* Alert */}
       {stats.enRetard > 0 && (
         <Alert variant="warning" title="Factures en retard">
-          Vous avez {stats.enRetard} facture(s) en retard de paiement. Pensez a relancer vos clients.
+          Vous avez {stats.enRetard} facture(s) en retard de paiement. Pensez a relancer vos
+          clients.
         </Alert>
       )}
 
@@ -455,18 +670,20 @@ export default function FacturesPage() {
               type="text"
               placeholder="Rechercher par numero, client ou dossier..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <select
             value={filterStatut}
-            onChange={(e) => setFilterStatut(e.target.value)}
+            onChange={e => setFilterStatut(e.target.value)}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           >
             <option value="all">Tous les statuts</option>
             {Object.entries(STATUT_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
+              <option key={value} value={value}>
+                {label}
+              </option>
             ))}
           </select>
         </div>
@@ -479,11 +696,7 @@ export default function FacturesPage() {
 
       {/* Table */}
       <Card>
-        <Table 
-          columns={columns} 
-          data={paginatedFactures} 
-          onRowClick={handleRowClick}
-        />
+        <Table columns={columns} data={paginatedFactures} onRowClick={handleRowClick} />
         {totalPages > 1 && (
           <div className="mt-4">
             <Pagination
@@ -595,7 +808,9 @@ export default function FacturesPage() {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             >
               {Object.entries(STATUT_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>

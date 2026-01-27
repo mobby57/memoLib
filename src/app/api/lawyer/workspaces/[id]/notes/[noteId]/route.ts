@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * PATCH /api/lawyer/workspaces/[id]/notes/[noteId]
@@ -44,11 +45,10 @@ export async function PATCH(
       note,
     });
   } catch (error) {
-    console.error('Erreur PATCH note:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur PATCH note', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/notes/[noteId]',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -75,10 +75,9 @@ export async function DELETE(
       message: 'Note supprimée',
     });
   } catch (error) {
-    console.error('Erreur DELETE note:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur DELETE note', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/notes/[noteId]',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

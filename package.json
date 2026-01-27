@@ -144,7 +144,7 @@
     "mailparser": "^3.9.1",
     "mammoth": "^1.11.0",
     "next": "^16.1.4",
-    "next-auth": "^4.24.15",
+    "next-auth": "^4.24.13",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.12",
     "openai": "^6.15.0",

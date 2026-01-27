@@ -5,7 +5,7 @@
 
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -208,7 +208,7 @@ model Tenant {
   reports            Report[]
   channelMessages    ChannelMessage[]
   channelConfigs     ChannelConfig[]
-  
+
   // 🛡️ AI Cost Tracking
   aiUsageLogs        AIUsageLog[]
   aiMonthlySummaries AIMonthlySummary[]
@@ -488,7 +488,7 @@ model Facture {
   montantTTC    Float
 
   statut        String   @default("brouillon")
-  
+
   dateEmission  DateTime @default(now())
   dateEcheance  DateTime
   datePaiement  DateTime?
@@ -569,7 +569,7 @@ model Email {
   category    String   @default("general-inquiry")
   urgency     String   @default("medium")
   sentiment   String   @default("neutral")
-  
+
   isRead      Boolean  @default(false)
   isStarred   Boolean  @default(false)
   isArchived  Boolean  @default(false)
@@ -580,7 +580,7 @@ model Email {
 
   clientId    String?
   client      Client?  @relation(fields: [clientId], references: [id])
-  
+
   dossierId   String?
   dossier     Dossier? @relation(fields: [dossierId], references: [id])
 
@@ -608,7 +608,7 @@ model EmailAttachment {
   mimeType    String
   size        Int
   storageKey  String?
-  
+
   createdAt DateTime @default(now())
 
   @@index([emailId])
@@ -621,7 +621,7 @@ model WorkflowExecution {
 
   workflowId   String
   workflowName String
-  
+
   emailId      String?
   email        Email?   @relation(fields: [emailId], references: [id])
 
@@ -638,7 +638,7 @@ model WorkflowExecution {
 
   startedAt    DateTime?
   completedAt  DateTime?
-  
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -680,7 +680,7 @@ model CalendarEvent {
   outlookEventId String?
 
   reminders String?
-  
+
   isRecurring Boolean @default(false)
   recurrenceRule String?
 
@@ -721,35 +721,35 @@ model LegalDeadline {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   dossierId String
   dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  
+
   clientId  String
   client    Client   @relation(fields: [clientId], references: [id])
-  
+
   type      DeadlineType
   label     String
   description String?
-  
+
   referenceDate DateTime
   dueDate       DateTime
-  
+
   status    DeadlineStatus @default(PENDING)
-  
+
   legalBasis    String?
   legalDays     Int?
-  
+
   alertJ7Sent   Boolean @default(false)
   alertJ3Sent   Boolean @default(false)
   alertJ1Sent   Boolean @default(false)
-  
+
   completedAt   DateTime?
   completedBy   String?
   completionNote String?
-  
+
   proofId       String?
-  
+
   createdBy     String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -767,12 +767,12 @@ model DeadlineAlert {
   id          String   @id @default(uuid())
   deadlineId  String
   deadline    LegalDeadline @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
-  
+
   alertType   String
   sentAt      DateTime @default(now())
   sentTo      String
   channel     String
-  
+
   acknowledged Boolean @default(false)
   acknowledgedAt DateTime?
   acknowledgedBy String?
@@ -782,28 +782,28 @@ model DeadlineAlert {
 
 model LegalReference {
   id        String   @id @default(uuid())
-  
+
   code      String
   article   String
   version   String?
-  
+
   title     String
   content   String
   summary   String?
-  
+
   category  String
   keywords  String?
-  
+
   defaultDeadlineDays Int?
   deadlineType        String?
-  
+
   legifrance_url String?
   eurlex_url     String?
-  
+
   isActive  Boolean  @default(true)
   validFrom DateTime?
   validUntil DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -821,26 +821,26 @@ model InformationUnit {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   source        InformationUnitSource
   content       String
   contentHash   String   @unique
-  
+
   currentStatus InformationUnitStatus @default(RECEIVED)
-  
+
   sourceMetadata    String?
   linkedWorkspaceId String?
   metadata          String?
-  
+
   lastStatusChangeBy String?
   lastStatusChangeAt DateTime?
-  
+
   receivedAt    DateTime @default(now())
   classifiedAt  DateTime?
   analyzedAt    DateTime?
   resolvedAt    DateTime?
   closedAt      DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -857,16 +857,16 @@ model InformationStatusHistory {
   id          String   @id @default(uuid())
   unitId      String
   unit        InformationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  
+
   fromStatus  InformationUnitStatus?
   toStatus    InformationUnitStatus
   reason      String?
-  
+
   changedBy   String
   changedAt   DateTime @default(now())
-  
+
   timestampHash String?
-  
+
   @@index([unitId])
   @@index([changedAt])
 }
@@ -875,41 +875,41 @@ model Proof {
   id                String   @id @default(uuid())
   tenantId          String
   tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   type              ProofType
   title             String
   description       String?
-  
+
   dossierId         String?
   dossier           Dossier? @relation(fields: [dossierId], references: [id])
-  
+
   clientId          String?
-  
+
   documentId        String?
   document          Document? @relation(fields: [documentId], references: [id])
-  
+
   informationUnitId String?
   informationUnit   InformationUnit? @relation(fields: [informationUnitId], references: [id])
-  
+
   fileStorageKey    String?
   fileHash          String?
   fileMimeType      String?
   fileSize          Int?
-  
+
   proofDate         DateTime
   capturedAt        DateTime @default(now())
   capturedBy        String
-  
+
   status            ProofStatus @default(PENDING_VALIDATION)
   validatedBy       String?
   validatedAt       DateTime?
   rejectionReason   String?
-  
+
   timestampHash     String?
   chainPreviousId   String?
-  
+
   metadata          String?
-  
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -924,25 +924,25 @@ model AuditLog {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   userId    String
   userEmail String
   userRole  String
-  
+
   action    AuditAction
   entityType String
   entityId  String
-  
+
   oldValue  String?
   newValue  String?
-  
+
   ipAddress String?
   userAgent String?
-  
+
   timestamp DateTime @default(now())
   timestampHash String?
   previousLogId String?
-  
+
   createdAt DateTime @default(now())
 
   @@index([tenantId])
@@ -960,27 +960,27 @@ model ArchivePolicy {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   entityType String
   entityId   String
-  
+
   status     ArchiveStatus @default(ACTIVE)
-  
+
   retentionDays    Int
   retentionReason  String?
-  
+
   lastAccessAt     DateTime?
   archiveAt        DateTime?
   deleteAt         DateTime?
-  
+
   archivedAt       DateTime?
   archivedBy       String?
   deletedAt        DateTime?
   deletedBy        String?
-  
+
   holdUntil        DateTime?
   holdReason       String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -995,35 +995,35 @@ model Report {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   type      ReportType
   title     String
   description String?
-  
+
   parameters String?
-  
+
   dossierId String?
   clientId  String?
-  
+
   periodStart DateTime?
   periodEnd   DateTime?
-  
+
   status    ReportStatus @default(PENDING)
   fileStorageKey String?
   fileMimeType   String?
   fileSize       Int?
-  
+
   generatedAt DateTime?
   generatedBy String
-  
+
   isPublic    Boolean @default(false)
   accessCount Int     @default(0)
   lastAccessAt DateTime?
-  
+
   expiresAt   DateTime?
-  
+
   error       String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1081,26 +1081,26 @@ enum ConsentStatus {
 
 model ChannelMessage {
   id        String   @id @default(uuid())
-  
+
   channel   ChannelType
   direction MessageDirection @default(INBOUND)
   status    MessageStatus @default(RECEIVED)
-  
+
   // Expéditeur/Destinataire (JSON)
   senderData    Json
   recipientData Json?
-  
+
   // Contenu
   subject   String?
   body      String   @db.Text
   bodyHtml  String?  @db.Text
-  
+
   // Pièces jointes (JSON array)
   attachments Json @default("[]")
-  
+
   // Métadonnées canal (JSON)
   channelMetadata Json @default("{}")
-  
+
   // Analyse IA
   aiSummary   String?  @db.Text
   aiCategory  String?
@@ -1108,15 +1108,15 @@ model ChannelMessage {
   aiUrgency   UrgencyLevel?
   aiSentiment String?
   aiEntities  Json?
-  
+
   // Horodatage
   receivedAt  DateTime @default(now())
   processedAt DateTime?
   archivedAt  DateTime?
-  
+
   // RGPD
   consentStatus ConsentStatus @default(PENDING)
-  
+
   // Liens métier
   tenantId  String?
   tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
@@ -1124,10 +1124,10 @@ model ChannelMessage {
   client    Client?  @relation("ChannelMessages", fields: [clientId], references: [id], onDelete: SetNull)
   dossierId String?
   dossier   Dossier? @relation("ChannelMessages", fields: [dossierId], references: [id], onDelete: SetNull)
-  
+
   // Audit trail (JSON array)
   auditTrail Json @default("[]")
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1139,27 +1139,27 @@ model ChannelMessage {
   @@index([aiUrgency])
   @@index([receivedAt])
   @@index([consentStatus])
-  
+
   @@map("channel_messages")
 }
 
 model RGPDConsent {
   id        String   @id @default(uuid())
-  
+
   clientId  String
   client    Client   @relation("RGPDConsents", fields: [clientId], references: [id], onDelete: Cascade)
-  
+
   channel   ChannelType
   purpose   String
-  
+
   granted   Boolean
   grantedAt DateTime?
   revokedAt DateTime?
   expiresAt DateTime?
-  
+
   proofDocument String?
   ipAddress     String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1167,35 +1167,35 @@ model RGPDConsent {
   @@index([channel])
   @@index([granted])
   @@index([expiresAt])
-  
+
   @@map("rgpd_consents")
 }
 
 model ChannelConfig {
   id        String   @id @default(uuid())
-  
+
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   channel   ChannelType
   enabled   Boolean  @default(true)
-  
+
   // Configuration
   consentRequired  Boolean @default(true)
   autoArchive      Boolean @default(false)
   archiveAfterDays Int     @default(365)
   aiProcessing     Boolean @default(true)
-  
+
   // Webhook (si applicable)
   webhookUrl       String?
   webhookSecret    String?
-  
+
   // Credentials Key Vault reference
   keyVaultSecretName String?
-  
+
   // Métadonnées spécifiques au canal
   settings Json @default("{}")
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1203,7 +1203,7 @@ model ChannelConfig {
   @@index([tenantId])
   @@index([channel])
   @@index([enabled])
-  
+
   @@map("channel_configs")
 }
 
@@ -1213,64 +1213,64 @@ model ChannelConfig {
 
 model AIUsageLog {
   id        String   @id @default(uuid())
-  
+
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   provider    String   // 'ollama' | 'cloudflare'
   operation   String   // 'generate' | 'chat' | 'embeddings'
   model       String?
-  
+
   tokensUsed  Int      @default(0)
   costEur     Float    @default(0)
   latencyMs   Int?
-  
+
   // Contexte
   endpoint    String?
   success     Boolean  @default(true)
   errorMessage String?
-  
+
   createdAt DateTime @default(now())
 
   @@index([tenantId])
   @@index([provider])
   @@index([createdAt])
   @@index([tenantId, createdAt])
-  
+
   @@map("ai_usage_logs")
 }
 
 // Résumé mensuel des coûts par tenant
 model AIMonthlySummary {
   id        String   @id @default(uuid())
-  
+
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   year      Int
   month     Int      // 1-12
-  
+
   // Totaux
   totalTokens     Int    @default(0)
   totalCostEur    Float  @default(0)
   ollamaTokens    Int    @default(0)
   cloudflareTokens Int   @default(0)
   cloudflareCost  Float  @default(0)
-  
+
   // Limites
   budgetLimit     Float  @default(0)
   budgetUsedPct   Float  @default(0)
-  
+
   // Stats
   requestCount    Int    @default(0)
   avgLatencyMs    Float?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([tenantId, year, month])
   @@index([tenantId])
   @@index([year, month])
-  
+
   @@map("ai_monthly_summaries")
 }

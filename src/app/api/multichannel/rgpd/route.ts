@@ -3,12 +3,13 @@
  * Export données, suppression, gestion consentements
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { auditService } from '@/lib/multichannel/audit-service';
 import { ChannelType } from '@/lib/multichannel/types';
+import { getServerSession } from 'next-auth';
 import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/multichannel/rgpd
@@ -35,13 +36,11 @@ export async function GET(request: NextRequest) {
       success: true,
       data: exportData,
     });
-
   } catch (error) {
-    console.error('Erreur export RGPD:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur export RGPD', error instanceof Error ? error : undefined, {
+      route: '/api/multichannel/rgpd',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -79,13 +78,11 @@ export async function POST(request: NextRequest) {
       success: true,
       consent,
     });
-
   } catch (error) {
-    console.error('Erreur enregistrement consentement:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur enregistrement consentement', error instanceof Error ? error : undefined, {
+      route: '/api/multichannel/rgpd',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -101,7 +98,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const user = session.user as any;
-    
+
     // Seuls les admins peuvent supprimer
     if (!['SUPER_ADMIN', 'ADMIN'].includes(user.role)) {
       return NextResponse.json({ error: 'Permission refusée' }, { status: 403 });
@@ -126,12 +123,10 @@ export async function DELETE(request: NextRequest) {
       success: true,
       result,
     });
-
   } catch (error) {
-    console.error('Erreur suppression RGPD:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur suppression RGPD', error instanceof Error ? error : undefined, {
+      route: '/api/multichannel/rgpd',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

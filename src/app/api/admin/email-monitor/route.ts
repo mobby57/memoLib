@@ -1,13 +1,14 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+﻿import { authOptions } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 import fs from 'fs';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -19,12 +20,13 @@ export async function GET(request: NextRequest) {
 
     // Lire tous les emails sauvegardes
     const emailsDir = path.join(process.cwd(), 'logs', 'emails');
-    
+
     if (!fs.existsSync(emailsDir)) {
       return NextResponse.json({ emails: [], stats: {} });
     }
 
-    const files = fs.readdirSync(emailsDir)
+    const files = fs
+      .readdirSync(emailsDir)
       .filter(file => file.endsWith('.json'))
       .sort((a, b) => b.localeCompare(a)) // Plus recents en premier
       .slice(0, limit);
@@ -36,11 +38,11 @@ export async function GET(request: NextRequest) {
 
     // Filtrer selon les parametres
     let filteredEmails = emails;
-    
+
     if (type) {
       filteredEmails = filteredEmails.filter(email => email.type === type);
     }
-    
+
     if (priority) {
       filteredEmails = filteredEmails.filter(email => email.priority === priority);
     }
@@ -59,18 +61,14 @@ export async function GET(request: NextRequest) {
       }).length,
     };
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       emails: filteredEmails,
       stats,
-      total: filteredEmails.length
+      total: filteredEmails.length,
     });
-
   } catch (error) {
-    console.error('Erreur lors de la recuperation des emails:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur lors de la recuperation des emails:', { error });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -78,7 +76,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -87,7 +85,7 @@ export async function PATCH(request: NextRequest) {
 
     const emailsDir = path.join(process.cwd(), 'logs', 'emails');
     const files = fs.readdirSync(emailsDir);
-    
+
     const emailFile = files.find(file => {
       const content = fs.readFileSync(path.join(emailsDir, file), 'utf-8');
       const email = JSON.parse(content);
@@ -104,12 +102,8 @@ export async function PATCH(request: NextRequest) {
     fs.writeFileSync(filePath, JSON.stringify(email, null, 2));
 
     return NextResponse.json({ success: true });
-
   } catch (error) {
-    console.error('Erreur lors de la mise a jour:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur lors de la mise a jour:', { error });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

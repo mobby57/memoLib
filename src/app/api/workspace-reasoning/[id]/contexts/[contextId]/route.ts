@@ -1,4 +1,5 @@
 /**
+import { logger } from '@/lib/logger';
  * API Route: POST /api/workspace-reasoning/[id]/contexts/[contextId]
  * Confirme ou rejette un contexte
  */
@@ -114,7 +115,7 @@ export async function POST(
     }
 
   } catch (error) {
-    console.error('Error updating context:', error);
+    logger.error('Error updating context:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

@@ -3,15 +3,16 @@
  * GET /api/super-admin/workflows - Liste toutes les executions de workflows
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
@@ -29,11 +30,11 @@ export async function GET(request: NextRequest) {
     const tenantId = searchParams.get('tenantId');
 
     const where: any = {};
-    
+
     if (status) {
       where.status = status;
     }
-    
+
     if (tenantId) {
       where.tenantId = tenantId;
     }
@@ -46,8 +47,8 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
-              subdomain: true
-            }
+              subdomain: true,
+            },
           },
           email: {
             select: {
@@ -55,21 +56,21 @@ export async function GET(request: NextRequest) {
               from: true,
               subject: true,
               category: true,
-              urgency: true
-            }
-          }
+              urgency: true,
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
         take: limit,
-        skip: (page - 1) * limit
+        skip: (page - 1) * limit,
       }),
-      prisma.workflowExecution.count({ where })
+      prisma.workflowExecution.count({ where }),
     ]);
 
     // Statistiques par statut
     const statusStats = await prisma.workflowExecution.groupBy({
       by: ['status'],
-      _count: true
+      _count: true,
     });
 
     const stats: Record<string, number> = {};
@@ -79,16 +80,16 @@ export async function GET(request: NextRequest) {
 
     // Temps moyen d'execution
     const completedWorkflows = await prisma.workflowExecution.findMany({
-      where: { 
+      where: {
         status: 'completed',
         completedAt: { not: null },
-        startedAt: { not: null }
+        startedAt: { not: null },
       },
       select: {
         startedAt: true,
-        completedAt: true
+        completedAt: true,
       },
-      take: 100
+      take: 100,
     });
 
     let avgExecutionTime = 0;
@@ -115,23 +116,24 @@ export async function GET(request: NextRequest) {
         tenant: wf.tenant,
         email: wf.email,
         steps: wf.steps ? JSON.parse(wf.steps) : [],
-        result: wf.result ? JSON.parse(wf.result) : null
+        result: wf.result ? JSON.parse(wf.result) : null,
       })),
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       },
       stats: {
         total,
         byStatus: stats,
-        avgExecutionTimeMs: Math.round(avgExecutionTime)
-      }
+        avgExecutionTimeMs: Math.round(avgExecutionTime),
+      },
     });
-
   } catch (error) {
-    console.error('Erreur API super admin workflows:', error);
+    logger.error('Erreur API super admin workflows', error instanceof Error ? error : undefined, {
+      route: '/api/super-admin/workflows',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

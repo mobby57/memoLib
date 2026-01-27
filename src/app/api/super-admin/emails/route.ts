@@ -3,15 +3,16 @@
  * GET /api/super-admin/emails - Liste tous les emails de la plateforme
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
@@ -30,17 +31,17 @@ export async function GET(request: NextRequest) {
     const tenantId = searchParams.get('tenantId');
 
     const where: any = {};
-    
+
     if (status === 'processed') {
       where.isProcessed = true;
     } else if (status === 'unprocessed') {
       where.isProcessed = false;
     }
-    
+
     if (urgency) {
       where.urgency = urgency;
     }
-    
+
     if (tenantId) {
       where.tenantId = tenantId;
     }
@@ -53,16 +54,16 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
-              subdomain: true
-            }
+              subdomain: true,
+            },
           },
           client: {
             select: {
               id: true,
               firstName: true,
               lastName: true,
-              email: true
-            }
+              email: true,
+            },
           },
           workflows: {
             select: {
@@ -71,26 +72,26 @@ export async function GET(request: NextRequest) {
               status: true,
               progress: true,
               startedAt: true,
-              completedAt: true
-            }
+              completedAt: true,
+            },
           },
           _count: {
             select: {
-              attachments: true
-            }
-          }
+              attachments: true,
+            },
+          },
         },
         orderBy: { receivedAt: 'desc' },
         take: limit,
-        skip: (page - 1) * limit
+        skip: (page - 1) * limit,
       }),
-      prisma.email.count({ where })
+      prisma.email.count({ where }),
     ]);
 
     // Statistiques globales
     const stats = await prisma.email.groupBy({
       by: ['category', 'urgency', 'isProcessed'],
-      _count: true
+      _count: true,
     });
 
     const categoryStats: Record<string, number> = {};
@@ -125,25 +126,26 @@ export async function GET(request: NextRequest) {
         tenant: email.tenant,
         client: email.client,
         attachmentCount: email._count.attachments,
-        workflow: email.workflows[0] || null
+        workflow: email.workflows[0] || null,
       })),
       pagination: {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       },
       stats: {
         total,
         processed: processedCount,
         unprocessed: unprocessedCount,
         byCategory: categoryStats,
-        byUrgency: urgencyStats
-      }
+        byUrgency: urgencyStats,
+      },
     });
-
   } catch (error) {
-    console.error('Erreur API super admin emails:', error);
+    logger.error('Erreur API super admin emails', error instanceof Error ? error : undefined, {
+      route: '/api/super-admin/emails',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

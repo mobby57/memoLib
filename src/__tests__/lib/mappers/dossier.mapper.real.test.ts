@@ -38,7 +38,7 @@ describe('dossier.mapper - REAL TESTS', () => {
   describe('mapDossierToUI', () => {
     it('should map dossier DB to UI format', () => {
       const result = mapDossierToUI(mockDossierDB)
-      
+
       expect(result.id).toBe('dossier-123')
       expect(result.numeroDossier).toBe('D-2024-001')
       expect(result.typeDossier).toBe('TITRE_SEJOUR')
@@ -57,7 +57,7 @@ describe('dossier.mapper - REAL TESTS', () => {
 
     it('should map client info', () => {
       const result = mapDossierToUI(mockDossierDB)
-      
+
       expect(result.client.nom).toBe('Dupont')
       expect(result.client.prenom).toBe('Jean')
       expect(result.client.email).toBe('jean.dupont@email.com')
@@ -65,7 +65,7 @@ describe('dossier.mapper - REAL TESTS', () => {
 
     it('should include _count object', () => {
       const result = mapDossierToUI(mockDossierDB)
-      
+
       expect(result._count.documents).toBe(5)
       expect(result._count.emails).toBe(3)
       expect(result._count.factures).toBe(1)
@@ -74,14 +74,14 @@ describe('dossier.mapper - REAL TESTS', () => {
     it('should handle null objet', () => {
       const dossier = { ...mockDossierDB, objet: null }
       const result = mapDossierToUI(dossier as any)
-      
+
       expect(result.objetDemande).toBe('')
     })
 
     it('should handle null dateEcheance', () => {
       const dossier = { ...mockDossierDB, dateEcheance: null }
       const result = mapDossierToUI(dossier as any)
-      
+
       expect(result.dateEcheance).toBeUndefined()
     })
   })
@@ -90,7 +90,7 @@ describe('dossier.mapper - REAL TESTS', () => {
     it('should map array of dossiers', () => {
       const dossiers = [mockDossierDB, { ...mockDossierDB, id: 'dossier-456' }]
       const result = mapDossiersToUI(dossiers)
-      
+
       expect(result).toHaveLength(2)
       expect(result[0].id).toBe('dossier-123')
       expect(result[1].id).toBe('dossier-456')
@@ -107,9 +107,9 @@ describe('dossier.mapper - REAL TESTS', () => {
         { ...mockDossierDB, statut: 'urgent' },
         { ...mockDossierDB, statut: 'termine' },
       ]
-      
+
       const result = mapDossiersToUI(dossiers)
-      
+
       expect(result[0].statut).toBe('EN_COURS')
       expect(result[1].statut).toBe('URGENT')
       expect(result[2].statut).toBe('TERMINE')
@@ -120,7 +120,7 @@ describe('dossier.mapper - REAL TESTS', () => {
     it('should generate number with current year', () => {
       const currentYear = new Date().getFullYear()
       const result = generateNumeroDossier(0)
-      
+
       expect(result).toContain(`D-${currentYear}`)
     })
 
@@ -139,10 +139,10 @@ describe('dossier.mapper - REAL TESTS', () => {
     it('should increment count by 1', () => {
       const result1 = generateNumeroDossier(5)
       const result2 = generateNumeroDossier(6)
-      
+
       const num1 = parseInt(result1.split('-')[2])
       const num2 = parseInt(result2.split('-')[2])
-      
+
       expect(num2 - num1).toBe(1)
     })
   })
@@ -151,7 +151,7 @@ describe('dossier.mapper - REAL TESTS', () => {
     it('should format Date object to French format', () => {
       const date = new Date('2024-03-15')
       const result = formatDate(date)
-      
+
       expect(result).toBe('15/03/2024')
     })
 
@@ -179,7 +179,7 @@ describe('dossier.mapper - REAL TESTS', () => {
     it('should format Date for datetime-local input', () => {
       const date = new Date('2024-03-15T10:30:00Z')
       const result = formatDateForInput(date)
-      
+
       // Format should be YYYY-MM-DDTHH:MM
       expect(result).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)
     })
@@ -260,18 +260,18 @@ describe('dossier.mapper - REAL TESTS', () => {
           factures: 2,
         },
       }
-      
+
       const uiData = mapDossierToUI(dbData)
-      
+
       expect(uiData.id).toBe('test-id')
       expect(uiData.statut).toBe('EN_ATTENTE')
       expect(uiData.priorite).toBe('NORMALE')
       expect(uiData.client.nom).toBe('Martin')
       expect(uiData.client.prenom).toBe('Marie')
-      
+
       // Date formatting
       expect(formatDate(uiData.dateCreation)).toBe('01/02/2024')
-      
+
       // Type label
       expect(getTypeLabel(uiData.typeDossier)).toBe('Naturalisation')
     })

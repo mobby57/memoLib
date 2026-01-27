@@ -1,10 +1,11 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { 
-  markNotificationAsRead, 
+﻿import { logger } from '@/lib/logger';
+import {
+  getUnreadCount,
   markAllNotificationsAsRead,
-  getUnreadCount 
+  markNotificationAsRead,
 } from '@/lib/notifications';
+import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Recuperer les notifications d'un utilisateur
 export async function GET(request: NextRequest) {
@@ -38,7 +39,9 @@ export async function GET(request: NextRequest) {
       hasMore: notifications.length === limit,
     });
   } catch (error) {
-    console.error('Erreur GET notifications:', error);
+    logger.error('Erreur GET notifications', error instanceof Error ? error : undefined, {
+      route: '/api/notifications',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -55,7 +58,10 @@ export async function PATCH(request: NextRequest) {
 
     if (markAll) {
       await markAllNotificationsAsRead(userId);
-      return NextResponse.json({ success: true, message: 'Toutes les notifications marquees comme lues' });
+      return NextResponse.json({
+        success: true,
+        message: 'Toutes les notifications marquees comme lues',
+      });
     }
 
     if (notificationId) {
@@ -65,7 +71,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ error: 'notificationId ou markAll requis' }, { status: 400 });
   } catch (error) {
-    console.error('Erreur PATCH notifications:', error);
+    logger.error('Erreur PATCH notifications:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -87,7 +93,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erreur DELETE notification:', error);
+    logger.error('Erreur DELETE notification:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

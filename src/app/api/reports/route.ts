@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 
 type ReportType = 'factures' | 'dossiers' | 'clients' | 'activite' | 'financier';
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Erreur generation rapport:', error);
+    logger.error('Erreur generation rapport:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

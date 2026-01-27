@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete, TTL_TIERS } from '@/lib/cache';
+import { logger } from '@/lib/logger';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -66,7 +67,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ dossier });
   } catch (error) {
-    console.error('Erreur GET dossier:', error);
+    logger.error('Erreur GET dossier', error instanceof Error ? error : undefined, {
+      route: '/api/dossiers/[id]',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -132,7 +135,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ dossier, message: 'Dossier mis à jour' });
   } catch (error) {
-    console.error('Erreur PATCH dossier:', error);
+    logger.error('Erreur PATCH dossier', error instanceof Error ? error : undefined, {
+      route: '/api/dossiers/[id]',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -194,13 +199,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Invalider le cache
     await cacheDelete(`dossier:${tenantId}:${dossierId}`);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: hardDelete ? 'Dossier supprimé définitivement' : 'Dossier archivé',
       deleted: hardDelete,
       archived: !hardDelete,
     });
   } catch (error) {
-    console.error('Erreur DELETE dossier:', error);
+    logger.error('Erreur DELETE dossier', error instanceof Error ? error : undefined, {
+      route: '/api/dossiers/[id]',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

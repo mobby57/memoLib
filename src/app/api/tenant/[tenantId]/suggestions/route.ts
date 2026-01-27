@@ -1,4 +1,5 @@
 /**
+import { logger } from '@/lib/logger';
  * API Suggestions Intelligentes - IA Proactive
  * Endpoint: /api/tenant/[tenantId]/suggestions
  */
@@ -248,7 +249,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Erreur suggestions:', error);
+    logger.error('Erreur suggestions:', { error });
     return NextResponse.json(
       { error: 'Erreur lors de la génération des suggestions' },
       { status: 500 }
