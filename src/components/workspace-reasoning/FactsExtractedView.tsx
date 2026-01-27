@@ -17,7 +17,7 @@ interface FactsExtractedViewProps {
 export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }: FactsExtractedViewProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const facts = workspace.facts || [];
-  
+        
   const getSourceBadge = (source: Fact['source']) => {
     const badges = {
       EXPLICIT_MESSAGE: { label: 'Message', color: 'bg-blue-100 text-blue-800' },
@@ -27,7 +27,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
     };
     return badges[source];
   };
-  
+        
   return (
     <div className="space-y-6">
       {/* Titre */}
@@ -37,7 +37,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
           Uniquement des faits certains et sources
         </p>
       </div>
-      
+                        
       {/* Liste des faits */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
@@ -45,7 +45,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
             {facts.length} fait{facts.length > 1 ? 's' : ''} extrait{facts.length > 1 ? 's' : ''}
           </h3>
         </div>
-        
+                                
         {facts.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             Aucun fait extrait automatiquement
@@ -54,7 +54,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
           <div className="divide-y divide-gray-200">
             {facts.map((fact) => {
               const sourceBadge = getSourceBadge(fact.source);
-              
+                                                        
               return (
                 <div key={fact.id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start justify-between">
@@ -65,22 +65,22 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
                           {sourceBadge.label}
                         </span>
                       </div>
-                      
+                                                                                        
                       <div className="text-lg text-blue-600 font-semibold mb-2">
                         {fact.value}
                       </div>
-                      
+                                                                                        
                       {fact.sourceRef && (
                         <div className="text-sm text-gray-500">
                           Source: {fact.sourceRef}
                         </div>
                       )}
-                      
+                                                                                        
                       <div className="text-xs text-gray-400 mt-2">
                         Extrait par {fact.extractedBy} - {new Date(fact.createdAt).toLocaleString('fr-FR')}
                       </div>
                     </div>
-                    
+                                                                                
                     <div className="ml-4">
                       <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                         <span className="text-2xl">[Check]</span>
@@ -96,7 +96,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
           </div>
         )}
       </div>
-      
+                        
       {/* Ajouter un fait manuel */}
       {onAddFact && (
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -111,7 +111,7 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
               {showAddForm ? 'Annuler' : ' Ajouter'}
             </button>
           </div>
-          
+                                        
           {showAddForm && (
             <div className="space-y-3 mt-4">
               <div className="bg-white p-4 rounded border border-purple-200">
@@ -119,34 +119,5 @@ export function FactsExtractedView({ workspace, onContinue, onAddFact, loading }
                   ️ Toute modification manuelle sera tracee et necessitera une justification
                 </p>
               </div>
-              {/* TODO: Formulaire d'ajout */}
-            </div>
-          )}
-        </div>
-      )}
-      
-      {/* Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-        <div className="text-sm text-gray-500">
-          {facts.length > 0 
-            ? ' Faits extraits et verifies' 
-            : '️ Aucun fait extrait - Verifiez la source'
-          }
-        </div>
-        
-        <button
-          onClick={onContinue}
-          disabled={facts.length === 0 || !!loading?.mutation}
-          className={`px-6 py-3 font-medium rounded-lg transition-colors flex items-center gap-2 ${
-            facts.length === 0 || loading?.mutation
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
-        >
-          {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-          Continuer [Next] Identifier le contexte
-        </button>
-      </div>
-    </div>
-  );
-}
+              {/* TODO: TODO: TODO: TODO: F
+             )          

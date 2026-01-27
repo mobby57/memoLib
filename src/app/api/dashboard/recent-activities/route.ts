@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 
@@ -104,7 +105,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(finalActivities);
   } catch (error) {
-    console.error('Erreur lors de la r�cup�ration des activit�s r�centes:', error);
+    logger.error('Erreur lors de la r�cup�ration des activit�s r�centes:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

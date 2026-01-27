@@ -1,12 +1,12 @@
 ﻿/**
  * IA POSTE MANAGER - Systeme de Logging Juridique Professionnel
- * 
+ *
  * Logging specialise pour cabinet d'avocats CESEDA avec:
  * - Conformite RGPD (anonymisation automatique)
  * - Audit trail juridique inalterable
  * - Tracabilite des actions metier (dossiers, OQTF, recours)
  * - Zero-Trust logging (toutes actions tracees)
- * 
+ *
  * Production: Logs structures et filtres
  * Developpement: Logs detailles avec contexte
  */
@@ -14,7 +14,7 @@
 type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'critical';
 
 // Types metier specifiques au cabinet juridique
-type ActionJuridique = 
+type ActionJuridique =
   | 'CREATE_DOSSIER'
   | 'UPDATE_DOSSIER'
   | 'DELETE_DOSSIER'
@@ -34,7 +34,13 @@ type ActionJuridique =
   | 'PERMISSION_DENIED'
   | 'COMPLIANCE_CHECK';
 
-type TypeDossier = 'OQTF' | 'REFUS_TITRE' | 'RETRAIT_TITRE' | 'NATURALISATION' | 'REGROUPEMENT_FAMILIAL' | 'AUTRE';
+type TypeDossier =
+  | 'OQTF'
+  | 'REFUS_TITRE'
+  | 'RETRAIT_TITRE'
+  | 'NATURALISATION'
+  | 'REGROUPEMENT_FAMILIAL'
+  | 'AUTRE';
 
 interface LogEntry {
   timestamp: string;
@@ -109,7 +115,7 @@ class Logger {
   error(message: string, error?: Error | unknown, context?: Record<string, any>): void {
     const stackTrace = error instanceof Error ? error.stack : undefined;
     const errorMessage = error instanceof Error ? error.message : String(error);
-    
+
     const entry = this.createLogEntry('error', `${message}: ${errorMessage}`, {
       ...context,
       stackTrace,
@@ -134,7 +140,7 @@ class Logger {
   critical(message: string, error?: Error | unknown, context?: Record<string, any>): void {
     const stackTrace = error instanceof Error ? error.stack : undefined;
     const errorMessage = error instanceof Error ? error.message : String(error);
-    
+
     const entry = this.createLogEntry('critical', `${message}: ${errorMessage}`, {
       ...context,
       stackTrace,
@@ -160,7 +166,7 @@ class Logger {
    */
   performance(operation: string, durationMs: number, context?: Record<string, any>): void {
     const message = `${operation} completed in ${durationMs}ms`;
-    
+
     if (durationMs > 1000) {
       this.warn(`Slow operation: ${message}`, { ...context, durationMs });
     } else if (this.isDevelopment) {
@@ -290,9 +296,9 @@ class Logger {
     }
   ): void {
     const message = ` DeLAI ${severity}: ${deadline.type} dans ${deadline.heuresRestantes}h`;
-    
+
     const level = severity === 'CRITIQUE' ? 'critical' : severity === 'URGENT' ? 'error' : 'warn';
-    
+
     const entry = this.createLogEntry(level, message, {
       dossierId,
       deadlineType: deadline.type,
@@ -383,26 +389,39 @@ class Logger {
 
     const technicalSensitive = ['password', 'token', 'apiKey', 'secret', 'creditCard', 'sessionId'];
     const personalData = [
-      'nom', 'prenom', 'nomNaissance', 'firstname', 'lastname',
-      'telephone', 'phone', 'mobile',
-      'adresse', 'address', 'domicile',
-      'numeroSecuriteSociale', 'ssn',
-      'numeroPasseport', 'passport',
-      'dateNaissance', 'birthdate',
-      'lieuNaissance', 'birthplace',
-      'nationalite', 'nationality'
+      'nom',
+      'prenom',
+      'nomNaissance',
+      'firstname',
+      'lastname',
+      'telephone',
+      'phone',
+      'mobile',
+      'adresse',
+      'address',
+      'domicile',
+      'numeroSecuriteSociale',
+      'ssn',
+      'numeroPasseport',
+      'passport',
+      'dateNaissance',
+      'birthdate',
+      'lieuNaissance',
+      'birthplace',
+      'nationalite',
+      'nationality',
     ];
 
     const sanitized = { ...context };
 
-    Object.keys(sanitized).forEach((key) => {
+    Object.keys(sanitized).forEach(key => {
       const lowerKey = key.toLowerCase();
-      
-      if (technicalSensitive.some((sensitive) => lowerKey.includes(sensitive))) {
+
+      if (technicalSensitive.some(sensitive => lowerKey.includes(sensitive))) {
         sanitized[key] = '[REDACTED]';
       }
-      
-      if (!context.rgpdCompliant && personalData.some((personal) => lowerKey.includes(personal))) {
+
+      if (!context.rgpdCompliant && personalData.some(personal => lowerKey.includes(personal))) {
         sanitized[key] = '[DONNeES PERSONNELLES]';
       }
 
@@ -443,18 +462,65 @@ class Logger {
   }
 
   /**
-   * Envoyer a monitoring externe
+   * Envoyer a monitoring externe (Sentry)
    */
   private sendToMonitoring(entry: LogEntry): void {
     if (!this.isProduction) return;
-    // TODO: Integration Sentry, DataDog, etc.
+
+    // Intégration Sentry pour les erreurs et warnings
+    if (entry.level === 'error' || entry.level === 'critical') {
+      import('@sentry/nextjs')
+        .then(Sentry => {
+          Sentry.captureMessage(entry.message, {
+            level: entry.level === 'critical' ? 'fatal' : 'error',
+            tags: {
+              module: entry.module,
+              action: entry.action || 'unknown',
+            },
+            extra: {
+              context: entry.context,
+              timestamp: entry.timestamp,
+            },
+          });
+        })
+        .catch(() => {
+          // Sentry non disponible, ignorer silencieusement
+        });
+    }
   }
 
   /**
-   * Envoyer alerte critique
+   * Envoyer alerte critique (Sentry + console)
    */
   private sendCriticalAlert(entry: LogEntry): void {
-    // TODO: Integration alerting (Slack, Email, PagerDuty)
+    // Log en console serveur immédiatement
+    console.error('[CRITICAL ALERT]', {
+      message: entry.message,
+      module: entry.module,
+      action: entry.action,
+      timestamp: entry.timestamp,
+    });
+
+    // Envoyer à Sentry avec priorité haute
+    import('@sentry/nextjs')
+      .then(Sentry => {
+        Sentry.captureMessage(`[CRITICAL] ${entry.message}`, {
+          level: 'fatal',
+          tags: {
+            module: entry.module,
+            action: entry.action || 'CRITICAL_ALERT',
+            severity: 'critical',
+          },
+          extra: {
+            context: entry.context,
+            timestamp: entry.timestamp,
+            fullEntry: entry,
+          },
+        });
+      })
+      .catch(() => {
+        // Sentry non disponible
+      });
   }
 
   /**
@@ -486,7 +552,7 @@ export function withLogging<T extends (...args: any[]) => Promise<any>>(
 ): T {
   return (async (...args: Parameters<T>): Promise<ReturnType<T>> => {
     const stopTimer = logger.startTimer(operationName);
-    
+
     try {
       const result = await fn(...args);
       stopTimer();
@@ -521,9 +587,13 @@ export function logDeadlineCritique(
     typeDossier?: TypeDossier;
   }
 ): void {
-  const severity = deadlineInfo.heuresRestantes < 48 ? 'CRITIQUE' : 
-                   deadlineInfo.heuresRestantes < 168 ? 'URGENT' : 'RAPPEL';
-  
+  const severity =
+    deadlineInfo.heuresRestantes < 48
+      ? 'CRITIQUE'
+      : deadlineInfo.heuresRestantes < 168
+        ? 'URGENT'
+        : 'RAPPEL';
+
   logger.logDeadlineAlert(severity, dossierId, tenantId, deadlineInfo);
 }
 
@@ -555,4 +625,4 @@ export function logRGPDAction(
 }
 
 export default logger;
-export type { ActionJuridique, TypeDossier, LogLevel, LogEntry };
+export type { ActionJuridique, LogEntry, LogLevel, TypeDossier };

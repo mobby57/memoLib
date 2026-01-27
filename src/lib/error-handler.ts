@@ -94,10 +94,7 @@ export function classifyError(error: unknown): ClassifiedError {
       canRetry: false,
       statusCode: 403,
       originalError: error,
-      suggestions: [
-        'Contactez votre administrateur',
-        'Verifiez vos permissions',
-      ],
+      suggestions: ['Contactez votre administrateur', 'Verifiez vos permissions'],
     };
   }
 
@@ -110,10 +107,7 @@ export function classifyError(error: unknown): ClassifiedError {
       canRetry: false,
       statusCode: 404,
       originalError: error,
-      suggestions: [
-        'Verifiez que la ressource existe',
-        'Actualisez la page',
-      ],
+      suggestions: ['Verifiez que la ressource existe', 'Actualisez la page'],
     };
   }
 
@@ -164,10 +158,7 @@ export function classifyError(error: unknown): ClassifiedError {
       retryDelay: 2000,
       statusCode: 409,
       originalError: error,
-      suggestions: [
-        'Actualisez la page',
-        'Verifiez les modifications recentes',
-      ],
+      suggestions: ['Actualisez la page', 'Verifiez les modifications recentes'],
     };
   }
 
@@ -276,20 +267,26 @@ export function reportError(error: ClassifiedError, context?: Record<string, any
     return;
   }
 
-  // In production, send to error tracking service
-  // TODO: Integrate with Sentry or similar
-  /*
-  Sentry.captureException(error.originalError, {
-    tags: {
-      category: error.category,
-    },
-    extra: {
-      userMessage: error.userMessage,
-      statusCode: error.statusCode,
-      context,
-    },
-  });
-  */
+  // In production, send to Sentry
+  import('@sentry/nextjs')
+    .then(Sentry => {
+      Sentry.captureException(error.originalError, {
+        tags: {
+          category: error.category,
+          canRetry: String(error.canRetry),
+        },
+        extra: {
+          userMessage: error.userMessage,
+          statusCode: error.statusCode,
+          suggestions: error.suggestions,
+          context,
+        },
+      });
+    })
+    .catch(() => {
+      // Sentry non disponible, log serveur uniquement
+      console.error('[Error Handler - Sentry unavailable]', error.message);
+    });
 }
 
 /**

@@ -9,18 +9,13 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { WorkspaceReasoningService } from '@/lib/workspace-reasoning-service';
 import { WorkspaceState } from '@/types/workspace-reasoning';
+import { logger } from '@/lib/logger';
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
     const workspaceId = params.id;
@@ -28,10 +23,7 @@ export async function POST(
     const { targetState, reason } = body;
 
     if (!targetState) {
-      return NextResponse.json(
-        { error: 'targetState requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'targetState requis' }, { status: 400 });
     }
 
     // Récupérer le workspace avec toutes les relations
@@ -43,24 +35,18 @@ export async function POST(
         obligations: true,
         missingElements: true,
         risks: true,
-        proposedActions: true
-      }
+        proposedActions: true,
+      },
     });
 
     if (!workspace) {
-      return NextResponse.json(
-        { error: 'Workspace non trouvé' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
 
     // Vérifier accès tenant
     const userTenantId = (session.user as any).tenantId;
     if (workspace.tenantId !== userTenantId) {
-      return NextResponse.json(
-        { error: 'Accès refusé - Isolation tenant' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Accès refusé - Isolation tenant' }, { status: 403 });
     }
 
     // Vérifier si verrouillé
@@ -79,10 +65,7 @@ export async function POST(
     );
 
     if (!validation.valid) {
-      return NextResponse.json(
-        { error: validation.reason },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: validation.reason }, { status: 400 });
     }
 
     const userId = (session.user as any).id;
@@ -99,7 +82,7 @@ export async function POST(
         stateChangedBy: userId,
         uncertaintyLevel: metrics.uncertaintyLevel,
         reasoningQuality: metrics.reasoningQuality,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       include: {
         facts: true,
@@ -109,8 +92,8 @@ export async function POST(
         risks: true,
         proposedActions: true,
         reasoningTraces: true,
-        transitions: true
-      }
+        transitions: true,
+      },
     });
 
     // Créer l'enregistrement de transition (audit trail)
@@ -126,14 +109,14 @@ export async function POST(
         stateBefore: JSON.stringify({
           currentState: workspace.currentState,
           uncertaintyLevel: workspace.uncertaintyLevel,
-          reasoningQuality: workspace.reasoningQuality
+          reasoningQuality: workspace.reasoningQuality,
         }),
         stateAfter: JSON.stringify({
           currentState: targetState,
           uncertaintyLevel: metrics.uncertaintyLevel,
-          reasoningQuality: metrics.reasoningQuality
-        })
-      }
+          reasoningQuality: metrics.reasoningQuality,
+        }),
+      },
     });
 
     // Créer trace de raisonnement
@@ -145,25 +128,23 @@ export async function POST(
         metadata: JSON.stringify({
           previousMetrics: {
             uncertainty: workspace.uncertaintyLevel,
-            quality: workspace.reasoningQuality
+            quality: workspace.reasoningQuality,
           },
-          newMetrics: metrics
+          newMetrics: metrics,
         }),
-        createdBy: userId
-      }
+        createdBy: userId,
+      },
     });
 
     return NextResponse.json({
       success: true,
       workspace: updatedWorkspace,
-      metrics
+      metrics,
     });
-
   } catch (error) {
-    console.error('Error transitioning workspace:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur transition workspace', error instanceof Error ? error : undefined, {
+      route: '/api/workspace-reasoning/[id]/transition',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

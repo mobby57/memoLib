@@ -1,4 +1,5 @@
 ﻿/**
+import { logger } from '@/lib/logger';
  * API Métriques de Performance
  * 
  * Endpoint pour récupérer les métriques de performance du système
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[Metrics API] Error:', error);
+    logger.error('[Metrics API] Error:', { error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[Metrics API] POST Error:', error);
+    logger.error('[Metrics API] POST Error:', { error });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

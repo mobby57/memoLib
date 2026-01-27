@@ -1,6 +1,7 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+﻿import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  *  API: Soumission de demande de ressources
@@ -14,12 +15,20 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { resourceType, justification, urgency, estimatedCost, duration, alternatives, metadata } = data;
+    const {
+      resourceType,
+      justification,
+      urgency,
+      estimatedCost,
+      duration,
+      alternatives,
+      metadata,
+    } = data;
 
     // Creer la demande dans la base de donnees
     const submission = await prisma.$executeRaw`
       INSERT INTO FormSubmission (
-        id, formType, submitterId, status, data, impactScore, 
+        id, formType, submitterId, status, data, impactScore,
         requiresApproval, createdAt, updatedAt
       ) VALUES (
         ${generateId()},
@@ -55,11 +64,8 @@ export async function POST(request: NextRequest) {
       message: 'Demande soumise avec succes',
     });
   } catch (error) {
-    console.error('Erreur soumission:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la soumission' },
-      { status: 500 }
-    );
+    logger.error('Erreur soumission:', { error });
+    return NextResponse.json({ error: 'Erreur lors de la soumission' }, { status: 500 });
   }
 }
 
@@ -82,7 +88,7 @@ async function createApprovalTask(submissionId: any, approver: string, metadata:
 async function sendNotificationEmail(approvers: string[], context: any) {
   // Integration avec le systeme d'email
   // Pour l'instant, log uniquement
-  console.log(' Email notification:', { approvers, context });
+  logger.info('Email notification:', { approvers, context });
 }
 
 function generateId(): string {

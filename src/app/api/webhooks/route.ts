@@ -1,13 +1,14 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
+﻿import { logger } from '@/lib/logger';
 import crypto from 'crypto';
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
     const headersList = await headers();
     const signature = headersList.get('x-hub-signature-256');
-    
+
     // Verifier la signature webhook GitHub
     const secret = process.env.WEBHOOK_SECRET;
     if (!secret || !signature || !verifyGitHubSignature(body, signature, secret)) {
@@ -22,38 +23,35 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erreur webhook:', error);
+    logger.error('Erreur webhook', error instanceof Error ? error : undefined, {
+      route: '/api/webhooks',
+    });
     return NextResponse.json({ error: 'echec du traitement webhook' }, { status: 500 });
   }
 }
 
 function verifyGitHubSignature(body: string, signature: string, secret: string): boolean {
-  const expectedSignature = 'sha256=' + crypto
-    .createHmac('sha256', secret)
-    .update(body, 'utf8')
-    .digest('hex');
-  
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
+  const expectedSignature =
+    'sha256=' + crypto.createHmac('sha256', secret).update(body, 'utf8').digest('hex');
+
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
 }
 
 async function processWebhookEvent(event: string, data: any) {
   switch (event) {
     case 'dossier.created':
-      console.log('Nouveau dossier cree:', data.dossierId);
+      logger.info('Nouveau dossier cree', { route: '/api/webhooks', dossierId: data.dossierId });
       break;
     case 'dossier.updated':
-      console.log('Dossier mis a jour:', data.dossierId);
+      logger.info('Dossier mis a jour', { route: '/api/webhooks', dossierId: data.dossierId });
       break;
     case 'payment.completed':
-      console.log('Paiement complete:', data.paymentId);
+      logger.info('Paiement complete', { route: '/api/webhooks', paymentId: data.paymentId });
       break;
     case 'document.uploaded':
-      console.log('Document telecharge:', data.documentId);
+      logger.info('Document telecharge', { route: '/api/webhooks', documentId: data.documentId });
       break;
     default:
-      console.log(`evenement webhook non gere: ${event}`);
+      logger.debug(`evenement webhook non gere: ${event}`, { route: '/api/webhooks' });
   }
 }

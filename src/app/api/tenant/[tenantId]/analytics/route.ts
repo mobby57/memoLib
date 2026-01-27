@@ -1,4 +1,5 @@
 /**
+import { logger } from '@/lib/logger';
  * API Analytics - Métriques IA et Apprentissage Continu
  * Endpoint: /api/tenant/[tenantId]/analytics
  */
@@ -175,7 +176,7 @@ export async function GET(
     return NextResponse.json(analyticsData);
 
   } catch (error) {
-    console.error('Erreur analytics:', error);
+    logger.error('Erreur analytics:', { error });
     return NextResponse.json(
       { error: 'Erreur lors du calcul des analytics' },
       { status: 500 }

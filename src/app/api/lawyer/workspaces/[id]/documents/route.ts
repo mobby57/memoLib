@@ -1,19 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 import { existsSync } from 'fs';
+import { mkdir, writeFile } from 'fs/promises';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { join } from 'path';
 
 /**
  * GET /api/lawyer/workspaces/[id]/documents
  * Liste les documents d'un workspace avec filtres
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -51,10 +49,11 @@ export async function GET(
 
     if (search) {
       const searchLower = search.toLowerCase();
-      documents = documents.filter(d =>
-        d.originalName.toLowerCase().includes(searchLower) ||
-        d.documentType.toLowerCase().includes(searchLower) ||
-        d.description?.toLowerCase().includes(searchLower)
+      documents = documents.filter(
+        d =>
+          d.originalName.toLowerCase().includes(searchLower) ||
+          d.documentType.toLowerCase().includes(searchLower) ||
+          d.description?.toLowerCase().includes(searchLower)
       );
     }
 
@@ -64,11 +63,10 @@ export async function GET(
       documents,
     });
   } catch (error) {
-    console.error('Erreur GET documents:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur GET documents', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/documents',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -76,10 +74,7 @@ export async function GET(
  * POST /api/lawyer/workspaces/[id]/documents
  * Upload nouveau document
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -89,7 +84,7 @@ export async function POST(
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const documentType = formData.get('documentType') as string;
-    const description = formData.get('description') as string || undefined;
+    const description = (formData.get('description') as string) || undefined;
 
     if (!file) {
       return NextResponse.json({ error: 'Fichier manquant' }, { status: 400 });
@@ -151,10 +146,9 @@ export async function POST(
       document,
     });
   } catch (error) {
-    console.error('Erreur POST documents:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur POST documents', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/documents',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

@@ -39,19 +39,7 @@ export async function GET() {
 
 async function checkDatabase(): Promise<{ healthy: boolean; message: string }> {
   try {
-    // TODO: Verifier connexion Prisma
-    return { healthy: true, message: 'Database OK' };
-  } catch (error) {
-    return { healthy: false, message: 'Database connection failed' };
-  }
-}
-
-async function checkOllama(): Promise<{ healthy: boolean; message: string }> {
-  try {
-    const response = await fetch('http://localhost:11434/api/tags', {
-      signal: AbortSignal.timeout(2000),
-    });
-    if (response.ok) {
+    // TODO: TeDO: TeDO: TeDi Snal.tim
       return { healthy: true, message: 'Ollama OK' };
     }
     return { healthy: false, message: 'Ollama not responding' };

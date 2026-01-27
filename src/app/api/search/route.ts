@@ -1,12 +1,13 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { searchService, SearchResultType } from '@/lib/services/searchService';
+﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { logSearch } from '@/lib/services/searchAnalytics';
+import { SearchResultType, searchService } from '@/lib/services/searchService';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const startTime = performance.now();
-  
+
   try {
     const session = await getServerSession(authOptions);
 
@@ -42,7 +43,11 @@ export async function GET(request: NextRequest) {
       types,
       userId: session.user.id,
       tenantId: session.user.tenantId || undefined,
-    }).catch((err) => console.error('Erreur logging recherche:', err));
+    }).catch(err =>
+      logger.error('Erreur logging recherche', err instanceof Error ? err : undefined, {
+        route: '/api/search',
+      })
+    );
 
     return NextResponse.json({
       results,
@@ -52,10 +57,9 @@ export async function GET(request: NextRequest) {
       types: types || ['client', 'dossier', 'document', 'email'],
     });
   } catch (error) {
-    console.error('Search error:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la recherche' },
-      { status: 500 }
-    );
+    logger.error('Search error', error instanceof Error ? error : undefined, {
+      route: '/api/search',
+    });
+    return NextResponse.json({ error: 'Erreur lors de la recherche' }, { status: 500 });
   }
 }

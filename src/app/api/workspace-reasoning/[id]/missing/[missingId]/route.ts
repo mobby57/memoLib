@@ -1,4 +1,5 @@
 /**
+import { logger } from '@/lib/logger';
  * API Route: POST /api/workspace-reasoning/[id]/missing/[missingId]
  * Résout un élément manquant
  */
@@ -94,7 +95,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Error resolving missing element:', error);
+    logger.error('Error resolving missing element:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

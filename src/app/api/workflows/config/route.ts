@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import {
   loadWorkflowConfig,
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(config);
   } catch (error) {
-    console.error('Erreur GET config:', error);
+    logger.error('Erreur GET config:', { error });
     return NextResponse.json(
       { error: 'Erreur chargement configuration' },
       { status: 500 }
@@ -61,7 +62,7 @@ export async function PUT(request: NextRequest) {
       message: 'Configuration sauvegardee avec succes',
     });
   } catch (error) {
-    console.error('Erreur PUT config:', error);
+    logger.error('Erreur PUT config:', { error });
     return NextResponse.json(
       { error: 'Erreur sauvegarde configuration' },
       { status: 500 }

@@ -1,5 +1,6 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+﻿import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 // POST - Upload et traitement OCR d'un document
 export async function POST(request: NextRequest) {
@@ -13,10 +14,7 @@ export async function POST(request: NextRequest) {
     const uploadedBy = formData.get('uploadedBy') as string;
 
     if (!file || !tenantId || !uploadedBy) {
-      return NextResponse.json(
-        { error: 'file, tenantId et uploadedBy requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'file, tenantId et uploadedBy requis' }, { status: 400 });
     }
 
     // Lire le contenu du fichier
@@ -46,7 +44,9 @@ export async function POST(request: NextRequest) {
     });
 
     // Lancer le traitement OCR en arriere-plan
-    processOCR(document.id, buffer, file.type).catch(console.error);
+    processOCR(document.id, buffer, file.type).catch(err =>
+      logger.error('Erreur OCR async', { error: err })
+    );
 
     return NextResponse.json({
       success: true,
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Erreur upload document:', error);
+    logger.error('Erreur upload document:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ documents });
   } catch (error) {
-    console.error('Erreur GET documents:', error);
+    logger.error('Erreur GET documents:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
 // Fonction de traitement OCR
 async function processOCR(documentId: string, buffer: Buffer, mimeType: string) {
   try {
-    console.log(` Demarrage OCR pour document ${documentId}`);
+    logger.info(' Demarrage OCR pour document ${documentId}');
 
     let extractedText = '';
     let confidence = 0;
@@ -149,10 +149,10 @@ async function processOCR(documentId: string, buffer: Buffer, mimeType: string) 
       },
     });
 
-    console.log(` OCR termine pour document ${documentId}`);
+    logger.info(' OCR termine pour document ${documentId}');
   } catch (error) {
-    console.error(` Erreur OCR pour document ${documentId}:`, error);
-    
+    logger.error(`Erreur OCR pour document ${documentId}`, { error });
+
     await prisma.document.update({
       where: { id: documentId },
       data: {
@@ -173,7 +173,7 @@ async function extractTextFromPDF(buffer: Buffer): Promise<{ text: string; confi
     // const pdfParse = require('pdf-parse');
     // const data = await pdfParse(buffer);
     // return { text: data.text, confidence: 0.95 };
-    
+
     return {
       text: `[Contenu PDF extrait - ${buffer.length} bytes]`,
       confidence: 0.9,
@@ -192,7 +192,7 @@ async function extractTextFromImage(buffer: Buffer): Promise<{ text: string; con
     // const Tesseract = require('tesseract.js');
     // const { data: { text, confidence } } = await Tesseract.recognize(buffer, 'fra');
     // return { text, confidence: confidence / 100 };
-    
+
     return {
       text: `[Texte OCR extrait - ${buffer.length} bytes]`,
       confidence: 0.85,
@@ -242,7 +242,7 @@ Reponds uniquement en JSON valide.`,
 
     return { summary: responseText.substring(0, 500), analyzed: true };
   } catch (error) {
-    console.error('Erreur analyse IA:', error);
+    logger.error('Erreur analyse IA:', { error });
     return { analyzed: false, error: 'Analyse IA non disponible' };
   }
 }
