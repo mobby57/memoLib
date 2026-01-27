@@ -6,7 +6,7 @@ import { logger } from '@/lib/logger';
 export function ServiceWorkerRegistration() {
   useEffect(() => {
     // TEMPORARILY DISABLED - causing CSP caching issues
-    // TODO: Ra-vnas eeaftrisus aeeved
+    // Re-enable after CSP issues resolved
     if ('serviceWorker' in navigator) {
       // Unregister all existing service workers to clear cache
       navigator.serviceWorker.getRegistrations().then((registrations) => {
@@ -16,14 +16,14 @@ export function ServiceWorkerRegistration() {
         }
       });
     }
-                
+
     /* ORIGINAL CODE - DISABLED
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
           logger.debug('Service Worker enregistre', { scope: registration.scope });
-                                        
+
           // Verifier les mises a jour
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
