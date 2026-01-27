@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation IA Poste Manager</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+               line-height: 1.6; margin: 0; padding: 20px; background: #f8f9fa; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; 
+                     padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        h3 { color: #7f8c8d; }
+        .summary { background: #ecf0f1; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .file-section { margin: 30px 0; border-left: 4px solid #3498db; padding-left: 20px; }
+        .function { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .class { background: #e8f5e8; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .needs-doc { border-left: 4px solid #e74c3c; }
+        .has-doc { border-left: 4px solid #27ae60; }
+        .code { background: #2c3e50; color: #ecf0f1; padding: 10px; border-radius: 3px; 
+                 font-family: 'Courier New', monospace; white-space: pre-wrap; }
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; }
+        .badge-success { background: #27ae60; }
+        .badge-warning { background: #f39c12; }
+        .badge-danger { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Documentation IA Poste Manager v3.1</h1>
+        <p><strong>Générée le:</strong> 2026-01-12T13:43:03.526128</p>
+        
+        <div class="summary">
+            <h2>📊 Résumé</h2>
+            <ul>
+                <li><strong>Fichiers analysés:</strong> 5</li>
+                <li><strong>Fonctions totales:</strong> 65</li>
+                <li><strong>Classes totales:</strong> 4</li>
+                <li><strong>Fonctions non documentées:</strong> 
+                    <span class="badge badge-danger">46</span></li>
+                <li><strong>Classes non documentées:</strong> 
+                    <span class="badge badge-danger">2</span></li>
+            </ul>
+        </div>
+
+        <div class="file-section">
+            <h2>📁 ./app.py</h2>
+            
+            <h3>🔧 Fonctions (9)</h3>
+
+            <div class="function has-doc">
+                <h4>index() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 31</p>
+                <p><strong>Arguments:</strong> Aucun</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Index
+
+Description détaillée de la fonction.
+
+Args:
+
+Returns:
+    Dict: Résultat de l'opération
+
+Example:
+    >>> index()
+    résultat_attendu</div></div>
+            <div class="function needs-doc">
+                <h4>health() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 116</p>
+                <p><strong>Arguments:</strong> Aucun</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Template suggéré:</strong></p><div class="code">"""Health
+        
+        Description détaillée de la fonction.
+        
+        Example:
+            >>> health()
+            résultat_attendu
+        """</div></div>
+            <div class="function needs-doc">
+                <h4>demo() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 133</p>
+                <p><strong>Arguments:</strong> Aucun</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Template suggéré:</strong></p><div class="code">"""Demo
+        
+        Description détaillée de la fonction.
+        
+        Example:
+            >>> demo()
+            résultat_attendu
+        """</div></div>
+            <div class="function needs-doc">
+                <h4>test_redis_hybrid() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 165</p>
+                <p><strong>Arguments:</strong> Aucun</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Test du service Redis hybride (direct + REST API)</div></div>
+            <div class="function needs-doc">
+                <h4>ceseda_hybrid_predict() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 196</p>
+                <p><strong>Arguments:</strong> Aucun</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Prédiction CESEDA avec stockage hybride</div></div>
+            <div class="function needs-doc">
+                <h4>ceseda_vector_predict() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 247</p>
+                <p><strong>Arguments:</strong> Aucun</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">API prédiction CESEDA avec IA vectorielle</div></div>
+            <div class="function needs-doc">
+                <h4>ceseda_demo_vector() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 271</p>
+                <p><strong>Arguments:</strong> Aucun</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Démo IA vectorielle CESEDA</div></div>
+            <div class="function needs-doc">
+                <h4>ceseda_semantic_predict() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 290</p>
+                <p><strong>Arguments:</strong> Aucun</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Prédiction CESEDA avec cache sémantique</div></div>
+            <div class="function needs-doc">
+                <h4>ceseda_jurisprudence_semantic() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 315</p>
+                <p><strong>Arguments:</strong> Aucun</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Analyse jurisprudentielle sémantique</div></div></div>
+        <div class="file-section">
+            <h2>📁 ./ceseda_expert_ai.py</h2>
+            
+            <h3>🔧 Fonctions (19)</h3>
+
+            <div class="function has-doc">
+                <h4>__init__() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 18</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Init  
+
+Description détaillée de la fonction.
+
+Args:
+
+Returns:
+    Dict: Résultat de l'opération
+
+Example:
+    >>> __init__()
+    résultat_attendu</div></div>
+            <div class="function has-doc">
+                <h4>predict_case_success() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 37</p>
+                <p><strong>Arguments:</strong> self, case_data</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">🎯 INNOVATION: Predict case success with 87% accuracy
+Competitor advantage: NONE have this capability</div></div>
+            <div class="function needs-doc">
+                <h4>analyze_ceseda_case() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 56</p>
+                <p><strong>Arguments:</strong> self, client_situation</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Complete CESEDA case analysis</div></div>
+            <div class="function has-doc">
+                <h4>generate_legal_document() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 69</p>
+                <p><strong>Arguments:</strong> self, doc_type, case_data, language</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Generate specialized CESEDA documents in 15 languages</div></div>
+            <div class="function needs-doc">
+                <h4>_extract_case_factors() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 79</p>
+                <p><strong>Arguments:</strong> self, case_data</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Extract key factors for prediction</div></div>
+            <div class="function needs-doc">
+                <h4>_find_similar_precedents() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 93</p>
+                <p><strong>Arguments:</strong> self, factors</p>
+                <p><strong>Type de retour:</strong> List[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Find similar cases in jurisprudence database</div></div>
+            <div class="function has-doc">
+                <h4>_calculate_success_probability() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 110</p>
+                <p><strong>Arguments:</strong> self, similar_cases, factors</p>
+                <p><strong>Type de retour:</strong> float</p>
+<p><strong>Documentation:</strong></p><div class="code">Calculate success probability based on similar cases and factors</div></div>
+            <div class="function needs-doc">
+                <h4>_generate_strategy() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 132</p>
+                <p><strong>Arguments:</strong> self, probability, factors</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Generate legal strategy based on prediction</div></div>
+            <div class="function needs-doc">
+                <h4>_predict_timeline() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 141</p>
+                <p><strong>Arguments:</strong> self, factors</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Predict case timeline</div></div>
+            <div class="function needs-doc">
+                <h4>_estimate_costs() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 151</p>
+                <p><strong>Arguments:</strong> self, factors</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Estimate legal costs</div></div>
+            <div class="function needs-doc">
+                <h4>_classify_case_type() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 165</p>
+                <p><strong>Arguments:</strong> self, situation</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Classify CESEDA case type</div></div>
+            <div class="function needs-doc">
+                <h4>_assess_urgency() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 196</p>
+                <p><strong>Arguments:</strong> self, situation</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Assess case urgency</div></div>
+            <div class="function needs-doc">
+                <h4>_list_required_documents() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 205</p>
+                <p><strong>Arguments:</strong> self, situation</p>
+                <p><strong>Type de retour:</strong> List[str]</p>
+<p><strong>Documentation:</strong></p><div class="code">List required documents for case type</div></div>
+            <div class="function needs-doc">
+                <h4>_recommend_strategy() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 223</p>
+                <p><strong>Arguments:</strong> self, situation</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Recommend legal strategy</div></div>
+            <div class="function needs-doc">
+                <h4>_detect_language_needs() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 234</p>
+                <p><strong>Arguments:</strong> self, situation</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Detect client language needs</div></div>
+            <div class="function needs-doc">
+                <h4>_load_jurisprudence() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 243</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Load jurisprudence database</div></div>
+            <div class="function needs-doc">
+                <h4>_load_success_patterns() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 251</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Load success patterns analysis</div></div>
+            <div class="function needs-doc">
+                <h4>_load_templates() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 259</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Load multilingual legal templates</div></div>
+            <div class="function needs-doc">
+                <h4>_personalize_template() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 330</p>
+                <p><strong>Arguments:</strong> self, template, case_data</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Personalize template with case data</div></div><h3>🏗️ Classes (1)</h3>
+            <div class="class has-doc">
+                <h4>CESEDAExpert <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 15</p>
+                <p><strong>Méthodes:</strong> 19</p>
+<div class="code">Proprietary AI for CESEDA legal analysis and prediction</div></div></div>
+        <div class="file-section">
+            <h2>📁 ./src/backend/services/legal/billing_manager.py</h2>
+            
+            <h3>🔧 Fonctions (16)</h3>
+
+            <div class="function has-doc">
+                <h4>__init__() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 14</p>
+                <p><strong>Arguments:</strong> self, data_dir</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Init  
+
+Description détaillée de la fonction.
+
+Args:
+    data_dir (Any): Paramètre data_dir
+
+Returns:
+    Dict: Résultat de l'opération
+
+Example:
+    >>> __init__(data_dir)
+    résultat_attendu</div></div>
+            <div class="function needs-doc">
+                <h4>_ensure_data_dir() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 34</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Créer le répertoire data s'il n'existe pas</div></div>
+            <div class="function needs-doc">
+                <h4>_load_time_entries() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 47</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> List[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Charger les saisies de temps</div></div>
+            <div class="function needs-doc">
+                <h4>_save_time_entries() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 55</p>
+                <p><strong>Arguments:</strong> self, entries</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Sauvegarder les saisies de temps</div></div>
+            <div class="function needs-doc">
+                <h4>_load_invoices() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 60</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> List[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Charger les factures</div></div>
+            <div class="function needs-doc">
+                <h4>_save_invoices() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 68</p>
+                <p><strong>Arguments:</strong> self, invoices</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Sauvegarder les factures</div></div>
+            <div class="function has-doc">
+                <h4>enregistrer_temps() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 73</p>
+                <p><strong>Arguments:</strong> self, case_id, description, hours, hourly_rate, date</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Enregistrer une saisie de temps
+
+Args:
+    case_id: ID du dossier
+    description: Description de la prestation
+    hours: Nombre d'heures
+    hourly_rate: Taux horaire en €
+    date: Date (défaut: aujourd'hui)
+
+Returns:
+    La saisie créée</div></div>
+            <div class="function has-doc">
+                <h4>lister_temps() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 110</p>
+                <p><strong>Arguments:</strong> self, filters</p>
+                <p><strong>Type de retour:</strong> List[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Lister les saisies de temps
+
+Args:
+    filters: Dict avec case_id, billed, date_debut, date_fin
+
+Returns:
+    Liste des saisies filtrées</div></div>
+            <div class="function needs-doc">
+                <h4>modifier_temps() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 141</p>
+                <p><strong>Arguments:</strong> self, entry_id, data</p>
+                <p><strong>Type de retour:</strong> Optional[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Modifier une saisie de temps</div></div>
+            <div class="function needs-doc">
+                <h4>supprimer_temps() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 161</p>
+                <p><strong>Arguments:</strong> self, entry_id</p>
+                <p><strong>Type de retour:</strong> bool</p>
+<p><strong>Documentation:</strong></p><div class="code">Supprimer une saisie de temps</div></div>
+            <div class="function has-doc">
+                <h4>generer_facture() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 173</p>
+                <p><strong>Arguments:</strong> self, data</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Générer une facture à partir de saisies de temps
+
+Args:
+    data: Dict contenant case_id, client_name, client_address, 
+          time_entry_ids (liste des IDs de saisies à facturer)
+
+Returns:
+    La facture générée</div></div>
+            <div class="function has-doc">
+                <h4>lister_factures() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 236</p>
+                <p><strong>Arguments:</strong> self, filters</p>
+                <p><strong>Type de retour:</strong> List[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Lister les factures
+
+Args:
+    filters: Dict avec case_id, status, paid
+
+Returns:
+    Liste des factures filtrées</div></div>
+            <div class="function needs-doc">
+                <h4>get_facture() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 264</p>
+                <p><strong>Arguments:</strong> self, invoice_id</p>
+                <p><strong>Type de retour:</strong> Optional[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Récupérer une facture par son ID</div></div>
+            <div class="function needs-doc">
+                <h4>marquer_payee() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 272</p>
+                <p><strong>Arguments:</strong> self, invoice_id, payment_date</p>
+                <p><strong>Type de retour:</strong> Optional[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Marquer une facture comme payée</div></div>
+            <div class="function has-doc">
+                <h4>get_statistiques() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 290</p>
+                <p><strong>Arguments:</strong> self, period</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Obtenir des statistiques de facturation
+
+Args:
+    period: Dict avec date_debut et date_fin (optionnel)
+
+Returns:
+    Dict avec statistiques détaillées</div></div>
+            <div class="function has-doc">
+                <h4>get_top_clients() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 347</p>
+                <p><strong>Arguments:</strong> self, limit</p>
+                <p><strong>Type de retour:</strong> List[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Obtenir les meilleurs clients par chiffre d'affaires
+
+Args:
+    limit: Nombre maximum de clients à retourner
+
+Returns:
+    Liste des clients triés par CA décroissant</div></div><h3>🏗️ Classes (1)</h3>
+            <div class="class needs-doc">
+                <h4>BillingManager <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 11</p>
+                <p><strong>Méthodes:</strong> 16</p>
+<div class="code">Gestionnaire de facturation et suivi du temps</div></div></div>
+        <div class="file-section">
+            <h2>📁 ./src/backend/services/legal/compliance_manager.py</h2>
+            
+            <h3>🔧 Fonctions (13)</h3>
+
+            <div class="function needs-doc">
+                <h4>__init__() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 14</p>
+                <p><strong>Arguments:</strong> self, data_dir</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Template suggéré:</strong></p><div class="code">"""  Init  
+        
+        Description détaillée de la fonction.
+        
+        Args:
+            self (Any): Description du paramètre
+            data_dir (Any): Description du paramètre
+        
+        Example:
+            >>> __init__()
+            résultat_attendu
+        """</div></div>
+            <div class="function needs-doc">
+                <h4>_ensure_data_dir() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 20</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Créer le répertoire data s'il n'existe pas</div></div>
+            <div class="function needs-doc">
+                <h4>_load_chrono() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 33</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> List[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Charger le registre chronologique</div></div>
+            <div class="function needs-doc">
+                <h4>_save_chrono() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 41</p>
+                <p><strong>Arguments:</strong> self, entries</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Sauvegarder le registre chronologique</div></div>
+            <div class="function needs-doc">
+                <h4>_load_conflicts() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 46</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> List[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Charger le journal des conflits</div></div>
+            <div class="function needs-doc">
+                <h4>_save_conflicts() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 54</p>
+                <p><strong>Arguments:</strong> self, conflicts</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Sauvegarder le journal des conflits</div></div>
+            <div class="function has-doc">
+                <h4>generer_numero_chrono() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 59</p>
+                <p><strong>Arguments:</strong> self, year</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Générer un numéro chronologique unique
+
+Args:
+    year: Année (défaut: année courante)
+
+Returns:
+    Numéro chronologique format YYYY-NNNN</div></div>
+            <div class="function has-doc">
+                <h4>enregistrer_chrono() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 80</p>
+                <p><strong>Arguments:</strong> self, data</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Enregistrer une entrée au registre chronologique
+
+Args:
+    data: Dict contenant type_document, objet, parties, notes
+
+Returns:
+    L'entrée enregistrée</div></div>
+            <div class="function has-doc">
+                <h4>lister_chrono() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 112</p>
+                <p><strong>Arguments:</strong> self, filters</p>
+                <p><strong>Type de retour:</strong> List[Dict]</p>
+<p><strong>Documentation:</strong></p><div class="code">Lister les entrées du registre chronologique
+
+Args:
+    filters: Dict avec type_document, date_debut, date_fin, search
+
+Returns:
+    Liste des entrées filtrées</div></div>
+            <div class="function has-doc">
+                <h4>verifier_conflit() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 147</p>
+                <p><strong>Arguments:</strong> self, client_name, adverse_party</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Vérifier les conflits d'intérêts potentiels
+
+Args:
+    client_name: Nom du client potentiel
+    adverse_party: Partie adverse (optionnel)
+
+Returns:
+    Dict avec has_conflict, conflicts (liste), message</div></div>
+            <div class="function has-doc">
+                <h4>get_statistiques_chrono() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 221</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Obtenir des statistiques sur le registre chronologique</div></div>
+            <div class="function has-doc">
+                <h4>get_statistiques_conflits() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 250</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> Dict</p>
+<p><strong>Documentation:</strong></p><div class="code">Obtenir des statistiques sur les vérifications de conflits</div></div>
+            <div class="function has-doc">
+                <h4>exporter_registre() <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 266</p>
+                <p><strong>Arguments:</strong> self, format, filters</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Exporter le registre chronologique
+
+Args:
+    format: Format d'export (json, csv)
+    filters: Filtres à appliquer
+
+Returns:
+    Chemin du fichier exporté</div></div><h3>🏗️ Classes (1)</h3>
+            <div class="class has-doc">
+                <h4>ComplianceManager <span class="badge badge-success">Documentée</span></h4>
+                <p><strong>Ligne:</strong> 11</p>
+                <p><strong>Méthodes:</strong> 13</p>
+<div class="code">Gestionnaire de conformité et registres juridiques</div></div></div>
+        <div class="file-section">
+            <h2>📁 ./src/backend/services/legal/advanced_templates.py</h2>
+            
+            <h3>🔧 Fonctions (8)</h3>
+
+            <div class="function needs-doc">
+                <h4>__init__() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 12</p>
+                <p><strong>Arguments:</strong> self, data_dir</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Template suggéré:</strong></p><div class="code">"""  Init  
+        
+        Description détaillée de la fonction.
+        
+        Args:
+            self (Any): Description du paramètre
+            data_dir (Any): Description du paramètre
+        
+        Example:
+            >>> __init__()
+            résultat_attendu
+        """</div></div>
+            <div class="function needs-doc">
+                <h4>_ensure_data_dir() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 17</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> Non spécifié</p>
+<p><strong>Documentation:</strong></p><div class="code">Créer les répertoires nécessaires</div></div>
+            <div class="function needs-doc">
+                <h4>generer_assignation() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 25</p>
+                <p><strong>Arguments:</strong> self, data</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Générer une assignation</div></div>
+            <div class="function needs-doc">
+                <h4>generer_conclusions() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 70</p>
+                <p><strong>Arguments:</strong> self, data</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Générer des conclusions</div></div>
+            <div class="function needs-doc">
+                <h4>generer_mise_en_demeure() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 104</p>
+                <p><strong>Arguments:</strong> self, data</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Générer une mise en demeure</div></div>
+            <div class="function needs-doc">
+                <h4>generer_requete() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 140</p>
+                <p><strong>Arguments:</strong> self, data</p>
+                <p><strong>Type de retour:</strong> str</p>
+<p><strong>Documentation:</strong></p><div class="code">Générer une requête</div></div>
+            <div class="function needs-doc">
+                <h4>lister_templates() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 170</p>
+                <p><strong>Arguments:</strong> self</p>
+                <p><strong>Type de retour:</strong> list</p>
+<p><strong>Documentation:</strong></p><div class="code">Lister tous les documents générés</div></div>
+            <div class="function needs-doc">
+                <h4>get_template() <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 190</p>
+                <p><strong>Arguments:</strong> self, filename</p>
+                <p><strong>Type de retour:</strong> Optional[str]</p>
+<p><strong>Documentation:</strong></p><div class="code">Récupérer le contenu d'un template</div></div><h3>🏗️ Classes (1)</h3>
+            <div class="class needs-doc">
+                <h4>TemplateGenerator <span class="badge badge-danger">Non documentée</span></h4>
+                <p><strong>Ligne:</strong> 9</p>
+                <p><strong>Méthodes:</strong> 8</p>
+<div class="code">Générateur de documents juridiques types</div></div></div>
+    </div>
+</body>
+</html>
