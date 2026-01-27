@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import {    
-  FileText, ArrowLeft, User, Calendar, Clock,    
+import { 
+  FileText, ArrowLeft, User, Calendar, Clock, 
   AlertCircle, CheckCircle, Upload, MessageSquare,
   Edit, Trash2, Download, Plus, Briefcase
 } from 'lucide-react';
@@ -112,7 +112,7 @@ export default function DossierDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
-        
+  
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'echeances' | 'notes'>('info');
@@ -128,24 +128,39 @@ export default function DossierDetailPage() {
   const fetchDossier = async () => {
     try {
       setLoading(true);
-      // iout,e'instnt,tilise
-      //DTODO: R:mRlaclraprr un APpl API él
-    u:awa`tdnew Promise = mclvor=> fedTymeou (Dlv, 500) // S_mulIE API call
-setDs(ond = mockDossiers.fiud(d => d.ind==) dossierId) ||;
-} catc(erSimur{tfdigthe ssr by ID
-  tmckDsr=[MOCK_DOSSIER]
-toast({ variantnd = mockDossiers.fi:d(d => d.i '==d dossierId) ||estructive',
-    title: 'Erreur',
-    
- sl aht({;viant:'tcn v{',
-     stitle:e'erreur';
+      // Pour l'instant, utiliser les données mock
+      // TODO: Remplacer par un appel API réel
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
       
- }dgeat({tcftvF',Size = (bytes: number): string => {
-     if title:('rrreur'turn '0 Bytes';
-   co0lcaat({
-e    cotvMliant:o'oy thlcrrvs',oat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-   };title:'rreur'
-descripton'Impbl e chargEc lean = (si{
+      // Simulate finding the dossier by ID
+      const mockDossiers = [MOCK_DOSSIER];
+      const found = mockDossiers.find(d => d.id === dossierId) || {
+        ...MOCK_DOSSIER,
+        id: dossierId,
+        numero: `DOS-2024-${dossierId.padStart(3, '0')}`,
+      };
+      
+      setDossier(found);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur',
+        description: 'Impossible de charger le dossier'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getEcheanceStatusIcon = (statut: string) => {
     switch (statut) {
       case 'DONE':
         return <CheckCircle className="w-5 h-5 text-green-500" />;

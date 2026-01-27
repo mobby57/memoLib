@@ -3,17 +3,17 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
-import { Calendar, CalendarEvent, MiniCalendar } from '@/components/Calendar';
-import { Breadcrumb, Alert } from '@/components/ui';
-import { Modal } from '@/components/forms/Modal';
+import { Calendar, CalendarEvent } from '@/components/Calendar';
 import { Button, Input } from '@/components/forms';
+import { Modal } from '@/components/forms/Modal';
+import { Alert, Breadcrumb } from '@/components/ui';
 import { Card } from '@/components/ui/Card';
-import { Bell, Calendar as CalendarIcon, Clock, TrendingUp, AlertTriangle } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useToast } from '@/hooks';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertTriangle, Calendar as CalendarIcon, Clock, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Le titre est requis'),
@@ -32,7 +32,7 @@ type EventFormData = z.infer<typeof eventSchema>;
 
 export default function CalendrierPage() {
   const { showToast } = useToast();
-  
+
   // Donnees d'exemple
   const [events, setEvents] = useState<CalendarEvent[]>([
     {
@@ -89,13 +89,20 @@ export default function CalendrierPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isEventDetailOpen, setIsEventDetailOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<EventFormData>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       type: 'rendez-vous',
       reminder: 'none',
-    }
+    },
   });
 
   const handleAddEvent = () => {
@@ -114,8 +121,8 @@ export default function CalendrierPage() {
   };
 
   const onSubmit = (data: EventFormData) => {
-    const newEvent: CalendarEvent = {
-      id: `event-${Date.now()}`,
+    const eventData: CalendarEvent = {
+      id: isEditing && editingEventId ? editingEventId : `event-${Date.now()}`,
       title: data.title,
       date: new Date(data.date + (data.startTime ? `T${data.startTime}` : '')),
       startTime: data.startTime,
@@ -127,10 +134,36 @@ export default function CalendrierPage() {
       location: data.location,
     };
 
-    setEvents([...events, newEvent]);
-    showToast('evenement ajoute avec succes', 'success');
+    if (isEditing && editingEventId) {
+      setEvents(events.map(e => (e.id === editingEventId ? eventData : e)));
+      showToast('Événement modifié avec succès', 'success');
+    } else {
+      setEvents([...events, eventData]);
+      showToast('evenement ajoute avec succes', 'success');
+    }
+
     setIsModalOpen(false);
+    setIsEditing(false);
+    setEditingEventId(null);
     reset();
+  };
+
+  const handleEditEvent = (event: CalendarEvent) => {
+    setIsEditing(true);
+    setEditingEventId(event.id);
+    reset({
+      title: event.title,
+      date: event.date.toISOString().split('T')[0],
+      startTime: event.startTime,
+      endTime: event.endTime,
+      type: event.type,
+      description: event.description,
+      client: event.client,
+      dossier: event.dossier,
+      location: event.location,
+    });
+    setIsEventDetailOpen(false);
+    setIsModalOpen(true);
   };
 
   const handleDeleteEvent = (eventId: string) => {
@@ -159,7 +192,7 @@ export default function CalendrierPage() {
       <Breadcrumb
         items={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Calendrier', href: '/calendrier' }
+          { label: 'Calendrier', href: '/calendrier' },
         ]}
       />
 
@@ -183,9 +216,7 @@ export default function CalendrierPage() {
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {upcomingEvents}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                evenements a venir
-              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">evenements a venir</div>
             </div>
           </div>
         </Card>
@@ -196,12 +227,8 @@ export default function CalendrierPage() {
               <Clock className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {echeances}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                echeances
-              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{echeances}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">echeances</div>
             </div>
           </div>
         </Card>
@@ -212,12 +239,8 @@ export default function CalendrierPage() {
               <AlertTriangle className="h-6 w-6 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {urgentEvents}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Urgents (3j)
-              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{urgentEvents}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Urgents (3j)</div>
             </div>
           </div>
         </Card>
@@ -250,7 +273,8 @@ export default function CalendrierPage() {
       {urgentEvents > 0 && (
         <Alert variant="warning" className="mb-6">
           <AlertTriangle className="h-5 w-5" />
-          Vous avez <strong>{urgentEvents}</strong> evenement{urgentEvents > 1 ? 's' : ''} urgent{urgentEvents > 1 ? 's' : ''} dans les 3 prochains jours !
+          Vous avez <strong>{urgentEvents}</strong> evenement{urgentEvents > 1 ? 's' : ''} urgent
+          {urgentEvents > 1 ? 's' : ''} dans les 3 prochains jours !
         </Alert>
       )}
 
@@ -277,12 +301,7 @@ export default function CalendrierPage() {
           />
 
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Date *"
-              type="date"
-              {...register('date')}
-              error={errors.date?.message}
-            />
+            <Input label="Date *" type="date" {...register('date')} error={errors.date?.message} />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -301,36 +320,16 @@ export default function CalendrierPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Heure de debut"
-              type="time"
-              {...register('startTime')}
-            />
+            <Input label="Heure de debut" type="time" {...register('startTime')} />
 
-            <Input
-              label="Heure de fin"
-              type="time"
-              {...register('endTime')}
-            />
+            <Input label="Heure de fin" type="time" {...register('endTime')} />
           </div>
 
-          <Input
-            label="Client"
-            {...register('client')}
-            placeholder="Nom du client"
-          />
+          <Input label="Client" {...register('client')} placeholder="Nom du client" />
 
-          <Input
-            label="Dossier"
-            {...register('dossier')}
-            placeholder="Reference du dossier"
-          />
+          <Input label="Dossier" {...register('dossier')} placeholder="Reference du dossier" />
 
-          <Input
-            label="Lieu"
-            {...register('location')}
-            placeholder="Cabinet, Tribunal..."
-          />
+          <Input label="Lieu" {...register('location')} placeholder="Cabinet, Tribunal..." />
 
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -364,9 +363,7 @@ export default function CalendrierPage() {
             <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>
               Annuler
             </Button>
-            <Button type="submit">
-              Ajouter l'evenement
-            </Button>
+            <Button type="submit">Ajouter l'evenement</Button>
           </div>
         </form>
       </Modal>
@@ -383,28 +380,42 @@ export default function CalendrierPage() {
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {selectedEvent.title}
               </h3>
-              <span className={`inline-block px-3 py-1 text-sm rounded-full ${
-                selectedEvent.type === 'echeance' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
-                selectedEvent.type === 'rendez-vous' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
-                selectedEvent.type === 'audience' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
-                'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
-              }`}>
-                {selectedEvent.type === 'echeance' ? 'echeance' :
-                 selectedEvent.type === 'rendez-vous' ? 'Rendez-vous' :
-                 selectedEvent.type === 'audience' ? 'Audience' : 'Autre'}
+              <span
+                className={`inline-block px-3 py-1 text-sm rounded-full ${
+                  selectedEvent.type === 'echeance'
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                    : selectedEvent.type === 'rendez-vous'
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                      : selectedEvent.type === 'audience'
+                        ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                        : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
+                }`}
+              >
+                {selectedEvent.type === 'echeance'
+                  ? 'echeance'
+                  : selectedEvent.type === 'rendez-vous'
+                    ? 'Rendez-vous'
+                    : selectedEvent.type === 'audience'
+                      ? 'Audience'
+                      : 'Autre'}
               </span>
             </div>
 
             {selectedEvent.description && (
-              <p className="text-gray-600 dark:text-gray-400">
-                {selectedEvent.description}
-              </p>
+              <p className="text-gray-600 dark:text-gray-400">{selectedEvent.description}</p>
             )}
 
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <CalendarIcon className="h-4 w-4 text-gray-500" />
-                <span>{selectedEvent.date.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                <span>
+                  {selectedEvent.date.toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
               </div>
 
               {selectedEvent.startTime && (
@@ -443,10 +454,12 @@ export default function CalendrierPage() {
               <Button variant="secondary" onClick={() => setIsEventDetailOpen(false)}>
                 Fermer
               </Button>
-              <Button variant="secondary" onClick={() => {
-                // TODO: editer l'evenement
-                showToast('Fonctionnalite en developpement', 'info');
-              }}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  if (selectedEvent) handleEditEvent(selectedEvent);
+                }}
+              >
                 Modifier
               </Button>
               <Button
