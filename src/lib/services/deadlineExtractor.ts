@@ -55,7 +55,7 @@ const OQTF_TEMPLATES = {
     ],
     keywords: ['sans delai', 'immediatement', 'sans delai de depart volontaire'],
   },
-  
+
   // Article L.511-1 CESEDA - OQTF avec delai de depart volontaire 30 jours
   OQTF_30J_AVEC_DELAI: {
     name: 'OQTF avec delai de depart (30 jours)',
@@ -72,7 +72,7 @@ const OQTF_TEMPLATES = {
     ],
     keywords: ['delai de depart volontaire', '30 jours', 'trente jours'],
   },
-  
+
   // Refus de titre de sejour - 2 mois
   REFUS_TITRE_2MOIS: {
     name: 'Refus titre de sejour',
@@ -94,27 +94,27 @@ const OQTF_TEMPLATES = {
  */
 function detectOQTFTemplate(documentText: string): keyof typeof OQTF_TEMPLATES | null {
   const lowerText = documentText.toLowerCase();
-  
+
   // Recherche OQTF sans delai (priorite haute)
   if (
     (lowerText.includes('oqtf') || lowerText.includes('obligation de quitter')) &&
-    (lowerText.includes('sans delai') || 
-     lowerText.includes('immediatement') ||
-     lowerText.includes('sans delai de depart volontaire'))
+    (lowerText.includes('sans delai') ||
+      lowerText.includes('immediatement') ||
+      lowerText.includes('sans delai de depart volontaire'))
   ) {
     return 'OQTF_48H_SANS_DELAI';
   }
-  
+
   // OQTF avec delai
   if (
     (lowerText.includes('oqtf') || lowerText.includes('obligation de quitter')) &&
     (lowerText.includes('delai de depart volontaire') ||
-     lowerText.includes('30 jours') ||
-     lowerText.includes('trente jours'))
+      lowerText.includes('30 jours') ||
+      lowerText.includes('trente jours'))
   ) {
     return 'OQTF_30J_AVEC_DELAI';
   }
-  
+
   // Refus de titre
   if (
     lowerText.includes('refus') &&
@@ -122,7 +122,7 @@ function detectOQTFTemplate(documentText: string): keyof typeof OQTF_TEMPLATES |
   ) {
     return 'REFUS_TITRE_2MOIS';
   }
-  
+
   return null;
 }
 
@@ -142,7 +142,7 @@ function generateAutoChecklist(
       'Rassembler documents justificatifs',
     ];
   }
-  
+
   const templateData = OQTF_TEMPLATES[template];
   return [...templateData.checklist];
 }
@@ -165,16 +165,16 @@ function enrichDeadlineWithTemplate(
   documentText: string
 ): ExtractedDeadline {
   const enriched = { ...deadline };
-  
+
   if (templateKey) {
     const template = OQTF_TEMPLATES[templateKey];
-    
+
     // Ajouter template match
     enriched.templateMatch = templateKey;
-    
+
     // Generer checklist automatique
     enriched.autoChecklist = generateAutoChecklist(templateKey, deadline);
-    
+
     // Enrichir metadata
     enriched.metadata = {
       ...enriched.metadata,
@@ -182,20 +182,20 @@ function enrichDeadlineWithTemplate(
       articlesApplicables: template.articles,
       templateName: template.name,
     };
-    
+
     // Ajuster la confiance si le template match est fort
-    const hasStrongKeywords = template.keywords.some(kw => 
+    const hasStrongKeywords = template.keywords.some(kw =>
       documentText.toLowerCase().includes(kw.toLowerCase())
     );
-    
+
     if (hasStrongKeywords && enriched.aiConfidence < 0.9) {
       enriched.aiConfidence = Math.min(0.95, enriched.aiConfidence + 0.15);
     }
   }
-  
+
   // Calculer confidence level
   enriched.confidenceLevel = calculateConfidenceLevel(enriched.aiConfidence);
-  
+
   return enriched;
 }
 
@@ -256,7 +256,7 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string>
   const ollamaEnabled = process.env.OLLAMA_ENABLED === 'true';
   const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
   const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2:latest';
-  
+
   if (ollamaEnabled) {
     // Appel Ollama
     try {
@@ -266,8 +266,8 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string>
         body: JSON.stringify({
           model: ollamaModel,
           prompt: `${systemPrompt}\n\n${userPrompt}`,
-          stream: false
-        })
+          stream: false,
+        }),
       });
 
       if (!response.ok) {
@@ -279,7 +279,7 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string>
     } catch (error) {
       logger.error('Erreur appel Ollama pour extraction delais', error, {
         ollamaUrl: process.env.OLLAMA_URL,
-        model: 'llama3.2:3b'
+        model: 'llama3.2:3b',
       });
       throw new Error('IA non disponible (Ollama)');
     }
@@ -300,7 +300,7 @@ export async function extractDeadlinesFromText(
       return {
         success: false,
         deadlines: [],
-        error: 'Texte du document vide'
+        error: 'Texte du document vide',
       };
     }
 
@@ -326,10 +326,7 @@ ${documentText}
 Reponds avec le JSON structure des delais trouves.`;
 
     // Appel a l'IA
-    const aiResponse = await callAI(
-      DEADLINE_EXTRACTION_PROMPT,
-      userPrompt
-    );
+    const aiResponse = await callAI(DEADLINE_EXTRACTION_PROMPT, userPrompt);
 
     // Parser la reponse JSON
     let parsedResponse;
@@ -339,18 +336,18 @@ Reponds avec le JSON structure des delais trouves.`;
         .replace(/```json\n?/g, '')
         .replace(/```\n?/g, '')
         .trim();
-      
+
       parsedResponse = JSON.parse(cleanedResponse);
     } catch (parseError) {
-      logger.error('Erreur parsing reponse JSON de l\'IA', parseError, {
+      logger.error("Erreur parsing reponse JSON de l'IA", parseError, {
         aiResponse: aiResponse.substring(0, 200),
-        documentType
+        documentType,
       });
       return {
         success: false,
         deadlines: [],
         rawText: aiResponse,
-        error: 'Format de reponse IA invalide'
+        error: 'Format de reponse IA invalide',
       };
     }
 
@@ -366,9 +363,9 @@ Reponds avec le JSON structure des delais trouves.`;
         priorite: dl.priorite || 'normale',
         aiConfidence: dl.aiConfidence || 0.5,
         extractedText: dl.extractedText || '',
-        metadata: dl.metadata
+        metadata: dl.metadata,
       };
-      
+
       // Enrichir avec template et checklist
       return enrichDeadlineWithTemplate(baseDeadline, templateDetected, documentText);
     });
@@ -378,8 +375,10 @@ Reponds avec le JSON structure des delais trouves.`;
     if (templateDetected) {
       const template = OQTF_TEMPLATES[templateDetected];
       suggestedActions.push(`Template detecte : ${template.name}`);
-      suggestedActions.push(`Delai legal : ${template.delaiRecours}${templateDetected.includes('48H') ? 'h' : 'j'}`);
-      
+      suggestedActions.push(
+        `Delai legal : ${template.delaiRecours}${templateDetected.includes('48H') ? 'h' : 'j'}`
+      );
+
       if (deadlines.some(d => d.priorite === 'critique')) {
         suggestedActions.push('️ URGENCE : Contacter avocat immediatement');
       }
@@ -392,16 +391,15 @@ Reponds avec le JSON structure des delais trouves.`;
       rawText: aiResponse,
       suggestedActions: suggestedActions.length > 0 ? suggestedActions : undefined,
     };
-
   } catch (error: any) {
-    logger.error('Erreur lors de l\'extraction automatique des delais', error, {
+    logger.error("Erreur lors de l'extraction automatique des delais", error, {
       documentType,
-      textLength: documentText?.length
+      textLength: documentText?.length,
     });
     return {
       success: false,
       deadlines: [],
-      error: error.message || 'Erreur inconnue'
+      error: error.message || 'Erreur inconnue',
     };
   }
 }
@@ -422,7 +420,9 @@ export async function extractDeadlinesFromFile(
     if (mimeType === 'application/pdf') {
       // TODO: Integrer un parser PDF (pdf-parse)
       documentText = await extractTextFromPDF(fileBuffer);
-    } else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    } else if (
+      mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
       // TODO: Integrer un parser DOCX (mammoth)
       documentText = await extractTextFromDOCX(fileBuffer);
     } else if (mimeType === 'text/plain') {
@@ -431,7 +431,7 @@ export async function extractDeadlinesFromFile(
       return {
         success: false,
         deadlines: [],
-        error: `Type de fichier non supporte: ${mimeType}`
+        error: `Type de fichier non supporte: ${mimeType}`,
       };
     }
 
@@ -440,16 +440,15 @@ export async function extractDeadlinesFromFile(
 
     // Extraire les delais du texte
     return await extractDeadlinesFromText(documentText, documentType);
-
   } catch (error: any) {
     logger.error('Erreur extraction delais depuis fichier', error, {
       fileName,
-      mimeType
+      mimeType,
     });
     return {
       success: false,
       deadlines: [],
-      error: error.message || 'Erreur extraction fichier'
+      error: error.message || 'Erreur extraction fichier',
     };
   }
 }
@@ -459,16 +458,22 @@ export async function extractDeadlinesFromFile(
  */
 function detectDocumentType(fileName: string): string | undefined {
   const lowerName = fileName.toLowerCase();
-  
+
   if (lowerName.includes('oqtf')) return 'OQTF';
   if (lowerName.includes('arrete')) return 'ARRETE_PREFECTORAL';
-  if (lowerName.includes('decision') || lowerName.includes('decision')) return 'DECISION_ADMINISTRATIVE';
+  if (lowerName.includes('decision') || lowerName.includes('decision'))
+    return 'DECISION_ADMINISTRATIVE';
   if (lowerName.includes('convocation')) return 'CONVOCATION';
   if (lowerName.includes('audience')) return 'CONVOCATION_AUDIENCE';
   if (lowerName.includes('jugement')) return 'JUGEMENT';
   if (lowerName.includes('ordonnance')) return 'ORDONNANCE';
-  if (lowerName.includes('titre') || lowerName.includes('recepisse') || lowerName.includes('recepisse')) return 'TITRE_SEJOUR';
-  
+  if (
+    lowerName.includes('titre') ||
+    lowerName.includes('recepisse') ||
+    lowerName.includes('recepisse')
+  )
+    return 'TITRE_SEJOUR';
+
   return undefined;
 }
 
@@ -477,14 +482,39 @@ function detectDocumentType(fileName: string): string | undefined {
  */
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   try {
-    const pdfParse = require('pdf-parse');
-    const data = await pdfParse(buffer);
-    return data.text || '';
+    // Utiliser pdf2json comme alternative sécurisée à pdf-parse
+    const PDFParser = require('pdf2json');
+
+    return new Promise((resolve, reject) => {
+      const pdfParser = new PDFParser();
+
+      pdfParser.on(
+        'pdfParser_dataReady',
+        (pdfData: { Pages: Array<{ Texts: Array<{ R: Array<{ T: string }> }> }> }) => {
+          let text = '';
+          pdfData.Pages.forEach(page => {
+            page.Texts.forEach(textItem => {
+              textItem.R.forEach(r => {
+                text += decodeURIComponent(r.T) + ' ';
+              });
+            });
+            text += '\n';
+          });
+          resolve(text);
+        }
+      );
+
+      pdfParser.on('pdfParser_dataError', (errData: Error) => {
+        reject(errData);
+      });
+
+      pdfParser.parseBuffer(buffer);
+    });
   } catch (error) {
     logger.error('Erreur extraction texte depuis PDF', error, {
-      bufferSize: buffer.length
+      bufferSize: buffer.length,
     });
-    throw new Error('Impossible d\'extraire le texte du PDF');
+    throw new Error("Impossible d'extraire le texte du PDF");
   }
 }
 
@@ -498,9 +528,9 @@ async function extractTextFromDOCX(buffer: Buffer): Promise<string> {
     return result.value || '';
   } catch (error) {
     logger.error('Erreur extraction texte depuis DOCX', error, {
-      bufferSize: buffer.length
+      bufferSize: buffer.length,
     });
-    throw new Error('Impossible d\'extraire le texte du DOCX');
+    throw new Error("Impossible d'extraire le texte du DOCX");
   }
 }
 
@@ -549,5 +579,5 @@ export const deadlineExtractor = {
   extractDeadlinesFromText,
   extractDeadlinesFromFile,
   calculateDeadlineStatus,
-  calculateDeadlinePriority
+  calculateDeadlinePriority,
 };
