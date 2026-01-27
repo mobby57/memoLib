@@ -454,12 +454,12 @@ def run_all_tests():
     )
     # Calculer le total bloqué (inclut les mots de passe faibles détectés)
     total_blocked = (
-        results["sql_injection"]["blocked"]
-        + results["xss"]["blocked"]
-        + results["auth"]["weak"]  # Mots de passe faibles détectés = protection
-        + results["path_traversal"]["blocked"]
-        + results["nosql_injection"]["blocked"]
-        + results["command_injection"]["blocked"]
+        results["sql_injection"]["blocked"] +
+        results["xss"]["blocked"] +
+        results["auth"]["weak"] +  # Mots de passe faibles détectés = protection
+        results["path_traversal"]["blocked"] +
+        results["nosql_injection"]["blocked"] +
+        results["command_injection"]["blocked"]
     )
 
     print(f"  Total des tests: {total_tested}")

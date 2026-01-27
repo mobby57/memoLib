@@ -92,12 +92,47 @@ const nextConfig = {
   // Compression (only works with server mode)
   compress: !isStaticExport,
 
-  // 🔥 Empty turbopack config to enable Turbopack (Next.js 16 default)
-  turbopack: {},
+  // � Turbopack Configuration - Next.js 16 Best Practices
+  turbopack: {
+    // 📁 Resolve aliases for cleaner imports
+    resolveAlias: {
+      '@': './src',
+      '@/components': './src/components',
+      '@/lib': './src/lib',
+      '@/hooks': './src/hooks',
+      '@/utils': './src/utils',
+      '@/types': './src/types',
+      '@/styles': './src/styles',
+      '@/services': './src/services',
+      '@/app': './src/app',
+      '@/pages': './src/pages',
+    },
+
+    // 📦 Custom resolve extensions
+    resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
+
+    // 🎨 Webpack loaders for Turbopack
+    rules: {
+      // SVG as React components (with @svgr/webpack)
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+
+    // 🐛 Debug IDs for better debugging in production
+    debugIds: process.env.NODE_ENV === 'development',
+  },
 
   // 🔥 Minimal webpack config - DO NOT override resolve.alias (legacy fallback)
   webpack: (config, { isServer }) => {
-    // Just return config without modifications
+    // SVG loader fallback for webpack (when not using Turbopack)
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
+
+    // Return config
     return config;
   },
 
