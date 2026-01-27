@@ -418,13 +418,27 @@ export async function extractDeadlinesFromFile(
     let documentText: string;
 
     if (mimeType === 'application/pdf') {
-      // TODO: Integrer un parser PDF (pdf-parse)
-      documentText = await extractTextFromPDF(fileBuffer);
+      // Extraction PDF avec pdf-parse si disponible
+      try {
+        const pdfParse = await import('pdf-parse');
+        const pdfData = await pdfParse.default(fileBuffer);
+        documentText = pdfData.text;
+      } catch (pdfError) {
+        logger.warn('pdf-parse non disponible, extraction basique', { error: pdfError });
+        documentText = await extractTextFromPDF(fileBuffer);
+      }
     } else if (
       mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
-      // TODO: Integrer un parser DOCX (mammoth)
-      documentText = await extractTextFromDOCX(fileBuffer);
+      // Extraction DOCX avec mammoth si disponible
+      try {
+        const mammoth = await import('mammoth');
+        const result = await mammoth.extractRawText({ buffer: fileBuffer });
+        documentText = result.value;
+      } catch (docxError) {
+        logger.warn('mammoth non disponible, extraction basique', { error: docxError });
+        documentText = await extractTextFromDOCX(fileBuffer);
+      }
     } else if (mimeType === 'text/plain') {
       documentText = fileBuffer.toString('utf-8');
     } else {
