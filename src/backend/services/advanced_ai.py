@@ -2,16 +2,27 @@ import openai
 import os
 from datetime import datetime
 import json
+import requests
 
 class AdvancedLegalAI:
     def __init__(self):
+        # Configuration OpenAI publique (fallback)
         self.openai_key = os.getenv('OPENAI_API_KEY')
         if self.openai_key:
             openai.api_key = self.openai_key
-    
+
+        # Configuration Azure OpenAI (prioritaire si complète)
+        self.azure_endpoint = os.getenv('AZURE_OPENAI_ENDPOINT')
+        self.azure_api_key = os.getenv('AZURE_OPENAI_API_KEY')
+        self.azure_deployment = os.getenv('AZURE_OPENAI_DEPLOYMENT')
+        self.azure_api_version = os.getenv('AZURE_OPENAI_API_VERSION', '2025-01-01-preview')
+
     def advanced_case_analysis(self, case_description, procedure_type):
-        """Advanced AI analysis using GPT-4"""
-        if not self.openai_key:
+        """Advanced AI analysis using Azure OpenAI (GPT-5.1) or fallback OpenAI"""
+        # Vérifier si Azure OpenAI est configuré
+        use_azure = self.azure_endpoint and self.azure_api_key and self.azure_deployment
+
+        if not use_azure and not self.openai_key:
             return self.fallback_analysis(case_description, procedure_type)
         
         prompt = f"""
@@ -31,20 +42,38 @@ class AdvancedLegalAI:
         """
         
         try:
-            response = openai.chat.completions.create(
-                model="gpt-4",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.3
-            )
-            return json.loads(response.choices[0].message.content)
-        except:
-            return self.fallback_analysis(case_description, procedure_type)
-    
+            if use_azure:
+                # Appel Azure OpenAI
+                url = f"{self.azure_endpoint.rstrip('/')}/openai/deployments/{self.azure_deployment}/chat/completions?api-version={self.azure_api_version}"
+                headers = {
+                    'Content-Type': 'application/json',
+                    'api-key': self.azure_api_key
+                }
+                payload = {
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'temperature': 0.3,
+                    'max_tokens': 1500
+                }
+                response = requests.post(url, headers=headers, json=payload, timeout=30)
+                response.raise_for_status()
+                result = response.json()
+                return json.loads(result['choices'][0]['message']['content'])
+            else:
+                # Fallback OpenAI public
+                response = openai.chat.completions.create(
+                    model="gpt-4",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.3
+                )
+                return json.loads(response.choices[0].message.content)
+        except Exception as e:
+            print(f"Erreur AI: {e}")
+
     def fallback_analysis(self, case_description, procedure_type):
         """Fallback analysis without OpenAI"""
         urgency_keywords = ["expulsion", "oqtf", "detention", "dublin", "urgence"]
         is_urgent = any(kw in case_description.lower() for kw in urgency_keywords)
-        
+
         return {
             "points_juridiques": [
                 "Analyse du droit au séjour",
@@ -60,7 +89,7 @@ class AdvancedLegalAI:
                 "Consulter avocat spécialisé"
             ]
         }
-    
+
     def generate_advanced_document(self, doc_type, client_info, case_analysis):
         """Generate sophisticated legal documents"""
         templates = {
@@ -97,7 +126,7 @@ Fait à {client_info.get('ville', 'Paris')}, le {datetime.now().strftime('%d/%m/
 Maître [NOM AVOCAT]
 Avocat au Barreau de Paris
             """,
-            
+
             "memoire_complementaire": f"""
 MÉMOIRE COMPLÉMENTAIRE
 
@@ -127,7 +156,7 @@ Confirme les conclusions initiales.
 {datetime.now().strftime('%d/%m/%Y')}
             """
         }
-        
+
         return templates.get(doc_type, "Template non disponible")
 
 # Global instance
