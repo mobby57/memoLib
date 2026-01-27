@@ -20,9 +20,63 @@ export default function ClientDashboard() {
   const [factures, setFactures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const handlePayment = ) => {
-    // TODO:mImPlemne S cPgrdtfs5c8py-4">
-        <div className="flex items-center justifyIntbgratt eni       <div>
+  const handlePayment = (factureId: string) => {
+    // TODO: Implementer le paiement (Stripe, PayPal, etc.)
+    alert(`Paiement de la facture ${factureId} - Integration a venir`);
+  };
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/login');
+    } else if (session?.user && session.user.role !== 'CLIENT') {
+      router.push('/dashboard');
+    } else if (session?.user?.role === 'CLIENT') {
+      fetchData();
+    }
+  }, [session, status, router]);
+
+  const fetchData = async () => {
+    try {
+      const [dossiersRes, facturesRes] = await Promise.all([
+        fetch('/api/client/my-dossiers'),
+        fetch('/api/client/my-factures'),
+      ]);
+
+      if (dossiersRes.ok) {
+        const data = await dossiersRes.json();
+        setDossiers(data.dossiers);
+      }
+
+      if (facturesRes.ok) {
+        const data = await facturesRes.json();
+        setFactures(data.factures);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  const dossierEnCours = dossiers.filter(d => d.statut === 'en_cours' || d.statut === 'urgent');
+  const facturesEnAttente = factures.filter(f => f.statut === 'en_attente');
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Header */}
+      <header className="bg-white shadow-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Mon Espace Client
               </h1>
@@ -236,7 +290,7 @@ export default function ClientDashboard() {
                       </td>
                     </tr>
                   ))}
-                </tbody> 
+                </tbody>
               </table>
             </div>
           )}
@@ -245,4 +299,3 @@ export default function ClientDashboard() {
     </div>
   );
 }
-  

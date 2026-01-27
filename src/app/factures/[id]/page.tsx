@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import {    
+import { 
   FileText, ArrowLeft, User, Calendar, Euro,
   Edit, Download, Send, Printer, CheckCircle,
   Clock, AlertCircle, RefreshCw, CreditCard, Building2
@@ -108,7 +108,7 @@ export default function FactureDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
-        
+  
   const [facture, setFacture] = useState<Facture | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -123,15 +123,33 @@ export default function FactureDetailPage() {
   const fetchFacture = async () => {
     try {
       setLoading(true);
-      // TODO: RImpe herépmu(pl AP él
-st w Prmiv'dIev => tTmo(rlv,500)
-      se 'payee':
+      // TODO: Remplacer par un appel API réel
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setFacture({ ...MOCK_FACTURE, id: factureId });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur',
+        description: 'Impossible de charger la facture'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+  };
+
+  const getStatusIcon = () => {
+    if (!facture) return null;
+    switch (facture.statut) {
+      case 'payee':
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
       case 'en_retard':
-      t aetr{
-        vaiiant: 'dlsarue=iv- h
-       -titl5: 'E teux',red-500" />;
-      sedeec:ipti:'Ipssibledhg la fturn <'
-  o55e-500" />;
+        return <AlertCircle className="w-5 h-5 text-red-500" />;
+      case 'envoyee':
+        return <Clock className="w-5 h-5 text-blue-500" />;
       default:
         return <FileText className="w-5 h-5 text-gray-500" />;
     }
@@ -156,20 +174,20 @@ st w Prmiv'dIev => tTmo(rlv,500)
         datePaiement: new Date().toISOString().split('T')[0]
       });
       toast({
-        variant: ' default',
-        title: 'Pai ement enregistré',
+        variant: 'default',
+        title: 'Paiement enregistré',
         description: `La facture ${facture.numero} a été marquée comme payée.`
       });
     }
   };
- 
-  const handleSendR eminder = () => {
+
+  const handleSendReminder = () => {
     toast({
       variant: 'default',
       title: 'Relance envoyée',
       description: `Une relance a été envoyée pour la facture ${facture?.numero}.`
-    }); 
-  }; 
+    });
+  };
 
   const handlePrint = () => {
     window.print();

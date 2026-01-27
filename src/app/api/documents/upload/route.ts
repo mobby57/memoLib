@@ -89,20 +89,57 @@ export async function POST(request: NextRequest) {
     const crypto = await import('crypto');
     const hash = crypto.createHash('sha256').update(buffer).digest('hex');
 
-    // Sauvegarder les metadonnees en base (sans le fichier pour l'instant)
-    // TODO: In ugro pourstockage (1GB
+    // Sauvegarder le fichier localement si pas de Vercel Blob configuré
+    let fileUrl: string | null = null;
+
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      // Vercel Blob configuré - utiliser pour stockage cloud
+      try {
+        const { put } = await import('@vercel/blob');
+        const blob = await put(`documents/${uniqueId}/${file.name}`, buffer, {
+          access: 'public',
+        });
+        fileUrl = blob.url;
+        logger.info('[UPLOAD] Fichier stocké sur Vercel Blob', { url: fileUrl });
+      } catch (blobError) {
+        logger.warn('[UPLOAD] Erreur Vercel Blob, fallback local', { error: blobError });
+      }
+    }
+
+    // Fallback: stockage local en développement
+    if (!fileUrl && process.env.NODE_ENV === 'development') {
+      try {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const uploadDir = path.join(process.cwd(), 'uploads', uniqueId);
+        await fs.mkdir(uploadDir, { recursive: true });
+        const filePath = path.join(uploadDir, file.name);
+        await fs.writeFile(filePath, buffer);
+        fileUrl = `/uploads/${uniqueId}/${file.name}`;
+        logger.info('[UPLOAD] Fichier stocké localement', { path: filePath });
+      } catch (fsError) {
+        logger.warn('[UPLOAD] Impossible de sauvegarder localement', { error: fsError });
+      }
+    }
+
+    // Sauvegarder les métadonnées en base
     const document = await prisma.document.create({
       data: {
         id: uniqueId,
         name: file.name,
         type: type,
         size: file.size,
-        url: null, // Sera rempli quand Vercel Blob sera configure
+        url: fileUrl,
         dossierId: dossierId || undefined,
       },
     });
 
-    logger.info('[UPLOAD] Document enregistre:', { id: uniqueId, name: file.name, hash });
+    logger.info('[UPLOAD] Document enregistre:', {
+      id: uniqueId,
+      name: file.name,
+      hash,
+      stored: !!fileUrl,
+    });
 
     return NextResponse.json({
       success: true,
@@ -111,10 +148,14 @@ export async function POST(request: NextRequest) {
         fileName: file.name,
         fileType: file.type,
         fileSize: file.size,
-        url: `/api/documents/download/${uniqueId}`,
+        url: fileUrl || `/api/documents/download/${uniqueId}`,
       },
-      warning:
-        'Stockage fichiers non configure. Configurez BLOB_READ_WRITE_TOKEN pour Vercel Blob.',
+      ...(fileUrl
+        ? {}
+        : {
+            warning:
+              'Stockage fichiers non configure. Configurez BLOB_READ_WRITE_TOKEN pour Vercel Blob.',
+          }),
     });
   } catch (error) {
     logger.error('[UPLOAD] Erreur:', { error });
