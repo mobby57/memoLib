@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Frontend build & Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        working-directory: src/frontend
+        run: |
+          npm ci
+
+      - name: Build frontend
+        working-directory: src/frontend
+        run: |
+          npm run build
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install backend requirements (if present)
+        if: always()
+        run: |
+          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; else echo "No requirements.txt, skipping"; fi
+
+      - name: Run backend tests
+        run: |
+          if command -v pytest >/dev/null 2>&1; then python -m pytest -v --tb=short; else echo "pytest not installed or no tests found"; fi
