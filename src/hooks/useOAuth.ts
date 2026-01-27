@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
 
 type OAuthProvider = 'google' | 'microsoft' | 'github';
 
@@ -28,7 +28,7 @@ export function useOAuth({ provider, scopes, onSuccess, onError }: UseOAuthOptio
 
       const res = await fetch(
         `/api/oauth/authorize?provider=${provider}&state=${state}` +
-        (scopes ? `&scopes=${scopes.join(',')}` : '')
+          (scopes ? `&scopes=${scopes.join(',')}` : '')
       );
 
       const data = await res.json();

@@ -1,5 +1,7 @@
+import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { oauthService, type OAuthProvider } from '@/lib/oauth/oauth-service';
+import { oauthTokenService } from '@/lib/oauth/token-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,37 +12,40 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'unauthorized', detail: 'No session found' },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const { provider, code } = body;
 
     if (!provider || !code) {
-      return NextResponse.json(
-        { error: 'provider et code requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'provider et code requis' }, { status: 400 });
     }
 
     const result = await oauthService.exchangeCode(provider as OAuthProvider, code);
 
-    // TODO: Store accessToken + refreshToken in database with user session
-    // const session = await getServerSession();
-    // if (session?.user) {
-    //   await db.oauthToken.upsert({
-    //     where: { userId_provider: { userId: session.user.id, provider } },
-    //     update: { accessToken: result.accessToken, refreshToken: result.refreshToken },
-    //     create: { userId: session.user.id, provider, accessToken: result.accessToken, refreshToken: result.refreshToken },
-    //   });
-    // }
-
-    return NextResponse.json({
-      success: true,
+    // Store token in database
+    await oauthTokenService.storeToken(session.user.id, {
+      provider: provider as OAuthProvider,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
       expiresIn: result.expiresIn,
-      // accessToken should NOT be returned to client, only stored server-side
-    }, { status: 200 });
-  } catch (e: any) {
+    });
+
     return NextResponse.json(
-      { error: 'callback_failed', detail: e?.message },
-      { status: 400 }
+      {
+        success: true,
+        provider,
+        expiresIn: result.expiresIn,
+      },
+      { status: 200 }
     );
+  } catch (e: any) {
+    return NextResponse.json({ error: 'callback_failed', detail: e?.message }, { status: 400 });
   }
 }
