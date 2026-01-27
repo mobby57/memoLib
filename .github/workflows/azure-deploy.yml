@@ -2,7 +2,7 @@
 # Azure App Service - Production Deployment
 # ============================================================================
 # Déploie l'application Next.js sur Azure App Service (Linux Node.js 20)
-# 
+#
 # Prérequis:
 #   - Secret AZURE_CREDENTIALS configuré (Service Principal JSON)
 #   - App Service "iapostemanager-app" créé dans le groupe "iapostemanager-rg"
@@ -12,12 +12,9 @@
 
 name: 🚀 Azure Deploy
 
+# ⚠️ DÉSACTIVÉ - Application déployée sur Cloudflare Pages
+# Réactiver si migration vers Azure
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
   workflow_dispatch:
     inputs:
       skip_tests:
@@ -37,7 +34,7 @@ jobs:
   build:
     name: 📦 Build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,7 +77,7 @@ jobs:
           # Copier les assets statiques dans standalone
           cp -r .next/static .next/standalone/.next/
           cp -r public .next/standalone/ 2>/dev/null || true
-          
+
           # Créer un script de démarrage qui utilise le PORT d'Azure
           cat > .next/standalone/startup.js << 'STARTUP'
           // Azure App Service startup wrapper
@@ -89,7 +86,7 @@ jobs:
           console.log(`Starting Next.js on port ${process.env.PORT}...`);
           require('./server.js');
           STARTUP
-          
+
           # Créer un package.json minimal pour Azure
           cat > .next/standalone/package.json << 'EOF'
           {
@@ -104,7 +101,7 @@ jobs:
             }
           }
           EOF
-          
+
           # Afficher la structure pour debug
           echo "📁 Structure du package:"
           ls -la .next/standalone/
@@ -164,7 +161,7 @@ jobs:
           echo "🔐 Testing Azure connection..."
           # Désactiver les warnings CLI qui peuvent casser le JSON
           export AZURE_CORE_ONLY_SHOW_ERRORS=true
-          
+
           # Test simple de connexion
           if az account show --query "name" -o tsv 2>/dev/null; then
             echo ""
@@ -190,7 +187,7 @@ jobs:
             --name ${{ env.AZURE_WEBAPP_NAME }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --startup-file "npm start"
-          
+
           # S'assurer que les logs sont activés
           az webapp log config \
             --name ${{ env.AZURE_WEBAPP_NAME }} \
@@ -203,10 +200,10 @@ jobs:
           cd ./app
           zip -r ../app.zip .
           cd ..
-          
+
           # Réactiver l'app juste avant le deploy
           az webapp start --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} || true
-          
+
           # Déployer via ZIP deploy (plus robuste)
           az webapp deploy \
             --name ${{ env.AZURE_WEBAPP_NAME }} \
@@ -214,7 +211,7 @@ jobs:
             --src-path app.zip \
             --type zip \
             --async true
-          
+
           echo "✅ Déploiement ZIP initié"
 
       - name: Wait for deployment
