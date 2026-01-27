@@ -40,6 +40,11 @@ export class AIService {
     this.azureApiVersion = process.env.AZURE_OPENAI_API_VERSION || '2025-01-01-preview';
   }
 
+  private hasAiProvider(): boolean {
+    const hasAzure = Boolean(this.azureEndpoint && this.azureApiKey && this.azureDeployment);
+    return Boolean(this.ollamaBaseUrl || hasAzure || this.openaiApiKey);
+  }
+
   /**
    * Analyser un message avec l'IA
    */
@@ -103,7 +108,7 @@ export class AIService {
    * Générer un résumé du message
    */
   private async generateSummary(content: string): Promise<string> {
-    if (!this.openaiApiKey) {
+    if (!this.hasAiProvider()) {
       return content.substring(0, 200);
     }
 
@@ -137,7 +142,7 @@ export class AIService {
     language: string;
     confidence: number;
   }> {
-    if (!this.openaiApiKey) {
+    if (!this.hasAiProvider()) {
       return {
         category: 'GENERAL',
         tags: [channel.toLowerCase()],
@@ -184,7 +189,7 @@ export class AIService {
    * Extraire les entités nommées
    */
   private async extractEntities(content: string): Promise<ExtractedEntity[]> {
-    if (!this.openaiApiKey) {
+    if (!this.hasAiProvider()) {
       return this.extractEntitiesRegex(content);
     }
 
@@ -279,7 +284,7 @@ export class AIService {
       return 'MEDIUM';
     }
 
-    if (this.openaiApiKey) {
+    if (this.hasAiProvider()) {
       const response = await this.callOpenAI({
         model: 'gpt-4-turbo-preview',
         messages: [
