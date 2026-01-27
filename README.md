@@ -8,14 +8,11 @@
    - Éditer `.env` et ajouter votre clé OpenAI
 
 2. **Lancer l'application:**
-   
-   **Windows:**
-   ```bash
-   start.bat
    ```
+   **Windows:**
+   start.bat
    
    **Linux/Mac:**
-   ```bash
    ./start.sh
    ```
    
