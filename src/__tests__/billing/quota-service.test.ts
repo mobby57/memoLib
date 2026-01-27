@@ -5,19 +5,28 @@
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
-// Mock Prisma
-const mockPrismaFindUnique = jest.fn();
-const mockPrismaCreate = jest.fn();
-const mockPrismaUpdate = jest.fn();
+// Mock Prisma AVANT import
+jest.mock('@/lib/prisma', () => {
+  const mockFindUnique = jest.fn();
+  const mockCreate = jest.fn();
+  return {
+    prisma: {
+      tenant: { findUnique: mockFindUnique },
+      quotaEvent: { create: mockCreate },
+      $on: jest.fn(),
+      $disconnect: jest.fn(),
+    },
+    __mockFindUnique: mockFindUnique,
+    __mockCreate: mockCreate,
+  };
+});
 
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
-    tenant: { findUnique: mockPrismaFindUnique },
-    quotaEvent: { create: mockPrismaCreate },
-  },
-}));
+const prismaMock = jest.requireMock('@/lib/prisma') as {
+  __mockFindUnique: jest.Mock;
+  __mockCreate: jest.Mock;
+};
 
-import { checkQuota, ResourceType, QuotaCheck } from '@/lib/billing/quota-service';
+import { checkQuota, ResourceType } from '@/lib/billing/quota-service';
 
 describe('quota-service', () => {
   beforeEach(() => {
@@ -70,7 +79,7 @@ describe('quota-service', () => {
     };
 
     it('devrait autoriser quand quota non atteint', async () => {
-      mockPrismaFindUnique.mockResolvedValueOnce(
+      prismaMock.__mockFindUnique.mockResolvedValueOnce(
         mockTenantWithPlan(5, 10, 'workspaces')
       );
 
@@ -84,7 +93,7 @@ describe('quota-service', () => {
     });
 
     it('devrait retourner warning à 80%', async () => {
-      mockPrismaFindUnique.mockResolvedValueOnce(
+      prismaMock.__mockFindUnique.mockResolvedValueOnce(
         mockTenantWithPlan(8, 10, 'dossiers')
       );
 
@@ -96,7 +105,7 @@ describe('quota-service', () => {
     });
 
     it('devrait retourner critical à 95%', async () => {
-      mockPrismaFindUnique.mockResolvedValueOnce(
+      prismaMock.__mockFindUnique.mockResolvedValueOnce(
         mockTenantWithPlan(95, 100, 'clients')
       );
 
@@ -108,7 +117,7 @@ describe('quota-service', () => {
     });
 
     it('devrait bloquer à 100%', async () => {
-      mockPrismaFindUnique.mockResolvedValueOnce(
+      prismaMock.__mockFindUnique.mockResolvedValueOnce(
         mockTenantWithPlan(10, 10, 'users')
       );
 
@@ -121,7 +130,7 @@ describe('quota-service', () => {
 
     it('devrait toujours autoriser pour limite illimitée (-1)', async () => {
       const tenant = mockTenantWithPlan(1000, -1, 'storage');
-      mockPrismaFindUnique.mockResolvedValueOnce(tenant);
+      prismaMock.__mockFindUnique.mockResolvedValueOnce(tenant);
 
       const result = await checkQuota('tenant_123', 'storage');
 
@@ -132,7 +141,7 @@ describe('quota-service', () => {
     });
 
     it('devrait lever une erreur si tenant introuvable', async () => {
-      mockPrismaFindUnique.mockResolvedValueOnce(null);
+      prismaMock.__mockFindUnique.mockResolvedValueOnce(null);
 
       await expect(checkQuota('unknown_tenant', 'workspaces')).rejects.toThrow(
         'Tenant ou plan introuvable'
@@ -140,7 +149,7 @@ describe('quota-service', () => {
     });
 
     it('devrait lever une erreur si plan manquant', async () => {
-      mockPrismaFindUnique.mockResolvedValueOnce({
+      prismaMock.__mockFindUnique.mockResolvedValueOnce({
         id: 'tenant_123',
         plan: null,
       });
@@ -160,7 +169,7 @@ describe('quota-service', () => {
       ];
 
       for (const resourceType of resourceTypes) {
-        mockPrismaFindUnique.mockResolvedValueOnce(
+        prismaMock.__mockFindUnique.mockResolvedValueOnce(
           mockTenantWithPlan(5, 10, resourceType)
         );
 

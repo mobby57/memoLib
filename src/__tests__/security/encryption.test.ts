@@ -23,7 +23,7 @@ describe('encryption', () => {
   describe('encryptData', () => {
     it('devrait chiffrer les données avec un format valide', async () => {
       const { encryptData } = await import('@/lib/security/encryption');
-      
+
       const result = encryptData('données sensibles');
 
       expect(result).toHaveProperty('encrypted');
@@ -45,7 +45,7 @@ describe('encryption', () => {
 
     it('devrait gérer les chaînes vides', async () => {
       const { encryptData } = await import('@/lib/security/encryption');
-      
+
       const result = encryptData('');
 
       expect(result.encrypted).toBeDefined();
@@ -64,7 +64,7 @@ describe('encryption', () => {
     it('devrait lever une erreur si ENCRYPTION_MASTER_KEY manquante', async () => {
       delete process.env.ENCRYPTION_MASTER_KEY;
       jest.resetModules();
-      
+
       const { encryptData } = await import('@/lib/security/encryption');
 
       expect(() => encryptData('test')).toThrow('ENCRYPTION_MASTER_KEY not configured');
@@ -104,7 +104,7 @@ describe('encryption', () => {
 
     it('devrait échouer avec un authTag modifié', async () => {
       const { encryptData, decryptData } = await import('@/lib/security/encryption');
-      
+
       const encrypted = encryptData('data');
       encrypted.authTag = 'invalid_tag_123456789012345678901234';
 
@@ -113,7 +113,7 @@ describe('encryption', () => {
 
     it('devrait échouer avec un IV modifié', async () => {
       const { encryptData, decryptData } = await import('@/lib/security/encryption');
-      
+
       const encrypted = encryptData('data');
       encrypted.iv = 'invalid_iv_base64!';
 
@@ -124,13 +124,13 @@ describe('encryption', () => {
   describe('encryptSensitiveField / decryptSensitiveField', () => {
     it('devrait chiffrer et déchiffrer un champ sensible', async () => {
       const mod = await import('@/lib/security/encryption');
-      
+
       // Vérifier si ces fonctions existent
       if (mod.encryptSensitiveField && mod.decryptSensitiveField) {
         const original = 'numéro passeport: AB123456';
         const encrypted = mod.encryptSensitiveField(original);
         const decrypted = mod.decryptSensitiveField(encrypted);
-        
+
         expect(decrypted).toBe(original);
       }
     });
@@ -140,7 +140,7 @@ describe('encryption', () => {
     it('devrait utiliser AES-256-GCM', async () => {
       // Ce test vérifie indirectement que GCM est utilisé via la présence de authTag
       const { encryptData } = await import('@/lib/security/encryption');
-      
+
       const result = encryptData('test');
 
       // GCM produit toujours un authTag
