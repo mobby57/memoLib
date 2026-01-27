@@ -6,11 +6,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
@@ -106,20 +107,19 @@ export async function GET(request: NextRequest) {
       }
     } catch {
       // Table n'existe peut-être pas encore
-      console.log('[Client AI Usage] Tables AIUsageLog non disponibles');
+      logger.debug('Tables AIUsageLog non disponibles', { route: '/api/client/ai-usage' });
     }
 
     // Calculer les statistiques
     const percentage = budgetLimit > 0 ? (usage.totalCost / budgetLimit) * 100 : 0;
     const remaining = Math.max(0, budgetLimit - usage.totalCost);
-    
+
     // Projection fin de mois
     const today = new Date();
     const dayOfMonth = today.getDate();
     const daysInMonth = new Date(year, month, 0).getDate();
-    const projectedCost = dayOfMonth > 0 
-      ? (usage.totalCost / dayOfMonth) * daysInMonth 
-      : usage.totalCost;
+    const projectedCost =
+      dayOfMonth > 0 ? (usage.totalCost / dayOfMonth) * daysInMonth : usage.totalCost;
 
     // Déterminer le statut
     let status: 'normal' | 'warning' | 'critical' | 'exceeded' = 'normal';
@@ -129,24 +129,29 @@ export async function GET(request: NextRequest) {
 
     // Générer des recommandations
     const recommendations: string[] = [];
-    
+
     if (status === 'exceeded' || status === 'critical') {
       recommendations.push('🚨 Contactez le support pour augmenter votre limite IA');
     }
-    
+
     if (usage.totalCost > 0 && !byModel['ollama']) {
       recommendations.push('💡 Installez Ollama sur votre serveur pour réduire les coûts à 0€');
     }
-    
+
     if (projectedCost > budgetLimit) {
-      recommendations.push(`📊 Projection fin de mois: ${projectedCost.toFixed(2)}€ (dépasse la limite)`);
+      recommendations.push(
+        `📊 Projection fin de mois: ${projectedCost.toFixed(2)}€ (dépasse la limite)`
+      );
     }
 
     return NextResponse.json({
       period: {
         month,
         year,
-        label: new Date(year, month - 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
+        label: new Date(year, month - 1).toLocaleDateString('fr-FR', {
+          month: 'long',
+          year: 'numeric',
+        }),
       },
       budget: {
         limit: budgetLimit,
@@ -159,9 +164,10 @@ export async function GET(request: NextRequest) {
         totalCost: Math.round(usage.totalCost * 100) / 100,
         totalRequests: usage.totalRequests,
         totalTokens: usage.totalTokens,
-        avgCostPerRequest: usage.totalRequests > 0 
-          ? Math.round((usage.totalCost / usage.totalRequests) * 10000) / 10000 
-          : 0,
+        avgCostPerRequest:
+          usage.totalRequests > 0
+            ? Math.round((usage.totalCost / usage.totalRequests) * 10000) / 10000
+            : 0,
       },
       projection: {
         endOfMonth: Math.round(projectedCost * 100) / 100,
@@ -178,9 +184,11 @@ export async function GET(request: NextRequest) {
       recommendations,
     });
   } catch (error) {
-    console.error('[Client AI Usage] Erreur:', error);
+    logger.error('Erreur API client ai-usage', error instanceof Error ? error : undefined, {
+      route: '/api/client/ai-usage',
+    });
     return NextResponse.json(
-      { error: 'Erreur lors de la récupération de l\'usage' },
+      { error: "Erreur lors de la récupération de l'usage" },
       { status: 500 }
     );
   }
@@ -188,11 +196,11 @@ export async function GET(request: NextRequest) {
 
 function getBudgetLimit(planName: string): number {
   const limits: Record<string, number> = {
-    FREE: 0.50,
+    FREE: 0.5,
     SOLO: 5,
     CABINET: 30,
     ENTERPRISE: 100,
-    starter: 0.50,
+    starter: 0.5,
     pro: 10,
     enterprise: 50,
     BASIC: 5,

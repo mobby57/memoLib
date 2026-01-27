@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { emailMonitor } from '@/lib/email/email-monitor-service';
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erreur test email:', error);
+    logger.error('Erreur test email:', { error });
     return NextResponse.json({ 
       error: 'Erreur serveur',
       details: error instanceof Error ? error.message : 'Unknown'

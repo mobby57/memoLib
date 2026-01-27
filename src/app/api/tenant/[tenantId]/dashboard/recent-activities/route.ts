@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
@@ -61,7 +62,7 @@ export async function GET(
 
     return NextResponse.json(activities);
   } catch (error) {
-    console.error('Erreur recent-activities:', error);
+    logger.error('Erreur recent-activities:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

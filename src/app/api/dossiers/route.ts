@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete, cacheInvalidatePattern, TTL_TIERS } from '@/lib/cache';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     if (dossierId) {
       if (!tenantId) return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
-      
+
       const dossier = await cacheThrough(
         `dossier:${tenantId}:${dossierId}`,
         async () => {
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
         },
         TTL_TIERS.WARM
       );
-      
+
       if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
       return NextResponse.json({ dossier });
     }
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
     if (!tenantId) return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
 
     const cacheKey = `dossiers:${tenantId}:${clientId || 'all'}:${status || 'all'}:${limit}:${offset}`;
-    
+
     const result = await cacheThrough(
       cacheKey,
       async () => {
@@ -68,7 +69,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Erreur GET dossiers:', error);
+    logger.error('Erreur GET dossiers', error instanceof Error ? error : undefined, {
+      route: '/api/dossiers',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -76,10 +79,23 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { tenantId, clientId, titre, description, type, domaine, juridiction, numeroRG, priorite } = body;
+    const {
+      tenantId,
+      clientId,
+      titre,
+      description,
+      type,
+      domaine,
+      juridiction,
+      numeroRG,
+      priorite,
+    } = body;
 
     if (!tenantId || !clientId || !titre || !type) {
-      return NextResponse.json({ error: 'tenantId, clientId, titre et type requis' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'tenantId, clientId, titre et type requis' },
+        { status: 400 }
+      );
     }
 
     const client = await prisma.client.findFirst({ where: { id: clientId, tenantId } });
@@ -90,7 +106,18 @@ export async function POST(request: NextRequest) {
 
     const [dossier] = await prisma.$transaction([
       prisma.dossier.create({
-        data: { tenantId, clientId, numero, titre, description, type, domaine, juridiction, numeroRG, priorite: priorite || 'normale' },
+        data: {
+          tenantId,
+          clientId,
+          numero,
+          titre,
+          description,
+          type,
+          domaine,
+          juridiction,
+          numeroRG,
+          priorite: priorite || 'normale',
+        },
       }),
       prisma.evenement.create({
         data: {
@@ -110,7 +137,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, dossier });
   } catch (error) {
-    console.error('Erreur POST dossier:', error);
+    logger.error('Erreur POST dossier', error instanceof Error ? error : undefined, {
+      route: '/api/dossiers',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -118,9 +147,20 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { dossierId, tenantId, titre, description, status, priorite, juridiction, numeroRG, dateCloture } = body;
+    const {
+      dossierId,
+      tenantId,
+      titre,
+      description,
+      status,
+      priorite,
+      juridiction,
+      numeroRG,
+      dateCloture,
+    } = body;
 
-    if (!dossierId || !tenantId) return NextResponse.json({ error: 'dossierId et tenantId requis' }, { status: 400 });
+    if (!dossierId || !tenantId)
+      return NextResponse.json({ error: 'dossierId et tenantId requis' }, { status: 400 });
 
     const existing = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
     if (!existing) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
@@ -134,21 +174,24 @@ export async function PATCH(request: NextRequest) {
     if (numeroRG !== undefined) updateData.numeroRG = numeroRG;
     if (dateCloture !== undefined) {
       const parsed = dateCloture ? new Date(dateCloture) : null;
-      if (parsed && isNaN(parsed.getTime())) return NextResponse.json({ error: 'Format dateCloture invalide' }, { status: 400 });
+      if (parsed && isNaN(parsed.getTime()))
+        return NextResponse.json({ error: 'Format dateCloture invalide' }, { status: 400 });
       updateData.dateCloture = parsed;
     }
 
     const dossier = await prisma.dossier.update({ where: { id: dossierId }, data: updateData });
-    
+
     // Invalider le cache
     await Promise.all([
       cacheDelete(`dossier:${tenantId}:${dossierId}`),
       cacheInvalidatePattern(`dossiers:${tenantId}:*`),
     ]);
-    
+
     return NextResponse.json({ success: true, dossier });
   } catch (error) {
-    console.error('Erreur PATCH dossier:', error);
+    logger.error('Erreur PATCH dossier', error instanceof Error ? error : undefined, {
+      route: '/api/dossiers',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -159,22 +202,25 @@ export async function DELETE(request: NextRequest) {
     const dossierId = searchParams.get('id');
     const tenantId = searchParams.get('tenantId');
 
-    if (!dossierId || !tenantId) return NextResponse.json({ error: 'id et tenantId requis' }, { status: 400 });
+    if (!dossierId || !tenantId)
+      return NextResponse.json({ error: 'id et tenantId requis' }, { status: 400 });
 
     const dossier = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
     if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
 
     await prisma.dossier.delete({ where: { id: dossierId } });
-    
+
     // Invalider le cache
     await Promise.all([
       cacheDelete(`dossier:${tenantId}:${dossierId}`),
       cacheInvalidatePattern(`dossiers:${tenantId}:*`),
     ]);
-    
+
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erreur DELETE dossier:', error);
+    logger.error('Erreur DELETE dossier', error instanceof Error ? error : undefined, {
+      route: '/api/dossiers',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

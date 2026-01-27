@@ -1,4 +1,5 @@
 /**
+import { logger } from '@/lib/logger';
  * API Route: AI Analysis
  *
  * Proxies requests to the Python AI service
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('AI Analysis error:', error);
+    logger.error('AI Analysis error:', { error });
     return NextResponse.json({ error: 'Failed to connect to AI service' }, { status: 503 });
   }
 }

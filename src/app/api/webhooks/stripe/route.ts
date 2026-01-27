@@ -3,11 +3,12 @@
  * IMPORTANT: Cette route doit etre en mode RAW body (pas de parsing JSON automatique)
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import Stripe from 'stripe';
 import { stripe } from '@/lib/billing/stripe-client';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
@@ -25,7 +26,9 @@ export async function POST(request: NextRequest) {
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err) {
-      console.error('Erreur verification webhook:', err);
+      logger.error('Erreur verification webhook', err instanceof Error ? err : undefined, {
+        route: '/api/webhooks/stripe',
+      });
       return NextResponse.json({ error: 'Signature invalide' }, { status: 400 });
     }
 
@@ -56,12 +59,14 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        console.log(`evenement non gere: ${event.type}`);
+        logger.debug(`evenement non gere: ${event.type}`, { route: '/api/webhooks/stripe' });
     }
 
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Erreur webhook Stripe:', error);
+    logger.error('Erreur webhook Stripe', error instanceof Error ? error : undefined, {
+      route: '/api/webhooks/stripe',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -78,25 +83,27 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const tenantId = stripeSubscription.metadata.tenantId;
 
   if (!tenantId) {
-    console.error('Pas de tenantId dans metadata subscription');
+    logger.error('Pas de tenantId dans metadata subscription', undefined, {
+      route: '/api/webhooks/stripe',
+    });
     return;
   }
 
   // Mettre a jour la subscription dans la base
   await prisma.subscription.updateMany({
-    where: { 
+    where: {
       tenantId,
-      status: { in: ['active', 'trialing', 'past_due'] }
+      status: { in: ['active', 'trialing', 'past_due'] },
     },
     data: {
       status: 'active',
-    }
+    },
   });
 
   // Creer la facture dans notre base
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
-    select: { name: true }
+    select: { name: true },
   });
 
   await prisma.invoice.create({
@@ -112,20 +119,25 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       dueDate: new Date(invoice.due_date ? invoice.due_date * 1000 : Date.now()),
       paidAt: new Date(),
       billingEmail: invoice.customer_email || undefined,
-      lineItems: JSON.stringify(invoice.lines.data.map(line => ({
-        description: line.description,
-        quantity: line.quantity,
-        unitPrice: line.price?.unit_amount ? line.price.unit_amount / 100 : 0,
-        total: line.amount / 100
-      }))),
+      lineItems: JSON.stringify(
+        invoice.lines.data.map(line => ({
+          description: line.description,
+          quantity: line.quantity,
+          unitPrice: line.price?.unit_amount ? line.price.unit_amount / 100 : 0,
+          total: line.amount / 100,
+        }))
+      ),
       metadata: JSON.stringify({
         stripe_invoice_id: invoice.id,
         stripe_payment_intent: invoice.payment_intent,
-      })
-    }
+      }),
+    },
   });
 
-  console.log(` Facture payee pour tenant ${tenant?.name || tenantId}`);
+  logger.info(`Facture payee pour tenant ${tenant?.name || tenantId}`, {
+    route: '/api/webhooks/stripe',
+    tenantId,
+  });
 }
 
 /**
@@ -142,12 +154,41 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
   await prisma.subscription.updateMany({
     where: { tenantId },
-    data: { status: 'past_due' }
+    data: { status: 'past_due' },
   });
 
-  // TODO: Envoyer email d'alerte au tenant
+  // Envoyer email d'alerte au tenant
+  try {
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      include: { owner: true },
+    });
+    if (tenant?.owner?.email) {
+      const { Resend } = await import('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
 
-  console.log(` echec paiement pour tenant ${tenantId}`);
+      if (process.env.RESEND_API_KEY) {
+        await resend.emails.send({
+          from: process.env.EMAIL_FROM || 'billing@iapostemanager.com',
+          to: tenant.owner.email,
+          subject: '⚠️ Action requise : Échec de paiement - IA Poste Manager',
+          html: `
+            <h2>Échec de paiement</h2>
+            <p>Nous n'avons pas pu traiter votre paiement pour l'abonnement ${tenant.name}.</p>
+            <p>Veuillez mettre à jour vos informations de paiement pour éviter une interruption de service.</p>
+            <a href="${process.env.NEXTAUTH_URL}/settings/billing" style="background:#dc2626;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Mettre à jour le paiement</a>
+          `,
+        });
+      }
+    }
+  } catch (emailError) {
+    logger.error('Erreur envoi email alerte paiement', { error: emailError, tenantId });
+  }
+
+  logger.warn(`echec paiement pour tenant ${tenantId}`, {
+    route: '/api/webhooks/stripe',
+    tenantId,
+  });
 }
 
 /**
@@ -163,10 +204,13 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
     where: { tenantId },
     data: {
       status: subscription.status === 'trialing' ? 'trialing' : 'active',
-    }
+    },
   });
 
-  console.log(` Subscription creee pour tenant ${tenantId}`);
+  logger.info(`Subscription creee pour tenant ${tenantId}`, {
+    route: '/api/webhooks/stripe',
+    tenantId,
+  });
 }
 
 /**
@@ -179,13 +223,21 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   await prisma.subscription.updateMany({
     where: { tenantId },
     data: {
-      status: subscription.status === 'active' ? 'active' : 
-              subscription.status === 'trialing' ? 'trialing' : 
-              subscription.status === 'past_due' ? 'past_due' : 'canceled',
-    }
+      status:
+        subscription.status === 'active'
+          ? 'active'
+          : subscription.status === 'trialing'
+            ? 'trialing'
+            : subscription.status === 'past_due'
+              ? 'past_due'
+              : 'canceled',
+    },
   });
 
-  console.log(` Subscription mise a jour pour tenant ${tenantId}`);
+  logger.info(`Subscription mise a jour pour tenant ${tenantId}`, {
+    route: '/api/webhooks/stripe',
+    tenantId,
+  });
 }
 
 /**
@@ -200,10 +252,13 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     data: {
       status: 'canceled',
       canceledAt: new Date(),
-    }
+    },
   });
 
-  console.log(` Subscription annulee pour tenant ${tenantId}`);
+  logger.info(`Subscription annulee pour tenant ${tenantId}`, {
+    route: '/api/webhooks/stripe',
+    tenantId,
+  });
 }
 
 /**
@@ -218,5 +273,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   if (!tenantId) return;
 
-  console.log(` Checkout complete pour tenant ${tenantId}`);
+  logger.info(`Checkout complete pour tenant ${tenantId}`, {
+    route: '/api/webhooks/stripe',
+    tenantId,
+  });
 }

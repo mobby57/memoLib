@@ -2,11 +2,12 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
       totalFactures,
       facturesStats,
       totalEmails,
-      totalWorkflows
+      totalWorkflows,
     ] = await Promise.all([
       prisma.tenant.count(),
       prisma.tenant.count({ where: { status: 'active' } }),
@@ -36,10 +37,10 @@ export async function GET(request: NextRequest) {
       prisma.facture.count(),
       prisma.facture.aggregate({
         _sum: { montantTTC: true },
-        where: { statut: 'payee' }
+        where: { statut: 'payee' },
       }),
       prisma.email.count(),
-      prisma.workflowExecution.count()
+      prisma.workflowExecution.count(),
     ]);
 
     // Calcul de la croissance mensuelle
@@ -48,8 +49,8 @@ export async function GET(request: NextRequest) {
 
     const newTenantsThisMonth = await prisma.tenant.count({
       where: {
-        createdAt: { gte: lastMonth }
-      }
+        createdAt: { gte: lastMonth },
+      },
     });
 
     const totalRevenue = facturesStats._sum.montantTTC || 0;
@@ -65,11 +66,12 @@ export async function GET(request: NextRequest) {
       totalFactures,
       totalEmails,
       totalWorkflows,
-      averageRevenuePerTenant
+      averageRevenuePerTenant,
     });
-
   } catch (error) {
-    console.error('Erreur API super admin stats:', error);
+    logger.error('Erreur API super admin stats', error instanceof Error ? error : undefined, {
+      route: '/api/super-admin/stats',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 
 /**
@@ -7,16 +8,16 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { 
-      nom, 
-      email, 
-      telephone, 
-      cabinet, 
-      tailleEquipe, 
-      dateSouhaitee, 
-      heureSouhaitee, 
-      besoinPrincipal, 
-      commentaire 
+    const {
+      nom,
+      email,
+      telephone,
+      cabinet,
+      tailleEquipe,
+      dateSouhaitee,
+      heureSouhaitee,
+      besoinPrincipal,
+      commentaire,
     } = body;
 
     // Validation
@@ -30,37 +31,31 @@ export async function POST(request: Request) {
     // Validation email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Email invalide' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
     }
 
     // Validation date (doit etre dans le futur)
     const dateDemo = new Date(dateSouhaitee);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     if (dateDemo < today) {
-      return NextResponse.json(
-        { error: 'La date doit etre dans le futur' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'La date doit etre dans le futur' }, { status: 400 });
     }
 
     // Log la demande de demo
-    console.log('=== NOUVELLE DEMANDE DE DEMO ===');
-    console.log('Nom:', nom);
-    console.log('Email:', email);
-    console.log('Telephone:', telephone || 'Non renseigne');
-    console.log('Cabinet:', cabinet || 'Non renseigne');
-    console.log('Taille equipe:', tailleEquipe);
-    console.log('Date souhaitee:', dateSouhaitee);
-    console.log('Heure souhaitee:', heureSouhaitee);
-    console.log('Besoin principal:', besoinPrincipal);
-    console.log('Commentaire:', commentaire || 'Aucun');
-    console.log('Date demande:', new Date().toISOString());
-    console.log('================================');
+    logger.info('=== NOUVELLE DEMANDE DE DEMO ===');
+    logger.info('Nom:', { nom });
+    logger.info('Email:', { email });
+    logger.info('Telephone:', { telephone: telephone || 'Non renseigne' });
+    logger.info('Cabinet:', { cabinet: cabinet || 'Non renseigne' });
+    logger.info('Taille equipe:', { tailleEquipe });
+    logger.info('Date souhaitee:', { dateSouhaitee });
+    logger.info('Heure souhaitee:', { heureSouhaitee });
+    logger.info('Besoin principal:', { besoinPrincipal });
+    logger.info('Commentaire:', { commentaire: commentaire || 'Aucun' });
+    logger.info('Date demande:', { date: new Date().toISOString() });
+    logger.info('================================');
 
     // Optionnel: Créer une entrée dans une table DemoRequest
     // await prisma.demoRequest.create({ data: { ... } });
@@ -72,19 +67,16 @@ export async function POST(request: Request) {
     // Optionnel: Créer un evenement dans Google Calendar / Calendly
     // await createCalendarEvent({ ... });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       message: 'Votre demande de demonstration a ete enregistree',
       data: {
         date: dateSouhaitee,
         heure: heureSouhaitee,
-      }
+      },
     });
   } catch (error) {
-    console.error('Erreur API demo:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur API demo:', { error });
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

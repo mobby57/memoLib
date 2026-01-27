@@ -1,5 +1,5 @@
+import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 /**
  * API Contact - Recevoir les demandes de contact
@@ -21,24 +21,21 @@ export async function POST(request: Request) {
     // Validation email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Email invalide' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
     }
 
     // Stocker la demande en base (optionnel - on peut aussi envoyer un email)
     // Pour l'instant, on log la demande
-    console.log('=== NOUVELLE DEMANDE DE CONTACT ===');
-    console.log('Type:', type);
-    console.log('Nom:', nom);
-    console.log('Email:', email);
-    console.log('Telephone:', telephone || 'Non renseigne');
-    console.log('Cabinet:', cabinet || 'Non renseigne');
-    console.log('Sujet:', sujet);
-    console.log('Message:', message);
-    console.log('Date:', new Date().toISOString());
-    console.log('===================================');
+    logger.info('=== NOUVELLE DEMANDE DE CONTACT ===');
+    logger.info('Type:', { type });
+    logger.info('Nom:', { nom });
+    logger.info('Email:', { email });
+    logger.info('Telephone:', { telephone: telephone || 'Non renseigne' });
+    logger.info('Cabinet:', { cabinet: cabinet || 'Non renseigne' });
+    logger.info('Sujet:', { sujet });
+    logger.info('Message:', { message });
+    logger.info('Date:', { date: new Date().toISOString() });
+    logger.info('===================================');
 
     // Optionnel: Créer une entrée dans une table ContactRequest
     // await prisma.contactRequest.create({ data: { ... } });
@@ -46,15 +43,12 @@ export async function POST(request: Request) {
     // Optionnel: Envoyer un email de notification
     // await sendNotificationEmail({ to: 'admin@iapostemanager.com', ... });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      message: 'Votre demande a ete envoyee avec succes' 
+      message: 'Votre demande a ete envoyee avec succes',
     });
   } catch (error) {
-    console.error('Erreur API contact:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur API contact:', { error });
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

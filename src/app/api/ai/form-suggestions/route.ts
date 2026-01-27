@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 /**
  *  API: Suggestions IA pour formulaires interactifs
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Erreur generation suggestion:', error);
+    logger.error('Erreur generation suggestion:', { error });
     return NextResponse.json(
       { success: false, error: 'Erreur generation suggestion' },
       { status: 500 }
@@ -64,7 +65,7 @@ Suggestion:`,
     const data = await response.json();
     return data.response.trim();
   } catch (error) {
-    console.error('Erreur Ollama:', error);
+    logger.error('Erreur Ollama:', { error });
     // Fallback sur des suggestions predefinies
     return getFallbackSuggestion(formId, fieldId);
   }

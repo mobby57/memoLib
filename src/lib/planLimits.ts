@@ -1,6 +1,6 @@
 ﻿/**
  * Plan Limits & AI Guards - IA Poste Manager
- * 
+ *
  * Syst�me de v�rification des limites par plan et garde-fous IA
  * Impl�mente la Charte IA et les niveaux d'autonomie
  */
@@ -58,19 +58,19 @@ export enum AIAction {
   GENERATE_DRAFT = 'GENERATE_DRAFT',
   AUTO_REMINDER = 'AUTO_REMINDER',
   ARCHIVE = 'ARCHIVE',
-  
+
   // Actions niveau 2+
   ANALYZE_RISK = 'ANALYZE_RISK',
   SUGGEST_ACTIONS = 'SUGGEST_ACTIONS',
-  
+
   // Actions niveau 3+
   AUTO_REPLY_CLIENT = 'AUTO_REPLY_CLIENT',
   GENERATE_FORM = 'GENERATE_FORM',
-  
+
   // Actions niveau 4 (Enterprise)
   ADVANCED_ANALYTICS = 'ADVANCED_ANALYTICS',
   EXTERNAL_AI_CALL = 'EXTERNAL_AI_CALL',
-  
+
   // Actions INTERDITES sans validation humaine
   VALIDATE_LEGAL_ACT = 'VALIDATE_LEGAL_ACT',
   SEND_OFFICIAL_DOCUMENT = 'SEND_OFFICIAL_DOCUMENT',
@@ -86,16 +86,16 @@ const AI_ACTION_LEVELS: Record<AIAction, number> = {
   [AIAction.GENERATE_DRAFT]: 1,
   [AIAction.AUTO_REMINDER]: 1,
   [AIAction.ARCHIVE]: 1,
-  
+
   [AIAction.ANALYZE_RISK]: 2,
   [AIAction.SUGGEST_ACTIONS]: 2,
-  
+
   [AIAction.AUTO_REPLY_CLIENT]: 3,
   [AIAction.GENERATE_FORM]: 3,
-  
+
   [AIAction.ADVANCED_ANALYTICS]: 4,
   [AIAction.EXTERNAL_AI_CALL]: 4,
-  
+
   // Toujours interdit en autonome
   [AIAction.VALIDATE_LEGAL_ACT]: 999,
   [AIAction.SEND_OFFICIAL_DOCUMENT]: 999,
@@ -392,7 +392,7 @@ export async function addStorageUsage(tenantId: string, sizeGb: number): Promise
 }
 
 /**
- * Log une action IA (pour tra�abilit� - Charte IA)
+ * Log une action IA (pour traçabilité - Charte IA)
  */
 export async function logAIAction(data: {
   tenantId: string;
@@ -401,7 +401,40 @@ export async function logAIAction(data: {
   validated: boolean;
   metadata?: any;
 }): Promise<void> {
-  // Utiliser logger au lieu de console.log
-  // TODO: Impl�menter table AuditLog dans Prisma
-  // await prisma.auditLog.create({ data: { ...data, timestamp: new Date() } });
+  try {
+    // Utiliser le logger professionnel pour traçabilité IA
+    const { logger } = await import('@/lib/logger');
+
+    logger.audit({
+      module: 'AI',
+      action: `AI_${data.action}`,
+      message: `Action IA: ${data.action} - ${data.validated ? 'Validé' : 'Non validé'}`,
+      context: {
+        tenantId: data.tenantId,
+        userId: data.userId || 'system',
+        validated: data.validated,
+        ...data.metadata,
+      },
+    });
+
+    // En production, envoyer aussi à Sentry pour suivi IA
+    if (process.env.NODE_ENV === 'production') {
+      import('@sentry/nextjs')
+        .then(Sentry => {
+          Sentry.addBreadcrumb({
+            category: 'ai.action',
+            message: `${data.action} - ${data.validated ? 'validated' : 'rejected'}`,
+            level: data.validated ? 'info' : 'warning',
+            data: {
+              tenantId: data.tenantId,
+              userId: data.userId,
+            },
+          });
+        })
+        .catch(() => {});
+    }
+  } catch (error) {
+    // Log silencieusement en cas d'erreur pour ne pas bloquer le flux
+    console.error('[AI Audit] Failed to log AI action:', error);
+  }
 }

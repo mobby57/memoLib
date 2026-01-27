@@ -1,8 +1,9 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+﻿import { logger } from '@/lib/logger';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { createContextualNotification } from '@/lib/workflows/notification-engine';
-import { executeWorkflow, ALL_WORKFLOWS } from '@/lib/workflows/workflow-engine';
+import { ALL_WORKFLOWS, executeWorkflow } from '@/lib/workflows/workflow-engine';
 import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  *  API: Declenchement automatique des workflows
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
     const { emailData } = await request.json();
 
     // eTAPE 1: Analyse IA de l'email
-    console.log(' Analyse IA de l\'email...');
+    logger.info("Analyse IA de l'email...");
     const analysis = await analyzeEmail({
       subject: emailData.subject,
       body: emailData.body,
@@ -28,32 +29,29 @@ export async function POST(request: NextRequest) {
       attachments: emailData.attachments || [],
     });
 
-    console.log(' Analyse terminee:', {
+    logger.info('Analyse terminee:', {
       category: analysis.category,
       urgency: analysis.urgency,
       questions: analysis.questions.length,
     });
 
     // eTAPE 2: Creer notification contextuelle obligatoire
-    console.log(' Creation notification contextuelle...');
-    const notification = await createContextualNotification(
-      analysis,
-      session.user.email
-    );
+    logger.info(' Creation notification contextuelle...');
+    const notification = await createContextualNotification(analysis, session.user.email);
 
-    console.log(' Notification creee:', notification.id);
+    logger.info('Notification creee:', { notificationId: notification.id });
 
     // eTAPE 3: Determiner et lancer le workflow approprie
     const workflow = determineWorkflow(analysis);
-    
-    console.log('️ Lancement workflow:', workflow.name);
+
+    logger.info('Lancement workflow:', { workflowName: workflow.name });
     const workflowResult = await executeWorkflow(workflow, {
       emailAnalysis: analysis,
       notification,
       userId: session.user.email,
     });
 
-    console.log(' Workflow complete:', workflowResult.success);
+    logger.info('Workflow complete:', { success: workflowResult.success });
 
     return NextResponse.json({
       success: true,
@@ -79,11 +77,8 @@ export async function POST(request: NextRequest) {
       message: 'Workflow automatique lance avec succes',
     });
   } catch (error) {
-    console.error(' Erreur workflow automatique:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors du traitement automatique' },
-      { status: 500 }
-    );
+    logger.error(' Erreur workflow automatique:', { error });
+    return NextResponse.json({ error: 'Erreur lors du traitement automatique' }, { status: 500 });
   }
 }
 
@@ -93,7 +88,7 @@ export async function POST(request: NextRequest) {
 function determineWorkflow(analysis: any): any {
   const workflowMap: Record<string, number> = {
     'client-urgent': 0, // WORKFLOW_URGENT_EMAIL
-    'invoice': 1, // WORKFLOW_INVOICE_PROCESSING
+    invoice: 1, // WORKFLOW_INVOICE_PROCESSING
     'new-case': 2, // WORKFLOW_NEW_CASE_INTAKE
     'legal-question': 3, // WORKFLOW_LEGAL_QUESTION_RESPONSE
     'deadline-reminder': 4, // WORKFLOW_DEADLINE_MANAGEMENT

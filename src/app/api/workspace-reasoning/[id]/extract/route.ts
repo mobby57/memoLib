@@ -1,11 +1,11 @@
 /**
  * API ENDPOINT: AI EXTRACTION
- * 
+ *
  * POST /api/workspace-reasoning/[id]/extract
- * 
+ *
  * Extrait automatiquement Facts, Contexts, Obligations depuis sourceRaw
  * Utilise Ollama (local IA) avec prompts spécialisés CESEDA
- * 
+ *
  * Flow:
  * 1. Récupère workspace
  * 2. Appelle WorkspaceExtractionService
@@ -19,19 +19,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { workspaceExtractionService } from '@/lib/ai/workspace-extraction-service';
+import { logger } from '@/lib/logger';
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // 1. Authentification
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
     const workspaceId = params.id;
@@ -47,24 +42,20 @@ export async function POST(
     });
 
     if (!workspace) {
-      return NextResponse.json(
-        { error: 'Workspace non trouvé' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Workspace non trouvé' }, { status: 404 });
     }
 
     // 3. Vérification ownership (tenant isolation)
     if (workspace.tenantId !== (session.user as any).tenantId) {
-      return NextResponse.json(
-        { error: 'Accès refusé' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     // 4. Vérification état (seulement RECEIVED autorisé)
     if (workspace.currentState !== 'RECEIVED') {
       return NextResponse.json(
-        { error: `Extraction impossible depuis l'état ${workspace.currentState}. État RECEIVED requis.` },
+        {
+          error: `Extraction impossible depuis l'état ${workspace.currentState}. État RECEIVED requis.`,
+        },
         { status: 400 }
       );
     }
@@ -87,12 +78,15 @@ export async function POST(
     }
 
     // 7. Appel service d'extraction IA
-    console.log(`[AI Extraction] Démarrage pour workspace ${workspaceId}...`);
+    logger.info('Démarrage extraction IA', {
+      workspaceId,
+      route: '/api/workspace-reasoning/[id]/extract',
+    });
     const extractionResult = await workspaceExtractionService.extractFromWorkspace(workspace);
 
     if (!extractionResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Échec extraction IA',
           details: extractionResult.error,
           model: extractionResult.model,
@@ -101,11 +95,19 @@ export async function POST(
       );
     }
 
-    console.log(`[AI Extraction] Succès - ${extractionResult.facts.length} faits, ${extractionResult.contexts.length} contextes, ${extractionResult.obligations.length} obligations`);
+    logger.info('Extraction IA réussie', {
+      workspaceId,
+      facts: extractionResult.facts.length,
+      contexts: extractionResult.contexts.length,
+      obligations: extractionResult.obligations.length,
+    });
 
     // 8. Validation extraction
     const validation = workspaceExtractionService.validateExtraction(extractionResult);
-    console.log(`[AI Extraction] Validation: ${validation.valid ? 'OK' : 'Warnings'} - ${validation.warnings.length} warning(s)`);
+    logger.debug('Validation extraction', {
+      valid: validation.valid,
+      warnings: validation.warnings.length,
+    });
 
     // 9. Création entités en base
     const createdEntities = {
@@ -212,7 +214,11 @@ export async function POST(
         },
       });
 
-      console.log(`[AI Extraction] Transition automatique: RECEIVED → ${newState}`);
+      logger.info('Transition automatique', {
+        workspaceId,
+        fromState: 'RECEIVED',
+        toState: newState,
+      });
     }
 
     // 12. Réponse succès
@@ -239,13 +245,14 @@ export async function POST(
       entities: createdEntities,
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
-    console.error('[AI Extraction] Erreur:', error);
-    
+    logger.error('Erreur extraction IA', error instanceof Error ? error : undefined, {
+      route: '/api/workspace-reasoning/[id]/extract',
+    });
+
     return NextResponse.json(
       {
-        error: 'Erreur lors de l\'extraction IA',
+        error: "Erreur lors de l'extraction IA",
         details: error instanceof Error ? error.message : 'Erreur inconnue',
       },
       { status: 500 }

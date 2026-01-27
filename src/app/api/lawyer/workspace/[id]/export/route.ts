@@ -1,30 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/lawyer/workspace/[id]/export
  * Exporter le raisonnement complet en JSON/Markdown
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
-    
+
     const user = session.user as any;
     const tenantId = user.tenantId;
     const workspaceId = params.id;
-    
+
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'json'; // json | markdown
-    
+
     // Recuperer le workspace complet avec ses relations existantes
     const workspace = await prisma.workspaceReasoning.findFirst({
       where: { id: workspaceId, tenantId },
@@ -35,18 +33,15 @@ export async function GET(
         transitions: { orderBy: { createdAt: 'asc' } },
       },
     });
-    
+
     if (!workspace) {
-      return NextResponse.json(
-        { error: 'Workspace non trouve' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Workspace non trouve' }, { status: 404 });
     }
-    
+
     if (format === 'markdown') {
       // Generer Markdown
       const markdown = generateMarkdownExport(workspace);
-      
+
       return new NextResponse(markdown, {
         headers: {
           'Content-Type': 'text/markdown',
@@ -54,7 +49,7 @@ export async function GET(
         },
       });
     }
-    
+
     // Format JSON par défaut
     return NextResponse.json({
       success: true,
@@ -62,19 +57,17 @@ export async function GET(
       exportedAt: new Date().toISOString(),
       exportedBy: user.id,
     });
-    
   } catch (error) {
-    console.error('Erreur export workspace:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur export workspace', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspace/[id]/export',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
 function generateMarkdownExport(workspace: any): string {
   const sections: string[] = [];
-  
+
   // En-tete
   sections.push(`# Workspace Reasoning Export`);
   sections.push(`**ID:** ${workspace.id}`);
@@ -85,7 +78,7 @@ function generateMarkdownExport(workspace: any): string {
     sections.push(`**Description:** ${workspace.description}`);
   }
   sections.push('');
-  
+
   // Contexte
   if (workspace.context) {
     sections.push(`## 📥 Contexte`);
@@ -94,7 +87,7 @@ function generateMarkdownExport(workspace: any): string {
     sections.push('```');
     sections.push('');
   }
-  
+
   // Manques
   if (workspace.missingElements?.length > 0) {
     sections.push(`## ❗ Elements Manquants (${workspace.missingElements.length})`);
@@ -108,7 +101,7 @@ function generateMarkdownExport(workspace: any): string {
     });
     sections.push('');
   }
-  
+
   // Actions
   if (workspace.proposedActions?.length > 0) {
     sections.push(`## 👉 Actions Proposees (${workspace.proposedActions.length})`);
@@ -125,7 +118,7 @@ function generateMarkdownExport(workspace: any): string {
     });
     sections.push('');
   }
-  
+
   // Traces
   if (workspace.reasoningTraces?.length > 0) {
     sections.push(`## 🧠 Traces de Raisonnement`);
@@ -135,18 +128,20 @@ function generateMarkdownExport(workspace: any): string {
     });
     sections.push('');
   }
-  
+
   // Transitions
   if (workspace.transitions?.length > 0) {
     sections.push(`## 🔄 Transitions`);
     workspace.transitions.forEach((trans: any) => {
-      sections.push(`- ${trans.fromStatus} → ${trans.toStatus} (${new Date(trans.createdAt).toLocaleString('fr-FR')})`);
+      sections.push(
+        `- ${trans.fromStatus} → ${trans.toStatus} (${new Date(trans.createdAt).toLocaleString('fr-FR')})`
+      );
       if (trans.reason) {
         sections.push(`  Raison: ${trans.reason}`);
       }
     });
     sections.push('');
   }
-  
+
   return sections.join('\n');
 }

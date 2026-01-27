@@ -1,4 +1,5 @@
 ﻿/**
+import { logger } from '@/lib/logger';
  * API Portail Client Stripe
  * Redirige vers le portail de gestion d'abonnement
  */
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
       portalUrl: portalSession.url,
     });
   } catch (error) {
-    console.error('Erreur creation portail:', error);
+    logger.error('Erreur creation portail:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

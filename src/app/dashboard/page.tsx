@@ -3,14 +3,47 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line } from 'recharts';
-import { Card, StatCard, Badge, Breadcrumb, Alert, Tabs, useToast } from '@/components/ui';
-import { TrendingUp, TrendingDown, Folder, FileText, Users, DollarSign, Plus, ArrowRight, Clock, CheckCircle, AlertTriangle, LogOut, Settings, Bell, Search, Menu, MessageSquare, HelpCircle, Download, Upload, Shield, Database } from 'lucide-react';
-import { logger } from '@/lib/logger';
 import { MetricsWidgets, type MetricsData } from '@/components/MetricsWidgets';
+import { Alert, Badge, Breadcrumb, Card, StatCard, Tabs, useToast } from '@/components/ui';
+import { useAuth } from '@/hooks/useAuth';
+import { logger } from '@/lib/logger';
+import {
+  AlertTriangle,
+  ArrowRight,
+  Bell,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  Download,
+  FileText,
+  Folder,
+  LogOut,
+  MessageSquare,
+  Plus,
+  Search,
+  Settings,
+  Shield,
+  TrendingUp,
+  Users,
+  Zap,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 interface DashboardStats {
   totalDossiers: number;
@@ -47,15 +80,16 @@ interface RecentActivity {
 }
 
 export default function DashboardPage() {
-  const { user, isLoading, isAuthenticated, isSuperAdmin, isAdmin, isClient, hasPermission } = useAuth();
+  const { user, isLoading, isAuthenticated, isSuperAdmin, isAdmin, isClient, hasPermission } =
+    useAuth();
   const { addToast } = useToast();
-  
+
   const [stats, setStats] = useState<DashboardStats>({
     totalDossiers: 0,
     dossiersActifs: 0,
     facturesEnAttente: 0,
     revenus: 0,
-    trends: { dossiers: 0, factures: 0, revenus: 0 }
+    trends: { dossiers: 0, factures: 0, revenus: 0 },
   });
 
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
@@ -69,7 +103,7 @@ export default function DashboardPage() {
   useEffect(() => {
     // Attendre que la session soit chargée
     if (isLoading) return;
-    
+
     if (!isAuthenticated) {
       window.location.href = '/auth/login';
       return;
@@ -94,7 +128,8 @@ export default function DashboardPage() {
   const calculateMetrics = (statsData: any) => {
     const totalDossiers = statsData.totalDossiers || 0;
     const completedDossiers = statsData.dossiersTermines || 0;
-    const completionRate = totalDossiers > 0 ? Math.round((completedDossiers / totalDossiers) * 100) : 0;
+    const completionRate =
+      totalDossiers > 0 ? Math.round((completedDossiers / totalDossiers) * 100) : 0;
 
     const avgResponseTime = Math.round(Math.random() * 10 + 2);
     const avgProcessingTime = Math.round(Math.random() * 8 + 5);
@@ -110,13 +145,21 @@ export default function DashboardPage() {
       completionRate: statsData.trends?.dossiers || 0,
       avgResponseTime: Math.round(Math.random() * 6 - 3),
       avgProcessingTime: Math.round(Math.random() * 4 - 2),
-      monthlyRevenue: statsData.trends?.revenus || 0
+      monthlyRevenue: statsData.trends?.revenus || 0,
     };
 
     setMetricsData({
-      completionRate, avgResponseTime, avgProcessingTime, clientSatisfaction,
-      monthlyRevenue, monthlyGoal, activeClients, pendingValidations,
-      overdueFiles, successRate, trends
+      completionRate,
+      avgResponseTime,
+      avgProcessingTime,
+      clientSatisfaction,
+      monthlyRevenue,
+      monthlyGoal,
+      activeClients,
+      pendingValidations,
+      overdueFiles,
+      successRate,
+      trends,
     });
   };
 
@@ -179,49 +222,50 @@ export default function DashboardPage() {
   // Actions rapides selon les permissions
   const getQuickActions = () => {
     const actions = [];
-    
+
     if (hasPermission('canManageDossiers')) {
-      actions.push({ 
-        label: 'Nouveau Dossier', 
-        href: '/dossiers', 
-        icon: Plus, 
-        color: 'bg-blue-500 hover:bg-blue-600' 
+      actions.push({
+        label: 'Nouveau Dossier',
+        href: '/dossiers',
+        icon: Plus,
+        color: 'bg-blue-500 hover:bg-blue-600',
       });
     }
-    
+
     if (hasPermission('canManageFactures')) {
-      actions.push({ 
-        label: 'Nouvelle Facture', 
-        href: '/factures', 
-        icon: FileText, 
-        color: 'bg-green-500 hover:bg-green-600' 
+      actions.push({
+        label: 'Nouvelle Facture',
+        href: '/factures',
+        icon: FileText,
+        color: 'bg-green-500 hover:bg-green-600',
       });
     }
-    
+
     if (hasPermission('canAccessAnalytics')) {
-      actions.push({ 
-        label: 'Exporter Donnees', 
-        href: '/exports', 
-        icon: Download, 
-        color: 'bg-purple-500 hover:bg-purple-600' 
+      actions.push({
+        label: 'Exporter Donnees',
+        href: '/exports',
+        icon: Download,
+        color: 'bg-purple-500 hover:bg-purple-600',
       });
     }
-    
-    actions.push({ 
-      label: 'Assistant IA', 
-      href: '/ai-assistant', 
-      icon: MessageSquare, 
-      color: 'bg-indigo-500 hover:bg-indigo-600' 
+
+    actions.push({
+      label: 'Assistant IA',
+      href: '/ai-assistant',
+      icon: MessageSquare,
+      color: 'bg-indigo-500 hover:bg-indigo-600',
     });
-    
+
     // Nouveau: Fonctionnalites IA Avancees
-    actions.push({ 
-      label: ' IA Avancee', 
-      href: '/lawyer/advanced', 
-      icon: Shield, 
-      color: 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg' 
+    actions.push({
+      label: ' IA Avancee',
+      href: '/lawyer/advanced',
+      icon: Shield,
+      color:
+        'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg',
     });
-    
+
     return actions;
   };
 
@@ -258,28 +302,63 @@ export default function DashboardPage() {
 
   const quickActions = getQuickActions();
 
+  // Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Bonjour';
+    if (hour < 18) return 'Bon après-midi';
+    return 'Bonsoir';
+  };
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* Welcome Banner */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,rgba(255,255,255,0.5))]" />
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold">
+              {getGreeting()}, {user?.name?.split(' ')[0]} 👋
+            </h1>
+            <p className="text-blue-100 mt-1">
+              Voici un aperçu de votre cabinet •{' '}
+              {new Date().toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              })}
+            </p>
+            <div className="flex items-center gap-2 mt-3">
+              <Badge variant="info" className="bg-white/20 text-white border-white/30">
+                {user?.role}
+              </Badge>
+              <Badge variant="success" className="bg-white/20 text-white border-white/30">
+                Plan {user?.tenantPlan}
+              </Badge>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowMetrics(!showMetrics)}
+              className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 text-sm font-medium transition-colors"
+            >
+              {showMetrics ? '📊 Masquer métriques' : '📊 Voir métriques'}
+            </button>
+            <Link
+              href="/ai-assistant"
+              className="px-4 py-2 bg-white text-indigo-600 rounded-lg hover:bg-blue-50 text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              <Zap className="w-4 h-4" />
+              Assistant IA
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Header with User Menu */}
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <Breadcrumb
-            items={[
-              { label: 'Dashboard Admin' },
-            ]}
-          />
-          <div className="mt-4">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Dashboard Cabinet
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Bienvenue, {user?.name} - {user?.tenantName}
-            </p>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant="info">{user?.role}</Badge>
-              <Badge variant="success">{user?.tenantPlan}</Badge>
-            </div>
-          </div>
+          <Breadcrumb items={[{ label: 'Dashboard Admin' }]} />
         </div>
 
         {/* Command Center */}
@@ -300,21 +379,20 @@ export default function DashboardPage() {
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
 
-          <Link href="/admin" className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+          <Link
+            href="/admin"
+            className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
             <Settings className="w-5 h-5" />
           </Link>
 
           <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <div className="text-right">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {user?.name}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Admin - {user?.tenantName}
-              </p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Admin - {user?.tenantName}</p>
             </div>
             <button
-              onClick={() => window.location.href = '/api/auth/signout'}
+              onClick={() => (window.location.href = '/api/auth/signout')}
               className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
               title="Se deconnecter"
             >
@@ -333,7 +411,7 @@ export default function DashboardPage() {
 
       {/* Quick Actions Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {quickActions.map((action) => {
+        {quickActions.map(action => {
           const Icon = action.icon;
           return (
             <Link
@@ -346,7 +424,7 @@ export default function DashboardPage() {
             </Link>
           );
         })}
-        
+
         {/* Advanced AI Features Button */}
         <Link
           href="/advanced"
@@ -364,7 +442,7 @@ export default function DashboardPage() {
       {/* Alert for pending tasks */}
       {stats.facturesEnAttente > 0 && (
         <Alert variant="warning" title="Taches en attente">
-          Vous avez {stats.facturesEnAttente} facture(s) en attente de paiement. 
+          Vous avez {stats.facturesEnAttente} facture(s) en attente de paiement.
           <Link href="/factures" className="ml-2 underline font-medium hover:text-yellow-700">
             Voir les factures [Next]
           </Link>
@@ -379,11 +457,7 @@ export default function DashboardPage() {
           icon={Folder}
           trend={{ value: stats.trends.dossiers, isPositive: stats.trends.dossiers > 0 }}
         />
-        <StatCard
-          title="Dossiers Actifs"
-          value={stats.dossiersActifs}
-          icon={FileText}
-        />
+        <StatCard title="Dossiers Actifs" value={stats.dossiersActifs} icon={FileText} />
         <StatCard
           title="Factures en Attente"
           value={stats.facturesEnAttente}
@@ -412,14 +486,17 @@ export default function DashboardPage() {
                 <div className="pt-4">
                   <ResponsiveContainer width="100%" height={350}>
                     <BarChart data={monthlyData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="stroke-gray-200 dark:stroke-gray-700"
+                      />
                       <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
                       <YAxis className="text-gray-600 dark:text-gray-400" />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'var(--tooltip-bg, #ffffff)', 
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'var(--tooltip-bg, #ffffff)',
                           border: '1px solid #e5e7eb',
-                          borderRadius: '8px'
+                          borderRadius: '8px',
                         }}
                       />
                       <Legend />
@@ -444,7 +521,9 @@ export default function DashboardPage() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
+                        label={({ name, percent }) =>
+                          `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
+                        }
                         outerRadius={120}
                         fill="#8884d8"
                         dataKey="value"
@@ -468,21 +547,24 @@ export default function DashboardPage() {
                 <div className="pt-4">
                   <ResponsiveContainer width="100%" height={350}>
                     <LineChart data={monthlyData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="stroke-gray-200 dark:stroke-gray-700"
+                      />
                       <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
                       <YAxis className="text-gray-600 dark:text-gray-400" />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'var(--tooltip-bg, #ffffff)', 
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'var(--tooltip-bg, #ffffff)',
                           border: '1px solid #e5e7eb',
-                          borderRadius: '8px'
+                          borderRadius: '8px',
                         }}
                       />
                       <Legend />
-                      <Line 
-                        type="monotone" 
-                        dataKey="revenus" 
-                        stroke="#10b981" 
+                      <Line
+                        type="monotone"
+                        dataKey="revenus"
+                        stroke="#10b981"
                         strokeWidth={3}
                         name="Revenus (€)"
                         dot={{ fill: '#10b981', r: 5 }}
@@ -505,16 +587,16 @@ export default function DashboardPage() {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Activites Recentes
               </h3>
-              <Link 
-                href="/dossiers" 
+              <Link
+                href="/dossiers"
                 className="text-sm text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
               >
                 Voir tout <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="space-y-3">
-              {recentActivities.map((activity) => (
-                <div 
+              {recentActivities.map(activity => (
+                <div
                   key={activity.id}
                   className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
@@ -534,20 +616,24 @@ export default function DashboardPage() {
                       {activity.title}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {new Date(activity.date).toLocaleDateString('fr-FR', { 
+                      {new Date(activity.date).toLocaleDateString('fr-FR', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',
                         hour: '2-digit',
-                        minute: '2-digit'
+                        minute: '2-digit',
                       })}
                     </p>
                   </div>
-                  <Badge variant={
-                    activity.type === 'dossier' ? 'info' : 
-                    activity.type === 'facture' ? 'success' : 
-                    'default'
-                  }>
+                  <Badge
+                    variant={
+                      activity.type === 'dossier'
+                        ? 'info'
+                        : activity.type === 'facture'
+                          ? 'success'
+                          : 'default'
+                    }
+                  >
                     {activity.type}
                   </Badge>
                 </div>
@@ -573,7 +659,9 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white">Nouveau Dossier</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Creer un dossier client</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Creer un dossier client
+                    </p>
                   </div>
                 </div>
               </Link>
@@ -587,7 +675,9 @@ export default function DashboardPage() {
                     <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white">Nouvelle Facture</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">
+                      Nouvelle Facture
+                    </h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400">Generer une facture</p>
                   </div>
                 </div>

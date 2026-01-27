@@ -1,7 +1,8 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { searchService } from '@/lib/services/searchService';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,7 +27,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ suggestions });
   } catch (error) {
-    console.error('Suggestions error:', error);
+    logger.error('Suggestions error', error instanceof Error ? error : undefined, {
+      route: '/api/search/suggestions',
+    });
     return NextResponse.json(
       { error: 'Erreur lors de la recuperation des suggestions' },
       { status: 500 }

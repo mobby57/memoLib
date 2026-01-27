@@ -1,13 +1,14 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import {
-  getSearchStats,
-  getPopularSearches,
-  getUserRecentSearches,
   getEmptySearches,
+  getPopularSearches,
+  getSearchStats,
   getSearchTrends,
+  getUserRecentSearches,
 } from '@/lib/services/searchAnalytics';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,7 +56,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Type invalide' }, { status: 400 });
     }
   } catch (error) {
-    console.error('Search analytics error:', error);
+    logger.error('Search analytics error', error instanceof Error ? error : undefined, {
+      route: '/api/search/analytics',
+    });
     return NextResponse.json(
       { error: 'Erreur lors de la recuperation des analytics' },
       { status: 500 }

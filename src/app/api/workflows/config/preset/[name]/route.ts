@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { PRESET_CONFIGS } from '@/lib/workflows/workflow-config';
 
@@ -28,7 +29,7 @@ export async function GET(
 
     return NextResponse.json(preset);
   } catch (error) {
-    console.error('Erreur GET preset:', error);
+    logger.error('Erreur GET preset:', { error });
     return NextResponse.json(
       { error: 'Erreur chargement preset' },
       { status: 500 }

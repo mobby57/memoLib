@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
+import { logger } from '@/lib/logger';
 
 // GET - Liste des preuves
 export async function GET(request: NextRequest) {
@@ -38,7 +39,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ proofs, total, hasMore: offset + proofs.length < total });
   } catch (error) {
-    console.error('Erreur GET proofs:', error);
+    logger.error('Erreur GET proofs', error instanceof Error ? error : undefined, {
+      route: '/api/proofs',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -66,10 +69,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!tenantId || !type || !title || !proofDate || !capturedBy) {
-      return NextResponse.json(
-        { error: 'Champs requis manquants' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 });
     }
 
     const proofDateParsed = new Date(proofDate);
@@ -80,7 +80,10 @@ export async function POST(request: NextRequest) {
     // Calcul du hash si fichier fourni
     let fileHash = null;
     if (fileBuffer) {
-      fileHash = crypto.createHash('sha256').update(Buffer.from(fileBuffer, 'base64')).digest('hex');
+      fileHash = crypto
+        .createHash('sha256')
+        .update(Buffer.from(fileBuffer, 'base64'))
+        .digest('hex');
     }
 
     // Récupérer la dernière preuve pour la chaîne
@@ -118,7 +121,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, proof });
   } catch (error) {
-    console.error('Erreur POST proof:', error);
+    logger.error('Erreur POST proof', error instanceof Error ? error : undefined, {
+      route: '/api/proofs',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -130,10 +135,7 @@ export async function PATCH(request: NextRequest) {
     const { proofId, status, validatedBy, rejectionReason } = body;
 
     if (!proofId || !status || !validatedBy) {
-      return NextResponse.json(
-        { error: 'proofId, status et validatedBy requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'proofId, status et validatedBy requis' }, { status: 400 });
     }
 
     const existing = await prisma.proof.findUnique({ where: { id: proofId } });
@@ -158,7 +160,9 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, proof });
   } catch (error) {
-    console.error('Erreur PATCH proof:', error);
+    logger.error('Erreur PATCH proof', error instanceof Error ? error : undefined, {
+      route: '/api/proofs',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
@@ -17,7 +18,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+                
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
@@ -57,7 +58,7 @@ export async function GET(
     }
 
     // Pour l'instant, retourner les metadonnees
-    // TODO: Integrer Vercel Blob ou autre stockage gratuit
+    // TODO: Integrer Vercel Blob  autegatuit
     return NextResponse.json({
       message: 'Stockage fichiers non configure',
       document: {
@@ -66,11 +67,8 @@ export async function GET(
         type: document.type,
         size: document.size,
       },
-      suggestion: 'Configurez BLOB_READ_WRITE_TOKEN pour Vercel Blob (1GB gratuit)'
-    }, { status: 501 });
-
-  } catch (error) {
-    console.error('[DOWNLOAD] Erreur:', error);
+      suggestion: 'Configurez BLOB_READ_WRITE_TOKEN pour Vercel Blob (1GB gratuit)
+    logger.error('[DOWNLOAD] Erreur:', { error });
     return NextResponse.json(
       { error: 'Erreur lors du telechargement' },
       { status: 500 }

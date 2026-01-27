@@ -1,6 +1,7 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+﻿import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * ️ API: Soumission d'evaluation des risques
@@ -14,14 +15,14 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await request.json();
-    const { 
+    const {
       riskCategory,
       riskDescription,
       probability,
       severity,
       mitigationPlan,
       responsiblePerson,
-      metadata
+      metadata,
     } = data;
 
     // Calculer le score de risque (matrice probabilite x severite)
@@ -77,29 +78,26 @@ export async function POST(request: NextRequest) {
       message: 'evaluation de risque enregistree',
     });
   } catch (error) {
-    console.error('Erreur evaluation risque:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de l\'evaluation' },
-      { status: 500 }
-    );
+    logger.error('Erreur evaluation risque:', { error });
+    return NextResponse.json({ error: "Erreur lors de l'evaluation" }, { status: 500 });
   }
 }
 
 function calculateRiskScore(probability: string, severity: string): number {
   const probValues: Record<string, number> = {
     'very-low': 1,
-    'low': 2,
-    'medium': 3,
-    'high': 4,
+    low: 2,
+    medium: 3,
+    high: 4,
     'very-high': 5,
   };
 
   const sevValues: Record<string, number> = {
-    'negligible': 1,
-    'minor': 2,
-    'moderate': 3,
-    'major': 4,
-    'critical': 5,
+    negligible: 1,
+    minor: 2,
+    moderate: 3,
+    major: 4,
+    critical: 5,
   };
 
   return probValues[probability] * sevValues[severity];
@@ -129,7 +127,7 @@ async function createCriticalRiskAlert(assessmentId: any, context: any) {
   `;
 
   // Notifier les responsables
-  console.log(' ALERTE CRITIQUE:', context);
+  logger.warn('ALERTE CRITIQUE', { context });
 }
 
 async function generateAIActionPlan(data: any): Promise<any> {
@@ -165,11 +163,11 @@ Sois concis et actionnable.`,
       };
     }
   } catch (error) {
-    console.error('Erreur generation plan IA:', error);
+    logger.error('Erreur generation plan IA:', { error });
   }
 
   return {
-    plan: 'Plan d\'action IA non disponible - suivre le plan de mitigation manuel',
+    plan: "Plan d'action IA non disponible - suivre le plan de mitigation manuel",
     confidence: 0,
   };
 }

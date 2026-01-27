@@ -1,8 +1,9 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Configuration
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -30,7 +31,7 @@ export const maxDuration = 30;
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
@@ -45,8 +46,8 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const dossierId = formData.get('dossierId') as string | null;
-    const type = formData.get('type') as string || 'document';
-    const description = formData.get('description') as string || '';
+    const type = (formData.get('type') as string) || 'document';
+    const description = (formData.get('description') as string) || '';
 
     if (!file) {
       return NextResponse.json({ error: 'Fichier requis' }, { status: 400 });
@@ -62,10 +63,7 @@ export async function POST(request: NextRequest) {
 
     // Validation type MIME
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json(
-        { error: 'Type de fichier non autorise' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Type de fichier non autorise' }, { status: 400 });
     }
 
     // Verifier que le dossier appartient au tenant
@@ -84,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     // Generer ID unique
     const uniqueId = randomUUID();
-    
+
     // Calculer hash pour deduplication
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -92,7 +90,7 @@ export async function POST(request: NextRequest) {
     const hash = crypto.createHash('sha256').update(buffer).digest('hex');
 
     // Sauvegarder les metadonnees en base (sans le fichier pour l'instant)
-    // TODO: Integrer Vercel Blob pour stockage gratuit (1GB)
+    // TODO: In ugro pourstockage (1GB
     const document = await prisma.document.create({
       data: {
         id: uniqueId,
@@ -104,7 +102,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log('[UPLOAD] Document enregistre:', { id: uniqueId, name: file.name, hash });
+    logger.info('[UPLOAD] Document enregistre:', { id: uniqueId, name: file.name, hash });
 
     return NextResponse.json({
       success: true,
@@ -115,15 +113,12 @@ export async function POST(request: NextRequest) {
         fileSize: file.size,
         url: `/api/documents/download/${uniqueId}`,
       },
-      warning: 'Stockage fichiers non configure. Configurez BLOB_READ_WRITE_TOKEN pour Vercel Blob.',
+      warning:
+        'Stockage fichiers non configure. Configurez BLOB_READ_WRITE_TOKEN pour Vercel Blob.',
     });
-
   } catch (error) {
-    console.error('[UPLOAD] Erreur:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de l\'upload' },
-      { status: 500 }
-    );
+    logger.error('[UPLOAD] Erreur:', { error });
+    return NextResponse.json({ error: "Erreur lors de l'upload" }, { status: 500 });
   }
 }
 
@@ -134,7 +129,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
@@ -148,12 +143,8 @@ export async function GET(request: NextRequest) {
       documents: [],
       total: 0,
     });
-
   } catch (error) {
-    console.error('[DOCUMENTS] Erreur:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la recuperation' },
-      { status: 500 }
-    );
+    logger.error('[DOCUMENTS] Erreur:', { error });
+    return NextResponse.json({ error: 'Erreur lors de la recuperation' }, { status: 500 });
   }
 }

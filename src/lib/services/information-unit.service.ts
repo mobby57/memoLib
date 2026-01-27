@@ -1,11 +1,11 @@
 ﻿/**
  * InformationUnitService
- * 
+ *
  * Core service for the "Zero Ignored Information" guarantee
  * Implements closed pipeline state machine with automatic escalations
- * 
+ *
  * Pipeline: RECEIVED -> CLASSIFIED -> ANALYZED -> [INCOMPLETE|AMBIGUOUS|RESOLVED] -> CLOSED
- * 
+ *
  * @file src/lib/services/information-unit.service.ts
  * @date 2026-01-22
  */
@@ -210,10 +210,13 @@ export class InformationUnitService {
    */
   private validateTransition(
     fromStatus: InformationUnitStatus,
-    toStatus: InformationUnitStatus,
+    toStatus: InformationUnitStatus
   ): void {
     // CRITICAL RULE: No direct jump to CLOSED except from RESOLVED (check first for specific error message)
-    if (toStatus === InformationUnitStatus.CLOSED && fromStatus !== InformationUnitStatus.RESOLVED) {
+    if (
+      toStatus === InformationUnitStatus.CLOSED &&
+      fromStatus !== InformationUnitStatus.RESOLVED
+    ) {
       throw new Error(
         `PIPELINE ERROR: Cannot transition from ${fromStatus} to CLOSED. Must pass through RESOLVED first.`
       );
@@ -223,8 +226,7 @@ export class InformationUnitService {
 
     if (!allowed.includes(toStatus)) {
       throw new Error(
-        `Forbidden transition: ${fromStatus} -> ${toStatus}. ` +
-        `Allowed: ${allowed.join(', ')}`,
+        `Forbidden transition: ${fromStatus} -> ${toStatus}. ` + `Allowed: ${allowed.join(', ')}`
       );
     }
   }
@@ -239,9 +241,7 @@ export class InformationUnitService {
 
     // HUMAN_ACTION_REQUIRED must have detailed reason
     if (status === InformationUnitStatus.HUMAN_ACTION_REQUIRED && reason.length < 10) {
-      throw new Error(
-        `HUMAN_ACTION_REQUIRED requires detailed reason (min 10 chars)`,
-      );
+      throw new Error(`HUMAN_ACTION_REQUIRED requires detailed reason (min 10 chars)`);
     }
   }
 
@@ -249,10 +249,9 @@ export class InformationUnitService {
    * Check if status requires human action
    */
   private checkHumanActionRequired(status: InformationUnitStatus): boolean {
-    return [
-      InformationUnitStatus.HUMAN_ACTION_REQUIRED,
-      InformationUnitStatus.AMBIGUOUS,
-    ].includes(status);
+    return [InformationUnitStatus.HUMAN_ACTION_REQUIRED, InformationUnitStatus.AMBIGUOUS].includes(
+      status
+    );
   }
 
   /**
@@ -297,7 +296,21 @@ export class InformationUnitService {
         } else if (timeSinceChange > ESCALATION_RULES.INCOMPLETE.reminder_at) {
           // 48h: send reminder email (don't transition yet)
           escalationAction = 'CLIENT_REMINDER';
-          // TODO: Send email to client
+          // Send reminder email to client
+          try {
+            const { Resend } = await import('resend');
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            if (process.env.RESEND_API_KEY && unit.metadata?.clientEmail) {
+              await resend.emails.send({
+                from: process.env.EMAIL_FROM || 'noreply@iapostemanager.com',
+                to: unit.metadata.clientEmail as string,
+                subject: 'Rappel : Informations manquantes - IA Poste Manager',
+                html: `<h2>Informations manquantes</h2><p>Des informations sont encore nécessaires pour votre dossier. Merci de les compléter.</p>`,
+              });
+            }
+          } catch (emailError) {
+            console.error('[Escalation] Failed to send client reminder:', emailError);
+          }
         }
       }
 
@@ -314,7 +327,19 @@ export class InformationUnitService {
         timeSinceChange > ESCALATION_RULES.HUMAN_ACTION_REQUIRED.escalate_at
       ) {
         escalationAction = 'ADMIN_ALERT';
-        // TODO: Send admin alert (not a status change, just alert)
+        // Send admin alert via Sentry
+        import('@sentry/nextjs')
+          .then(Sentry => {
+            Sentry.captureMessage(
+              `[ADMIN ALERT] Unité ${unit.id} en attente action humaine > 96h`,
+              {
+                level: 'warning',
+                tags: { unitId: unit.id, escalation: 'admin_alert' },
+                extra: { timeSinceChange, currentStatus: unit.currentStatus },
+              }
+            );
+          })
+          .catch(() => {});
       }
 
       // Perform escalation if needed
@@ -364,7 +389,7 @@ export class InformationUnitService {
     if (unresolvedCount > 0) {
       throw new Error(
         `Cannot close workspace: ${unresolvedCount} unresolved information units exist. ` +
-        `All information must be in RESOLVED or CLOSED status.`,
+          `All information must be in RESOLVED or CLOSED status.`
       );
     }
 
@@ -417,7 +442,7 @@ export class InformationUnitService {
     const total = statusCounts.reduce((sum, item) => sum + item._count, 0);
     const countsByStatus: Record<string, number> = {};
 
-    statusCounts.forEach((item) => {
+    statusCounts.forEach(item => {
       countsByStatus[item.currentStatus] = item._count;
     });
 

@@ -3,26 +3,27 @@
  * Réception centralisée pour tous les canaux de communication
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { multiChannelService } from '@/lib/multichannel/channel-service';
+import { logger } from '@/lib/logger';
 import { auditService } from '@/lib/multichannel/audit-service';
+import { multiChannelService } from '@/lib/multichannel/channel-service';
 import { ChannelType, WebhookPayload } from '@/lib/multichannel/types';
 import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Mapping des chemins vers les canaux
 const CHANNEL_MAP: Record<string, ChannelType> = {
-  'email': 'EMAIL',
-  'whatsapp': 'WHATSAPP',
-  'sms': 'SMS',
-  'voice': 'VOICE',
-  'slack': 'SLACK',
-  'teams': 'TEAMS',
-  'linkedin': 'LINKEDIN',
-  'twitter': 'TWITTER',
-  'form': 'FORM',
-  'document': 'DOCUMENT',
-  'declan': 'DECLAN',
-  'internal': 'INTERNAL',
+  email: 'EMAIL',
+  whatsapp: 'WHATSAPP',
+  sms: 'SMS',
+  voice: 'VOICE',
+  slack: 'SLACK',
+  teams: 'TEAMS',
+  linkedin: 'LINKEDIN',
+  twitter: 'TWITTER',
+  form: 'FORM',
+  document: 'DOCUMENT',
+  declan: 'DECLAN',
+  internal: 'INTERNAL',
 };
 
 /**
@@ -43,10 +44,7 @@ export async function POST(
     // Valider le canal
     const channelType = CHANNEL_MAP[channelPath.toLowerCase()];
     if (!channelType) {
-      return NextResponse.json(
-        { error: `Canal non supporté: ${channelPath}` },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: `Canal non supporté: ${channelPath}` }, { status: 400 });
     }
 
     // Vérifier l'authentification webhook
@@ -62,15 +60,12 @@ export async function POST(
         ipAddress,
         userAgent,
       });
-      return NextResponse.json(
-        { error: 'Authentification webhook invalide' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Authentification webhook invalide' }, { status: 401 });
     }
 
     // Parser le payload
     const payload = await request.json();
-    
+
     // Récupérer la signature selon le canal
     const signature = getSignature(headersList, channelType);
 
@@ -108,10 +103,9 @@ export async function POST(
       status: message.status,
       processingTime: Date.now() - startTime,
     });
-
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-    
+
     await auditService.log({
       action: 'WEBHOOK_ERROR',
       channel: CHANNEL_MAP[channelPath.toLowerCase()],
@@ -123,12 +117,11 @@ export async function POST(
       userAgent,
     });
 
-    console.error(`Webhook ${channelPath} error:`, error);
-    
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    logger.error(`Webhook ${channelPath} error`, error instanceof Error ? error : undefined, {
+      route: `/api/webhooks/channel/${channelPath}`,
+    });
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -142,7 +135,7 @@ export async function GET(
 ) {
   const { channel: channelPath } = await params;
   const url = new URL(request.url);
-  
+
   // WhatsApp/Meta verification
   const mode = url.searchParams.get('hub.mode');
   const token = url.searchParams.get('hub.verify_token');
@@ -175,7 +168,7 @@ async function validateWebhookAuth(
   headersList: Headers
 ): Promise<{ valid: boolean; reason?: string }> {
   const secret = process.env[`CHANNEL_${channel}_SECRET`];
-  
+
   // Si pas de secret configuré, accepter (dev mode)
   if (!secret && process.env.NODE_ENV === 'development') {
     return { valid: true };
@@ -187,7 +180,7 @@ async function validateWebhookAuth(
       if (!waSignature) return { valid: false, reason: 'Missing signature' };
       // Validation signature Meta
       return { valid: true }; // Simplifié pour l'exemple
-      
+
     case 'SLACK':
       const slackSignature = headersList.get('x-slack-signature');
       const slackTimestamp = headersList.get('x-slack-request-timestamp');
@@ -195,7 +188,7 @@ async function validateWebhookAuth(
         return { valid: false, reason: 'Missing Slack headers' };
       }
       return { valid: true }; // Simplifié
-      
+
     case 'SMS':
     case 'VOICE':
       // Validation Twilio
@@ -204,14 +197,14 @@ async function validateWebhookAuth(
         return { valid: false, reason: 'Missing Twilio signature' };
       }
       return { valid: true };
-      
+
     case 'TEAMS':
       const teamsAuth = headersList.get('authorization');
       if (!teamsAuth?.startsWith('Bearer ')) {
         return { valid: false, reason: 'Missing Teams auth' };
       }
       return { valid: true };
-      
+
     default:
       // Pour les autres canaux, vérifier un token API simple
       const apiKey = headersList.get('x-api-key');

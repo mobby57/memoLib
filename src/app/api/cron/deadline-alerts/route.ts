@@ -1,5 +1,6 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { checkDeadlineAlerts } from '@/lib/cron/deadline-alerts';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,14 +12,16 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await checkDeadlineAlerts();
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       message: 'Alertes vérifiées',
       stats: result,
     });
   } catch (error) {
-    console.error('Erreur cron deadline-alerts:', error);
+    logger.error('Erreur cron deadline-alerts', error instanceof Error ? error : undefined, {
+      job: 'deadline-alerts',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

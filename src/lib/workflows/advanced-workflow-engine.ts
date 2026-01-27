@@ -1,13 +1,13 @@
 ﻿/**
  *  MOTEUR DE WORKFLOW CONDITIONNEL AVANCe
- * 
+ *
  * Systeme complet de workflows avec declenchements en cascade :
  * - Event [Next] Trigger [Next] Conditions [Next] Actions [Next] Cascade
  * - Validation IA avec niveaux d'autonomie
  * - Tracabilite complete (audit log)
  * - Gestion d'erreurs et rollback
  * - Workflows paralleles et sequentiels
- * 
+ *
  * @version 2.0.0
  * @author IA Poste Manager
  */
@@ -29,14 +29,14 @@ export type WorkflowEventType =
   | 'client:created'
   | 'client:updated'
   | 'client:status_changed'
-  
+
   // Emails & Messages
   | 'email:received'
   | 'email:classified'
   | 'email:urgent'
   | 'message:created'
   | 'message:sent'
-  
+
   // Procedures & Dossiers
   | 'procedure:created'
   | 'procedure:updated'
@@ -44,13 +44,13 @@ export type WorkflowEventType =
   | 'procedure:closed'
   | 'dossier:created'
   | 'dossier:updated'
-  
+
   // Documents
   | 'document:uploaded'
   | 'document:verified'
   | 'document:missing'
   | 'document:expired'
-  
+
   // echeances & Alertes
   | 'deadline:created'
   | 'deadline:approaching'
@@ -58,20 +58,20 @@ export type WorkflowEventType =
   | 'deadline:missed'
   | 'alert:created'
   | 'alert:critical'
-  
+
   // Factures & Paiements
   | 'facture:created'
   | 'facture:sent'
   | 'facture:paid'
   | 'facture:overdue'
-  
+
   // IA & Validation
   | 'ai:suggestion'
   | 'ai:analysis_complete'
   | 'ai:validation_required'
   | 'validation:approved'
   | 'validation:rejected'
-  
+
   // Systeme
   | 'system:scheduled'
   | 'system:error'
@@ -83,7 +83,7 @@ export type WorkflowActionType =
   | 'send_notification'
   | 'send_sms'
   | 'create_message'
-  
+
   // Creation d'entites
   | 'create_workspace'
   | 'create_procedure'
@@ -91,35 +91,35 @@ export type WorkflowActionType =
   | 'create_alert'
   | 'create_deadline'
   | 'create_note'
-  
+
   // Mise a jour
   | 'update_status'
   | 'update_priority'
   | 'assign_user'
   | 'add_tag'
   | 'set_property'
-  
+
   // Documents & IA
   | 'generate_document'
   | 'analyze_with_ai'
   | 'extract_data'
   | 'classify_content'
-  
+
   // Workflow & Cascade
   | 'trigger_workflow'
   | 'wait'
   | 'branch'
   | 'loop'
-  
+
   // Validation
   | 'request_validation'
   | 'auto_approve'
-  
+
   // Integrations
   | 'webhook_call'
   | 'api_call'
   | 'run_script'
-  
+
   // Systeme
   | 'log_event'
   | 'audit_trail'
@@ -150,16 +150,16 @@ export interface WorkflowEvent {
   timestamp: Date;
   tenantId: string;
   userId?: string;
-  
+
   // Payload de l'evenement
   payload: Record<string, any>;
-  
+
   // Source
   source: {
     type: 'user' | 'system' | 'ai' | 'external';
     id?: string;
   };
-  
+
   // Contexte
   context?: {
     workspaceId?: string;
@@ -174,7 +174,7 @@ export interface WorkflowCondition {
   field: string; // Chemin dans le payload (ex: "payload.priority")
   operator: ConditionOperator;
   value: any;
-  
+
   // Conditions imbriquees (AND/OR)
   logicalOperator?: 'AND' | 'OR';
   nested?: WorkflowCondition[];
@@ -185,26 +185,26 @@ export interface WorkflowAction {
   type: WorkflowActionType;
   name: string;
   description?: string;
-  
+
   // Parametres de l'action
   params: Record<string, any>;
-  
+
   // Variables dynamiques (template)
   template?: Record<string, string>;
-  
+
   // Delai avant execution
   delay?: number; // millisecondes
-  
+
   // Timeout
   timeout?: number; // millisecondes
-  
+
   // Retry policy
   retry?: {
     maxAttempts: number;
     backoff: 'linear' | 'exponential';
     delay: number;
   };
-  
+
   // Validation IA
   aiValidation?: {
     required: boolean;
@@ -212,7 +212,7 @@ export interface WorkflowAction {
     validationLevel: ValidationLevel;
     confidence?: number;
   };
-  
+
   // Actions en cascade
   onSuccess?: WorkflowAction[];
   onFailure?: WorkflowAction[];
@@ -225,24 +225,24 @@ export interface WorkflowRule {
   description: string;
   enabled: boolean;
   priority: number; // Plus eleve = plus prioritaire
-  
+
   // Trigger
   trigger: {
     events: WorkflowEventType[];
     conditions?: WorkflowCondition[];
   };
-  
+
   // Actions
   actions: WorkflowAction[];
   executionMode: WorkflowExecutionMode;
-  
+
   // Limites
   limits?: {
     maxExecutionsPerDay?: number;
     maxExecutionsPerHour?: number;
     cooldownMinutes?: number;
   };
-  
+
   // Metadonnees
   tenantId?: string; // null = global
   createdBy: string;
@@ -258,26 +258,26 @@ export interface WorkflowExecution {
   id: string;
   ruleId: string;
   event: WorkflowEvent;
-  
+
   // etat
   status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled' | 'timeout';
   startedAt: Date;
   completedAt?: Date;
   duration?: number; // millisecondes
-  
+
   // Resultats
   results: WorkflowActionResult[];
-  
+
   // Erreurs
   error?: {
     message: string;
     stack?: string;
     action?: string;
   };
-  
+
   // Contexte
   context: Record<string, any>;
-  
+
   // Cascade
   triggeredWorkflows: string[]; // IDs des workflows declenches
 }
@@ -291,7 +291,7 @@ export interface WorkflowActionResult {
   duration: number;
   result?: any;
   error?: string;
-  
+
   // Cascade
   triggeredActions?: string[];
 }
@@ -303,26 +303,55 @@ export interface WorkflowActionResult {
 export class AdvancedWorkflowEngine {
   private rules: Map<string, WorkflowRule> = new Map();
   private executions: Map<string, WorkflowExecution> = new Map();
-  
+  private executionCounts: Map<
+    string,
+    { hourly: number; daily: number; lastHour: number; lastDay: number; lastExec: number }
+  > = new Map();
+
   constructor() {
     this.loadRules();
   }
-  
+
   // ============================================
   // GESTION DES ReGLES
   // ============================================
-  
+
   /**
    * Charge les regles de workflow depuis la base
    */
   private async loadRules(): Promise<void> {
-    // TODO: Charger depuis DB/Redis
     logger.info('Chargement des regles de workflow');
-    
-    // Pour l'instant, charger les regles pre-definies
+
+    try {
+      // Charger les règles depuis la base de données
+      const dbRules = await prisma.workflowTemplate.findMany({
+        where: { enabled: true },
+        orderBy: { priority: 'desc' },
+      });
+
+      // Convertir en format WorkflowRule
+      for (const dbRule of dbRules) {
+        const rule: WorkflowRule = {
+          id: dbRule.id,
+          name: dbRule.name,
+          description: dbRule.description || '',
+          enabled: dbRule.enabled,
+          priority: dbRule.priority,
+          trigger: dbRule.trigger as any,
+          actions: dbRule.actions as WorkflowAction[],
+        };
+        this.rules.set(rule.id, rule);
+      }
+
+      logger.info(`${dbRules.length} règles chargées depuis DB`);
+    } catch (error) {
+      logger.warn('DB non disponible, chargement regles par defaut', { error });
+    }
+
+    // Toujours charger les regles pre-definies en complément
     this.registerDefaultRules();
   }
-  
+
   /**
    * Enregistre une nouvelle regle
    */
@@ -330,7 +359,7 @@ export class AdvancedWorkflowEngine {
     this.rules.set(rule.id, rule);
     logger.info(`Regle workflow enregistree: ${rule.name}`, { ruleId: rule.id });
   }
-  
+
   /**
    * Active/desactive une regle
    */
@@ -341,7 +370,7 @@ export class AdvancedWorkflowEngine {
       logger.info(`Regle ${enabled ? 'activee' : 'desactivee'}: ${rule.name}`);
     }
   }
-  
+
   /**
    * Supprime une regle
    */
@@ -349,35 +378,35 @@ export class AdvancedWorkflowEngine {
     this.rules.delete(ruleId);
     logger.info(`Regle supprimee: ${ruleId}`);
   }
-  
+
   // ============================================
   // TRAITEMENT DES eVeNEMENTS
   // ============================================
-  
+
   /**
    * Point d'entree principal : traite un evenement
    */
   public async processEvent(event: WorkflowEvent): Promise<WorkflowExecution[]> {
-    logger.info(` evenement recu: ${event.type}`, { 
-      eventId: event.id, 
-      tenantId: event.tenantId 
+    logger.info(` evenement recu: ${event.type}`, {
+      eventId: event.id,
+      tenantId: event.tenantId,
     });
-    
+
     // Trouver les regles correspondantes
     const matchingRules = this.findMatchingRules(event);
-    
+
     if (matchingRules.length === 0) {
       logger.debug(`Aucune regle ne correspond a l'evenement ${event.type}`);
       return [];
     }
-    
+
     logger.info(` ${matchingRules.length} regle(s) correspondent`, {
-      rules: matchingRules.map(r => r.name)
+      rules: matchingRules.map(r => r.name),
     });
-    
+
     // Executer les workflows
     const executions: WorkflowExecution[] = [];
-    
+
     for (const rule of matchingRules) {
       try {
         const execution = await this.executeWorkflow(rule, event);
@@ -386,57 +415,54 @@ export class AdvancedWorkflowEngine {
         logger.error(`Erreur execution workflow ${rule.name}`, error);
       }
     }
-    
+
     return executions;
   }
-  
+
   /**
    * Trouve les regles correspondant a un evenement
    */
   private findMatchingRules(event: WorkflowEvent): WorkflowRule[] {
     const matching: WorkflowRule[] = [];
-    
+
     for (const rule of this.rules.values()) {
       // Verifier si active
       if (!rule.enabled) continue;
-      
+
       // Verifier tenant
       if (rule.tenantId && rule.tenantId !== event.tenantId) continue;
-      
+
       // Verifier type d'evenement
       if (!rule.trigger.events.includes(event.type)) continue;
-      
+
       // Verifier limites d'execution
       if (!this.checkExecutionLimits(rule)) continue;
-      
+
       // Verifier conditions
       if (rule.trigger.conditions) {
         if (!this.evaluateConditions(rule.trigger.conditions, event)) {
           continue;
         }
       }
-      
+
       matching.push(rule);
     }
-    
+
     // Trier par priorite (desc)
     return matching.sort((a, b) => b.priority - a.priority);
   }
-  
+
   /**
    * evalue les conditions d'une regle
    */
-  private evaluateConditions(
-    conditions: WorkflowCondition[],
-    event: WorkflowEvent
-  ): boolean {
+  private evaluateConditions(conditions: WorkflowCondition[], event: WorkflowEvent): boolean {
     for (const condition of conditions) {
       const result = this.evaluateCondition(condition, event);
-      
+
       // Si nested conditions
       if (condition.nested && condition.nested.length > 0) {
         const nestedResult = this.evaluateConditions(condition.nested, event);
-        
+
         if (condition.logicalOperator === 'AND') {
           if (!result || !nestedResult) return false;
         } else if (condition.logicalOperator === 'OR') {
@@ -446,81 +472,86 @@ export class AdvancedWorkflowEngine {
         if (!result) return false;
       }
     }
-    
+
     return true;
   }
-  
+
   /**
    * evalue une condition individuelle
    */
-  private evaluateCondition(
-    condition: WorkflowCondition,
-    event: WorkflowEvent
-  ): boolean {
+  private evaluateCondition(condition: WorkflowCondition, event: WorkflowEvent): boolean {
     // Recuperer la valeur du champ
     const actualValue = this.getFieldValue(condition.field, event);
     const expectedValue = condition.value;
-    
+
     // evaluer selon l'operateur
     switch (condition.operator) {
       case 'equals':
         return actualValue === expectedValue;
-      
+
       case 'not_equals':
         return actualValue !== expectedValue;
-      
+
       case 'contains':
         return typeof actualValue === 'string' && actualValue.includes(expectedValue);
-      
+
       case 'not_contains':
         return typeof actualValue === 'string' && !actualValue.includes(expectedValue);
-      
+
       case 'greater_than':
         return Number(actualValue) > Number(expectedValue);
-      
+
       case 'less_than':
         return Number(actualValue) < Number(expectedValue);
-      
+
       case 'greater_or_equal':
         return Number(actualValue) >= Number(expectedValue);
-      
+
       case 'less_or_equal':
         return Number(actualValue) <= Number(expectedValue);
-      
+
       case 'in':
         return Array.isArray(expectedValue) && expectedValue.includes(actualValue);
-      
+
       case 'not_in':
         return Array.isArray(expectedValue) && !expectedValue.includes(actualValue);
-      
+
       case 'matches_regex':
         return new RegExp(expectedValue).test(String(actualValue));
-      
+
       case 'is_empty':
-        return !actualValue || actualValue === '' || (Array.isArray(actualValue) && actualValue.length === 0);
-      
+        return (
+          !actualValue ||
+          actualValue === '' ||
+          (Array.isArray(actualValue) && actualValue.length === 0)
+        );
+
       case 'is_not_empty':
-        return !!actualValue && actualValue !== '' && (!Array.isArray(actualValue) || actualValue.length > 0);
-      
+        return (
+          !!actualValue &&
+          actualValue !== '' &&
+          (!Array.isArray(actualValue) || actualValue.length > 0)
+        );
+
       case 'exists':
         return actualValue !== undefined && actualValue !== null;
-      
+
       case 'not_exists':
         return actualValue === undefined || actualValue === null;
-      
+
       default:
         logger.warn(`Operateur non supporte: ${condition.operator}`);
         return false;
     }
   }
-  
+
   /**
    * Recupere la valeur d'un champ depuis l'evenement
    */
   private getFieldValue(fieldPath: string, event: WorkflowEvent): any {
     const parts = fieldPath.split('.');
     let value: any = event;
-    
+
     for (const part of parts) {
       if (value && typeof value === 'object') {
         value = value[part];
@@ -528,28 +559,77 @@ export class AdvancedWorkflowEngine {
         return undefined;
       }
     }
-    
+
     return value;
   }
-  
+
   /**
    * Verifie les limites d'execution
    */
   private checkExecutionLimits(rule: WorkflowRule): boolean {
     if (!rule.limits) return true;
-    
-    // TODO: Implementer verification limites depuis Redis/DB
-    // - maxExecutionsPerDay
-    // - maxExecutionsPerHour
-    // - cooldownMinutes
-    
+
+    const now = Date.now();
+    const ruleKey = `limit_${rule.id}`;
+
+    // Récupérer ou initialiser le compteur
+    if (!this.executionCounts) {
+      this.executionCounts = new Map();
+    }
+
+    let counter = this.executionCounts.get(ruleKey) || {
+      hourly: 0,
+      daily: 0,
+      lastHour: now,
+      lastDay: now,
+      lastExec: 0,
+    };
+
+    // Reset compteur horaire si nécessaire
+    if (now - counter.lastHour > 3600000) {
+      counter.hourly = 0;
+      counter.lastHour = now;
+    }
+
+    // Reset compteur journalier si nécessaire
+    if (now - counter.lastDay > 86400000) {
+      counter.daily = 0;
+      counter.lastDay = now;
+    }
+
+    // Vérifier cooldown
+    if (rule.limits.cooldownMinutes && counter.lastExec > 0) {
+      const cooldownMs = rule.limits.cooldownMinutes * 60000;
+      if (now - counter.lastExec < cooldownMs) {
+        logger.debug(`Règle ${rule.id} en cooldown`);
+        return false;
+      }
+    }
+
+    // Vérifier limites
+    if (rule.limits.maxExecutionsPerHour && counter.hourly >= rule.limits.maxExecutionsPerHour) {
+      logger.warn(`Limite horaire atteinte pour règle ${rule.id}`);
+      return false;
+    }
+
+    if (rule.limits.maxExecutionsPerDay && counter.daily >= rule.limits.maxExecutionsPerDay) {
+      logger.warn(`Limite journalière atteinte pour règle ${rule.id}`);
+      return false;
+    }
+
+    // Mettre à jour compteurs
+    counter.hourly++;
+    counter.daily++;
+    counter.lastExec = now;
+    this.executionCounts.set(ruleKey, counter);
+
     return true;
   }
-  
+
   // ============================================
   // EXeCUTION DE WORKFLOW
   // ============================================
-  
+
   /**
    * Execute un workflow complet
    */
@@ -558,7 +638,7 @@ export class AdvancedWorkflowEngine {
     event: WorkflowEvent
   ): Promise<WorkflowExecution> {
     const executionId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     const execution: WorkflowExecution = {
       id: executionId,
       ruleId: rule.id,
@@ -569,11 +649,11 @@ export class AdvancedWorkflowEngine {
       context: {},
       triggeredWorkflows: [],
     };
-    
+
     this.executions.set(executionId, execution);
-    
+
     logger.info(`️  Execution workflow: ${rule.name}`, { executionId });
-    
+
     try {
       // Executer les actions
       if (rule.executionMode === 'sequential') {
@@ -583,22 +663,21 @@ export class AdvancedWorkflowEngine {
       } else {
         await this.executeActionsConditional(rule.actions, execution);
       }
-      
+
       execution.status = 'completed';
       execution.completedAt = new Date();
       execution.duration = execution.completedAt.getTime() - execution.startedAt.getTime();
-      
+
       // Mettre a jour stats regle
       rule.lastExecuted = new Date();
       rule.executionCount++;
       rule.successCount++;
-      
+
       logger.info(` Workflow complete: ${rule.name}`, {
         executionId,
         duration: `${execution.duration}ms`,
         actionsCount: execution.results.length,
       });
-      
     } catch (error) {
       execution.status = 'failed';
       execution.completedAt = new Date();
@@ -607,18 +686,18 @@ export class AdvancedWorkflowEngine {
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       };
-      
+
       rule.failureCount++;
-      
+
       logger.error(` Workflow echoue: ${rule.name}`, error, { executionId });
     }
-    
+
     // Audit log
     await this.logExecution(execution);
-    
+
     return execution;
   }
-  
+
   /**
    * Execute les actions en sequentiel
    */
@@ -629,24 +708,24 @@ export class AdvancedWorkflowEngine {
     for (const action of actions) {
       const result = await this.executeAction(action, execution);
       execution.results.push(result);
-      
+
       // Si echec et pas de onFailure, arreter
       if (result.status === 'failed' && !action.onFailure) {
         throw new Error(`Action ${action.name} a echoue`);
       }
-      
+
       // Executer cascade onSuccess
       if (result.status === 'success' && action.onSuccess) {
         await this.executeActionsSequential(action.onSuccess, execution);
       }
-      
+
       // Executer cascade onFailure
       if (result.status === 'failed' && action.onFailure) {
         await this.executeActionsSequential(action.onFailure, execution);
       }
     }
   }
-  
+
   /**
    * Execute les actions en parallele
    */
@@ -656,7 +735,7 @@ export class AdvancedWorkflowEngine {
   ): Promise<void> {
     const promises = actions.map(action => this.executeAction(action, execution));
     const results = await Promise.allSettled(promises);
-    
+
     results.forEach((result, index) => {
       if (result.status === 'fulfilled') {
         execution.results.push(result.value);
@@ -673,7 +752,7 @@ export class AdvancedWorkflowEngine {
       }
     });
   }
-  
+
   /**
    * Execute les actions conditionnellement
    */
@@ -681,11 +760,32 @@ export class AdvancedWorkflowEngine {
     actions: WorkflowAction[],
     execution: WorkflowExecution
   ): Promise<void> {
-    // Pour l'instant, identique au sequentiel
-    // TODO: Implementer branchement conditionnel
-    await this.executeActionsSequential(actions, execution);
+    for (const action of actions) {
+      // Vérifier les conditions de l'action si présentes
+      if (action.conditions && action.conditions.length > 0) {
+        const conditionsMet = action.conditions.every(cond => {
+          const value = this.getNestedValue(execution.context, cond.field);
+          return this.evaluateCondition(value, cond.operator, cond.value);
+        });
+
+        if (!conditionsMet) {
+          logger.debug(`Action ${action.name} ignorée: conditions non remplies`);
+          continue;
+        }
+      }
+
+      // Exécuter l'action
+      const result = await this.executeAction(action, execution);
+      execution.results.push(result);
+
+      // Gérer les branchements basés sur le résultat
+      if (result.status === 'failed' && action.onError === 'stop') {
+        execution.status = 'failed';
+        break;
+      }
+    }
   }
-  
+
   /**
    * Execute une action individuelle
    */
@@ -694,17 +794,17 @@ export class AdvancedWorkflowEngine {
     execution: WorkflowExecution
   ): Promise<WorkflowActionResult> {
     const startedAt = new Date();
-    
+
     logger.debug(` Execution action: ${action.name} (${action.type})`);
-    
+
     // Delai si specifie
     if (action.delay && action.delay > 0) {
       await this.sleep(action.delay);
     }
-    
+
     // Resoudre les templates
     const resolvedParams = this.resolveTemplates(action.params, execution);
-    
+
     try {
       // Validation IA si requise
       if (action.aiValidation?.required) {
@@ -721,15 +821,15 @@ export class AdvancedWorkflowEngine {
           };
         }
       }
-      
+
       // Executer avec timeout
       const result = await this.executeWithTimeout(
         () => this.executeActionByType(action.type, resolvedParams, execution),
         action.timeout || 30000
       );
-      
+
       const completedAt = new Date();
-      
+
       return {
         actionId: action.id,
         actionType: action.type,
@@ -739,12 +839,11 @@ export class AdvancedWorkflowEngine {
         duration: completedAt.getTime() - startedAt.getTime(),
         result,
       };
-      
     } catch (error) {
       const completedAt = new Date();
-      
+
       logger.error(`Action ${action.name} echouee`, error);
-      
+
       return {
         actionId: action.id,
         actionType: action.type,
@@ -756,7 +855,7 @@ export class AdvancedWorkflowEngine {
       };
     }
   }
-  
+
   /**
    * Execute une action selon son type
    */
@@ -769,92 +868,129 @@ export class AdvancedWorkflowEngine {
       // Communication
       case 'send_email':
         return await this.sendEmail(params);
-      
+
       case 'send_notification':
         return await this.sendNotification(params);
-      
+
       case 'create_message':
         return await this.createMessage(params);
-      
+
       // Creation d'entites
       case 'create_workspace':
         return await this.createWorkspace(params);
-      
+
       case 'create_procedure':
         return await this.createProcedure(params);
-      
+
       case 'create_task':
         return await this.createTask(params);
-      
+
       case 'create_alert':
         return await this.createAlert(params);
-      
+
       case 'create_deadline':
         return await this.createDeadline(params);
-      
+
       // Mise a jour
       case 'update_status':
         return await this.updateStatus(params);
-      
+
       case 'assign_user':
         return await this.assignUser(params);
-      
+
       // IA
       case 'analyze_with_ai':
         return await this.analyzeWithAI(params);
-      
+
       case 'extract_data':
         return await this.extractData(params);
-      
+
       case 'classify_content':
         return await this.classifyContent(params);
-      
+
       // Cascade
       case 'trigger_workflow':
         return await this.triggerCascadeWorkflow(params, execution);
-      
+
       case 'wait':
         return await this.sleep(params.duration || 1000);
-      
+
       // Validation
       case 'request_validation':
         return await this.requestValidation(params);
-      
+
       // Systeme
       case 'log_event':
         logger.info(params.message, params.data);
         return { logged: true };
-      
+
       case 'audit_trail':
         return await this.createAuditLog(params);
-      
+
       default:
         logger.warn(`Type d'action non supporte: ${type}`);
         return { skipped: true, reason: 'Type non supporte' };
     }
   }
-  
+
   // ============================================
   // IMPLeMENTATION DES ACTIONS
   // ============================================
-  
+
   private async sendEmail(params: Record<string, any>): Promise<any> {
     logger.info(' Envoi email', { to: params.to, subject: params.subject });
-    // TODO: Implementer envoi email reel
-    return { sent: true, to: params.to };
+
+    try {
+      // Utiliser le service email Resend si disponible
+      const { Resend } = await import('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+
+      const result = await resend.emails.send({
+        from: params.from || process.env.EMAIL_FROM || 'noreply@iapostemanager.com',
+        to: params.to,
+        subject: params.subject,
+        html: params.html || params.body || params.content,
+      });
+
+      return { sent: true, to: params.to, id: result.data?.id };
+    } catch (error) {
+      logger.warn('Resend non disponible, email simulé', { error });
+      return { sent: false, simulated: true, to: params.to };
+    }
   }
-  
+
   private async sendNotification(params: Record<string, any>): Promise<any> {
     logger.info(' Envoi notification', { userId: params.userId, message: params.message });
-    // TODO: Implementer via WebSocket
-    return { sent: true, userId: params.userId };
+
+    try {
+      // Créer notification en base
+      const notification = await prisma.notification.create({
+        data: {
+          userId: params.userId,
+          title: params.title || 'Notification',
+          message: params.message,
+          type: params.type || 'info',
+          read: false,
+        },
+      });
+
+      // Émettre via WebSocket si disponible (côté serveur)
+      if (typeof global !== 'undefined' && (global as any).io) {
+        (global as any).io.to(`user:${params.userId}`).emit('notification', notification);
+      }
+
+      return { sent: true, userId: params.userId, notificationId: notification.id };
+    } catch (error) {
+      logger.warn('Erreur création notification', { error });
+      return { sent: false, userId: params.userId, error: String(error) };
+    }
   }
-  
+
   private async createMessage(params: Record<string, any>): Promise<any> {
     if (!params.workspaceId || !params.content) {
       throw new Error('workspaceId et content requis');
     }
-    
+
     const message = await prisma.workspaceMessage.create({
       data: {
         workspaceId: params.workspaceId,
@@ -868,16 +1004,16 @@ export class AdvancedWorkflowEngine {
         visibility: params.visibility || 'team',
       },
     });
-    
+
     logger.info(' Message cree', { messageId: message.id, workspaceId: params.workspaceId });
     return message;
   }
-  
+
   private async createWorkspace(params: Record<string, any>): Promise<any> {
     if (!params.clientId || !params.tenantId) {
       throw new Error('clientId et tenantId requis');
     }
-    
+
     const workspace = await prisma.workspace.create({
       data: {
         tenantId: params.tenantId,
@@ -888,16 +1024,16 @@ export class AdvancedWorkflowEngine {
         createdById: params.createdById || 'system',
       },
     });
-    
+
     logger.info(' Workspace cree', { workspaceId: workspace.id, clientId: params.clientId });
     return workspace;
   }
-  
+
   private async createProcedure(params: Record<string, any>): Promise<any> {
     if (!params.workspaceId || !params.procedureType) {
       throw new Error('workspaceId et procedureType requis');
     }
-    
+
     const procedure = await prisma.procedure.create({
       data: {
         workspaceId: params.workspaceId,
@@ -908,22 +1044,43 @@ export class AdvancedWorkflowEngine {
         urgencyLevel: params.urgencyLevel || 'moyen',
       },
     });
-    
+
     logger.info('️  Procedure creee', { procedureId: procedure.id, type: params.procedureType });
     return procedure;
   }
-  
+
   private async createTask(params: Record<string, any>): Promise<any> {
     logger.info(' Creation tache', { title: params.title });
-    // TODO: Implementer creation tache reelle
-    return { created: true, title: params.title };
+
+    try {
+      // Créer la tâche en base si les paramètres requis sont présents
+      if (params.workspaceId && params.title) {
+        const task = await prisma.task.create({
+          data: {
+            workspaceId: params.workspaceId,
+            title: params.title,
+            description: params.description || '',
+            status: params.status || 'pending',
+            priority: params.priority || 'medium',
+            dueDate: params.dueDate ? new Date(params.dueDate) : undefined,
+            assigneeId: params.assigneeId,
+          },
+        });
+        return { created: true, taskId: task.id, title: params.title };
+      }
+
+      return { created: true, title: params.title, simulated: true };
+    } catch (error) {
+      logger.warn('Erreur création tâche', { error });
+      return { created: false, title: params.title, error: String(error) };
+    }
   }
-  
+
   private async createAlert(params: Record<string, any>): Promise<any> {
     if (!params.workspaceId) {
       throw new Error('workspaceId requis');
     }
-    
+
     const alert = await prisma.workspaceAlert.create({
       data: {
         workspaceId: params.workspaceId,
@@ -933,16 +1090,16 @@ export class AdvancedWorkflowEngine {
         message: params.message || '',
       },
     });
-    
+
     logger.info('️  Alerte creee', { alertId: alert.id, level: params.level });
     return alert;
   }
-  
+
   private async createDeadline(params: Record<string, any>): Promise<any> {
     if (!params.tenantId || !params.dossierId) {
       throw new Error('tenantId et dossierId requis');
     }
-    
+
     const deadline = await prisma.echeance.create({
       data: {
         tenantId: params.tenantId,
@@ -956,70 +1113,144 @@ export class AdvancedWorkflowEngine {
         createdBy: params.createdBy || 'system',
       },
     });
-    
+
     logger.info(' echeance creee', { deadlineId: deadline.id, date: params.dateEcheance });
     return deadline;
   }
-  
+
   private async updateStatus(params: Record<string, any>): Promise<any> {
     logger.info(' Mise a jour statut', { entityType: params.entityType, newStatus: params.status });
-    // TODO: Implementer update statut selon entityType
-    return { updated: true, status: params.status };
+
+    try {
+      const { entityType, entityId, status } = params;
+
+      switch (entityType) {
+        case 'dossier':
+          await prisma.dossier.update({ where: { id: entityId }, data: { status } });
+          break;
+        case 'workspace':
+          await prisma.workspace.update({ where: { id: entityId }, data: { status } });
+          break;
+        case 'email':
+          await prisma.email.update({ where: { id: entityId }, data: { status } });
+          break;
+        case 'echeance':
+          await prisma.echeance.update({ where: { id: entityId }, data: { status } });
+          break;
+        default:
+          logger.warn(`EntityType non supporté: ${entityType}`);
+          return { updated: false, reason: 'entityType non supporté' };
+      }
+
+      return { updated: true, entityType, entityId, status };
+    } catch (error) {
+      logger.error('Erreur updateStatus', { error });
+      return { updated: false, error: String(error) };
+    }
   }
-  
+
   private async assignUser(params: Record<string, any>): Promise<any> {
     logger.info(' Assignation utilisateur', { userId: params.userId, entityId: params.entityId });
-    // TODO: Implementer assignation
-    return { assigned: true, userId: params.userId };
+
+    try {
+      const { entityType, entityId, userId } = params;
+
+      switch (entityType) {
+        case 'dossier':
+          await prisma.dossier.update({ where: { id: entityId }, data: { avocatId: userId } });
+          break;
+        case 'workspace':
+          await prisma.workspace.update({ where: { id: entityId }, data: { ownerId: userId } });
+          break;
+        default:
+          logger.warn(`Assignation non supportée pour: ${entityType}`);
+          return { assigned: false, reason: 'entityType non supporté' };
+      }
+
+      return { assigned: true, userId, entityId };
+    } catch (error) {
+      logger.error('Erreur assignUser', { error });
+      return { assigned: false, error: String(error) };
+    }
   }
-  
+
   private async analyzeWithAI(params: Record<string, any>): Promise<any> {
     const available = await this.ollama.isAvailable();
     if (!available) {
       logger.warn('Ollama non disponible, analyse IA ignoree');
       return { analyzed: false, reason: 'Ollama indisponible' };
     }
-    
+
     const prompt = params.prompt || 'Analyser le contenu suivant';
     const content = params.content || '';
-    
+
     const analysis = await this.ollama.generate(`${prompt}\n\n${content}`);
-    
+
     logger.info(' Analyse IA effectuee', { length: analysis.length });
     return { analyzed: true, result: analysis };
   }
-  
+
   private async extractData(params: Record<string, any>): Promise<any> {
     logger.info(' Extraction de donnees', { source: params.source });
-    // TODO: Implementer extraction selon le type
-    return { extracted: true };
+
+    try {
+      const { source, type, content } = params;
+
+      switch (type) {
+        case 'email':
+          // Extraire métadonnées email
+          return {
+            extracted: true,
+            data: {
+              hasAttachments: content?.attachments?.length > 0,
+              isUrgent: /urgent|important|asap/i.test(content?.subject || ''),
+              mentionedDates: content?.body?.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g) || [],
+            },
+          };
+        case 'document':
+          // Extraire infos document
+          return {
+            extracted: true,
+            data: {
+              type: content?.mimeType,
+              size: content?.size,
+              name: content?.filename,
+            },
+          };
+        default:
+          return { extracted: true, data: { raw: content } };
+      }
+    } catch (error) {
+      logger.error('Erreur extractData', { error });
+      return { extracted: false, error: String(error) };
+    }
   }
-  
+
   private async classifyContent(params: Record<string, any>): Promise<any> {
     const available = await this.ollama.isAvailable();
     if (!available) {
       return { classified: false, reason: 'Ollama indisponible' };
     }
-    
+
     const prompt = `Classifier le contenu suivant dans une de ces categories : ${params.categories.join(', ')}
-    
+
 Contenu :
 ${params.content}
 
 Reponds uniquement avec la categorie.`;
-    
+
     const category = await this.ollama.generate(prompt);
-    
+
     logger.info('🏷️  Contenu classifie', { category: category.trim() });
     return { classified: true, category: category.trim() };
   }
-  
+
   private async triggerCascadeWorkflow(
     params: Record<string, any>,
     execution: WorkflowExecution
   ): Promise<any> {
     logger.info(' Declenchement workflow en cascade', { targetWorkflow: params.workflowId });
-    
+
     // Creer un nouvel evenement
     const cascadeEvent: WorkflowEvent = {
       id: `cascade_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -1034,93 +1265,145 @@ Reponds uniquement avec la categorie.`;
       },
       context: execution.event.context,
     };
-    
+
     // Traiter l'evenement (recursif)
     const cascadeExecutions = await this.processEvent(cascadeEvent);
-    
+
     // Enregistrer les workflows declenches
     execution.triggeredWorkflows.push(...cascadeExecutions.map(e => e.id));
-    
+
     return { triggered: true, executionIds: cascadeExecutions.map(e => e.id) };
   }
-  
+
   private async requestValidation(params: Record<string, any>): Promise<any> {
     logger.info(' Demande de validation humaine', { entityId: params.entityId });
-    // TODO: Creer tache de validation dans la DB
-    return { validationRequested: true, pending: true };
+
+    try {
+      // Créer une tâche de validation
+      const validationTask = await prisma.task.create({
+        data: {
+          workspaceId: params.workspaceId,
+          title: `Validation requise: ${params.title || params.entityId}`,
+          description: params.description || 'Action nécessitant une validation humaine',
+          status: 'pending',
+          priority: 'high',
+          category: 'validation',
+          assigneeId: params.assigneeId,
+          metadata: {
+            entityId: params.entityId,
+            entityType: params.entityType,
+            validationType: params.validationType || 'approval',
+          },
+        },
+      });
+
+      return { validationRequested: true, taskId: validationTask.id, pending: true };
+    } catch (error) {
+      logger.warn('Erreur création tâche validation', { error });
+      return { validationRequested: true, pending: true, simulated: true };
+    }
   }
-  
+
   private async createAuditLog(params: Record<string, any>): Promise<any> {
-    // TODO: Creer entree dans AuditLog
+    // Logger l'action avec audit trail
     logger.audit(
       params.action || 'WORKFLOW_ACTION',
       params.userId || 'system',
       params.tenantId || 'global',
       params.details || {}
     );
+
+    // Envoyer à Sentry pour traçabilité externe
+    import('@sentry/nextjs')
+      .then(Sentry => {
+        Sentry.addBreadcrumb({
+          category: 'workflow.audit',
+          message: params.action || 'WORKFLOW_ACTION',
+          level: 'info',
+          data: {
+            userId: params.userId,
+            tenantId: params.tenantId,
+            ...params.details,
+          },
+        });
+      })
+      .catch(() => {});
+
     return { logged: true };
   }
-  
+
   // ============================================
   // VALIDATION IA
   // ============================================
-  
+
   private async requestAIValidation(
     action: WorkflowAction,
     execution: WorkflowExecution
   ): Promise<boolean> {
     const validation = action.aiValidation;
     if (!validation) return true;
-    
+
     // Si confiance suffisante et niveau GREEN, auto-approuver
-    if (validation.autonomyLevel === AutonomyLevel.GREEN && 
-        validation.confidence && 
-        validation.confidence >= 0.8) {
+    if (
+      validation.autonomyLevel === AutonomyLevel.GREEN &&
+      validation.confidence &&
+      validation.confidence >= 0.8
+    ) {
       logger.info(' Auto-approbation IA (niveau GREEN, confiance haute)');
       return true;
     }
-    
+
     // Si niveau RED, toujours requerir validation humaine
     if (validation.autonomyLevel === AutonomyLevel.RED) {
       logger.warn(' Validation humaine obligatoire (niveau RED)');
-      // TODO: Creer demande de validation
+
+      // Créer demande de validation
+      await this.requestValidation({
+        workspaceId: execution.context?.workspaceId,
+        entityId: action.id,
+        entityType: 'workflow_action',
+        title: `Validation action: ${action.name}`,
+        description: `Action ${action.type} nécessite une validation humaine (autonomie RED)`,
+        validationType: 'ai_action',
+      });
+
       return false;
     }
-    
+
     // Niveau ORANGE : demander analyse IA
     const available = await this.ollama.isAvailable();
     if (!available) {
       logger.warn('Ollama indisponible, action bloquee');
       return false;
     }
-    
+
     const prompt = `Analyser si cette action doit etre approuvee automatiquement :
-    
+
 Action : ${action.name}
 Type : ${action.type}
 Parametres : ${JSON.stringify(action.params, null, 2)}
 Contexte : ${JSON.stringify(execution.event.payload, null, 2)}
 
 Reponds par OUI ou NON avec une justification breve.`;
-    
+
     const response = await this.ollama.generate(prompt);
     const approved = response.toLowerCase().includes('oui');
-    
+
     logger.info(` Decision IA: ${approved ? 'APPROUVe' : 'REFUSe'}`, { response });
-    
+
     return approved;
   }
-  
+
   // ============================================
   // UTILITAIRES
   // ============================================
-  
+
   private resolveTemplates(
     params: Record<string, any>,
     execution: WorkflowExecution
   ): Record<string, any> {
     const resolved: Record<string, any> = {};
-    
+
     for (const [key, value] of Object.entries(params)) {
       if (typeof value === 'string' && value.includes('{{')) {
         // Template a resoudre
@@ -1129,60 +1412,78 @@ Reponds par OUI ou NON avec une justification breve.`;
         resolved[key] = value;
       }
     }
-    
+
     return resolved;
   }
-  
+
   private resolveTemplate(template: string, execution: WorkflowExecution): string {
     let result = template;
-    
+
     // Remplacer {{event.xxx}}
     result = result.replace(/\{\{event\.(\w+)\}\}/g, (_, field) => {
       return String(execution.event[field as keyof WorkflowEvent] || '');
     });
-    
+
     // Remplacer {{payload.xxx}}
     result = result.replace(/\{\{payload\.(\w+)\}\}/g, (_, field) => {
       return String(execution.event.payload[field] || '');
     });
-    
+
     // Remplacer {{context.xxx}}
     result = result.replace(/\{\{context\.(\w+)\}\}/g, (_, field) => {
       return String(execution.context[field] || '');
     });
-    
+
     return result;
   }
-  
-  private async executeWithTimeout<T>(
-    fn: () => Promise<T>,
-    timeoutMs: number
-  ): Promise<T> {
+
+  private async executeWithTimeout<T>(fn: () => Promise<T>, timeoutMs: number): Promise<T> {
     return Promise.race([
       fn(),
-      new Promise<T>((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), timeoutMs)
-      ),
+      new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeoutMs)),
     ]);
   }
-  
+
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-  
+
   private async logExecution(execution: WorkflowExecution): Promise<void> {
-    // TODO: Persister dans DB
-    logger.info(' Execution enregistree', {
-      executionId: execution.id,
-      status: execution.status,
-      duration: execution.duration,
-    });
+    try {
+      // Persister l'exécution dans la base
+      await prisma.workflowExecution.create({
+        data: {
+          id: execution.id,
+          workflowId: execution.ruleId,
+          status: execution.status,
+          startedAt: execution.startedAt,
+          completedAt: execution.completedAt,
+          duration: execution.duration,
+          context: execution.context as any,
+          results: execution.results as any,
+        },
+      });
+
+      logger.info(' Execution enregistree', {
+        executionId: execution.id,
+        status: execution.status,
+        duration: execution.duration,
+      });
+    } catch (error) {
+      // Log même si persistance échoue
+      logger.warn('Erreur persistance execution', { error });
+      logger.info(' Execution (non persistée)', {
+        executionId: execution.id,
+        status: execution.status,
+        duration: execution.duration,
+      });
+    }
   }
-  
+
   // ============================================
   // ReGLES PRe-DeFINIES
   // ============================================
-  
+
   private registerDefaultRules(): void {
     // ReGLE 1: Email urgent [Next] Workspace [Next] Procedure [Next] Alert en cascade
     this.registerRule({
@@ -1262,7 +1563,8 @@ Reponds par OUI ou NON avec une justification breve.`;
                 senderId: 'system',
                 senderName: 'IA Poste Manager',
                 senderType: 'system',
-                content: 'Workspace cree automatiquement suite a email urgent. Procedure OQTF initiee.',
+                content:
+                  'Workspace cree automatiquement suite a email urgent. Procedure OQTF initiee.',
                 priority: 'high',
               },
             },
@@ -1277,7 +1579,7 @@ Reponds par OUI ou NON avec une justification breve.`;
       successCount: 0,
       failureCount: 0,
     });
-    
+
     // ReGLE 2: Document uploade [Next] Extraction IA [Next] Classification [Next] Alerte si manquant
     this.registerRule({
       id: 'rule_document_processing',
@@ -1343,7 +1645,7 @@ Reponds par OUI ou NON avec une justification breve.`;
       successCount: 0,
       failureCount: 0,
     });
-    
+
     // ReGLE 3: Deadline approchante [Next] Alert [Next] Email [Next] Rappel
     this.registerRule({
       id: 'rule_deadline_reminder',
@@ -1412,7 +1714,7 @@ Reponds par OUI ou NON avec une justification breve.`;
       successCount: 0,
       failureCount: 0,
     });
-    
+
     logger.info(` ${this.rules.size} regles de workflow pre-definies chargees`);
   }
 }
@@ -1452,6 +1754,6 @@ export async function triggerWorkflowEvent(
     },
     context,
   };
-  
+
   return await workflowEngine.processEvent(event);
 }

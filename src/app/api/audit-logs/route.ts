@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ logs, total, hasMore: offset + logs.length < total });
   } catch (error) {
-    console.error('Erreur GET audit-logs:', error);
+    logger.error('Erreur GET audit-logs:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, log });
   } catch (error) {
-    console.error('Erreur POST audit-log:', error);
+    logger.error('Erreur POST audit-log:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

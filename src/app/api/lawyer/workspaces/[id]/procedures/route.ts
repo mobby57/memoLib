@@ -4,15 +4,13 @@
  * POST /api/lawyer/workspaces/[id]/procedures - Créer nouvelle procédure
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions as any);
     if (!session?.user) {
@@ -32,10 +30,7 @@ export async function GET(
           where: { status: { in: ['DRAFT', 'READY_TO_SEND'] } },
         },
       },
-      orderBy: [
-        { urgencyLevel: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ urgencyLevel: 'desc' }, { createdAt: 'desc' }],
     });
 
     return NextResponse.json({
@@ -43,17 +38,15 @@ export async function GET(
       procedures,
       count: procedures.length,
     });
-
   } catch (error) {
-    console.error('Erreur récupération procédures:', error);
+    logger.error('Erreur récupération procédures', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/procedures',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions as any);
     if (!session?.user) {
@@ -65,10 +58,7 @@ export async function POST(
 
     // Validation
     if (!body.procedureType || !body.title) {
-      return NextResponse.json(
-        { error: 'procedureType et title requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'procedureType et title requis' }, { status: 400 });
     }
 
     // Créer procédure
@@ -118,9 +108,10 @@ export async function POST(
       success: true,
       procedure,
     });
-
   } catch (error) {
-    console.error('Erreur création procédure:', error);
+    logger.error('Erreur création procédure', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/procedures',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

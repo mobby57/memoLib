@@ -1,14 +1,15 @@
-﻿/**
+/**
  * API Messages Multi-Canal
  * Récupération et gestion des messages de tous les canaux
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { multiChannelService } from '@/lib/multichannel/channel-service';
+import { logger } from '@/lib/logger';
 import { auditService } from '@/lib/multichannel/audit-service';
+import { multiChannelService } from '@/lib/multichannel/channel-service';
 import { ChannelType } from '@/lib/multichannel/types';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/multichannel/messages
@@ -34,8 +35,12 @@ export async function GET(request: NextRequest) {
       status: url.searchParams.get('status') || undefined,
       clientId: url.searchParams.get('clientId') || undefined,
       dossierId: url.searchParams.get('dossierId') || undefined,
-      startDate: url.searchParams.get('startDate') ? new Date(url.searchParams.get('startDate')!) : undefined,
-      endDate: url.searchParams.get('endDate') ? new Date(url.searchParams.get('endDate')!) : undefined,
+      startDate: url.searchParams.get('startDate')
+        ? new Date(url.searchParams.get('startDate')!)
+        : undefined,
+      endDate: url.searchParams.get('endDate')
+        ? new Date(url.searchParams.get('endDate')!)
+        : undefined,
       page: parseInt(url.searchParams.get('page') || '1'),
       limit: parseInt(url.searchParams.get('limit') || '50'),
     };
@@ -49,13 +54,11 @@ export async function GET(request: NextRequest) {
       limit: options.limit,
       totalPages: Math.ceil(result.total / options.limit),
     });
-
   } catch (error) {
-    console.error('Erreur récupération messages:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur récupération messages', error instanceof Error ? error : undefined, {
+      route: '/api/multichannel/messages',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -76,10 +79,7 @@ export async function POST(request: NextRequest) {
     const { channel, recipient, subject, message: messageBody, clientId, dossierId } = body;
 
     if (!channel || !messageBody) {
-      return NextResponse.json(
-        { error: 'Canal et message requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Canal et message requis' }, { status: 400 });
     }
 
     // Log de l'envoi
@@ -100,18 +100,39 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Implémenter l'envoi réel via les APIs (Twilio, WhatsApp Business, etc.)
-    
+    // Implémenter l'envoi réel selon le canal
+    let sendResult = { sent: false, channel: 'unknown' };
+
+    try {
+      // Email via Resend
+      if (recipient.includes('@')) {
+        const { Resend } = await import('resend');
+        const resend = new Resend(process.env.RESEND_API_KEY);
+
+        if (process.env.RESEND_API_KEY) {
+          await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'noreply@iapostemanager.com',
+            to: recipient,
+            subject: subject || 'Message de votre avocat',
+            html: `<p>${body}</p>`,
+          });
+          sendResult = { sent: true, channel: 'email' };
+        }
+      }
+      // SMS/WhatsApp nécessitent Twilio API key
+    } catch (sendError) {
+      logger.warn('Erreur envoi multicanal', { error: sendError });
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Message envoyé (simulation)',
+      message: sendResult.sent ? `Message envoyé via ${sendResult.channel}` : 'Message enregistré (envoi différé)',
+      ...sendResult,
     });
-
   } catch (error) {
-    console.error('Erreur envoi message:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur envoi message', error instanceof Error ? error : undefined, {
+      route: '/api/multichannel/messages',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

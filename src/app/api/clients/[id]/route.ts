@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete, TTL_TIERS } from '@/lib/cache';
+import { logger } from '@/lib/logger';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -30,33 +31,37 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         return prisma.client.findFirst({
           where: { id: clientId, tenantId },
           include: {
-            dossiers: includeDossiers ? {
-              orderBy: { createdAt: 'desc' },
-              take: 20,
-              select: {
-                id: true,
-                numero: true,
-                titre: true,
-                type: true,
-                status: true,
-                priorite: true,
-                createdAt: true,
-                updatedAt: true,
-              },
-            } : false,
-            factures: includeFactures ? {
-              orderBy: { dateEmission: 'desc' },
-              take: 20,
-              select: {
-                id: true,
-                numero: true,
-                montantHT: true,
-                montantTTC: true,
-                statut: true,
-                dateEmission: true,
-                dateEcheance: true,
-              },
-            } : false,
+            dossiers: includeDossiers
+              ? {
+                  orderBy: { createdAt: 'desc' },
+                  take: 20,
+                  select: {
+                    id: true,
+                    numero: true,
+                    titre: true,
+                    type: true,
+                    status: true,
+                    priorite: true,
+                    createdAt: true,
+                    updatedAt: true,
+                  },
+                }
+              : false,
+            factures: includeFactures
+              ? {
+                  orderBy: { dateEmission: 'desc' },
+                  take: 20,
+                  select: {
+                    id: true,
+                    numero: true,
+                    montantHT: true,
+                    montantTTC: true,
+                    statut: true,
+                    dateEmission: true,
+                    dateEcheance: true,
+                  },
+                }
+              : false,
             _count: {
               select: {
                 dossiers: true,
@@ -84,7 +89,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ client, stats });
   } catch (error) {
-    console.error('Erreur GET client:', error);
+    logger.error('Erreur GET client', error instanceof Error ? error : undefined, {
+      route: '/api/clients/[id]',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -139,7 +146,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ client, message: 'Client mis à jour' });
   } catch (error) {
-    console.error('Erreur PATCH client:', error);
+    logger.error('Erreur PATCH client', error instanceof Error ? error : undefined, {
+      route: '/api/clients/[id]',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -217,7 +226,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       deactivated: !hardDelete,
     });
   } catch (error) {
-    console.error('Erreur DELETE client:', error);
+    logger.error('Erreur DELETE client', error instanceof Error ? error : undefined, {
+      route: '/api/clients/[id]',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

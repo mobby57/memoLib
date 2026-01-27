@@ -1,6 +1,7 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+﻿import { logger } from '@/lib/logger';
 import { NotificationService } from '@/lib/notifications';
+import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Liste des factures
 export async function GET(request: NextRequest) {
@@ -48,7 +49,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ factures, stats });
   } catch (error) {
-    console.error('Erreur GET factures:', error);
+    logger.error('Erreur GET factures', error instanceof Error ? error : undefined, {
+      route: '/api/factures',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -81,7 +84,7 @@ export async function POST(request: NextRequest) {
     // Generer le numero de facture
     const year = new Date().getFullYear();
     const lastFacture = await prisma.facture.findFirst({
-      where: { 
+      where: {
         tenantId,
         numero: { startsWith: `FAC-${year}` },
       },
@@ -99,18 +102,20 @@ export async function POST(request: NextRequest) {
 
     // Calculer les montants
     let montantHT = 0;
-    const lignesProcessed = lignes.map((ligne: { description: string; quantite?: number; prixUnitaire: number }, index: number) => {
-      const qte = ligne.quantite || 1;
-      const montant = qte * ligne.prixUnitaire;
-      montantHT += montant;
-      return {
-        description: ligne.description,
-        quantite: qte,
-        prixUnitaire: ligne.prixUnitaire,
-        montantHT: montant,
-        ordre: index,
-      };
-    });
+    const lignesProcessed = lignes.map(
+      (ligne: { description: string; quantite?: number; prixUnitaire: number }, index: number) => {
+        const qte = ligne.quantite || 1;
+        const montant = qte * ligne.prixUnitaire;
+        montantHT += montant;
+        return {
+          description: ligne.description,
+          quantite: qte,
+          prixUnitaire: ligne.prixUnitaire,
+          montantHT: montant,
+          ordre: index,
+        };
+      }
+    );
 
     const montantTVA = montantHT * (tauxTVA / 100);
     const montantTTC = montantHT + montantTVA;
@@ -127,7 +132,9 @@ export async function POST(request: NextRequest) {
         tauxTVA,
         montantTVA,
         montantTTC,
-        dateEcheance: dateEcheance ? new Date(dateEcheance) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        dateEcheance: dateEcheance
+          ? new Date(dateEcheance)
+          : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         notes,
         conditions,
         statut: 'brouillon',
@@ -152,7 +159,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, facture });
   } catch (error) {
-    console.error('Erreur POST facture:', error);
+    logger.error('Erreur POST facture', error instanceof Error ? error : undefined, {
+      route: '/api/factures',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -168,7 +177,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updateData: Record<string, unknown> = { statut };
-    
+
     if (statut === 'payee' && datePaiement) {
       updateData.datePaiement = new Date(datePaiement);
       updateData.modePaiement = modePaiement;
@@ -182,7 +191,9 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, facture });
   } catch (error) {
-    console.error('Erreur PATCH facture:', error);
+    logger.error('Erreur PATCH facture', error instanceof Error ? error : undefined, {
+      route: '/api/factures',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

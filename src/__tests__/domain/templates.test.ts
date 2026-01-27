@@ -31,16 +31,16 @@ describe('Document Templates', () => {
       CLIENT_EMAIL: '{{client.email}}',
       CLIENT_ADRESSE: '{{client.adresse}}',
       CLIENT_TELEPHONE: '{{client.telephone}}',
-      
+
       // Dossier
       DOSSIER_NUMERO: '{{dossier.numero}}',
       DOSSIER_TYPE: '{{dossier.type}}',
       DOSSIER_DATE: '{{dossier.date}}',
-      
+
       // Cabinet
       CABINET_NOM: '{{cabinet.nom}}',
       CABINET_ADRESSE: '{{cabinet.adresse}}',
-      
+
       // Dates
       DATE_JOUR: '{{date.jour}}',
       DATE_COMPLETE: '{{date.complete}}',

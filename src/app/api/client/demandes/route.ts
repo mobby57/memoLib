@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 /**
  * POST /api/client/demandes
@@ -9,7 +10,7 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -38,10 +39,10 @@ export async function POST(request: NextRequest) {
 
     // Mapper les priorites
     const prioriteMap: Record<string, string> = {
-      'NORMALE': 'normale',
-      'HAUTE': 'haute',
-      'URGENTE': 'haute',
-      'CRITIQUE': 'critique',
+      NORMALE: 'normale',
+      HAUTE: 'haute',
+      URGENTE: 'haute',
+      CRITIQUE: 'critique',
     };
 
     // Creer le dossier avec statut en_cours (demande client)
@@ -69,17 +70,43 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Envoyer notification a l'avocat
-    // await sendNotificationToAvocat(tenantId, dossier)
+    // Envoyer notification a l'avocat
+    try {
+      // Trouver les avocats du tenant
+      const avocats = await prisma.user.findMany({
+        where: { tenantId, role: { in: ['AVOCAT', 'ADMIN'] } },
+        select: { id: true, email: true },
+      });
 
-    return NextResponse.json({ 
-      dossier: {
-        ...dossier,
-        message: 'Votre demande a ete transmise a votre avocat',
+      // Créer notifications pour chaque avocat
+      for (const avocat of avocats) {
+        await prisma.notification.create({
+          data: {
+            userId: avocat.id,
+            title: 'Nouvelle demande client',
+            message: `Nouvelle demande de ${dossier.client?.firstName} ${dossier.client?.lastName}`,
+            type: 'info',
+            read: false,
+          },
+        });
       }
-    }, { status: 201 });
+    } catch (notifError) {
+      logger.warn('Erreur envoi notification avocat', { error: notifError });
+    }
+
+    return NextResponse.json(
+      {
+        dossier: {
+          ...dossier,
+          message: 'Votre demande a ete transmise a votre avocat',
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Erreur creation demande client:', error);
+    logger.error('Erreur création demande client', error instanceof Error ? error : undefined, {
+      route: '/api/client/demandes',
+    });
     return NextResponse.json(
       { error: 'Erreur serveur', details: (error as Error).message },
       { status: 500 }
@@ -94,7 +121,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -125,10 +152,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ demandes });
   } catch (error) {
-    console.error('Erreur recuperation demandes:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur récupération demandes', error instanceof Error ? error : undefined, {
+      route: '/api/client/demandes',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

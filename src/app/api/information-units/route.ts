@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ units, total, hasMore: offset + units.length < total });
   } catch (error) {
-    console.error('Erreur GET information-units:', error);
+    logger.error('Erreur GET information-units:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, unit });
   } catch (error) {
-    console.error('Erreur POST information-unit:', error);
+    logger.error('Erreur POST information-unit:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -141,7 +142,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, unit: updatedUnit });
   } catch (error) {
-    console.error('Erreur PATCH information-unit:', error);
+    logger.error('Erreur PATCH information-unit:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

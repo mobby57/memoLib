@@ -1,7 +1,8 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/route';
+﻿import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '../../auth/[...nextauth]/route';
 
 // GET admin profile
 export async function GET(request: NextRequest) {
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ profil: user });
   } catch (error) {
-    console.error('Error fetching admin profile:', error);
+    logger.error('Error fetching admin profile:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -66,7 +67,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ profil: updatedUser });
   } catch (error) {
-    console.error('Error updating admin profile:', error);
+    logger.error('Error updating admin profile:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

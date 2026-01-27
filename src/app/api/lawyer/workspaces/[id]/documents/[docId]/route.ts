@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { unlink } from 'fs/promises';
-import { join } from 'path';
 import { existsSync } from 'fs';
+import { unlink } from 'fs/promises';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { join } from 'path';
 
 /**
  * PATCH /api/lawyer/workspaces/[id]/documents/[docId]
@@ -48,11 +49,8 @@ export async function PATCH(
       document,
     });
   } catch (error) {
-    console.error('Erreur PATCH document:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur PATCH document:', { error });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -85,7 +83,7 @@ export async function DELETE(
       try {
         await unlink(physicalPath);
       } catch (error) {
-        console.warn('Fichier physique introuvable:', physicalPath);
+        logger.warn('Fichier physique introuvable:', { physicalPath });
       }
     }
 
@@ -99,10 +97,7 @@ export async function DELETE(
       message: 'Document supprimé',
     });
   } catch (error) {
-    console.error('Erreur DELETE document:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur DELETE document:', { error });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

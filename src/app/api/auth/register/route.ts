@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Log de l'inscription
-    console.log(`[REGISTER] Nouvel avocat inscrit: ${result.user.email} - Cabinet: ${result.tenant.name}`);
+    logger.info('[REGISTER] Nouvel avocat inscrit: ${result.user.email} - Cabinet: ${result.tenant.name}');
 
     return NextResponse.json({
       success: true,
@@ -132,7 +133,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[REGISTER] Erreur:', error);
+    logger.error('[REGISTER] Erreur:', { error });
     return NextResponse.json(
       { error: 'Erreur lors de l\'inscription' },
       { status: 500 }

@@ -1,6 +1,7 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+﻿import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/admin/dossiers
@@ -9,7 +10,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Transformer pour correspondre a l'interface attendue
-    return NextResponse.json({ 
+    return NextResponse.json({
       dossiers: dossiers.map(d => ({
         ...d,
         numeroDossier: d.numero,
@@ -63,14 +64,13 @@ export async function GET(request: NextRequest) {
           email: d.client.email,
         },
         dateCreation: d.dateCreation,
-      }))
+      })),
     });
   } catch (error) {
-    console.error('Erreur recuperation dossiers admin:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur recuperation dossiers admin', error instanceof Error ? error : undefined, {
+      route: '/api/admin/dossiers',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -121,19 +121,19 @@ export async function POST(request: NextRequest) {
 
     // Mapper les priorites et statuts au format DB
     const prioriteMap: Record<string, string> = {
-      'NORMALE': 'normale',
-      'HAUTE': 'haute',
-      'URGENTE': 'haute',
-      'CRITIQUE': 'critique',
+      NORMALE: 'normale',
+      HAUTE: 'haute',
+      URGENTE: 'haute',
+      CRITIQUE: 'critique',
     };
 
     const statutMap: Record<string, string> = {
-      'BROUILLON': 'en_cours',
-      'EN_COURS': 'en_cours',
-      'EN_ATTENTE': 'en_attente',
-      'TERMINE': 'termine',
-      'REJETE': 'termine',
-      'ANNULE': 'archive',
+      BROUILLON: 'en_cours',
+      EN_COURS: 'en_cours',
+      EN_ATTENTE: 'en_attente',
+      TERMINE: 'termine',
+      REJETE: 'termine',
+      ANNULE: 'archive',
     };
 
     // Creer le dossier
@@ -161,20 +161,25 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ 
-      dossier: {
-        ...dossier,
-        numeroDossier: dossier.numero,
-        objetDemande: dossier.objet,
-        client: {
-          nom: dossier.client.lastName,
-          prenom: dossier.client.firstName,
-          email: dossier.client.email,
+    return NextResponse.json(
+      {
+        dossier: {
+          ...dossier,
+          numeroDossier: dossier.numero,
+          objetDemande: dossier.objet,
+          client: {
+            nom: dossier.client.lastName,
+            prenom: dossier.client.firstName,
+            email: dossier.client.email,
+          },
         },
-      }
-    }, { status: 201 });
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Erreur creation dossier:', error);
+    logger.error('Erreur creation dossier', error instanceof Error ? error : undefined, {
+      route: '/api/admin/dossiers',
+    });
     return NextResponse.json(
       { error: 'Erreur serveur', details: (error as Error).message },
       { status: 500 }

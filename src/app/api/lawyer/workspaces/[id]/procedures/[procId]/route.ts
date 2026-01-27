@@ -5,10 +5,11 @@
  * DELETE /api/lawyer/workspaces/[id]/procedures/[procId] - Supprimer procédure
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
@@ -64,9 +65,10 @@ export async function GET(
       success: true,
       procedure,
     });
-
   } catch (error) {
-    console.error('Erreur récupération procédure:', error);
+    logger.error('Erreur récupération procédure', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/procedures/[procId]',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -162,9 +164,10 @@ export async function PATCH(
       message: 'Procédure mise à jour',
       procedure,
     });
-
   } catch (error) {
-    console.error('Erreur mise à jour procédure:', error);
+    logger.error('Erreur mise à jour procédure', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/procedures/[procId]',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -231,9 +234,10 @@ export async function DELETE(
       success: true,
       message: 'Procédure supprimée',
     });
-
   } catch (error) {
-    console.error('Erreur suppression procédure:', error);
+    logger.error('Erreur suppression procédure', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/procedures/[procId]',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

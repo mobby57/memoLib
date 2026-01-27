@@ -1,7 +1,8 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/route';
+﻿import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { authOptions } from '../../auth/[...nextauth]/route';
 
 // GET all conversations grouped by client
 export async function GET(request: NextRequest) {
@@ -16,10 +17,7 @@ export async function GET(request: NextRequest) {
 
     const messages = await prisma.message.findMany({
       where: {
-        OR: [
-          { senderId: adminId },
-          { recipientId: adminId },
-        ],
+        OR: [{ senderId: adminId }, { recipientId: adminId }],
       },
       include: {
         sender: {
@@ -70,15 +68,16 @@ export async function GET(request: NextRequest) {
     });
 
     // Convert to array and set last message
-    const conversations = Array.from(conversationsMap.values()).map((conv) => {
+    const conversations = Array.from(conversationsMap.values()).map(conv => {
       const lastMsg = conv.messages[0];
-      conv.lastMessage = lastMsg.content.substring(0, 50) + (lastMsg.content.length > 50 ? '...' : '');
+      conv.lastMessage =
+        lastMsg.content.substring(0, 50) + (lastMsg.content.length > 50 ? '...' : '');
       return conv;
     });
 
     return NextResponse.json({ conversations });
   } catch (error) {
-    console.error('Error fetching admin conversations:', error);
+    logger.error('Error fetching admin conversations:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -132,7 +131,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message }, { status: 201 });
   } catch (error) {
-    console.error('Error sending admin message:', error);
+    logger.error('Error sending admin message:', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

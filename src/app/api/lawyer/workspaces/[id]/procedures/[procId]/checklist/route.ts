@@ -3,10 +3,11 @@
  * PATCH /api/lawyer/workspaces/[id]/procedures/[procId]/checklist - Toggle checklist item
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
   request: NextRequest,
@@ -23,10 +24,7 @@ export async function PATCH(
     const { itemId, completed } = body;
 
     if (!itemId || completed === undefined) {
-      return NextResponse.json(
-        { error: 'itemId et completed requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'itemId et completed requis' }, { status: 400 });
     }
 
     // Vérifier que la procédure existe et appartient au workspace
@@ -77,9 +75,10 @@ export async function PATCH(
       message: completed ? 'Item complété' : 'Item décoché',
       checklistItem,
     });
-
   } catch (error) {
-    console.error('Erreur mise à jour checklist:', error);
+    logger.error('Erreur mise à jour checklist', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/procedures/[procId]/checklist',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

@@ -1,16 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/lawyer/workspaces/[id]/notes
  * Liste les notes d'un workspace
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -25,10 +23,7 @@ export async function GET(
       where: { id: params.id },
       include: {
         notes: {
-          orderBy: [
-            { isPinned: 'desc' },
-            { createdAt: 'desc' },
-          ],
+          orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
         },
       },
     });
@@ -54,11 +49,10 @@ export async function GET(
       notes,
     });
   } catch (error) {
-    console.error('Erreur GET notes:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur GET notes', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/notes',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -66,10 +60,7 @@ export async function GET(
  * POST /api/lawyer/workspaces/[id]/notes
  * Créer une nouvelle note
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -102,10 +93,9 @@ export async function POST(
       note,
     });
   } catch (error) {
-    console.error('Erreur POST note:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur POST note', error instanceof Error ? error : undefined, {
+      route: '/api/lawyer/workspaces/[id]/notes',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

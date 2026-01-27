@@ -1,4 +1,5 @@
 /**
+import { logger } from '@/lib/logger';
  * API Recherche Sémantique - Recherche par Sens avec IA
  * Endpoint: /api/tenant/[tenantId]/semantic-search
  */
@@ -219,7 +220,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Erreur recherche sémantique:', error);
+    logger.error('Erreur recherche sémantique:', { error });
     return NextResponse.json(
       { error: 'Erreur lors de la recherche sémantique' },
       { status: 500 }
@@ -307,7 +308,7 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Erreur recherche sémantique avancée:', error);
+    logger.error('Erreur recherche sémantique avancée:', { error });
     return NextResponse.json(
       { error: 'Erreur lors de la recherche sémantique avancée' },
       { status: 500 }

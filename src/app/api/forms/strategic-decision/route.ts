@@ -1,4 +1,5 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       message: 'Decision soumise pour approbation',
     });
   } catch (error) {
-    console.error('Erreur soumission decision:', error);
+    logger.error('Erreur soumission decision:', { error });
     return NextResponse.json(
       { error: 'Erreur lors de la soumission' },
       { status: 500 }
@@ -150,7 +151,7 @@ Fournis une analyse concise et actionnable.`,
       };
     }
   } catch (error) {
-    console.error('Erreur analyse IA:', error);
+    logger.error('Erreur analyse IA:', { error });
   }
 
   return {

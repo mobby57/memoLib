@@ -1,5 +1,6 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 // GET - Liste des délais légaux
 export async function GET(request: NextRequest) {
@@ -23,7 +24,9 @@ export async function GET(request: NextRequest) {
       prisma.legalDeadline.findMany({
         where,
         include: {
-          dossier: { select: { numero: true, client: { select: { firstName: true, lastName: true } } } },
+          dossier: {
+            select: { numero: true, client: { select: { firstName: true, lastName: true } } },
+          },
           alerts: { orderBy: { sentAt: 'desc' }, take: 3 },
         },
         orderBy: { dueDate: 'asc' },
@@ -35,7 +38,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ deadlines, total, hasMore: offset + deadlines.length < total });
   } catch (error) {
-    console.error('Erreur GET legal-deadlines:', error);
+    logger.error('Erreur GET legal-deadlines', error instanceof Error ? error : undefined, {
+      route: '/api/legal-deadlines',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -58,10 +63,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!tenantId || !dossierId || !clientId || !type || !label || !referenceDate || !createdBy) {
-      return NextResponse.json(
-        { error: 'Champs requis manquants' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 });
     }
 
     const refDate = new Date(referenceDate);
@@ -104,7 +106,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, deadline });
   } catch (error) {
-    console.error('Erreur POST legal-deadline:', error);
+    logger.error('Erreur POST legal-deadline', error instanceof Error ? error : undefined, {
+      route: '/api/legal-deadlines',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -140,7 +144,9 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, deadline });
   } catch (error) {
-    console.error('Erreur PATCH legal-deadline:', error);
+    logger.error('Erreur PATCH legal-deadline', error instanceof Error ? error : undefined, {
+      route: '/api/legal-deadlines',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

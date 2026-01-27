@@ -1,4 +1,5 @@
 /**
+import { logger } from '@/lib/logger';
  * API Route: POST /api/workspace-reasoning/[id]/facts
  * Ajoute un fait au workspace
  */
@@ -91,7 +92,7 @@ export async function POST(
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Error adding fact:', error);
+    logger.error('Error adding fact:', { error });
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

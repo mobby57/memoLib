@@ -1,6 +1,7 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+﻿import { cacheDelete, cacheInvalidatePattern, cacheThrough, TTL_TIERS } from '@/lib/cache';
+import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
-import { cacheThrough, cacheDelete, cacheInvalidatePattern, TTL_TIERS } from '@/lib/cache';
+import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Liste des clients d'un tenant
 export async function GET(request: NextRequest) {
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
       if (!tenantId) {
         return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
       }
-      
+
       const client = await cacheThrough(
         `client:${tenantId}:${clientId}`,
         async () => {
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
         },
         TTL_TIERS.WARM // 5 min cache
       );
-      
+
       if (!client) {
         return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
       }
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
 
     // Liste avec cache (seulement si pas de recherche)
     const cacheKey = search ? null : `clients:${tenantId}:${status || 'all'}:${limit}:${offset}`;
-    
+
     const fetchClients = async () => {
       const where: Record<string, unknown> = search
         ? {
@@ -81,13 +82,15 @@ export async function GET(request: NextRequest) {
       return { clients, total, hasMore: offset + clients.length < total };
     };
 
-    const result = cacheKey 
+    const result = cacheKey
       ? await cacheThrough(cacheKey, fetchClients, TTL_TIERS.HOT)
       : await fetchClients();
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Erreur GET clients:', error);
+    logger.error('Erreur GET clients', error instanceof Error ? error : undefined, {
+      route: '/api/clients',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -123,10 +126,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'Un client avec cet email existe deja' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'Un client avec cet email existe deja' }, { status: 409 });
     }
 
     const parsedDate = dateOfBirth ? new Date(dateOfBirth) : null;
@@ -161,7 +161,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, client });
   } catch (error) {
-    console.error('Erreur POST client:', error);
+    logger.error('Erreur POST client', error instanceof Error ? error : undefined, {
+      route: '/api/clients',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -170,7 +172,19 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { clientId, firstName, lastName, phone, address, codePostal, ville, dateOfBirth, nationality, civilite, status } = body;
+    const {
+      clientId,
+      firstName,
+      lastName,
+      phone,
+      address,
+      codePostal,
+      ville,
+      dateOfBirth,
+      nationality,
+      civilite,
+      status,
+    } = body;
 
     if (!clientId) {
       return NextResponse.json({ error: 'clientId requis' }, { status: 400 });
@@ -191,7 +205,7 @@ export async function PATCH(request: NextRequest) {
     if (nationality !== undefined) updateData.nationality = nationality;
     if (civilite !== undefined) updateData.civilite = civilite;
     if (status !== undefined) updateData.status = status;
-    
+
     if (dateOfBirth !== undefined) {
       const parsedDate = dateOfBirth ? new Date(dateOfBirth) : null;
       if (parsedDate && isNaN(parsedDate.getTime())) {
@@ -213,7 +227,9 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, client });
   } catch (error) {
-    console.error('Erreur PATCH client:', error);
+    logger.error('Erreur PATCH client', error instanceof Error ? error : undefined, {
+      route: '/api/clients',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -253,7 +269,9 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erreur DELETE client:', error);
+    logger.error('Erreur DELETE client', error instanceof Error ? error : undefined, {
+      route: '/api/clients',
+    });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

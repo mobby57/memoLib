@@ -68,6 +68,6 @@
       "onAutoForward": "notify"
     }
   },
-  "postCreateCommand": "bash .devcontainer/post-create.sh",
-  "remoteUser": "codespace"
+  "postCreateCommand": "bash .devcontainer/post-create.sh
+  "racopac"copac"codespac"
 }

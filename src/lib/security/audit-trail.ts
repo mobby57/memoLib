@@ -6,9 +6,9 @@
  * - Compliance reporting
  */
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export type AuditAction =
   | 'CREATE'
@@ -21,7 +21,7 @@ export type AuditAction =
   | 'LOGOUT'
   | 'FAILED_LOGIN'
   | 'PERMISSION_DENIED'
-  | 'DATA_BREACH_ATTEMPT'
+  | 'DATA_BREACH_ATTEMPT';
 
 export type AuditResource =
   | 'CLIENT'
@@ -30,20 +30,20 @@ export type AuditResource =
   | 'EMAIL'
   | 'USER'
   | 'TENANT'
-  | 'SYSTEM'
+  | 'SYSTEM';
 
 interface AuditLogData {
-  userId: string
-  tenantId?: string
-  action: AuditAction
-  resource: AuditResource
-  resourceId?: string
-  description: string
-  metadata?: Record<string, any>
-  ipAddress?: string
-  userAgent?: string
-  success: boolean
-  sensitiveData?: boolean
+  userId: string;
+  tenantId?: string;
+  action: AuditAction;
+  resource: AuditResource;
+  resourceId?: string;
+  description: string;
+  metadata?: Record<string, any>;
+  ipAddress?: string;
+  userAgent?: string;
+  success: boolean;
+  sensitiveData?: boolean;
 }
 
 /**
@@ -66,26 +66,48 @@ export async function createAuditLog(data: AuditLogData) {
         sensitiveData: data.sensitiveData || false,
         timestamp: new Date(),
       },
-    })
+    });
 
-    // Log critical events to external monitoring (Sentry, DataDog, etc.)
+    // Log critical events to external monitoring (Sentry)
     if (!data.success || data.action === 'DATA_BREACH_ATTEMPT') {
       console.error('[SECURITY ALERT]', {
         action: data.action,
         userId: data.userId,
         resource: data.resource,
         description: data.description,
-      })
-      
-      // TODO: Send alert to admin
-      // await sendSecurityAlert(data)
+      });
+
+      // Send security alert to Sentry
+      import('@sentry/nextjs')
+        .then(Sentry => {
+          Sentry.captureMessage(`[SECURITY ALERT] ${data.action}`, {
+            level: data.action === 'DATA_BREACH_ATTEMPT' ? 'fatal' : 'warning',
+            tags: {
+              action: data.action,
+              resource: data.resource,
+              success: String(data.success),
+              category: 'security_audit',
+            },
+            extra: {
+              userId: data.userId,
+              tenantId: data.tenantId,
+              resourceId: data.resourceId,
+              description: data.description,
+              ipAddress: data.ipAddress,
+              userAgent: data.userAgent,
+            },
+          });
+        })
+        .catch(() => {
+          // Sentry non disponible
+        });
     }
 
-    return log
+    return log;
   } catch (error) {
     // Critical: Audit logging must never fail silently
-    console.error('[AUDIT TRAIL FAILURE]', error, data)
-    throw error
+    console.error('[AUDIT TRAIL FAILURE]', error, data);
+    throw error;
   }
 }
 
@@ -94,20 +116,20 @@ export async function createAuditLog(data: AuditLogData) {
  */
 export function auditMiddleware(action: AuditAction, resource: AuditResource) {
   return async (req: any, session: any, next: () => Promise<any>) => {
-    const startTime = Date.now()
-    let success = true
-    let error: any = null
+    const startTime = Date.now();
+    let success = true;
+    let error: any = null;
 
     try {
-      const result = await next()
-      return result
+      const result = await next();
+      return result;
     } catch (err) {
-      success = false
-      error = err
-      throw err
+      success = false;
+      error = err;
+      throw err;
     } finally {
       // Log after request completes
-      const duration = Date.now() - startTime
+      const duration = Date.now() - startTime;
 
       await createAuditLog({
         userId: session?.user?.id || 'anonymous',
@@ -126,23 +148,23 @@ export function auditMiddleware(action: AuditAction, resource: AuditResource) {
         userAgent: req.headers['user-agent'],
         success,
         sensitiveData: ['CLIENT', 'DOCUMENT', 'EMAIL'].includes(resource),
-      })
+      });
     }
-  }
+  };
 }
 
 /**
  * Get audit logs with filters (for compliance reporting)
  */
 export async function getAuditLogs(filters: {
-  userId?: string
-  tenantId?: string
-  action?: AuditAction
-  resource?: AuditResource
-  startDate?: Date
-  endDate?: Date
-  sensitiveOnly?: boolean
-  limit?: number
+  userId?: string;
+  tenantId?: string;
+  action?: AuditAction;
+  resource?: AuditResource;
+  startDate?: Date;
+  endDate?: Date;
+  sensitiveOnly?: boolean;
+  limit?: number;
 }) {
   return await prisma.auditLog.findMany({
     where: {
@@ -160,17 +182,13 @@ export async function getAuditLogs(filters: {
       timestamp: 'desc',
     },
     take: filters.limit || 100,
-  })
+  });
 }
 
 /**
  * Generate RGPD compliance report
  */
-export async function generateComplianceReport(
-  tenantId: string,
-  startDate: Date,
-  endDate: Date
-) {
+export async function generateComplianceReport(tenantId: string, startDate: Date, endDate: Date) {
   const logs = await prisma.auditLog.findMany({
     where: {
       tenantId,
@@ -179,23 +197,29 @@ export async function generateComplianceReport(
         lte: endDate,
       },
     },
-  })
+  });
 
   // Aggregate statistics
   const stats = {
     totalActions: logs.length,
     sensitiveDataAccess: logs.filter(l => l.sensitiveData).length,
     failedActions: logs.filter(l => !l.success).length,
-    actionsByType: logs.reduce((acc, log) => {
-      acc[log.action] = (acc[log.action] || 0) + 1
-      return acc
-    }, {} as Record<string, number>),
-    resourcesByType: logs.reduce((acc, log) => {
-      acc[log.resource] = (acc[log.resource] || 0) + 1
-      return acc
-    }, {} as Record<string, number>),
+    actionsByType: logs.reduce(
+      (acc, log) => {
+        acc[log.action] = (acc[log.action] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    ),
+    resourcesByType: logs.reduce(
+      (acc, log) => {
+        acc[log.resource] = (acc[log.resource] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    ),
     uniqueUsers: new Set(logs.map(l => l.userId)).size,
-  }
+  };
 
   return {
     period: { start: startDate, end: endDate },
@@ -208,42 +232,37 @@ export async function generateComplianceReport(
       resource: log.resource,
       success: log.success,
     })),
-  }
+  };
 }
 
 /**
  * Check for suspicious activity patterns
  */
 export async function detectSuspiciousActivity(userId: string, hours: number = 24) {
-  const since = new Date(Date.now() - hours * 60 * 60 * 1000)
-  
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+
   const logs = await prisma.auditLog.findMany({
     where: {
       userId,
       timestamp: { gte: since },
     },
-  })
+  });
 
   const suspicious = {
-    multipleFailedLogins: logs.filter(
-      l => l.action === 'FAILED_LOGIN'
-    ).length > 5,
-    
-    excessiveExports: logs.filter(
-      l => l.action === 'EXPORT'
-    ).length > 20,
-    
-    unusualHours: logs.filter(l => {
-      const hour = l.timestamp.getHours()
-      return hour < 6 || hour > 22
-    }).length > 10,
-    
-    massDataAccess: logs.filter(
-      l => l.action === 'READ' && l.sensitiveData
-    ).length > 100,
-  }
+    multipleFailedLogins: logs.filter(l => l.action === 'FAILED_LOGIN').length > 5,
 
-  const isSuspicious = Object.values(suspicious).some(v => v === true)
+    excessiveExports: logs.filter(l => l.action === 'EXPORT').length > 20,
+
+    unusualHours:
+      logs.filter(l => {
+        const hour = l.timestamp.getHours();
+        return hour < 6 || hour > 22;
+      }).length > 10,
+
+    massDataAccess: logs.filter(l => l.action === 'READ' && l.sensitiveData).length > 100,
+  };
+
+  const isSuspicious = Object.values(suspicious).some(v => v === true);
 
   if (isSuspicious) {
     await createAuditLog({
@@ -254,8 +273,8 @@ export async function detectSuspiciousActivity(userId: string, hours: number = 2
       metadata: suspicious,
       success: true,
       sensitiveData: true,
-    })
+    });
   }
 
-  return { suspicious: isSuspicious, details: suspicious }
+  return { suspicious: isSuspicious, details: suspicious };
 }

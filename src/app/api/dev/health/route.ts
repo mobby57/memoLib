@@ -17,7 +17,7 @@ export async function GET() {
       memory: checkMemory(),
     };
 
-    const allHealthy = Object.values(checks).every((check) => check.healthy);
+    const allHealthy = Object.values(checks).every(check => check.healthy);
 
     return NextResponse.json({
       status: allHealthy ? 'healthy' : 'degraded',
@@ -39,10 +39,14 @@ export async function GET() {
 
 async function checkDatabase(): Promise<{ healthy: boolean; message: string }> {
   try {
-    // TODO: Verifier connexion Prisma
+    // Vérifier connexion Prisma avec une requête simple
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+    await prisma.$queryRaw`SELECT 1`;
+    await prisma.$disconnect();
     return { healthy: true, message: 'Database OK' };
   } catch (error) {
-    return { healthy: false, message: 'Database connection failed' };
+    return { healthy: false, message: `Database connection failed: ${error}` };
   }
 }
 

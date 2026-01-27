@@ -3,11 +3,11 @@
  * Statistiques et analytics pour tous les canaux
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { ChannelType } from '@/lib/multichannel/types';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/multichannel/stats
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     const url = new URL(request.url);
     const period = url.searchParams.get('period') || '7d';
-    
+
     // Calculer les dates
     const endDate = new Date();
     const startDate = new Date();
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
 
     // Messages par jour
     const dailyStats = await prisma.$queryRaw`
-      SELECT 
+      SELECT
         DATE(received_at) as date,
         channel,
         COUNT(*) as count
@@ -163,12 +163,10 @@ export async function GET(request: NextRequest) {
         totalMessages: channelStats.reduce((acc, s) => acc + s._count.id, 0),
       },
     });
-
   } catch (error) {
-    console.error('Erreur stats multi-canal:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur stats multi-canal', error instanceof Error ? error : undefined, {
+      route: '/api/multichannel/stats',
+    });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

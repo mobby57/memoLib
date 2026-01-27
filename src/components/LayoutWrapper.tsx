@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { SidebarLayoutAdjuster } from '@/components/SidebarLayoutAdjuster';
 import { GlobalCommandPalette } from '@/components/GlobalCommandPalette';
@@ -26,11 +27,28 @@ const FULLSCREEN_PAGES = [
 
 export function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
-  
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Attendre l'hydratation pour éviter les mismatches SSR/client
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
   // Verifier si la page courante doit etre en plein ecran
   const isFullscreenPage = FULLSCREEN_PAGES.some(
     page => pathname === page || pathname?.startsWith('/auth/')
   );
+
+  // Pendant l'hydratation, retourner un layout minimal cohérent
+  if (!isHydrated) {
+    return (
+      <main className="min-h-screen w-full bg-gray-50 dark:bg-gray-900">
+        <div className="p-6 lg:p-8">
+          {children}
+        </div>
+      </main>
+    );
+  }
 
   // Mode plein ecran : pas de sidebar, pas de marges
   if (isFullscreenPage) {
@@ -46,15 +64,15 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
     <>
       <SidebarLayoutAdjuster />
       <Navigation />
-      
+
       {/* Session Timeout Monitor - Securite inactivite 1h */}
       <SessionTimeoutMonitor />
-      
+
       {/* Real-time Notification Center - Fixed top-right */}
       <div className="fixed top-4 right-4 z-50">
         <NotificationCenter />
       </div>
-      
+
       <main className="lg:ml-64 min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300">
         <GlobalCommandPalette />
         <CommandPalette />

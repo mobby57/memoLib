@@ -47,7 +47,7 @@ describe('Date Formatting', () => {
       const now = new Date();
       const diffMs = now.getTime() - date.getTime();
       const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays === 0) return "Aujourd'hui";
       if (diffDays === 1) return 'Hier';
       if (diffDays < 7) return `Il y a ${diffDays} jours`;
@@ -140,14 +140,14 @@ describe('Date Formatting', () => {
     const addWorkingDays = (startDate: Date, days: number): Date => {
       let result = new Date(startDate);
       let addedDays = 0;
-      
+
       while (addedDays < days) {
         result.setDate(result.getDate() + 1);
         if (!isWeekend(result)) {
           addedDays++;
         }
       }
-      
+
       return result;
     };
 

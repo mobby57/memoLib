@@ -3,9 +3,10 @@
  * POST /api/emails/incoming - Recoit un email et declenche le workflow
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,10 +14,7 @@ export async function POST(request: NextRequest) {
     const { from, to, subject, body: emailBody, htmlBody, attachments, messageId } = body;
 
     if (!from || !to || !subject) {
-      return NextResponse.json(
-        { error: 'from, to et subject sont requis' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'from, to et subject sont requis' }, { status: 400 });
     }
 
     // Trouver le tenant destinataire base sur l'email "to"
@@ -25,26 +23,23 @@ export async function POST(request: NextRequest) {
         users: {
           some: {
             email: to.toLowerCase(),
-            role: { in: ['ADMIN', 'LAWYER', 'USER'] }
-          }
-        }
-      }
+            role: { in: ['ADMIN', 'LAWYER', 'USER'] },
+          },
+        },
+      },
     });
 
     if (!tenant) {
-      console.log(`[EMAIL] Aucun tenant trouve pour: ${to}`);
-      return NextResponse.json(
-        { error: 'Destinataire non trouve' },
-        { status: 404 }
-      );
+      logger.info('[EMAIL] Aucun tenant trouve pour: ${to}');
+      return NextResponse.json({ error: 'Destinataire non trouve' }, { status: 404 });
     }
 
     // Chercher si l'expediteur est un client connu
     const client = await prisma.client.findFirst({
       where: {
         tenantId: tenant.id,
-        email: from.toLowerCase()
-      }
+        email: from.toLowerCase(),
+      },
     });
 
     // Analyser l'email avec l'IA
@@ -59,15 +54,15 @@ export async function POST(request: NextRequest) {
         body: emailBody,
         from,
         receivedAt: new Date(),
-        attachments
+        attachments,
       });
-      
+
       aiAnalysis = JSON.stringify(analysis);
       category = analysis.category;
       urgency = analysis.urgency;
       sentiment = analysis.sentiment;
     } catch (aiError) {
-      console.error('[EMAIL] Erreur analyse IA:', aiError);
+      logger.error('[EMAIL] Erreur analyse IA:', { error: aiError });
       // Continuer sans analyse IA
     }
 
@@ -87,8 +82,8 @@ export async function POST(request: NextRequest) {
         sentiment,
         aiAnalysis,
         clientId: client?.id,
-        receivedAt: new Date()
-      }
+        receivedAt: new Date(),
+      },
     });
 
     // Creer les pieces jointes si presentes
@@ -99,8 +94,8 @@ export async function POST(request: NextRequest) {
           filename: att.filename,
           mimeType: att.mimeType || 'application/octet-stream',
           size: att.size || 0,
-          storageKey: att.storageKey
-        }))
+          storageKey: att.storageKey,
+        })),
       });
     }
 
@@ -121,10 +116,10 @@ export async function POST(request: NextRequest) {
           subject,
           category,
           urgency,
-          clientId: client?.id
+          clientId: client?.id,
         }),
-        startedAt: new Date()
-      }
+        startedAt: new Date(),
+      },
     });
 
     // Simuler l'execution du workflow (etapes)
@@ -136,15 +131,11 @@ export async function POST(request: NextRequest) {
       workflowId: workflow.id,
       category,
       urgency,
-      message: 'Email recu et workflow declenche'
+      message: 'Email recu et workflow declenche',
     });
-
   } catch (error) {
-    console.error('[EMAIL] Erreur reception email:', error);
-    return NextResponse.json(
-      { error: 'Erreur serveur', details: String(error) },
-      { status: 500 }
-    );
+    logger.error('[EMAIL] Erreur reception email:', { error });
+    return NextResponse.json({ error: 'Erreur serveur', details: String(error) }, { status: 500 });
   }
 }
 
@@ -153,13 +144,13 @@ function getWorkflowName(category: string): string {
     'client-urgent': 'Traitement Email Urgent',
     'new-case': 'Ouverture Nouveau Dossier',
     'deadline-reminder': 'Gestion echeance',
-    'invoice': 'Traitement Facture',
+    invoice: 'Traitement Facture',
     'legal-question': 'Reponse Question Juridique',
     'court-document': 'Document Judiciaire',
     'client-complaint': 'Reclamation Client',
     'document-request': 'Demande Document',
     'appointment-request': 'Demande Rendez-vous',
-    'general-inquiry': 'Demande Generale'
+    'general-inquiry': 'Demande Generale',
   };
   return names[category] || 'Traitement Email';
 }
@@ -175,7 +166,7 @@ async function executeWorkflowSteps(
     { name: 'client_matching', progress: 40 },
     { name: 'dossier_linking', progress: 60 },
     { name: 'notification', progress: 80 },
-    { name: 'completed', progress: 100 }
+    { name: 'completed', progress: 100 },
   ];
 
   // Simuler l'execution progressive des etapes
@@ -189,10 +180,10 @@ async function executeWorkflowSteps(
           steps.slice(0, steps.indexOf(step) + 1).map(s => ({
             name: s.name,
             status: 'completed',
-            completedAt: new Date().toISOString()
+            completedAt: new Date().toISOString(),
           }))
-        )
-      }
+        ),
+      },
     });
   }
 
@@ -206,9 +197,9 @@ async function executeWorkflowSteps(
         emailProcessed: true,
         category,
         urgency,
-        actions: ['Email classifie', 'Notification envoyee']
-      })
-    }
+        actions: ['Email classifie', 'Notification envoyee'],
+      }),
+    },
   });
 
   // Marquer l'email comme traite
@@ -216,7 +207,7 @@ async function executeWorkflowSteps(
     where: { id: email.id },
     data: {
       isProcessed: true,
-      processedAt: new Date()
-    }
+      processedAt: new Date(),
+    },
   });
 }
