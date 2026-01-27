@@ -452,8 +452,14 @@ def run_all_tests():
     total_tested = sum(
         r["tested"] for r in results.values() if isinstance(r, dict) and "tested" in r
     )
-    total_blocked = sum(
-        r.get("blocked", 0) for r in results.values() if isinstance(r, dict)
+    # Calculer le total bloqué (inclut les mots de passe faibles détectés)
+    total_blocked = (
+        results["sql_injection"]["blocked"]
+        + results["xss"]["blocked"]
+        + results["auth"]["weak"]  # Mots de passe faibles détectés = protection
+        + results["path_traversal"]["blocked"]
+        + results["nosql_injection"]["blocked"]
+        + results["command_injection"]["blocked"]
     )
 
     print(f"  Total des tests: {total_tested}")
