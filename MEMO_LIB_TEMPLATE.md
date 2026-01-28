@@ -55,7 +55,7 @@ Avant release, vérifier et appliquer :
   python -m pytest -q
   ```
 - [ ] Déployer sur Fly : `flyctl deploy --config fly.toml`
-- [ ] Surveiller les logs : `flyctl logs --app iaposte-manager --since 1h`
+- [ ] Surveiller les logs : `flyctl logs --app memolib --since 1h`
 
 ---
 
@@ -125,7 +125,7 @@ python -m pytest                     # tests backend
 - Déployer sur Fly (après avoir configuré `fly.toml` et Dockerfile.fly) :
 
 ```bash
-flyctl launch --name iaposte-manager --region cdg --image <registry-image>
+flyctl launch --name memolib --region cdg --image <registry-image>
 flyctl deploy
 ```
 

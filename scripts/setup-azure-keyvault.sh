@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Azure Key Vault Setup Script for iapostemanager
+# Azure Key Vault Setup Script for memolib
 # ==============================================================================
 #
 # Ce script configure Azure Key Vault pour la gestion des secrets en production.
@@ -19,11 +19,11 @@
 set -e
 
 # Configuration
-RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-iapostemanager-rg}"
-KEY_VAULT_NAME="${AZURE_KEY_VAULT_NAME:-iapostemanager-kv}"
+RESOURCE_GROUP="${AZURE_RESOURCE_GROUP:-memolib-rg}"
+KEY_VAULT_NAME="${AZURE_KEY_VAULT_NAME:-memolib-kv}"
 LOCATION="${AZURE_LOCATION:-westeurope}"
 
-echo "🔐 Configuration Azure Key Vault pour iapostemanager"
+echo "🔐 Configuration Azure Key Vault pour memolib"
 echo "====================================================="
 echo ""
 
