@@ -82,7 +82,7 @@ class EmailForwardingService:
 {self.get_email_body(original_msg)}
 
 {'='*50}
-🤖 Message généré automatiquement par iaPosteManager
+🤖 Message généré automatiquement par memoLib
             """
             
             forward_msg.attach(MIMEText(forward_body, 'plain', 'utf-8'))

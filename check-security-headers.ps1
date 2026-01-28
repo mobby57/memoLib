@@ -1,7 +1,7 @@
 # Verification complete des headers de securite
 # IA Poste Manager - Production
 
-$url = "https://iapostemanager-mobby57s-projects.vercel.app"
+$url = "https://memoLib-mobby57s-projects.vercel.app"
 
 Write-Output ""
 Write-Output "========================================"

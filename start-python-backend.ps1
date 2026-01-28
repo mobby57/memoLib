@@ -10,9 +10,9 @@ Write-Output "=============================================="
 Write-Output ""
 Write-Output "[1/4] Verification environnement Conda..."
 try {
-    $envExists = conda env list | Select-String "iapostemanager"
+    $envExists = conda env list | Select-String "memoLib"
     if (-not $envExists) {
-        Write-Output "  [ERREUR] Environnement 'iapostemanager' non trouve!"
+        Write-Output "  [ERREUR] Environnement 'memoLib' non trouve!"
         Write-Output "  [INFO] Executez d'abord: .\setup-conda.ps1"
         pause
         exit 1
@@ -28,7 +28,7 @@ try {
 # Activer environnement
 Write-Output ""
 Write-Output "[2/4] Activation environnement..."
-conda activate iapostemanager
+conda activate memoLib
 if ($LASTEXITCODE -ne 0) {
     Write-Output "  [ERREUR] Erreur activation environnement"
     pause

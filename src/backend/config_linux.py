@@ -20,7 +20,7 @@ class Settings:
     ]
     
     # Database
-    DATABASE_URL: str = "sqlite:///iapostemanager.db"
+    DATABASE_URL: str = "sqlite:///memoLib.db"
     
     # Ollama Configuration
     OLLAMA_HOST: str = os.getenv("OLLAMA_HOST", "http://localhost:11434")

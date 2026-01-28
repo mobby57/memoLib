@@ -9,7 +9,7 @@ param(
     [string]$Action = "help"
 )
 
-$PRODUCTION_URL = "https://iapostemanager.pages.dev"
+$PRODUCTION_URL = "https://memoLib.pages.dev"
 
 function Show-Menu {
     Write-Host "`n====================================================" -ForegroundColor Cyan

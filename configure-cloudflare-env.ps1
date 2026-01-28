@@ -4,7 +4,7 @@
 
 Write-Output ""
 Write-Output "=== CONFIGURATION CLOUDFLARE PAGES ==="
-Write-Output "Projet: iapostemanager"
+Write-Output "Projet: memoLib"
 Write-Output ""
 
 # Variables a configurer (Production)
@@ -14,7 +14,7 @@ $variables = @{
     "DATABASE_URL" = "YOUR_DATABASE_URL_HERE"  # PostgreSQL connection string
 
     # NextAuth
-    "NEXTAUTH_URL" = "https://iapostemanager.pages.dev"
+    "NEXTAUTH_URL" = "https://memoLib.pages.dev"
     "NEXTAUTH_SECRET" = "YOUR_NEXTAUTH_SECRET_HERE"  # Générer avec: openssl rand -base64 32
 
     # Node.js
@@ -54,7 +54,7 @@ Write-Output "1. Ouvrez le dashboard Cloudflare Pages:"
 Write-Output "   https://dash.cloudflare.com/"
 Write-Output ""
 Write-Output "2. Naviguez vers:"
-Write-Output "   Pages > iapostemanager > Settings > Environment Variables"
+Write-Output "   Pages > memoLib > Settings > Environment Variables"
 Write-Output ""
 Write-Output "3. Ajoutez chaque variable avec sa valeur"
 Write-Output ""

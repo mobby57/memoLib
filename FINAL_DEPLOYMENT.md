@@ -197,7 +197,7 @@ npx tsx scripts/test-apis.ts
 - Menu → Log stream
 
 ### GitHub Actions
-- https://github.com/mobby57/iapostemanager/actions
+- https://github.com/mobby57/memoLib/actions
 
 ---
 

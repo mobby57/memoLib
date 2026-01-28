@@ -62,7 +62,7 @@ Start-Sleep -Seconds 10
 # Verifier les headers
 Write-Host "   Verification headers de securite..." -ForegroundColor Gray
 
-$response = curl.exe -I https://iapostemanager-mobby57s-projects.vercel.app 2>&1 | Out-String
+$response = curl.exe -I https://memoLib-mobby57s-projects.vercel.app 2>&1 | Out-String
 
 $securityScore = 0
 $totalHeaders = 6

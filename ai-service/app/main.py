@@ -1,6 +1,6 @@
 """
 AI Service - FastAPI Application
-Service IA pour iapostemanager : OCR, NLP, génération de documents
+Service IA pour memoLib : OCR, NLP, génération de documents
 """
 
 import os

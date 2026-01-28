@@ -51,7 +51,7 @@ Write-Host "============================================================`n" -For
 Write-Host "Comptes de demonstration disponibles:`n" -ForegroundColor Cyan
 
 Write-Host "  Super Admin:" -ForegroundColor Yellow
-Write-Host "    Email: superadmin@iapostemanager.com" -ForegroundColor White
+Write-Host "    Email: superadmin@memoLib.com" -ForegroundColor White
 Write-Host "    Pass:  SuperAdmin2026!`n" -ForegroundColor White
 
 Write-Host "  Cabinet Dupont (Basic):" -ForegroundColor Yellow

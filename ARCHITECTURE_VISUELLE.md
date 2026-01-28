@@ -1,4 +1,4 @@
-# 📊 ARCHITECTURE VISUELLE — iaPosteManager
+# 📊 ARCHITECTURE VISUELLE — memoLib
 
 ## Vue d'Ensemble Système
 
@@ -398,6 +398,6 @@ READY_FOR_HUMAN ✅
 
 ---
 
-**Schéma d'architecture — iaPosteManager**
+**Schéma d'architecture — memoLib**
 **Statut : OFFICIEL**
 **Dernière mise à jour : 27 janvier 2026**

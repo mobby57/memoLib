@@ -2,8 +2,8 @@
 
 > **Plateforme SaaS multi-canal pour cabinets d'avocats** — Gestion intelligente des communications clients (Email, WhatsApp, SMS, Voice, Slack, Teams...)
 
-[![CI/CD](https://github.com/mobby57/iapostemanager/workflows/Production%20CI/CD/badge.svg)](https://github.com/mobby57/iapostemanager/actions)
-[![Coverage](https://img.shields.io/badge/coverage-0%25-red)](https://github.com/mobby57/iapostemanager)
+[![CI/CD](https://github.com/mobby57/memoLib/workflows/Production%20CI/CD/badge.svg)](https://github.com/mobby57/memoLib/actions)
+[![Coverage](https://img.shields.io/badge/coverage-0%25-red)](https://github.com/mobby57/memoLib)
 [![License](https://img.shields.io/badge/license-Proprietary-blue)](./LICENSE)
 
 ---
@@ -49,8 +49,8 @@ npm ou pnpm
 
 ```bash
 # Cloner le repo
-git clone https://github.com/mobby57/iapostemanager.git
-cd iapostemanager
+git clone https://github.com/mobby57/memoLib.git
+cd memoLib
 
 # Installer les dépendances
 npm install
@@ -77,7 +77,7 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 
 ```env
 RESEND_API_KEY=re_...
-EMAIL_FROM=noreply@iapostemanager.com
+EMAIL_FROM=noreply@memoLib.com
 ```
 
 ### WhatsApp
@@ -187,9 +187,9 @@ Ce projet est **propriétaire**. Contributions internes uniquement.
 
 ## 📞 Support
 
-- 📧 Email : support@iapostemanager.com
-- 📚 Docs : https://docs.iapostemanager.com
-- 🐛 Issues : https://github.com/mobby57/iapostemanager/issues
+- 📧 Email : support@memoLib.com
+- 📚 Docs : https://docs.memoLib.com
+- 🐛 Issues : https://github.com/mobby57/memoLib/issues
 
 ---
 

@@ -58,7 +58,7 @@ switch ($choice) {
         wrangler pages domain list --project-name $ProjectName
     }
     "2" {
-        $newDomain = Read-Host "Entrez le domaine (ex: iapostemanager.com)"
+        $newDomain = Read-Host "Entrez le domaine (ex: memoLib.com)"
         if ($newDomain) {
             Write-Host ""
             Write-Host "Ajout du domaine: $newDomain" -ForegroundColor Green

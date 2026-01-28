@@ -67,7 +67,7 @@ Write-Output "  -> Build Next.js pour Cloudflare"
 
 # Deploy preview
 Write-Output ""
-Write-Output "  npx wrangler pages deploy .vercel/output/static --project-name=iapostemanager"
+Write-Output "  npx wrangler pages deploy .vercel/output/static --project-name=memoLib"
 Write-Output "  -> Deployer sur Pages"
 
 # ============================================
@@ -96,7 +96,7 @@ Write-Output "[SECTION 5] Logs et Monitoring"
 
 # Voir les logs en temps reel
 Write-Output ""
-Write-Output "  npx wrangler pages deployment tail iapostemanager"
+Write-Output "  npx wrangler pages deployment tail memoLib"
 Write-Output "  -> Logs en temps reel"
 
 # Dashboard

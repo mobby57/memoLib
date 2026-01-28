@@ -2,7 +2,7 @@
 # IA Poste Manager - Python Backend
 
 $ErrorActionPreference = "Stop"
-$envName = "iapostemanager"
+$envName = "memoLib"
 $pythonVersion = "3.11"
 
 Write-Output ""
