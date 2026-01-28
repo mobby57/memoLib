@@ -241,7 +241,7 @@ startxref
 
 // Convertir les donnees en CSV
 function convertToCSV(type: ReportType, data: unknown): string {
-  let rows: string[] = [];
+  const rows: string[] = [];
   const dataArray = Array.isArray(data) ? data : [];
 
   switch (type) {
