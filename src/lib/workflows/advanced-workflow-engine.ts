@@ -577,7 +577,7 @@ export class AdvancedWorkflowEngine {
       this.executionCounts = new Map();
     }
 
-    let counter = this.executionCounts.get(ruleKey) || {
+    const counter = this.executionCounts.get(ruleKey) || {
       hourly: 0,
       daily: 0,
       lastHour: now,
