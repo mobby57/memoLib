@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# GitHub Secrets Setup Script for iapostemanager
+# GitHub Secrets Setup Script for memolib
 # ==============================================================================
 #
 # Ce script aide à configurer les secrets GitHub nécessaires pour le CI/CD.
@@ -18,7 +18,7 @@
 
 set -e
 
-echo "🔐 Configuration des Secrets GitHub pour iapostemanager"
+echo "🔐 Configuration des Secrets GitHub pour memolib"
 echo "========================================================"
 echo ""
 

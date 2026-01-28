@@ -39,7 +39,7 @@ if ! docker network inspect $NETWORK_NAME &> /dev/null; then
         --subnet 172.28.0.0/16 \
         --gateway 172.28.0.1 \
         --opt com.docker.network.bridge.name=iaposte_br \
-        --label project=iapostemanager \
+        --label project=memolib \
         $NETWORK_NAME
     echo -e "${GREEN}✅ Network created${NC}"
 else
@@ -52,7 +52,7 @@ if ! docker network inspect $NETWORK_DEV &> /dev/null; then
     echo -e "${YELLOW}Creating network: $NETWORK_DEV${NC}"
     docker network create \
         --driver bridge \
-        --label project=iapostemanager \
+        --label project=memolib \
         --label environment=development \
         $NETWORK_DEV
     echo -e "${GREEN}✅ Network created${NC}"
@@ -95,29 +95,29 @@ cd "$(dirname "$0")"
 
 # Frontend
 if [[ -f "docker/Dockerfile.frontend" ]]; then
-    echo -e "${YELLOW}Building: iapostemanager/frontend${NC}"
-    docker build -t iapostemanager/frontend:latest -f docker/Dockerfile.frontend . --quiet && \
+    echo -e "${YELLOW}Building: memolib/frontend${NC}"
+    docker build -t memolib/frontend:latest -f docker/Dockerfile.frontend . --quiet && \
         echo -e "${GREEN}✅ Frontend built${NC}" || echo -e "${RED}❌ Frontend build failed${NC}"
 fi
 
 # Backend
 if [[ -f "docker/Dockerfile.backend" ]]; then
-    echo -e "${YELLOW}Building: iapostemanager/backend${NC}"
-    docker build -t iapostemanager/backend:latest -f docker/Dockerfile.backend . --quiet && \
+    echo -e "${YELLOW}Building: memolib/backend${NC}"
+    docker build -t memolib/backend:latest -f docker/Dockerfile.backend . --quiet && \
         echo -e "${GREEN}✅ Backend built${NC}" || echo -e "${RED}❌ Backend build failed${NC}"
 fi
 
 # AI Service
 if [[ -f "docker/Dockerfile.ai-service" ]]; then
-    echo -e "${YELLOW}Building: iapostemanager/ai-service${NC}"
-    docker build -t iapostemanager/ai-service:latest -f docker/Dockerfile.ai-service . --quiet && \
+    echo -e "${YELLOW}Building: memolib/ai-service${NC}"
+    docker build -t memolib/ai-service:latest -f docker/Dockerfile.ai-service . --quiet && \
         echo -e "${GREEN}✅ AI Service built${NC}" || echo -e "${RED}❌ AI Service build failed${NC}"
 fi
 
 # Nginx
 if [[ -f "docker/Dockerfile.nginx" ]]; then
-    echo -e "${YELLOW}Building: iapostemanager/nginx${NC}"
-    docker build -t iapostemanager/nginx:latest -f docker/Dockerfile.nginx . --quiet && \
+    echo -e "${YELLOW}Building: memolib/nginx${NC}"
+    docker build -t memolib/nginx:latest -f docker/Dockerfile.nginx . --quiet && \
         echo -e "${GREEN}✅ Nginx built${NC}" || echo -e "${RED}❌ Nginx build failed${NC}"
 fi
 
@@ -133,7 +133,7 @@ docker image prune -f --filter "dangling=true" &> /dev/null && \
     echo -e "${GREEN}✅ Dangling images removed${NC}"
 
 # Remove unused networks
-docker network prune -f --filter "label!=project=iapostemanager" &> /dev/null && \
+docker network prune -f --filter "label!=project=memolib" &> /dev/null && \
     echo -e "${GREEN}✅ Unused networks removed${NC}"
 
 echo ""
@@ -144,11 +144,11 @@ echo ""
 echo -e "${BLUE}📊 Résumé:${NC}\n"
 
 echo "Networks:"
-docker network ls --filter "label=project=iapostemanager" --format "  - {{.Name}} ({{.Driver}})"
+docker network ls --filter "label=project=memolib" --format "  - {{.Name}} ({{.Driver}})"
 
 echo ""
 echo "Project Images:"
-docker images --filter "reference=iapostemanager/*" --format "  - {{.Repository}}:{{.Tag}} ({{.Size}})"
+docker images --filter "reference=memolib/*" --format "  - {{.Repository}}:{{.Tag}} ({{.Size}})"
 
 echo ""
 echo -e "${GREEN}✅ Mise à jour terminée!${NC}"

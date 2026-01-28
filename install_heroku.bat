@@ -14,7 +14,7 @@ heroku --version
 echo.
 echo === DEPLOIEMENT AUTOMATIQUE ===
 heroku login
-heroku create iapostemanager --region eu
+heroku create memolib --region eu
 heroku config:set SECRET_KEY="RmuekVcRKUvQrDLqTQWgnNem1hWog-R6IoByxAOgk1Q"
 heroku config:set FLASK_ENV="production"
 git push heroku main
