@@ -1,4 +1,4 @@
-# 💼 PITCH DECK — iaPosteManager
+# 💼 PITCH DECK — memoLib
 
 **Format :** 15 slides pour investors / partenaires stratégiques
 
@@ -34,7 +34,7 @@ Date: 27 janvier 2026
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  AVANT iaPosteManager                                    │
+│  AVANT memoLib                                    │
 ├──────────────────────────────────────────────────────────┤
 │                                                          │
 │  ❌ 12 canaux communications (Email, WhatsApp, SMS...) │
@@ -68,11 +68,11 @@ Date: 27 janvier 2026
 
 ## SLIDE 3 — LA SOLUTION
 
-### iaPosteManager = Assistance Supervisée
+### memoLib = Assistance Supervisée
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  APRÈS iaPosteManager                                    │
+│  APRÈS memoLib                                    │
 ├──────────────────────────────────────────────────────────┤
 │                                                          │
 │  ✅ CENTRALISATION                                       │
@@ -109,7 +109,7 @@ Date: 27 janvier 2026
 └──────────────────────────────────────────────────────────┘
 ```
 
-**IMPORTANT :** iaPosteManager ≠ conseil juridique. C'est un **outil d'assistance à la supervision**.
+**IMPORTANT :** memoLib ≠ conseil juridique. C'est un **outil d'assistance à la supervision**.
 
 ---
 
@@ -660,6 +660,6 @@ APPENDICE : Key Metrics
 
 ---
 
-**Pitch Deck — iaPosteManager**
+**Pitch Deck — memoLib**
 **Statut : PRÊT PRÉSENTATION**
 **Dernière mise à jour : 27 janvier 2026**

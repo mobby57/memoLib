@@ -27,7 +27,7 @@ foreach ($secret in $requiredSecrets) {
 Write-Host ""
 Write-Host "📖 Instructions pour configurer les secrets:" -ForegroundColor Green
 Write-Host ""
-Write-Host "1. Allez sur GitHub: https://github.com/mobby57/iapostemanager/settings/secrets/actions"
+Write-Host "1. Allez sur GitHub: https://github.com/mobby57/memoLib/settings/secrets/actions"
 Write-Host ""
 Write-Host "2. Pour VERCEL_TOKEN:"
 Write-Host "   - Allez sur https://vercel.com/account/tokens"

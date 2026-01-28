@@ -146,7 +146,7 @@ try {
 # ==================================================================
 Write-Host "`n[7/9] Verification des comptes de test..." -ForegroundColor Yellow
 $testAccounts = @(
-    "superadmin@iapostemanager.com",
+    "superadmin@memoLib.com",
     "jean.dupont@cabinet-dupont.fr",
     "mohamed.benali@example.com"
 )
@@ -222,7 +222,7 @@ if ($errorCount -eq 0 -and $nodeProcess) {
     Write-Host "=============================================================`n" -ForegroundColor Gray
     
     Write-Host "1. SUPER ADMIN" -ForegroundColor Magenta
-    Write-Host "   Email: superadmin@iapostemanager.com" -ForegroundColor White
+    Write-Host "   Email: superadmin@memoLib.com" -ForegroundColor White
     Write-Host "   Pass:  SuperAdmin2026!`n" -ForegroundColor Yellow
     
     Write-Host "2. AVOCAT" -ForegroundColor Blue

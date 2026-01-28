@@ -133,7 +133,7 @@ async function createUsers(tenants) {
     // Super Admin
     {
       id: 'user-superadmin',
-      email: 'admin@iapostemanager.com',
+      email: 'admin@memoLib.com',
       name: 'Super Administrateur',
       password: await hash('admin123', 12),
       role: 'SUPER_ADMIN',

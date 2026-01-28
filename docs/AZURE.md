@@ -1,4 +1,4 @@
-# 🚀 Déploiement Azure - iaPosteManager
+# 🚀 Déploiement Azure - memoLib
 
 ## 📋 Vue d'ensemble
 
@@ -6,9 +6,9 @@ L'application est déployée sur **Azure App Service** (Linux, Node.js 20).
 
 | Ressource | Valeur |
 |-----------|--------|
-| **URL Production** | https://iapostemanager-app.azurewebsites.net |
-| **App Service** | iapostemanager-app |
-| **Resource Group** | iapostemanager-rg |
+| **URL Production** | https://memoLib-app.azurewebsites.net |
+| **App Service** | memoLib-app |
+| **Resource Group** | memoLib-rg |
 | **Region** | West Europe |
 | **Plan** | F1 (Free) |
 | **Runtime** | Node.js 20 LTS |
@@ -33,9 +33,9 @@ Le secret `AZURE_CREDENTIALS` doit contenir un JSON de Service Principal :
 **Créer un nouveau Service Principal :**
 ```bash
 az ad sp create-for-rbac \
-  --name "iapostemanager-deploy" \
+  --name "memoLib-deploy" \
   --role contributor \
-  --scopes /subscriptions/<subscription-id>/resourceGroups/iapostemanager-rg \
+  --scopes /subscriptions/<subscription-id>/resourceGroups/memoLib-rg \
   --sdk-auth
 ```
 
@@ -46,7 +46,7 @@ Configurer dans Azure Portal → App Service → Configuration → Application s
 | Variable | Description |
 |----------|-------------|
 | `DATABASE_URL` | URL PostgreSQL Neon avec `?sslmode=require` |
-| `NEXTAUTH_URL` | `https://iapostemanager-app.azurewebsites.net` |
+| `NEXTAUTH_URL` | `https://memoLib-app.azurewebsites.net` |
 | `NEXTAUTH_SECRET` | Secret 32+ caractères pour les sessions |
 | `NODE_ENV` | `production` |
 | `GITHUB_CLIENT_ID` | OAuth GitHub (optionnel) |
@@ -55,11 +55,11 @@ Configurer dans Azure Portal → App Service → Configuration → Application s
 **Commande CLI :**
 ```bash
 az webapp config appsettings set \
-  --name iapostemanager-app \
-  --resource-group iapostemanager-rg \
+  --name memoLib-app \
+  --resource-group memoLib-rg \
   --settings \
     DATABASE_URL="postgresql://..." \
-    NEXTAUTH_URL="https://iapostemanager-app.azurewebsites.net" \
+    NEXTAUTH_URL="https://memoLib-app.azurewebsites.net" \
     NEXTAUTH_SECRET="votre-secret-32-chars" \
     NODE_ENV="production"
 ```
@@ -90,26 +90,26 @@ gh run watch
 
 ```bash
 # Logs en temps réel
-az webapp log tail --name iapostemanager-app --resource-group iapostemanager-rg
+az webapp log tail --name memoLib-app --resource-group memoLib-rg
 
 # Télécharger les logs
-az webapp log download --name iapostemanager-app --resource-group iapostemanager-rg --log-file logs.zip
+az webapp log download --name memoLib-app --resource-group memoLib-rg --log-file logs.zip
 ```
 
 ### Redémarrer l'application
 
 ```bash
-az webapp restart --name iapostemanager-app --resource-group iapostemanager-rg
+az webapp restart --name memoLib-app --resource-group memoLib-rg
 ```
 
 ### Vérifier la configuration
 
 ```bash
 # Voir les app settings
-az webapp config appsettings list --name iapostemanager-app --resource-group iapostemanager-rg -o table
+az webapp config appsettings list --name memoLib-app --resource-group memoLib-rg -o table
 
 # Voir la commande de démarrage
-az webapp config show --name iapostemanager-app --resource-group iapostemanager-rg --query "appCommandLine"
+az webapp config show --name memoLib-app --resource-group memoLib-rg --query "appCommandLine"
 ```
 
 ---
@@ -126,7 +126,7 @@ az webapp config show --name iapostemanager-app --resource-group iapostemanager-
 
 | Plateforme | Status | Notes |
 |------------|--------|-------|
-| **Vercel** | ✅ Actif | https://iapostemanager.vercel.app |
+| **Vercel** | ✅ Actif | https://memoLib.vercel.app |
 | **Azure App Service** | 🔧 Configuration | Ce document |
 | **Azure SWA** | ❌ Abandonné | Incompatible avec Prisma + SSR complexe |
 

@@ -182,7 +182,7 @@ export async function sendAlertEmail(alert: CostAlert): Promise<boolean> {
 export async function sendSuperAdminAlert(alerts: CostAlert[]): Promise<void> {
   if (alerts.length === 0) return;
 
-  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@iapostemanager.com';
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@memoLib.com';
   
   const criticalCount = alerts.filter(a => a.alertLevel === 'critical' || a.alertLevel === 'blocked').length;
   const warningCount = alerts.filter(a => a.alertLevel === 'warning').length;

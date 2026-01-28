@@ -34,7 +34,7 @@ Write-Host ""
 Write-Host "🚀 Démarrage du serveur sur http://localhost:3000" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "📝 Comptes de démo disponibles:" -ForegroundColor Cyan
-Write-Host "   👑 Super Admin: superadmin@iapostemanager.com / SuperAdmin123!" -ForegroundColor White
+Write-Host "   👑 Super Admin: superadmin@memoLib.com / SuperAdmin123!" -ForegroundColor White
 Write-Host "   ⚖️  Avocat: admin@cabinet-dupont.com / Admin123!" -ForegroundColor White
 Write-Host "   👤 Client: client@example.com / Client123!" -ForegroundColor White
 Write-Host ""

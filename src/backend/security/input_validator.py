@@ -1,5 +1,5 @@
 """
-🛡️ Validateur d'entrées sécurisé pour IaPosteManager
+🛡️ Validateur d'entrées sécurisé pour MemoLib
 =====================================================
 
 Protection contre:

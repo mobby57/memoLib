@@ -8,7 +8,7 @@ from datetime import datetime
 import os
 
 # SQLite database path
-DATABASE_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'iapostemanager.db')
+DATABASE_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'memoLib.db')
 DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 
 # Create engine

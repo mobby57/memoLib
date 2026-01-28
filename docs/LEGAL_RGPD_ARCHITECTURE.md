@@ -616,4 +616,4 @@ export class IncidentResponse {
 - **CNIL** : 01 53 73 22 22 | www.cnil.fr
 - **Ordre des Avocats** : [Barreau local]
 - **DPO Cabinet** : dpo@cabinet.com
-- **Support technique** : support@iapostemanager.com
+- **Support technique** : support@memoLib.com

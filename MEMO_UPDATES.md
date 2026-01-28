@@ -2,7 +2,7 @@
 
 ## 🎯 Objectif
 
-Documentation des 11 améliorations majeures implémentées pour élever la qualité du projet IaPosteManager.
+Documentation des 11 améliorations majeures implémentées pour élever la qualité du projet MemoLib.
 
 ## ✅ Améliorations Complétées (A-K)
 
@@ -276,7 +276,7 @@ feat: complete 10 improvements (A-J)
 - **Next.js:** 16.1.4 avec Turbopack (configuré)
 - **Database:** PostgreSQL via Neon (Prisma ORM)
 - **Package manager:** npm avec `--legacy-peer-deps`
-- **Repository:** github.com/mobby57/iapostemanager
+- **Repository:** github.com/mobby57/memoLib
 - **Turbopack:** Activé avec resolveAlias, loaders SVG, debugIds
 
 ---

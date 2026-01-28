@@ -1,5 +1,5 @@
 # ============================================
-# SECURITY FIX PRO - iaPosteManager
+# SECURITY FIX PRO - memoLib
 # ============================================
 
 Write-Output ""
@@ -77,7 +77,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Output "   - Backup conserve: package-lock.json.backup"
     Write-Output ""
     Write-Output "Verifier les vulnerabilites restantes:"
-    Write-Output "   https://github.com/mobby57/iapostemanager/security/dependabot"
+    Write-Output "   https://github.com/mobby57/memoLib/security/dependabot"
     Write-Output ""
 } else {
     Write-Output ""

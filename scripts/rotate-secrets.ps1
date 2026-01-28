@@ -222,9 +222,9 @@ La clé précédente a été sauvegardée:
 
 ## Contacts
 
-- Admin secrets: dpo@iapostemanager.com
+- Admin secrets: dpo@memoLib.com
 - Questions: #ops-secrets Slack channel
-- Emergency: security@iapostemanager.com
+- Emergency: security@memoLib.com
 "@
 
 Set-Content -Path $reportPath -Value $reportContent -Encoding UTF8
@@ -260,7 +260,7 @@ Write-Host "  6. Prod: Valider déploiements" -ForegroundColor Gray
 Write-Host ""
 
 Write-Host "📞 Support:" -ForegroundColor Yellow
-Write-Host "  Email: dpo@iapostemanager.com" -ForegroundColor Gray
+Write-Host "  Email: dpo@memoLib.com" -ForegroundColor Gray
 Write-Host "  Slack: #ops-secrets" -ForegroundColor Gray
 Write-Host ""
 
