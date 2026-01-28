@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🛡️ Script de Simulation d'Attaques avec Memolib - IaPosteManager
+🛡️ Script de Simulation d'Attaques avec Memolib - MemoLib
 ================================================================
 
 Version optimisée avec caching (functools.lru_cache) pour accélérer
@@ -58,7 +58,7 @@ def banner():
     print(
         f"""
 {Colors.RED}╔════════════════════════════════════════════════════════════════╗
-║  🛡️  SIMULATION D'ATTAQUES + MEMOLIB - IaPosteManager         ║
+║  🛡️  SIMULATION D'ATTAQUES + MEMOLIB - MemoLib         ║
 ║  🚀 Optimisé avec functools.lru_cache (80% plus rapide)       ║
 ║                                                                  ║
 ║  ⚠️  USAGE EN DÉVELOPPEMENT UNIQUEMENT                          ║

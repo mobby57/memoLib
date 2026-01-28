@@ -9,6 +9,11 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
+  
+  // ========== OPTIMISATIONS MÉMOIRE ==========
+  maxWorkers: '50%', // Utilise 50% des CPUs disponibles
+  workerIdleMemoryLimit: '512MB', // Limite mémoire par worker
+  
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
@@ -81,6 +86,14 @@ const customJestConfig = {
   watchPathIgnorePatterns: [
     '<rootDir>/node_modules_backup/',
   ],
+  
+  // ========== OPTIMISATIONS PERFORMANCES ==========
+  clearMocks: true, // Clear mocks automatiquement
+  restoreMocks: true, // Restore mocks automatiquement
+  testTimeout: 10000, // Timeout 10s par test
+  
+  // Cache Jest pour accélérer les exécutions
+  cacheDirectory: '<rootDir>/.jest-cache',
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

@@ -100,7 +100,7 @@
 1. **Azure Service Principal**
    ```powershell
    az ad sp create-for-rbac \
-     --name "iapostemanager-gha-v3" \
+     --name "memoLib-gha-v3" \
      --role contributor \
      --scopes /subscriptions/<SUBSCRIPTION_ID> \
      --sdk-auth
@@ -109,9 +109,9 @@
 
 2. **Secrets Azure Key Vault**
    ```bash
-   az keyvault secret set --vault-name iapostemanager-kv --name "DATABASE-URL" --value "..."
-   az keyvault secret set --vault-name iapostemanager-kv --name "NEXTAUTH-SECRET" --value "..."
-   az keyvault secret set --vault-name iapostemanager-kv --name "OPENAI-API-KEY" --value "..."
+   az keyvault secret set --vault-name memoLib-kv --name "DATABASE-URL" --value "..."
+   az keyvault secret set --vault-name memoLib-kv --name "NEXTAUTH-SECRET" --value "..."
+   az keyvault secret set --vault-name memoLib-kv --name "OPENAI-API-KEY" --value "..."
    ```
 
 3. **Variables Vercel**
@@ -233,11 +233,11 @@ git push origin main
 # → Vérifier GitHub Actions
 
 # 2. Déploiement réussi
-curl https://iapostemanager.vercel.app/api/health
+curl https://memoLib.vercel.app/api/health
 # → {"status":"ok"}
 
 # 3. Webhook fonctionne
-curl -X POST https://iapostemanager.vercel.app/api/webhooks/channel/email \
+curl -X POST https://memoLib.vercel.app/api/webhooks/channel/email \
   -H "Content-Type: application/json" \
   -d '{"from":"test@example.com","text":"Test"}'
 # → {"success":true}
@@ -263,5 +263,5 @@ curl -X POST https://iapostemanager.vercel.app/api/webhooks/channel/email \
 ## 📞 CONTACT
 
 Pour toute question sur cette documentation :
-- 📧 Email : support@iapostemanager.com
-- 🐛 Issues : https://github.com/mobby57/iapostemanager/issues
+- 📧 Email : support@memoLib.com
+- 🐛 Issues : https://github.com/mobby57/memoLib/issues

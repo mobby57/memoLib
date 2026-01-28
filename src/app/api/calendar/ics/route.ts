@@ -21,7 +21,7 @@ export async function GET(req: Request) {
     status: 200,
     headers: {
       'Content-Type': 'text/calendar; charset=utf-8',
-      'Content-Disposition': `attachment; filename="iapostemanager-${tenantId}.ics"`,
+      'Content-Disposition': `attachment; filename="memoLib-${tenantId}.ics"`,
     },
   });
 }

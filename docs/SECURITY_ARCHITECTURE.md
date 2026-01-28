@@ -16,7 +16,7 @@ IA Poste Manager implémente une architecture sécurisée conforme aux exigences
 | `GITHUB-CLIENT-ID` | OAuth GitHub | Manuelle |
 | `GITHUB-CLIENT-SECRET` | OAuth GitHub | Manuelle |
 
-**URL du Vault**: `https://iapostemanager-vault.vault.azure.net/`
+**URL du Vault**: `https://memoLib-vault.vault.azure.net/`
 
 ### Accès RBAC
 - **App Service**: Managed Identity avec rôle `Key Vault Secrets User`
@@ -134,8 +134,8 @@ headers: [
 
 | Environnement | URL | Sécurité |
 |---------------|-----|----------|
-| Production | `iapostemanager.vercel.app` | Maximale |
-| Staging | `staging.iapostemanager.vercel.app` | Élevée |
+| Production | `memoLib.vercel.app` | Maximale |
+| Staging | `staging.memoLib.vercel.app` | Élevée |
 | Development | `localhost:3000` | Basique |
 
 ### Isolation des Données
@@ -196,9 +196,9 @@ headers: [
 
 ## 10. Ressources
 
-- **Azure Key Vault**: https://iapostemanager-vault.vault.azure.net/
-- **GitHub Repo**: https://github.com/mobby57/iapostemanager
-- **Vercel Dashboard**: https://vercel.com/mobby57s-projects/iapostemanager
+- **Azure Key Vault**: https://memoLib-vault.vault.azure.net/
+- **GitHub Repo**: https://github.com/mobby57/memoLib
+- **Vercel Dashboard**: https://vercel.com/mobby57s-projects/memoLib
 - **Neon Console**: https://console.neon.tech/
 
 ---
