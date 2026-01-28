@@ -43,7 +43,7 @@ async function testAPIs() {
       body: JSON.stringify({
         tenantId: TENANT_ID,
         userId: USER_ID,
-        userEmail: 'admin@iapostemanage.com',
+        userEmail: 'admin@memolib.com',
         userRole: 'super_admin',
         action: 'CREATE',
         entityType: 'Test',

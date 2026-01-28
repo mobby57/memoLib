@@ -32,7 +32,7 @@ export default function SearchPageClient() {
           <div className="flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-sky-500" />
             <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Plateforme IA Poste Manager</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Plateforme memoLib</p>
               <h1 className="text-3xl font-semibold text-slate-900 dark:text-white">Recherche intelligente</h1>
             </div>
           </div>

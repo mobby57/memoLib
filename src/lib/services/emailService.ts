@@ -400,7 +400,7 @@ export async function sendEmail(notification: EmailNotification): Promise<boolea
   logger.info('Email simule envoye', {
     to: notification.to.map(r => r.email),
     subject: notification.template.subject,
-    from: 'noreply@iapostemanage.com'
+    from: 'noreply@memolib.io'
   });
   
   // En production, remplacer par:
@@ -411,11 +411,6 @@ export async function sendEmail(notification: EmailNotification): Promise<boolea
   //     'Content-Type': 'application/json',
   //   },
   //   body: JSON.stringify({
-<<<<<<< HEAD
-  //     from: 'IA Poste Manager <notifications@memoLib.com>',
-=======
-  //     from: 'memoLib <notifications@memoLib.com>',
->>>>>>> feat/update-memo-template
   //     to: notification.to.map(r => r.email),
   //     subject: notification.template.subject,
   //     html: notification.template.htmlBody,

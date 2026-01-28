@@ -70,7 +70,7 @@ async function main() {
 
     console.log('\n\n🎉 MIGRATION POSTGRESQL RÉUSSIE !');
     console.log('\n📝 Configuration actuelle:');
-    console.log(`   DATABASE_URL: postgresql://iapostemanage@localhost:5432/iapostemanage`);
+    console.log(`   DATABASE_URL: postgresql://memolib@localhost:5432/memolib`);
     console.log(`   Serveur: http://localhost:3000`);
     console.log(`   Prisma Studio: http://localhost:5555`);
 
