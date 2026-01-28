@@ -1,5 +1,5 @@
-# Configuration Fly.io pour IA Poste Manager
-app = "iaposte-manager"
+# Configuration Fly.io pour memoLib
+app = "memolib"
 primary_region = "cdg"  # Paris
 
 [build]
