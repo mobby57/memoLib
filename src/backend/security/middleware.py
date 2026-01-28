@@ -1,5 +1,5 @@
 """
-🛡️ Middleware de sécurité pour IaPosteManager
+🛡️ Middleware de sécurité pour MemoLib
 ==============================================
 
 Implémente:
@@ -73,7 +73,7 @@ class SecurityConfig:
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "font-src 'self' https://fonts.gstatic.com; "
             "img-src 'self' data: https:; "
-            "connect-src 'self' https://api.iapostemanager.com;"
+            "connect-src 'self' https://api.memoLib.com;"
         ),
         "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
     }

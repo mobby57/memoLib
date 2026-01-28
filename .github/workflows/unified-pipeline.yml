@@ -159,7 +159,7 @@ jobs:
 
     environment:
       name: production
-      url: https://iapostemanager-app.azurewebsites.net
+      url: https://memoLib-app.azurewebsites.net
 
     steps:
       - uses: actions/checkout@v4
@@ -182,12 +182,12 @@ jobs:
       - name: 🚀 Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
-          app-name: iapostemanager-app
+          app-name: memoLib-app
           package: .
 
       - name: 📊 Deploy Summary
         run: |
           echo "## 🚀 Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment:** Production" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** https://iapostemanager-app.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://memoLib-app.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

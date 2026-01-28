@@ -75,7 +75,7 @@ interface SendResult {
  */
 export async function sendEmail(options: EmailOptions): Promise<SendResult> {
   const transporter = getTransporter();
-  const fromAddress = options.from || process.env.EMAIL_FROM || 'noreply@iapostemanager.com';
+  const fromAddress = options.from || process.env.EMAIL_FROM || 'noreply@memoLib.com';
 
   // Mode test si pas de transporteur
   if (!transporter) {

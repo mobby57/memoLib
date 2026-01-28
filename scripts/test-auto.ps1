@@ -229,7 +229,7 @@ if (-not (Test-Path ".\prisma\dev.db")) {
 }
 
 Write-Host "2. Tester avec authentification:" -ForegroundColor Yellow
-Write-Host "   - Connectez-vous avec: admin@iapostemanager.com / Admin123!" -ForegroundColor White
+Write-Host "   - Connectez-vous avec: admin@memoLib.com / Admin123!" -ForegroundColor White
 Write-Host "   - Testez les dashboards manuellement`n" -ForegroundColor White
 
 Write-Host "3. Tester les limites plan:" -ForegroundColor Yellow

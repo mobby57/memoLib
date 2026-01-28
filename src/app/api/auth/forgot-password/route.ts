@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
       if (process.env.RESEND_API_KEY) {
         await resend.emails.send({
-          from: process.env.EMAIL_FROM || 'noreply@iapostemanager.com',
+          from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
           to: email,
           subject: 'Réinitialisation de votre mot de passe - IA Poste Manager',
           html: `

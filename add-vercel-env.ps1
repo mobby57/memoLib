@@ -13,11 +13,11 @@ if ($env1 -ne 'skip') {
 }
 
 Write-Host "`nStep 2: NEXTAUTH_URL" -ForegroundColor Yellow
-Write-Host "Value: https://iapostemanager-mobby57s-projects.vercel.app`n" -ForegroundColor Gray
+Write-Host "Value: https://memoLib-mobby57s-projects.vercel.app`n" -ForegroundColor Gray
 
 $env2 = Read-Host "Press Enter to add NEXTAUTH_URL or type 'skip' to skip"
 if ($env2 -ne 'skip') {
-    Write-Host "https://iapostemanager-mobby57s-projects.vercel.app" | vercel env add NEXTAUTH_URL production
+    Write-Host "https://memoLib-mobby57s-projects.vercel.app" | vercel env add NEXTAUTH_URL production
 }
 
 Write-Host "`nStep 3: DATABASE_URL" -ForegroundColor Yellow

@@ -45,4 +45,4 @@ if ($missingVars.Count -eq 0) {
 }
 
 Write-Host "`nProduction URL:"
-Write-Host "https://iapostemanager-mobby57s-projects.vercel.app`n"
+Write-Host "https://memoLib-mobby57s-projects.vercel.app`n"

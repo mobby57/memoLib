@@ -7,7 +7,7 @@
 | **Responsable de traitement** | [Nom de l'entreprise] |
 | **Adresse** | [Adresse] |
 | **DPO** | [À désigner] |
-| **Contact DPO** | dpo@iapostemanager.com |
+| **Contact DPO** | dpo@memoLib.com |
 | **Date de mise à jour** | 26/01/2026 |
 
 ---
@@ -129,7 +129,7 @@
 | Limitation | 1 mois | Ticket support |
 
 ### Contact
-- **Email**: rgpd@iapostemanager.com
+- **Email**: rgpd@memoLib.com
 - **Formulaire**: `/contact?subject=rgpd`
 
 ---

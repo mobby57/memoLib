@@ -6,7 +6,7 @@ $ErrorActionPreference = "Continue"
 Write-Host "`n🧪 TEST DES SERVICES DE PRODUCTION" -ForegroundColor Cyan
 Write-Host "=================================" -ForegroundColor Cyan
 
-$baseUrl = "https://iapostemanager-mobby57s-projects.vercel.app"
+$baseUrl = "https://memoLib-mobby57s-projects.vercel.app"
 
 # Test 1: Application Health
 Write-Host "`n1️⃣ Test Application Health..." -ForegroundColor Yellow
@@ -184,7 +184,7 @@ Write-Host "`n🔗 LIENS UTILES:" -ForegroundColor Cyan
 Write-Host "   Production: $baseUrl"
 Write-Host "   Sentry Test: $baseUrl/sentry-example-page"
 Write-Host "   Sentry Dashboard: https://sentry.io"
-Write-Host "   Vercel Dashboard: https://vercel.com/mobby57s-projects/iapostemanager"
+Write-Host "   Vercel Dashboard: https://vercel.com/mobby57s-projects/memoLib"
 
 Write-Host "`n📋 PROCHAINES ACTIONS RECOMMANDÉES:" -ForegroundColor Yellow
 Write-Host "   1. Tester manuellement /sentry-example-page (cliquer 'Throw error')"

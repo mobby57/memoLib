@@ -38,12 +38,12 @@ try {
 Write-Host ""
 Write-Host "[2/5] Verification environnement existant..." -ForegroundColor Yellow
 $envList = conda env list 2>&1 | Out-String
-if ($envList -match "iapostemanager") {
-    Write-Host "  ATTENTION: Environnement 'iapostemanager' existe deja" -ForegroundColor Yellow
+if ($envList -match "memoLib") {
+    Write-Host "  ATTENTION: Environnement 'memoLib' existe deja" -ForegroundColor Yellow
     $response = Read-Host "  Voulez-vous le recreer? (O/N)"
     if ($response -eq 'O' -or $response -eq 'o') {
         Write-Host "  Suppression ancien environnement..." -ForegroundColor Yellow
-        conda env remove -n iapostemanager -y
+        conda env remove -n memoLib -y
         Write-Host "  OK Ancien environnement supprime" -ForegroundColor Green
     } else {
         Write-Host "  Utilisation environnement existant" -ForegroundColor Cyan
@@ -55,7 +55,7 @@ if ($envList -match "iapostemanager") {
 
 # Créer environnement
 Write-Host ""
-Write-Host "[3/5] Creation environnement iapostemanager..." -ForegroundColor Yellow
+Write-Host "[3/5] Creation environnement memoLib..." -ForegroundColor Yellow
 Write-Host "  Duree estimee: 5-10 minutes" -ForegroundColor Cyan
 Write-Host "  Installation de 60+ packages..." -ForegroundColor Cyan
 Write-Host ""
@@ -67,8 +67,8 @@ try {
         conda env create -f environment.yml
     } elseif (Test-Path "requirements-python.txt") {
         Write-Host "  Utilisation fichier requirements-python.txt..." -ForegroundColor Cyan
-        conda create -n iapostemanager python=3.11 -y
-        conda run -n iapostemanager pip install -r requirements-python.txt
+        conda create -n memoLib python=3.11 -y
+        conda run -n memoLib pip install -r requirements-python.txt
     } else {
         Write-Host "  ERREUR: Aucun fichier de configuration trouve!" -ForegroundColor Red
         exit 1
@@ -84,7 +84,7 @@ try {
 Write-Host ""
 Write-Host "[4/5] Installation modele NLP francais (Spacy)..." -ForegroundColor Yellow
 try {
-    conda run -n iapostemanager python -m spacy download fr_core_news_sm
+    conda run -n memoLib python -m spacy download fr_core_news_sm
     Write-Host "  OK Modele francais installe!" -ForegroundColor Green
 } catch {
     Write-Host "  ATTENTION: Modele NLP optionnel - installation echouee" -ForegroundColor Yellow
@@ -118,7 +118,7 @@ except Exception as e:
     exit(1)
 "@
 
-conda run -n iapostemanager python -c $testScript
+conda run -n memoLib python -c $testScript
 
 # Afficher informations
 Write-Host ""
@@ -134,7 +134,7 @@ Write-Host ""
 Write-Host "Prochaines etapes:" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "1. Activer environnement:" -ForegroundColor Cyan
-Write-Host "   conda activate iapostemanager" -ForegroundColor White
+Write-Host "   conda activate memoLib" -ForegroundColor White
 Write-Host ""
 Write-Host "2. Lancer backend Python:" -ForegroundColor Cyan
 Write-Host "   .\start-python-backend.ps1" -ForegroundColor White
@@ -163,7 +163,7 @@ $activate = Read-Host "Voulez-vous activer l'environnement maintenant? (O/N)"
 if ($activate -eq 'O' -or $activate -eq 'o') {
     Write-Host ""
     Write-Host "Activation de l'environnement..." -ForegroundColor Green
-    Write-Host "Utilisez: conda activate iapostemanager" -ForegroundColor Cyan
+    Write-Host "Utilisez: conda activate memoLib" -ForegroundColor Cyan
     Write-Host ""
 }
 

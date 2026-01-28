@@ -258,8 +258,8 @@
 
 ### Production
 - **Azure** : https://green-stone-023c52610.6.azurestaticapps.net
-- **GitHub** : https://github.com/mobby57/iapostemanager
-- **Actions** : https://github.com/mobby57/iapostemanager/actions
+- **GitHub** : https://github.com/mobby57/memoLib
+- **Actions** : https://github.com/mobby57/memoLib/actions
 
 ### Portails
 - **Azure Portal** : https://portal.azure.com

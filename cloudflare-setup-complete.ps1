@@ -14,7 +14,7 @@ param(
 $ErrorActionPreference = "Continue"
 
 $PROJECT_NAME = "iaposte-manager"
-$PRODUCTION_URL = "https://iapostemanager.pages.dev"
+$PRODUCTION_URL = "https://memoLib.pages.dev"
 
 Write-Host "`n╔════════════════════════════════════════════════════════╗" -ForegroundColor Magenta
 Write-Host "║   CLOUDFLARE PAGES - SETUP PRODUCTION COMPLET         ║" -ForegroundColor Magenta
@@ -32,7 +32,7 @@ if ($EnvVars -or $All) {
     $envVars = @(
         @{Name="DATABASE_URL"; Description="URL base de données Cloudflare D1"; Example="file:./prisma/dev.db"},
         @{Name="NEXTAUTH_SECRET"; Description="Secret NextAuth (généré)"; Example="$(New-Guid)"},
-        @{Name="NEXTAUTH_URL"; Description="URL de production"; Example="https://iapostemanager.pages.dev"},
+        @{Name="NEXTAUTH_URL"; Description="URL de production"; Example="https://memoLib.pages.dev"},
         @{Name="OLLAMA_BASE_URL"; Description="URL Ollama (optionnel)"; Example="http://localhost:11434"}
     )
     
@@ -109,7 +109,7 @@ if ($Domain -or $All) {
         Write-Host "`n   📋 Configuration DNS requise:" -ForegroundColor Cyan
         Write-Host "   Type:   CNAME" -ForegroundColor White
         Write-Host "   Name:   $customDomain" -ForegroundColor White
-        Write-Host "   Target: iapostemanager.pages.dev" -ForegroundColor White
+        Write-Host "   Target: memoLib.pages.dev" -ForegroundColor White
         Write-Host "   TTL:    Auto" -ForegroundColor White
         
         Write-Host "`n   ⏳ Propagation DNS: 5-30 minutes" -ForegroundColor Yellow

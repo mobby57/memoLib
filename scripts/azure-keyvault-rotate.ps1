@@ -13,9 +13,9 @@ param(
     [ValidateSet("NEXTAUTH-SECRET", "ALL")]
     [string]$SecretName = "ALL",
     
-    [string]$VaultName = "iapostemanager-vault",
-    [string]$ResourceGroup = "iapostemanager-rg",
-    [string]$AppServiceName = "iapostemanager-app",
+    [string]$VaultName = "memoLib-vault",
+    [string]$ResourceGroup = "memoLib-rg",
+    [string]$AppServiceName = "memoLib-app",
     [switch]$DryRun,
     [switch]$AutoRestart
 )
@@ -89,7 +89,7 @@ function Rotate-AzureSecret {
         --name $Name `
         --value $newValue `
         --expires $expiryDate `
-        --tags "rotated=$(Get-Date -Format 'yyyy-MM-dd')" "app=iapostemanager" 2>&1
+        --tags "rotated=$(Get-Date -Format 'yyyy-MM-dd')" "app=memoLib" 2>&1
     
     if ($LASTEXITCODE -eq 0) {
         Write-Log "Secret $Name rotated, expires: $expiryDate" -Level "SUCCESS"

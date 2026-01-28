@@ -474,8 +474,8 @@ export class SystemMonitor {
       const transporter = nodemailer.createTransport(emailConfig);
 
       await transporter.sendMail({
-        from: process.env.ALERT_FROM_EMAIL || 'alerts@iapostemanager.com',
-        to: process.env.ALERT_TO_EMAIL || 'admin@iapostemanager.com',
+        from: process.env.ALERT_FROM_EMAIL || 'alerts@memoLib.com',
+        to: process.env.ALERT_TO_EMAIL || 'admin@memoLib.com',
         subject: `?? ${alert.title}`,
         html: `
           <h2>Alerte Syst�me - IA Poste Manager</h2>
