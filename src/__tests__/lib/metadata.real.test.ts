@@ -17,11 +17,11 @@ describe('metadata - Métadonnées SEO', () => {
   describe('defaultMetadata', () => {
     test('contient un titre par défaut', () => {
       expect(defaultMetadata.title).toBeDefined();
-      expect((defaultMetadata.title as any).default).toContain('IA Poste Manager');
+      expect((defaultMetadata.title as any).default).toContain('memoLib');
     });
 
     test('contient un template de titre', () => {
-      expect((defaultMetadata.title as any).template).toContain('IA Poste Manager');
+      expect((defaultMetadata.title as any).template).toContain('memoLib');
     });
 
     test('contient une description', () => {
@@ -59,8 +59,8 @@ describe('metadata - Métadonnées SEO', () => {
     });
 
     test('contient creator et publisher', () => {
-      expect(defaultMetadata.creator).toBe('IA Poste Manager');
-      expect(defaultMetadata.publisher).toBe('IA Poste Manager');
+      expect(defaultMetadata.creator).toBe('memoLib');
+      expect(defaultMetadata.publisher).toBe('memoLib');
     });
 
     test('configure les robots correctement', () => {
@@ -83,7 +83,7 @@ describe('metadata - Métadonnées SEO', () => {
     });
 
     test('contient siteName dans OpenGraph', () => {
-      expect((defaultMetadata.openGraph as any).siteName).toBe('IA Poste Manager');
+      expect((defaultMetadata.openGraph as any).siteName).toBe('memoLib');
     });
 
     test('contient des images OpenGraph', () => {

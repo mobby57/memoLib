@@ -1,4 +1,4 @@
-# 🚀 Stratégie de Vente - IA Poste Manager
+# 🚀 Stratégie de Vente - memoLib
 
 ## 📊 Modèle Économique SaaS
 

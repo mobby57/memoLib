@@ -180,7 +180,7 @@ export function Navigation() {
           </div>
           <div>
             <h2 className="font-semibold text-gray-900 dark:text-white">
-              IA Poste Manager
+              memoLib
             </h2>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               {user.role === 'SUPER_ADMIN' && 'Super Admin'}

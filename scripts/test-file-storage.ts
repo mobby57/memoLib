@@ -26,7 +26,7 @@ async function testFileStorage() {
 
     // Test 1: Créer un fichier de test
     console.log('📝 Test 1 : Créer fichier de test');
-    const testContent = 'Ceci est un document de test pour IA Poste Manager';
+    const testContent = 'Ceci est un document de test pour memoLib';
     const testFilename = `test-${Date.now()}.txt`;
     const testPath = join(process.cwd(), 'public', 'uploads', 'workspaces', workspace.id, testFilename);
     

@@ -1,4 +1,4 @@
-# 📋 IA Poste Manager — Présentation Client PROD
+# 📋 memoLib — Présentation Client PROD
 
 ---
 
@@ -11,7 +11,7 @@
 
 ## 🎯 Résumé Exécutif
 
-**IA Poste Manager** est une plateforme SaaS de gestion intelligente des communications multi-canal, spécialement conçue pour les professionnels du droit et les institutions.
+**memoLib** est une plateforme SaaS de gestion intelligente des communications multi-canal, spécialement conçue pour les professionnels du droit et les institutions.
 
 ### Valeur ajoutée
 
@@ -283,5 +283,5 @@ Chaque action est horodatée et tracée :
 
 ---
 
-**© 2026 IA Poste Manager — Tous droits réservés**  
+**© 2026 memoLib — Tous droits réservés**  
 *Document généré le 25/01/2026*
