@@ -40,7 +40,7 @@
   
   # Branding
   X-Powered-By: Cloudflare Pages
-  X-Application: IA Poste Manager v2.0
+  X-Application: memoLib v2.0
   
   # Default Cache (no-cache pour pages dynamiques)
   Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0
