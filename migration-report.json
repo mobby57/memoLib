@@ -1,7 +1,7 @@
 {
   "timestamp": "2026-01-21T11:02:15.691Z",
   "config": {
-    "sourcePostgresUrl": "postgresql://iapostemanage:changeme@localhost:5432/iapostemanage",
+    "sourcePostgresUrl": "postgresql://memolib:changeme@localhost:5432/memolib",
     "targetSqlitePath": "./prisma/migrated.db",
     "batchSize": 100,
     "excludeModels": [],

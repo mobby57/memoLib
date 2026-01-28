@@ -125,7 +125,7 @@ export default function AdvancedFeaturesPage() {
 
         <div className="mt-12 text-center">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2"> IA Poste Manager v2.0</h3>
+            <h3 className="text-lg font-semibold mb-2"> memoLib v2.0</h3>
             <p className="text-blue-100">
               Le systeme devient plus intelligent chaque jour, sans intervention manuelle.
             </p>

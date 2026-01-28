@@ -87,7 +87,7 @@
 # ============================================
 /api/*
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
-  Access-Control-Allow-Origin: https://iaposte-manager.pages.dev
+  Access-Control-Allow-Origin: https://memolib.fly.dev
   Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
   Access-Control-Allow-Headers: Content-Type, Authorization
   Access-Control-Max-Age: 86400

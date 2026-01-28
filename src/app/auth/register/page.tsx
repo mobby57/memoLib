@@ -195,7 +195,7 @@ export default function RegisterPage() {
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
           <div className="flex items-center gap-3 mb-2">
             <Scale size={32} />
-            <h1 className="text-2xl font-bold">IA Poste Manager</h1>
+            <h1 className="text-2xl font-bold">memoLib</h1>
           </div>
           <p className="text-blue-100">Inscription Avocat - Étape {step}/3</p>
           
