@@ -28,7 +28,7 @@ async function testDownloadAPI() {
 
     // Créer un fichier de test
     console.log('📝 Étape 1 : Créer un document de test');
-    const testContent = 'Ceci est un document PDF de test pour IA Poste Manager.\nContenu du fichier téléchargeable.';
+    const testContent = 'Ceci est un document PDF de test pour memoLib.\nContenu du fichier téléchargeable.';
     const testFilename = `test-download-${Date.now()}.txt`;
     const uploadsDir = join(process.cwd(), 'public', 'uploads', 'workspaces', workspace.id);
     

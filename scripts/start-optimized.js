@@ -3,7 +3,7 @@
 const { spawn } = require('child_process');
 const chalk = require('chalk');
 
-console.log(chalk.blue.bold('🚀 IA Poste Manager - Démarrage optimisé\n'));
+console.log(chalk.blue.bold('🚀 memoLib - Démarrage optimisé\n'));
 
 // Vérifier Node.js version
 const nodeVersion = process.version;

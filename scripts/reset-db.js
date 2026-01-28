@@ -2,7 +2,7 @@
 
 /**
  * Script de réinitialisation de la base de données
- * IA Poste Manager - Reset DB
+ * memoLib - Reset DB
  */
 
 const { execSync } = require('child_process');
