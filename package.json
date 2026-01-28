@@ -106,7 +106,11 @@
     "check-quality": "node scripts/check-quality.js",
     "deps:check": "npm outdated",
     "deps:update": "npm update",
-    "deps:audit": "npm audit"
+    "deps:audit": "npm audit",
+    "dx:setup": "npm install && npx prisma generate && npm run dev",
+    "dx:reset": "npm run clean && npm run dx:setup",
+    "dx:check": "npm run lint && npm run type-check && npm run test",
+    "dx:health": "node -e \"console.log(\"✅ Node:\", process.version)\""
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
