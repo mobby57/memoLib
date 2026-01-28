@@ -171,7 +171,6 @@
     "zod": "^3.25.58"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260113.0",
     "@commitlint/cli": "^20.3.0",
     "@commitlint/config-conventional": "^20.3.0",
     "@eslint/eslintrc": "^3.3.3",

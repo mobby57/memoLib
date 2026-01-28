@@ -2,7 +2,6 @@
 # 🌐 Deploy Multi - Choix flexible (Azure, Fly.io, Vercel, Cloudflare)
 # ============================================================================
 # Déploie sur la plateforme choisie via variables `DEPLOY_TARGET`
-# Supporte: azure | fly | vercel | cloudflare
 # ============================================================================
 
 name: 🌐 Deploy Multi
@@ -11,10 +10,8 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: 'Deployment target (azure|fly|vercel|cloudflare)'
         required: true
         type: choice
-        options: [azure, fly, vercel, cloudflare]
       ref:
         description: 'Git ref to deploy (branch or tag)'
         required: false
@@ -115,8 +112,6 @@ jobs:
       # Cloudflare Pages
       # ═══════════════════════════════════════════════════════════════════════
       - name: 🚀 Deploy to Cloudflare Pages
-        if: steps.target.outputs.target == 'cloudflare'
-        uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
