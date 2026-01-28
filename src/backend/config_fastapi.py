@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list = ["http://localhost:3000"]
     
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///iapostemanager.db")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///memoLib.db")
     
     # Ollama Configuration
     OLLAMA_HOST: str = os.getenv("OLLAMA_HOST", "http://localhost:11434")

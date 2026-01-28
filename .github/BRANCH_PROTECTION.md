@@ -1,4 +1,4 @@
-# Configuration de Protection de Branche pour IaPosteManager
+# Configuration de Protection de Branche pour MemoLib
 
 ## 🔒 Recommandations GitHub Branch Protection
 

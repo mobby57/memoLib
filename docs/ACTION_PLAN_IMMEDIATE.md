@@ -32,7 +32,7 @@
 
 # Créer un nouveau Service Principal
 az ad sp create-for-rbac `
-  --name "iapostemanager-gha-v3" `
+  --name "memoLib-gha-v3" `
   --role contributor `
   --scopes /subscriptions/<SUBSCRIPTION_ID> `
   --sdk-auth
@@ -74,19 +74,19 @@ git push origin main
 ```bash
 # Créer le Key Vault (si pas déjà fait)
 az keyvault create \
-  --name iapostemanager-kv \
-  --resource-group iapostemanager-rg \
+  --name memoLib-kv \
+  --resource-group memoLib-rg \
   --location westeurope
 
 # Ajouter les secrets critiques
-az keyvault secret set --vault-name iapostemanager-kv --name "DATABASE-URL" --value "postgresql://..."
-az keyvault secret set --vault-name iapostemanager-kv --name "NEXTAUTH-SECRET" --value "$(openssl rand -base64 32)"
-az keyvault secret set --vault-name iapostemanager-kv --name "OPENAI-API-KEY" --value "sk-..."
+az keyvault secret set --vault-name memoLib-kv --name "DATABASE-URL" --value "postgresql://..."
+az keyvault secret set --vault-name memoLib-kv --name "NEXTAUTH-SECRET" --value "$(openssl rand -base64 32)"
+az keyvault secret set --vault-name memoLib-kv --name "OPENAI-API-KEY" --value "sk-..."
 
 # Secrets canaux (optionnels selon usage)
-az keyvault secret set --vault-name iapostemanager-kv --name "WHATSAPP-ACCESS-TOKEN" --value "EAAxxxxx"
-az keyvault secret set --vault-name iapostemanager-kv --name "TWILIO-AUTH-TOKEN" --value "xxxxx"
-az keyvault secret set --vault-name iapostemanager-kv --name "SLACK-BOT-TOKEN" --value "xoxb-xxxxx"
+az keyvault secret set --vault-name memoLib-kv --name "WHATSAPP-ACCESS-TOKEN" --value "EAAxxxxx"
+az keyvault secret set --vault-name memoLib-kv --name "TWILIO-AUTH-TOKEN" --value "xxxxx"
+az keyvault secret set --vault-name memoLib-kv --name "SLACK-BOT-TOKEN" --value "xoxb-xxxxx"
 ```
 
 #### 2.2 GitHub Secrets
@@ -105,7 +105,7 @@ VERCEL_PROJECT_ID          # ID projet Vercel
 # Production
 DATABASE_URL               # PostgreSQL connection string
 NEXTAUTH_SECRET            # Secret NextAuth (32+ chars)
-NEXTAUTH_URL               # https://iapostemanager.vercel.app
+NEXTAUTH_URL               # https://memoLib.vercel.app
 OPENAI_API_KEY             # sk-...
 NODE_ENV                   # production
 
@@ -150,7 +150,7 @@ npx vercel --prod --force
 
 ```bash
 # Health check
-curl https://iapostemanager.vercel.app/api/health
+curl https://memoLib.vercel.app/api/health
 
 # Résultat attendu:
 {
@@ -169,20 +169,20 @@ curl https://iapostemanager.vercel.app/api/health
 
 ```bash
 # API Health
-curl https://iapostemanager.vercel.app/api/health
+curl https://memoLib.vercel.app/api/health
 
 # Auth providers
-curl https://iapostemanager.vercel.app/api/auth/providers
+curl https://memoLib.vercel.app/api/auth/providers
 
 # Multichannel stats (nécessite auth)
-curl https://iapostemanager.vercel.app/api/multichannel/stats?period=7d \
+curl https://memoLib.vercel.app/api/multichannel/stats?period=7d \
   -H "Authorization: Bearer <TOKEN>"
 ```
 
 #### 4.2 Test webhook Email
 
 ```bash
-curl -X POST https://iapostemanager.vercel.app/api/webhooks/channel/email \
+curl -X POST https://memoLib.vercel.app/api/webhooks/channel/email \
   -H "Content-Type: application/json" \
   -H "x-api-key: <SECRET>" \
   -d '{
@@ -195,7 +195,7 @@ curl -X POST https://iapostemanager.vercel.app/api/webhooks/channel/email \
 #### 4.3 Test interface web
 
 ```
-1. Ouvrir https://iapostemanager.vercel.app
+1. Ouvrir https://memoLib.vercel.app
 2. Se connecter (créer un compte si besoin)
 3. Vérifier le dashboard
 4. Tester l'upload de document
@@ -252,7 +252,7 @@ Unexpected token 'a', "az : WARNI"... is not valid JSON
 ```powershell
 # Recréer le Service Principal PROPREMENT
 az ad sp create-for-rbac \
-  --name "iapostemanager-gha-clean" \
+  --name "memoLib-gha-clean" \
   --role contributor \
   --scopes /subscriptions/<SUBSCRIPTION_ID> \
   --sdk-auth
@@ -319,8 +319,8 @@ psql "postgresql://user:pass@host:5432/db"
 
 # Autoriser l'IP Vercel (0.0.0.0/0 pour test)
 az postgres flexible-server firewall-rule create \
-  --resource-group iapostemanager-rg \
-  --name iapostemanager-db \
+  --resource-group memoLib-rg \
+  --name memoLib-db \
   --rule-name AllowVercel \
   --start-ip-address 0.0.0.0 \
   --end-ip-address 255.255.255.255
@@ -419,7 +419,7 @@ Une fois TOUTES les étapes complétées :
 
 ```bash
 # Test complet automatisé
-curl -X POST https://iapostemanager.vercel.app/api/webhooks/channel/email \
+curl -X POST https://memoLib.vercel.app/api/webhooks/channel/email \
   -H "Content-Type: application/json" \
   -H "x-api-key: $CHANNEL_EMAIL_SECRET" \
   -d '{

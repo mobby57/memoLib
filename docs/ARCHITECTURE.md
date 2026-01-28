@@ -77,7 +77,7 @@ conçu pour les cabinets d'avocats, notaires, et organisations institutionnelles
 ## 📁 STRUCTURE DES DOSSIERS
 
 ```
-iapostemanager/
+memoLib/
 ├── .github/
 │   └── workflows/
 │       ├── ci-cd-optimized.yml    # Pipeline principal
@@ -126,7 +126,7 @@ iapostemanager/
 │   └── backend/
 ├── .env.example                   # Template variables
 ├── .pre-commit-config.yaml       # Hooks pre-commit
-├── iapostemanager.code-workspace # Workspace VS Code
+├── memoLib.code-workspace # Workspace VS Code
 └── README.md
 ```
 

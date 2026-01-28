@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🛡️ Script de Simulation d'Attaques AVANCÉ - IaPosteManager v2.0
+🛡️ Script de Simulation d'Attaques AVANCÉ - MemoLib v2.0
 ================================================================
 
 Simule 100+ types d'attaques pour tester la robustesse maximale du code.
@@ -71,7 +71,7 @@ def banner():
     print(
         f"""
 {Colors.MAGENTA}╔══════════════════════════════════════════════════════════════════╗
-║  🛡️  SIMULATION D'ATTAQUES AVANCÉE v2.0 - IaPosteManager        ║
+║  🛡️  SIMULATION D'ATTAQUES AVANCÉE v2.0 - MemoLib        ║
 ║                                                                    ║
 ║  🔥 100+ TESTS DE SÉCURITÉ | 15 CATÉGORIES D'ATTAQUES            ║
 ║                                                                    ║

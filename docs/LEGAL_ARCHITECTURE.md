@@ -181,7 +181,7 @@
 
 ### 5.2 Contact DPO
 
-- **Email**: dpo@iapostemanager.com
+- **Email**: dpo@memoLib.com
 - **Courrier**: [Adresse à compléter]
 - **Délai de réponse**: 30 jours (prolongeable 2 mois si complexe)
 
@@ -208,7 +208,7 @@ Détection incident
 
 ### 6.2 Contact Urgence
 
-- **Hotline sécurité**: security@iapostemanager.com
+- **Hotline sécurité**: security@memoLib.com
 - **Astreinte**: [Numéro à définir]
 
 ---

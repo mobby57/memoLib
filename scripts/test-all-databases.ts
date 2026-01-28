@@ -46,7 +46,7 @@ class DatabaseTester {
       },
       {
         name: 'Cloudflare D1',
-        url: process.env.D1_DATABASE_URL || 'file:./prisma/.d1/iapostemanager-db.db',
+        url: process.env.D1_DATABASE_URL || 'file:./prisma/.d1/memoLib-db.db',
         type: 'd1',
         description: 'Base de données Cloudflare pour cloud'
       }

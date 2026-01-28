@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🏛️ AUDIT DE CONFORMITÉ INSTITUTIONNELLE - IaPosteManager
+🏛️ AUDIT DE CONFORMITÉ INSTITUTIONNELLE - MemoLib
 ==========================================================
 
 Critères obligatoires pour les institutions :
@@ -97,7 +97,7 @@ def banner():
     print(
         f"""
 {Colors.CYAN}╔══════════════════════════════════════════════════════════════════════════╗
-║  🏛️  AUDIT DE CONFORMITÉ INSTITUTIONNELLE - IaPosteManager               ║
+║  🏛️  AUDIT DE CONFORMITÉ INSTITUTIONNELLE - MemoLib               ║
 ║                                                                            ║
 ║  📋 Standards: ISO 27001 | SOC 2 | GDPR | PCI-DSS | ANSSI | OWASP ASVS    ║
 ║                                                                            ║

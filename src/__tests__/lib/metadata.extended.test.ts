@@ -6,11 +6,11 @@
 describe('Metadata - Pure Unit Tests', () => {
   describe('page metadata', () => {
     it('should generate page title', () => {
-      const generateTitle = (page: string, appName: string = 'iaPosteManager') => 
+      const generateTitle = (page: string, appName: string = 'memoLib') => 
         `${page} | ${appName}`;
 
-      expect(generateTitle('Dashboard')).toBe('Dashboard | iaPosteManager');
-      expect(generateTitle('Dossiers')).toBe('Dossiers | iaPosteManager');
+      expect(generateTitle('Dashboard')).toBe('Dashboard | memoLib');
+      expect(generateTitle('Dossiers')).toBe('Dossiers | memoLib');
     });
 
     it('should generate meta description', () => {
@@ -32,12 +32,12 @@ describe('Metadata - Pure Unit Tests', () => {
         description,
         url,
         type: 'website',
-        siteName: 'iaPosteManager',
+        siteName: 'memoLib',
       });
 
       const og = createOG('Home', 'Welcome', 'https://example.com');
       expect(og.type).toBe('website');
-      expect(og.siteName).toBe('iaPosteManager');
+      expect(og.siteName).toBe('memoLib');
     });
 
     it('should create image metadata', () => {
@@ -99,7 +99,7 @@ describe('Metadata - Pure Unit Tests', () => {
         url,
       });
 
-      const schema = createOrgSchema('iaPosteManager', 'https://example.com');
+      const schema = createOrgSchema('memoLib', 'https://example.com');
       expect(schema['@type']).toBe('Organization');
     });
 
@@ -112,7 +112,7 @@ describe('Metadata - Pure Unit Tests', () => {
         applicationCategory: 'BusinessApplication',
       });
 
-      const schema = createSoftwareSchema('iaPosteManager', '1.0.0');
+      const schema = createSoftwareSchema('memoLib', '1.0.0');
       expect(schema['@type']).toBe('SoftwareApplication');
     });
   });
@@ -169,7 +169,7 @@ describe('Metadata - Pure Unit Tests', () => {
         theme_color: '#000000',
       });
 
-      const manifest = createManifest('iaPosteManager', 'iPM');
+      const manifest = createManifest('memoLib', 'iPM');
       expect(manifest.display).toBe('standalone');
     });
   });

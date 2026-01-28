@@ -1,5 +1,5 @@
 """
-🔒 Sanitiseur de Logs - IaPosteManager
+🔒 Sanitiseur de Logs - MemoLib
 ======================================
 
 Module pour masquer automatiquement les données sensibles dans les logs.

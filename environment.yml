@@ -1,6 +1,6 @@
 # Configuration Conda pour IA Poste Manager
 # Environnement Python pour services backend IA/ML
-name: iapostemanager
+name: memoLib
 
 channels:
   - conda-forge

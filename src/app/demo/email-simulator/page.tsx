@@ -295,7 +295,7 @@ export default function EmailSimulatorPage() {
                 Comptes de test
               </h3>
               <div className="text-xs text-gray-500 dark:text-gray-400 space-y-2">
-                <p><strong>Super Admin:</strong><br />superadmin@iapostemanager.com</p>
+                <p><strong>Super Admin:</strong><br />superadmin@memoLib.com</p>
                 <p><strong>Avocat:</strong><br />jean.dupont@cabinet-dupont.fr</p>
                 <p><strong>Client:</strong><br />mohamed.benali@example.com</p>
               </div>

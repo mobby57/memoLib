@@ -26,7 +26,7 @@ const testPayloads = {
   push: {
     ref: 'refs/heads/main',
     repository: {
-      full_name: 'iapostemanager/app',
+      full_name: 'memoLib/app',
       name: 'app'
     },
     pusher: {
@@ -63,7 +63,7 @@ const testPayloads = {
       merged: false
     },
     repository: {
-      full_name: 'iapostemanager/app'
+      full_name: 'memoLib/app'
     }
   },
 
@@ -81,14 +81,14 @@ const testPayloads = {
       ]
     },
     repository: {
-      full_name: 'iapostemanager/app'
+      full_name: 'memoLib/app'
     }
   },
 
   star: {
     action: 'created',
     repository: {
-      full_name: 'iapostemanager/app',
+      full_name: 'memoLib/app',
       stargazers_count: 100
     },
     sender: {

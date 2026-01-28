@@ -117,8 +117,8 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Email</h3>
-                  <p className="text-blue-200">contact@iapostemanager.com</p>
-                  <p className="text-blue-200">support@iapostemanager.com</p>
+                  <p className="text-blue-200">contact@memoLib.com</p>
+                  <p className="text-blue-200">support@memoLib.com</p>
                 </div>
               </div>
 

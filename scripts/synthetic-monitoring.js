@@ -45,7 +45,7 @@ async function makeRequest(url, timeout = 5000) {
 async function runSyntheticTests() {
   console.log('🔍 Exécution des tests synthétiques...');
   
-  const baseUrl = process.env.DEPLOYMENT_URL || 'https://iapostemanager.pages.dev';
+  const baseUrl = process.env.DEPLOYMENT_URL || 'https://memoLib.pages.dev';
   
   const tests = [
     {

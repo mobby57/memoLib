@@ -3,7 +3,7 @@
 
 import { Metadata } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://iapostemanager.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memoLib.com';
 
 // Métadonnées par défaut
 export const defaultMetadata: Metadata = {
@@ -58,7 +58,7 @@ export const defaultMetadata: Metadata = {
     title: 'IA Poste Manager - Gestion Juridique Intelligente',
     description: 'Système intelligent de gestion des dossiers juridiques.',
     images: [`${BASE_URL}/og-image.png`],
-    creator: '@iapostemanager',
+    creator: '@memoLib',
   },
   icons: {
     icon: [

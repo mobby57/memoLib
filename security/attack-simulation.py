@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🛡️ Script de Simulation d'Attaques - IaPosteManager
+🛡️ Script de Simulation d'Attaques - MemoLib
 ====================================================
 
 Ce script simule différents types d'attaques pour tester la robustesse du code.
@@ -55,7 +55,7 @@ def banner():
     print(
         f"""
 {Colors.RED}╔══════════════════════════════════════════════════════════════╗
-║  🛡️  SIMULATION D'ATTAQUES - IaPosteManager Security Test   ║
+║  🛡️  SIMULATION D'ATTAQUES - MemoLib Security Test   ║
 ║                                                                ║
 ║  ⚠️  USAGE EN DÉVELOPPEMENT UNIQUEMENT                        ║
 ╚══════════════════════════════════════════════════════════════╝{Colors.RESET}

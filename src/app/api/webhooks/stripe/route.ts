@@ -169,7 +169,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
       if (process.env.RESEND_API_KEY) {
         await resend.emails.send({
-          from: process.env.EMAIL_FROM || 'billing@iapostemanager.com',
+          from: process.env.EMAIL_FROM || 'billing@memoLib.com',
           to: tenant.owner.email,
           subject: '⚠️ Action requise : Échec de paiement - IA Poste Manager',
           html: `

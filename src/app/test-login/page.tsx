@@ -72,7 +72,7 @@ export default function TestLoginPage() {
           <input 
             type="email" 
             name="email" 
-            defaultValue="superadmin@iapostemanager.com" 
+            defaultValue="superadmin@memoLib.com" 
             required
             className="w-full p-2 border border-gray-300 rounded"
           />
