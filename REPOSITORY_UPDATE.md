@@ -19,7 +19,7 @@
 ### 3. Push effectué
 - ✅ Branch : `main`
 - ✅ Commit : c4f0b3c7
-- ✅ Repository : mobby57/iapostemanager
+- ✅ Repository : mobby57/memoLib
 
 ---
 
@@ -45,7 +45,7 @@ ba23f843 - feat: add simple email webhook endpoint
 
 ### GitHub Actions
 - ✅ Workflow déclenché automatiquement
-- 🔗 https://github.com/mobby57/iapostemanager/actions
+- 🔗 https://github.com/mobby57/memoLib/actions
 
 ### Azure Static Web Apps
 - ✅ Build en cours

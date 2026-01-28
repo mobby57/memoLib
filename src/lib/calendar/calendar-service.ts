@@ -114,11 +114,11 @@ export class CalendarService {
     const lines: string[] = [];
     lines.push('BEGIN:VCALENDAR');
     lines.push('VERSION:2.0');
-    lines.push('PRODID:-//IaPosteManager//Calendar//FR');
+    lines.push('PRODID:-//MemoLib//Calendar//FR');
 
     for (const ev of list) {
       lines.push('BEGIN:VEVENT');
-      lines.push(`UID:${ev.id}@iapostemanager`);
+      lines.push(`UID:${ev.id}@memoLib`);
       lines.push(`DTSTAMP:${this.toIcsDate(ev.updatedAt)}`);
       lines.push(`DTSTART:${this.toIcsDate(ev.start)}`);
       lines.push(`DTEND:${this.toIcsDate(ev.end)}`);

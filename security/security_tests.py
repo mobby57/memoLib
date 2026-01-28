@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🛡️ Tests de Sécurité Complets - IaPosteManager
+🛡️ Tests de Sécurité Complets - MemoLib
 ===============================================
 
 Ce script teste l'efficacité des protections de sécurité implémentées.
@@ -293,7 +293,7 @@ def run_security_tests():
     print(
         f"""
 {Colors.CYAN}╔══════════════════════════════════════════════════════════════╗
-║  🛡️  TESTS DE SÉCURITÉ COMPLETS - IaPosteManager             ║
+║  🛡️  TESTS DE SÉCURITÉ COMPLETS - MemoLib             ║
 ╚══════════════════════════════════════════════════════════════╝{Colors.RESET}
 """
     )

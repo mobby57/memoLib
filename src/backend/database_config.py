@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 # URL PostgreSQL depuis .env
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/iapostemanager"
+    "postgresql://postgres:postgres@localhost:5432/memoLib"
 )
 
 # Configuration engine

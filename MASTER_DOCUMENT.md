@@ -319,7 +319,7 @@ services:
 ### B. Arborescence cible du repo
 
 ```
-iapostemanager/
+memoLib/
 ├── frontend/                    # Next.js 16+ (TypeScript)
 │   ├── src/
 │   │   ├── app/                 # App Router

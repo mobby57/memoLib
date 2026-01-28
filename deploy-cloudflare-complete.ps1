@@ -4,7 +4,7 @@
 param(
     [switch]$SkipLogin,
     [switch]$ProductionOnly,
-    [string]$ProjectName = "iapostemanager"
+    [string]$ProjectName = "memoLib"
 )
 
 $ErrorActionPreference = "Stop"

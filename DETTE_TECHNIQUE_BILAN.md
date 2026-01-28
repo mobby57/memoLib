@@ -1,4 +1,4 @@
-# 📊 Bilan Dette Technique - IaPosteManager
+# 📊 Bilan Dette Technique - MemoLib
 
 **Date d'analyse:** 27 janvier 2026
 **Analyste:** GitHub Copilot (Claude Opus 4.5)

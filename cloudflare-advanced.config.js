@@ -241,7 +241,7 @@ module.exports = {
   env: {
     production: {
       DATABASE_URL: 'file:./dev.db',
-      NEXTAUTH_URL: 'https://iapostemanager.pages.dev',
+      NEXTAUTH_URL: 'https://memoLib.pages.dev',
       REDIS_ENABLED: 'true',
       NODE_ENV: 'production',
       NEXT_TELEMETRY_DISABLED: '1',
@@ -249,7 +249,7 @@ module.exports = {
     
     preview: {
       DATABASE_URL: 'file:./dev.db',
-      NEXTAUTH_URL: 'https://preview-${BRANCH}.iapostemanager.pages.dev',
+      NEXTAUTH_URL: 'https://preview-${BRANCH}.memoLib.pages.dev',
       REDIS_ENABLED: 'true',
       NODE_ENV: 'production',
     },

@@ -81,7 +81,7 @@ jobs:
         run: |
           mkdir -p release-assets
           # Create a summary of changes
-          echo "# IaPosteManager ${{ steps.version.outputs.version }}" > release-assets/RELEASE_NOTES.md
+          echo "# MemoLib ${{ steps.version.outputs.version }}" > release-assets/RELEASE_NOTES.md
           echo "" >> release-assets/RELEASE_NOTES.md
           echo "## Changes" >> release-assets/RELEASE_NOTES.md
           echo "${{ steps.changelog.outputs.changelog }}" >> release-assets/RELEASE_NOTES.md
@@ -101,7 +101,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          name: IaPosteManager ${{ steps.version.outputs.version }}
+          name: MemoLib ${{ steps.version.outputs.version }}
           body: ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: ${{ inputs.prerelease || false }}
@@ -143,7 +143,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "🚀 New Release: IaPosteManager"
+                    "text": "🚀 New Release: MemoLib"
                   }
                 },
                 {

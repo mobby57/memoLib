@@ -63,12 +63,12 @@ cd src/frontend && npm run lint && npx tsc --noEmit
 
 ```bash
 # Créer le Key Vault
-az keyvault create --name iapostemanager-kv --resource-group iapostemanager-rg
+az keyvault create --name memoLib-kv --resource-group memoLib-rg
 
 # Ajouter les secrets
-az keyvault secret set --vault-name iapostemanager-kv --name "DATABASE-URL" --value "..."
-az keyvault secret set --vault-name iapostemanager-kv --name "NEXTAUTH-SECRET" --value "..."
-az keyvault secret set --vault-name iapostemanager-kv --name "TWILIO-AUTH-TOKEN" --value "..."
+az keyvault secret set --vault-name memoLib-kv --name "DATABASE-URL" --value "..."
+az keyvault secret set --vault-name memoLib-kv --name "NEXTAUTH-SECRET" --value "..."
+az keyvault secret set --vault-name memoLib-kv --name "TWILIO-AUTH-TOKEN" --value "..."
 ```
 
 ### 2. GitHub Secrets (pour CI/CD)
@@ -88,7 +88,7 @@ Secrets requis:
 
 ```bash
 az staticwebapp appsettings set \
-  --name iapostemanager \
+  --name memoLib \
   --setting-names \
     DATABASE_URL="@Microsoft.KeyVault(...)" \
     NEXTAUTH_SECRET="@Microsoft.KeyVault(...)"

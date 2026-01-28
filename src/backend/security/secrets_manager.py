@@ -1,5 +1,5 @@
 """
-🔐 Gestionnaire de Secrets Sécurisé - IaPosteManager
+🔐 Gestionnaire de Secrets Sécurisé - MemoLib
 ====================================================
 
 Module pour gérer les secrets de manière sécurisée sans hardcoding.

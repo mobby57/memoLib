@@ -26,14 +26,14 @@ Write-Host "   - Zone.Workers (Edit)" @yellow
 Write-Host "`nNote: Your token shows 'Super Administrator' which is good!" @green
 
 Write-Host "`n📋 Step 3: Update GitHub Secrets" @cyan
-Write-Host "1. Go to: https://github.com/mobby57/iapostemanager/settings/secrets/actions" @yellow
+Write-Host "1. Go to: https://github.com/mobby57/memoLib/settings/secrets/actions" @yellow
 Write-Host "2. Update secret 'CLOUDFLARE_ACCOUNT_ID' with your Account ID" @yellow
 Write-Host "3. Verify 'CLOUDFLARE_API_TOKEN' is still set correctly" @yellow
 
 Write-Host "`n📋 Step 4: Alternative - Use Cloudflare Direct Upload" @cyan
 Write-Host "If API issues persist, we can use GitHub + Cloudflare integration:" @yellow
 Write-Host "  - Cloudflare API Token (you have it ✅)" @yellow
-Write-Host "  - Pages project name: 'iapostemanage' or 'iapostemanager'" @yellow
+Write-Host "  - Pages project name: 'iapostemanage' or 'memoLib'" @yellow
 Write-Host "  - Build command: npm run build" @yellow
 Write-Host "  - Build output: .next" @yellow
 

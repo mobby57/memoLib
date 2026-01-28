@@ -270,9 +270,9 @@ Chaque action est horodatée et tracée :
 
 | Rôle | Contact |
 |------|---------|
-| Support technique | support@iapostemanager.com |
+| Support technique | support@memoLib.com |
 | Responsable compte | [À définir] |
-| DPO | dpo@iapostemanager.com |
+| DPO | dpo@memoLib.com |
 
 ### B. Documents associés
 

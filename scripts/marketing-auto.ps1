@@ -205,12 +205,12 @@ Vous venez de rejoindre **347 cabinets d'avocats** qui ont choisi l'IA responsab
 
 **Vos premiers pas :**
 
-1. ✅ Connectez-vous : [app.iapostemanager.com](http://app.iapostemanager.com)
+1. ✅ Connectez-vous : [app.memoLib.com](http://app.memoLib.com)
 2. ✅ Créez votre premier client
 3. ✅ Testez la pré-rédaction d'un recours OQTF
 
 **Besoin d'aide ?**  
-Notre équipe support est disponible 7j/7 : support@iapostemanager.com
+Notre équipe support est disponible 7j/7 : support@memoLib.com
 
 À très vite,  
 **L'équipe IA Poste Manager**
@@ -334,7 +334,7 @@ Votre essai gratuit **expire dans 4 jours**.
 
 [➡️ Activer l'offre maintenant](https://...)
 
-Support : support@iapostemanager.com  
+Support : support@memoLib.com  
 Tél : 01 23 45 67 89
 
 À très vite,  
@@ -774,9 +774,9 @@ Expert SaaS B2B
 **Rejoignez la Révolution de l'IA Responsable**
 
 **Contact :**  
-📧 contact@iapostemanager.com  
+📧 contact@memoLib.com  
 📱 +33 1 23 45 67 89  
-🌐 iapostemanager.com
+🌐 memoLib.com
 
 **[Bouton] Planifier une démo**
 
@@ -804,7 +804,7 @@ Write-Host "`n📋 PROCHAINES ÉTAPES MARKETING :" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "1. Landing Page:" -ForegroundColor White
 Write-Host "   - Héberger landing-page.html sur un CDN/hosting" -ForegroundColor Gray
-Write-Host "   - Acheter domaine: iapostemanager.com" -ForegroundColor Gray
+Write-Host "   - Acheter domaine: memoLib.com" -ForegroundColor Gray
 Write-Host "   - Configurer Google Analytics`n" -ForegroundColor Gray
 
 Write-Host "2. Email Marketing:" -ForegroundColor White

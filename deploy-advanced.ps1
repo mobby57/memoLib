@@ -29,10 +29,10 @@ param(
 # CONFIGURATION
 # ========================================
 
-$ProjectName = "iapostemanager"
+$ProjectName = "memoLib"
 $AccountId = $env:CLOUDFLARE_ACCOUNT_ID
 $ApiToken = $env:CLOUDFLARE_API_TOKEN
-$ProductionUrl = "https://iapostemanager.pages.dev"
+$ProductionUrl = "https://memoLib.pages.dev"
 
 # ========================================
 # FONCTIONS UTILITAIRES

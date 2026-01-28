@@ -9,7 +9,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ProjectName = "iapostemanager"
+$ProjectName = "memoLib"
 $BackupDir = "backups/cloudflare-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 
 Write-Output ""

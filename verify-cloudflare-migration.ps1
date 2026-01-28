@@ -88,13 +88,13 @@ Write-Host ("-" * 60) -ForegroundColor Cyan
 Write-Host "ACTIONS A FAIRE SUR GITHUB" -ForegroundColor Cyan
 Write-Host ("-" * 60) -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Webhooks : https://github.com/mobby57/iapostemanager/settings/hooks" -ForegroundColor White
+Write-Host "Webhooks : https://github.com/mobby57/memoLib/settings/hooks" -ForegroundColor White
 Write-Host "   -> Modifier Payload URL vers : $cloudflareUrl/api/webhooks/github" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Secrets : https://github.com/mobby57/iapostemanager/settings/secrets/actions" -ForegroundColor White
+Write-Host "Secrets : https://github.com/mobby57/memoLib/settings/secrets/actions" -ForegroundColor White
 Write-Host "   -> Ajouter GITHUB_WEBHOOK_SECRET" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Variables : https://github.com/mobby57/iapostemanager/settings/variables/actions" -ForegroundColor White
+Write-Host "Variables : https://github.com/mobby57/memoLib/settings/variables/actions" -ForegroundColor White
 Write-Host "   -> Ajouter CLOUDFLARE_TUNNEL_URL" -ForegroundColor Yellow
 Write-Host "   -> Ajouter WEBHOOK_URL" -ForegroundColor Yellow
 Write-Host "   -> Ajouter PUBLIC_WEBHOOK_URL" -ForegroundColor Yellow

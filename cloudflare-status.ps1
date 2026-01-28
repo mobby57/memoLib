@@ -13,7 +13,7 @@ $ErrorActionPreference = "Continue"
 
 # Configuration
 $PROJECT_NAME = "iaposte-manager"
-$PRODUCTION_URL = "https://iapostemanager.pages.dev"
+$PRODUCTION_URL = "https://memoLib.pages.dev"
 $CLOUDFLARE_DASHBOARD = "https://dash.cloudflare.com"
 
 Write-Output ""

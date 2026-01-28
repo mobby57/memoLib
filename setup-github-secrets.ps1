@@ -19,7 +19,7 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-$repo = "mobby57/iapostemanager"
+$repo = "mobby57/memoLib"
 Write-Host "Authentifie - Repository: $repo" -ForegroundColor Green
 Write-Host ""
 
@@ -27,7 +27,7 @@ Write-Host ""
 Write-Host "1/4 - AZURE_STATIC_WEB_APPS_API_TOKEN" -ForegroundColor Cyan
 Write-Host "Recuperation depuis Azure..." -ForegroundColor Gray
 
-$azureToken = az staticwebapp secrets list --name iapostemanager-swa --resource-group iapostemanager-rg --query "properties.apiKey" -o tsv 2>$null
+$azureToken = az staticwebapp secrets list --name memoLib-swa --resource-group memoLib-rg --query "properties.apiKey" -o tsv 2>$null
 
 if ($azureToken) {
     $preview = $azureToken.Substring(0, [Math]::Min(30, $azureToken.Length))

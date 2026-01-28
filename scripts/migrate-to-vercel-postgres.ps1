@@ -6,7 +6,7 @@ Write-Host ""
 
 # Étape 1: Créer la base Postgres sur Vercel
 Write-Host "ÉTAPE 1: Créer Vercel Postgres" -ForegroundColor Yellow
-Write-Host "1. Ouvrez: https://vercel.com/mobby57s-projects/iapostemanager/stores" -ForegroundColor White
+Write-Host "1. Ouvrez: https://vercel.com/mobby57s-projects/memoLib/stores" -ForegroundColor White
 Write-Host "2. Cliquez 'Create Database' → 'Postgres'" -ForegroundColor White
 Write-Host "3. Nom suggéré: iaposte-production-db" -ForegroundColor White
 Write-Host "4. Région: WEUR (Europe West)" -ForegroundColor White
@@ -62,7 +62,7 @@ if ($seed -eq 'y') {
 # Étape 6: Configuration Vercel
 Write-Host "`nÉTAPE 6: Configuration Vercel Environment Variables" -ForegroundColor Yellow
 Write-Host "Ajoutez DATABASE_URL dans Vercel:" -ForegroundColor White
-Write-Host "1. https://vercel.com/mobby57s-projects/iapostemanager/settings/environment-variables" -ForegroundColor White
+Write-Host "1. https://vercel.com/mobby57s-projects/memoLib/settings/environment-variables" -ForegroundColor White
 Write-Host "2. Add New → DATABASE_URL" -ForegroundColor White
 Write-Host "3. Value: $databaseUrl" -ForegroundColor White
 Write-Host "4. Environment: Production + Preview" -ForegroundColor White

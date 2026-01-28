@@ -17,7 +17,7 @@ try {
 
 # Creer environnement depuis environment.yml
 Write-Host ""
-Write-Host "Creation de l'environnement 'iapostemanager'..." -ForegroundColor Yellow
+Write-Host "Creation de l'environnement 'memoLib'..." -ForegroundColor Yellow
 Write-Host "Cela peut prendre 5-10 minutes..." -ForegroundColor Gray
 Write-Host ""
 
@@ -33,7 +33,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "[OK] Environnement cree avec succes!" -ForegroundColor Green
     Write-Host ""
     Write-Host "Prochaines etapes:" -ForegroundColor Cyan
-    Write-Host "  1. conda activate iapostemanager" -ForegroundColor White
+    Write-Host "  1. conda activate memoLib" -ForegroundColor White
     Write-Host "  2. .\start-python-backend.ps1" -ForegroundColor White
     Write-Host ""
 } else {

@@ -134,14 +134,14 @@ Write-Host "Prochaines etapes pour finaliser :" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  [1] Aller sur : https://vercel.com/dashboard" -ForegroundColor White
 Write-Host ""
-Write-Host "  [2] Cliquer sur votre projet : iapostemanager" -ForegroundColor White
+Write-Host "  [2] Cliquer sur votre projet : memoLib" -ForegroundColor White
 Write-Host ""
 Write-Host "  [3] Onglet 'Storage' -> Create Database -> Postgres" -ForegroundColor White
-Write-Host "      * Nom : iapostemanager-db" -ForegroundColor Gray
+Write-Host "      * Nom : memoLib-db" -ForegroundColor Gray
 Write-Host "      * Region : Frankfurt, Germany (proche France)" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  [4] Connecter la DB au projet :" -ForegroundColor White
-Write-Host "      * Connect to Project -> Selectionner iapostemanager" -ForegroundColor Gray
+Write-Host "      * Connect to Project -> Selectionner memoLib" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  [5] Dans ce terminal, executer :" -ForegroundColor White
 Write-Host ""
@@ -153,7 +153,7 @@ Write-Host ""
 Write-Host "  [6] Ajouter les variables d'environnement :" -ForegroundColor White
 Write-Host "      Dashboard Vercel -> Settings -> Environment Variables" -ForegroundColor Gray
 Write-Host ""
-Write-Host "      NEXTAUTH_URL=https://iapostemanager.vercel.app" -ForegroundColor Gray
+Write-Host "      NEXTAUTH_URL=https://memoLib.vercel.app" -ForegroundColor Gray
 Write-Host "      NEXTAUTH_SECRET=<generer-secret-avec-openssl>" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  [7] Redeployer avec les nouvelles variables :" -ForegroundColor White

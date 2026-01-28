@@ -1,4 +1,4 @@
-# 🛡️ Rapport d'Audit de Sécurité - IaPosteManager
+# 🛡️ Rapport d'Audit de Sécurité - MemoLib
 
 **Date:** 27 janvier 2026
 **Auditeur:** GitHub Copilot Security Analysis

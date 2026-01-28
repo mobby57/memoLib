@@ -8,7 +8,7 @@ Write-Output "=============================================="
 # Activer environnement
 Write-Output ""
 Write-Output "[1/5] Activation environnement..."
-conda activate iapostemanager
+conda activate memoLib
 if ($LASTEXITCODE -ne 0) {
     Write-Output "  [ERREUR] Environnement non trouve. Executez: .\setup-conda.ps1"
     pause

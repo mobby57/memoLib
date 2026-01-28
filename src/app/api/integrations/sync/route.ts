@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/integrations/sync?provider=google
- * Trigger sync from external calendar to IaPosteManager
+ * Trigger sync from external calendar to MemoLib
  */
 export async function POST(req: Request) {
   try {

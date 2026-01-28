@@ -12,9 +12,9 @@
 
 ### ARTICLE 1 — DÉFINITIONS
 
-**« iaPosteManager »** ou **« IPM »** : plateforme SaaS accessible à [URL] éditée par [RAISON SOCIALE], SIREN [SIREN], basée à [ADRESSE].
+**« memoLib »** ou **« IPM »** : plateforme SaaS accessible à [URL] éditée par [RAISON SOCIALE], SIREN [SIREN], basée à [ADRESSE].
 
-**« Service »** : l'ensemble des fonctionnalités fournie via la plateforme iaPosteManager, y compris :
+**« Service »** : l'ensemble des fonctionnalités fournie via la plateforme memoLib, y compris :
 
 - Centralisation des communications (Email, WhatsApp, SMS, etc.)
 - Classification assistée par IA
@@ -43,7 +43,7 @@ L'accès au Service implique l'acceptation intégrale de ces CGU. Le refus d'acc
 
 #### 3.1 Outil d'Assistance, Non Conseil
 
-**IMPORTANT :** iaPosteManager est un **outil d'assistance à l'organisation et la supervision**.
+**IMPORTANT :** memoLib est un **outil d'assistance à l'organisation et la supervision**.
 
 ❌ **Le Service NE FOURNIT PAS :**
 
@@ -68,7 +68,7 @@ L'accès au Service implique l'acceptation intégrale de ces CGU. Le refus d'acc
 - Respect des délais légaux
 - Respect des obligations professionnelles
 
-**iaPosteManager n'engage jamais sa responsabilité légale en cas de :**
+**memoLib n'engage jamais sa responsabilité légale en cas de :**
 
 - Erreur d'analyse IA
 - Délai manqué (responsabilité avocat)
@@ -292,7 +292,7 @@ En cas de violation, [EDITEUR] peut :
 
 #### 10.1 Prix
 
-Voir [Pricing Page](https://iapostemanager.fr/pricing)
+Voir [Pricing Page](https://memoLib.fr/pricing)
 
 Facturé **mensuellement** via carte bancaire ou virement.
 
@@ -411,9 +411,9 @@ Arbitrage possible sur accord mutuel.
 
 ### ARTICLE 16 — CONTACT & SUPPORT
 
-**Support général :** support@iapostemanager.fr
-**Contact légal :** legal@iapostemanager.fr
-**DPO (RGPD) :** dpo@iapostemanager.fr
+**Support général :** support@memoLib.fr
+**Contact légal :** legal@memoLib.fr
+**DPO (RGPD) :** dpo@memoLib.fr
 
 Temps réponse :
 
@@ -426,7 +426,7 @@ Temps réponse :
 
 ### ⚠️ IMPORTANT DISCLAIMER
 
-**iaPosteManager est un OUTIL D'ASSISTANCE DOCUMENTAIRE. Il n'est pas un conseil juridique.**
+**memoLib est un OUTIL D'ASSISTANCE DOCUMENTAIRE. Il n'est pas un conseil juridique.**
 
 Le Service :
 
@@ -458,7 +458,7 @@ Le Service :
 
 Pour cabinets spécialisés droit des étrangers :
 
-**iaPosteManager n'interprète jamais la loi CESEDA.**
+**memoLib n'interprète jamais la loi CESEDA.**
 
 Le Service :
 
@@ -497,6 +497,6 @@ Limitations connues :
 
 ---
 
-**Document légal — iaPosteManager**
+**Document légal — memoLib**
 **Statut : À ADAPTER PAR AVOCAT**
 **Dernière mise à jour : 27 janvier 2026**

@@ -1,4 +1,4 @@
-# 📘 WORKSPACE COMPILÉ — iaPosteManager
+# 📘 WORKSPACE COMPILÉ — memoLib
 
 ## VERSION DE RÉFÉRENCE (27 janv 2026)
 
@@ -8,7 +8,7 @@
 
 ### 1.1 Dénomination Officielle
 
-- **Nom commercial :** **iaPosteManager**
+- **Nom commercial :** **memoLib**
 - **Acronyme :** IPM
 - **Nature juridique :** Plateforme SaaS (Software as a Service)
 - **Secteur :** Logiciels pour professions réglementées
@@ -49,7 +49,7 @@ Les cabinets d'avocats font face à :
 
 ### 3.1 Encadrement Fondamental
 
-**iaPosteManager ne remplace pas le jugement humain.**
+**memoLib ne remplace pas le jugement humain.**
 
 C'est un **système d'assistance à la décision juridique** qui :
 
@@ -405,7 +405,7 @@ NOTIFICATION (avocat alerté)
 | ----------- | ------------------ | ---------------- | --------------- | --------------- |
 | **Dev**     | localhost:3000     | localhost:3000   | localhost:5432  | Console         |
 | **Staging** | \*.staging.iapm.io | Azure (staging)  | Neon (staging)  | Sentry, Datadog |
-| **Prod**    | iapostemanager.fr  | Azure App (prod) | PostgreSQL (FR) | Full stack      |
+| **Prod**    | memoLib.fr  | Azure App (prod) | PostgreSQL (FR) | Full stack      |
 
 ### 10.2 Scalability
 
@@ -582,7 +582,7 @@ NOTIFICATION (avocat alerté)
 
 > **"Tout ce qui engage la responsabilité humaine ne doit jamais être automatisé."**
 
-iaPosteManager :
+memoLib :
 
 - ✅ **Éclaire** (données + contexte)
 - ✅ **Structure** (workflow guidé)
@@ -651,7 +651,7 @@ Ce document est exploitable pour :
 | --------------- | ------------------------- | ------------- |
 | Founder         | [À configurer]            | 24/7          |
 | Tech Lead       | [À configurer]            | Bureau        |
-| Support Clients | support@iapostemanager.fr | 9h-18h (FR)   |
+| Support Clients | support@memoLib.fr | 9h-18h (FR)   |
 
 ---
 

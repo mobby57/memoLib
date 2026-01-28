@@ -48,7 +48,7 @@ $envVars = Get-Content ".env.local" | Where-Object { $_ -match "^[A-Z_]+=.*" } |
 $envMapping = @{
     "production" = @{
         "DATABASE_URL" = $envVars["DATABASE_URL"] -replace "localhost", "prod-db.neon.tech"
-        "NEXTAUTH_URL" = "https://iapostemanager.vercel.app"
+        "NEXTAUTH_URL" = "https://memoLib.vercel.app"
         "NEXTAUTH_SECRET" = "$(Generate-Secret 32)"
         "STRIPE_SECRET_KEY" = $envVars["STRIPE_SECRET_KEY"] -replace "sk_test", "sk_live"
         "VERCEL_ANALYTICS_ID" = "v-your-analytics-id"

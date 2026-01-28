@@ -20,8 +20,8 @@
 
 - **Template version :** 1.1
 - **Dernière mise à jour :** 2026-01-27
-- **Auteur :** iapostemanager team
-- **Repository :** https://github.com/mobby57/iapostemanager
+- **Auteur :** memoLib team
+- **Repository :** https://github.com/mobby57/memoLib
 - **Branch de référence :** main
 
 ---

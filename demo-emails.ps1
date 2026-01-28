@@ -1,5 +1,5 @@
 # ============================================
-# DEMO EMAIL TEST - iaPosteManager
+# DEMO EMAIL TEST - memoLib
 # ============================================
 # Usage: .\demo-emails.ps1
 # Prerequis: npm run dev doit etre lance
@@ -8,7 +8,7 @@
 $baseUrl = "http://localhost:3000/api/webhooks/email"
 
 Write-Host "`n========================================" -ForegroundColor Cyan
-Write-Host "   DEMO EMAILS - iaPosteManager" -ForegroundColor Cyan
+Write-Host "   DEMO EMAILS - memoLib" -ForegroundColor Cyan
 Write-Host "========================================`n" -ForegroundColor Cyan
 
 $emails = @(

@@ -78,10 +78,10 @@ Write-Output ""
 # Deploiement
 if ($Preview) {
     Write-Output "[STEP 4] Deploiement Preview..."
-    wrangler pages deploy .vercel/output/static --project-name=iapostemanager --branch=preview
+    wrangler pages deploy .vercel/output/static --project-name=memoLib --branch=preview
 } else {
     Write-Output "[STEP 4] Deploiement Production..."
-    wrangler pages deploy .vercel/output/static --project-name=iapostemanager --branch=main
+    wrangler pages deploy .vercel/output/static --project-name=memoLib --branch=main
 }
 
 if ($LASTEXITCODE -ne 0) {
@@ -98,6 +98,6 @@ Write-Output ""
 Write-Output "[OK] Application deployee sur Cloudflare Pages"
 Write-Output ""
 Write-Output "URLs:"
-Write-Output "   Production: https://iapostemanager.pages.dev"
+Write-Output "   Production: https://memoLib.pages.dev"
 Write-Output "   Dashboard:  https://dash.cloudflare.com"
 Write-Output ""

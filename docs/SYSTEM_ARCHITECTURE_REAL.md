@@ -87,7 +87,7 @@
 
 ```
 1️⃣ CLIENT ENVOIE EMAIL
-   └─> client@example.com → cabinet@iapostemanager.com
+   └─> client@example.com → cabinet@memoLib.com
 
 2️⃣ WEBHOOK DÉCLENCHÉ
    └─> POST /api/webhooks/channel/email
@@ -153,7 +153,7 @@
 **Variables requises:**
 ```env
 RESEND_API_KEY=re_...
-EMAIL_FROM=noreply@iapostemanager.com
+EMAIL_FROM=noreply@memoLib.com
 ```
 
 ---
@@ -200,7 +200,7 @@ GET /api/webhooks/channel/whatsapp?hub.mode=subscribe&hub.verify_token=xxx&hub.c
 ```env
 TWILIO_ACCOUNT_SID=ACxxxxx
 TWILIO_AUTH_TOKEN=xxxxx
-TWILIO_WEBHOOK_URL=https://iapostemanager.vercel.app/api/webhooks/channel
+TWILIO_WEBHOOK_URL=https://memoLib.vercel.app/api/webhooks/channel
 ```
 
 ---
@@ -466,7 +466,7 @@ Enregistrer un consentement.
 ```env
 DATABASE_URL=postgresql://...
 NEXTAUTH_SECRET=...
-NEXTAUTH_URL=https://iapostemanager.vercel.app
+NEXTAUTH_URL=https://memoLib.vercel.app
 OPENAI_API_KEY=sk-...
 ```
 
@@ -491,7 +491,7 @@ Tous les secrets doivent être dans Key Vault :
 
 ```bash
 az keyvault secret set \
-  --vault-name iapostemanager-kv \
+  --vault-name memoLib-kv \
   --name "WHATSAPP-ACCESS-TOKEN" \
   --value "EAAxxxxx"
 ```
@@ -551,6 +551,6 @@ Tous les événements sont loggés :
 
 ## 📞 SUPPORT
 
-- 📧 Email: support@iapostemanager.com
-- 📚 Docs: https://docs.iapostemanager.com
-- 🐛 Issues: https://github.com/mobby57/iapostemanager/issues
+- 📧 Email: support@memoLib.com
+- 📚 Docs: https://docs.memoLib.com
+- 🐛 Issues: https://github.com/mobby57/memoLib/issues
