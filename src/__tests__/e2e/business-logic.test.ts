@@ -1,6 +1,6 @@
 ﻿/**
  * Tests E2E - Validation de toutes les logiques metier
- * IA Poste Manager - Cabinet d'Avocat
+ * memoLib - Cabinet d'Avocat
  * 
  * Note: Les tests necessitant fetch sont marques comme skip
  * car ils necessitent un environnement de test avec serveur actif
@@ -12,7 +12,7 @@ import { describe, it, expect } from '@jest/globals';
 // SCeNARIOS MeTIER a VALIDER
 // ============================================
 
-describe(' LOGIQUES MÉTIER - IA Poste Manager', () => {
+describe(' LOGIQUES MÉTIER - memoLib', () => {
   
   // ============================================
   // 1. GESTION DES TENANTS (Multi-Cabinet)

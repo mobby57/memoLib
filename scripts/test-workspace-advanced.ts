@@ -359,7 +359,7 @@ async function testAdvancedWorkspaceScenarios() {
         workspaceId: workspace1.id,
         type: 'system_notification',
         senderId: 'system',
-        senderName: 'Système IA Poste Manager',
+        senderName: 'Système memoLib',
         senderType: 'system',
         recipientIds: JSON.stringify([client1.id]),
         recipientType: 'client',

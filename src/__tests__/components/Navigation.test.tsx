@@ -21,8 +21,8 @@ describe('Navigation Component', () => {
       </SessionProvider>
     )
     
-    // Le composant affiche "IA Poste Manager" (avec espaces)
-    expect(screen.getByText('IA Poste Manager')).toBeInTheDocument()
+    // Le composant affiche "memoLib" (avec espaces)
+    expect(screen.getByText('memoLib')).toBeInTheDocument()
   })
 
   it('renders navigation without crashing', () => {

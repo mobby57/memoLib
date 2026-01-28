@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
         await resend.emails.send({
           from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
           to: recipient,
-          subject: subject || 'Message de IA Poste Manager',
+          subject: subject || 'Message de memoLib',
           html: `<p>${content}</p>`,
         });
 

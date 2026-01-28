@@ -143,7 +143,7 @@ describe('Date Formatting', () => {
     };
 
     const addWorkingDays = (startDate: Date, days: number): Date => {
-      let result = new Date(startDate);
+      const result = new Date(startDate);
       let addedDays = 0;
 
       while (addedDays < days) {

@@ -1,4 +1,4 @@
-# 🏗️ Plan d'Architecture Expert - IA Poste Manager
+# 🏗️ Plan d'Architecture Expert - memoLib
 
 > **Dernière mise à jour**: 24 janvier 2026
 > **Couverture tests**: ~2% → Objectif 30%

@@ -1,6 +1,6 @@
 /**
  * 🚀 Validation Complète de Tous les Workflows Avancés
- * IA Poste Manager - Test Suite Complète
+ * memoLib - Test Suite Complète
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -356,7 +356,7 @@ async function generateReport() {
 
 async function main() {
   log('\n🚀 VALIDATION DE TOUS LES WORKFLOWS AVANCÉS', 'bold');
-  log('IA Poste Manager - Test Suite Complète\n', 'bold');
+  log('memoLib - Test Suite Complète\n', 'bold');
   
   try {
     // Tests séquentiels

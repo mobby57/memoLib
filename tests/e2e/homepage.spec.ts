@@ -10,7 +10,7 @@ test.describe('Homepage', () => {
   });
 
   test('should load successfully', async ({ page }) => {
-    await expect(page).toHaveTitle(/IA Poste Manager/i);
+    await expect(page).toHaveTitle(/memoLib/i);
   });
 
   test('should have navigation links', async ({ page }) => {

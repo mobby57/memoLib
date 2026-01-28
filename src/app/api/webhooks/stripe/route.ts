@@ -171,7 +171,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
         await resend.emails.send({
           from: process.env.EMAIL_FROM || 'billing@memoLib.com',
           to: tenant.owner.email,
-          subject: '⚠️ Action requise : Échec de paiement - IA Poste Manager',
+          subject: '⚠️ Action requise : Échec de paiement - memoLib',
           html: `
             <h2>Échec de paiement</h2>
             <p>Nous n'avons pas pu traiter votre paiement pour l'abonnement ${tenant.name}.</p>

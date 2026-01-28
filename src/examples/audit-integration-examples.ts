@@ -2,7 +2,7 @@
  * EXEMPLE D'INT�GRATION - Route API s�curis�e avec audit
  * 
  * Ce fichier montre comment int�grer le syst�me d'audit
- * dans une route API r�elle de IA Poste Manager
+ * dans une route API r�elle de memoLib
  */
 
 import { NextRequest, NextResponse } from 'next/server';

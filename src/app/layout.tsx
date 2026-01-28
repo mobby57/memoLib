@@ -20,10 +20,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'IA Poste Manager - Gestion Multi-Tenant',
+  title: 'memoLib - Gestion Multi-Tenant',
   description: 'Systeme intelligent de gestion des dossiers juridiques pour cabinets d\'avocats',
   keywords: 'gestion juridique, IA, multi-tenant, avocats',
-  authors: [{ name: 'IA Poste Manager' }],
+  authors: [{ name: 'memoLib' }],
   manifest: '/manifest.json',
 };
 

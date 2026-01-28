@@ -1,4 +1,4 @@
-# Architecture Légale & Conformité - IA Poste Manager
+# Architecture Légale & Conformité - memoLib
 
 > **Document destiné aux avocats, DPO et clients institutionnels**
 > Version 1.0 - 26/01/2026
@@ -7,7 +7,7 @@
 
 ## 📋 Sommaire Exécutif
 
-**IA Poste Manager** est une solution SaaS de gestion de secrétariat pour cabinets d'avocats, conforme aux exigences :
+**memoLib** est une solution SaaS de gestion de secrétariat pour cabinets d'avocats, conforme aux exigences :
 - **RGPD** (Règlement Général sur la Protection des Données)
 - **Secret professionnel** (Art. 66-5 Loi du 31 décembre 1971)
 - **Normes déontologiques** (RIN - Règlement Intérieur National)

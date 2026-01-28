@@ -183,7 +183,7 @@ const DossierDocument: React.FC<{ data: DossierPDFData }> = ({ data }) => (
     <Page size="A4" style={styles.page}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.logo}>IA Poste Manager</Text>
+        <Text style={styles.logo}>memoLib</Text>
         <Text style={styles.title}>Dossier {data.reference}</Text>
         <Text style={styles.subtitle}>{data.titre}</Text>
       </View>
@@ -263,7 +263,7 @@ const DossierDocument: React.FC<{ data: DossierPDFData }> = ({ data }) => (
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text>Document généré le {formatDate(new Date())} - IA Poste Manager</Text>
+        <Text>Document généré le {formatDate(new Date())} - memoLib</Text>
         <Text>Ce document est confidentiel et destiné uniquement à son destinataire.</Text>
       </View>
     </Page>

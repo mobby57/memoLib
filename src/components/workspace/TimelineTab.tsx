@@ -50,7 +50,7 @@ export default function TimelineTab({ events }: TimelineTabProps) {
 
   const actorLabels: Record<string, string> = {
     user: 'Utilisateur',
-    ai: 'IA Poste Manager',
+    ai: 'memoLib',
     system: 'Systeme',
   };
 

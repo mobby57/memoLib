@@ -153,7 +153,7 @@ export default function DemoPage() {
             </div>
 
             <p className="text-xl text-gray-300 mb-8">
-              Decouvrez comment IA Poste Manager peut transformer la gestion de votre cabinet 
+              Decouvrez comment memoLib peut transformer la gestion de votre cabinet 
               lors d'une demonstration personnalisee de 30 minutes.
             </p>
 

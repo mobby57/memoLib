@@ -337,7 +337,7 @@ function getAlertBody(alert: CostAlert): string {
 
   <hr style="margin-top: 40px; border: none; border-top: 1px solid #E5E7EB;">
   <p style="font-size: 12px; color: #6B7280;">
-    IA Poste Manager - Cabinet ${alert.tenantName}<br>
+    memoLib - Cabinet ${alert.tenantName}<br>
     Cet email a été envoyé automatiquement suite à un dépassement de seuil.
   </p>
 </body>

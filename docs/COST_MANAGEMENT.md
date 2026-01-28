@@ -1,4 +1,4 @@
-# 💰 Guide Anti-Faillite : Gestion des Coûts IA Poste Manager
+# 💰 Guide Anti-Faillite : Gestion des Coûts memoLib
 
 ## 📊 Analyse de Rentabilité par Plan
 

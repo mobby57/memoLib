@@ -3,7 +3,7 @@ import { CesedaService } from '@/lib/ceseda/dossier-service'
 import { LearningService } from '@/lib/ai/learning-service'
 import { SuggestionService } from '@/lib/ai/suggestion-service'
 
-describe('Integration Tests - IA Poste Manager', () => {
+describe('Integration Tests - memoLib', () => {
   const testTenantId = 'test-tenant-123'
   const testClientId = 'test-client-123'
   const testAdminId = 'test-admin-123'

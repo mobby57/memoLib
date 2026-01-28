@@ -85,7 +85,7 @@ if (!checks.every((c) => c.valid)) {
   console.log('     body: JSON.stringify({');
   console.log('       repo: \'owner/repo\',');
   console.log('       title: \'Test Issue\',');
-  console.log('       body: \'Created by IA Poste Manager\'');
+  console.log('       body: \'Created by memoLib\'');
   console.log('     })');
   console.log('   })');
   console.log('');

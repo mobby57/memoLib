@@ -1,5 +1,5 @@
 ﻿/**
- * Client Stripe pour IA Poste Manager
+ * Client Stripe pour memoLib
  * Gestion des paiements et abonnements
  */
 

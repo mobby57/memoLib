@@ -546,7 +546,7 @@ const Compliance = () => {
                         Plateforme certifiée pour institutions
                       </h3>
                       <p className="text-sm text-gray-600 mt-1">
-                        IA Poste Manager répond aux exigences réglementaires des
+                        memoLib répond aux exigences réglementaires des
                         cabinets d'avocats, notaires, administrations et
                         institutions publiques.
                       </p>

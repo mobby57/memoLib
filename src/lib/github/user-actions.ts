@@ -326,7 +326,7 @@ export async function syncDossierToGitHub(
 ${dossier.description || ''}
 
 ---
-*Synchronise depuis IA Poste Manager*
+*Synchronise depuis memoLib*
     `.trim();
 
     const issue = await createIssueAsUser(
@@ -383,7 +383,7 @@ ${changes.priorite ? `- Priorite : ${changes.priorite}` : ''}
 ${changes.description ? `\n${changes.description}` : ''}
 
 ---
-*Mise a jour automatique depuis IA Poste Manager*
+*Mise a jour automatique depuis memoLib*
     `.trim();
 
     const result = await commentAsUser(repo, issueNumber, comment);
