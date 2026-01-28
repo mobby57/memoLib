@@ -9,7 +9,7 @@
  * - Workflows paralleles et sequentiels
  *
  * @version 2.0.0
- * @author IA Poste Manager
+ * @author memoLib
  */
 
 import { prisma } from '@/lib/prisma';
@@ -1561,7 +1561,7 @@ Reponds par OUI ou NON avec une justification breve.`;
                 workspaceId: '{{context.workspaceId}}',
                 type: 'internal_note',
                 senderId: 'system',
-                senderName: 'IA Poste Manager',
+                senderName: 'memoLib',
                 senderType: 'system',
                 content:
                   'Workspace cree automatiquement suite a email urgent. Procedure OQTF initiee.',

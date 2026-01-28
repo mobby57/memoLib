@@ -241,7 +241,7 @@ const Integrations = () => {
                 Connectez vos outils métiers
               </h2>
               <p className="text-sm text-gray-600 mt-1">
-                Intégrez IA Poste Manager avec vos systèmes existants :
+                Intégrez memoLib avec vos systèmes existants :
                 messagerie, outils juridiques, stockage cloud et applications de
                 productivité utilisées par votre institution.
               </p>

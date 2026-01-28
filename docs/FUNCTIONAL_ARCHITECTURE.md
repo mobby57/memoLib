@@ -1,4 +1,4 @@
-# Schéma Fonctionnel Complet - IA Poste Manager
+# Schéma Fonctionnel Complet - memoLib
 
 > **Architecture multi-canal, documents et monitoring**
 > Version 2.0 - 26/01/2026
