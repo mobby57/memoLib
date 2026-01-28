@@ -266,8 +266,8 @@ const { withSentryConfig } = require("@sentry/nextjs");
 
 const sentryWebpackPluginOptions = {
   silent: true,
-  org: process.env.SENTRY_ORG || "iapostemanager",
-  project: process.env.SENTRY_PROJECT || "iapostemanager",
+  org: process.env.SENTRY_ORG || "memoLib",
+  project: process.env.SENTRY_PROJECT || "memoLib",
   authToken: process.env.SENTRY_AUTH_TOKEN,
   dryRun: process.env.NODE_ENV !== 'production',
   disableServerWebpackPlugin: process.env.NODE_ENV === 'development',

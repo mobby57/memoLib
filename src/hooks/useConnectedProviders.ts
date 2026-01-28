@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import { useCallback, useEffect, useState } from 'react';
 
 type ConnectedProvider = {
   provider: string;
@@ -33,26 +33,23 @@ export function useConnectedProviders() {
     }
   }, [session?.user]);
 
-  const revoke = useCallback(
-    async (provider: string) => {
-      try {
-        setError(null);
-        const res = await fetch(`/api/oauth/tokens?provider=${provider}`, {
-          method: 'DELETE',
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed to revoke');
+  const revoke = useCallback(async (provider: string) => {
+    try {
+      setError(null);
+      const res = await fetch(`/api/oauth/tokens?provider=${provider}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to revoke');
 
-        // Remove from list
-        setProviders((p) => p.filter((x) => x.provider !== provider));
-        return true;
-      } catch (e: any) {
-        setError(e.message);
-        return false;
-      }
-    },
-    []
-  );
+      // Remove from list
+      setProviders(p => p.filter(x => x.provider !== provider));
+      return true;
+    } catch (e: any) {
+      setError(e.message);
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
     refresh();

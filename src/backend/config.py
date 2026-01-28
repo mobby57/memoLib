@@ -88,7 +88,7 @@ class Config:
     
     @property
     def DATABASE_URL(self) -> str:
-        return self._get_optional('DATABASE_URL', 'sqlite:///iapostemanager.db')
+        return self._get_optional('DATABASE_URL', 'sqlite:///memoLib.db')
     
     @property
     def DATABASE_POOL_SIZE(self) -> int:
@@ -108,7 +108,7 @@ class Config:
     
     @property
     def SENDGRID_FROM_EMAIL(self) -> str:
-        return self._get_optional('SENDGRID_FROM_EMAIL', 'noreply@iapostemanager.com')
+        return self._get_optional('SENDGRID_FROM_EMAIL', 'noreply@memoLib.com')
     
     @property
     def SENDGRID_FROM_NAME(self) -> str:
