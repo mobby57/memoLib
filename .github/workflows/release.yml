@@ -93,7 +93,6 @@ jobs:
             "buildDate": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
             "commitSha": "${{ github.sha }}",
             "nodeVersion": "20",
-            "platforms": ["vercel", "azure", "fly.io", "cloudflare"]
           }
           EOF
 
