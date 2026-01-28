@@ -13,7 +13,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://iapostemanage:${POSTGRES_PASSWORD:-changeme}@postgres:5432/iapostemanage
+      - DATABASE_URL=postgresql://memolib:${POSTGRES_PASSWORD:-changeme}@postgres:5432/memolib
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - OLLAMA_BASE_URL=http://ollama:11434
@@ -26,21 +26,21 @@ services:
         condition: service_started
     restart: unless-stopped
     networks:
-      - iaposte_network
+      - memolib_network
 
   # ============================================
   # 🐘 POSTGRESQL - CONFIGURATION AVANCÉE
   # ============================================
   postgres:
     image: postgres:16-alpine
-    container_name: iaposte_postgres
+    container_name: memolib_postgres
     ports:
       - "5432:5432"
     environment:
       # Credentials
-      - POSTGRES_USER=iapostemanage
+      - POSTGRES_USER=memolib
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
-      - POSTGRES_DB=iapostemanage
+      - POSTGRES_DB=memolib
       
       # Performance tuning
       - POSTGRES_SHARED_BUFFERS=256MB
@@ -87,7 +87,7 @@ services:
       -c log_min_duration_statement=100
     
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U iapostemanage -d iapostemanage"]
+      test: ["CMD-SHELL", "pg_isready -U memolib -d memolib"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -95,14 +95,14 @@ services:
     
     restart: unless-stopped
     networks:
-      - iaposte_network
+      - memolib_network
 
   # ============================================
   # 📊 PGADMIN - INTERFACE WEB POSTGRESQL
   # ============================================
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: iaposte_pgadmin
+    container_name: memolib_pgadmin
     ports:
       - "5050:80"
     environment:
@@ -117,14 +117,14 @@ services:
       - postgres
     restart: unless-stopped
     networks:
-      - iaposte_network
+      - memolib_network
 
   # ============================================
   # 🤖 OLLAMA - IA LOCALE
   # ============================================
   ollama:
     image: ollama/ollama:latest
-    container_name: iaposte_ollama
+    container_name: memolib_ollama
     ports:
       - "11434:11434"
     volumes:
@@ -133,14 +133,14 @@ services:
       - OLLAMA_HOST=0.0.0.0
     restart: unless-stopped
     networks:
-      - iaposte_network
+      - memolib_network
 
   # ============================================
   # 📈 PROMETHEUS - MONITORING (OPTIONNEL)
   # ============================================
   prometheus:
     image: prom/prometheus:latest
-    container_name: iaposte_prometheus
+    container_name: memolib_prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -153,7 +153,7 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     restart: unless-stopped
     networks:
-      - iaposte_network
+      - memolib_network
     profiles:
       - monitoring
 
@@ -162,7 +162,7 @@ services:
   # ============================================
   grafana:
     image: grafana/grafana:latest
-    container_name: iaposte_grafana
+    container_name: memolib_grafana
     ports:
       - "3001:3000"
     environment:
@@ -177,7 +177,7 @@ services:
       - postgres
     restart: unless-stopped
     networks:
-      - iaposte_network
+      - memolib_network
     profiles:
       - monitoring
 
@@ -200,7 +200,7 @@ volumes:
 # 🌐 RÉSEAU INTERNE
 # ============================================
 networks:
-  iaposte_network:
+  memolib_network:
     driver: bridge
     ipam:
       config:
