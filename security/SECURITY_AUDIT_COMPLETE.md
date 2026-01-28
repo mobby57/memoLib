@@ -1,4 +1,4 @@
-# 🛡️ Rapport d'Audit de Sécurité - IaPosteManager
+# 🛡️ Rapport d'Audit de Sécurité - MemoLib
 
 **Date**: 27 janvier 2026
 **Version**: 2.3.0
@@ -208,4 +208,4 @@ src/lib/
 
 ---
 
-**Généré automatiquement par le système d'audit de sécurité IaPosteManager**
+**Généré automatiquement par le système d'audit de sécurité MemoLib**

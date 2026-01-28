@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function testLogin() {
   try {
     const user = await prisma.user.findUnique({ 
-      where: { email: 'superadmin@iapostemanager.com' } 
+      where: { email: 'superadmin@memoLib.com' } 
     });
     
     if (!user) {
@@ -26,7 +26,7 @@ async function testLogin() {
       // Regenerer le mot de passe
       const newHash = await bcrypt.hash('SuperAdmin2026!', 10);
       await prisma.user.update({
-        where: { email: 'superadmin@iapostemanager.com' },
+        where: { email: 'superadmin@memoLib.com' },
         data: { password: newHash }
       });
       console.log('🔄 Mot de passe regenere!');

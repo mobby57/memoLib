@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { oauthTokenService } from '@/lib/oauth/token-service';
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,10 +18,7 @@ export async function GET() {
     const tokens = await oauthTokenService.listTokens(session.user.id);
     return NextResponse.json({ tokens }, { status: 200 });
   } catch (e: any) {
-    return NextResponse.json(
-      { error: 'list_failed', detail: e?.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'list_failed', detail: e?.message }, { status: 500 });
   }
 }
 
@@ -43,20 +40,13 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: 'provider requis' }, { status: 400 });
     }
 
-    await oauthTokenService.revokeToken(
-      session.user.id,
-      provider as any,
-      'User initiated revoke'
-    );
+    await oauthTokenService.revokeToken(session.user.id, provider as any, 'User initiated revoke');
 
     return NextResponse.json(
       { success: true, provider, message: 'Token revoked' },
       { status: 200 }
     );
   } catch (e: any) {
-    return NextResponse.json(
-      { error: 'revoke_failed', detail: e?.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'revoke_failed', detail: e?.message }, { status: 500 });
   }
 }

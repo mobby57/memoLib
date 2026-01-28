@@ -131,3 +131,23 @@ ssl/
 # Monitoring
 prometheus_data/
 grafana_data/
+
+# Build artifacts
+.next/
+out/
+dist/
+.turbo/
+.swc/
+.wrangler/
+
+# Cache
+node_modules/.cache/
+.jest-cache/
+.eslintcache
+
+# Logs
+*.log
+npm-debug.log*
+
+# Legacy
+legacy/

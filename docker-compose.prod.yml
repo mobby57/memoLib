@@ -114,7 +114,7 @@ services:
   #   environment:
   #     - POSTGRES_USER=${POSTGRES_USER:-iapm}
   #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-iapm_dev_password}
-  #     - POSTGRES_DB=${POSTGRES_DB:-iapostemanager}
+  #     - POSTGRES_DB=${POSTGRES_DB:-memoLib}
   #   volumes:
   #     - postgres-data:/var/lib/postgresql/data
   #   healthcheck:

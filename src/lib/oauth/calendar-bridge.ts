@@ -2,12 +2,12 @@ import type { CalendarEvent } from '@/lib/calendar/calendar-service';
 import { IntegrationConnectorFactory } from '@/lib/oauth/integrations';
 
 /**
- * Bridge between external calendar APIs and IaPosteManager CalendarService
+ * Bridge between external calendar APIs and MemoLib CalendarService
  * Handles syncing events from Google/Microsoft calendars
  */
 export class ExternalCalendarBridge {
   /**
-   * Sync events from Google Calendar to IaPosteManager
+   * Sync events from Google Calendar to MemoLib
    */
   static async syncGoogleCalendar(
     accessToken: string,
@@ -40,7 +40,7 @@ export class ExternalCalendarBridge {
   }
 
   /**
-   * Sync events from Microsoft Calendar to IaPosteManager
+   * Sync events from Microsoft Calendar to MemoLib
    */
   static async syncMicrosoftCalendar(
     accessToken: string,

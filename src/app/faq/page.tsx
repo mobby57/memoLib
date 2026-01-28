@@ -56,7 +56,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'securite',
     question: "Comment puis-je supprimer toutes mes données ?",
-    answer: "Vous pouvez demander la suppression complète de votre compte et de toutes vos données à tout moment en contactant support@iapostemanager.com. La suppression est effective sous 30 jours conformément au RGPD, avec un export préalable de vos données si souhaité."
+    answer: "Vous pouvez demander la suppression complète de votre compte et de toutes vos données à tout moment en contactant support@memoLib.com. La suppression est effective sous 30 jours conformément au RGPD, avec un export préalable de vos données si souhaité."
   },
   {
     category: 'securite',
@@ -98,7 +98,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'tarifs',
     question: "Proposez-vous des tarifs pour les associations ou les aides juridiques ?",
-    answer: "Oui, nous proposons une réduction de 30% pour les associations à but non lucratif et les structures d'aide juridique. Contactez-nous à commercial@iapostemanager.com avec votre justificatif."
+    answer: "Oui, nous proposons une réduction de 30% pour les associations à but non lucratif et les structures d'aide juridique. Contactez-nous à commercial@memoLib.com avec votre justificatif."
   },
 
   // ===== FONCTIONNALITÉS =====
@@ -152,12 +152,12 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'institutions',
     question: "Pouvons-nous avoir un sous-domaine personnalisé ?",
-    answer: "Oui, pour les plans Cabinet et Enterprise. Votre cabinet accède via votrecabinet.iapostemanager.com. Un domaine entièrement personnalisé (app.votrecabinet.fr) est possible en Enterprise."
+    answer: "Oui, pour les plans Cabinet et Enterprise. Votre cabinet accède via votrecabinet.memoLib.com. Un domaine entièrement personnalisé (app.votrecabinet.fr) est possible en Enterprise."
   },
   {
     category: 'institutions',
     question: "Proposez-vous un contrat d'entreprise ou de marché public ?",
-    answer: "Oui, pour les institutions publiques, associations et grandes structures, nous proposons des contrats adaptés avec SLA garanti, facturation sur devis, et conformité aux marchés publics. Contactez commercial@iapostemanager.com."
+    answer: "Oui, pour les institutions publiques, associations et grandes structures, nous proposons des contrats adaptés avec SLA garanti, facturation sur devis, et conformité aux marchés publics. Contactez commercial@memoLib.com."
   },
   {
     category: 'institutions',
@@ -169,7 +169,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'support',
     question: "Comment contacter le support technique ?",
-    answer: "Plusieurs canaux selon votre plan : Email (tous les plans, réponse 48h), Chat en ligne (Cabinet+, réponse 24h), Téléphone (Enterprise, réponse 4h), Support dédié (Enterprise+). Email : support@iapostemanager.com"
+    answer: "Plusieurs canaux selon votre plan : Email (tous les plans, réponse 48h), Chat en ligne (Cabinet+, réponse 24h), Téléphone (Enterprise, réponse 4h), Support dédié (Enterprise+). Email : support@memoLib.com"
   },
   {
     category: 'support',
@@ -179,7 +179,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'support',
     question: "Que se passe-t-il si j'ai un bug urgent ?",
-    answer: "Les bugs critiques affectant la production sont traités en priorité (SLA 4h pour Enterprise, 24h pour les autres plans). Signalez-les via le bouton 'Signaler un problème' dans l'application ou à urgence@iapostemanager.com."
+    answer: "Les bugs critiques affectant la production sont traités en priorité (SLA 4h pour Enterprise, 24h pour les autres plans). Signalez-les via le bouton 'Signaler un problème' dans l'application ou à urgence@memoLib.com."
   },
   {
     category: 'support',
@@ -396,7 +396,7 @@ export default function FAQPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="mailto:support@iapostemanager.com"
+              href="mailto:support@memoLib.com"
               className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
               📧 Contacter le support
