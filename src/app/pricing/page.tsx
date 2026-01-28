@@ -294,7 +294,7 @@ export default function PricingPage() {
             Pret a transformer votre cabinet ?
           </h2>
           <p className="text-blue-100 mb-8">
-            Rejoignez les centaines d'avocats qui font confiance a IA Poste Manager
+            Rejoignez les centaines d'avocats qui font confiance à memoLib
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

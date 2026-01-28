@@ -71,7 +71,7 @@
 ### Phase 1 : Migration (MAINTENANT)
 ```bash
 # 1. Backup
-pg_dump -U postgres -d iapostemanage > backup.sql
+pg_dump -U postgres -d memolib > backup.sql
 
 # 2. Remplacer le schéma
 cp prisma/schema_final.prisma prisma/schema.prisma

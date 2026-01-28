@@ -2,7 +2,7 @@ User-agent: *
 # Allow all crawlers
 
 # Sitemap
-Sitemap: https://iaposte-manager.pages.dev/sitemap.xml
+Sitemap: https://memolib.fly.dev/sitemap.xml
 
 # Allow pages
 Allow: /

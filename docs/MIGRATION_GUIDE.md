@@ -17,7 +17,7 @@
 
 ```bash
 # Backup de la base actuelle
-pg_dump -U postgres -d iapostemanage > backup_$(date +%Y%m%d_%H%M%S).sql
+pg_dump -U postgres -d memolib > backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Backup du schéma Prisma actuel
 cp prisma/schema.prisma prisma/schema_backup.prisma
@@ -79,7 +79,7 @@ npx prisma db seed
 - ✅ 3 plans créés (Starter, Pro, Enterprise)
 - ✅ 6 articles CESEDA créés
 - ✅ 1 tenant démo créé
-- ✅ 1 super admin créé (admin@iapostemanage.com / Admin123!)
+- ✅ 1 super admin créé (admin@memolib.com / Admin123!)
 
 ---
 
@@ -293,7 +293,7 @@ await updateAuditLog(log.id); // Doit échouer (403)
 
 ```bash
 # Restaurer le backup
-psql -U postgres -d iapostemanage < backup_YYYYMMDD_HHMMSS.sql
+psql -U postgres -d memolib < backup_YYYYMMDD_HHMMSS.sql
 
 # Restaurer l'ancien schéma
 cp prisma/schema_backup.prisma prisma/schema.prisma
@@ -326,7 +326,7 @@ npx prisma generate
 
 En cas de problème :
 1. Vérifier les logs : `npx prisma studio`
-2. Vérifier la base : `psql -U postgres -d iapostemanage`
+2. Vérifier la base : `psql -U postgres -d memolib`
 3. Rollback si nécessaire
 
 ---
