@@ -57,7 +57,7 @@ const testimonials = [
     role: 'Avocate en droit des affaires',
     cabinet: 'Cabinet Martin & Associés',
     content:
-      'IA Poste Manager a révolutionné notre gestion quotidienne. Le gain de temps est considérable et mes clients apprécient le suivi en temps réel.',
+      'memoLib a révolutionné notre gestion quotidienne. Le gain de temps est considérable et mes clients apprécient le suivi en temps réel.',
     avatar: 'SM',
     rating: 5,
   },
@@ -161,7 +161,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="text-xl font-bold text-blue-600 dark:text-blue-400">
-              IA Poste Manager
+              memoLib
             </Link>
             <div className="hidden md:flex items-center gap-6">
               <Link
@@ -227,7 +227,7 @@ export default function HomePage() {
 
             <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-6">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 animate-gradient">
-                IA Poste Manager
+                memoLib
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
@@ -412,7 +412,7 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                Pourquoi choisir IA Poste Manager ?
+                Pourquoi choisir memoLib ?
               </h2>
               <div className="space-y-4">
                 {[
@@ -447,7 +447,7 @@ export default function HomePage() {
                 Démarrez dès aujourd'hui
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Rejoignez les cabinets d'avocats qui font confiance à IA Poste Manager pour
+                Rejoignez les cabinets d'avocats qui font confiance à memoLib pour
                 optimiser leur gestion quotidienne.
               </p>
               <ul className="space-y-3 mb-6">
@@ -550,7 +550,7 @@ export default function HomePage() {
               Questions fréquentes
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Tout ce que vous devez savoir sur IA Poste Manager
+              Tout ce que vous devez savoir sur memoLib
             </p>
           </div>
 
@@ -600,7 +600,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h4 className="font-bold text-gray-900 dark:text-white mb-4">IA Poste Manager</h4>
+              <h4 className="font-bold text-gray-900 dark:text-white mb-4">memoLib</h4>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
                 La solution intelligente pour les cabinets d'avocats modernes.
               </p>
@@ -678,7 +678,7 @@ export default function HomePage() {
           </div>
           <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
             <p className="text-center text-gray-600 dark:text-gray-400">
-              2026 IA Poste Manager. Tous droits reserves.
+              2026 memoLib. Tous droits reserves.
             </p>
           </div>
         </div>

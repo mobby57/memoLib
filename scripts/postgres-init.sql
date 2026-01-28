@@ -17,32 +17,32 @@ CREATE EXTENSION IF NOT EXISTS "pg_stat_statements"; -- Statistiques queries
 -- Rôle lecture seule (pour analytics/backup)
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'iaposte_readonly') THEN
-    CREATE ROLE iaposte_readonly WITH LOGIN PASSWORD 'readonly_pass_change_me';
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'memolib_readonly') THEN
+    CREATE ROLE memolib_readonly WITH LOGIN PASSWORD 'readonly_pass_change_me';
   END IF;
 END
 $$;
 
-GRANT CONNECT ON DATABASE iapostemanage TO iaposte_readonly;
-GRANT USAGE ON SCHEMA public TO iaposte_readonly;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO iaposte_readonly;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO iaposte_readonly;
+GRANT CONNECT ON DATABASE iapostemanage TO memolib_readonly;
+GRANT USAGE ON SCHEMA public TO memolib_readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO memolib_readonly;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO memolib_readonly;
 
 -- Rôle application (avec write)
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'iaposte_app') THEN
-    CREATE ROLE iaposte_app WITH LOGIN PASSWORD 'app_pass_change_me';
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'memolib_app') THEN
+    CREATE ROLE memolib_app WITH LOGIN PASSWORD 'app_pass_change_me';
   END IF;
 END
 $$;
 
-GRANT CONNECT ON DATABASE iapostemanage TO iaposte_app;
-GRANT USAGE, CREATE ON SCHEMA public TO iaposte_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO iaposte_app;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO iaposte_app;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO iaposte_app;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO iaposte_app;
+GRANT CONNECT ON DATABASE iapostemanage TO memolib_app;
+GRANT USAGE, CREATE ON SCHEMA public TO memolib_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO memolib_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO memolib_app;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO memolib_app;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO memolib_app;
 
 -- ============================================
 -- 📊 FONCTIONS UTILITAIRES
@@ -233,6 +233,6 @@ BEGIN
   RAISE NOTICE '✅ PostgreSQL initialized successfully for IA Poste Manager';
   RAISE NOTICE '📊 Materialized views created: tenant_stats, dossiers_at_risk';
   RAISE NOTICE '🔧 Custom functions available: generate_dossier_number, calculate_risk_score';
-  RAISE NOTICE '🔐 Roles created: iaposte_readonly, iaposte_app';
+  RAISE NOTICE '🔐 Roles created: memolib_readonly, memolib_app';
 END
 $$;

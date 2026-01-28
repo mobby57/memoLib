@@ -25,7 +25,7 @@ const CLOUDFLARE_CONFIG = {
   // R2 Storage
   r2: {
     enabled: process.env.R2_ENABLED === 'true',
-    bucketName: process.env.R2_BUCKET_NAME || 'iaposte-documents',
+    bucketName: process.env.R2_BUCKET_NAME || 'memolib-documents',
     publicUrl: process.env.R2_PUBLIC_URL || '',
   },
   

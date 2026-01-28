@@ -16,7 +16,7 @@ export default defineConfig({
   reporter: 'list',
   
   use: {
-    baseURL: process.env.BASE_URL || 'https://iapostemanage.vercel.app',
+    baseURL: process.env.BASE_URL || 'https://memolib.vercel.app',
     trace: 'off',
     screenshot: 'off',
     video: 'off',

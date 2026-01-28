@@ -31,13 +31,8 @@
     "test:watch": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --watch --verbose --maxWorkers=2",
     "test:coverage": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --coverage --passWithNoTests --maxWorkers=50%",
     "test:ci": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --coverage --ci --watchAll=false --passWithNoTests --maxWorkers=2 --coverageReporters=json-summary --coverageReporters=lcov --coverageReporters=text",
-<<<<<<< HEAD
-    "test:integration": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --testPathPattern=integration --coverage --passWithNoTests --maxWorkers=2",
-    "test:unit": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --testPathPattern=__tests__ --passWithNoTests --maxWorkers=50%",
-=======
     "test:integration": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest __testPathPatterns=integration --coverage --passWithNoTests --maxWorkers=2",
     "test:unit": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest __testPathPatterns=__tests__ --passWithNoTests --maxWorkers=50%",
->>>>>>> feat/update-memo-template
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
