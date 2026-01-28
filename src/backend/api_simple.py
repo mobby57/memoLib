@@ -21,7 +21,7 @@ print("🚀 Démarrage de l'API MVP Simple...")
 def home():
     """Page d'accueil"""
     return jsonify({
-        'message': 'IA Poste Manager MVP API',
+        'message': 'memoLib MVP API',
         'version': '1.0.0-mvp',
         'status': 'running',
         'endpoints': [

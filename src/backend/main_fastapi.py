@@ -9,7 +9,7 @@ from datetime import datetime
 
 load_dotenv()
 
-app = FastAPI(title="IA Poste Manager", version="2.3")
+app = FastAPI(title="memoLib", version="2.3")
 
 # CORS
 app.add_middleware(
@@ -43,7 +43,7 @@ contacts = []
 
 @app.get("/")
 def read_root():
-    return {"message": "IA Poste Manager v2.3", "status": "running"}
+    return {"message": "memoLib v2.3", "status": "running"}
 
 @app.post("/api/generate")
 def generate_email(request: EmailRequest):
@@ -86,4 +86,4 @@ def get_emails():
 
 @app.get("/health")
 def health():
-    return {"status": "healthy", "service": "IA Poste Manager v2.3"}
+    return {"status": "healthy", "service": "memoLib v2.3"}

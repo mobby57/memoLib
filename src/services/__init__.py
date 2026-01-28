@@ -1,5 +1,5 @@
 """
-Services backend pour IA Poste Manager
+Services backend pour memoLib
 """
 
 from .email_service import EmailService

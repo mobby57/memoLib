@@ -1,5 +1,5 @@
 """
-API REST Routes - IA Poste Manager v4.0
+API REST Routes - memoLib v4.0
 
 Endpoints JSON pour architecture séparée Frontend/Backend.
 Coexiste avec les routes Flask HTML existantes.

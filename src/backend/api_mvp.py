@@ -1,5 +1,5 @@
 """
-API REST pour le MVP IA Poste Manager
+API REST pour le MVP memoLib
 ======================================
 
 Endpoints principaux :

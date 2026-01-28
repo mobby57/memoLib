@@ -1,5 +1,5 @@
 """
-Orchestrateur principal du MVP IA Poste Manager
+Orchestrateur principal du MVP memoLib
 ================================================
 
 Point d'entrée unique pour orchestrer tous les services :
