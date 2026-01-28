@@ -1,1 +1,1 @@
-# IA Poste Manager - src package
+# memoLib - src package
