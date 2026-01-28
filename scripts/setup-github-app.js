@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Script pour configurer GitHub App - IA Poste Manager
+ * Script pour configurer GitHub App - memoLib
  * Usage: node scripts/setup-github-app.js
  */
 
 const crypto = require('crypto');
 const { execSync } = require('child_process');
 
-console.log('🚀 Configuration GitHub App - IA Poste Manager');
+console.log('🚀 Configuration GitHub App - memoLib');
 
 // Générer les secrets
 const webhookSecret = `whsec_${crypto.randomBytes(32).toString('hex')}`;
@@ -20,7 +20,7 @@ console.log(`NextAuth Secret: ${nextAuthSecret}`);
 
 // Configuration pour GitHub App
 const config = {
-  name: "IA Poste Manager",
+  name: "memoLib",
   description: "Assistant juridique digital CESEDA - Gestion sécurisée multi-tenant",
   homepage: "https://your-domain.com",
   callback: "https://your-domain.com/api/auth/callback/github",

@@ -19,7 +19,7 @@ export function generate2FASecret(userEmail: string): {
 } {
   const secret = authenticator.generateSecret();
 
-  const otpauthUrl = authenticator.keyuri(userEmail, 'IA Poste Manager', secret);
+  const otpauthUrl = authenticator.keyuri(userEmail, 'memoLib', secret);
 
   return {
     secret,

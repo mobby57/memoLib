@@ -56,7 +56,7 @@ export default function ProjectStatusPage() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-             IA Poste Manager - Status Projet
+             memoLib - Status Projet
           </h1>
           <p className="text-gray-600">
             Tableau de bord complet avec experts assembles

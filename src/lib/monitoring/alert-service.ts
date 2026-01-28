@@ -427,7 +427,7 @@ Date: ${alert.createdAt.toLocaleString('fr-FR')}
 ${alert.data ? `Détails: ${JSON.stringify(alert.data, null, 2)}` : ''}
 
 ---
-IA Poste Manager - Système d'alertes
+memoLib - Système d'alertes
         `,
       });
     }
@@ -460,7 +460,7 @@ IA Poste Manager - Système d'alertes
               { title: 'Catégorie', value: alert.category, short: true },
               { title: 'Sévérité', value: alert.severity, short: true },
             ],
-            footer: 'IA Poste Manager',
+            footer: 'memoLib',
             ts: Math.floor(alert.createdAt.getTime() / 1000),
           },
         ],

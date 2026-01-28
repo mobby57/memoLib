@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Script de validation complète - IA Poste Manager
+ * Script de validation complète - memoLib
  * Teste toutes les fonctionnalités implémentées
  */
 
@@ -44,7 +44,7 @@ class ValidationSuite {
   }
 
   async runAllTests(): Promise<void> {
-    console.log('🚀 Démarrage validation complète IA Poste Manager\n')
+    console.log('🚀 Démarrage validation complète memoLib\n')
 
     // 1. Tests de compilation
     await this.runTest('Compilation TypeScript', () => {
@@ -170,7 +170,7 @@ class ValidationSuite {
     // Status final
     if (failed === 0) {
       console.log('\n🎉 VALIDATION COMPLÈTE RÉUSSIE!')
-      console.log('Le projet IA Poste Manager est prêt pour la production.')
+      console.log('Le projet memoLib est prêt pour la production.')
     } else {
       console.log('\n⚠️  VALIDATION PARTIELLE')
       console.log('Certains tests ont échoué. Vérifiez les erreurs ci-dessus.')

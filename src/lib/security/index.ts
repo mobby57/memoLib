@@ -1,7 +1,7 @@
 ﻿/**
  * Advanced Security System - Unified Export
  * 
- * Complete security suite for IA Poste Manager:
+ * Complete security suite for memoLib:
  * 1. Encryption - AES-256-GCM for sensitive data
  * 2. Audit Trail - RGPD compliant logging
  * 3. Rate Limiting - DDoS protection

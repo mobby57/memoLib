@@ -12,7 +12,7 @@ app.use(express.json());
 // Page d'accueil du proxy
 app.get('/', (req, res) => {
   res.json({
-    name: 'IA Poste Manager v3.1 - Proxy Multi-Stack',
+    name: 'memoLib v3.1 - Proxy Multi-Stack',
     services: {
       flask: 'http://localhost:5000',
       nextjs: 'http://localhost:3000', 
