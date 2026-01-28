@@ -10,11 +10,11 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 
-console.log('🚀 Création automatique de la GitHub App - IA Poste Manager');
+console.log('🚀 Création automatique de la GitHub App - memoLib');
 
 // Configuration
 const config = {
-  name: "IA Poste Manager",
+  name: "memoLib",
   description: "Assistant juridique digital CESEDA - Gestion sécurisée multi-tenant",
   url: "https://your-domain.com",
   callback_urls: ["https://your-domain.com/api/auth/callback/github"],

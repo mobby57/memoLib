@@ -1,6 +1,6 @@
 # 🗂️ MAPPING COMPLET : STACK + DOSSIER + LANGAGES
 
-> **IA Poste Manager** - Référentiel des langages par dossier
+> **memoLib** - Référentiel des langages par dossier
 > Généré le 27 janvier 2026
 
 ---
@@ -265,4 +265,4 @@ ai-service/app/*.py          → Modules IA
 
 ---
 
-_Document généré automatiquement - IA Poste Manager_
+_Document généré automatiquement - memoLib_

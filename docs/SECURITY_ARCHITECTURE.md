@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-IA Poste Manager implémente une architecture sécurisée conforme aux exigences RGPD et aux standards de l'industrie.
+memoLib implémente une architecture sécurisée conforme aux exigences RGPD et aux standards de l'industrie.
 
 ---
 
