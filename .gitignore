@@ -53,7 +53,7 @@ security-keys-backup-*.txt
 *.sqlite
 *.sqlite3
 *.db-journal
-iapostemanager.db
+memolib.db
 
 # Logs
 logs/
