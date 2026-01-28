@@ -241,7 +241,7 @@ export async function getCostDashboard(tenantId: string) {
   startOfMonth.setHours(0, 0, 0, 0);
 
   // Stats par provider
-  let providerStats = { ollama: 0, cloudflare: 0 };
+  const providerStats = { ollama: 0, cloudflare: 0 };
   try {
     const stats = await prisma.aIUsageLog.groupBy({
       by: ['provider'],

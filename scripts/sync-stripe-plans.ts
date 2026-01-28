@@ -27,7 +27,7 @@ async function syncPlansToStripe() {
       // Créer le produit Stripe
       const product = await createStripeProduct({
         name: plan.displayName,
-        description: plan.description || `Plan ${plan.displayName} - IA Poste Manager`,
+        description: plan.description || `Plan ${plan.displayName} - memoLib`,
         metadata: {
           planId: plan.id,
           planName: plan.name,

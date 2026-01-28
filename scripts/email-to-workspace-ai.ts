@@ -193,7 +193,7 @@ async function displayUnprocessedEmails(emails: SavedEmail[]): Promise<void> {
  * Main
  */
 async function main() {
-  console.log('🤖 IA Poste Manager - Email to Workspace (IA Locale)');
+  console.log('🤖 memoLib - Email to Workspace (IA Locale)');
   console.log('========================================\n');
 
   // Charger les emails

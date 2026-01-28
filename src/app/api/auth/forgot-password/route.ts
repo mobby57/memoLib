@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         await resend.emails.send({
           from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
           to: email,
-          subject: 'Réinitialisation de votre mot de passe - IA Poste Manager',
+          subject: 'Réinitialisation de votre mot de passe - memoLib',
           html: `
             <h2>Réinitialisation de mot de passe</h2>
             <p>Vous avez demandé la réinitialisation de votre mot de passe.</p>
