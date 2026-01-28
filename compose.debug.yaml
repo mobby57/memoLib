@@ -1,6 +1,6 @@
 services:
-  iapostemanagerbackend:
-    image: iapostemanagerbackend
+  memoLibbackend:
+    image: memoLibbackend
     build:
       context: src/backend
       dockerfile: ./Dockerfile

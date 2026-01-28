@@ -103,7 +103,7 @@ describe('metadata - Métadonnées SEO', () => {
     });
 
     test('contient le creator Twitter', () => {
-      expect((defaultMetadata.twitter as any).creator).toBe('@iapostemanager');
+      expect((defaultMetadata.twitter as any).creator).toBe('@memoLib');
     });
 
     test('contient les icônes', () => {

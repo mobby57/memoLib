@@ -3,7 +3,7 @@
 
 import { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://iapostemanager.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memoLib.com';
 
 export default function robots(): MetadataRoute.Robots {
   return {

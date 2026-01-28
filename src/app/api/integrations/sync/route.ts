@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { oauthTokenService } from '@/lib/oauth/token-service';
 import { ExternalCalendarBridge } from '@/lib/oauth/calendar-bridge';
 import type { OAuthProvider } from '@/lib/oauth/oauth-service';
+import { oauthTokenService } from '@/lib/oauth/token-service';
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/integrations/sync?provider=google
- * Trigger sync from external calendar to IaPosteManager
+ * Trigger sync from external calendar to MemoLib
  */
 export async function POST(req: Request) {
   try {
@@ -32,15 +32,9 @@ export async function POST(req: Request) {
 
     if (type === 'calendar') {
       if (provider === 'google') {
-        result = await ExternalCalendarBridge.syncGoogleCalendar(
-          accessToken,
-          session.user.id
-        );
+        result = await ExternalCalendarBridge.syncGoogleCalendar(accessToken, session.user.id);
       } else if (provider === 'microsoft') {
-        result = await ExternalCalendarBridge.syncMicrosoftCalendar(
-          accessToken,
-          session.user.id
-        );
+        result = await ExternalCalendarBridge.syncMicrosoftCalendar(accessToken, session.user.id);
       }
     } else if (type === 'contacts') {
       if (provider === 'google') {
@@ -55,9 +49,6 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (e: any) {
-    return NextResponse.json(
-      { error: 'sync_failed', detail: e?.message },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'sync_failed', detail: e?.message }, { status: 400 });
   }
 }
