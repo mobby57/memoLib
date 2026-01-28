@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     // Calculer l'usage du mois
     let usage = { totalCost: 0, totalRequests: 0, totalTokens: 0 };
     let dailyUsage: { date: string; cost: number; requests: number }[] = [];
-    let byModel: Record<string, { cost: number; requests: number }> = {};
+    const byModel: Record<string, { cost: number; requests: number }> = {};
 
     try {
       // Agrégat total

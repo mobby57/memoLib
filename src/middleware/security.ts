@@ -1,6 +1,6 @@
 ﻿/**
  * Security Middleware - OWASP ZAP Compliant
- * IA Poste Manager - Securite niveau Enterprise
+ * memoLib - Securite niveau Enterprise
  * 
  * Conforme aux exigences :
  * - RGPD / CNIL

@@ -478,7 +478,7 @@ export class SystemMonitor {
         to: process.env.ALERT_TO_EMAIL || 'admin@memoLib.com',
         subject: `?? ${alert.title}`,
         html: `
-          <h2>Alerte Syst�me - IA Poste Manager</h2>
+          <h2>Alerte Syst�me - memoLib</h2>
           <p><strong>S�v�rit�:</strong> ${alert.severity}</p>
           <p><strong>Heure:</strong> ${alert.timestamp.toLocaleString()}</p>
           <p><strong>Description:</strong></p>
