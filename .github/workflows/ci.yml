@@ -22,8 +22,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+      - name: Install Playwright deps (Chromium only)
+        run: npx playwright install-deps chromium
+
+      - name: Install Playwright browser (Chromium)
+        run: npx playwright install chromium
 
       - name: Typecheck
         run: npm run typecheck:frontend
