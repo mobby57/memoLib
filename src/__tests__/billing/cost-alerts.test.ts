@@ -107,7 +107,7 @@ describe('cost-alerts', () => {
       expect(alerts[0].alertLevel).toBe('blocked');
     });
 
-    it('devrait ne pas générer d\'alerte en dessous de 70%', async () => {
+    it("devrait ne pas générer d'alerte en dessous de 70%", async () => {
       const mockTenants = [
         {
           id: 'tenant_ok',
@@ -198,6 +198,7 @@ describe('cost-alerts', () => {
       ];
       prismaMock.__mockFindMany.mockResolvedValueOnce(mockTenants);
       prismaMock.__mockAggregate.mockResolvedValueOnce({ _sum: { cost: 40 } });
+      const alerts = await checkAllTenantsForAlerts();
       expect(alerts[0].period.month).toBeLessThanOrEqual(12);
     });
   });
