@@ -72,7 +72,7 @@
       "options": {
         "cwd": "${workspaceFolder}",
         "env": {
-          "FLASK_APP": "app.py",
+          "FLASK_APP": "backend-python/app.py",
           "FLASK_ENV": "development"
         }
       },
@@ -182,7 +182,7 @@
     {
       "label": "Install: All Dependencies",
       "type": "shell",
-      "command": "cd src/frontend && npm install && cd ../.. && pip install -r requirements.txt",
+      "command": "cd src/frontend && npm install --legacy-peer-deps && cd ../.. && if [ -f requirements.txt ]; then pip install -r requirements.txt; elif [ -f requirements-python.txt ]; then pip install -r requirements-python.txt; else echo 'No Python requirements file found'; fi",
       "options": {
         "cwd": "${workspaceFolder}"
       },
