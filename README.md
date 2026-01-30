@@ -140,7 +140,41 @@ npm run test:integration
 - [Système multi-canal](./docs/MULTICHANNEL_SYSTEM.md)
 - [CI/CD officielle (schéma cible)](./docs/CI-CD.md)
 - [Guide des environnements](./docs/ENVIRONMENT_GUIDE.md)
- - [Gestion des doublons et regroupement](./docs/DATA_DEDUPLICATION.md)
+- [Gestion des doublons et regroupement](./docs/DATA_DEDUPLICATION.md)
+
+### API interne: Dedup Check
+
+Endpoint d’analyse et d’ingestion dédup:
+
+- Chemin: /api/tools/dedup-check (POST)
+- Payload:
+  - email (optionnel)
+  - firstName (requis)
+  - lastName (requis)
+  - caseTitle (requis en mode commit)
+  - docName (requis en mode commit)
+  - docContentBase64 (optionnel pour dry-run, requis en mode commit)
+  - mode: "dry-run" (défaut) ou "commit"
+  - threshold: nombre entre 0 et 1 (défaut 0.8)
+
+Réponse: nom normalisé, similarité, hash document; en mode commit, renvoie `clientId`, `caseId`, `documentId`, `created`.
+
+Exemple:
+
+```bash
+curl -X POST http://localhost:3000/api/tools/dedup-check \
+	-H 'Content-Type: application/json' \
+	-d '{
+		"email":"a@example.com",
+		"firstName":"Jean",
+		"lastName":"Dupont",
+		"caseTitle":"Dossier Immigration",
+		"docName":"note.txt",
+		"docContentBase64":"aGVsbG8=",
+		"mode":"dry-run",
+		"threshold":0.8
+	}'
+```
 
 ---
 
