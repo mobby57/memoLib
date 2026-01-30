@@ -140,6 +140,7 @@ npm run test:integration
 - [Système multi-canal](./docs/MULTICHANNEL_SYSTEM.md)
 - [CI/CD officielle (schéma cible)](./docs/CI-CD.md)
 - [Guide des environnements](./docs/ENVIRONMENT_GUIDE.md)
+ - [Gestion des doublons et regroupement](./docs/DATA_DEDUPLICATION.md)
 
 ---
 
