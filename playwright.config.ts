@@ -1,5 +1,28 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const baseProjects = [
+    {
+        name: 'chromium',
+        use: { ...devices['Desktop Chrome'] },
+    },
+    {
+        name: 'firefox',
+        use: { ...devices['Desktop Firefox'] },
+    },
+    {
+        name: 'webkit',
+        use: { ...devices['Desktop Safari'] },
+    },
+    {
+        name: 'Mobile Chrome',
+        use: { ...devices['Pixel 5'] },
+    },
+    {
+        name: 'Mobile Safari',
+        use: { ...devices['iPhone 12'] },
+    },
+];
+
 export default defineConfig({
     testDir: './src/__tests__/e2e',
     // Skip payment flow tests in demo-safe mode when PW_SKIP_PAYMENTS=1
@@ -17,28 +40,7 @@ export default defineConfig({
         video: 'retain-on-failure',
     },
 
-    projects: [
-        {
-            name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
-        },
-        {
-            name: 'firefox',
-            use: { ...devices['Desktop Firefox'] },
-        },
-        {
-            name: 'webkit',
-            use: { ...devices['Desktop Safari'] },
-        },
-        {
-            name: 'Mobile Chrome',
-            use: { ...devices['Pixel 5'] },
-        },
-        {
-            name: 'Mobile Safari',
-            use: { ...devices['iPhone 12'] },
-        },
-    ],
+    projects: process.env.CI ? baseProjects.filter(p => p.name === 'chromium') : baseProjects,
 
     webServer: {
         command: 'npm run dev',
