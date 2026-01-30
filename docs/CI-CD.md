@@ -132,6 +132,22 @@ Pour aligner le dépôt sur le schéma cible, réduire la complexité et le coû
 
 Note : les approbations Prod se configurent via GitHub Environments (protect rules). Le workflow `Deploy Pipeline (Manual)` utilise `environment: production` pour bénéficier des protections.
 
+### ♻️ Procédure de rollback rapide
+
+- Via Actions (recommandé) :
+   1. Ouvrir le workflow « Deploy Pipeline (Manual) ».
+   2. Choisir `environment = production` et `ref = <tag ou commit SHA>` de la version précédente.
+   3. Lancer le workflow (les approbations de l’environnement s’appliquent).
+
+- Via Vercel Dashboard :
+   - Promouvoir explicitement un déploiement antérieur depuis le projet (fonctionnalité de promotion) lorsqu’un artefact précédent est stable et validé.
+
+Exemple CLI (optionnel) :
+
+```bash
+gh workflow run "Deploy Pipeline (Manual)" -f environment=production -f ref=v1.2.3
+```
+
 ---
 
 ## 7️⃣ Coûts indicatifs (ordre de grandeur)
