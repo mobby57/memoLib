@@ -1,6 +1,10 @@
-name: Deploy Pipeline (Manual)
+name: Deploy Pipeline
 
 on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       environment:
@@ -22,6 +26,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Exécuter seulement si CI est passé avec succès (pour workflow_run)
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     environment: ${{ github.event.inputs.environment || 'production' }}
     steps:
       - uses: actions/checkout@v4
@@ -39,6 +45,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          NEXT_PUBLIC_BUILD_COMMIT: ${{ github.sha }}
 
       - name: Deploy to Vercel
         run: npx vercel --prod --confirm --token=${{ secrets.VERCEL_TOKEN }}
