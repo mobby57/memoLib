@@ -103,6 +103,7 @@ build/
 *.tar.gz
 *.zip
 *.tsbuildinfo
+*.exe
 
 # Tests
 .pytest_cache/
@@ -146,6 +147,7 @@ dist/
 node_modules/.cache/
 .jest-cache/
 .eslintcache
+.cache_*
 
 # Logs
 *.log
