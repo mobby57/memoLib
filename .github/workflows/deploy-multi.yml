@@ -4,36 +4,21 @@
 # Déploie sur la plateforme choisie via variables `DEPLOY_TARGET`
 # ============================================================================
 
-name: 🌐 Deploy Multi
+name: ARCHIVED — Deploy Multi (Disabled)
+
+# This workflow is archived and intentionally disabled.
+# It remains for historical reference only.
+# Do not use; prefer deploy-optimized.yml and deploy-preview.yml.
 
 on:
-  workflow_dispatch:
-    inputs:
-      target:
-        required: true
-        type: choice
-      ref:
-        description: 'Git ref to deploy (branch or tag)'
-        required: false
-        default: 'main'
-        type: string
-      run_build:
-        description: 'Run build before deploy'
-        required: false
-        default: true
-        type: boolean
-
-permissions:
-  contents: read
-  deployments: write
-  id-token: write
-
-env:
-  NODE_VERSION: '20'
+  workflow_call:
 
 jobs:
-  deploy:
+  noop:
     runs-on: ubuntu-latest
+    steps:
+      - name: Archived
+        run: echo "This workflow is archived and disabled."
     timeout-minutes: 20
 
     steps:
