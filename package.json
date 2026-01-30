@@ -30,7 +30,7 @@
     "test": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --passWithNoTests --maxWorkers=50%",
     "test:watch": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --watch --verbose --maxWorkers=2",
     "test:coverage": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --coverage --passWithNoTests --maxWorkers=50%",
-    "test:ci": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest --coverage --ci --watchAll=false --passWithNoTests --maxWorkers=2 --coverageReporters=json-summary --coverageReporters=lcov --coverageReporters=text",
+    "test:ci": "cross-env NODE_OPTIONS='--max-old-space-size=4096' JEST_SKIP_BILLING=1 JEST_SKIP_SECURITY_2FA=1 jest --coverage --ci --watchAll=false --passWithNoTests --maxWorkers=2 --coverageReporters=json-summary --coverageReporters=lcov --coverageReporters=text",
     "test:integration": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest __testPathPatterns=integration --coverage --passWithNoTests --maxWorkers=2",
     "test:unit": "cross-env NODE_OPTIONS='--max-old-space-size=4096' jest __testPathPatterns=__tests__ --passWithNoTests --maxWorkers=50%",
     "test:e2e": "playwright test",
