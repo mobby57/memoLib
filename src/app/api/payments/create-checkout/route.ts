@@ -4,12 +4,20 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
-});
+// Demo-safe: n'initialise Stripe que si la clé est définie
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' })
+  : null;
 
 export async function POST(request: NextRequest) {
   try {
+    // Si Stripe n'est pas configuré, répondre explicitement sans exécuter la logique
+    if (!stripe) {
+      return NextResponse.json(
+        { error: 'Paiements désactivés (configuration Stripe manquante).' },
+        { status: 503 }
+      );
+    }
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
