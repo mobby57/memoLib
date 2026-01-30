@@ -1,5 +1,5 @@
 """
-API REST pour le MVP IA Poste Manager
+API REST pour le MVP memoLib
 ======================================
 
 Endpoints principaux :
@@ -28,7 +28,7 @@ app = Flask(__name__)
 # CORS sécurisé : restreint en production, permissif en dev
 if os.environ.get("FLASK_ENV") == "production":
     allowed_origins = os.environ.get(
-        "ALLOWED_ORIGINS", "https://iapostemanager.vercel.app"
+        "ALLOWED_ORIGINS", "https://memoLib.vercel.app"
     ).split(",")
     CORS(app, origins=allowed_origins, supports_credentials=True)
 else:

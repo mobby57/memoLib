@@ -100,34 +100,34 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Implémenter l'envoi réel selon le canal
-    let sendResult = { sent: false, channel: 'unknown' };
+    // Envoi via les APIs disponibles
+    let sendResult = { sent: false, channel: 'none' };
 
     try {
-      // Email via Resend
-      if (recipient.includes('@')) {
+      // Pour l'instant, utiliser Resend pour email si configuré
+      if (process.env.RESEND_API_KEY) {
         const { Resend } = await import('resend');
         const resend = new Resend(process.env.RESEND_API_KEY);
 
-        if (process.env.RESEND_API_KEY) {
-          await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'noreply@iapostemanager.com',
-            to: recipient,
-            subject: subject || 'Message de votre avocat',
-            html: `<p>${body}</p>`,
-          });
-          sendResult = { sent: true, channel: 'email' };
-        }
+        await resend.emails.send({
+          from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
+          to: recipient,
+          subject: subject || 'Message de memoLib',
+          html: `<p>${content}</p>`,
+        });
+
+        sendResult = { sent: true, channel: 'email' };
       }
-      // SMS/WhatsApp nécessitent Twilio API key
     } catch (sendError) {
-      logger.warn('Erreur envoi multicanal', { error: sendError });
+      logger.warn('Erreur envoi message', { error: sendError });
     }
 
     return NextResponse.json({
-      success: true,
-      message: sendResult.sent ? `Message envoyé via ${sendResult.channel}` : 'Message enregistré (envoi différé)',
-      ...sendResult,
+      success: sendResult.sent,
+      message: sendResult.sent
+        ? `Message envoyé via ${sendResult.channel}`
+        : "Message en file d'attente (simulation)",
+      channel: sendResult.channel,
     });
   } catch (error) {
     logger.error('Erreur envoi message', error instanceof Error ? error : undefined, {

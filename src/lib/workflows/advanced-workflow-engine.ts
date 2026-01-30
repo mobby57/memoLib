@@ -9,7 +9,7 @@
  * - Workflows paralleles et sequentiels
  *
  * @version 2.0.0
- * @author IA Poste Manager
+ * @author memoLib
  */
 
 import { prisma } from '@/lib/prisma';
@@ -577,7 +577,7 @@ export class AdvancedWorkflowEngine {
       this.executionCounts = new Map();
     }
 
-    let counter = this.executionCounts.get(ruleKey) || {
+    const counter = this.executionCounts.get(ruleKey) || {
       hourly: 0,
       daily: 0,
       lastHour: now,
@@ -946,7 +946,7 @@ export class AdvancedWorkflowEngine {
       const resend = new Resend(process.env.RESEND_API_KEY);
 
       const result = await resend.emails.send({
-        from: params.from || process.env.EMAIL_FROM || 'noreply@iapostemanager.com',
+        from: params.from || process.env.EMAIL_FROM || 'noreply@memoLib.com',
         to: params.to,
         subject: params.subject,
         html: params.html || params.body || params.content,
@@ -1561,7 +1561,7 @@ Reponds par OUI ou NON avec une justification breve.`;
                 workspaceId: '{{context.workspaceId}}',
                 type: 'internal_note',
                 senderId: 'system',
-                senderName: 'IA Poste Manager',
+                senderName: 'memoLib',
                 senderType: 'system',
                 content:
                   'Workspace cree automatiquement suite a email urgent. Procedure OQTF initiee.',

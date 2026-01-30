@@ -1,5 +1,5 @@
 /**
- * Seed des Plans Tarifaires — IA Poste Manager
+ * Seed des Plans Tarifaires — memoLib
  * 
  * Crée les 3 plans stratégiques :
  * - SOLO (49-79€/mois) - Entrée de marché

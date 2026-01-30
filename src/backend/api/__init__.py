@@ -1,5 +1,5 @@
 """
-API REST Blueprint pour IA Poste Manager v4.0
+API REST Blueprint pour memoLib v4.0
 
 Architecture séparée Frontend/Backend.
 Ce module expose des endpoints JSON pour consommation par frontend React/mobile.

@@ -33,7 +33,7 @@ curl -X POST http://localhost:3000/api/webhooks/channel/email \
   -d '{
     "from": "client@example.com",
     "fromName": "Jean Dupont",
-    "to": "cabinet@iapostemanager.com",
+    "to": "cabinet@memoLib.com",
     "subject": "Demande de RDV urgent",
     "text": "Bonjour, je souhaite un RDV pour mon titre de séjour qui expire le 15 février 2026.",
     "html": "<p>Bonjour, je souhaite un RDV pour mon titre de séjour qui expire le <strong>15 février 2026</strong>.</p>"
@@ -502,11 +502,11 @@ Une fois tous les tests passés → **Déploiement en production**
 
 ```bash
 # 1. Configurer les secrets Azure Key Vault
-az keyvault secret set --vault-name iapostemanager-kv --name "OPENAI-API-KEY" --value "sk-..."
+az keyvault secret set --vault-name memoLib-kv --name "OPENAI-API-KEY" --value "sk-..."
 
 # 2. Déployer
 git push origin main
 
 # 3. Vérifier le déploiement
-curl https://iapostemanager.vercel.app/api/health
+curl https://memoLib.vercel.app/api/health
 ```

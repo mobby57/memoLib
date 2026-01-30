@@ -282,7 +282,7 @@ class DatabasePerformanceDashboard {
    */
   async displayDashboard(): Promise<void> {
     console.log('=' .repeat(70))
-    console.log('DASHBOARD DE PERFORMANCE - IA Poste Manager')
+    console.log('DASHBOARD DE PERFORMANCE - memoLib')
     console.log('=' .repeat(70))
     console.log('')
 

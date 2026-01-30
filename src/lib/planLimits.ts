@@ -1,5 +1,5 @@
 ﻿/**
- * Plan Limits & AI Guards - IA Poste Manager
+ * Plan Limits & AI Guards - memoLib
  *
  * Syst�me de v�rification des limites par plan et garde-fous IA
  * Impl�mente la Charte IA et les niveaux d'autonomie

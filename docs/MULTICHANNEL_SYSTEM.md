@@ -98,7 +98,7 @@ WHATSAPP_PHONE_NUMBER_ID=your-phone-id
 # Twilio (SMS/Voice)
 TWILIO_ACCOUNT_SID=AC...
 TWILIO_AUTH_TOKEN=...
-TWILIO_WEBHOOK_URL=https://iapostemanager.vercel.app/api/webhooks/channel
+TWILIO_WEBHOOK_URL=https://memoLib.vercel.app/api/webhooks/channel
 
 # Slack
 SLACK_SIGNING_SECRET=...
@@ -120,7 +120,7 @@ CHANNEL_SMS_SECRET=...
 Tous les secrets doivent être stockés dans Azure Key Vault :
 
 ```bash
-az keyvault secret set --vault-name iapostemanager-kv \
+az keyvault secret set --vault-name memoLib-kv \
   --name "WHATSAPP-ACCESS-TOKEN" \
   --value "your-token"
 ```
@@ -348,13 +348,13 @@ Supprimer les données client (droit à l'oubli).
 
 ```bash
 # Test webhook WhatsApp
-curl -X POST https://iapostemanager.vercel.app/api/webhooks/channel/whatsapp \
+curl -X POST https://memoLib.vercel.app/api/webhooks/channel/whatsapp \
   -H "Content-Type: application/json" \
   -H "x-hub-signature-256: sha256=..." \
   -d '{"entry":[{"changes":[{"value":{"messages":[{"from":"33612345678","text":{"body":"Test message"}}]}}]}]}'
 
 # Test webhook SMS (Twilio)
-curl -X POST https://iapostemanager.vercel.app/api/webhooks/channel/sms \
+curl -X POST https://memoLib.vercel.app/api/webhooks/channel/sms \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "From=+33612345678&Body=Test SMS&MessageSid=SM123"
 ```
@@ -365,6 +365,6 @@ curl -X POST https://iapostemanager.vercel.app/api/webhooks/channel/sms \
 
 Pour toute question sur l'intégration multi-canal :
 
-- 📧 Email: support@iapostemanager.com
-- 📚 Docs: https://docs.iapostemanager.com
-- 🐛 Issues: https://github.com/mobby57/iapostemanager/issues
+- 📧 Email: support@memoLib.com
+- 📚 Docs: https://docs.memoLib.com
+- 🐛 Issues: https://github.com/mobby57/memoLib/issues

@@ -14,7 +14,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.nginx
-    container_name: iaposte_nginx
+    container_name: memolib_nginx
     ports:
       - '80:80'
       - '443:443'
@@ -25,7 +25,7 @@ services:
       - backend
       - ai-service
     networks:
-      - iaposte_network
+      - memolib_network
     restart: unless-stopped
 
   # ===========================================================================
@@ -35,12 +35,12 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.frontend
-    container_name: iaposte_frontend
+    container_name: memolib_frontend
     expose:
       - '3000'
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://iapostemanage:${POSTGRES_PASSWORD:-changeme}@postgres:5432/iapostemanage
+      - DATABASE_URL=postgresql://memolib:${POSTGRES_PASSWORD:-changeme}@postgres:5432/memolib
       - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - BACKEND_URL=http://backend:5000
@@ -51,7 +51,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - iaposte_network
+      - memolib_network
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
@@ -67,12 +67,12 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.backend
-    container_name: iaposte_backend
+    container_name: memolib_backend
     expose:
       - '5000'
     environment:
       - FLASK_ENV=production
-      - DATABASE_URL=postgresql://iapostemanage:${POSTGRES_PASSWORD:-changeme}@postgres:5432/iapostemanage
+      - DATABASE_URL=postgresql://memolib:${POSTGRES_PASSWORD:-changeme}@postgres:5432/memolib
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=${SECRET_KEY}
       - JWT_SECRET=${JWT_SECRET}
@@ -85,7 +85,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - iaposte_network
+      - memolib_network
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:5000/health']
@@ -101,14 +101,14 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.ai-service
-    container_name: iaposte_ai
+    container_name: memolib_ai
     expose:
       - '8000'
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OLLAMA_BASE_URL=http://ollama:11434
       - REDIS_URL=redis://redis:6379/1
-      - DATABASE_URL=postgresql://iapostemanage:${POSTGRES_PASSWORD:-changeme}@postgres:5432/iapostemanage
+      - DATABASE_URL=postgresql://memolib:${POSTGRES_PASSWORD:-changeme}@postgres:5432/memolib
     volumes:
       - ./ai-models:/app/models
       - ./uploads:/app/uploads:ro
@@ -116,7 +116,7 @@ services:
       - redis
       - ollama
     networks:
-      - iaposte_network
+      - memolib_network
     restart: unless-stopped
     deploy:
       resources:
@@ -136,21 +136,21 @@ services:
   # ===========================================================================
   postgres:
     image: postgres:16-alpine
-    container_name: iaposte_postgres
+    container_name: memolib_postgres
     ports:
       - '5432:5432'
     environment:
-      - POSTGRES_USER=iapostemanage
+      - POSTGRES_USER=memolib
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
-      - POSTGRES_DB=iapostemanage
+      - POSTGRES_DB=memolib
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
-      - iaposte_network
+      - memolib_network
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U iapostemanage -d iapostemanage']
+      test: ['CMD-SHELL', 'pg_isready -U memolib -d memolib']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -161,14 +161,14 @@ services:
   # ===========================================================================
   redis:
     image: redis:7-alpine
-    container_name: iaposte_redis
+    container_name: memolib_redis
     ports:
       - '6379:6379'
     command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     networks:
-      - iaposte_network
+      - memolib_network
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
@@ -182,13 +182,13 @@ services:
   # ===========================================================================
   ollama:
     image: ollama/ollama:latest
-    container_name: iaposte_ollama
+    container_name: memolib_ollama
     ports:
       - '11434:11434'
     volumes:
       - ollama_data:/root/.ollama
     networks:
-      - iaposte_network
+      - memolib_network
     restart: unless-stopped
     deploy:
       resources:
@@ -204,7 +204,7 @@ services:
   # ===========================================================================
   prometheus:
     image: prom/prometheus:latest
-    container_name: iaposte_prometheus
+    container_name: memolib_prometheus
     ports:
       - '9090:9090'
     volumes:
@@ -217,7 +217,7 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--storage.tsdb.retention.time=15d'
     networks:
-      - iaposte_network
+      - memolib_network
     restart: unless-stopped
 
   # ===========================================================================
@@ -225,7 +225,7 @@ services:
   # ===========================================================================
   grafana:
     image: grafana/grafana:latest
-    container_name: iaposte_grafana
+    container_name: memolib_grafana
     ports:
       - '3001:3000'
     environment:
@@ -238,14 +238,14 @@ services:
     depends_on:
       - prometheus
     networks:
-      - iaposte_network
+      - memolib_network
     restart: unless-stopped
 
 # =============================================================================
 # NETWORKS
 # =============================================================================
 networks:
-  iaposte_network:
+  memolib_network:
     driver: bridge
     ipam:
       config:

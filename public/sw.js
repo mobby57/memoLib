@@ -1,6 +1,6 @@
-const CACHE_NAME = 'iaposte-v3';
-const STATIC_CACHE = 'iaposte-static-v3';
-const DYNAMIC_CACHE = 'iaposte-dynamic-v3';
+const CACHE_NAME = 'memolib-v3';
+const STATIC_CACHE = 'memolib-static-v3';
+const DYNAMIC_CACHE = 'memolib-dynamic-v3';
 
 const STATIC_ASSETS = [
   '/',
@@ -60,11 +60,11 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(DYNAMIC_CACHE).then(async (cache) => {
         const cachedResponse = await cache.match(request);
-        
+
         if (cachedResponse) {
           const cachedTime = new Date(cachedResponse.headers.get('sw-cache-time') || 0);
           const now = new Date();
-          
+
           if (now.getTime() - cachedTime.getTime() < API_CACHE_DURATION) {
             // Retourner le cache si encore valide
             fetch(request).then((response) => {
@@ -73,8 +73,8 @@ self.addEventListener('fetch', (event) => {
                 responseClone.headers.set('sw-cache-time', now.toISOString());
                 cache.put(request, responseClone);
               }
-            }).catch(() => {});
-            
+            }).catch(() => { });
+
             return cachedResponse;
           }
         }
@@ -93,7 +93,7 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          return new Response(JSON.stringify({ error: 'Offline', message: 'Network unavailable' }), { 
+          return new Response(JSON.stringify({ error: 'Offline', message: 'Network unavailable' }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' }
           });

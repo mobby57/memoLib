@@ -75,7 +75,7 @@ export default function LoginPage() {
             className="inline-flex items-center gap-2 text-white mb-8 hover:opacity-80 transition-opacity"
           >
             <span className="text-4xl">⚖️</span>
-            <span className="text-2xl font-bold">IA Poste Manager</span>
+            <span className="text-2xl font-bold">memoLib</span>
           </Link>
 
           <h2 className="text-4xl font-bold text-white mb-6">
@@ -133,7 +133,7 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="text-center mb-8 lg:hidden">
             <span className="text-6xl">⚖️</span>
-            <h1 className="text-3xl font-bold text-white mt-4">IA Poste Manager</h1>
+            <h1 className="text-3xl font-bold text-white mt-4">memoLib</h1>
           </div>
 
           {/* Form card */}
@@ -301,7 +301,7 @@ export default function LoginPage() {
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
                   <p className="font-bold text-purple-900">👑 Super Admin</p>
                   <p className="text-purple-700 mt-1 font-mono text-xs">
-                    superadmin@iapostemanager.com | SuperAdmin2026!
+                    superadmin@memoLib.com | SuperAdmin2026!
                   </p>
                 </div>
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">

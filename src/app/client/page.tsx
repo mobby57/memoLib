@@ -20,9 +20,85 @@ export default function ClientDashboard() {
   const [factures, setFactures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const handlePayment = ) => {
-    // TODO:mImPlemne S cPgrdtfs5c8py-4">
-        <div className="flex items-center justifyIntbgratt eni       <div>
+  const handlePayment = async (factureId: string) => {
+    try {
+      // Créer une session de paiement Stripe
+      const response = await fetch('/api/payments/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ factureId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création de la session de paiement');
+      }
+
+      const { url, sessionId } = await response.json();
+
+      if (url) {
+        // Rediriger vers Stripe Checkout
+        window.location.href = url;
+      } else {
+        alert('Session de paiement créée. ID: ' + sessionId);
+      }
+    } catch (error) {
+      console.error('Erreur de paiement:', error);
+      alert("Erreur lors de l'initialisation du paiement. Veuillez réessayer.");
+    }
+  };
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/login');
+    } else if (session?.user && session.user.role !== 'CLIENT') {
+      router.push('/dashboard');
+    } else if (session?.user?.role === 'CLIENT') {
+      fetchData();
+    }
+  }, [session, status, router]);
+
+  const fetchData = async () => {
+    try {
+      const [dossiersRes, facturesRes] = await Promise.all([
+        fetch('/api/client/my-dossiers'),
+        fetch('/api/client/my-factures'),
+      ]);
+
+      if (dossiersRes.ok) {
+        const data = await dossiersRes.json();
+        setDossiers(data.dossiers);
+      }
+
+      if (facturesRes.ok) {
+        const data = await facturesRes.json();
+        setFactures(data.factures);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  const dossierEnCours = dossiers.filter(d => d.statut === 'en_cours' || d.statut === 'urgent');
+  const facturesEnAttente = factures.filter(f => f.statut === 'en_attente');
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Header */}
+      <header className="bg-white shadow-md border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Mon Espace Client
               </h1>
@@ -94,7 +170,9 @@ export default function ClientDashboard() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Factures</h3>
                 <p className="text-3xl font-bold text-gray-900 mt-2">{factures.length}</p>
-                <p className="text-xs text-orange-600 mt-1">{facturesEnAttente.length} en attente</p>
+                <p className="text-xs text-orange-600 mt-1">
+                  {facturesEnAttente.length} en attente
+                </p>
               </div>
               <div className="bg-green-100 p-3 rounded-full">
                 <span className="text-3xl"></span>
@@ -130,7 +208,7 @@ export default function ClientDashboard() {
             </div>
           ) : (
             <div className="space-y-4">
-              {dossiers.map((dossier) => (
+              {dossiers.map(dossier => (
                 <div
                   key={dossier.id}
                   className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -141,12 +219,17 @@ export default function ClientDashboard() {
                         <h3 className="font-semibold text-gray-900 text-lg">
                           {dossier.typeDossier}
                         </h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          dossier.statut === 'urgent' ? 'bg-red-100 text-red-800' :
-                          dossier.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
-                          dossier.statut === 'termine' ? 'bg-green-100 text-green-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            dossier.statut === 'urgent'
+                              ? 'bg-red-100 text-red-800'
+                              : dossier.statut === 'en_cours'
+                                ? 'bg-blue-100 text-blue-800'
+                                : dossier.statut === 'termine'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
                           {dossier.statut}
                         </span>
                       </div>
@@ -154,7 +237,10 @@ export default function ClientDashboard() {
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span> Numero: {dossier.numero}</span>
                         {dossier.dateEcheance && (
-                          <span> echeance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
+                          <span>
+                            {' '}
+                            echeance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}
+                          </span>
                         )}
                         <span> {dossier._count?.documents || 0} documents</span>
                       </div>
@@ -196,7 +282,7 @@ export default function ClientDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {factures.map((facture) => (
+                  {factures.map(facture => (
                     <tr key={facture.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-4 px-4 font-medium text-gray-900">{facture.numero}</td>
                       <td className="py-4 px-4 text-gray-600">{facture.dossier?.typeDossier}</td>
@@ -207,18 +293,23 @@ export default function ClientDashboard() {
                         {new Date(facture.dateEcheance).toLocaleDateString('fr-FR')}
                       </td>
                       <td className="py-4 px-4 text-center">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          facture.statut === 'payee' ? 'bg-green-100 text-green-800' :
-                          facture.statut === 'en_attente' ? 'bg-orange-100 text-orange-800' :
-                          facture.statut === 'en_retard' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            facture.statut === 'payee'
+                              ? 'bg-green-100 text-green-800'
+                              : facture.statut === 'en_attente'
+                                ? 'bg-orange-100 text-orange-800'
+                                : facture.statut === 'en_retard'
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
                           {facture.statut}
                         </span>
                       </td>
                       <td className="py-4 px-4 text-right">
                         {facture.statut === 'en_attente' && (
-                          <button 
+                          <button
                             onClick={() => handlePayment(facture.id)}
                             className="px-3 py-1 bg-green-500 text-white rounded text-sm font-semibold hover:bg-green-600"
                           >
@@ -236,7 +327,7 @@ export default function ClientDashboard() {
                       </td>
                     </tr>
                   ))}
-                </tbody> 
+                </tbody>
               </table>
             </div>
           )}
@@ -245,4 +336,3 @@ export default function ClientDashboard() {
     </div>
   );
 }
-  

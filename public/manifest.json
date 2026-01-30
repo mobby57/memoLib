@@ -1,13 +1,16 @@
 {
-  "name": "IA Poste Manager",
-  "short_name": "IA Poste",
+  "name": "memoLib",
+  "short_name": "memoLib",
   "description": "Système intelligent de gestion juridique multi-tenant",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
-  "categories": ["business", "productivity"],
+  "categories": [
+    "business",
+    "productivity"
+  ],
   "lang": "fr",
   "icons": [
     {
@@ -17,7 +20,7 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png", 
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -29,14 +32,24 @@
       "short_name": "Dashboard",
       "description": "Accéder au tableau de bord",
       "url": "/dashboard",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Dossiers",
-      "short_name": "Dossiers", 
+      "short_name": "Dossiers",
       "description": "Gérer les dossiers",
       "url": "/dossiers",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

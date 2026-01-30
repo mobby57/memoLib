@@ -53,7 +53,7 @@ security-keys-backup-*.txt
 *.sqlite
 *.sqlite3
 *.db-journal
-iapostemanager.db
+memolib.db
 
 # Logs
 logs/
@@ -102,6 +102,7 @@ dist/
 build/
 *.tar.gz
 *.zip
+*.tsbuildinfo
 
 # Tests
 .pytest_cache/
@@ -131,3 +132,24 @@ ssl/
 # Monitoring
 prometheus_data/
 grafana_data/
+
+# Build artifacts
+.next/
+out/
+dist/
+.turbo/
+.swc/
+.wrangler/
+.vercel/
+
+# Cache
+node_modules/.cache/
+.jest-cache/
+.eslintcache
+
+# Logs
+*.log
+npm-debug.log*
+
+# Legacy
+legacy/

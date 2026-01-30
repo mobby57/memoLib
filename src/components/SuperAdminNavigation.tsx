@@ -24,7 +24,7 @@ export default function SuperAdminNavigation() {
         <div className="flex items-center justify-between h-16">
           {/* Logo + Badge */}
           <div className="flex items-center space-x-3">
-            <div className="text-white font-bold text-xl">IA Poste Manager</div>
+            <div className="text-white font-bold text-xl">memoLib</div>
             <span className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full shadow-md">
               SUPER ADMIN
             </span>

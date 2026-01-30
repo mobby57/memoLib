@@ -3,7 +3,7 @@
 
 import { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://iapostemanager.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memolib.vercel.app';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -25,11 +25,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: 'Googlebot',
         allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/super-admin/',
-        ],
+        disallow: ['/api/', '/admin/', '/super-admin/'],
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,

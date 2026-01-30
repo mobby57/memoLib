@@ -7,7 +7,7 @@
 
 ## 🎯 VISION
 
-Transformer IA Poste Manager en un **assistant de secrétariat augmenté** qui :
+Transformer memoLib en un **assistant de secrétariat augmenté** qui :
 - ✅ **Automatise** les tâches répétitives
 - ✅ **Suggère** sans jamais décider
 - ✅ **Respecte** le secret professionnel et le RGPD

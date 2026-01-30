@@ -146,7 +146,7 @@ export function generateEcheanceReminderEmail(
         <!-- Footer -->
         <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 12px; margin: 0;">
-            Cet email a ete genere automatiquement par IA Poste Manager<br>
+            Cet email a ete genere automatiquement par memoLib<br>
             Pour modifier vos preferences de notification, rendez-vous dans les parametres.
           </p>
         </div>
@@ -246,7 +246,7 @@ export function generateFactureOverdueEmail(
 
         <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 12px; margin: 0;">
-            IA Poste Manager - Gestion intelligente de cabinet juridique
+            memoLib - Gestion intelligente de cabinet juridique
           </p>
         </div>
       </div>
@@ -345,7 +345,7 @@ export function generateWeeklySummaryEmail(
 
         <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 12px; margin: 0;">
-            IA Poste Manager - Resume automatique hebdomadaire<br>
+            memoLib - Resume automatique hebdomadaire<br>
             Pour desactiver ces emails, rendez-vous dans les parametres.
           </p>
         </div>
@@ -400,7 +400,7 @@ export async function sendEmail(notification: EmailNotification): Promise<boolea
   logger.info('Email simule envoye', {
     to: notification.to.map(r => r.email),
     subject: notification.template.subject,
-    from: 'noreply@iapostemanage.com'
+    from: 'noreply@memolib.io'
   });
   
   // En production, remplacer par:
@@ -411,7 +411,6 @@ export async function sendEmail(notification: EmailNotification): Promise<boolea
   //     'Content-Type': 'application/json',
   //   },
   //   body: JSON.stringify({
-  //     from: 'IA Poste Manager <notifications@iapostemanager.com>',
   //     to: notification.to.map(r => r.email),
   //     subject: notification.template.subject,
   //     html: notification.template.htmlBody,

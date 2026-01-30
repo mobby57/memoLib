@@ -415,7 +415,7 @@ class AdvancedBackupSystem {
  * CLI Principal
  */
 async function main() {
-  console.log('🔧 SYSTÈME DE BACKUP AVANCÉ - IA Poste Manager\n')
+  console.log('🔧 SYSTÈME DE BACKUP AVANCÉ - memoLib\n')
 
   const backup = new AdvancedBackupSystem({
     backupDir: './backups',

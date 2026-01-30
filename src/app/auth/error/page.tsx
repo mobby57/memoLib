@@ -94,7 +94,7 @@ function AuthErrorContent() {
             <p className="text-sm text-gray-500">
               Probleme persistant ?{' '}
               <a
-                href="mailto:support@iapostemanager.fr"
+                href="mailto:support@memoLib.fr"
                 className="text-blue-600 hover:underline font-medium"
               >
                 Contactez le support

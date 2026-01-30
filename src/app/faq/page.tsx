@@ -13,12 +13,12 @@ const FAQ_DATA: FAQItem[] = [
   // ===== QUESTIONS GÉNÉRALES =====
   {
     category: 'general',
-    question: "Qu'est-ce qu'IA Poste Manager exactement ?",
-    answer: "IA Poste Manager est un logiciel de gestion de cabinet juridique spécialisé dans le droit des étrangers (CESEDA). Il combine la gestion de dossiers, clients, facturation avec une intelligence artificielle qui vous assiste dans vos tâches administratives : classification des emails, pré-rédaction de courriers, recherche de jurisprudence, et suivi des délais légaux (OQTF, recours, etc.)."
+    question: "Qu'est-ce qu'memoLib exactement ?",
+    answer: "memoLib est un logiciel de gestion de cabinet juridique spécialisé dans le droit des étrangers (CESEDA). Il combine la gestion de dossiers, clients, facturation avec une intelligence artificielle qui vous assiste dans vos tâches administratives : classification des emails, pré-rédaction de courriers, recherche de jurisprudence, et suivi des délais légaux (OQTF, recours, etc.)."
   },
   {
     category: 'general',
-    question: "À qui s'adresse IA Poste Manager ?",
+    question: "À qui s'adresse memoLib ?",
     answer: "Notre solution est conçue pour : les avocats indépendants spécialisés en droit des étrangers, les cabinets d'avocats de toutes tailles, les associations d'aide aux migrants, et toute structure juridique traitant des dossiers CESEDA (titres de séjour, OQTF, naturalisation, regroupement familial, asile, etc.)."
   },
   {
@@ -33,7 +33,7 @@ const FAQ_DATA: FAQItem[] = [
   },
   {
     category: 'general',
-    question: "Puis-je utiliser IA Poste Manager si je ne suis pas spécialisé en CESEDA ?",
+    question: "Puis-je utiliser memoLib si je ne suis pas spécialisé en CESEDA ?",
     answer: "Oui, bien que notre IA soit optimisée pour le CESEDA, la plateforme gère tous types de dossiers juridiques : civil, pénal, commercial, administratif, social. Vous bénéficierez simplement de moins de suggestions automatisées dans ces domaines."
   },
 
@@ -46,7 +46,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'securite',
     question: "Le secret professionnel est-il respecté ?",
-    answer: "C'est notre priorité absolue. Chaque cabinet dispose de son propre espace isolé. L'IA locale (Ollama) peut traiter les données les plus sensibles sans qu'elles quittent votre environnement. Aucun collaborateur d'IA Poste Manager n'a accès au contenu de vos dossiers."
+    answer: "C'est notre priorité absolue. Chaque cabinet dispose de son propre espace isolé. L'IA locale (Ollama) peut traiter les données les plus sensibles sans qu'elles quittent votre environnement. Aucun collaborateur d'memoLib n'a accès au contenu de vos dossiers."
   },
   {
     category: 'securite',
@@ -56,12 +56,12 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'securite',
     question: "Comment puis-je supprimer toutes mes données ?",
-    answer: "Vous pouvez demander la suppression complète de votre compte et de toutes vos données à tout moment en contactant support@iapostemanager.com. La suppression est effective sous 30 jours conformément au RGPD, avec un export préalable de vos données si souhaité."
+    answer: "Vous pouvez demander la suppression complète de votre compte et de toutes vos données à tout moment en contactant support@memoLib.com. La suppression est effective sous 30 jours conformément au RGPD, avec un export préalable de vos données si souhaité."
   },
   {
     category: 'securite',
     question: "Êtes-vous conforme aux règles du Barreau ?",
-    answer: "Oui, nous avons conçu IA Poste Manager en collaboration avec des avocats pour respecter : le secret professionnel, l'indépendance de l'avocat, la validation humaine obligatoire, et la traçabilité des actions. L'IA assiste mais ne décide jamais."
+    answer: "Oui, nous avons conçu memoLib en collaboration avec des avocats pour respecter : le secret professionnel, l'indépendance de l'avocat, la validation humaine obligatoire, et la traçabilité des actions. L'IA assiste mais ne décide jamais."
   },
 
   // ===== TARIFICATION & PAIEMENT =====
@@ -98,7 +98,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'tarifs',
     question: "Proposez-vous des tarifs pour les associations ou les aides juridiques ?",
-    answer: "Oui, nous proposons une réduction de 30% pour les associations à but non lucratif et les structures d'aide juridique. Contactez-nous à commercial@iapostemanager.com avec votre justificatif."
+    answer: "Oui, nous proposons une réduction de 30% pour les associations à but non lucratif et les structures d'aide juridique. Contactez-nous à commercial@memoLib.com avec votre justificatif."
   },
 
   // ===== FONCTIONNALITÉS =====
@@ -130,12 +130,12 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'fonctionnalites',
     question: "Puis-je accéder à l'application sur mobile ?",
-    answer: "Oui, IA Poste Manager est une application web responsive accessible depuis n'importe quel navigateur (ordinateur, tablette, smartphone). Une application mobile native est en développement pour 2026."
+    answer: "Oui, memoLib est une application web responsive accessible depuis n'importe quel navigateur (ordinateur, tablette, smartphone). Une application mobile native est en développement pour 2026."
   },
   {
     category: 'fonctionnalites',
     question: "Existe-t-il une API pour intégrer d'autres outils ?",
-    answer: "Oui, une API REST complète est disponible pour le plan Enterprise. Elle permet d'intégrer IA Poste Manager avec votre CRM, votre comptabilité, ou d'autres outils. Documentation disponible sur demande."
+    answer: "Oui, une API REST complète est disponible pour le plan Enterprise. Elle permet d'intégrer memoLib avec votre CRM, votre comptabilité, ou d'autres outils. Documentation disponible sur demande."
   },
 
   // ===== INSTITUTIONS & CABINETS =====
@@ -152,12 +152,12 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'institutions',
     question: "Pouvons-nous avoir un sous-domaine personnalisé ?",
-    answer: "Oui, pour les plans Cabinet et Enterprise. Votre cabinet accède via votrecabinet.iapostemanager.com. Un domaine entièrement personnalisé (app.votrecabinet.fr) est possible en Enterprise."
+    answer: "Oui, pour les plans Cabinet et Enterprise. Votre cabinet accède via votrecabinet.memoLib.com. Un domaine entièrement personnalisé (app.votrecabinet.fr) est possible en Enterprise."
   },
   {
     category: 'institutions',
     question: "Proposez-vous un contrat d'entreprise ou de marché public ?",
-    answer: "Oui, pour les institutions publiques, associations et grandes structures, nous proposons des contrats adaptés avec SLA garanti, facturation sur devis, et conformité aux marchés publics. Contactez commercial@iapostemanager.com."
+    answer: "Oui, pour les institutions publiques, associations et grandes structures, nous proposons des contrats adaptés avec SLA garanti, facturation sur devis, et conformité aux marchés publics. Contactez commercial@memoLib.com."
   },
   {
     category: 'institutions',
@@ -169,7 +169,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'support',
     question: "Comment contacter le support technique ?",
-    answer: "Plusieurs canaux selon votre plan : Email (tous les plans, réponse 48h), Chat en ligne (Cabinet+, réponse 24h), Téléphone (Enterprise, réponse 4h), Support dédié (Enterprise+). Email : support@iapostemanager.com"
+    answer: "Plusieurs canaux selon votre plan : Email (tous les plans, réponse 48h), Chat en ligne (Cabinet+, réponse 24h), Téléphone (Enterprise, réponse 4h), Support dédié (Enterprise+). Email : support@memoLib.com"
   },
   {
     category: 'support',
@@ -179,7 +179,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     category: 'support',
     question: "Que se passe-t-il si j'ai un bug urgent ?",
-    answer: "Les bugs critiques affectant la production sont traités en priorité (SLA 4h pour Enterprise, 24h pour les autres plans). Signalez-les via le bouton 'Signaler un problème' dans l'application ou à urgence@iapostemanager.com."
+    answer: "Les bugs critiques affectant la production sont traités en priorité (SLA 4h pour Enterprise, 24h pour les autres plans). Signalez-les via le bouton 'Signaler un problème' dans l'application ou à urgence@memoLib.com."
   },
   {
     category: 'support',
@@ -301,7 +301,7 @@ export default function FAQPage() {
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Questions Fréquentes</h1>
           <p className="text-xl text-blue-100 mb-8">
-            Trouvez rapidement les réponses à vos questions sur IA Poste Manager
+            Trouvez rapidement les réponses à vos questions sur memoLib
           </p>
           
           {/* Search */}
@@ -396,7 +396,7 @@ export default function FAQPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="mailto:support@iapostemanager.com"
+              href="mailto:support@memoLib.com"
               className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
               📧 Contacter le support

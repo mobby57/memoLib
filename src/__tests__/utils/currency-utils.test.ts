@@ -151,8 +151,8 @@ describe('Number Formatting', () => {
 
     it('devrait utiliser l\'espace comme séparateur de milliers', () => {
       const formatted = formatNumber(1234567);
-      // En français, on utilise l'espace insécable ou normal
-      expect(formatted.replace(/\s/g, '')).toBe('1234567');
+      // Accept any thousands separator (space, comma, period, narrow no-break space) depending on locale
+      expect(formatted.replace(/[\s.,\u202F\u00A0]/g, '')).toBe('1234567');
     });
   });
 

@@ -1,5 +1,5 @@
 """
-Dashboard Simple MVP IA Poste Manager
+Dashboard Simple MVP memoLib
 ======================================
 
 Interface web basique pour :

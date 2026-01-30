@@ -1,6 +1,0 @@
-﻿# Cloudflare Pages Deployment Trigger
-# This file forces a fresh clone to clear Cloudflare's cache
-
-Deployment triggered: 2026-01-14 20:30:12
-Reason: Force fresh clone after .gitmodules removal
-Commit: Force Cloudflare to use latest state without .gitmodules

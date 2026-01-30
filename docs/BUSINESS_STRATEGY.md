@@ -1,4 +1,4 @@
-# 🚀 Stratégie de Vente - IA Poste Manager
+# 🚀 Stratégie de Vente - memoLib
 
 ## 📊 Modèle Économique SaaS
 
@@ -92,7 +92,7 @@ STRIPE_WEBHOOK_SECRET=whsec_xxxxx
 
 ### Recommandation
 ```
-iapostemanager.fr  ou  iapostemanager.com
+memoLib.fr  ou  memoLib.com
 ```
 
 ### Configuration:
@@ -181,7 +181,7 @@ iapostemanager.fr  ou  iapostemanager.com
 1. ✅ Fixer l'authentification Vercel
 2. [ ] Activer Stripe en mode live
 3. [ ] Créer la page de pricing
-4. [ ] Acheter le domaine iapostemanager.fr
+4. [ ] Acheter le domaine memoLib.fr
 
 ### Ce Mois
 1. [ ] Créer les pages légales (CGV, CGU, RGPD)

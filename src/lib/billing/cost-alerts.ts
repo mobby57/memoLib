@@ -182,7 +182,7 @@ export async function sendAlertEmail(alert: CostAlert): Promise<boolean> {
 export async function sendSuperAdminAlert(alerts: CostAlert[]): Promise<void> {
   if (alerts.length === 0) return;
 
-  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@iapostemanager.com';
+  const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@memoLib.com';
   
   const criticalCount = alerts.filter(a => a.alertLevel === 'critical' || a.alertLevel === 'blocked').length;
   const warningCount = alerts.filter(a => a.alertLevel === 'warning').length;
@@ -337,7 +337,7 @@ function getAlertBody(alert: CostAlert): string {
 
   <hr style="margin-top: 40px; border: none; border-top: 1px solid #E5E7EB;">
   <p style="font-size: 12px; color: #6B7280;">
-    IA Poste Manager - Cabinet ${alert.tenantName}<br>
+    memoLib - Cabinet ${alert.tenantName}<br>
     Cet email a été envoyé automatiquement suite à un dépassement de seuil.
   </p>
 </body>

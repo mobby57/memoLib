@@ -75,7 +75,7 @@ interface SendResult {
  */
 export async function sendEmail(options: EmailOptions): Promise<SendResult> {
   const transporter = getTransporter();
-  const fromAddress = options.from || process.env.EMAIL_FROM || 'noreply@iapostemanager.com';
+  const fromAddress = options.from || process.env.EMAIL_FROM || 'noreply@memoLib.com';
 
   // Mode test si pas de transporteur
   if (!transporter) {
@@ -170,8 +170,8 @@ export const emailTemplates = {
       </p>
       
       <div class="footer">
-        <p>Cet email a ete envoye automatiquement par IA Poste Manager.</p>
-        <p> ${new Date().getFullYear()} IA Poste Manager</p>
+        <p>Cet email a ete envoye automatiquement par memoLib.</p>
+        <p> ${new Date().getFullYear()} memoLib</p>
       </div>
     </div>
   </div>
@@ -232,8 +232,8 @@ export const emailTemplates = {
       </p>
       
       <div class="footer">
-        <p>Cet email a ete envoye automatiquement par IA Poste Manager.</p>
-        <p> ${new Date().getFullYear()} IA Poste Manager</p>
+        <p>Cet email a ete envoye automatiquement par memoLib.</p>
+        <p> ${new Date().getFullYear()} memoLib</p>
       </div>
     </div>
   </div>
@@ -306,7 +306,7 @@ export const emailTemplates = {
       </p>
       
       <div class="footer">
-        <p> ${new Date().getFullYear()} ${data.cabinetName} - Propulse par IA Poste Manager</p>
+        <p> ${new Date().getFullYear()} ${data.cabinetName} - Propulse par memoLib</p>
       </div>
     </div>
   </div>

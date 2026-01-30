@@ -302,9 +302,9 @@ export class InformationUnitService {
             const resend = new Resend(process.env.RESEND_API_KEY);
             if (process.env.RESEND_API_KEY && unit.metadata?.clientEmail) {
               await resend.emails.send({
-                from: process.env.EMAIL_FROM || 'noreply@iapostemanager.com',
+                from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
                 to: unit.metadata.clientEmail as string,
-                subject: 'Rappel : Informations manquantes - IA Poste Manager',
+                subject: 'Rappel : Informations manquantes - memoLib',
                 html: `<h2>Informations manquantes</h2><p>Des informations sont encore nécessaires pour votre dossier. Merci de les compléter.</p>`,
               });
             }

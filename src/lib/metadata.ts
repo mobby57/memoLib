@@ -3,14 +3,14 @@
 
 import { Metadata } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://iapostemanager.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memoLib.com';
 
 // Métadonnées par défaut
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: 'IA Poste Manager - Gestion Juridique Intelligente',
-    template: '%s | IA Poste Manager',
+    default: 'memoLib - Gestion Juridique Intelligente',
+    template: '%s | memoLib',
   },
   description: 'Système intelligent de gestion des dossiers juridiques pour cabinets d\'avocats. Multi-tenant, sécurisé et optimisé par IA.',
   keywords: [
@@ -23,9 +23,9 @@ export const defaultMetadata: Metadata = {
     'SaaS juridique',
     'facturation avocat',
   ],
-  authors: [{ name: 'IA Poste Manager Team' }],
-  creator: 'IA Poste Manager',
-  publisher: 'IA Poste Manager',
+  authors: [{ name: 'memoLib Team' }],
+  creator: 'memoLib',
+  publisher: 'memoLib',
   robots: {
     index: true,
     follow: true,
@@ -41,24 +41,24 @@ export const defaultMetadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     url: BASE_URL,
-    siteName: 'IA Poste Manager',
-    title: 'IA Poste Manager - Gestion Juridique Intelligente',
+    siteName: 'memoLib',
+    title: 'memoLib - Gestion Juridique Intelligente',
     description: 'Système intelligent de gestion des dossiers juridiques pour cabinets d\'avocats.',
     images: [
       {
         url: `${BASE_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: 'IA Poste Manager',
+        alt: 'memoLib',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'IA Poste Manager - Gestion Juridique Intelligente',
+    title: 'memoLib - Gestion Juridique Intelligente',
     description: 'Système intelligent de gestion des dossiers juridiques.',
     images: [`${BASE_URL}/og-image.png`],
-    creator: '@iapostemanager',
+    creator: '@memoLib',
   },
   icons: {
     icon: [
