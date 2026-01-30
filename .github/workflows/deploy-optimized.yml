@@ -1,18 +1,6 @@
-name: Deploy Pipeline
+name: Deploy Pipeline (Manual)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - '.github/workflows/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'pnpm-lock.yaml'
-      - 'yarn.lock'
-      - 'next.config.js'
-      - 'open-next.config.ts'
-      - 'vercel.json'
   workflow_dispatch:
     inputs:
       environment:
@@ -46,7 +34,7 @@ jobs:
           NODE_ENV: production
 
       - name: Deploy to Vercel
-        run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
-        if: env.DEPLOY_TARGET == 'vercel'
+        run: npx vercel --prod --confirm --token=${{ secrets.VERCEL_TOKEN }}
         env:
-          DEPLOY_TARGET: vercel
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
