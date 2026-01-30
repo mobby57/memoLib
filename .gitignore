@@ -102,6 +102,7 @@ dist/
 build/
 *.tar.gz
 *.zip
+*.tsbuildinfo
 
 # Tests
 .pytest_cache/
@@ -139,6 +140,7 @@ dist/
 .turbo/
 .swc/
 .wrangler/
+.vercel/
 
 # Cache
 node_modules/.cache/

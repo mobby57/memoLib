@@ -90,4 +90,7 @@ jest.mock('next/navigation', () => ({
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret'
 process.env.NEXTAUTH_URL = 'http://localhost:3000'
-process.env.DATABASE_URL = 'file:./test.db'
+// Use a dummy valid PostgreSQL URL to satisfy Prisma datasource validation
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/testdb';
+}

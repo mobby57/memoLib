@@ -11,6 +11,7 @@
 ## 📋 Vue d'ensemble
 
 **IA Poste Manager** centralise tous les canaux de communication d'un cabinet d'avocats :
+
 - ✅ **12 canaux** : Email, WhatsApp, SMS, Voice, Slack, Teams, LinkedIn, Twitter, Forms, Documents, Declan, Internal
 - ✅ **Traitement IA** : Résumé automatique, catégorisation, détection d'urgence, extraction d'entités
 - ✅ **Auto-linking** : Association automatique client/dossier par email/téléphone
@@ -26,6 +27,7 @@ Canaux externes → Webhooks → MultiChannelService → [IA + Audit + Notificat
 ```
 
 **Stack technique :**
+
 - **Frontend :** Next.js 14 (App Router), React, TailwindCSS
 - **Backend :** Next.js API Routes, Prisma ORM
 - **Base de données :** PostgreSQL (Azure/Vercel)
@@ -136,6 +138,8 @@ npm run test:integration
 - [Guide de test rapide](./docs/QUICK_TEST_GUIDE.md)
 - [Plan d'action immédiat](./docs/ACTION_PLAN_IMMEDIATE.md)
 - [Système multi-canal](./docs/MULTICHANNEL_SYSTEM.md)
+- [CI/CD officielle (schéma cible)](./docs/CI-CD.md)
+- [Guide des environnements](./docs/ENVIRONMENT_GUIDE.md)
 
 ---
 
