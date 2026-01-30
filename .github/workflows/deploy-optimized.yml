@@ -3,6 +3,16 @@ name: Deploy Pipeline
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'yarn.lock'
+      - 'next.config.js'
+      - 'open-next.config.ts'
+      - 'vercel.json'
   workflow_dispatch:
     inputs:
       environment:
