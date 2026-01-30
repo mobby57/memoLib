@@ -3,7 +3,7 @@
 
 // Used for __tests__/testing-library.js
 // Learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 
 // Polyfill TextEncoder/TextDecoder for Node.js test environment
 if (typeof globalThis.TextEncoder === 'undefined') {
@@ -23,20 +23,28 @@ if (typeof globalThis.Request === 'undefined') {
       this.headers = new Map(Object.entries(init.headers || {}));
       this.body = init.body;
     }
-    json() { return Promise.resolve(JSON.parse(this.body || '{}')); }
-    text() { return Promise.resolve(this.body || ''); }
+    json() {
+      return Promise.resolve(JSON.parse(this.body || '{}'));
+    }
+    text() {
+      return Promise.resolve(this.body || '');
+    }
   };
-  
+
   globalThis.Response = class Response {
     constructor(body, init = {}) {
       this.body = body;
       this.status = init.status || 200;
       this.headers = new Map(Object.entries(init.headers || {}));
     }
-    json() { return Promise.resolve(JSON.parse(this.body || '{}')); }
-    text() { return Promise.resolve(this.body || ''); }
+    json() {
+      return Promise.resolve(JSON.parse(this.body || '{}'));
+    }
+    text() {
+      return Promise.resolve(this.body || '');
+    }
   };
-  
+
   globalThis.Headers = class Headers extends Map {
     constructor(init = {}) {
       super(Object.entries(init));
@@ -63,9 +71,9 @@ jest.mock('next/router', () => ({
         off: jest.fn(),
         emit: jest.fn(),
       },
-    }
+    };
   },
-}))
+}));
 
 // Mock Next.js navigation
 jest.mock('next/navigation', () => ({
@@ -77,17 +85,20 @@ jest.mock('next/navigation', () => ({
       back: jest.fn(),
       forward: jest.fn(),
       refresh: jest.fn(),
-    }
+    };
   },
   useSearchParams() {
-    return new URLSearchParams()
+    return new URLSearchParams();
   },
   usePathname() {
-    return '/'
+    return '/';
   },
-}))
+}));
 
 // Mock environment variables
-process.env.NEXTAUTH_SECRET = 'test-secret'
-process.env.NEXTAUTH_URL = 'http://localhost:3000'
-process.env.DATABASE_URL = 'file:./test.db'
+process.env.NEXTAUTH_SECRET = 'test-secret';
+process.env.NEXTAUTH_URL = 'http://localhost:3000';
+// Use a dummy valid PostgreSQL URL to satisfy Prisma datasource validation
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/testdb';
+}
