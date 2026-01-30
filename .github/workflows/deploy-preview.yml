@@ -45,6 +45,8 @@ jobs:
           NEXT_PUBLIC_ENABLE_AI: 'false'
           NEXTAUTH_URL: 'https://preview.local'
           NEXTAUTH_SECRET: 'preview-secret-32-characters-long!'
+          PREVIEW_PROTECT: 'true'
+          PREVIEW_TOKEN: ${{ secrets.PREVIEW_TOKEN }}
 
       - name: Deploy Preview to Vercel
         run: npx vercel --confirm --token ${{ secrets.VERCEL_TOKEN }}
