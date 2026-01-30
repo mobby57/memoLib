@@ -22,8 +22,18 @@ export default function HomePage() {
               <h1 className="mt-3 text-5xl font-bold tracking-tight">Trouvez l’aide juridique, simplement</h1>
               <p className="mt-3 text-lg text-gray-600 max-w-xl">Memolib connecte les personnes et les avocats avec des parcours clairs, des paiements intégrés et une conformité transparente.</p>
               <div className="mt-6 flex gap-3">
-                <Button asChild><Link href="/clients">Accès clients</Link></Button>
-                <Button variant="outline" asChild><Link href="/legal/avocat">Espace avocat</Link></Button>
+                <Link
+                  href="/clients"
+                  className="inline-flex items-center justify-center font-medium rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-600 px-4 py-2"
+                >
+                  Accès clients
+                </Link>
+                <Link
+                  href="/legal/avocat"
+                  className="inline-flex items-center justify-center font-medium rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-transparent text-brand-700 border border-brand-200 hover:bg-brand-50 focus-visible:ring-brand-600 px-4 py-2"
+                >
+                  Espace avocat
+                </Link>
               </div>
               <ul className="mt-6 grid gap-2 text-gray-700">
                 {['Demande guidée pas à pas', 'Dépôt sécurisé des pièces', 'Paiement et reçus intégrés'].map((f) => (

@@ -9,6 +9,7 @@
     "test:e2e": "playwright test",
     "build": "next build",
     "icons": "node scripts/generate-favicons.mjs",
+    "repo:bootstrap": "bash scripts/bootstrap_github.sh",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:frontend": "tsc -p tsconfig.frontend.json --noEmit",
     "ci": "npm run typecheck:frontend && npm run lint && npm run build"

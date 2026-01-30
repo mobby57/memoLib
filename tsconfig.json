@@ -13,6 +13,10 @@
       "node",
       "vitest/globals"
     ],
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types"
+    ],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,

@@ -15,38 +15,7 @@
  * - Index usage: > 95%
  */
 
-import { PrismaClient } from '@prisma/client';
-
-// Singleton pattern for Prisma client
-let prisma: PrismaClient;
-
-if (process.env.NODE_ENV === 'production') {
-    prisma = new PrismaClient({
-        log: [
-            { level: 'warn', emit: 'event' },
-            { level: 'error', emit: 'event' },
-        ],
-        datasources: {
-            db: {
-                url: process.env.DATABASE_URL,
-            },
-        },
-    });
-} else {
-    // Development: use global to prevent multiple instances
-    if (!(global as any).prisma) {
-        (global as any).prisma = new PrismaClient({
-            log: [
-                { level: 'query', emit: 'event' },
-                { level: 'warn', emit: 'event' },
-                { level: 'error', emit: 'event' },
-            ],
-        });
-    }
-    prisma = (global as any).prisma;
-}
-
-export { prisma };
+import { prisma } from '@/lib/prisma';
 
 /**
  * Query Performance Analyzer
@@ -235,14 +204,14 @@ export class DatabaseOptimizer {
     ): Promise<boolean> {
         try {
             // Query information_schema for index
-                        const result = await (prisma as any).$queryRawUnsafe(`
+            const result = await (prisma as any).$queryRawUnsafe(`
         SELECT indexname
         FROM pg_indexes
         WHERE tablename = '${table}'
         AND indexdef LIKE '%${columns.join('%')}%'
       `);
-                        const typedResult = result as any[];
-                        return typedResult.length > 0;
+            const typedResult = result as any[];
+            return typedResult.length > 0;
         } catch (error) {
             console.error('Error checking index:', error);
             return false; // Assume no index if error

@@ -1,3 +1,6 @@
+// ESM proxy vers la config CJS
+import config from './eslint.config.cjs';
+export default config;
 import js from '@eslint/js';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';

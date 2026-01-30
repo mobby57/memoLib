@@ -9,9 +9,7 @@
  * - Email categories
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export interface EmailMetrics {
     totalReceived: number;

@@ -18,9 +18,7 @@
  * - API response: < 200ms (p95)
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 /**
  * Web Vitals Reporter

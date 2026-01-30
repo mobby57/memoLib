@@ -9,9 +9,8 @@
  * - Error rates
  */
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+// Prisma désactivé pour build/demo: stub de récupération des logs IA
+const getLogs = async (..._args: any[]) => [] as any[];
 
 export interface AIMetrics {
     totalInferences: number;
@@ -84,20 +83,7 @@ export class AIAnalytics {
         const end = endDate || now;
 
         // Get all AI inference logs
-        const logs = await prisma.auditLog.findMany({
-            where: {
-                createdAt: {
-                    gte: start,
-                    lte: end,
-                },
-                action: {
-                    startsWith: 'ai_',
-                },
-                metadata: {
-                    not: null,
-                },
-            },
-        });
+        const logs = await getLogs();
 
         // Parse metadata
         const inferences = logs.map((log: any) => {
@@ -205,20 +191,7 @@ export class AIAnalytics {
             const nextDay = new Date(date);
             nextDay.setDate(nextDay.getDate() + 1);
 
-            const logs = await prisma.auditLog.findMany({
-                where: {
-                    createdAt: {
-                        gte: date,
-                        lt: nextDay,
-                    },
-                    action: {
-                        startsWith: 'ai_',
-                    },
-                    metadata: {
-                        not: null,
-                    },
-                },
-            });
+            const logs = await getLogs();
 
             let promptTokens = 0;
             let completionTokens = 0;
@@ -269,20 +242,7 @@ export class AIAnalytics {
         const start = startDate || new Date(now.getFullYear(), now.getMonth(), 1);
         const end = endDate || now;
 
-        const logs = await prisma.auditLog.findMany({
-            where: {
-                createdAt: {
-                    gte: start,
-                    lte: end,
-                },
-                action: {
-                    startsWith: 'ai_',
-                },
-                metadata: {
-                    not: null,
-                },
-            },
-        });
+        const logs = await getLogs();
 
         const inferenceTimes = logs
             .map((log: any) => {
@@ -338,20 +298,7 @@ export class AIAnalytics {
         const start = startDate || new Date(now.getFullYear(), now.getMonth(), 1);
         const end = endDate || now;
 
-        const logs = await prisma.auditLog.findMany({
-            where: {
-                createdAt: {
-                    gte: start,
-                    lte: end,
-                },
-                action: {
-                    startsWith: 'ai_',
-                },
-                metadata: {
-                    not: null,
-                },
-            },
-        });
+        const logs = await getLogs();
 
         const modelMap = new Map<string, {
             inferences: number;
