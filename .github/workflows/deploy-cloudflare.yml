@@ -20,5 +20,8 @@ jobs:
       - name: Authenticate Wrangler
         run: wrangler login
 
-      - name: Deploy to Cloudflare
-        run: wrangler publish
+      - name: Deploy to Staging
+        run: wrangler publish --env staging
+
+      - name: Deploy to Production
+        run: wrangler publish --env production
