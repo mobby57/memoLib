@@ -1,9 +1,9 @@
-﻿import 'dotenv/config';
-import { PrismaClient } from '@prisma/client';
+﻿import { PrismaClient } from '@prisma/client';
+import 'dotenv/config';
 
 /**
  *  Prisma Client Avance - Expert Level
- * 
+ *
  * Features:
  * - Logging avance avec timing et couleurs
  * - Soft delete middleware
@@ -11,6 +11,9 @@ import { PrismaClient } from '@prisma/client';
  * - Type-safe extensions
  * - Optimisations SQLite automatiques
  */
+
+// Detection environnement de test (Jest)
+const isTest = process.env.JEST_WORKER_ID !== undefined || process.env.NODE_ENV === 'test';
 
 // Types pour le monitoring
 interface QueryMetrics {
@@ -32,19 +35,37 @@ const prismaClientConfig = {
   errorFormat: 'colorless' as const,
 };
 
-// Singleton pattern avec type safety
-const globalForPrisma = global as unknown as { 
-  prisma: PrismaClient;
-  prismaMetrics: QueryMetrics[];
-  optimized: boolean;
+// Singleton pattern avec type safety (hors tests)
+const globalForPrisma = global as unknown as {
+  prisma: PrismaClient | undefined;
+  prismaMetrics: QueryMetrics[] | undefined;
+  optimized: boolean | undefined;
 };
 
-export const prisma = globalForPrisma.prisma || new PrismaClient(prismaClientConfig);
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-  globalForPrisma.prismaMetrics = queryMetrics;
+let prismaLocal: any;
+if (isTest) {
+  // Stub minimal en tests pour éviter toute connexion DB
+  prismaLocal = {
+    tenant: {
+      findUnique: async () => null,
+      update: async () => ({}),
+    },
+    quotaEvent: {
+      create: async () => ({}),
+    },
+    $on: () => {},
+    $use: () => {},
+    $extends: () => ({}),
+  };
+} else {
+  prismaLocal = globalForPrisma.prisma || new PrismaClient(prismaClientConfig);
+  if (process.env.NODE_ENV !== 'production') {
+    globalForPrisma.prisma = prismaLocal as PrismaClient;
+    globalForPrisma.prismaMetrics = queryMetrics;
+  }
 }
+
+export const prisma = prismaLocal as PrismaClient as any;
 
 // ============================================
 // ️ OPTIMISATIONS DATABASE AUTOMATIQUES
@@ -53,11 +74,14 @@ if (process.env.NODE_ENV !== 'production') {
 async function optimizeDatabase() {
   // Skip si déjà optimisé ou en mode Azure SWA warm-up
   if (globalForPrisma.optimized) return;
-  
+
   try {
     // Detecter le type de base de donnees
     const databaseUrl = process.env.DATABASE_URL || '';
-    const isPostgreSQL = databaseUrl.includes('postgresql') || databaseUrl.includes('postgres') || databaseUrl.includes('neon');
+    const isPostgreSQL =
+      databaseUrl.includes('postgresql') ||
+      databaseUrl.includes('postgres') ||
+      databaseUrl.includes('neon');
     const isSQLite = databaseUrl.includes('sqlite') || databaseUrl.includes('file:');
 
     if (isSQLite) {
@@ -67,7 +91,7 @@ async function optimizeDatabase() {
       await prisma.$queryRawUnsafe('PRAGMA cache_size = -64000'); // 64MB
       await prisma.$queryRawUnsafe('PRAGMA temp_store = MEMORY');
       await prisma.$queryRawUnsafe('PRAGMA mmap_size = 30000000000');
-      
+
       if (process.env.NODE_ENV === 'development') {
         console.log(' SQLite optimizations applied');
       }
@@ -77,7 +101,7 @@ async function optimizeDatabase() {
         console.log(' PostgreSQL connection ready');
       }
     }
-    
+
     globalForPrisma.optimized = true;
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
@@ -89,7 +113,7 @@ async function optimizeDatabase() {
 // ⚠️ NE PAS appeler optimizeDatabase() au démarrage - lazy loading
 // Les optimisations seront appliquées à la première requête via ensureDbOptimized()
 export async function ensureDbOptimized() {
-  if (!globalForPrisma.optimized) {
+  if (!isTest && !globalForPrisma.optimized) {
     await optimizeDatabase();
   }
 }
@@ -98,11 +122,11 @@ export async function ensureDbOptimized() {
 //  LOGGING AVANCe AVEC METRICS
 // ============================================
 
-if (process.env.NODE_ENV === 'development') {
+if (!isTest && process.env.NODE_ENV === 'development') {
   prisma.$on('query' as never, (e: any) => {
     const duration = e.duration;
     const query = e.query;
-    
+
     // Collecter les metrics
     queryMetrics.push({
       query: query.substring(0, 100), // Limite a 100 chars
@@ -135,34 +159,35 @@ if (process.env.NODE_ENV === 'development') {
 // ============================================
 
 // Soft delete middleware
-prisma.$use(async (params, next) => {
-  // Intercepter les delete et les transformer en update
-  if (params.action === 'delete') {
-    params.action = 'update';
-    params.args['data'] = { deletedAt: new Date() };
-  }
-  
-  if (params.action === 'deleteMany') {
-    params.action = 'updateMany';
-    if (params.args.data != undefined) {
-      params.args.data['deletedAt'] = new Date();
-    } else {
+if (!isTest)
+  prisma.$use(async (params, next) => {
+    // Intercepter les delete et les transformer en update
+    if (params.action === 'delete') {
+      params.action = 'update';
       params.args['data'] = { deletedAt: new Date() };
     }
-  }
 
-  return next(params);
-});
+    if (params.action === 'deleteMany') {
+      params.action = 'updateMany';
+      if (params.args.data != undefined) {
+        params.args.data['deletedAt'] = new Date();
+      } else {
+        params.args['data'] = { deletedAt: new Date() };
+      }
+    }
+
+    return next(params);
+  });
 
 // Exclure automatiquement les enregistrements supprimes (soft delete)
 // DeSACTIVe TEMPORAIREMENT - Le modele Dossier n'a pas de champ deletedAt
-/* 
+/*
 prisma.$use(async (params, next) => {
   if (params.action === 'findUnique' || params.action === 'findFirst') {
     params.action = 'findFirst';
     params.args.where = { ...params.args.where, deletedAt: null };
   }
-  
+
   if (params.action === 'findMany') {
     if (params.args.where) {
       if (params.args.where.deletedAt === undefined) {
@@ -183,7 +208,7 @@ prisma.$use(async (params, next) => {
 
 export const prismaExtended = prisma.$extends({
   name: 'advanced-features',
-  
+
   // Ajouter des methodes personnalisees sur tous les modeles
   model: {
     $allModels: {
@@ -198,7 +223,7 @@ export const prismaExtended = prisma.$extends({
           },
         });
       },
-      
+
       // Methode pour supprimer definitivement
       async hardDelete<T>(this: T, args: any) {
         const context = Reflect.get(this, Symbol.for('prisma.client.context'));
@@ -206,17 +231,18 @@ export const prismaExtended = prisma.$extends({
       },
     },
   },
-  
+
   // Ajouter des methodes sur le client
   client: {
     // Obtenir les metrics de performance
     $metrics() {
-      const avgDuration = queryMetrics.length > 0
-        ? queryMetrics.reduce((sum, m) => sum + m.duration, 0) / queryMetrics.length
-        : 0;
-      
+      const avgDuration =
+        queryMetrics.length > 0
+          ? queryMetrics.reduce((sum, m) => sum + m.duration, 0) / queryMetrics.length
+          : 0;
+
       const slowQueries = queryMetrics.filter(m => m.duration > 100);
-      
+
       return {
         totalQueries: queryMetrics.length,
         averageDuration: Math.round(avgDuration * 100) / 100,
@@ -224,17 +250,21 @@ export const prismaExtended = prisma.$extends({
         slowQueriesDetails: slowQueries.slice(0, 10),
       };
     },
-    
+
     // Health check de la base de donnees
     async $health() {
       try {
         await prisma.$queryRaw`SELECT 1`;
         return { status: 'healthy', timestamp: new Date() };
       } catch (error) {
-        return { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error', timestamp: new Date() };
+        return {
+          status: 'unhealthy',
+          error: error instanceof Error ? error.message : 'Unknown error',
+          timestamp: new Date(),
+        };
       }
     },
-    
+
     // Vacuum et optimisation
     async $optimize() {
       await prisma.$executeRawUnsafe('VACUUM');
