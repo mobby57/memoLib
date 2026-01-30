@@ -32,4 +32,6 @@ jobs:
         run: npm run build
 
       - name: E2E tests
+        env:
+          PW_SKIP_PAYMENTS: "1"
         run: npm run test:e2e

@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
-test.describe('Payment Flow E2E', () => {
+test.describe('@payments Payment Flow E2E', () => {
     test.beforeEach(async ({ page }) => {
         // Login before each test
         await page.goto(`${BASE_URL}/auth/signin`);

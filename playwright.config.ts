@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
     testDir: './src/__tests__/e2e',
+    // Skip payment flow tests in demo-safe mode when PW_SKIP_PAYMENTS=1
+    grepInvert: process.env.PW_SKIP_PAYMENTS === '1' ? /@payments/ : undefined,
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,

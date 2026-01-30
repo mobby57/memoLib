@@ -82,7 +82,7 @@ export default function HomePage() {
                 <Badge className="bg-white/10 text-white border-white/20">Suite juridique augmentée</Badge>
               </div>
               <h1 className="text-4xl md:text-5xl font-semibold leading-tight" data-testid="home-hero-title">
-                Offrez une expérience juridique rassurante, personnelle et conforme.
+                Memolib — Offrez une expérience juridique rassurante, personnelle et conforme.
               </h1>
               <p className="text-lg md:text-xl text-white/80 max-w-2xl">
                 Memolib orchestre vos échanges, vos paiements et vos obligations réglementaires pour faire de chaque dossier un parcours fluide et sécurisé.
@@ -204,10 +204,18 @@ export default function HomePage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link href="/admin/dashboard" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-brand-700 font-semibold shadow-sm transition hover:bg-white/90">
+              <Link
+                href="/admin/dashboard"
+                aria-label="Programmer une démo personnalisée"
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-brand-700 font-semibold shadow-sm transition hover:bg-white/90"
+              >
                 Programmer une démo <CalendarCheck className="h-5 w-5" />
               </Link>
-              <Link href="/support" className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-3 text-white font-semibold transition hover:bg-white/10">
+              <Link
+                href="/support"
+                aria-label="Contacter l’équipe onboarding"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/40 px-5 py-3 text-white font-semibold transition hover:bg-white/10"
+              >
                 Parlons onboarding
               </Link>
             </div>
