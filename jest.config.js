@@ -76,6 +76,7 @@ const customJestConfig = {
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@otplib/preset-default$': '<rootDir>/src/__mocks__/otplib-preset-default.ts',
   },
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
