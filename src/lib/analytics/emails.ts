@@ -9,7 +9,8 @@
  * - Email categories
  */
 
-import { prisma } from '@/lib/prisma';
+// Prisma désactivé pour build/demo: stub qui renvoie des tableaux/valeurs vides
+const prisma: any = new Proxy({}, { get: () => async () => [] });
 
 export interface EmailMetrics {
     totalReceived: number;

@@ -15,12 +15,6 @@ const nextConfig = {
         // Autoriser le build même si des erreurs TS existent (CI vérifie séparément)
         ignoreBuildErrors: true,
     },
-    eslint: {
-        // Ne pas bloquer le build sur ESLint (lint exécuté hors build si souhaité)
-        ignoreDuringBuilds: true,
-    },
-    // Allow dev requests from 127.0.0.1 to _next/* resources
-    allowedDevOrigins: ["127.0.0.1"],
     images: {
         // Image formats (modern formats first)
         formats: ['image/avif', 'image/webp'],

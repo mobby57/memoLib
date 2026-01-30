@@ -10,7 +10,8 @@
  * - Feature Usage
  */
 
-import { prisma } from '@/lib/prisma';
+// Prisma désactivé pour build/demo
+const prisma: any = new Proxy({}, { get: () => async () => [] });
 
 export interface EngagementMetrics {
     dau: number;              // Daily Active Users

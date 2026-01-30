@@ -15,7 +15,9 @@
  * - Index usage: > 95%
  */
 
-import { prisma } from '@/lib/prisma';
+// Prisma désactivé pour build/demo
+const prisma: any = new Proxy({}, { get: () => async () => [] });
+export { prisma };
 
 /**
  * Query Performance Analyzer

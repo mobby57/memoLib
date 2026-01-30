@@ -15,7 +15,8 @@
  * - ENTERPRISE: Unlimited
  */
 
-import { prisma } from '@/lib/prisma';
+// Prisma désactivé pour build/demo
+const prisma: any = new Proxy({}, { get: () => async () => [] });
 
 export interface RateLimitConfig {
     tier: 'FREE' | 'PRO' | 'ENTERPRISE';

@@ -18,7 +18,8 @@
  * - API response: < 200ms (p95)
  */
 
-import { prisma } from '@/lib/prisma';
+// Prisma désactivé pour build/demo
+const prisma: any = new Proxy({}, { get: () => async () => [] });
 
 /**
  * Web Vitals Reporter
