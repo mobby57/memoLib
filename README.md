@@ -13,6 +13,14 @@ npm run dev
 # ouvre http://localhost:3000
 ```
 
+### Configuration environnement (NextAuth)
+- Copiez `.env.example` vers `.env.local` puis ajustez:
+	- `NEXTAUTH_URL` (ex: `http://localhost:3000` en local)
+	- `NEXTAUTH_SECRET` (générez une valeur robuste en production)
+- L’endpoint d’authentification App Router est fourni par `src/app/api/auth/[...nextauth]/route.ts`.
+
+Note: en développement, nous déclarons `allowedDevOrigins` dans `next.config.mjs` pour éviter un avertissement cross-origin futur.
+
 ## Pages & parcours
 - `/` Accueil (hero, bénéfices, CTAs)
 - `/clients` Espace clients (étapes, stats, illustration)

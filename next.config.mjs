@@ -11,6 +11,12 @@
  */
 
 const nextConfig = {
+    // Autoriser explicitement certaines origines en dev pour éviter l’avertissement
+    // Cross origin vers /_next/* (Next.js 16+)
+    allowedDevOrigins: [
+        'localhost',
+        '127.0.0.1',
+    ],
     typescript: {
         // Autoriser le build même si des erreurs TS existent (CI vérifie séparément)
         ignoreBuildErrors: true,
@@ -85,6 +91,13 @@ const nextConfig = {
             },
         ];
     },
+
+    // Allow dev requests to Next.js runtime assets from specified origins
+    // to avoid cross-origin warnings during development.
+    allowedDevOrigins: [
+        'localhost',
+        '127.0.0.1',
+    ],
 };
 
 export default nextConfig;
