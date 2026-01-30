@@ -139,6 +139,7 @@ npm run test:integration
 - [Plan d'action immédiat](./docs/ACTION_PLAN_IMMEDIATE.md)
 - [Système multi-canal](./docs/MULTICHANNEL_SYSTEM.md)
 - [CI/CD officielle (schéma cible)](./docs/CI-CD.md)
+ - [Guide des environnements](./docs/ENVIRONMENT_GUIDE.md)
 
 ---
 
