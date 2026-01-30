@@ -15,6 +15,7 @@ Ce guide décrit les variables d’environnement et secrets requis pour chaque e
 ## 🔧 Variables par environnement
 
 ### Preview (PR)
+
 - Objectif : démonstration sécurisée.
 - Exemples :
   - `NEXTAUTH_URL`: URL preview (ex. https://preview.example.vercel.app)
@@ -24,6 +25,7 @@ Ce guide décrit les variables d’environnement et secrets requis pour chaque e
   - `SENTRY_DSN`: (optionnel) désactivé par défaut
 
 ### Staging (interne)
+
 - Objectif : validation fonctionnelle réelle.
 - Exemples :
   - `NEXTAUTH_URL`: URL staging
@@ -33,6 +35,7 @@ Ce guide décrit les variables d’environnement et secrets requis pour chaque e
   - `SENTRY_DSN`: monitoring limité
 
 ### Production
+
 - Objectif : stabilité + responsabilité.
 - Exemples :
   - `NEXTAUTH_URL`: URL production
