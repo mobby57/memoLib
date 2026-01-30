@@ -33,7 +33,17 @@ prisma/*.sqlite
 Thumbs.db
 
 # Build artifacts
+<<<<<<< Updated upstream
 *.tsbuildinfo
+=======
+.next/
+out/
+dist/
+.turbo/
+.swc/
+.wrangler/
+.vercel/
+>>>>>>> Stashed changes
 
 # Misc
 .tmp/
