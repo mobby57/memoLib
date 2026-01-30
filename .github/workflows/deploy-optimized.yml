@@ -1,6 +1,7 @@
-name: Deploy Pipeline (Manual)
+name: Deploy Pipeline
 
 on:
+  # Manual trigger remains available
   workflow_dispatch:
     inputs:
       environment:
@@ -13,6 +14,10 @@ on:
         required: false
         default: 'main'
         type: string
+  # Gate automatic deploys on successful CI completion
+  workflow_run:
+    workflows: ['CI Pipeline']
+    types: [completed]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.environment || 'production' }}
@@ -23,6 +28,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: ${{ github.event.inputs.environment || 'production' }}
+    # Only run automatically if CI succeeded when triggered by workflow_run
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    env:
+      # Surface build commit into the app to prevent client/server mismatch
+      NEXT_PUBLIC_BUILD_COMMIT: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,6 +49,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          NEXT_PUBLIC_BUILD_COMMIT: ${{ env.NEXT_PUBLIC_BUILD_COMMIT }}
 
       - name: Deploy to Vercel
         run: npx vercel --prod --confirm --token=${{ secrets.VERCEL_TOKEN }}
