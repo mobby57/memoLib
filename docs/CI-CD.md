@@ -135,12 +135,12 @@ Note : les approbations Prod se configurent via GitHub Environments (protect ru
 ### ♻️ Procédure de rollback rapide
 
 - Via Actions (recommandé) :
-   1. Ouvrir le workflow « Deploy Pipeline (Manual) ».
-   2. Choisir `environment = production` et `ref = <tag ou commit SHA>` de la version précédente.
-   3. Lancer le workflow (les approbations de l’environnement s’appliquent).
+  1.  Ouvrir le workflow « Deploy Pipeline (Manual) ».
+  2.  Choisir `environment = production` et `ref = <tag ou commit SHA>` de la version précédente.
+  3.  Lancer le workflow (les approbations de l’environnement s’appliquent).
 
 - Via Vercel Dashboard :
-   - Promouvoir explicitement un déploiement antérieur depuis le projet (fonctionnalité de promotion) lorsqu’un artefact précédent est stable et validé.
+  - Promouvoir explicitement un déploiement antérieur depuis le projet (fonctionnalité de promotion) lorsqu’un artefact précédent est stable et validé.
 
 Exemple CLI (optionnel) :
 
