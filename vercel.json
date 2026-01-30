@@ -1,4 +1,5 @@
 {
+  "name": "memolib",
   "crons": [
     {
       "path": "/api/cron/deadline-alerts?token=${CRON_SECRET}",
