@@ -1,0 +1,55 @@
+name: Preview Deploy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'next.config.js'
+      - '.github/workflows/deploy-preview.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build (previews use mock/env minimal)
+        run: npm run build
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_ENABLE_AI: 'false'
+          NEXTAUTH_URL: 'https://preview.local'
+          NEXTAUTH_SECRET: 'preview-secret-32-characters-long!'
+
+      - name: Deploy Preview to Vercel
+        run: npx vercel --confirm --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Summary
+        run: |
+          echo "## ✅ Preview Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "PR: ${{ github.event.pull_request.html_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
