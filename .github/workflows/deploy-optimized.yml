@@ -8,6 +8,11 @@ on:
         required: true
         type: choice
         options: [staging, production]
+      ref:
+        description: 'Git ref to deploy (branch, tag, or commit SHA)'
+        required: false
+        default: 'main'
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.environment || 'production' }}
@@ -20,6 +25,8 @@ jobs:
     environment: ${{ github.event.inputs.environment || 'production' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || 'main' }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
