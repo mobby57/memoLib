@@ -1,1 +1,0 @@
-# memoLib - src package

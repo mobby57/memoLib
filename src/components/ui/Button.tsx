@@ -1,37 +1,33 @@
-﻿import * as React from "react"
-import { cn } from "@/lib/utils"
+"use client";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'outline' | 'ghost' | 'destructive'
-  size?: 'default' | 'sm' | 'lg'
+import React from 'react';
+import clsx from 'clsx';
+
+type Variant = 'primary' | 'secondary' | 'ghost' | 'outline';
+type Size = 'sm' | 'md' | 'lg';
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: Variant;
+  size?: Size;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'default', size = 'default', ...props }, ref) => {
-    return (
-      <button
-        className={cn(
-          "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
-          {
-            'bg-primary text-primary-foreground hover:bg-primary/90': variant === 'default',
-            'border border-input hover:bg-accent hover:text-accent-foreground': variant === 'outline',
-            'hover:bg-accent hover:text-accent-foreground': variant === 'ghost',
-            'bg-destructive text-destructive-foreground hover:bg-destructive/90': variant === 'destructive',
-          },
-          {
-            'h-10 py-2 px-4': size === 'default',
-            'h-9 px-3 rounded-md': size === 'sm',
-            'h-11 px-8 rounded-md': size === 'lg',
-          },
-          className
-        )}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Button.displayName = "Button"
+const base = 'inline-flex items-center justify-center font-medium rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+const variants: Record<Variant, string> = {
+  primary: 'bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-600',
+  secondary: 'bg-gray-800 text-white hover:bg-gray-900 focus-visible:ring-gray-800',
+  ghost: 'bg-transparent text-gray-800 hover:bg-gray-100 focus-visible:ring-gray-300',
+  outline: 'bg-transparent text-brand-700 border border-brand-200 hover:bg-brand-50 focus-visible:ring-brand-600',
+};
+const sizes: Record<Size, string> = {
+  sm: 'px-3 py-1.5 text-sm',
+  md: 'px-4 py-2',
+  lg: 'px-5 py-2.5 text-lg',
+};
 
-export { Button }
+export default function Button({ variant = 'primary', size = 'md', className, children, ...props }: ButtonProps) {
+  return (
+    <button className={clsx(base, variants[variant], sizes[size], className)} {...props}>
+      {children}
+    </button>
+  );
+}

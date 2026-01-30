@@ -1,64 +1,54 @@
-﻿import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import Providers from './providers';
 import './globals.css';
-import '@/styles/tokens/tokens.css';
-import '@/styles/sidebar.css';
-import { Providers } from './providers';
-import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
-import { ThemeProvider } from '@/components/ThemeProvider';
-import { ToastProvider } from '@/components/ui';
-import { LayoutWrapper } from '@/components/LayoutWrapper';
-import { WebVitalsReporter } from '@/components/WebVitalsReporter';
+import NavBar from '@/components/NavBar';
 
-// Force dynamic rendering for all pages to prevent SSG prerender errors
-export const dynamic = 'force-dynamic';
-
-const inter = Inter({ 
-  subsets: ['latin'],
-  display: 'swap',
-  preload: true
-});
-
-export const metadata: Metadata = {
-  title: 'memoLib - Gestion Multi-Tenant',
-  description: 'Systeme intelligent de gestion des dossiers juridiques pour cabinets d\'avocats',
-  keywords: 'gestion juridique, IA, multi-tenant, avocats',
-  authors: [{ name: 'memoLib' }],
-  manifest: '/manifest.json',
+export const metadata = {
+  title: 'Memolib — Suite juridique augmentée',
+  description:
+    "Offrez une expérience juridique rassurante, personnelle et conforme. Memolib orchestre vos échanges, vos paiements et vos obligations réglementaires pour faire de chaque dossier un parcours fluide et sécurisé.",
+  keywords: [
+    'juridique',
+    'RGPD',
+    'cabinet',
+    'onboarding',
+    'paiements',
+    'signature électronique',
+    'tableaux de bord',
+  ],
+  metadataBase: new URL('http://localhost:3000'),
+  themeColor: '#0ea5e9',
+  openGraph: {
+    title: 'Memolib — Suite juridique augmentée',
+    description:
+      "Offrez une expérience juridique rassurante, personnelle et conforme. Memolib orchestre vos échanges, vos paiements et vos obligations réglementaires pour faire de chaque dossier un parcours fluide et sécurisé.",
+    url: 'http://localhost:3000/',
+    siteName: 'Memolib',
+    locale: 'fr_FR',
+    images: [
+      { url: '/apple-touch-icon.png', width: 180, height: 180, alt: 'Memolib' },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Memolib — Suite juridique augmentée',
+    description:
+      "Offrez une expérience juridique rassurante, personnelle et conforme. Memolib orchestre vos échanges, vos paiements et vos obligations réglementaires pour faire de chaque dossier un parcours fluide et sécurisé.",
+    images: ['/apple-touch-icon.png'],
+  },
+  icons: {
+    icon: ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png'],
+    apple: ['/apple-touch-icon.png'],
+    shortcut: ['/favicon.ico']
+  }
 };
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
-  themeColor: '#3b82f6',
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" suppressHydrationWarning data-scroll-behavior="smooth">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-      </head>
-      <body className={`${inter.className} gpu-accelerated`} suppressHydrationWarning>
-        <ThemeProvider>
-          <ToastProvider>
-            <Providers>
-              <LayoutWrapper>
-                {children}
-              </LayoutWrapper>
-              <ServiceWorkerRegistration />
-              <WebVitalsReporter />
-            </Providers>
-          </ToastProvider>
-        </ThemeProvider>
+    <html lang="fr">
+      <body>
+        <NavBar />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

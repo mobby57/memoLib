@@ -1,2 +1,0 @@
-#!/bin/sh
-ggshield secret scan pre-commit "$@"
