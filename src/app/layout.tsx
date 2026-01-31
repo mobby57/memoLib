@@ -1,5 +1,5 @@
 ﻿import type { Metadata, Viewport } from 'next';
-import { Inter, Playfair_Display, Great_Vibes } from 'next/font/google';
+import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import '@/styles/tokens/tokens.css';
 import '@/styles/sidebar.css';
@@ -27,13 +27,6 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
 });
 
-const script = Great_Vibes({
-  subsets: ['latin'],
-  display: 'swap',
-  preload: true,
-  variable: '--font-script',
-});
-
 export const metadata: Metadata = {
   title: 'memoLib - Gestion Multi-Tenant',
   description: "Systeme intelligent de gestion des dossiers juridiques pour cabinets d'avocats",
@@ -59,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
       </head>
       <body
-        className={`${inter.variable} ${playfair.variable} ${script.variable} gpu-accelerated`}
+        className={`${inter.variable} ${playfair.variable} gpu-accelerated`}
         suppressHydrationWarning
       >
         <ThemeProvider>

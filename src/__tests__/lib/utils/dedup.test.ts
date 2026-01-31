@@ -6,7 +6,7 @@ import {
   identifyOrCreateClient,
   associateCase,
   ingestDocument,
-} from '../../../lib/dedup';
+} from '@/lib/dedup';
 
 class MemoryRepo {
   clients: any[] = [];

@@ -6,7 +6,7 @@ import {
   identifyOrCreateClient,
   associateCase,
   ingestDocument,
-} from '../../../../lib/dedup';
+} from '@/lib/dedup';
 // Utilisation dynamique de l'adaptateur Prisma pour éviter les erreurs de type au build
 
 export async function POST(request: Request) {
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-      const repoModule: any = await import('../../../../lib/dedup.prisma');
+      const repoModule: any = await import('@/lib/dedup.prisma');
       const repo = new repoModule.PrismaDedupRepository();
       const client = await identifyOrCreateClient(
         repo,
