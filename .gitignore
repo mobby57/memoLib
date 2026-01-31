@@ -72,7 +72,6 @@ archive/
 *.tmp
 *.temp
 temp_*
-*-temp.*
 diagnostic_*
 temp_recording_*
 coverage/
@@ -104,9 +103,6 @@ build/
 *.tar.gz
 *.zip
 *.tsbuildinfo
-# Exclude installer executables (not project binaries)
-*-installer.exe
-heroku-installer.exe
 
 # Tests
 .pytest_cache/
@@ -150,7 +146,6 @@ dist/
 node_modules/.cache/
 .jest-cache/
 .eslintcache
-.cache_*
 
 # Logs
 *.log
