@@ -21,64 +21,64 @@ openssl rand -hex 32     # Pour SECRET_KEY
 
 ### **Core Application**
 
-| Variable | Requis | Défaut | Description |
-|----------|--------|--------|-------------|
-| `NEXTAUTH_SECRET` | ✅ | - | Secret NextAuth (32+ chars) |
-| `NEXTAUTH_URL` | ✅ | `http://localhost:3000` | URL publique app |
-| `DATABASE_URL` | ✅ | `sqlite:///memolib.db` | Connexion DB |
-| `SECRET_KEY` | ✅ | - | Secret Flask/Python |
+| Variable          | Requis | Défaut                  | Description                 |
+| ----------------- | ------ | ----------------------- | --------------------------- |
+| `NEXTAUTH_SECRET` | ✅     | -                       | Secret NextAuth (32+ chars) |
+| `NEXTAUTH_URL`    | ✅     | `http://localhost:3000` | URL publique app            |
+| `DATABASE_URL`    | ✅     | `sqlite:///memolib.db`  | Connexion DB                |
+| `SECRET_KEY`      | ✅     | -                       | Secret Flask/Python         |
 
 ### **Azure AD (SSO)**
 
-| Variable | Requis | Description |
-|----------|--------|-------------|
-| `AZURE_TENANT_ID` | ✅ | Tenant ID Azure AD |
-| `AZURE_CLIENT_ID` | ✅ | Application ID |
-| `AZURE_CLIENT_SECRET` | ✅ | Client secret |
-| `AZURE_KEYVAULT_URL` | 🟡 | Key Vault URL (prod) |
+| Variable              | Requis | Description          |
+| --------------------- | ------ | -------------------- |
+| `AZURE_TENANT_ID`     | ✅     | Tenant ID Azure AD   |
+| `AZURE_CLIENT_ID`     | ✅     | Application ID       |
+| `AZURE_CLIENT_SECRET` | ✅     | Client secret        |
+| `AZURE_KEYVAULT_URL`  | 🟡     | Key Vault URL (prod) |
 
 ### **Email (Microsoft Graph)**
 
-| Variable | Requis | Description |
-|----------|--------|-------------|
-| `MS_GRAPH_CLIENT_ID` | 🟡 | Graph API client |
-| `MS_GRAPH_CLIENT_SECRET` | 🟡 | Graph secret |
-| `MS_GRAPH_TENANT_ID` | 🟡 | Tenant ID |
+| Variable                 | Requis | Description      |
+| ------------------------ | ------ | ---------------- |
+| `MS_GRAPH_CLIENT_ID`     | 🟡     | Graph API client |
+| `MS_GRAPH_CLIENT_SECRET` | 🟡     | Graph secret     |
+| `MS_GRAPH_TENANT_ID`     | 🟡     | Tenant ID        |
 
 ### **Twilio (SMS/WhatsApp)**
 
-| Variable | Requis | Description |
-|----------|--------|-------------|
-| `TWILIO_ACCOUNT_SID` | 🟡 | Account SID |
-| `TWILIO_AUTH_TOKEN` | 🟡 | Auth token |
-| `TWILIO_PHONE_NUMBER` | 🟡 | Numéro SMS |
-| `TWILIO_WHATSAPP_NUMBER` | 🟡 | Numéro WhatsApp |
+| Variable                 | Requis | Description     |
+| ------------------------ | ------ | --------------- |
+| `TWILIO_ACCOUNT_SID`     | 🟡     | Account SID     |
+| `TWILIO_AUTH_TOKEN`      | 🟡     | Auth token      |
+| `TWILIO_PHONE_NUMBER`    | 🟡     | Numéro SMS      |
+| `TWILIO_WHATSAPP_NUMBER` | 🟡     | Numéro WhatsApp |
 
 ### **IA (Multi-tier)**
 
-| Variable | Requis | Description |
-|----------|--------|-------------|
-| `OLLAMA_BASE_URL` | 🟢 | Ollama local (gratuit) |
-| `OLLAMA_MODEL` | 🟢 | Modèle (llama3.2) |
-| `AZURE_OPENAI_ENDPOINT` | 🟡 | Azure OpenAI (premium) |
-| `AZURE_OPENAI_API_KEY` | 🟡 | Clé Azure |
-| `OPENAI_API_KEY` | 🟡 | OpenAI fallback |
+| Variable                | Requis | Description            |
+| ----------------------- | ------ | ---------------------- |
+| `OLLAMA_BASE_URL`       | 🟢     | Ollama local (gratuit) |
+| `OLLAMA_MODEL`          | 🟢     | Modèle (llama3.2)      |
+| `AZURE_OPENAI_ENDPOINT` | 🟡     | Azure OpenAI (premium) |
+| `AZURE_OPENAI_API_KEY`  | 🟡     | Clé Azure              |
+| `OPENAI_API_KEY`        | 🟡     | OpenAI fallback        |
 
 ### **Stripe (Facturation)**
 
-| Variable | Requis | Description |
-|----------|--------|-------------|
-| `STRIPE_SECRET_KEY` | ✅ | Clé secrète Stripe |
-| `STRIPE_PUBLISHABLE_KEY` | ✅ | Clé publique |
-| `STRIPE_WEBHOOK_SECRET` | ✅ | Secret webhook |
+| Variable                 | Requis | Description        |
+| ------------------------ | ------ | ------------------ |
+| `STRIPE_SECRET_KEY`      | ✅     | Clé secrète Stripe |
+| `STRIPE_PUBLISHABLE_KEY` | ✅     | Clé publique       |
+| `STRIPE_WEBHOOK_SECRET`  | ✅     | Secret webhook     |
 
 ### **Monitoring**
 
-| Variable | Requis | Description |
-|----------|--------|-------------|
-| `SENTRY_DSN` | 🟡 | Sentry monitoring |
-| `SENTRY_AUTH_TOKEN` | 🟡 | Token build |
-| `APPLICATIONINSIGHTS_CONNECTION_STRING` | 🟡 | Azure monitoring |
+| Variable                                | Requis | Description       |
+| --------------------------------------- | ------ | ----------------- |
+| `SENTRY_DSN`                            | 🟡     | Sentry monitoring |
+| `SENTRY_AUTH_TOKEN`                     | 🟡     | Token build       |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | 🟡     | Azure monitoring  |
 
 ---
 
@@ -123,12 +123,14 @@ NODE_ENV=production
 ### **Bonnes Pratiques**
 
 ✅ **Faire**:
+
 - Utiliser Azure Key Vault en production
 - Rotation secrets tous les 90 jours
 - Secrets différents par environnement
 - `.env.local` dans `.gitignore`
 
 ❌ **Ne PAS faire**:
+
 - Commit `.env` ou `.env.local`
 - Partager secrets par email/Slack
 - Réutiliser secrets entre envs
@@ -152,18 +154,21 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ## 🐛 Troubleshooting
 
 ### Erreur: "NEXTAUTH_SECRET missing"
+
 ```bash
 # Générer et ajouter à .env.local
 echo "NEXTAUTH_SECRET=$(openssl rand -base64 32)" >> .env.local
 ```
 
 ### Erreur: "Database connection failed"
+
 ```bash
 # Vérifier DATABASE_URL
 npx prisma db push
 ```
 
 ### Erreur: "Azure AD authentication failed"
+
 ```bash
 # Vérifier les 3 variables Azure
 echo $AZURE_TENANT_ID
