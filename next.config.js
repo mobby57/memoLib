@@ -67,7 +67,7 @@ const nextConfig = {
 
   // TypeScript configuration
   typescript: {
-    // Ne pas ignorer les erreurs TypeScript au build
+    // Do not ignore TypeScript errors at build
     ignoreBuildErrors: false,
   },
 
@@ -264,32 +264,33 @@ const nextConfig = {
       }), // End of conditional headers/rewrites block
 };
 
-// 🔐 Sentry Configuration - DISABLED for Azure builds (Sentry was uninstalled)
-// For Azure deployments, Sentry monitoring is not available
-// To re-enable: npm install @sentry/nextjs and uncomment the code below
+// 🔐 Sentry Configuration — activée automatiquement si DSN présent et hors export statique
+let exportedConfig = nextConfig;
+try {
+  const isSentryEnabled = !!process.env.SENTRY_DSN && !isStaticExport;
+  if (isSentryEnabled) {
+    const { withSentryConfig } = require('@sentry/nextjs');
+    const sentryWebpackPluginOptions = {
+      silent: true,
+      org: process.env.SENTRY_ORG || 'memoLib',
+      project: process.env.SENTRY_PROJECT || 'memoLib',
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      dryRun: process.env.NODE_ENV !== 'production',
+      disableServerWebpackPlugin: process.env.NODE_ENV === 'development',
+      disableClientWebpackPlugin: process.env.NODE_ENV === 'development',
+    };
+    const sentryOptions = {
+      hideSourceMaps: true,
+      disableLogger: true,
+      transpileClientSDK: true,
+      autoInstrumentServerFunctions: true,
+      autoInstrumentMiddleware: true,
+      autoInstrumentAppDirectory: true,
+    };
+    exportedConfig = withSentryConfig(nextConfig, sentryWebpackPluginOptions, sentryOptions);
+  }
+} catch (_) {
+  // Sentry non configuré ou package absent: on exporte la config normale
+}
 
-/*
-const { withSentryConfig } = require("@sentry/nextjs");
-
-const sentryWebpackPluginOptions = {
-  silent: true,
-  org: process.env.SENTRY_ORG || "memoLib",
-  project: process.env.SENTRY_PROJECT || "memoLib",
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-  dryRun: process.env.NODE_ENV !== 'production',
-  disableServerWebpackPlugin: process.env.NODE_ENV === 'development',
-  disableClientWebpackPlugin: process.env.NODE_ENV === 'development',
-};
-
-const sentryOptions = {
-  hideSourceMaps: true,
-  disableLogger: true,
-  transpileClientSDK: true,
-  autoInstrumentServerFunctions: true,
-  autoInstrumentMiddleware: true,
-  autoInstrumentAppDirectory: true,
-};
-*/
-
-// Export config directly (Sentry disabled)
-module.exports = nextConfig;
+module.exports = exportedConfig;
