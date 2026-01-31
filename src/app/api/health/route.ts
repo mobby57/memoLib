@@ -1,53 +1,27 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-/**
- * Health Check API Endpoint
- * Utilise par le CI/CD pour verifier la sante de l'application
- */
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const startTime = Date.now();
+    // Check database
+    await prisma.$queryRaw`SELECT 1`;
     
-    // Verifications basiques
-    const checks = {
-      timestamp: new Date().toISOString(),
+    return NextResponse.json({
       status: 'healthy',
-      version: process.env.npm_package_version || '1.0.0',
-      environment: process.env.NODE_ENV || 'development',
-      uptime: process.uptime(),
-      memory: process.memoryUsage(),
-      checks: {
-        database: 'ok', // Sera implemente plus tard
-        redis: 'ok',    // Sera implemente plus tard
-        external_apis: 'ok'
-      }
-    };
-
-    const responseTime = Date.now() - startTime;
-    
-    return NextResponse.json({
-      ...checks,
-      responseTime: `${responseTime}ms`
-    }, {
-      status: 200,
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
+      timestamp: new Date().toISOString(),
+      services: {
+        database: 'up',
+        api: 'up',
+      },
     });
-
   } catch (error) {
-    logger.error('Health check failed:', { error });
-    
-    return NextResponse.json({
-      status: 'unhealthy',
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    }, {
-      status: 503
-    });
+    return NextResponse.json(
+      {
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 503 }
+    );
   }
 }

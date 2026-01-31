@@ -67,7 +67,7 @@ const nextConfig = {
 
   // TypeScript configuration
   typescript: {
-    // Ne pas ignorer les erreurs TypeScript en build
+    // Ne pas ignorer les erreurs TypeScript au build
     ignoreBuildErrors: false,
   },
 

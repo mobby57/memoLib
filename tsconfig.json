@@ -67,6 +67,10 @@
     "next-env.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
+    "sentry.client.config.ts",
+    "sentry.server.config.ts",
+    "sentry.edge.config.ts",
+    "instrumentation.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
