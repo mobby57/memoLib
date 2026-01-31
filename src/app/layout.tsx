@@ -1,5 +1,5 @@
 ﻿import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Playfair_Display, Great_Vibes } from 'next/font/google';
 import './globals.css';
 import '@/styles/tokens/tokens.css';
 import '@/styles/sidebar.css';
@@ -13,15 +13,30 @@ import { WebVitalsReporter } from '@/components/WebVitalsReporter';
 // Force dynamic rendering for all pages to prevent SSG prerender errors
 export const dynamic = 'force-dynamic';
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  preload: true
+  preload: true,
+  variable: '--font-inter',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-playfair',
+});
+
+const script = Great_Vibes({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-script',
 });
 
 export const metadata: Metadata = {
   title: 'memoLib - Gestion Multi-Tenant',
-  description: 'Systeme intelligent de gestion des dossiers juridiques pour cabinets d\'avocats',
+  description: "Systeme intelligent de gestion des dossiers juridiques pour cabinets d'avocats",
   keywords: 'gestion juridique, IA, multi-tenant, avocats',
   authors: [{ name: 'memoLib' }],
   manifest: '/manifest.json',
@@ -34,11 +49,7 @@ export const viewport: Viewport = {
   themeColor: '#3b82f6',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
@@ -47,13 +58,14 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
       </head>
-      <body className={`${inter.className} gpu-accelerated`} suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${playfair.variable} ${script.variable} gpu-accelerated`}
+        suppressHydrationWarning
+      >
         <ThemeProvider>
           <ToastProvider>
             <Providers>
-              <LayoutWrapper>
-                {children}
-              </LayoutWrapper>
+              <LayoutWrapper>{children}</LayoutWrapper>
               <ServiceWorkerRegistration />
               <WebVitalsReporter />
             </Providers>

@@ -153,3 +153,5 @@ npm-debug.log*
 
 # Legacy
 legacy/
+.vercel
+.env*.local

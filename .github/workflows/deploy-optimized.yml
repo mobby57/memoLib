@@ -2,7 +2,7 @@ name: Deploy Pipeline
 
 on:
   workflow_run:
-    workflows: ["CI Pipeline"]
+    workflows: ['CI Pipeline']
     types: [completed]
     branches: [main]
   workflow_dispatch:
@@ -48,7 +48,14 @@ jobs:
           NEXT_PUBLIC_BUILD_COMMIT: ${{ github.sha }}
 
       - name: Deploy to Vercel
+        if: ${{ secrets.VERCEL_TOKEN && secrets.VERCEL_ORG_ID && secrets.VERCEL_PROJECT_ID }}
         run: npx vercel --prod --confirm --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Skip deploy (secrets missing)
+        if: ${{ !(secrets.VERCEL_TOKEN && secrets.VERCEL_ORG_ID && secrets.VERCEL_PROJECT_ID) }}
+        run: |
+          echo "Secrets Vercel manquants: VERCEL_TOKEN/ORG_ID/PROJECT_ID" >> $GITHUB_STEP_SUMMARY
+          echo "Déploiement ignoré pour cette exécution." >> $GITHUB_STEP_SUMMARY

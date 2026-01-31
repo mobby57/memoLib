@@ -49,10 +49,17 @@ jobs:
           PREVIEW_TOKEN: ${{ secrets.PREVIEW_TOKEN }}
 
       - name: Deploy Preview to Vercel
+        if: ${{ secrets.VERCEL_TOKEN && secrets.VERCEL_ORG_ID && secrets.VERCEL_PROJECT_ID }}
         run: npx vercel --confirm --token ${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Skip deploy (secrets missing)
+        if: ${{ !(secrets.VERCEL_TOKEN && secrets.VERCEL_ORG_ID && secrets.VERCEL_PROJECT_ID) }}
+        run: |
+          echo "Secrets Vercel manquants: VERCEL_TOKEN/ORG_ID/PROJECT_ID" >> $GITHUB_STEP_SUMMARY
+          echo "Déploiement preview ignoré pour cette exécution." >> $GITHUB_STEP_SUMMARY
 
       - name: Summary
         run: |
