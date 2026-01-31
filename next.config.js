@@ -65,9 +65,10 @@ const nextConfig = {
         ],
       },
 
-  // Ignore TypeScript errors for build
+  // TypeScript configuration
   typescript: {
-    ignoreBuildErrors: true,
+    // Ne pas ignorer les erreurs TypeScript en build
+    ignoreBuildErrors: false,
   },
 
   //  Performance optimizations - Next.js 16 Best Practices
@@ -91,6 +92,12 @@ const nextConfig = {
 
   // Compression (only works with server mode)
   compress: !isStaticExport,
+
+  // ⚡ Performance optimizations
+  swcMinify: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
 
   // � Turbopack Configuration - Next.js 16 Best Practices
   turbopack: {
