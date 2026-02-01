@@ -1,7 +1,7 @@
 ﻿/**
  * Security Middleware - OWASP ZAP Compliant
  * memoLib - Securite niveau Enterprise
- * 
+ *
  * Conforme aux exigences :
  * - RGPD / CNIL
  * - OWASP Top 10
@@ -31,7 +31,7 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests"
+    'upgrade-insecure-requests',
   ].join('; ');
 
   // Headers de securite obligatoires
@@ -40,11 +40,11 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('X-XSS-Protection', '1; mode=block');
-  
+
   // HSTS - Seulement en HTTPS
   if (process.env.NODE_ENV === 'production') {
     response.headers.set(
-      'Strict-Transport-Security', 
+      'Strict-Transport-Security',
       'max-age=63072000; includeSubDomains; preload'
     );
   }
@@ -58,7 +58,7 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
     'usb=()',
     'magnetometer=()',
     'gyroscope=()',
-    'accelerometer=()'
+    'accelerometer=()',
   ].join(', ');
   response.headers.set('Permissions-Policy', permissions);
 
@@ -71,7 +71,7 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
   if (commit) {
     response.headers.set('x-build-commit', commit);
   }
-  
+
   return response;
 }
 
@@ -83,7 +83,7 @@ export const SECURE_COOKIE_CONFIG = {
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
   maxAge: 60 * 60 * 24 * 7, // 7 jours
-  path: '/'
+  path: '/',
 };
 
 /**
@@ -91,17 +91,13 @@ export const SECURE_COOKIE_CONFIG = {
  */
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
-export function checkRateLimit(
-  request: NextRequest, 
-  maxRequests = 100, 
-  windowMs = 60000
-): boolean {
+export function checkRateLimit(request: NextRequest, maxRequests = 100, windowMs = 60000): boolean {
   const ip = (request as any).ip || request.headers.get('x-forwarded-for') || 'unknown';
   const now = Date.now();
   const windowStart = now - windowMs;
 
   const current = rateLimitMap.get(ip);
-  
+
   if (!current || current.resetTime < windowStart) {
     rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
     return true;
@@ -126,9 +122,9 @@ export function isSecureRoute(pathname: string): boolean {
     '/dossiers',
     '/clients',
     '/factures',
-    '/super-admin'
+    '/super-admin',
   ];
-  
+
   return secureRoutes.some(route => pathname.startsWith(route));
 }
 
@@ -140,7 +136,7 @@ export function addApiSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
   response.headers.set('Pragma', 'no-cache');
   response.headers.set('Expires', '0');
-  
+
   return response;
 }
 
@@ -149,20 +145,18 @@ export function addApiSecurityHeaders(response: NextResponse): NextResponse {
  */
 export function validateCSRF(request: NextRequest): boolean {
   if (request.method === 'GET') return true;
-  
+
   const origin = request.headers.get('origin');
   const referer = request.headers.get('referer');
   const host = request.headers.get('host');
-  
+
   if (!origin && !referer) return false;
-  
+
   const allowedOrigins = [
     `http://localhost:3000`,
     `https://${host}`,
-    process.env.NEXTAUTH_URL
+    process.env.NEXTAUTH_URL,
   ].filter(Boolean);
-  
-  return allowedOrigins.some(allowed => 
-    origin === allowed || referer?.startsWith(allowed + '/')
-  );
+
+  return allowedOrigins.some(allowed => origin === allowed || referer?.startsWith(allowed + '/'));
 }
