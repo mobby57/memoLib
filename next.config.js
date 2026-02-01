@@ -4,6 +4,13 @@
 //   enabled: process.env.ANALYZE === 'true',
 // });
 
+const { readFileSync } = require('fs');
+const path = require('path');
+
+const pkg = JSON.parse(readFileSync(path.join(__dirname, 'package.json'), 'utf-8'));
+const appVersion = pkg.version || '0.0.0';
+const buildCommit = process.env.VERCEL_GIT_COMMIT_SHA || process.env.NEXT_PUBLIC_BUILD_COMMIT || '';
+
 // 🔥 Detect platform for optimal build output
 const isVercel = process.env.VERCEL === '1';
 const isAzure = process.env.AZURE_STATIC_WEB_APPS === 'true';
@@ -24,6 +31,11 @@ const getOutputMode = () => {
 
 const nextConfig = {
   reactStrictMode: true,
+
+  env: {
+    NEXT_PUBLIC_APP_VERSION: appVersion,
+    NEXT_PUBLIC_BUILD_COMMIT: buildCommit,
+  },
 
   // Générer des source maps en production quand ANALYZE ou SOURCE_MAPS est activé
   productionBrowserSourceMaps: process.env.ANALYZE === 'true' || process.env.SOURCE_MAPS === 'true',

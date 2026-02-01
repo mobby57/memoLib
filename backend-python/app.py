@@ -23,6 +23,32 @@ CORS(
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
 
+ROOT_DIR = Path(__file__).resolve().parents[1]
+PACKAGE_JSON = ROOT_DIR / "package.json"
+
+
+def get_app_version():
+    try:
+        with open(PACKAGE_JSON, "r", encoding="utf-8") as f:
+            pkg = json.load(f)
+        return pkg.get("version", "unknown")
+    except Exception:
+        return "unknown"
+
+
+def get_build_commit():
+    return os.getenv("BUILD_COMMIT", "") or os.getenv("VERCEL_GIT_COMMIT_SHA", "")
+
+
+@app.after_request
+def add_version_headers(response):
+    response.headers["X-App-Version"] = get_app_version()
+    commit = get_build_commit()
+    if commit:
+        response.headers["X-Build-Commit"] = commit
+    return response
+
+
 # ============================================================================
 # HEALTH CHECK ENDPOINTS
 # ============================================================================
@@ -35,7 +61,8 @@ def index():
         {
             "status": "OK",
             "service": "MemoLib Backend",
-            "version": "1.0.0",
+            "version": get_app_version(),
+            "commit": get_build_commit() or None,
             "timestamp": datetime.now().isoformat(),
             "features": [
                 "CESEDA AI predictions",
