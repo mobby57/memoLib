@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 /**
  * Page détail d'un client
  * Affiche toutes les informations du client avec onglets
