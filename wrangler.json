@@ -7,6 +7,6 @@
   
   "vars": {
     "NODE_ENV": "production",
-    "NEXT_PUBLIC_APP_NAME": "IA Poste Manager"
+    "NEXT_PUBLIC_APP_NAME": "MemoLib Assistant"
   }
 }
