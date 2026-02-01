@@ -43,8 +43,12 @@
     "test:health": "node scripts/health-check.js",
     "analyze": "cross-env ANALYZE=true NEXT_TELEMETRY_DISABLED=1 next build",
     "analyze:bundle": "npm run analyze",
-    "type-check": "tsc --noEmit --incremental",
-    "type-check:watch": "tsc --noEmit --watch",
+    "analyze:maps": "ANALYZE=true npm run build && npx source-map-explorer '.next/static/chunks/*.js' --html --output bundle-report.html",
+    "type-check": "cross-env NODE_OPTIONS=--max-old-space-size=16384 tsc --noEmit --incremental --skipLibCheck",
+    "type-check:safe": "bash scripts/type-check-safe.sh",
+    "type-check:changed": "bash scripts/type-check-changed.sh",
+    "type-check:diagnostic": "bash scripts/typescript-diagnostic.sh",
+    "type-check:watch": "cross-env NODE_OPTIONS=--max-old-space-size=16384 tsc --noEmit --watch",
     "clean": "rimraf .next out dist .turbo node_modules/.cache",
     "clean:all": "rimraf .next out dist .turbo node_modules/.cache coverage",
     "fresh": "npm run clean && npm install && npm run build",
@@ -71,6 +75,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css,scss}\"",
     "validate": "npm run type-check && npm run lint && npm run test",
     "validate:full": "npm run type-check && npm run lint:strict && npm run test:ci",
+    "validate:project": "bash scripts/validate-project.sh",
     "build:azure": "cross-env AZURE_STATIC_WEB_APPS=true TURBOPACK=0 NODE_OPTIONS=--max-old-space-size=8192 next build",
     "build:azure:static": "cross-env AZURE_STATIC_EXPORT=true TURBOPACK=0 NODE_OPTIONS=--max-old-space-size=8192 next build",
     "deploy:azure": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-azure-swa.ps1",
@@ -223,6 +228,7 @@
     "tailwindcss": "^3.4.19",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "undici": "^7.19.1"
+    "undici": "^7.19.1",
+    "source-map-explorer": "^2.6.2"
   }
 }
