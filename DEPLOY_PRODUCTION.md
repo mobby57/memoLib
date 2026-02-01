@@ -30,6 +30,7 @@ openssl rand -base64 32
 ### Étape 2: Connecter à Vercel
 
 Option A: Interface web (plus simple)
+
 ```bash
 # Visiter: https://vercel.com/new
 # 1. Sélectionner dépôt GitHub: mobby57/memoLib
@@ -39,6 +40,7 @@ Option A: Interface web (plus simple)
 ```
 
 Option B: CLI Vercel
+
 ```bash
 npm i -g vercel
 vercel --prod
@@ -48,6 +50,7 @@ vercel --prod
 ### Étape 3: Configurer les variables d'environnement
 
 Dans dashboard Vercel → Project Settings → Environment Variables:
+
 ```
 DATABASE_URL=postgresql://...
 NEXTAUTH_SECRET=<paste-from-step-1>
@@ -78,6 +81,7 @@ curl https://memolib-ceseda.vercel.app/api/health
 ## 📊 Domaines Personnalisés (Optionnel)
 
 Dans Vercel dashboard:
+
 1. Aller à "Domains"
 2. Ajouter: `memolib.fr` ou `ceseda-ai.fr`
 3. Configurer DNS chez votre registrar
@@ -86,6 +90,7 @@ Dans Vercel dashboard:
 ## 🔐 Sécurité Pré-Production
 
 Avant déploiement, vérifier:
+
 - [ ] `.env.production.local` n'est PAS committé (fichier .gitignore)
 - [ ] NEXTAUTH_SECRET changé (généré avec `openssl rand -base64 32`)
 - [ ] DATABASE_URL pointe vers PostgreSQL production (pas dev)
@@ -111,6 +116,7 @@ vercel logs <deployment-url> --tail
 ## 🆘 Troubleshooting
 
 **Build échoue sur Vercel?**
+
 ```bash
 # Vérifier les logs:
 vercel logs <url> --tail
@@ -120,6 +126,7 @@ vercel deploy --prod --debug
 ```
 
 **Variables d'environnement non trouvées?**
+
 ```bash
 # Vérifier qu'elles sont présentes dans Vercel dashboard
 vercel env list
@@ -128,6 +135,7 @@ vercel deploy --prod
 ```
 
 **Erreur DATABASE_URL?**
+
 ```bash
 # S'assurer que PostgreSQL est en ligne
 # Mettre à jour CONNECTION_URL dans Vercel dashboard
@@ -154,8 +162,8 @@ npx prisma migrate deploy
 
 ---
 
-**Domaine recommandé:** `memolib-ceseda.vercel.app` (gratuit, immédiat)  
-**Coût:** $0-20/mois sur Vercel (hébergement Next.js)  
-**Temps de déploiement:** 5-10 minutes  
+**Domaine recommandé:** `memolib-ceseda.vercel.app` (gratuit, immédiat)
+**Coût:** $0-20/mois sur Vercel (hébergement Next.js)
+**Temps de déploiement:** 5-10 minutes
 
 Questions? Voir [DEPLOY_SIMPLE.md](DEPLOY_SIMPLE.md) pour détails complets.
