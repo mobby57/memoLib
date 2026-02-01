@@ -12,8 +12,8 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  FileText, ArrowLeft, User, Calendar, Clock, 
+import {
+  FileText, ArrowLeft, User, Calendar, Clock,
   AlertCircle, CheckCircle, Upload, MessageSquare,
   FileCheck, Edit, Trash2, Download, Send, Plus,
   Scale, Briefcase, MapPin, Phone, Mail, Globe
@@ -97,7 +97,7 @@ export default function DossierDetailPage() {
   const router = useRouter()
   const params = useParams() as any
   const { toast } = useToast()
-  
+
   const [dossier, setDossier] = useState<Dossier | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'messages' | 'echeances'>('info')
@@ -126,7 +126,7 @@ export default function DossierDetailPage() {
         }
         throw new Error('Erreur chargement')
       }
-      
+
       const data = await res.json()
       setDossier(data)
     } catch (error) {
@@ -147,15 +147,15 @@ export default function DossierDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ statut: newStatut }),
       })
-      
+
       if (!res.ok) throw new Error('Erreur mise à jour')
-      
+
       toast({
         variant: 'success',
         title: 'Statut mis à jour',
         description: `Le dossier est maintenant ${newStatut.replace('_', ' ')}`
       })
-      
+
       fetchDossier()
     } catch (error) {
       toast({
@@ -206,7 +206,7 @@ export default function DossierDetailPage() {
                 <ArrowLeft size={20} />
                 Retour
               </Button>
-              
+
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                   <FileText className="text-blue-600" size={28} />
@@ -219,6 +219,7 @@ export default function DossierDetailPage() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* @ts-ignore - Badge variant type compatibility */}
               <Badge variant={STATUT_COLORS[dossier.statut] as any} className="text-sm px-3 py-1">
                 {dossier.statut.replace('_', ' ')}
               </Badge>
@@ -273,7 +274,7 @@ export default function DossierDetailPage() {
                     Objet de la demande
                   </h2>
                   <p className="text-gray-700 whitespace-pre-wrap">{dossier.objetDemande}</p>
-                  
+
                   {dossier.notes && (
                     <div className="mt-4 pt-4 border-t">
                       <h3 className="font-medium text-gray-900 mb-2">Notes internes</h3>
@@ -431,7 +432,7 @@ export default function DossierDetailPage() {
                           </div>
                         </div>
                         <Badge variant={
-                          ech.statut === 'DONE' ? 'success' : 
+                          ech.statut === 'DONE' ? 'success' :
                           ech.statut === 'OVERDUE' ? 'danger' : 'warning'
                         }>
                           {ech.statut === 'DONE' ? 'Fait' : ech.statut === 'OVERDUE' ? 'En retard' : 'À faire'}
@@ -451,7 +452,7 @@ export default function DossierDetailPage() {
                 <User size={20} className="text-blue-600" />
                 Client
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="text-center pb-4 border-b">
                   <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -469,7 +470,7 @@ export default function DossierDetailPage() {
                       {dossier.client.email}
                     </a>
                   </div>
-                  
+
                   {dossier.client.telephone && (
                     <div className="flex items-center gap-3 text-gray-600">
                       <Phone size={18} />
@@ -478,14 +479,14 @@ export default function DossierDetailPage() {
                       </a>
                     </div>
                   )}
-                  
+
                   {dossier.client.nationalite && (
                     <div className="flex items-center gap-3 text-gray-600">
                       <Globe size={18} />
                       <span>{dossier.client.nationalite}</span>
                     </div>
                   )}
-                  
+
                   {dossier.client.adresse && (
                     <div className="flex items-center gap-3 text-gray-600">
                       <MapPin size={18} />
@@ -509,7 +510,7 @@ export default function DossierDetailPage() {
                 <Clock size={20} className="text-blue-600" />
                 Dates clés
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="w-3 h-3 bg-blue-600 rounded-full mt-1.5"></div>
@@ -524,7 +525,7 @@ export default function DossierDetailPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 {dossier.dateEcheance && (
                   <div className="flex items-start gap-3">
                     <div className="w-3 h-3 bg-orange-500 rounded-full mt-1.5"></div>

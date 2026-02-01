@@ -15,7 +15,17 @@ const documentOCRService = new DocumentOCRService(prisma);
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { tenantId, dossierId, clientId, filename, mimeType, size, storageKey, uploadedBy, category } = body;
+    const {
+      tenantId,
+      dossierId,
+      clientId,
+      filename,
+      mimeType,
+      size,
+      storageKey,
+      uploadedBy,
+      category,
+    } = body;
 
     // Validation
     if (!tenantId || !filename || !mimeType || !uploadedBy) {
