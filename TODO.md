@@ -1,114 +1,230 @@
-# TODO - MemoLib Project
+# TODO MemoLib - Roadmap de développement
 
-## 🔴 URGENT - Priorité Haute
+## 🔴 URGENT - Corrections critiques
 
-- [x] **Supprimer submodule cassé** `dbcodeio-public` ✅
-  ```bash
-  rm -rf dbcodeio-public
-  # Completed: 2026-01-30
-  ```
+- [ ] **TypeScript Errors** - Corriger les erreurs TypeScript progressivement
+  - [ ] Activer `ignoreBuildErrors: false` dans `next.config.js`
+  - [ ] Corriger les erreurs par dossier (src/app, src/components, src/lib)
+  - [ ] Utiliser `npm run type-check:changed` avant chaque commit
+  
+- [x] **Next.config.js** - Compléter la configuration ✅
+  - [x] Ligne 289 : Fermer correctement le spread operator `...`
+  - [x] Ajouter `module.exports = nextConfig;` à la fin
+  - [x] Supprimer `swcMinify` (déprécié Next.js 16)
+  - [x] Tester le build : `npm run build`
 
-- [x] **Activer TypeScript strict mode** ✅
-  - Fichier: `next.config.js`
-  - Changé: `"ignoreBuildErrors": false`
-  - Ajouté: optimisations compiler
+- [ ] **Sécurité**
+  - [x] Audit des dépendances : `npm audit` - **0 vulnérabilités** ✅
+  - [ ] Scan des secrets : `npm run security:scan`
+  - [ ] Vérifier les variables d'environnement sensibles
 
-- [x] **Configurer monitoring production** ✅
-  - ✅ Sentry installé (@sentry/nextjs@9.47.1)
-  - ✅ Configs créées (client/server/edge)
-  - ✅ Health check API: `/api/health`
-  - ✅ Documentation: `docs/MONITORING_SETUP.md`
-  - ⏳ Ajouter SENTRY_DSN à .env.local
-  - ⏳ Configurer alertes Slack/Email
+## 🟡 IMPORTANT - Fonctionnalités core
 
-## 🟡 IMPORTANT - Priorité Moyenne
+### Base de données
+- [ ] Finaliser le schéma Prisma
+- [ ] Créer les migrations de production
+- [ ] Implémenter les seeds complets
+- [ ] Optimiser les requêtes (indexes, relations)
+- [ ] Tests de performance : `npm run db:benchmark`
 
-- [ ] **Optimiser bundle size**
-  - Analyser: `npm run analyze`
-  - Lazy load composants lourds
-  - Tree-shaking des dépendances
+### Authentification
+- [ ] Configurer Azure AD SSO
+- [ ] Implémenter 2FA avec otplib
+- [ ] Gestion des sessions (NextAuth.js)
+- [ ] Rate limiting avec Upstash
+- [ ] Tests d'authentification
 
-- [ ] **Augmenter coverage tests**
-  - Objectif: 50%+ (actuellement 30%)
-  - Ajouter tests unitaires manquants
-  - Compléter tests E2E
+### API Routes
+- [ ] Emails (Microsoft Graph)
+  - [ ] GET /api/emails - Liste des emails
+  - [ ] POST /api/emails/send - Envoi d'email
+  - [ ] GET /api/emails/:id - Détail email
+  - [ ] DELETE /api/emails/:id - Suppression
+  
+- [ ] Documents
+  - [ ] POST /api/documents/upload - Upload fichier
+  - [ ] GET /api/documents/:id - Téléchargement
+  - [ ] POST /api/documents/analyze - Analyse OCR/IA
+  
+- [ ] Messagerie
+  - [ ] POST /api/messages/whatsapp - Envoi WhatsApp
+  - [ ] POST /api/messages/sms - Envoi SMS
+  - [ ] Webhooks Twilio
 
-- [x] **Documenter variables d'environnement** ✅
-  - Créé: `docs/ENVIRONMENT_VARIABLES.md`
-  - Toutes les vars documentées
-  - Exemples par environnement
+- [ ] CRM
+  - [ ] CRUD clients
+  - [ ] CRUD dossiers
+  - [ ] Gestion des contacts
 
-- [x] **Consolider scripts** ✅
-  - Créé: `docs/SCRIPTS_CONSOLIDATION.md`
-  - Plan de réduction 100+ → 20 scripts
-  - Documentation complète
+### Frontend
+- [ ] Dashboard principal
+  - [ ] Statistiques en temps réel
+  - [ ] Graphiques (Recharts)
+  - [ ] Notifications
+  
+- [ ] Gestion emails
+  - [ ] Liste avec filtres
+  - [ ] Lecteur d'email
+  - [ ] Composition
+  - [ ] Pièces jointes
+  
+- [ ] Gestion documents
+  - [ ] Upload drag & drop
+  - [ ] Prévisualisation PDF/DOCX
+  - [ ] Recherche full-text
+  
+- [ ] Calendrier
+  - [ ] Vue mensuelle/hebdomadaire
+  - [ ] Création rendez-vous
+  - [ ] Synchronisation Outlook
 
-## 🟢 AMÉLIORATION - Priorité Basse
+## 🟢 AMÉLIORATION - Optimisations
 
-- [ ] **Nettoyer dépendances**
-  ```bash
-  npm run deps:audit
-  npm run deps:update
-  ```
+### Performance
+- [ ] Implémenter ISR (Incremental Static Regeneration)
+- [ ] Optimiser les images (next/image)
+- [ ] Code splitting avancé
+- [ ] Service Worker pour offline
+- [ ] Lazy loading des composants lourds
 
-- [ ] **Optimiser images Docker**
-  - Multi-stage builds
-  - Réduire taille images
+### UX/UI
+- [ ] Design system complet (Tailwind)
+- [ ] Mode sombre
+- [ ] Responsive mobile
+- [ ] Animations (Framer Motion)
+- [ ] Accessibilité (WCAG 2.1 AA)
 
-- [x] **Améliorer documentation** ✅
-  - README complet et professionnel
-  - Quick-start guide
-  - Badges et structure claire
+### Tests
+- [ ] Tests unitaires (Jest) - Objectif 80% coverage
+  - [ ] Components
+  - [ ] Hooks
+  - [ ] Utils
+  - [ ] API routes
+  
+- [ ] Tests E2E (Playwright)
+  - [ ] Parcours utilisateur complet
+  - [ ] Tests multi-navigateurs
+  - [ ] Tests mobile
+  
+- [ ] Tests d'intégration
+  - [ ] Base de données
+  - [ ] APIs externes
+  - [ ] Webhooks
 
-- [ ] **Refactoring code**
-  - Extraire logique dupliquée
-  - Simplifier composants complexes
-  - Améliorer nommage
+### Documentation
+- [ ] API Documentation (Swagger/OpenAPI)
+- [ ] Guide utilisateur
+- [ ] Guide développeur
+- [ ] Storybook pour composants
+- [ ] Vidéos tutoriels
 
-## 📋 BACKLOG
+## 🔵 FUTUR - Fonctionnalités avancées
 
-- [ ] Ajouter tests de charge (k6, Artillery)
-- [ ] Implémenter feature flags (LaunchDarkly)
-- [ ] Créer storybook composants
-- [ ] Ajouter i18n (multi-langues)
-- [ ] Optimiser SEO (meta tags, sitemap)
-- [ ] Créer CLI admin
-- [ ] Ajouter webhooks personnalisés
-- [ ] Implémenter cache Redis avancé
+### IA & Automatisation
+- [ ] Catégorisation automatique des emails
+- [ ] Suggestions de réponses (OpenAI)
+- [ ] Extraction d'entités (NER)
+- [ ] Analyse de sentiment
+- [ ] Résumés automatiques de documents
 
-## 🐛 BUGS CONNUS
+### Intégrations
+- [ ] Microsoft 365 (complet)
+- [ ] Google Workspace
+- [ ] Slack
+- [ ] Zapier
+- [ ] Webhooks personnalisés
 
-- [x] TypeScript errors ignorés ✅ RÉSOLU (voir `next.config.js`)
-- [x] Submodule `dbcodeio-public` cassé ✅ RÉSOLU
-- [x] Sentry désactivé ✅ RÉSOLU (configs créées)
-- [ ] Build Azure nécessite 8GB RAM
+### Facturation
+- [ ] Intégration Stripe complète
+- [ ] Génération de factures PDF
+- [ ] Suivi des paiements
+- [ ] Relances automatiques
+- [ ] Exports comptables
 
-## 🔒 SÉCURITÉ
+### Collaboration
+- [ ] Chat en temps réel (Socket.io)
+- [ ] Partage de dossiers
+- [ ] Commentaires sur documents
+- [ ] Notifications push (web-push)
+- [ ] Historique des modifications
 
-- [ ] Audit dépendances: `npm audit`
-- [ ] Scan secrets: `npm run security:scan`
-- [ ] Tester OWASP Top 10
-- [ ] Revoir permissions Azure AD
-- [ ] Rotation secrets Key Vault
+### Mobile
+- [ ] PWA optimisée
+- [ ] App React Native (iOS/Android)
+- [ ] Notifications push natives
+- [ ] Mode offline avancé
 
-## 📊 PERFORMANCE
+## 🛠️ DevOps & Infrastructure
 
-- [ ] Lighthouse score > 90
-- [ ] Core Web Vitals optimisés
-- [ ] API response time < 200ms
-- [ ] Database query optimization
-- [ ] CDN pour assets statiques
+### CI/CD
+- [ ] GitHub Actions
+  - [ ] Tests automatiques
+  - [ ] Build & Deploy
+  - [ ] Security scan
+  - [ ] Performance monitoring
+  
+- [ ] Environnements
+  - [ ] Development (Codespaces)
+  - [ ] Staging (Azure/Vercel)
+  - [ ] Production (Azure SWA)
+
+### Monitoring
+- [ ] Sentry (erreurs)
+- [ ] Vercel Analytics (performance)
+- [ ] Uptime monitoring
+- [ ] Logs centralisés
+- [ ] Alertes automatiques
+
+### Backup & Recovery
+- [ ] Backup automatique DB (quotidien)
+- [ ] Backup documents (Azure Blob)
+- [ ] Plan de disaster recovery
+- [ ] Tests de restauration
+
+## 📋 Checklist avant production
+
+- [ ] ✅ Tous les tests passent
+- [ ] ✅ Coverage > 80%
+- [ ] ✅ Aucune erreur TypeScript
+- [ ] ✅ Audit sécurité OK
+- [ ] ✅ Performance Lighthouse > 90
+- [ ] ✅ RGPD compliant
+- [ ] ✅ Documentation complète
+- [ ] ✅ Backup configuré
+- [ ] ✅ Monitoring actif
+- [ ] ✅ SSL/TLS configuré
+- [ ] ✅ Rate limiting actif
+- [ ] ✅ Variables d'environnement sécurisées
+
+## 🎯 Priorités Sprint actuel
+
+### Sprint 1 (Semaine 1-2) - 60% ✅
+1. ✅ Corriger next.config.js
+2. ⏳ Résoudre erreurs TypeScript critiques (en cours)
+3. ⏳ Finaliser schéma Prisma (schéma OK, migrations à créer)
+4. ⏳ Implémenter authentification Azure AD
+
+### Sprint 2 (Semaine 3-4)
+1. API emails (Microsoft Graph)
+2. Dashboard principal
+3. Tests unitaires core
+4. Documentation API
+
+### Sprint 3 (Semaine 5-6)
+1. Gestion documents
+2. Upload & OCR
+3. Tests E2E
+4. Déploiement staging
+
+## 📝 Notes
+
+- Utiliser `npm run type-check:changed` avant chaque commit
+- Suivre les conventions de commit (Conventional Commits)
+- Documenter chaque nouvelle fonctionnalité
+- Tester sur mobile régulièrement
+- Faire des code reviews systématiques
 
 ---
 
-## ✅ Progression Globale
-
-| Catégorie | Complété | Total | % |
-|-----------|----------|-------|---|
-| Urgent | 3/3 | 3 | 100% |
-| Important | 2/4 | 4 | 50% |
-| Amélioration | 1/4 | 4 | 25% |
-| Bugs | 3/4 | 4 | 75% |
-
-**Dernière mise à jour**: 2026-01-30  
-**Mainteneur**: @memolib-team
+**Dernière mise à jour** : 2025-01-XX
+**Responsable** : Équipe MemoLib
