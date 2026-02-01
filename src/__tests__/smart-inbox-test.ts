@@ -2,7 +2,7 @@
 
 /**
  * Test Smart Inbox Scoring
- * 
+ *
  * Valide :
  * - Calcul score basé sur urgency + VIP + deadline + sentiment + attachments
  * - Email VIP urgent = high score (>70)
@@ -148,8 +148,8 @@ async function createTestEmails(tenant: any, vipClient: any, normalClient: any, 
       from: normalClient.email,
       to: 'admin@memolib.local',
       subject: 'Question sur mon dossier',
-      body: 'Bonjour, j\'ai une question concernant l\'état de mon dossier.',
-      preview: 'Bonjour, j\'ai une question...',
+      body: "Bonjour, j'ai une question concernant l'état de mon dossier.",
+      preview: "Bonjour, j'ai une question...",
       category: 'general-inquiry',
       urgency: 'medium',
       sentiment: 'neutral',
@@ -318,16 +318,20 @@ async function run() {
     console.log('='.repeat(70));
     console.log('\n📊 RÉSUMÉ\n');
 
-    const vipScore = results.find((r) => r.name === 'vipUrgentEmail')?.score || 0;
-    const normalScore = results.find((r) => r.name === 'normalDeadlineEmail')?.score || 0;
-    const lowScore = results.find((r) => r.name === 'lowPriorityEmail')?.score || 0;
+    const vipScore = results.find(r => r.name === 'vipUrgentEmail')?.score || 0;
+    const normalScore = results.find(r => r.name === 'normalDeadlineEmail')?.score || 0;
+    const lowScore = results.find(r => r.name === 'lowPriorityEmail')?.score || 0;
 
     if (eventsOk && vipScore > normalScore && normalScore > lowScore) {
       console.log('✅ Scores calculés correctement');
-      console.log(`✅ VIP urgent (${vipScore}) > Normal deadline (${normalScore}) > Low (${lowScore})`);
+      console.log(
+        `✅ VIP urgent (${vipScore}) > Normal deadline (${normalScore}) > Low (${lowScore})`
+      );
       console.log('✅ EventLog FLOW_SCORED créés (3/3)');
       console.log('✅ API prioritized retourne emails triés');
-      console.log(`✅ Stats: ${stats.highPriority} high, ${stats.mediumPriority} medium, ${stats.lowPriority} low`);
+      console.log(
+        `✅ Stats: ${stats.highPriority} high, ${stats.mediumPriority} medium, ${stats.lowPriority} low`
+      );
       console.log('\n🎉 Smart Inbox Scoring VALIDÉ\n');
     } else {
       console.log('❌ Tests échoués');

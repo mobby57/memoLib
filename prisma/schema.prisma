@@ -266,6 +266,7 @@ model Tenant {
   aiUsageLogs        AIUsageLog[]
   aiMonthlySummaries AIMonthlySummary[]
   filterRules        FilterRule[]
+  comments           Comment[]
 
   @@index([planId])
   @@index([status])
@@ -363,6 +364,8 @@ model User {
   calendarEvents CalendarEvent[]
   documents      Document[]
   oauthTokens    OAuthToken[]
+  comments       Comment[]
+  mentions       Mention[]
 
   @@index([tenantId, email])
   @@index([role])
@@ -699,6 +702,52 @@ model InboxScore {
   @@index([score])
   @@index([calculatedAt])
   @@map("inbox_scores")
+}
+
+// Collaboration (Phase 5)
+model Comment {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  content String
+
+  // Polymorphic relation - can be on Email, Dossier, etc.
+  entityType String // 'email', 'dossier', 'client', 'document'
+  entityId   String
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  mentions Mention[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, entityType, entityId])
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("comments")
+}
+
+model Mention {
+  id        String  @id @default(uuid())
+  commentId String
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  notified   Boolean   @default(false)
+  notifiedAt DateTime?
+  readAt     DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@index([userId, notified])
+  @@index([createdAt])
+  @@map("mentions")
 }
 
 model EmailAttachment {
