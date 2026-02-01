@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { logger } from '@/lib/logger';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
@@ -27,25 +27,25 @@ export async function GET(
     const dossiers = await prisma.dossier.findMany({
       where: {
         tenantId,
-        clientId
+        clientId,
       },
       include: {
         client: {
           select: {
             firstName: true,
             lastName: true,
-            email: true
-          }
+            email: true,
+          },
         },
         documents: {
           select: {
-            id: true
-          }
-        }
+            id: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     // Formater les données pour le frontend
@@ -67,8 +67,8 @@ export async function GET(
       const daysSinceCreation = Math.floor(
         (new Date().getTime() - new Date(dossier.createdAt).getTime()) / (1000 * 60 * 60 * 24)
       );
-      const priorite = daysSinceCreation > 14 ? 'haute' : 
-                       daysSinceCreation > 7 ? 'moyenne' : 'basse';
+      const priorite =
+        daysSinceCreation > 14 ? 'haute' : daysSinceCreation > 7 ? 'moyenne' : 'basse';
 
       return {
         id: dossier.id,
@@ -80,14 +80,13 @@ export async function GET(
         progression,
         clientDataComplete,
         lastUpdate: getLastUpdateMessage(dossier, clientDataComplete),
-        clientName: 'Client'
+        clientName: 'Client',
       };
     });
 
     return NextResponse.json({
-      dossiers: formattedDossiers
+      dossiers: formattedDossiers,
     });
-
   } catch (error) {
     logger.error('Erreur API dossiers client', { error, params });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
@@ -96,9 +95,9 @@ export async function GET(
 
 function getLastUpdateMessage(dossier: any, clientDataComplete: boolean): string {
   const timeSince = getTimeSince(dossier.updatedAt);
-  
+
   if (dossier.statut === 'analyse_ia') {
-    return `L'IA analyse les données fournies - ${timeSince}`;
+    return `Le système analyse les données fournies - ${timeSince}`;
   }
   if (!clientDataComplete) {
     return `En attente des données client - ${timeSince}`;
@@ -106,7 +105,7 @@ function getLastUpdateMessage(dossier: any, clientDataComplete: boolean): string
   if (dossier.statut === 'termine') {
     return `Dossier terminé - ${timeSince}`;
   }
-  
+
   return `Données mises à jour par le client ${timeSince}`;
 }
 

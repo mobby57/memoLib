@@ -1,9 +1,9 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
+﻿import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  *  API: Suggestions IA pour formulaires interactifs
- * 
+ *
  * Analyse le contexte et genere des suggestions intelligentes
  */
 
@@ -11,10 +11,10 @@ export async function POST(request: NextRequest) {
   try {
     const { formId, fieldId, context } = await request.json();
 
-    // Analyser le contexte avec l'IA locale (Ollama)
+    // Analyser le contexte avec le moteur local (Ollama)
     const suggestion = await generateAISuggestion(formId, fieldId, context);
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       suggestion,
       confidence: 0.85,
@@ -73,10 +73,11 @@ Suggestion:`,
 
 function getFallbackSuggestion(formId: string, fieldId: string): string {
   const fallbacks: Record<string, string> = {
-    'priority': 'Base sur les delais legaux, une priorite HAUTE est recommandee pour les dossiers CESEDA.',
-    'budget': 'Le budget moyen pour ce type de dossier est de 2500€. Ajuster selon la complexite.',
-    'deadline': 'Les dossiers CESEDA ont un delai legal de 4 mois. Prevoir une marge de securite.',
-    'resources': 'Allouer au minimum 2 juristes experimentes pour ce type de dossier.',
+    priority:
+      'Base sur les delais legaux, une priorite HAUTE est recommandee pour les dossiers CESEDA.',
+    budget: 'Le budget moyen pour ce type de dossier est de 2500€. Ajuster selon la complexite.',
+    deadline: 'Les dossiers CESEDA ont un delai legal de 4 mois. Prevoir une marge de securite.',
+    resources: 'Allouer au minimum 2 juristes experimentes pour ce type de dossier.',
   };
 
   return fallbacks[fieldId] || 'Aucune suggestion disponible pour ce champ.';

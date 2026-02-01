@@ -8,9 +8,9 @@ export const dynamic = 'force-dynamic';
  * Formulaire intelligent pour initialiser un workspace depuis differentes sources
  */
 
-import { useState } from 'react';
+import { AlertCircle, ArrowLeft, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Mail, FileText, User, Sparkles, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
 
 type SourceType = 'EMAIL' | 'FORM' | 'PHONE' | 'COURRIER' | 'MANUAL';
 
@@ -48,7 +48,7 @@ const PROCEDURE_TYPES = [
   { value: 'RETRAIT_TITRE', label: 'Retrait de Titre de Sejour' },
   { value: 'NATURALISATION', label: 'Naturalisation' },
   { value: 'REGROUPEMENT_FAMILIAL', label: 'Regroupement Familial' },
-  { value: 'ASILE', label: 'Demande d\'Asile' },
+  { value: 'ASILE', label: "Demande d'Asile" },
   { value: 'AUTRE', label: 'Autre procedure CESEDA' },
 ];
 
@@ -67,7 +67,7 @@ export default function NewWorkspacePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    
+
     if (!sourceRaw.trim()) {
       setError('Le contenu source est requis');
       return;
@@ -116,7 +116,7 @@ export default function NewWorkspacePage() {
             <ArrowLeft className="w-5 h-5" />
             Retour
           </button>
-          
+
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <span className="text-4xl"></span>
             Nouveau Workspace de Raisonnement
@@ -182,7 +182,7 @@ export default function NewWorkspacePage() {
                   <input
                     type="email"
                     value={sourceMetadata.from}
-                    onChange={(e) => setSourceMetadata({ ...sourceMetadata, from: e.target.value })}
+                    onChange={e => setSourceMetadata({ ...sourceMetadata, from: e.target.value })}
                     placeholder="client@example.com"
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   />
@@ -194,7 +194,9 @@ export default function NewWorkspacePage() {
                   <input
                     type="text"
                     value={sourceMetadata.subject}
-                    onChange={(e) => setSourceMetadata({ ...sourceMetadata, subject: e.target.value })}
+                    onChange={e =>
+                      setSourceMetadata({ ...sourceMetadata, subject: e.target.value })
+                    }
                     placeholder="Demande d'assistance juridique..."
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   />
@@ -210,14 +212,15 @@ export default function NewWorkspacePage() {
             </label>
             <textarea
               value={sourceRaw}
-              onChange={(e) => setSourceRaw(e.target.value)}
+              onChange={e => setSourceRaw(e.target.value)}
               placeholder={`Collez ici le contenu du ${SOURCE_TYPE_CONFIG[sourceType].label.toLowerCase()}...\n\nExemple:\nBonjour Maitre,\n\nJe vous contacte car j'ai recu une OQTF il y a 3 jours. Je suis en France depuis 5 ans avec ma famille...`}
               rows={12}
               required
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
             />
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              Le moteur d'IA analysera ce texte pour extraire les faits, identifier le contexte et deduire les obligations juridiques.
+              Le moteur d'IA analysera ce texte pour extraire les faits, identifier le contexte et
+              deduire les obligations juridiques.
             </p>
           </div>
 
@@ -228,18 +231,19 @@ export default function NewWorkspacePage() {
             </label>
             <select
               value={procedureType}
-              onChange={(e) => setProcedureType(e.target.value)}
+              onChange={e => setProcedureType(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             >
               <option value="">-- Non specifie --</option>
-              {PROCEDURE_TYPES.map((proc) => (
+              {PROCEDURE_TYPES.map(proc => (
                 <option key={proc.value} value={proc.value}>
                   {proc.label}
                 </option>
               ))}
             </select>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              L'IA peut detecter automatiquement le type de procedure, mais vous pouvez le specifier.
+              Le système peut détecter automatiquement le type de procédure, mais vous pouvez le
+              spécifier.
             </p>
           </div>
 
@@ -252,7 +256,7 @@ export default function NewWorkspacePage() {
             >
               Annuler
             </button>
-            
+
             <button
               type="submit"
               disabled={loading || !sourceRaw.trim()}
