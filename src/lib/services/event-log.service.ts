@@ -10,7 +10,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { EventType, ActorType, Prisma } from '@prisma/client';
+import { EventType, ActorType, Prisma, PrismaClient } from '@prisma/client';
 import { createHash } from 'crypto';
 
 // ============================================
@@ -45,6 +45,12 @@ export interface EventLogData {
 // ============================================
 
 export class EventLogService {
+  private prisma: PrismaClient;
+
+  constructor(prismaClient?: PrismaClient) {
+    this.prisma = prismaClient || prisma;
+  }
+
   /**
    * Créer un EventLog immuable
    *
@@ -70,7 +76,7 @@ export class EventLogService {
     });
 
     // Création en DB
-    const eventLog = await prisma.eventLog.create({
+    const eventLog = await this.prisma.eventLog.create({
       data: {
         timestamp,
         eventType,
@@ -124,7 +130,7 @@ export class EventLogService {
    * Retourne true si le checksum stocké = checksum recalculé
    */
   async verifyIntegrity(eventLogId: string): Promise<boolean> {
-    const eventLog = await prisma.eventLog.findUnique({
+    const eventLog = await this.prisma.eventLog.findUnique({
       where: { id: eventLogId },
     });
 
@@ -160,7 +166,7 @@ export class EventLogService {
   }): Promise<EventLogData[]> {
     const { entityType, entityId, tenantId, limit = 100, offset = 0 } = params;
 
-    return await prisma.eventLog.findMany({
+    return await this.prisma.eventLog.findMany({
       where: {
         entityType,
         entityId,
@@ -204,7 +210,7 @@ export class EventLogService {
         : {}),
     };
 
-    return await prisma.eventLog.findMany({
+    return await this.prisma.eventLog.findMany({
       where,
       orderBy: {
         timestamp: 'desc',
@@ -225,7 +231,7 @@ export class EventLogService {
   }): Promise<number> {
     const { tenantId, entityType, entityId, eventType } = params;
 
-    return await prisma.eventLog.count({
+    return await this.prisma.eventLog.count({
       where: {
         tenantId,
         ...(entityType && { entityType }),
@@ -242,7 +248,7 @@ export class EventLogService {
    * Retourne les IDs des événements corrompus (checksum invalide)
    */
   async verifyAllIntegrity(tenantId: string): Promise<string[]> {
-    const events = await prisma.eventLog.findMany({
+    const events = await this.prisma.eventLog.findMany({
       where: { tenantId },
       select: {
         id: true,
@@ -275,7 +281,9 @@ export class EventLogService {
 // SINGLETON EXPORT
 // ============================================
 
-export const eventLogService = new EventLogService();
+// Vérifier si prisma est une vraie instance ou un mock
+const isRealPrisma = prisma && typeof prisma.eventLog?.create === 'function';
+export const eventLogService = new EventLogService(isRealPrisma ? undefined : prisma);
 
 // ============================================
 // HELPER : Créer EventLog (shortcut)
