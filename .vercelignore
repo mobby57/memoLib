@@ -1,0 +1,88 @@
+# Dependencies
+node_modules
+node_modules_backup
+.pnp
+.pnp.js
+
+# Testing
+coverage
+__tests__
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Build outputs (Vercel rebuilds from source)
+.next
+out
+dist
+build
+.turbo
+
+# Cache
+.cache
+*.cache
+.parcel-cache
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS
+.DS_Store
+*.pem
+Thumbs.db
+
+# Local env files (pulled from Vercel)
+.env*.local
+
+# Vercel
+.vercel
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+*.db
+*.db-journal
+
+# Scripts
+scripts/*.ps1
+scripts/*.sh
+scripts/*.bat
+
+# Documentation
+*.md
+!README.md
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Temporary files
+tmp
+temp
+*.tmp
+*.bak
+*.backup
+
+# Build artifacts
+build-*.txt
+*.txt
+!package.json
+
+# Test files
+test-*.ps1
+*.test.js

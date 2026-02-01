@@ -1,0 +1,92 @@
+{
+  "folders": [
+    {
+      "path": ".",
+    },
+  ],
+  "settings": {
+    // ===== ÉDITEUR =====
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit",
+    },
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.rulers": [100, 120],
+
+    // ===== TYPESCRIPT / NEXT.JS =====
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "javascript.preferences.importModuleSpecifier": "relative",
+    "typescript.preferences.importModuleSpecifier": "relative",
+
+    // ===== FICHIERS =====
+    "files.exclude": {
+      "**/.next": true,
+      "**/node_modules": true,
+      "**/__pycache__": true,
+      "**/*.pyc": true,
+      "**/.pytest_cache": true,
+      "**/venv": true,
+      "**/.venv": true,
+    },
+    "files.associations": {
+      "*.css": "tailwindcss",
+    },
+
+    // ===== RECHERCHE =====
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.next": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/.git": true,
+      "**/coverage": true,
+    },
+
+    // ===== PYTHON (BACKEND) =====
+    "python.defaultInterpreterPath": "./venv/bin/python",
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit",
+      },
+    },
+
+    // ===== TERMINAL =====
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.env.linux": {
+      "NODE_ENV": "development",
+    },
+
+    // ===== SÉCURITÉ =====
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/.next/**": true,
+      "**/venv/**": true,
+    },
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "ms-vscode.vscode-typescript-next",
+      "github.vscode-github-actions",
+      "ms-azuretools.vscode-azurefunctions",
+      "ms-azuretools.vscode-azurestaticwebapps",
+      "ms-vscode.azure-account",
+      "mikestead.dotenv",
+      "bradlc.vscode-tailwindcss",
+      "ms-python.python",
+      "ms-python.black-formatter",
+    ],
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [],
+    "compounds": [],
+  },
+}

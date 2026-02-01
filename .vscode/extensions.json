@@ -1,0 +1,41 @@
+{
+  // ===== EXTENSIONS RECOMMANDÉES =====
+  // Ces extensions seront suggérées lors de l'ouverture du workspace
+
+  "recommendations": [
+    // === ESSENTIELS (NE PAS ENLEVER) ===
+    "dbaeumer.vscode-eslint", // ESLint
+    "esbenp.prettier-vscode", // Prettier
+    "ms-vscode.vscode-typescript-next", // TypeScript Nightly
+    "mikestead.dotenv", // DotENV (syntaxe .env)
+
+    // === CI/CD ===
+    "github.vscode-github-actions", // GitHub Actions
+    "github.vscode-pull-request-github", // GitHub Pull Requests
+
+    // === AZURE ===
+    "ms-vscode.azure-account", // Azure Account
+    "ms-azuretools.vscode-azurestaticwebapps", // Azure Static Web Apps
+    "ms-azuretools.vscode-azurefunctions", // Azure Functions
+    "ms-azuretools.vscode-azureresourcegroups", // Azure Resources
+
+    // === NEXT.JS / REACT ===
+    "bradlc.vscode-tailwindcss", // Tailwind CSS IntelliSense
+
+    // === PYTHON (BACKEND) ===
+    "ms-python.python", // Python
+    "ms-python.black-formatter", // Black Formatter
+    "ms-python.isort", // Import sorting
+
+    // === DOCKER ===
+    "ms-azuretools.vscode-docker", // Docker
+
+    // === OPTIONNEL (PRODUCTIVITÉ) ===
+    "streetsidesoftware.code-spell-checker", // Spell checker
+    "streetsidesoftware.code-spell-checker-french" // French dictionary
+  ],
+
+  "unwantedRecommendations": [
+    // Extensions à éviter (conflits potentiels)
+  ]
+}
