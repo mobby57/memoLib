@@ -1,12 +1,12 @@
 /**
  * AI Legal Assistant Service (Phase 8)
- * 
+ *
  * Service IA juridique avec RAG (Retrieval-Augmented Generation):
  * - Chat multi-tour avec contexte juridique
  * - Recherche knowledge base (documents, jurisprudence)
  * - Citations et références légales
  * - EventLog pour audit des requêtes IA
- * 
+ *
  * Production note: Intégrer OpenAI GPT-4, Anthropic Claude, ou Llama local
  */
 
@@ -140,7 +140,7 @@ export class AIAssistantService {
     // 4. Construire contexte conversation
     const context: ChatContext = {
       sessionId: session.id,
-      messages: session.messages.map((m) => ({
+      messages: session.messages.map(m => ({
         role: m.role as 'user' | 'assistant' | 'system',
         content: m.content,
       })),
@@ -165,7 +165,7 @@ export class AIAssistantService {
           model: aiResponse.model,
           tokensUsed: aiResponse.tokensUsed,
           confidence: aiResponse.confidence,
-          ragDocuments: ragDocuments.map((d) => ({
+          ragDocuments: ragDocuments.map(d => ({
             id: d.id,
             title: d.title,
             relevanceScore: d.relevanceScore,
@@ -202,7 +202,7 @@ export class AIAssistantService {
 
   /**
    * Recherche dans la knowledge base (RAG retrieval)
-   * 
+   *
    * Production: Utiliser embeddings vectoriels (OpenAI embeddings + Pinecone/Weaviate)
    * ou PostgreSQL pgvector pour similarité sémantique
    */
@@ -230,7 +230,7 @@ export class AIAssistantService {
 
     // Simulation scoring sémantique (en prod: embeddings cosine similarity)
     const scoredDocs = documents
-      .map((doc) => {
+      .map(doc => {
         const relevanceScore = this.calculateRelevance(query, doc.ocrText || '');
 
         return {
@@ -244,7 +244,7 @@ export class AIAssistantService {
           },
         };
       })
-      .filter((d) => d.relevanceScore > 0.1) // Seuil pertinence
+      .filter(d => d.relevanceScore > 0.1) // Seuil pertinence
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
       .slice(0, limit);
 
@@ -262,12 +262,12 @@ export class AIAssistantService {
     const queryTerms = query
       .toLowerCase()
       .split(/\s+/)
-      .filter((t) => t.length > 3);
+      .filter(t => t.length > 3);
 
     const docLower = documentText.toLowerCase();
 
     let matchCount = 0;
-    queryTerms.forEach((term) => {
+    queryTerms.forEach(term => {
       if (docLower.includes(term)) {
         matchCount++;
       }
@@ -288,7 +288,7 @@ export class AIAssistantService {
       {
         id: 'case-law-1',
         content: `Conseil d'État, 10 avril 2015, n° 375081
-        
+
 En matière d'OQTF (Obligation de Quitter le Territoire Français), le préfet doit respecter le principe du contradictoire et permettre à l'étranger de présenter ses observations avant de prendre la décision.
 
 L'article L. 511-1 du CESEDA impose que la décision soit motivée et prenne en compte la situation personnelle et familiale de l'intéressé, notamment au regard de l'article 8 de la CEDH (droit au respect de la vie privée et familiale).`,
@@ -342,11 +342,17 @@ La décision fixe le pays de destination et peut être assortie d'une interdicti
 
     // Filtrage par mots-clés (simulation)
     if (queryLower.includes('oqtf') || queryLower.includes('obligation')) {
-      return knowledgeBase.filter((d) => d.id.includes('case-law-1') || d.id.includes('legal-code-1'));
+      return knowledgeBase.filter(
+        d => d.id.includes('case-law-1') || d.id.includes('legal-code-1')
+      );
     }
 
-    if (queryLower.includes('article 8') || queryLower.includes('vie privée') || queryLower.includes('familiale')) {
-      return knowledgeBase.filter((d) => d.id.includes('case-law-2'));
+    if (
+      queryLower.includes('article 8') ||
+      queryLower.includes('vie privée') ||
+      queryLower.includes('familiale')
+    ) {
+      return knowledgeBase.filter(d => d.id.includes('case-law-2'));
     }
 
     if (queryLower.includes('recours') || queryLower.includes('tribunal')) {
@@ -471,7 +477,7 @@ Source: CESEDA, Code de Justice Administrative.`;
 
 ${ragDocs
   .slice(0, 2)
-  .map((doc) => `- ${doc.title}: ${doc.content.substring(0, 200)}...`)
+  .map(doc => `- ${doc.title}: ${doc.content.substring(0, 200)}...`)
   .join('\n\n')}
 
 Pour une analyse plus précise de votre situation, je vous recommande de consulter un avocat spécialisé en droit des étrangers.`;
@@ -487,8 +493,11 @@ Pour une analyse plus précise de votre situation, je vous recommande de consult
     const citations: { text: string; source: string; documentId?: string }[] = [];
 
     // Chercher références dans la réponse
-    ragDocs.forEach((doc) => {
-      if (response.includes(doc.title) || (doc.metadata?.caseNumber && response.includes(doc.metadata.caseNumber))) {
+    ragDocs.forEach(doc => {
+      if (
+        response.includes(doc.title) ||
+        (doc.metadata?.caseNumber && response.includes(doc.metadata.caseNumber))
+      ) {
         citations.push({
           text: doc.title,
           source: doc.source,
@@ -543,7 +552,11 @@ Pour une analyse plus précise de votre situation, je vous recommande de consult
   /**
    * Liste sessions d'un utilisateur
    */
-  async listUserSessions(params: { userId: string; tenantId: string; limit?: number }): Promise<any[]> {
+  async listUserSessions(params: {
+    userId: string;
+    tenantId: string;
+    limit?: number;
+  }): Promise<any[]> {
     const { userId, tenantId, limit = 20 } = params;
 
     return prisma.chatSession.findMany({
