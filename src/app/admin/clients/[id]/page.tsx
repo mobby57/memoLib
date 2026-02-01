@@ -8,7 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Mail, Phone, MapPin, Calendar, FileText, AlertCircle, Euro, User } from 'lucide-react';
 
 export default function ClientDetailPage() {
@@ -19,6 +19,7 @@ export default function ClientDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!params?.id) return;
     fetch(`/api/admin/clients/${params.id}`)
       .then(res => res.json())
       .then(data => {
@@ -27,7 +28,7 @@ export default function ClientDetailPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [params.id]);
+  }, [params?.id]);
 
   if (loading) return <div className="p-8">Chargement...</div>;
   if (!client) return <div className="p-8">Client non trouvé</div>;
@@ -137,8 +138,8 @@ export default function ClientDetailPage() {
                           <p className="text-sm mt-1">{dossier.objet}</p>
                         </div>
                         <Badge variant={
-                          dossier.statut === 'termine' ? 'default' :
-                          dossier.statut === 'en_cours' ? 'secondary' : 'outline'
+                          dossier.statut === 'termine' ? 'success' :
+                          dossier.statut === 'en_cours' ? 'info' : 'default'
                         }>
                           {dossier.statut}
                         </Badge>

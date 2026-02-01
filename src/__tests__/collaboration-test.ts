@@ -83,7 +83,7 @@ async function testCollaboration() {
         from: 'client@example.com',
         to: avocatPrincipal.email,
         subject: 'Dossier OQTF urgent',
-        body: 'Besoin d\'aide pour mon dossier',
+        body: "Besoin d'aide pour mon dossier",
         category: 'legal-inquiry',
         urgency: 'high',
       },
@@ -131,7 +131,7 @@ async function testCollaboration() {
     // ==========================================
     // TEST 3: Réponse au commentaire
     // ==========================================
-    console.log('📝 TEST 3: Réponse de l\'assistant...');
+    console.log("📝 TEST 3: Réponse de l'assistant...");
 
     const comment3 = await collaborationService.createComment({
       content: `@avocat.principal OK je m'en occupe aujourd'hui. Envoi prévu demain matin.`,
@@ -268,7 +268,7 @@ async function testCollaboration() {
     ];
 
     let passed = 0;
-    checks.forEach((check) => {
+    checks.forEach(check => {
       if (check.condition) {
         console.log(`✅ ${check.name}`);
         passed++;
