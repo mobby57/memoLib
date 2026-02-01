@@ -10,7 +10,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { AIAssistantService } from '../src/frontend/lib/services/ai-assistant.service';
+import { AIAssistantService } from '../frontend/lib/services/ai-assistant.service';
 
 const prisma = new PrismaClient();
 const aiAssistant = new AIAssistantService();
@@ -51,8 +51,8 @@ async function testAIAssistant() {
 
     const client = await prisma.client.create({
       data: {
-        nom: 'DURAND',
-        prenom: 'Sophie',
+        firstName: 'Sophie',
+        lastName: 'DURAND',
         email: 'sophie.durand@test.com',
         tenantId,
       },
@@ -74,8 +74,8 @@ async function testAIAssistant() {
     console.log('📄 Setup: Document OCR pour RAG...');
     await prisma.document.create({
       data: {
-        tenantId,
-        dossierId,
+        tenant: { connect: { id: tenantId } },
+        dossier: { connect: { id: dossierId } },
         filename: 'jugement-ta.pdf',
         originalName: 'Jugement TA Paris OQTF.pdf',
         mimeType: 'application/pdf',
@@ -100,7 +100,7 @@ Article L. 511-1 CESEDA - Délai de recours: 30 jours`,
           dates: ['15/03/2024'],
           caseNumber: '2400567',
         }),
-        uploadedById: userId,
+        uploader: { connect: { id: userId } },
       },
     });
     console.log('✅ Document RAG créé\n');
@@ -166,7 +166,7 @@ Article L. 511-1 CESEDA - Délai de recours: 30 jours`,
         tenantId,
         eventType: 'AI_QUERY_SUBMITTED',
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { timestamp: 'desc' },
     });
 
     console.log(`✅ Events AI_QUERY_SUBMITTED: ${queryEvents.length}`);
@@ -188,7 +188,7 @@ Article L. 511-1 CESEDA - Délai de recours: 30 jours`,
         tenantId,
         eventType: 'AI_RESPONSE_GENERATED',
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { timestamp: 'desc' },
     });
 
     console.log(`✅ Events AI_RESPONSE_GENERATED: ${responseEvents.length}`);
@@ -347,6 +347,9 @@ Article L. 511-1 CESEDA - Délai de recours: 30 jours`,
     }
 
     if (tenantId) {
+      // EventLog est immuable, supprimer AVANT les relations
+      await prisma.$executeRaw`DELETE FROM event_logs WHERE tenant_id = ${tenantId}::uuid`;
+      
       await prisma.client.deleteMany({ where: { tenantId } });
       await prisma.tenant.delete({ where: { id: tenantId } });
     }
