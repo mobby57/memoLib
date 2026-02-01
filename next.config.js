@@ -97,7 +97,7 @@ const nextConfig = {
   compress: !isStaticExport,
 
   // ⚡ Performance optimizations
-  swcMinify: true, // Better memory usage than Terser
+  // Note: Next 16/Turbopack ignore deprecated 'swcMinify' option; remove to avoid warnings
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
