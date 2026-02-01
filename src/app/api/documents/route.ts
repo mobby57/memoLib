@@ -133,7 +133,7 @@ async function processOCR(documentId: string, buffer: Buffer, mimeType: string) 
       confidence = 1.0;
     }
 
-    // Analyser le contenu avec l'IA pour extraire des donnees structurees
+    // Analyser le contenu avec le moteur pour extraire des donnees structurees
     if (extractedText.length > 0) {
       extractedData = await analyzeDocumentContent(extractedText);
     }

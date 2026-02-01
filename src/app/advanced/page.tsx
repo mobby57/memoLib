@@ -8,11 +8,11 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
-import { SmartSuggestions } from '@/components/SmartSuggestions';
 import { SemanticSearch } from '@/components/SemanticSearch';
+import { SmartSuggestions } from '@/components/SmartSuggestions';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 export default function AdvancedFeaturesPage() {
   const { data: session } = useSession();
@@ -38,9 +38,7 @@ export default function AdvancedFeaturesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">
-                 Fonctionnalites Avancees IA
-              </h1>
+              <h1 className="text-3xl font-bold text-white">Fonctionnalites Avancees IA</h1>
               <p className="text-blue-100 mt-1">
                 Apprentissage continu, Suggestions intelligentes, Recherche semantique
               </p>
@@ -67,9 +65,9 @@ export default function AdvancedFeaturesPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-               Analytics & Apprentissage
+              Analytics & Apprentissage
             </button>
-            
+
             <button
               onClick={() => setActiveTab('suggestions')}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
@@ -78,9 +76,9 @@ export default function AdvancedFeaturesPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-               Suggestions Intelligentes
+              Suggestions Intelligentes
             </button>
-            
+
             <button
               onClick={() => setActiveTab('search')}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition ${
@@ -89,7 +87,7 @@ export default function AdvancedFeaturesPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-               Recherche Semantique
+              Recherche Semantique
             </button>
           </nav>
         </div>
@@ -98,12 +96,10 @@ export default function AdvancedFeaturesPage() {
         {activeTab === 'analytics' && (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
-                 Apprentissage Continu
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Apprentissage Continu</h2>
               <p className="text-gray-700">
-                Le systeme analyse chaque validation humaine pour ameliorer ses predictions.
-                Plus vous validez, plus l'IA devient precise et adaptee a votre cabinet.
+                Le systeme analyse chaque validation humaine pour ameliorer ses predictions. Plus
+                vous validez, plus le système devient précis et adapté à votre cabinet.
               </p>
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4">
@@ -131,12 +127,10 @@ export default function AdvancedFeaturesPage() {
         {activeTab === 'suggestions' && (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">
-                 IA Proactive
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">IA Proactive</h2>
               <p className="text-gray-700 mb-4">
-                L'IA analyse en permanence vos dossiers pour identifier les opportunites
-                d'amelioration et vous suggerer des actions pertinentes.
+                Le moteur d'analyse surveille en permanence vos dossiers pour identifier les
+                opportunités d'amelioration et vous suggerer des actions pertinentes.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div className="bg-white rounded-lg p-3 text-center">
@@ -166,36 +160,30 @@ export default function AdvancedFeaturesPage() {
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
-                 Recherche par Sens, pas par Mots-Cles
+                Recherche par Sens, pas par Mots-Cles
               </h2>
               <p className="text-gray-700 mb-4">
-                Utilisez le pouvoir des embeddings IA pour trouver des dossiers similaires
-                meme s'ils n'ont pas les memes mots-cles. L'IA comprend le contexte.
+                Utilisez le pouvoir des embeddings IA pour trouver des dossiers similaires même
+                s'ils n'ont pas les mêmes mots-clés. Le système comprend le contexte.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4">
                   <div className="text-2xl mb-2"></div>
-                  <div className="font-semibold text-gray-900 mb-1">
-                    Comprehension semantique
-                  </div>
+                  <div className="font-semibold text-gray-900 mb-1">Comprehension semantique</div>
                   <div className="text-sm text-gray-600">
                     Recherche par intention, pas par mots exacts
                   </div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
                   <div className="text-2xl mb-2"></div>
-                  <div className="font-semibold text-gray-900 mb-1">
-                    Analyse de patterns
-                  </div>
+                  <div className="font-semibold text-gray-900 mb-1">Analyse de patterns</div>
                   <div className="text-sm text-gray-600">
                     Documents communs, durees, taux de succes
                   </div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
                   <div className="text-2xl mb-2"></div>
-                  <div className="font-semibold text-gray-900 mb-1">
-                    Suggestions intelligentes
-                  </div>
+                  <div className="font-semibold text-gray-900 mb-1">Suggestions intelligentes</div>
                   <div className="text-sm text-gray-600">
                     Requetes populaires basees sur vos donnees
                   </div>
