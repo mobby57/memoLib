@@ -16,8 +16,13 @@ import {
 } from '@/components/ui/Select';
 import { Slider } from '@/components/ui/Slider';
 import { Switch } from '@/components/ui/Switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEffect, useState } from 'react';
+
+// Simple CardDescription component
+const CardDescription = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-sm text-gray-500 dark:text-gray-400">{children}</p>
+);
 
 /**
  * ️ Interface d'Administration - Configuration Avancee des Workflows
