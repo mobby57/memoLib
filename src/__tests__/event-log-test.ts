@@ -2,7 +2,7 @@
 
 /**
  * Test EventLog via scripts - Validation RULE-004, RULE-005, RULE-006
- * 
+ *
  * Exécution: npx ts-node src/__tests__/event-log-test.ts
  */
 
@@ -121,7 +121,7 @@ async function runTests() {
     // Recalculer le checksum avec les mêmes données
     const recalculatedChecksum = (eventLog as any).checksum; // Récupérer depuis l'event créé
     const isValid = await eventLogService.verifyIntegrity(eventLog.id);
-    
+
     if (!isValid) throw new Error('Checksum verification failed');
   });
 
@@ -234,7 +234,7 @@ async function runTests() {
 
   // Summary
   console.log('\n' + '='.repeat(50));
-  const passed = results.filter((r) => r.passed).length;
+  const passed = results.filter(r => r.passed).length;
   const total = results.length;
   console.log(`\n📈 Results: ${passed}/${total} passed\n`);
 
@@ -242,9 +242,11 @@ async function runTests() {
     console.log('🎉 All EventLog tests passed! RULE-004, RULE-005, RULE-006 validated.\n');
   } else {
     console.log('❌ Some tests failed:\n');
-    results.filter((r) => !r.passed).forEach((r) => {
-      console.log(`  - ${r.name}: ${r.error}`);
-    });
+    results
+      .filter(r => !r.passed)
+      .forEach(r => {
+        console.log(`  - ${r.name}: ${r.error}`);
+      });
     console.log('');
   }
 
