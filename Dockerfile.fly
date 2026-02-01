@@ -23,6 +23,9 @@ ENV NODE_ENV=production
 ENV STRIPE_SECRET_KEY="sk_dummy_build_key"
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
+# Next.js: éviter le conflit entre proxy.ts et middleware.ts
+RUN rm -f src/middleware.ts
+
 RUN npm run build
 
 # Production image
