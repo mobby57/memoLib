@@ -10,26 +10,26 @@ let redis: Redis | null = null;
 
 function getRedis(): Redis | null {
   if (redis) return redis;
-  
+
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  
+
   if (!url || !token) {
     console.warn('[Cache] Redis non configuré - cache désactivé');
     return null;
   }
-  
+
   redis = new Redis({ url, token });
   return redis;
 }
 
 // TTL par tier de données
 export const CACHE_TTL = {
-  HOT: 60,          // 1 min - données très fréquentes
-  WARM: 300,        // 5 min - données moyennes
-  COLD: 3600,       // 1h - données stables
-  STATIC: 86400,    // 24h - référentiels (CESEDA, etc.)
-  SESSION: 1800,    // 30 min - sessions utilisateur
+  HOT: 60, // 1 min - données très fréquentes
+  WARM: 300, // 5 min - données moyennes
+  COLD: 3600, // 1h - données stables
+  STATIC: 86400, // 24h - référentiels (CESEDA, etc.)
+  SESSION: 1800, // 30 min - sessions utilisateur
 } as const;
 
 // Alias pour compatibilité
@@ -43,11 +43,11 @@ export type CacheTier = keyof typeof CACHE_TTL;
 export async function cacheGet<T>(key: string): Promise<T | null> {
   const client = getRedis();
   if (!client) return null;
-  
+
   try {
     const cached = await client.get(key);
     if (cached === null) return null;
-    
+
     // Déjà parsé par Upstash
     return cached as T;
   } catch (error) {
@@ -66,7 +66,7 @@ export async function cacheSet(
 ): Promise<boolean> {
   const client = getRedis();
   if (!client) return false;
-  
+
   try {
     await client.setex(key, CACHE_TTL[tier], value);
     return true;
@@ -82,7 +82,7 @@ export async function cacheSet(
 export async function cacheDelete(key: string): Promise<boolean> {
   const client = getRedis();
   if (!client) return false;
-  
+
   try {
     await client.del(key);
     return true;
@@ -98,13 +98,27 @@ export async function cacheDelete(key: string): Promise<boolean> {
 export async function cacheInvalidatePattern(pattern: string): Promise<number> {
   const client = getRedis();
   if (!client) return 0;
-  
+
   try {
-    const keys = await client.keys(pattern);
-    if (keys.length === 0) return 0;
-    
-    await client.del(...keys);
-    return keys.length;
+    let cursor = '0';
+    let totalDeleted = 0;
+
+    do {
+      const [nextCursor, keys]: [string, string[]] = await (client as any).scan(cursor, {
+        match: pattern,
+        count: 100,
+      });
+      cursor = nextCursor;
+
+      if (Array.isArray(keys) && keys.length > 0) {
+        const pipe = (client as any).pipeline();
+        for (const k of keys) pipe.del(k);
+        await pipe.exec();
+        totalDeleted += keys.length;
+      }
+    } while (cursor !== '0');
+
+    return totalDeleted;
   } catch (error) {
     console.error('[Cache] INVALIDATE error:', error);
     return 0;
@@ -124,13 +138,13 @@ export async function cacheThrough<T>(
   if (cached !== null) {
     return cached;
   }
-  
+
   // Exécuter le fetcher
   const fresh = await fetcher();
-  
+
   // Stocker en cache (non-bloquant)
   cacheSet(key, fresh, tier).catch(() => {});
-  
+
   return fresh;
 }
 
@@ -176,7 +190,7 @@ export async function cacheStats(): Promise<{
 }> {
   const client = getRedis();
   if (!client) return { connected: false };
-  
+
   try {
     await client.ping();
     const keys = await client.dbsize();
