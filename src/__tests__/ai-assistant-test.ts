@@ -1,6 +1,6 @@
 /**
  * TEST AI LEGAL ASSISTANT - Phase 8
- * 
+ *
  * Validation assistant IA juridique avec RAG:
  * - Requête juridique (OQTF, délais recours)
  * - RAG retrieval (jurisprudence, code)
@@ -241,8 +241,10 @@ Article L. 511-1 CESEDA - Délai de recours: 30 jours`,
     console.log(`✅ Session trouvée: ${session?.id}`);
     console.log(`   Title: ${session?.title}`);
     console.log(`   Messages: ${session?.messages.length}`);
-    console.log(`   User messages: ${session?.messages.filter((m) => m.role === 'user').length}`);
-    console.log(`   Assistant messages: ${session?.messages.filter((m) => m.role === 'assistant').length}\n`);
+    console.log(`   User messages: ${session?.messages.filter(m => m.role === 'user').length}`);
+    console.log(
+      `   Assistant messages: ${session?.messages.filter(m => m.role === 'assistant').length}\n`
+    );
 
     // ===========================================
     // TEST 8: getSession()
@@ -304,7 +306,10 @@ Article L. 511-1 CESEDA - Délai de recours: 30 jours`,
       { test: 'Session créée', pass: !!sessionId },
       { test: 'Réponse IA générée', pass: result1.response.content.length > 100 },
       { test: 'Model défini', pass: !!result1.response.model },
-      { test: 'Confidence score valide', pass: result1.response.confidence > 0 && result1.response.confidence <= 1 },
+      {
+        test: 'Confidence score valide',
+        pass: result1.response.confidence > 0 && result1.response.confidence <= 1,
+      },
       { test: 'RAG documents récupérés (≥2)', pass: ragDocs.length >= 2 },
       { test: 'Citations extraites (≥1)', pass: citations.length >= 1 },
       { test: 'EventLog AI_QUERY_SUBMITTED créé (≥1)', pass: queryEvents.length >= 1 },
@@ -316,11 +321,11 @@ Article L. 511-1 CESEDA - Délai de recours: 30 jours`,
       { test: 'EventLog AI_SESSION_ENDED créé', pass: sessionEndEvents.length >= 1 },
     ];
 
-    validations.forEach((v) => {
+    validations.forEach(v => {
       console.log(`${v.pass ? '✅' : '❌'} ${v.test}`);
     });
 
-    const passedCount = validations.filter((v) => v.pass).length;
+    const passedCount = validations.filter(v => v.pass).length;
     console.log(`\n📊 Résultat: ${passedCount}/${validations.length} validations passées\n`);
 
     if (passedCount === validations.length) {
@@ -357,7 +362,7 @@ Article L. 511-1 CESEDA - Délai de recours: 30 jours`,
   }
 }
 
-testAIAssistant().catch((error) => {
+testAIAssistant().catch(error => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

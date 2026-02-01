@@ -1,9 +1,9 @@
 /**
  * AI Session Detail API (Phase 8)
- * 
+ *
  * GET /api/ai/sessions/[id]
  * - Récupère historique complet d'une session
- * 
+ *
  * DELETE /api/ai/sessions/[id]
  * - Termine une session
  */
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         updatedAt: sessionData.session.updatedAt,
         endedAt: sessionData.session.endedAt,
       },
-      messages: sessionData.messages.map((m) => ({
+      messages: sessionData.messages.map(m => ({
         id: m.id,
         role: m.role,
         content: m.content,
