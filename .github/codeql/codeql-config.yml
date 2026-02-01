@@ -1,0 +1,36 @@
+name: "CodeQL Config for IA Poste Manager"
+
+queries:
+  - uses: security-extended
+  - uses: security-and-quality
+
+paths:
+  - src/**
+  - app/**
+  - lib/**
+  - components/**
+  - pages/**
+  - api/**
+  - scripts/**
+
+paths-ignore:
+  - node_modules/**
+  - .next/**
+  - build/**
+  - dist/**
+  - out/**
+  - '*.config.*'
+  - prisma/migrations/**
+  - '**/*.test.*'
+  - '**/*.spec.*'
+  - __tests__/**
+  - tests/**
+  - coverage/**
+  - '**/__generated__/**'
+  - public/**
+  - '**/*.json'
+  - '**/*.md'
+  - docs/**
+  - '**/*.css'
+  - '**/*.scss'
+  - assets/**

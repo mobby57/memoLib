@@ -1,0 +1,183 @@
+# ============================================================================
+# 📊 RELEASE & CHANGELOG - Génération automatique des releases
+# ============================================================================
+# Crée automatiquement des releases avec changelog à partir des commits
+# ============================================================================
+
+name: 📊 Release & Changelog
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.2.3)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Is this a pre-release?'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    name: 🚀 Create Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: 🔧 Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: 'postgresql://x:x@localhost/x'
+
+      - name: 🏗️ Build Application
+        run: npm run build
+        env:
+          DATABASE_URL: 'postgresql://x:x@localhost/x'
+          NEXTAUTH_SECRET: 'build-secret-32-characters-long!'
+          NEXTAUTH_URL: 'http://localhost:3000'
+
+      - name: 📝 Generate Changelog
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          skip-version-file: true
+          skip-commit: true
+          skip-tag: true
+          output-file: false
+
+      - name: Determine Version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "version=v${{ inputs.version }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📦 Create Release Assets
+        run: |
+          mkdir -p release-assets
+          # Create a summary of changes
+          echo "# MemoLib ${{ steps.version.outputs.version }}" > release-assets/RELEASE_NOTES.md
+          echo "" >> release-assets/RELEASE_NOTES.md
+          echo "## Changes" >> release-assets/RELEASE_NOTES.md
+          echo "${{ steps.changelog.outputs.changelog }}" >> release-assets/RELEASE_NOTES.md
+
+          # Create deployment manifest
+          cat > release-assets/deployment-manifest.json << EOF
+          {
+            "version": "${{ steps.version.outputs.version }}",
+            "buildDate": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commitSha": "${{ github.sha }}",
+            "nodeVersion": "20",
+          }
+          EOF
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: MemoLib ${{ steps.version.outputs.version }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: ${{ inputs.prerelease || false }}
+          files: |
+            release-assets/RELEASE_NOTES.md
+            release-assets/deployment-manifest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Release Summary
+        run: |
+          echo "## 🚀 Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Pre-release:** ${{ inputs.prerelease || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Changelog" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.changelog.outputs.changelog }}" >> $GITHUB_STEP_SUMMARY
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NOTIFICATION (optionnel)
+  # ═══════════════════════════════════════════════════════════════════════════
+  notify:
+    name: 📣 Notify Team
+    runs-on: ubuntu-latest
+    needs: release
+    if: success() && vars.ENABLE_NOTIFICATIONS == 'true'
+    timeout-minutes: 5
+
+    steps:
+      - name: 📣 Slack Notification
+        if: secrets.SLACK_WEBHOOK_URL != ''
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🚀 New Release: MemoLib"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Version:*\n${{ needs.release.outputs.version || github.ref_name }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author:*\n${{ github.actor }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Release"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

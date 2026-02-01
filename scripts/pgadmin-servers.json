@@ -1,0 +1,16 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "IA Poste Manager - Local",
+      "Group": "Development",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "iapostemanage",
+      "Username": "iapostemanage",
+      "SSLMode": "prefer",
+      "PassFile": "/tmp/pgpassfile",
+      "Shared": false,
+      "Comment": "PostgreSQL local pour développement IA Poste Manager"
+    }
+  }
+}

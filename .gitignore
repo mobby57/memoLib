@@ -1,39 +1,158 @@
-# Node/Next.js
-node_modules/
-.npm/
-.next/
-.next-static/
-out/
+# ===========================================
+# IAPosteManager - .gitignore Production
+# ===========================================
 
-# Logs
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+venv-linux/
+env/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+*.so
+*.egg
+
+# Node.js / Frontend
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
+.pnpm-debug.log*
+.npm
+.eslintcache
+.parcel-cache
+.next/
+out/
+dist/
+build/
+.cache/
 
-# Testing
+# Environnement & Secrets
+.env
+.env.local
+.env.*.local
+*.enc
+*.bin
+*.pem
+*.key
+credentials/
+api_keys.*
+*_secret*
+*_key*.py
+security-keys-backup-*.txt
+
+# Bases de données
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+memolib.db
+
+# Logs
+logs/
+*.log
+*.log.*
+npm-debug.log*
+lerna-debug.log*
+
+# Backups & Archives
+backups/
+archive/
+*.backup
+*.bak
+
+# Fichiers temporaires
+*.tmp
+*.temp
+temp_*
+diagnostic_*
+temp_recording_*
 coverage/
-playwright-report/
-playwright/.cache/
+.coverage
+.nyc_output/
+*.lcov
 
-# Env & local config
-.env*
-!.env.example
-.vscode/
-.DS_Store
-
-# Prisma
-prisma/*.db
-prisma/*.sqlite
-
-# OS / Editor
+# IDE
+# .vscode/ - On garde la config partagée, on exclut les settings locaux
+.vscode/*.code-snippets
+.vscode/settings.local.json
+.idea/
 *.swp
 *.swo
+*~
+.DS_Store
 Thumbs.db
 
-# Build artifacts
+# Sessions & Uploads
+flask_session/
+uploads/
+data/
+*.csv
+!exemple_*.csv
+
+# Build & Distribution
+dist/
+build/
+*.tar.gz
+*.zip
 *.tsbuildinfo
 
-# Misc
-.tmp/
-.cache/
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+test-results/
+playwright-report/
+*.test.js.snap
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Certificats SSL
+*.crt
+*.csr
+ssl/
+
+# Monitoring
+prometheus_data/
+grafana_data/
+
+# Build artifacts
+.next/
+out/
+dist/
+.turbo/
+.swc/
+.wrangler/
+.vercel/
+
+# Cache
+node_modules/.cache/
+.jest-cache/
+.eslintcache
+
+# Logs
+*.log
+npm-debug.log*
+
+# Legacy
+legacy/
+dbcodeio-public/
+dbcodeio-public/
+dbcodeio-public/

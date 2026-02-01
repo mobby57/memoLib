@@ -1,0 +1,38 @@
+# Pre-commit configuration
+# Installer: pip install pre-commit && pre-commit install
+# Exécuter manuellement: pre-commit run --all-files
+
+repos:
+  # ===== GÉNÉRAL =====
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  # ===== SECRETS =====
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.1
+    hooks:
+      - id: gitleaks
+
+  # ===== FICHIERS SENSIBLES =====
+  - repo: local
+    hooks:
+      - id: check-env-files
+        name: Check for .env files
+        entry: bash -c 'git diff --cached --name-only | grep -E "^\.env[^.]*$" && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+
+      - id: check-secrets-in-code
+        name: Check for secrets in code
+        entry: bash -c 'git diff --cached -U0 | grep -iE "(password|secret|api_key|auth_token)\s*[:=]" | grep -v "example" | grep -v "placeholder" && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
