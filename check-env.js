@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Validation des variables d'environnement
- * IA Poste Manager v3.1 - Node.js/TypeScript
+ * MemoLib Assistant v3.1 - Node.js/TypeScript
  */
 
 require('dotenv').config();

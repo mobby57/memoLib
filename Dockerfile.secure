@@ -78,6 +78,6 @@ ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "server.js"]
 
 # Labels pour métadonnées
-LABEL maintainer="IA Poste Manager"
+LABEL maintainer="MemoLib Assistant"
 LABEL version="1.0"
 LABEL description="Application Next.js sécurisée pour gestion juridique CESEDA"
