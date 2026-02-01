@@ -200,17 +200,19 @@ export default function WorkflowConfigPage() {
 
                 <div className="space-y-2">
                   <Label>Temperature: {config.ai.temperature}</Label>
-                  <Slider
-                    value={[config.ai.temperature]}
-                    onValueChange={([value]) =>
+                  <input
+                    type="range"
+                    value={config.ai.temperature}
+                    onChange={(e) =>
                       setConfig({
                         ...config,
-                        ai: { ...config.ai, temperature: value },
+                        ai: { ...config.ai, temperature: parseFloat(e.target.value) },
                       })
                     }
                     min={0}
                     max={1}
                     step={0.1}
+                    className="w-full"
                   />
                   <p className="text-xs text-gray-500">0 = Conservateur, 1 = Creatif</p>
                 </div>
@@ -253,17 +255,19 @@ export default function WorkflowConfigPage() {
 
                 <div className="space-y-2">
                   <Label>Seuil de Confiance: {config.ai.confidenceThreshold}</Label>
-                  <Slider
-                    value={[config.ai.confidenceThreshold]}
-                    onValueChange={([value]) =>
+                  <input
+                    type="range"
+                    value={config.ai.confidenceThreshold}
+                    onChange={(e) =>
                       setConfig({
                         ...config,
-                        ai: { ...config.ai, confidenceThreshold: value },
+                        ai: { ...config.ai, confidenceThreshold: parseFloat(e.target.value) },
                       })
                     }
                     min={0}
                     max={1}
                     step={0.05}
+                    className="w-full"
                   />
                 </div>
               </div>

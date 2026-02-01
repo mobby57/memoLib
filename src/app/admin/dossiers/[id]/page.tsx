@@ -73,13 +73,13 @@ interface Dossier {
   messages: Message[]
 }
 
-const STATUT_COLORS: Record<string, string> = {
-  BROUILLON: 'gray',
-  EN_COURS: 'blue',
-  EN_ATTENTE: 'yellow',
-  TERMINE: 'green',
-  REJETE: 'red',
-  ANNULE: 'gray',
+const STATUT_COLORS: Record<string, 'default' | 'info' | 'warning' | 'success' | 'danger'> = {
+  BROUILLON: 'default',
+  EN_COURS: 'info',
+  EN_ATTENTE: 'warning',
+  TERMINE: 'success',
+  REJETE: 'danger',
+  ANNULE: 'default',
 }
 
 const TYPES_LABELS: Record<string, string> = {
@@ -95,14 +95,14 @@ const TYPES_LABELS: Record<string, string> = {
 export default function DossierDetailPage() {
   const { data: session } = useSession()
   const router = useRouter()
-  const params = useParams()
+  const params = useParams() as any
   const { toast } = useToast()
   
   const [dossier, setDossier] = useState<Dossier | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'messages' | 'echeances'>('info')
 
-  const dossierId = params.id as string
+  const dossierId = params?.id as string
 
   useEffect(() => {
     if (dossierId) {
@@ -222,7 +222,7 @@ export default function DossierDetailPage() {
               <Badge variant={STATUT_COLORS[dossier.statut] as any} className="text-sm px-3 py-1">
                 {dossier.statut.replace('_', ' ')}
               </Badge>
-              <Badge variant={dossier.priorite === 'URGENTE' ? 'red' : 'gray'} className="text-sm px-3 py-1">
+              <Badge variant={dossier.priorite === 'URGENTE' ? 'danger' : 'default'} className="text-sm px-3 py-1">
                 {dossier.priorite}
               </Badge>
             </div>
@@ -431,8 +431,8 @@ export default function DossierDetailPage() {
                           </div>
                         </div>
                         <Badge variant={
-                          ech.statut === 'DONE' ? 'green' : 
-                          ech.statut === 'OVERDUE' ? 'red' : 'yellow'
+                          ech.statut === 'DONE' ? 'success' : 
+                          ech.statut === 'OVERDUE' ? 'danger' : 'warning'
                         }>
                           {ech.statut === 'DONE' ? 'Fait' : ech.statut === 'OVERDUE' ? 'En retard' : 'À faire'}
                         </Badge>
