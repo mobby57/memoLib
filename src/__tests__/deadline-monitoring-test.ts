@@ -63,14 +63,13 @@ async function testDeadlineMonitoring() {
       data: {
         tenantId: tenant.id,
         clientId: client.id,
-        reference: `DOS-${Date.now()}`,
         numero: `${Date.now()}`,
-        title: 'Recours OQTF',
-        status: 'en-cours',
-        createdBy: user.id,
+        typeDossier: 'titre_de_sejour',
+        objet: 'Recours OQTF',
+        statut: 'en_cours',
       },
     });
-    console.log(`✅ Dossier: ${dossier.reference}\n`);
+    console.log(`✅ Dossier: ${dossier.numero}\n`);
 
     // Créer deadlines à différentes échéances
     const today = new Date();
