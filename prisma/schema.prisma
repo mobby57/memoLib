@@ -132,6 +132,10 @@ enum EventType {
   SYSTEM_ERROR
   SYSTEM_MAINTENANCE
 
+  // Email Filtering (Phase 3)
+  RULE_APPLIED
+  RULE_SKIPPED
+
   // Workflows
   WORKFLOW_STARTED
   WORKFLOW_COMPLETED
@@ -258,6 +262,7 @@ model Tenant {
   // 🛡️ AI Cost Tracking
   aiUsageLogs        AIUsageLog[]
   aiMonthlySummaries AIMonthlySummary[]
+  filterRules        FilterRule[]
 
   @@index([planId])
   @@index([status])
@@ -435,6 +440,7 @@ model Client {
   legalDeadlines  LegalDeadline[]
   channelMessages ChannelMessage[] @relation("ChannelMessages")
   rgpdConsents    RGPDConsent[]    @relation("RGPDConsents")
+  filterRules     FilterRule[]
 
   @@unique([tenantId, email])
   @@index([tenantId, email])
@@ -486,6 +492,7 @@ model Dossier {
   legalDeadlines  LegalDeadline[]
   proofs          Proof[]
   channelMessages ChannelMessage[] @relation("ChannelMessages")
+  filterRules     FilterRule[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, statut])
@@ -1383,4 +1390,68 @@ model AIMonthlySummary {
   @@index([tenantId])
   @@index([year, month])
   @@map("ai_monthly_summaries")
+}
+
+// ============================================
+// EMAIL FILTERING RULES (Phase 3)
+// ============================================
+
+enum FilterRuleOperator {
+  EQUALS
+  CONTAINS
+  STARTS_WITH
+  ENDS_WITH
+  REGEX
+  IN
+  NOT_IN
+  GREATER_THAN
+  LESS_THAN
+}
+
+enum FilterRuleAction {
+  ASSIGN_DOSSIER
+  ASSIGN_CLIENT
+  SET_CATEGORY
+  SET_URGENCY
+  SET_TAGS
+  MARK_STARRED
+  ARCHIVE
+  NOTIFY_USER
+  TRIGGER_WORKFLOW
+}
+
+model FilterRule {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+
+  priority Int     @default(100)
+  enabled  Boolean @default(true)
+
+  conditions Json
+  actions    Json
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  matchCount    Int       @default(0)
+  lastMatchedAt DateTime?
+  lastMatchedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdBy String?
+  updatedBy String?
+
+  @@index([tenantId, enabled, priority])
+  @@index([dossierId])
+  @@index([clientId])
+  @@map("filter_rules")
 }
