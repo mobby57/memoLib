@@ -25,23 +25,23 @@ const limiters = new Map<RateLimitTier, Ratelimit>();
 function getAdvancedRateLimiter(tier: RateLimitTier): Ratelimit | null {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  
+
   if (!url || !token) return null;
-  
+
   if (limiters.has(tier)) {
     return limiters.get(tier)!;
   }
-  
+
   const config = TIER_LIMITS[tier];
   const redis = new Redis({ url, token });
-  
+
   const limiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(config.requests, config.window),
     prefix: `ratelimit:${tier}`,
     analytics: true,
   });
-  
+
   limiters.set(tier, limiter);
   return limiter;
 }
@@ -62,7 +62,7 @@ export async function checkAdvancedRateLimit(
   tier: RateLimitTier = 'anonymous'
 ): Promise<RateLimitResult> {
   const limiter = getAdvancedRateLimiter(tier);
-  
+
   if (!limiter) {
     return {
       success: true,
@@ -72,9 +72,9 @@ export async function checkAdvancedRateLimit(
       tier,
     };
   }
-  
+
   const result = await limiter.limit(identifier);
-  
+
   return {
     success: result.success,
     limit: result.limit,
@@ -98,14 +98,16 @@ export async function advancedRateLimitMiddleware(
   ) {
     return null;
   }
-  
+
   if (!req.nextUrl.pathname.startsWith('/api')) {
     return null;
   }
-  
+
   let tier: RateLimitTier = 'anonymous';
-  let identifier = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
-  
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  const ip = (req as any).ip || (forwardedFor ? forwardedFor.split(',')[0].trim() : undefined);
+  let identifier = ip || 'unknown';
+
   try {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     if (token) {
@@ -115,16 +117,16 @@ export async function advancedRateLimitMiddleware(
   } catch {
     // Pas de token
   }
-  
+
   const result = await checkAdvancedRateLimit(identifier, tier);
-  
+
   const headers = {
     'X-RateLimit-Limit': result.limit.toString(),
     'X-RateLimit-Remaining': result.remaining.toString(),
     'X-RateLimit-Reset': result.reset.toString(),
     'X-RateLimit-Tier': result.tier,
   };
-  
+
   if (!result.success) {
     return NextResponse.json(
       {
@@ -135,7 +137,7 @@ export async function advancedRateLimitMiddleware(
       { status: 429, headers }
     );
   }
-  
+
   return null;
 }
 
@@ -149,7 +151,7 @@ export function withAdvancedRateLimit(
   return async (req: NextRequest): Promise<NextResponse> => {
     const rateLimitResponse = await advancedRateLimitMiddleware(req);
     if (rateLimitResponse) return rateLimitResponse;
-    
+
     const response = await handler(req);
     return response;
   };
