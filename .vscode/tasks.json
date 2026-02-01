@@ -196,6 +196,24 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Clean: Workspace (Dry Run)",
+      "type": "shell",
+      "command": "bash scripts/cleanup-workspace.sh",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean: Workspace (Apply)",
+      "type": "shell",
+      "command": "bash scripts/cleanup-workspace.sh --apply",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ]
 }
