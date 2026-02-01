@@ -5,7 +5,7 @@
 
 import { publishEvent } from '@/app/api/realtime/events/route';
 import { prisma } from '@/lib/prisma';
-import { sendEmail } from '@/lib/services/emailService';
+import { sendEmail, EmailRecipient, EmailTemplate } from '@/lib/services/emailService';
 
 // ==================== TYPES ====================
 
@@ -386,20 +386,23 @@ export class AlertService {
    */
   private async sendEmailAlert(alert: Alert): Promise<void> {
     // Trouver les destinataires
-    let recipients: string[] = [];
+    let recipients: EmailRecipient[] = [];
 
     if (alert.userId) {
       const user = await prisma.user.findUnique({
         where: { id: alert.userId },
         select: { email: true },
       });
-      if (user?.email) recipients.push(user.email);
+      if (user?.email) recipients.push({ email: user.email, name: user.email });
     } else if (alert.tenantId) {
       const admins = await prisma.user.findMany({
         where: { tenantId: alert.tenantId, role: 'ADMIN' },
         select: { email: true },
       });
-      recipients = admins.map(a => a.email).filter(Boolean) as string[];
+      recipients = admins
+        .map(a => a.email)
+        .filter(Boolean)
+        .map(email => ({ email, name: email }));
     }
 
     if (recipients.length === 0) return;
@@ -411,11 +414,8 @@ export class AlertService {
       emergency: '🚨',
     };
 
-    for (const email of recipients) {
-      await sendEmail({
-        to: email,
-        subject: `${severityEmoji[alert.severity]} [${alert.severity.toUpperCase()}] ${alert.title}`,
-        text: `
+    const subject = `${severityEmoji[alert.severity]} [${alert.severity.toUpperCase()}] ${alert.title}`;
+    const textBody = `
 ${alert.title}
 
 ${alert.message}
@@ -428,9 +428,18 @@ ${alert.data ? `Détails: ${JSON.stringify(alert.data, null, 2)}` : ''}
 
 ---
 memoLib - Système d'alertes
-        `,
-      });
-    }
+`;
+
+    const template: EmailTemplate = {
+      subject,
+      htmlBody: textBody.replace(/\n/g, '<br/>'),
+      textBody,
+    };
+
+    await sendEmail({
+      to: recipients,
+      template,
+    });
   }
 
   /**

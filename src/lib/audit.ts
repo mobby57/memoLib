@@ -62,3 +62,68 @@ export function getAuditContext(request: Request, user: { id: string; email: str
     userAgent: request.headers.get('user-agent') || undefined,
   };
 }
+
+// ============================================
+// Compatibilité legacy (middleware zero-trust)
+// ============================================
+
+type LegacyAuditParams = {
+  action: string;
+  objectType: string;
+  metadata?: Record<string, any>;
+  ipAddress?: string | null;
+  userAgent?: string;
+  success: boolean;
+  errorMessage?: string;
+  tenantId?: string | null;
+  userId?: string;
+  userRole?: string;
+};
+
+export async function logAudit(params: LegacyAuditParams): Promise<void> {
+  const context: AuditContext = {
+    tenantId: params.tenantId || 'unknown',
+    userId: params.userId || 'anonymous',
+    userEmail: 'unknown',
+    userRole: params.userRole || 'UNKNOWN',
+    ipAddress: params.ipAddress || undefined,
+    userAgent: params.userAgent || undefined,
+  };
+
+  await createAuditLog(
+    context,
+    'READ',
+    params.objectType,
+    params.action,
+    undefined,
+    {
+      success: params.success,
+      errorMessage: params.errorMessage,
+      metadata: params.metadata,
+    }
+  );
+}
+
+export const AuditHelpers = {
+  async logUnauthorizedAccess(
+    userId: string,
+    tenantId: string | null,
+    objectType: string,
+    _objectId: string,
+    reason: string,
+    ipAddress?: string
+  ) {
+    const context: AuditContext = {
+      tenantId: tenantId || 'unknown',
+      userId: userId || 'anonymous',
+      userEmail: 'unknown',
+      userRole: 'UNKNOWN',
+      ipAddress,
+    };
+
+    await createAuditLog(context, 'READ', objectType, 'UNAUTHORIZED', undefined, {
+      success: false,
+      errorMessage: reason,
+    });
+  },
+};

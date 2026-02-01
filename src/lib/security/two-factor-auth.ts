@@ -7,7 +7,7 @@
  */
 
 import crypto from 'crypto';
-import { authenticator } from 'otplib';
+import { TOTP, generateSecret } from 'otplib';
 import QRCode from 'qrcode';
 
 /**
@@ -17,9 +17,10 @@ export function generate2FASecret(userEmail: string): {
   secret: string;
   qrCodeUrl: string;
 } {
-  const secret = authenticator.generateSecret();
+  const totp = new TOTP();
+  const secret = generateSecret();
 
-  const otpauthUrl = authenticator.keyuri(userEmail, 'memoLib', secret);
+  const otpauthUrl = totp.keyuri(userEmail, 'memoLib', secret);
 
   return {
     secret,
@@ -45,10 +46,8 @@ export async function generateQRCode(otpauthUrl: string): Promise<string> {
  */
 export function verify2FAToken(token: string, secret: string): boolean {
   try {
-    return authenticator.verify({
-      token,
-      secret,
-    });
+    const totp = new TOTP();
+    return totp.check(token, secret);
   } catch (error) {
     console.error('[2FA] Token verification failed:', error);
     return false;

@@ -11,8 +11,10 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { InformationUnitStatus, InformationUnitSource } from '@prisma/client';
 import crypto from 'crypto';
+
+type InformationUnitStatus = string;
+type InformationUnitSource = string;
 
 // ============================================
 // TYPES
