@@ -147,7 +147,7 @@ export class DeadlineMonitorService {
       where,
       include: {
         dossier: {
-          select: { reference: true, title: true },
+          select: { numero: true, objet: true, statut: true },
         },
         client: {
           select: { firstName: true, lastName: true },
@@ -206,9 +206,9 @@ export class DeadlineMonitorService {
         dossier: {
           select: {
             id: true,
-            reference: true,
-            title: true,
-            status: true,
+            numero: true,
+            objet: true,
+            statut: true,
           },
         },
         client: {
