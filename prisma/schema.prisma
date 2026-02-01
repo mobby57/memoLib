@@ -136,6 +136,9 @@ enum EventType {
   RULE_APPLIED
   RULE_SKIPPED
 
+  // Smart Inbox (Phase 4)
+  FLOW_SCORED
+
   // Workflows
   WORKFLOW_STARTED
   WORKFLOW_COMPLETED
@@ -671,10 +674,31 @@ model Email {
 
   workflows   WorkflowExecution[]
   attachments EmailAttachment[]
+  inboxScore  InboxScore?
 
   @@index([tenantId, isProcessed])
   @@index([tenantId, category])
   @@index([from])
+}
+
+// Smart Inbox Scoring (Phase 4)
+model InboxScore {
+  id      String @id @default(uuid())
+  emailId String @unique
+  email   Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  score Int // 0-100
+
+  factors Json
+
+  model      String @default("llama3.2")
+  confidence String @default("medium")
+
+  calculatedAt DateTime @default(now())
+
+  @@index([score])
+  @@index([calculatedAt])
+  @@map("inbox_scores")
 }
 
 model EmailAttachment {
