@@ -2,18 +2,38 @@ import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
 import EmailProvider from 'next-auth/providers/email';
+import AzureADProvider from 'next-auth/providers/azure-ad';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    // Azure AD Provider pour authentification SSO (avocats CESEDA)
+    ...(process.env.AZURE_CLIENT_ID &&
+    process.env.AZURE_CLIENT_SECRET &&
+    process.env.AZURE_TENANT_ID
+      ? [
+          AzureADProvider({
+            clientId: process.env.AZURE_CLIENT_ID,
+            clientSecret: process.env.AZURE_CLIENT_SECRET,
+            tenantId: process.env.AZURE_TENANT_ID,
+            authorization: {
+              params: {
+                scope: 'openid profile email',
+              },
+            },
+          }),
+        ]
+      : []),
     // Email Provider pour authentification par lien magique
-    ...(process.env.EMAIL_SERVER ? [
-      EmailProvider({
-        server: process.env.EMAIL_SERVER,
-        from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
-      })
-    ] : []),
+    ...(process.env.EMAIL_SERVER
+      ? [
+          EmailProvider({
+            server: process.env.EMAIL_SERVER,
+            from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
+          }),
+        ]
+      : []),
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
@@ -27,46 +47,49 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Identifiants requis');
         }
-        
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
           include: {
-            tenant: { 
-              select: { 
-                id: true, 
-                name: true, 
+            tenant: {
+              select: {
+                id: true,
+                name: true,
                 status: true,
-                plan: { select: { name: true } }
-              } 
+                plan: { select: { name: true } },
+              },
             },
-            client: { 
-              select: { 
-                id: true, 
-                firstName: true, 
-                lastName: true 
-              } 
-            }
+            client: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         });
-        
-        if (!user || !await bcrypt.compare(credentials.password, user.password)) {
+
+        if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
           throw new Error('Identifiants invalides');
         }
-        
+
         if (user.role === 'ADMIN' && (!user.tenant || user.tenant.status !== 'active')) {
           throw new Error('Cabinet inactif');
         }
-        if (user.role === 'CLIENT' && (!user.tenant || user.tenant.status !== 'active' || !user.clientId)) {
+        if (
+          user.role === 'CLIENT' &&
+          (!user.tenant || user.tenant.status !== 'active' || !user.clientId)
+        ) {
           throw new Error('Profil client incomplet');
         }
-        
+
         return {
           id: user.id,
           email: user.email,
@@ -82,18 +105,72 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === 'github') {
+      // Handle Azure AD login
+      if (account?.provider === 'azure-ad') {
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
-          include: { tenant: { select: { id: true, name: true, status: true, plan: { select: { name: true } } } } }
+          include: {
+            tenant: {
+              select: { id: true, name: true, status: true, plan: { select: { name: true } } },
+            },
+          },
         });
 
         if (existingUser) {
           await prisma.user.update({
             where: { id: existingUser.id },
-            data: { name: user.name || existingUser.name, avatar: user.image, lastLogin: new Date() }
+            data: {
+              name: user.name || existingUser.name,
+              avatar: user.image,
+              lastLogin: new Date(),
+            },
           });
-          
+
+          (user as any).role = existingUser.role;
+          (user as any).tenantId = existingUser.tenantId;
+          (user as any).tenantName = existingUser.tenant?.name;
+          (user as any).tenantPlan = existingUser.tenant?.plan?.name;
+          (user as any).clientId = existingUser.clientId;
+          (user as any).id = existingUser.id;
+        } else {
+          const newUser = await prisma.user.create({
+            data: {
+              email: user.email!,
+              name: user.name || 'Utilisateur Azure AD',
+              password: '', // No password for SSO users
+              role: 'CLIENT',
+              avatar: user.image,
+              status: 'active',
+              lastLogin: new Date(),
+            },
+          });
+
+          (user as any).role = 'CLIENT';
+          (user as any).id = newUser.id;
+        }
+        return true;
+      }
+
+      if (account?.provider === 'github') {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+          include: {
+            tenant: {
+              select: { id: true, name: true, status: true, plan: { select: { name: true } } },
+            },
+          },
+        });
+
+        if (existingUser) {
+          await prisma.user.update({
+            where: { id: existingUser.id },
+            data: {
+              name: user.name || existingUser.name,
+              avatar: user.image,
+              lastLogin: new Date(),
+            },
+          });
+
           (user as any).role = existingUser.role;
           (user as any).tenantId = existingUser.tenantId;
           (user as any).tenantName = existingUser.tenant?.name;
@@ -110,7 +187,7 @@ export const authOptions: NextAuthOptions = {
               avatar: user.image,
               status: 'active',
               lastLogin: new Date(),
-            }
+            },
           });
 
           (user as any).role = 'CLIENT';
@@ -134,14 +211,14 @@ export const authOptions: NextAuthOptions = {
         token.clientId = (user as any).clientId;
         token.provider = account?.provider;
       }
-      
+
       // Sauvegarder le token GitHub pour user-to-server auth
       if (account?.provider === 'github') {
         token.githubAccessToken = account.access_token;
         token.githubRefreshToken = account.refresh_token;
         token.githubTokenExpiry = account.expires_at;
       }
-      
+
       return token;
     },
     async session({ session, token }) {
@@ -153,12 +230,12 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).tenantPlan = token.tenantPlan;
         (session.user as any).clientId = token.clientId;
         (session.user as any).provider = token.provider;
-        
+
         // Tokens GitHub pour user-to-server auth
         (session as any).githubAccessToken = token.githubAccessToken;
         (session as any).githubRefreshToken = token.githubRefreshToken;
         (session as any).githubTokenExpiry = token.githubTokenExpiry;
-        
+
         (session.user as any).permissions = {
           canManageTenants: token.role === 'SUPER_ADMIN',
           canManageClients: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
@@ -185,9 +262,10 @@ export const authOptions: NextAuthOptions = {
   },
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === 'production' 
-        ? '__Secure-next-auth.session-token' 
-        : 'next-auth.session-token',
+      name:
+        process.env.NODE_ENV === 'production'
+          ? '__Secure-next-auth.session-token'
+          : 'next-auth.session-token',
       options: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -197,9 +275,10 @@ export const authOptions: NextAuthOptions = {
       },
     },
     callbackUrl: {
-      name: process.env.NODE_ENV === 'production' 
-        ? '__Secure-next-auth.callback-url' 
-        : 'next-auth.callback-url',
+      name:
+        process.env.NODE_ENV === 'production'
+          ? '__Secure-next-auth.callback-url'
+          : 'next-auth.callback-url',
       options: {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -207,9 +286,10 @@ export const authOptions: NextAuthOptions = {
       },
     },
     csrfToken: {
-      name: process.env.NODE_ENV === 'production' 
-        ? '__Host-next-auth.csrf-token' 
-        : 'next-auth.csrf-token',
+      name:
+        process.env.NODE_ENV === 'production'
+          ? '__Host-next-auth.csrf-token'
+          : 'next-auth.csrf-token',
       options: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
