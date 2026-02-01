@@ -7,6 +7,8 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { NextRequest, NextResponse } from 'next/server';
+import { eventLogService } from '@/lib/services/event-log.service';
+import { EventType, ActorType } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,6 +63,9 @@ export async function POST(request: NextRequest) {
       category = analysis.category;
       urgency = analysis.urgency;
       sentiment = analysis.sentiment;
+
+      // RULE-005: Tracer classification IA (après email créé)
+      // Note: EventLog sera créé après création email pour avoir entityId
     } catch (aiError) {
       logger.error('[EMAIL] Erreur analyse IA:', { error: aiError });
       // Continuer sans analyse IA
@@ -85,6 +90,42 @@ export async function POST(request: NextRequest) {
         receivedAt: new Date(),
       },
     });
+
+    // RULE-005: Tracer réception flux email
+    await eventLogService.createEventLog({
+      eventType: EventType.FLOW_RECEIVED,
+      entityType: 'email',
+      entityId: email.id,
+      actorType: ActorType.SYSTEM,
+      tenantId: tenant.id,
+      metadata: {
+        source: 'incoming-webhook',
+        from,
+        to,
+        subject,
+        category,
+        urgency,
+        clientId: client?.id,
+        hasAttachments: attachments && attachments.length > 0,
+      },
+    });
+
+    // RULE-005: Tracer classification IA si analyse réussie
+    if (aiAnalysis) {
+      await eventLogService.createEventLog({
+        eventType: EventType.FLOW_CLASSIFIED,
+        entityType: 'email',
+        entityId: email.id,
+        actorType: ActorType.AI,
+        tenantId: tenant.id,
+        metadata: {
+          category,
+          urgency,
+          sentiment,
+          confidence: 'high', // Peut être ajouté depuis analysis
+        },
+      });
+    }
 
     // Creer les pieces jointes si presentes
     if (attachments && attachments.length > 0) {
