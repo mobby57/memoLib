@@ -1,7 +1,7 @@
 /**
  * DocumentOCRService - Phase 7
  * Extraction texte depuis PDFs et images
- * 
+ *
  * Note: Version simplifiée pour demo
  * En production: intégrer Tesseract.js, AWS Textract, ou Azure Document Intelligence
  */
@@ -45,7 +45,7 @@ export class DocumentOCRService {
   private async extractTextFromBuffer(buffer: Buffer, mimeType: string): Promise<OCRResult> {
     // Simulation: pour demo, retourner texte factice basé sur taille fichier
     // En prod: utiliser Tesseract.js, AWS Textract, Azure Document Intelligence
-    
+
     const simulatedText = `
 RÉPUBLIQUE FRANÇAISE
 AU NOM DU PEUPLE FRANÇAIS
@@ -107,7 +107,8 @@ Fait à Paris, le 15 janvier 2026
    * Extraire dates (format français)
    */
   private extractDates(text: string): string[] {
-    const dateRegex = /\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})/gi;
+    const dateRegex =
+      /\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})/gi;
     const matches = text.match(dateRegex);
     return matches ? [...new Set(matches)] : [];
   }
@@ -120,7 +121,7 @@ Fait à Paris, le 15 janvier 2026
     const matches = text.match(nameRegex);
     const filtered = matches
       ? matches.filter(
-          (name) =>
+          name =>
             name.length > 2 &&
             ![
               'Monsieur',
@@ -179,10 +180,7 @@ Fait à Paris, le 15 janvier 2026
       }
 
       // Extraction OCR
-      const ocrResult = await this.extractTextFromBuffer(
-        fileBuffer || Buffer.from(''),
-        mimeType
-      );
+      const ocrResult = await this.extractTextFromBuffer(fileBuffer || Buffer.from(''), mimeType);
 
       // Sauvegarder résultats en DB
       await this.prisma.document.update({
@@ -295,7 +293,7 @@ Fait à Paris, le 15 janvier 2026
     });
 
     // Ajouter highlights (simple pour demo)
-    const results = documents.map((doc) => {
+    const results = documents.map(doc => {
       const text = doc.ocrText || '';
       const lowerText = text.toLowerCase();
       const lowerQuery = query.toLowerCase();
