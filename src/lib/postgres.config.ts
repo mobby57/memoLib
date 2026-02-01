@@ -1,6 +1,6 @@
 ﻿/**
  *  CONFIGURATION POSTGRESQL AVANCeE - PRODUCTION READY
- * 
+ *
  * Features:
  * - Connection pooling optimise
  * - SSL/TLS automatique en production
@@ -9,7 +9,7 @@
  * - Query logging avance
  * - Metriques de performance
  * - Gestion multi-environnement
- * 
+ *
  * Compatibilite:
  * - Vercel Postgres
  * - Neon.tech
@@ -76,13 +76,13 @@ function detectEnvironment(): Environment {
 
 function detectProvider(): DatabaseProvider {
   const url = process.env.DATABASE_URL || '';
-  
+
   if (url.includes('vercel-storage.com')) return 'vercel';
   if (url.includes('neon.tech') || url.includes('neon.')) return 'neon';
   if (url.includes('supabase.co')) return 'supabase';
   if (url.includes('rds.amazonaws.com')) return 'aws';
   if (url.includes('postgres.database.azure.com')) return 'azure';
-  
+
   return 'local';
 }
 
@@ -104,7 +104,7 @@ const CONFIG: Record<Environment, Partial<PostgresConfig>> = {
     retries: 3,
     retryDelay: 1000,
   },
-  
+
   production: {
     maxConnections: 20,
     connectionTimeout: 5000,
@@ -115,7 +115,7 @@ const CONFIG: Record<Environment, Partial<PostgresConfig>> = {
     retries: 5,
     retryDelay: 2000,
   },
-  
+
   test: {
     maxConnections: 2,
     connectionTimeout: 5000,
@@ -138,31 +138,31 @@ const PROVIDER_OPTIMIZATIONS: Record<DatabaseProvider, Partial<PostgresConfig>> 
     connectionTimeout: 3000,
     ssl: { rejectUnauthorized: false }, // Vercel gere le certificat
   },
-  
+
   neon: {
     maxConnections: 15,
     connectionTimeout: 5000,
     ssl: { rejectUnauthorized: true },
   },
-  
+
   supabase: {
     maxConnections: 15,
     connectionTimeout: 5000,
     ssl: { rejectUnauthorized: true },
   },
-  
+
   aws: {
     maxConnections: 20,
     connectionTimeout: 5000,
     ssl: { rejectUnauthorized: true },
   },
-  
+
   azure: {
     maxConnections: 20,
     connectionTimeout: 5000,
     ssl: { rejectUnauthorized: true },
   },
-  
+
   local: {
     maxConnections: 5,
     connectionTimeout: 10000,
@@ -184,7 +184,7 @@ interface QueryRecord {
 class PostgresMetrics {
   private queries: QueryRecord[] = [];
   private readonly maxRecords = 1000;
-  
+
   record(query: string, duration: number, success: boolean = true) {
     this.queries.push({
       query: query.substring(0, 200),
@@ -192,13 +192,13 @@ class PostgresMetrics {
       timestamp: new Date(),
       success,
     });
-    
+
     // Garder seulement les N dernieres queries
     if (this.queries.length > this.maxRecords) {
       this.queries = this.queries.slice(-this.maxRecords);
     }
   }
-  
+
   getMetrics(): QueryMetrics {
     if (this.queries.length === 0) {
       return {
@@ -211,10 +211,10 @@ class PostgresMetrics {
         p99Duration: 0,
       };
     }
-    
+
     const durations = this.queries.map(q => q.duration).sort((a, b) => a - b);
     const successfulQueries = this.queries.filter(q => q.success);
-    
+
     return {
       totalQueries: this.queries.length,
       slowQueries: this.queries.filter(q => q.duration > 1000).length,
@@ -225,14 +225,14 @@ class PostgresMetrics {
       p99Duration: durations[Math.floor(durations.length * 0.99)],
     };
   }
-  
+
   getSlowQueries(threshold: number = 1000): QueryRecord[] {
     return this.queries
       .filter(q => q.duration > threshold)
       .sort((a, b) => b.duration - a.duration)
       .slice(0, 10);
   }
-  
+
   reset() {
     this.queries = [];
   }
@@ -254,10 +254,10 @@ async function retryWithBackoff<T>(
     return await fn();
   } catch (error) {
     if (retries <= 0) throw error;
-    
+
     console.warn(`[PostgreSQL] Retry attempt, ${retries} left. Waiting ${delay}ms...`);
     await new Promise(resolve => setTimeout(resolve, delay));
-    
+
     return retryWithBackoff(fn, retries - 1, delay * backoffMultiplier, backoffMultiplier);
   }
 }
@@ -273,7 +273,7 @@ const config = {
 };
 
 // Log de configuration
-const prismaClientConfig: Prisma.PrismaClientOptions = {
+const prismaClientConfig: Parameters<typeof PrismaClient>[0] = {
   datasources: {
     db: {
       url: config.connectionString,
@@ -294,10 +294,20 @@ const prismaWithExtensions = new PrismaClient(prismaClientConfig).$extends({
   name: 'postgres-metrics',
   query: {
     $allModels: {
-      async $allOperations({ model, operation, args, query }) {
+      async $allOperations({
+        model,
+        operation,
+        args,
+        query,
+      }: {
+        model: string;
+        operation: string;
+        args: any;
+        query: (args: any) => Promise<any>;
+      }) {
         const start = performance.now();
         let success = true;
-        
+
         try {
           const result = await query(args);
           return result;
@@ -307,7 +317,7 @@ const prismaWithExtensions = new PrismaClient(prismaClientConfig).$extends({
         } finally {
           const duration = performance.now() - start;
           metrics.record(`${model}.${operation}`, duration, success);
-          
+
           // Log des requetes lentes
           if (duration > 1000 && config.logging) {
             console.warn(
@@ -326,8 +336,7 @@ const globalForPrisma = global as unknown as {
   postgresMetrics: PostgresMetrics;
 };
 
-export const postgres =
-  globalForPrisma.prisma || prismaWithExtensions;
+export const postgres = globalForPrisma.prisma || prismaWithExtensions;
 
 if (ENV !== 'production') {
   globalForPrisma.prisma = postgres;
@@ -340,34 +349,36 @@ if (ENV !== 'production') {
 
 export async function healthCheck(): Promise<HealthCheckResult> {
   const start = performance.now();
-  
+
   try {
     // Test de connexion basique
     await postgres.$queryRaw`SELECT 1`;
-    
+
     // Recuperer la version PostgreSQL
     const versionResult = await postgres.$queryRaw<{ version: string }[]>`
       SELECT version() as version
     `;
     const version = versionResult[0]?.version || 'unknown';
-    
+
     // Statistiques de connexion
-    const statsResult = await postgres.$queryRaw<{
-      active: bigint;
-      idle: bigint;
-      total: bigint;
-    }[]>`
-      SELECT 
+    const statsResult = await postgres.$queryRaw<
+      {
+        active: bigint;
+        idle: bigint;
+        total: bigint;
+      }[]
+    >`
+      SELECT
         COUNT(*) FILTER (WHERE state = 'active') as active,
         COUNT(*) FILTER (WHERE state = 'idle') as idle,
         COUNT(*) as total
       FROM pg_stat_activity
       WHERE datname = current_database()
     `;
-    
+
     const stats = statsResult[0] || { active: 0n, idle: 0n, total: 0n };
     const latency = performance.now() - start;
-    
+
     return {
       healthy: true,
       latency,
@@ -381,7 +392,7 @@ export async function healthCheck(): Promise<HealthCheckResult> {
     };
   } catch (error) {
     const latency = performance.now() - start;
-    
+
     return {
       healthy: false,
       latency,
@@ -401,9 +412,9 @@ export async function optimizePostgres() {
   try {
     // Analyse des tables pour le planner
     await postgres.$executeRawUnsafe('ANALYZE');
-    
+
     console.log('[PostgreSQL]  Database optimized (ANALYZE complete)');
-    
+
     return { success: true };
   } catch (error) {
     console.error('[PostgreSQL]  Optimization failed:', error);
@@ -449,21 +460,21 @@ export function getConfig() {
 // ============================================
 
 if (config.logging && postgres instanceof PrismaClient) {
-  (postgres as any).$on('query', (e: Prisma.QueryEvent) => {
+  (postgres as any).$on('query', (e: { duration: number; query: string }) => {
     const duration = e.duration;
     const color = duration > 1000 ? '\x1b[31m' : duration > 100 ? '\x1b[33m' : '\x1b[32m';
     const reset = '\x1b[0m';
-    
+
     console.log(
       `${color}[PostgreSQL Query]${reset} ${duration}ms - ${e.query.substring(0, 80)}...`
     );
   });
-  
-  (postgres as any).$on('error', (e: Prisma.LogEvent) => {
+
+  (postgres as any).$on('error', (e: { message: string }) => {
     console.error('\x1b[31m[PostgreSQL Error]\x1b[0m', e.message);
   });
-  
-  (postgres as any).$on('warn', (e: Prisma.LogEvent) => {
+
+  (postgres as any).$on('warn', (e: { message: string }) => {
     console.warn('\x1b[33m[PostgreSQL Warning]\x1b[0m', e.message);
   });
 }
@@ -474,13 +485,13 @@ if (config.logging && postgres instanceof PrismaClient) {
 
 console.log(`
 
-   POSTGRESQL CONFIGURATION                              
+   POSTGRESQL CONFIGURATION
 
-  Environment: ${ENV.padEnd(43)} 
-  Provider:    ${PROVIDER.padEnd(43)} 
-  Pool Size:   ${String(config.maxConnections).padEnd(43)} 
-  SSL:         ${(typeof config.ssl === 'boolean' ? (config.ssl ? 'enabled' : 'disabled') : 'enabled').padEnd(43)} 
-  Logging:     ${(config.logging ? 'enabled' : 'disabled').padEnd(43)} 
+  Environment: ${ENV.padEnd(43)}
+  Provider:    ${PROVIDER.padEnd(43)}
+  Pool Size:   ${String(config.maxConnections).padEnd(43)}
+  SSL:         ${(typeof config.ssl === 'boolean' ? (config.ssl ? 'enabled' : 'disabled') : 'enabled').padEnd(43)}
+  Logging:     ${(config.logging ? 'enabled' : 'disabled').padEnd(43)}
 
 `);
 

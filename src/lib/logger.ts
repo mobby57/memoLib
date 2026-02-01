@@ -47,6 +47,8 @@ interface LogEntry {
   level: LogLevel;
   message: string;
   context?: Record<string, any>;
+  module?: string;
+  action?: string;
   userId?: string;
   tenantId?: string;
   dossierId?: string;

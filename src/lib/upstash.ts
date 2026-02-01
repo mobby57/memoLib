@@ -223,7 +223,8 @@ export const sortedSet = {
    * Ajouter un membre avec un score
    */
   async add(setName: string, member: string, score: number): Promise<number> {
-    return await redis.zadd(setName, { score, member })
+    const result = await redis.zadd(setName, { score, member })
+    return result ?? 0
   },
 
   /**
