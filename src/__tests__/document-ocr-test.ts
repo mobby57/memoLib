@@ -166,8 +166,12 @@ async function testDocumentOCR() {
     console.log(`✅ Events DOCUMENT_OCR_PROCESSED: ${ocrEvents.length}`);
     ocrEvents.forEach((e: any, idx: number) => {
       const meta = e.metadata as any;
-      console.log(`   ${idx + 1}. ${meta.filename}: ${meta.textLength} chars, confidence ${(meta.confidence * 100).toFixed(1)}%`);
-      console.log(`      Entities: ${meta.entitiesFound.dates} dates, ${meta.entitiesFound.names} names, ${meta.entitiesFound.emails} emails`);
+      console.log(
+        `   ${idx + 1}. ${meta.filename}: ${meta.textLength} chars, confidence ${(meta.confidence * 100).toFixed(1)}%`
+      );
+      console.log(
+        `      Entities: ${meta.entitiesFound.dates} dates, ${meta.entitiesFound.names} names, ${meta.entitiesFound.emails} emails`
+      );
     });
     console.log('');
 
@@ -302,7 +306,7 @@ async function testDocumentOCR() {
     ];
 
     let passed = 0;
-    checks.forEach((check) => {
+    checks.forEach(check => {
       if (check.condition) {
         console.log(`✅ ${check.name}`);
         passed++;
