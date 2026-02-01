@@ -17,6 +17,13 @@
   // ===== TYPESCRIPT / VITE =====
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "priorityPollingInterval",
+    "watchDirectory": "useFsEvents",
+    "fallbackPolling": "dynamicPriority"
+  },
   "javascript.preferences.importModuleSpecifier": "relative",
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.updateImportsOnFileMove.enabled": "always",
@@ -109,7 +116,11 @@
     "**/dist/**": true,
     "**/venv/**": true,
     "**/.git/objects/**": true,
-    "**/coverage/**": true
+    "**/coverage/**": true,
+    "**/.next/**": true,
+    "**/__mocks__/**": true,
+    "**/.turbo/**": true,
+    "**/.vercel/**": true
   },
 
   // ===== DOCKER =====
