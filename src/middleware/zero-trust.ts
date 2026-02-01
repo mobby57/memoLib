@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { logAudit, AuditHelpers } from '@/lib/audit';
+import { createAuditLog, getAuditContext } from '@/lib/audit';
 
 /**
  * Extraction du contexte de la requete
