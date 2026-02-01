@@ -194,7 +194,7 @@ export default function ClientDetailPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-bold">{facture.montant}€</p>
-                        <Badge variant={facture.statut === 'payee' ? 'default' : 'secondary'}>
+                        <Badge variant={facture.statut === 'payee' ? 'success' : 'warning'}>
                           {facture.statut}
                         </Badge>
                       </div>
