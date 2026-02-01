@@ -7,6 +7,7 @@
 Gérez **3x plus de dossiers CESEDA** sans sacrifier la qualité juridique.
 
 **3 Piliers:**
+
 1. **IA Prédictive CESEDA** - 87% précision, 2 min vs 3h recherche
 2. **Alertes Délais** - Zéro OQTF manquée (SMS/Email/WhatsApp)
 3. **Génération Documents IA** - Pre-draft en 30 sec, avocat valide
@@ -14,7 +15,8 @@ Gérez **3x plus de dossiers CESEDA** sans sacrifier la qualité juridique.
 ## 🚀 Installation (5 minutes)
 
 ### Prérequis
-- Node.js 18+ 
+
+- Node.js 18+
 - Python 3.9+
 - PostgreSQL 14+
 
@@ -72,6 +74,7 @@ memoLib/
 ## 🔑 Variables Essentielles
 
 **Minimum pour démarrer:**
+
 ```env
 DATABASE_URL="postgresql://user:pass@localhost:5432/memolib"
 NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
@@ -79,6 +82,7 @@ NEXTAUTH_URL="http://localhost:3000"
 ```
 
 **Production (CESEDA complet):**
+
 ```env
 # Azure AD (SSO avocats)
 AZURE_AD_CLIENT_ID="..."
@@ -133,6 +137,7 @@ npx prisma studio              # Interface DB graphique → http://localhost:555
 ## 🚢 Déploiement Production
 
 **Option 1: Vercel (Recommandé - 10 min)**
+
 ```bash
 npm i -g vercel
 vercel --prod
@@ -140,6 +145,7 @@ vercel --prod
 ```
 
 **Option 2: Railway (Ultra-rapide - 8 min)**
+
 ```bash
 railway login
 railway init
@@ -147,6 +153,7 @@ railway up
 ```
 
 **Option 3: Azure (Enterprise - 15 min)**
+
 ```bash
 az webapp up --name memolib-ceseda --runtime "NODE:18-lts"
 ```
@@ -170,18 +177,21 @@ Voir [DEPLOY_SIMPLE.md](DEPLOY_SIMPLE.md) pour détails complets.
 ## 🐛 Problèmes Courants
 
 **TypeScript build lent?**
+
 ```bash
 # Déjà optimisé avec 16GB RAM allocation
 NODE_OPTIONS=--max-old-space-size=16384 npx tsc --noEmit
 ```
 
 **Prisma schema errors?**
+
 ```bash
 npx prisma generate
 npx prisma migrate dev
 ```
 
 **Backend Flask ne démarre pas?**
+
 ```bash
 export FLASK_APP=backend-python/app.py
 export FLASK_ENV=development
