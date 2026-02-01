@@ -206,7 +206,7 @@ export const SENSITIVE_FIELDS = {
   document: [
     'contenu', // If storing document content in DB
   ],
-} as const;
+};
 
 /**
  * Example: Encrypt client data before saving

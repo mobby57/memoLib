@@ -7,7 +7,7 @@
  */
 
 import crypto from 'crypto';
-import { authenticator } from '@otplib/preset-default';
+import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 
 /**
