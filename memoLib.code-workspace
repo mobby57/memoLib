@@ -68,6 +68,21 @@
       "**/.next/**": true,
       "**/venv/**": true,
     },
+    "chat.tools.terminal.autoApprove": {
+      "docker ps": true,
+      "/^cd src/frontend && npm view @sentry/nextjs versions --json \\| tail -20$/": {
+        "approve": true,
+        "matchCommandLine": true,
+      },
+      "/^mv /workspaces/memolib/src/__tests__/services/event-log\\.service\\.test\\.ts /workspaces/memolib/src/frontend/src/__tests__/services/event-log\\.service\\.test\\.ts && mkdir -p /workspaces/memolib/src/frontend/src/__tests__/services && mv /workspaces/memolib/src/__tests__/services/event-log\\.service\\.test\\.ts /workspaces/memolib/src/frontend/src/__tests__/services/ 2>&1 \\|\\| echo \"Déjà déplacé\"$/": {
+        "approve": true,
+        "matchCommandLine": true,
+      },
+      "/^mkdir -p /workspaces/memolib/src/frontend/src/__tests__/services && cp /workspaces/memolib/src/__tests__/services/event-log\\.service\\.test\\.ts /workspaces/memolib/src/frontend/src/__tests__/services/event-log\\.service\\.test\\.ts && ls -la /workspaces/memolib/src/frontend/src/__tests__/services/$/": {
+        "approve": true,
+        "matchCommandLine": true,
+      },
+    },
   },
   "extensions": {
     "recommendations": [
