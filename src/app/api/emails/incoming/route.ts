@@ -8,6 +8,7 @@ import { prisma } from '@/lib/prisma';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { NextRequest, NextResponse } from 'next/server';
 import { eventLogService } from '@/lib/services/event-log.service';
+import { filterRuleService } from '@/lib/services/filter-rule.service';
 import { EventType, ActorType } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
@@ -125,6 +126,13 @@ export async function POST(request: NextRequest) {
           confidence: 'high', // Peut être ajouté depuis analysis
         },
       });
+    }
+
+    // Phase 3: Évaluer et appliquer règles de filtrage
+    const ruleMatches = await filterRuleService.evaluateAllRules(email, tenant.id);
+    for (const match of ruleMatches) {
+      await filterRuleService.applyActions(email.id, match.rule, tenant.id);
+      logger.info(`[FILTER-RULE] Appliquée: ${match.rule.name} sur email ${email.id}`);
     }
 
     // Creer les pieces jointes si presentes
