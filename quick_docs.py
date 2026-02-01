@@ -12,7 +12,7 @@ from pathlib import Path
 
 def quick_start():
     """Démarrage rapide de la documentation"""
-    print("🚀 IA Poste Manager - Documentation Quick Start")
+    print("🚀 MemoLib Assistant - Documentation Quick Start")
     print("=" * 50)
     
     # Vérifier si la documentation existe

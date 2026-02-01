@@ -1,6 +1,6 @@
 # MemoLib CESEDA - Démarrage Rapide ⚡
 
-> **Première IA juridique CESEDA qui respecte le serment d'avocat**
+> **Premier Assistant Juridique CESEDA qui respecte le serment d'avocat**
 
 ## 🎯 Vision
 
@@ -8,9 +8,9 @@ Gérez **3x plus de dossiers CESEDA** sans sacrifier la qualité juridique.
 
 **3 Piliers:**
 
-1. **IA Prédictive CESEDA** - 87% précision, 2 min vs 3h recherche
+1. **Analyse Prédictive CESEDA** - 87% précision, 2 min vs 3h recherche
 2. **Alertes Délais** - Zéro OQTF manquée (SMS/Email/WhatsApp)
-3. **Génération Documents IA** - Pre-draft en 30 sec, avocat valide
+3. **Génération Documents Assistée** - Pre-draft en 30 sec, avocat valide
 
 ## 🚀 Installation (5 minutes)
 
@@ -65,7 +65,7 @@ memoLib/
 │   │   └── api/           # Routes API (auth, webhooks, AI)
 │   └── lib/               # Services, hooks, utils
 ├── backend-python/        # Flask backend (dev)
-│   └── app.py             # Endpoints IA, CESEDA, emails
+│   └── app.py             # Endpoints d'analyse, CESEDA, emails
 ├── src/backend/           # FastAPI backend (alternative)
 ├── prisma/                # Schema DB
 └── docs/                  # Documentation détaillée
@@ -89,7 +89,7 @@ AZURE_AD_CLIENT_ID="..."
 AZURE_AD_CLIENT_SECRET="..."
 AZURE_AD_TENANT_ID="..."
 
-# IA
+# Analyse
 OPENAI_API_KEY="sk-..."  # GPT-4 pour génération documents
 
 # Alertes
