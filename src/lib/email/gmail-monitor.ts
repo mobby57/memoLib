@@ -1,6 +1,8 @@
 import { google } from 'googleapis';
 import { emailMonitor } from './email-monitor-service';
 import { prisma } from '@/lib/prisma';
+import { createEventLog } from '@/lib/services/event-log.service';
+import { EventType, ActorType } from '@prisma/client';
 
 export class GmailMonitor {
   private gmail: any;
@@ -51,6 +53,20 @@ export class GmailMonitor {
     });
 
     const rawEmail = Buffer.from(msg.data.raw, 'base64').toString('utf-8');
+        // RULE-005: Tracer réception flux
+        await createEventLog({
+          eventType: EventType.FLOW_RECEIVED,
+          entityType: 'email',
+          entityId: messageId,
+          actorType: ActorType.SYSTEM,
+          tenantId,
+          metadata: {
+            source: 'gmail',
+            messageId,
+            receivedAt: new Date().toISOString(),
+          },
+        });
+
     
     // Traiter avec le service email
     const result = await emailMonitor.processEmail(tenantId, rawEmail);

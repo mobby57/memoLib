@@ -1,6 +1,6 @@
 /**
  * AuditTimeline Component
- * 
+ *
  * Affiche la timeline chronologique des événements pour une entité
  * Implémentation UI pour RULE-005 (exhaustivité) et RULE-006 (checksums)
  */
@@ -105,11 +105,7 @@ function formatTimestamp(timestamp: Date | string): string {
 // COMPONENT
 // ============================================
 
-export function AuditTimeline({
-  entityType,
-  entityId,
-  className = '',
-}: AuditTimelineProps) {
+export function AuditTimeline({ entityType, entityId, className = '' }: AuditTimelineProps) {
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,9 +114,7 @@ export function AuditTimeline({
     async function fetchTimeline() {
       try {
         setLoading(true);
-        const res = await fetch(
-          `/api/audit/timeline/${entityType}/${entityId}?limit=100`
-        );
+        const res = await fetch(`/api/audit/timeline/${entityType}/${entityId}?limit=100`);
 
         if (!res.ok) {
           throw new Error('Erreur chargement timeline');
@@ -157,11 +151,7 @@ export function AuditTimeline({
   }
 
   if (timeline.length === 0) {
-    return (
-      <div className={`text-gray-500 py-4 ${className}`}>
-        Aucun événement enregistré.
-      </div>
-    );
+    return <div className={`text-gray-500 py-4 ${className}`}>Aucun événement enregistré.</div>;
   }
 
   return (
@@ -177,12 +167,9 @@ export function AuditTimeline({
         {/* Événements */}
         <div className="space-y-6">
           {timeline.map((event, index) => {
-            const Icon =
-              EVENT_ICONS[event.eventType] || EVENT_ICONS.DEFAULT;
-            const colorClass =
-              EVENT_COLORS[event.eventType] || EVENT_COLORS.DEFAULT;
-            const label =
-              EVENT_LABELS[event.eventType] || event.eventType;
+            const Icon = EVENT_ICONS[event.eventType] || EVENT_ICONS.DEFAULT;
+            const colorClass = EVENT_COLORS[event.eventType] || EVENT_COLORS.DEFAULT;
+            const label = EVENT_LABELS[event.eventType] || event.eventType;
 
             return (
               <div key={event.id} className="relative flex items-start">
@@ -199,9 +186,7 @@ export function AuditTimeline({
                     {/* Header */}
                     <div className="flex items-start justify-between">
                       <div>
-                        <h4 className="font-medium text-gray-900">
-                          {label}
-                        </h4>
+                        <h4 className="font-medium text-gray-900">{label}</h4>
                         <p className="text-sm text-gray-500 mt-1">
                           {formatTimestamp(event.timestamp)}
                         </p>
@@ -213,8 +198,8 @@ export function AuditTimeline({
                           event.actorType === 'USER'
                             ? 'bg-blue-100 text-blue-700'
                             : event.actorType === 'AI'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-gray-100 text-gray-700'
+                              ? 'bg-purple-100 text-purple-700'
+                              : 'bg-gray-100 text-gray-700'
                         }`}
                       >
                         {event.actorType}
