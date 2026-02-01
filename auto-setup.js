@@ -11,7 +11,7 @@ const { randomBytes } = require('crypto')
 
 class AutoSetup {
   constructor() {
-    this.log('🚀 IA Poste Manager - Auto Setup')
+    this.log('🚀 MemoLib Assistant - Auto Setup')
   }
 
   log(message) {
@@ -47,7 +47,7 @@ class AutoSetup {
     this.log('📝 Configuration environnement...')
     
     if (!existsSync('.env.local')) {
-      const envContent = `# IA Poste Manager - Configuration Auto-générée
+      const envContent = `# MemoLib Assistant - Configuration Auto-générée
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=${this.generateSecret()}
 DATABASE_URL="file:./dev.db"
@@ -57,7 +57,7 @@ TEST_SUPERADMIN_PASSWORD=${randomBytes(8).toString('hex')}
 TEST_ADMIN_PASSWORD=${randomBytes(8).toString('hex')}
 TEST_CLIENT_PASSWORD=${randomBytes(8).toString('hex')}
 
-# IA Configuration
+# Analyse Configuration
 OLLAMA_URL=http://localhost:11434
 OLLAMA_MODEL=llama3.2:latest
 `

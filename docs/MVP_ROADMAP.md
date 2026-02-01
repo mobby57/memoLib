@@ -29,7 +29,7 @@ Livrer un produit **minimal mais complet** permettant de :
 | ------------ | --------- | ----------------- | ------------------------------------ |
 | **Phase 0**  | J-7 → J0  | Préparation       | Environnements, design DB, maquettes |
 | **Phase 1**  | J1 → J30  | Fondations        | EventLog, normalisation, hash        |
-| **Phase 2**  | J31 → J60 | Intelligence      | IA suggestions, validation humaine   |
+| **Phase 2**  | J31 → J60 | Analyse           | Suggestions automatiques, validation humaine   |
 | **Phase 3**  | J61 → J90 | Conformité        | Audit, métriques, export PDF         |
 | **Post-MVP** | J91+      | Industrialisation | Scaling, multi-canal                 |
 
@@ -199,9 +199,9 @@ Livrer un produit **minimal mais complet** permettant de :
 
 ## 🧠 PHASE 2 : INTELLIGENCE (J31 → J60)
 
-**Objectif** : Suggestions IA + validation humaine.
+**Objectif** : Suggestions automatiques + validation humaine.
 
-### Semaine 5 (J31-J37) : Classification IA
+### Semaine 5 (J31-J37) : Classification Automatique
 
 #### Backend
 
@@ -215,7 +215,7 @@ Livrer un produit **minimal mais complet** permettant de :
 
 #### Frontend
 
-- [ ] **Badge confiance** : Afficher score IA (0-100%)
+- [ ] **Badge confiance** : Afficher score (0-100%)
   - Couleur : vert (>90%), orange (70-90%), rouge (<70%)
 
 #### Tests
@@ -223,7 +223,7 @@ Livrer un produit **minimal mais complet** permettant de :
 - [ ] Test : Classification retourne score cohérent
 - [ ] Test : Flux similaires → catégories identiques
 
-**Livrable** : ✅ Classification IA avec score de confiance
+**Livrable** : ✅ Classification automatique avec score de confiance
 
 ---
 
@@ -361,7 +361,7 @@ Livrer un produit **minimal mais complet** permettant de :
   - Fonction `calculateMetrics(tenantId, period)`
   - Calculs :
     - Temps moyen traitement
-    - Taux précision IA
+    - Taux précision d'analyse
     - Nombre doublons évités
     - Heures gagnées (estimation)
 
@@ -452,7 +452,7 @@ Livrer un produit **minimal mais complet** permettant de :
 - [x] Monitoring email (Gmail API)
 - [ ] EventLog immuable avec timeline UI
 - [ ] Normalisation avec hash SHA-256
-- [ ] Classification IA + suggestions validables
+- [ ] Classification automatique + suggestions validables
 - [ ] Détection doublons hash exact
 - [ ] Supervision dashboard avec alertes
 - [ ] Commentaires internes
@@ -500,7 +500,7 @@ Livrer un produit **minimal mais complet** permettant de :
 | Risque                           | Impact   | Probabilité | Mitigation                      |
 | -------------------------------- | -------- | ----------- | ------------------------------- |
 | **Perf ingestion > 1000 flux/j** | 🔴 Haut  | Moyen       | Tests de charge dès phase 1     |
-| **Classification IA imprécise**  | 🟠 Moyen | Moyen       | Validation humaine obligatoire  |
+| **Classification imprécise**  | 🟠 Moyen | Moyen       | Validation humaine obligatoire  |
 | **DB triggers complexes**        | 🟠 Moyen | Faible      | Tests unitaires exhaustifs      |
 | **Export PDF non conforme**      | 🔴 Haut  | Faible      | Validation par expert juridique |
 | **Retard développement**         | 🟠 Moyen | Moyen       | Buffer 10j avant démo État      |
@@ -535,7 +535,7 @@ Livrer un produit **minimal mais complet** permettant de :
 
 - [ ] 0 perte de données (test charge 10 000 flux)
 - [ ] < 2s temps réponse API (p95)
-- [ ] > 85% précision IA (validation manuelle sur 100 flux)
+- [ ] > 85% précision (validation manuelle sur 100 flux)
 - [ ] 100% EventLog immuables (test automated)
 
 ### Business

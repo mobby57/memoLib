@@ -1,8 +1,8 @@
 #!/bin/bash
-# IA Poste Manager - Complete System Start Script for Linux/Mac
+# MemoLib Assistant - Complete System Start Script for Linux/Mac
 # Equivalent to start_system.bat
 
-echo "Starting IA Poste Manager Complete System..."
+echo "Starting MemoLib Assistant Complete System..."
 
 # Initialize PID variables to avoid undefined variable errors in trap handler
 BACKEND_PID=""

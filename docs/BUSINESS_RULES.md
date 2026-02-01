@@ -185,7 +185,7 @@ TOUTE action significative (système ou utilisateur) DOIT générer un EventLog.
 
 - Réception flux
 - Normalisation
-- Classification IA
+- Classification automatique
 - Validation/rejet suggestion
 - Assignation dossier
 - Fusion doublons
@@ -271,7 +271,7 @@ Le système ne DOIT JAMAIS associer automatiquement un flux à un dossier, fusio
 **Critère de test** :
 
 ```gherkin
-GIVEN une suggestion IA avec confidence=0.95
+GIVEN une suggestion automatique avec confidence=0.95
   AND le flux est lié à un client "sensible" (avocat, juge, etc.)
 WHEN le système génère la suggestion
 THEN la suggestion est enregistrée avec status="pending"
@@ -293,12 +293,12 @@ THEN la suggestion est enregistrée avec status="pending"
 **Fonctionnalité** : #3, #4
 
 **Description** :
-Toute validation ou rejet de suggestion IA DOIT être tracée dans EventLog avec userId, décision, et raison optionnelle.
+Toute validation ou rejet de suggestion DOIT être tracée dans EventLog avec userId, décision, et raison optionnelle.
 
 **Critère de test** :
 
 ```gherkin
-GIVEN une suggestion IA id="sugg-123"
+GIVEN une suggestion automatique id="sugg-123"
 WHEN l'utilisateur clique "Rejeter" avec raison "Mauvaise entité détectée"
 THEN un EventLog "user.rejected_suggestion" est créé
   AND EventLog.metadata.suggestionId = "sugg-123"
@@ -677,7 +677,7 @@ Les workflows utilisateur critiques DOIVENT avoir des tests E2E (Playwright).
 ```typescript
 // e2e/suggestion-validation.spec.ts
 test('User can validate AI suggestion', async ({ page }) => {
-  // Setup: flux avec suggestion IA
+  // Setup: flux avec suggestion automatique
   const flow = await createTestFlow();
   const suggestion = await createTestSuggestion(flow.id);
 

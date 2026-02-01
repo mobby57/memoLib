@@ -1,8 +1,8 @@
 #!/bin/bash
-# IA Poste Manager - Backend Start Script for Linux/Mac
+# MemoLib Assistant - Backend Start Script for Linux/Mac
 # Equivalent to start_backend.bat
 
-echo "Starting IA Poste Manager Backend..."
+echo "Starting MemoLib Assistant Backend..."
 
 # Get the script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

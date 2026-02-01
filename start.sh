@@ -1,8 +1,8 @@
 #!/bin/bash
-# IA Poste Manager v2.3 - Start Script for Linux/Mac
+# MemoLib Assistant v2.3 - Start Script for Linux/Mac
 # Equivalent to START.bat
 
-echo "Starting IA Poste Manager v2.3..."
+echo "Starting MemoLib Assistant v2.3..."
 
 # Create virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then

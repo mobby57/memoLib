@@ -12,7 +12,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 class DocGenerator:
-    """Générateur automatique de documentation pour IA Poste Manager"""
+    """Générateur automatique de documentation pour MemoLib Assistant"""
     
     def __init__(self, project_root: str = "."):
         self.project_root = project_root
@@ -181,7 +181,7 @@ class DocGenerator:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation IA Poste Manager</title>
+    <title>Documentation MemoLib Assistant</title>
     <style>
         body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
                line-height: 1.6; margin: 0; padding: 20px; background: #f8f9fa; }}
@@ -206,7 +206,7 @@ class DocGenerator:
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Documentation IA Poste Manager v3.1</h1>
+        <h1>🚀 Documentation MemoLib Assistant v3.1</h1>
         <p><strong>Générée le:</strong> {analysis['scanned_at']}</p>
         
         <div class="summary">

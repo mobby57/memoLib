@@ -76,7 +76,7 @@ rm marketing/landing-page.html  # Remplacé par /src/app/page.tsx CESEDA
 ✅ GARDER:
 /dashboard              # Dashboard avocat principal
 /lawyer/*               # Fonctionnalités avocat
-/api/ceseda/*           # IA prédictive CESEDA
+/api/ceseda/*           # Analyse prédictive CESEDA
 /api/health             # Monitoring
 /api/auth/*             # NextAuth
 
@@ -110,7 +110,7 @@ src/backend/ (FastAPI variant)  # GARDER Flask uniquement, éviter duplication
 NEXTAUTH_SECRET
 NEXTAUTH_URL
 DATABASE_URL
-OPENAI_API_KEY         # IA CESEDA
+OPENAI_API_KEY         # Analyse CESEDA
 TWILIO_ACCOUNT_SID     # Alertes SMS
 TWILIO_AUTH_TOKEN
 TWILIO_PHONE_NUMBER
@@ -212,7 +212,7 @@ memolib/
 ├── src/
 │   ├── frontend/        # Next.js 16 (App Router)
 │   └── app/             # Pages & API routes CESEDA
-├── backend-python/      # Flask (port 5000) - IA CESEDA
+├── backend-python/      # Flask (port 5000) - Analyse CESEDA
 ├── docs/
 │   ├── API_ROUTES.md    # Documentation API
 │   └── ENVIRONMENT_VARIABLES.md

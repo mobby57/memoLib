@@ -130,7 +130,7 @@ Pour un email :
 - **Destinataires** : To, Cc, Bcc (liste complète)
 - **Horodatage** : Date envoi (header) + date réception (serveur)
 - **Thread** : MessageID + In-Reply-To + References
-- **Type document** : Classification IA (facture, contrat, demande, etc.)
+- **Type document** : Classification automatique (facture, contrat, demande, etc.)
 
 #### Conversion format interne
 
@@ -170,7 +170,7 @@ interface NormalizedFlow {
     recipients: Array<{ type: 'to' | 'cc' | 'bcc'; email: string }>;
     timestamp: Date;
     threadId?: string;
-    documentType?: string; // Classification IA
+    documentType?: string; // Classification automatique
   };
   textContent: string; // Extraction texte
   attachments: Array<{
@@ -181,7 +181,7 @@ interface NormalizedFlow {
     hash: string;
   }>;
   contentHash: string; // Hash global
-  confidence?: number; // Score IA (0-1)
+  confidence?: number; // Score de confiance (0-1)
 }
 ```
 
@@ -189,7 +189,7 @@ interface NormalizedFlow {
 
 - [ ] Un flux normalisé est disponible en moins de 5 secondes après ingestion
 - [ ] Le hash est identique pour deux flux strictement identiques
-- [ ] La classification IA a un taux de précision > 85% (mesurable)
+- [ ] La classification automatique a un taux de précision > 85% (mesurable)
 - [ ] Les métadonnées sont modifiables manuellement avec audit
 
 ---
@@ -210,13 +210,13 @@ Un **EventLog** est un journal d'événements **append-only** (jamais modifié, 
 
 - `flow.received` : Flux entrant capturé
 - `flow.normalized` : Normalisation effectuée
-- `flow.classified` : Classification IA appliquée
+- `flow.classified` : Classification automatique appliquée
 - `duplicate.detected` : Doublon potentiel identifié
 
 #### Événements utilisateur
 
 - `user.assigned_flow` : Assignation manuelle à un dossier
-- `user.validated_suggestion` : Validation/rejet suggestion IA
+- `user.validated_suggestion` : Validation/rejet suggestion automatique
 - `user.merged_duplicates` : Fusion de doublons
 - `user.added_comment` : Commentaire interne ajouté
 - `user.exported_audit` : Export timeline PDF
@@ -302,7 +302,7 @@ interface EventLog {
 
 ### Objectif
 
-Organiser les flux en **dossiers** et **entités** (clients, affaires) de manière **assistée par IA** mais **validée par l'humain**.
+Organiser les flux en **dossiers** et **entités** (clients, affaires) de manière **assistée automatiquement** mais **validée par l'humain**.
 
 ### Concepts
 
@@ -316,9 +316,9 @@ Personne physique, morale ou organisation mentionnée dans les flux.
 
 ### Processus
 
-#### 1. Détection automatique (IA)
+#### 1. Détection automatique
 
-L'IA analyse chaque flux normalisé et génère des **suggestions** :
+Le système analyse chaque flux normalisé et génère des **suggestions** :
 
 - "Ce flux semble lié au dossier #123 (confiance 87%)"
 - "Nouvelle entité détectée : Jean Dupont (jean.dupont@example.com)"
@@ -351,8 +351,8 @@ Chaque validation/rejet génère un `EventLog` :
 
 #### ✅ Règles métier
 
-1. **IA suggère, humain décide** : Aucune association automatique
-2. **Transparence** : Le score de confiance IA est TOUJOURS affiché
+1. **Le système suggère, humain décide** : Aucune association automatique
+2. **Transparence** : Le score de confiance est TOUJOURS affiché
 3. **Correction possible** : L'utilisateur peut modifier les associations avec audit
 
 #### ❌ Ce que le système ne fait PAS
@@ -390,7 +390,7 @@ interface FlowAssociation {
   entityId?: string;
   associatedAt: Date;
   associatedBy: string; // userId
-  suggestionId?: string; // Lien vers suggestion IA
+  suggestionId?: string; // Lien vers suggestion automatique
   confidence?: number;
 }
 
@@ -400,7 +400,7 @@ interface Suggestion {
   suggestedDossierId?: string;
   suggestedEntityId?: string;
   confidence: number; // 0.0 - 1.0
-  reasoning: string; // Explication IA
+  reasoning: string; // Explication du système
   status: 'pending' | 'accepted' | 'rejected';
   resolvedBy?: string;
   resolvedAt?: Date;
@@ -409,8 +409,8 @@ interface Suggestion {
 
 ### Critères d'acceptation
 
-- [ ] Une suggestion IA apparaît en moins de 10 secondes après normalisation
-- [ ] Le score de confiance est calibré (85% IA = 85% précision réelle)
+- [ ] Une suggestion automatique apparaît en moins de 10 secondes après normalisation
+- [ ] Le score de confiance est calibré (85% confiance = 85% précision réelle)
 - [ ] L'utilisateur peut rejeter une suggestion sans perdre le flux
 - [ ] Toute correction manuelle est tracée dans EventLog
 
@@ -541,7 +541,7 @@ Toute action sur des données sensibles (assignation dossier, fusion entités, e
 Dashboard temps réel affichant :
 
 - **Flux non classés** : Nombre + liste
-- **Suggestions IA en attente** : Par score de confiance
+- **Suggestions en attente** : Par score de confiance
 - **Alertes doublons** : Non résolues
 - **Événements sécurité** : Accès inhabituels
 
@@ -562,7 +562,7 @@ Thread de discussion par flux/dossier pour :
 │ 🔔 ALERTES                                  │
 ├─────────────────────────────────────────────┤
 │ ⚠️ 12 flux non classés (> 24h)             │
-│ 🤖 8 suggestions IA en attente              │
+│ 🤖 8 suggestions en attente              │
 │ 👥 3 doublons suspects                      │
 │ 🔒 1 accès inhabituel détecté               │
 └─────────────────────────────────────────────┘
@@ -572,7 +572,7 @@ Thread de discussion par flux/dossier pour :
 ├─────────────────────────────────────────────┤
 │ Flux reçus         : 47                     │
 │ Flux traités       : 35                     │
-│ Taux automatisation: 12% (IA suggestions)   │
+│ Taux automatisation: 12% (suggestions)   │
 │ Interventions      : 35 (humain)            │
 └─────────────────────────────────────────────┘
 ```
@@ -584,7 +584,7 @@ Flux #1234 - Email client Jean Dupont
 ═════════════════════════════════════
 💬 @marie.martin (2026-02-01 10:32)
 Ce client a déjà un dossier actif (DOS-2025-089).
-Suggestion IA erronée, à rejeter.
+Suggestion automatique erronée, à rejeter.
 
 💬 @paul.dubois (2026-02-01 10:45)
 Confirmé. Associé manuellement à DOS-2025-089.
@@ -779,12 +779,12 @@ Mesurer et **prouver** la valeur apportée par Memo Lib.
 #### Efficacité
 
 - **Temps moyen de traitement** : Temps entre réception et classification validée
-- **Taux d'automatisation IA** : % de suggestions acceptées sans correction
+- **Taux d'automatisation** : % de suggestions acceptées sans correction
 - **Réduction charge manuelle** : Heures gagnées par semaine
 
 #### Fiabilité
 
-- **Taux de précision IA** : % de suggestions correctes (mesure réelle vs prédite)
+- **Taux de précision** : % de suggestions correctes (mesure réelle vs prédite)
 - **Taux de doublons évités** : % de fusions validées
 - **Zero perte de données** : Aucun flux perdu (SLA 100%)
 
@@ -817,7 +817,7 @@ Mesurer et **prouver** la valeur apportée par Memo Lib.
 │ 📈 VALEUR APPORTÉE (30 derniers jours)       │
 ├──────────────────────────────────────────────┤
 │ Flux traités              : 1,247            │
-│ Suggestions IA acceptées  : 879 (70%)        │
+│ Suggestions acceptées  : 879 (70%)        │
 │ Heures gagnées (estimé)   : 52h              │
 │ Doublons évités           : 23               │
 │ Taux conformité audit     : 100%             │
@@ -867,7 +867,7 @@ Mesurer et **prouver** la valeur apportée par Memo Lib.
 
 ### Phase 2 (31-60 jours) : Intelligence
 
-- [ ] Classification IA avec confiance
+- [ ] Classification automatique avec confiance
 - [ ] Suggestions dossier/entité
 - [ ] Workflow validation humaine
 - [ ] Détection doublons hash exact
@@ -899,7 +899,7 @@ Mesurer et **prouver** la valeur apportée par Memo Lib.
 
 ### Utilisateurs
 
-- [ ] 90% des suggestions IA sont pertinentes (mesure utilisateur)
+- [ ] 90% des suggestions sont pertinentes (mesure utilisateur)
 - [ ] Temps moyen classification < 2 min
 - [ ] 0 fusion automatique non désirée
 - [ ] Satisfaction utilisateur > 8/10

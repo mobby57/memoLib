@@ -2,7 +2,7 @@
 
 ## Objectif
 
-Déployer rapidement en production avec focus sur vision CESEDA/IA juridique.
+Déployer rapidement en production avec focus sur vision CESEDA/Assistant juridique.
 
 ---
 
@@ -10,7 +10,7 @@ Déployer rapidement en production avec focus sur vision CESEDA/IA juridique.
 
 - [ ] Compte Azure / Vercel / Railway (choisir 1 plateforme)
 - [ ] Clés API obtenues:
-  - [ ] OpenAI API Key (IA CESEDA)
+  - [ ] OpenAI API Key (Analyse CESEDA)
   - [ ] Twilio Account SID + Auth Token (SMS alertes)
   - [ ] Azure AD Client ID + Secret (SSO avocats)
 - [ ] Base de données PostgreSQL (Azure Database, Supabase, ou Neon)
@@ -315,7 +315,7 @@ curl https://app.memolib.fr/api/health
 # Ouvrir https://app.memolib.fr/auth/signin
 # ✅ Redirection Azure AD fonctionne
 
-# 3. IA CESEDA Endpoint
+# 3. Analyse CESEDA Endpoint
 curl -X POST https://app.memolib.fr/api/ceseda/predict \
   -H "Authorization: Bearer <token>" \
   -d '{"caseType": "OQTF", "clientSituation": "test"}'
