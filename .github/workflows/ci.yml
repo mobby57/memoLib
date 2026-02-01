@@ -26,7 +26,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Typecheck
-        run: npm run typecheck:frontend
+        run: npm run type-check
 
       - name: Build
         run: npm run build
