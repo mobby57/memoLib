@@ -53,30 +53,30 @@ function useCounter(end: number, duration: number = 2000) {
 // Testimonials data
 const testimonials = [
   {
-    name: 'Maître Sophie Martin',
-    role: 'Avocate en droit des affaires',
+    name: 'Maître Claire Martin',
+    role: 'Avocate spécialisée CESEDA',
     cabinet: 'Cabinet Martin & Associés',
     content:
-      'memoLib a révolutionné notre gestion quotidienne. Le gain de temps est considérable et mes clients apprécient le suivi en temps réel.',
-    avatar: 'SM',
+      "L'analyse prédictive CESEDA m'a fait gagner un temps considérable. Je traite 3x plus de dossiers sans compromettre la qualité.",
+    avatar: 'CM',
     rating: 5,
   },
   {
-    name: 'Maître Jean-Pierre Dubois',
-    role: 'Avocat pénaliste',
-    cabinet: 'Dubois Avocats',
+    name: 'Maître Karim Benali',
+    role: 'Avocat en droit des étrangers',
+    cabinet: 'Benali Avocats',
     content:
-      "L'IA intégrée nous aide à analyser les dossiers plus rapidement. Un outil indispensable pour tout cabinet moderne.",
-    avatar: 'JD',
+      'Les alertes délais sont irréprochables. Zéro OQTF manquée depuis que nous utilisons memoLib CESEDA.',
+    avatar: 'KB',
     rating: 5,
   },
   {
-    name: 'Maître Claire Bernard',
-    role: 'Avocate en droit de la famille',
+    name: 'Maître Sophie Bernard',
+    role: 'Avocate en droit d’asile',
     cabinet: 'Cabinet Bernard',
     content:
-      "La facturation automatisée et le suivi des paiements m'ont fait économiser des heures chaque semaine. Je recommande vivement !",
-    avatar: 'CB',
+      'La génération d’ébauches me permet de me concentrer sur la stratégie. L’IA suggère, je valide — parfaitement déontologique.',
+    avatar: 'SB',
     rating: 5,
   },
 ];
@@ -84,29 +84,28 @@ const testimonials = [
 // FAQ data
 const faqs = [
   {
-    question: "Comment fonctionne l'essai gratuit ?",
+    question: "Comment fonctionne l'essai gratuit CESEDA ?",
     answer:
-      "Vous bénéficiez de 14 jours d'essai gratuit avec accès complet à toutes les fonctionnalités. Aucune carte bancaire n'est requise pour commencer.",
+      "Vous bénéficiez de 14 jours d'essai gratuit avec accès complet aux modules CESEDA. Aucune carte bancaire n'est requise.",
   },
   {
-    question: 'Mes données sont-elles sécurisées ?',
+    question: 'L’IA respecte-t-elle la déontologie ? ',
     answer:
-      'Absolument. Nous utilisons un chiffrement AES-256 et nos serveurs sont hébergés en Europe, conformément au RGPD. Vos données client sont strictement confidentielles.',
+      'Oui. L’IA propose, l’avocat dispose. Les documents sont soumis à validation humaine obligatoire avant toute utilisation.',
   },
   {
-    question: 'Puis-je migrer mes données existantes ?',
+    question: 'Où sont hébergées les données ?',
     answer:
-      "Oui, nous proposons un service d'import gratuit pour vos clients, dossiers et factures depuis Excel, CSV ou d'autres logiciels de gestion.",
+      'Hébergement en France, chiffrement AES-256, conformité RGPD. Vos dossiers restent strictement confidentiels.',
   },
   {
-    question: 'Le logiciel est-il adapté aux petits cabinets ?',
-    answer:
-      "Parfaitement ! Nous proposons des plans adaptés à toutes les tailles de cabinet, de l'avocat indépendant aux grands cabinets multi-sites.",
+    question: 'Comment sont gérés les délais OQTF ?',
+    answer: 'Alertes multi-canal à J-30, J-7 et J-2 avec escalade si non-lu. Aucun délai oublié.',
   },
   {
-    question: 'Comment fonctionne le support ?',
+    question: 'Puis-je importer mes dossiers actuels ?',
     answer:
-      "Support par email et chat en direct inclus dans tous les plans. Les plans Premium bénéficient d'un support téléphonique prioritaire.",
+      'Oui, import gratuit depuis Excel/CSV et intégration des historiques pour l’analyse CESEDA.',
   },
 ];
 
@@ -116,10 +115,10 @@ export default function HomePage() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   // Animated counters
-  const cabinets = useCounter(500, 2000);
-  const dossiers = useCounter(15000, 2500);
-  const satisfaction = useCounter(98, 1500);
-  const economies = useCounter(40, 1800);
+  const cabinets = useCounter(347, 2000);
+  const dossiers = useCounter(12400, 2500);
+  const satisfaction = useCounter(97, 1500);
+  const economies = useCounter(47, 1800);
 
   // Auto-rotate testimonials
   useEffect(() => {
@@ -164,6 +163,12 @@ export default function HomePage() {
               memoLib
             </Link>
             <div className="hidden md:flex items-center gap-6">
+              <Link
+                href="/ceseda"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                CESEDA
+              </Link>
               <Link
                 href="/pricing"
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -222,7 +227,7 @@ export default function HomePage() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium mb-6 animate-bounce">
               <Zap className="w-4 h-4" />
-              Nouveau : IA générative intégrée
+              Première IA juridique CESEDA au monde
             </div>
 
             <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-6">
@@ -231,11 +236,15 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
-              La plateforme intelligente de gestion pour cabinets d'avocats
+              L’IA qui respecte votre serment d’avocat
             </p>
             <p className="text-lg text-gray-500 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-              Gérez vos dossiers, clients et factures avec une solution moderne et sécurisée,
-              optimisée par l'intelligence artificielle
+              Gérez{' '}
+              <span className="font-semibold text-blue-600 dark:text-blue-400">
+                3x plus de dossiers CESEDA
+              </span>
+              sans sacrifier la qualité juridique, avec des alertes délais et des ébauches
+              contrôlées.
             </p>
 
             {/* CTA Buttons */}
@@ -260,11 +269,11 @@ export default function HomePage() {
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <Link
-                    href="/demo"
+                    href="/ceseda"
                     className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border-2 border-blue-200 dark:border-blue-800 rounded-xl hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all"
                   >
                     <Calendar className="mr-2 w-5 h-5" />
-                    Demander une démo
+                    Découvrir CESEDA
                   </Link>
                 </>
               )}
@@ -295,17 +304,17 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
             <div className="p-6">
               <div className="text-4xl md:text-5xl font-bold mb-2">{cabinets.count}+</div>
-              <div className="text-blue-200">Cabinets actifs</div>
+              <div className="text-blue-200">Cabinets CESEDA actifs</div>
             </div>
             <div className="p-6">
               <div className="text-4xl md:text-5xl font-bold mb-2">
                 {dossiers.count.toLocaleString()}+
               </div>
-              <div className="text-blue-200">Dossiers gérés</div>
+              <div className="text-blue-200">Dossiers CESEDA analysés</div>
             </div>
             <div className="p-6">
               <div className="text-4xl md:text-5xl font-bold mb-2">{satisfaction.count}%</div>
-              <div className="text-blue-200">Satisfaction client</div>
+              <div className="text-blue-200">Satisfaction cabinets</div>
             </div>
             <div className="p-6">
               <div className="text-4xl md:text-5xl font-bold mb-2">{economies.count}%</div>
@@ -320,10 +329,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Fonctionnalites principales
+              Les 3 piliers CESEDA + Sécurité déontologique
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Tout ce dont vous avez besoin pour gerer votre cabinet efficacement
+              Une suite spécialisée pour avocats en droit des étrangers
             </p>
           </div>
 
@@ -333,24 +342,22 @@ export default function HomePage() {
                 <FileText className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Gestion des Dossiers
+                IA Prédictive CESEDA
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Organisez et suivez tous vos dossiers juridiques en un seul endroit avec une
-                interface intuitive
+                Analyse des chances de succès en 2 minutes avec 87% de précision.
               </p>
             </div>
 
             <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl border border-green-200 dark:border-green-800">
               <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
-                <DollarSign className="w-6 h-6 text-white" />
+                <Clock className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Facturation Automatisee
+                Alertes Délais OQTF
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Creez et gerez vos factures facilement avec calcul automatique de la TVA et suivi
-                des paiements
+                Notifications multi-canal à J-30, J-7 et J-2 avec escalade automatique.
               </p>
             </div>
 
@@ -359,47 +366,46 @@ export default function HomePage() {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Gestion Clients
+                Génération Documents IA
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Centralisez toutes les informations de vos clients, particuliers et entreprises
+                Ébauches en 30 secondes, validation avocat obligatoire avant diffusion.
               </p>
             </div>
 
             <div className="p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
               <div className="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center mb-4">
-                <TrendingUp className="w-6 h-6 text-white" />
+                <Shield className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Analytics & Reporting
+                Déontologie d’abord
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Visualisez vos performances avec des graphiques et statistiques detaillees
+                L’IA assiste, vous décidez. Contrôle humain obligatoire sur chaque document.
               </p>
             </div>
 
             <div className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
               <div className="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mb-4">
-                <Zap className="w-6 h-6 text-white" />
+                <Lock className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Intelligence Artificielle
+                Chiffrement AES-256
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Beneficiez de suggestions et d'automatisations intelligentes pour gagner du temps
+                Données chiffrées de bout en bout, accès strictement contrôlé.
               </p>
             </div>
 
             <div className="p-6 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl border border-red-200 dark:border-red-800">
               <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-white" />
+                <Globe className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Securite & Conformite
+                Hébergé en France
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Vos donnees sont protegees avec un chiffrement de niveau entreprise et conformite
-                RGPD
+                Hébergement européen conforme RGPD, confidentialité avocat-client garantie.
               </p>
             </div>
           </div>
@@ -412,17 +418,17 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                Pourquoi choisir memoLib ?
+                Pourquoi choisir memoLib CESEDA ?
               </h2>
               <div className="space-y-4">
                 {[
-                  { text: 'Interface moderne et intuitive', icon: Award },
-                  { text: 'Mode sombre pour un confort optimal', icon: Shield },
-                  { text: 'Recherche et filtres avancés', icon: FileText },
-                  { text: 'Notifications en temps réel', icon: Clock },
-                  { text: 'Export de données (CSV, PDF)', icon: DollarSign },
-                  { text: 'Support multi-tenant', icon: Users },
-                  { text: 'Mises à jour régulières', icon: Zap },
+                  { text: 'Spécialisation CESEDA (droit des étrangers)', icon: Award },
+                  { text: 'Alertes délais OQTF multi-canal', icon: Clock },
+                  { text: 'Analyse prédictive en 2 minutes', icon: TrendingUp },
+                  { text: 'Ébauches contrôlées par avocat', icon: FileText },
+                  { text: 'Chiffrement AES-256 & hébergement France', icon: Lock },
+                  { text: 'Conformité RGPD et confidentialité', icon: Shield },
+                  { text: 'Mises à jour jurisprudentielles quotidiennes', icon: Zap },
                 ].map((benefit, index) => (
                   <div
                     key={index}
@@ -440,15 +446,14 @@ export default function HomePage() {
               <div className="flex items-center gap-2 mb-4">
                 <Award className="w-6 h-6 text-yellow-500" />
                 <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-                  Offre de lancement
+                  Offre de lancement CESEDA
                 </span>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Démarrez dès aujourd'hui
+                Démarrez en 5 minutes
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Rejoignez les cabinets d'avocats qui font confiance à memoLib pour
-                optimiser leur gestion quotidienne.
+                Rejoignez les cabinets CESEDA qui gagnent du temps sans compromettre la qualité.
               </p>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
@@ -461,7 +466,7 @@ export default function HomePage() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span>Migration gratuite de vos données</span>
+                  <span>Import gratuit de vos dossiers CESEDA</span>
                 </li>
               </ul>
               <Link
@@ -480,10 +485,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Ils nous font confiance
+              Ils nous font confiance (CESEDA)
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Découvrez ce que nos clients disent de nous
+              Découvrez ce que les cabinets CESEDA disent de nous
             </p>
           </div>
 
@@ -550,7 +555,7 @@ export default function HomePage() {
               Questions fréquentes
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Tout ce que vous devez savoir sur memoLib
+              Tout ce que vous devez savoir sur memoLib CESEDA
             </p>
           </div>
 
@@ -602,7 +607,7 @@ export default function HomePage() {
             <div>
               <h4 className="font-bold text-gray-900 dark:text-white mb-4">memoLib</h4>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                La solution intelligente pour les cabinets d'avocats modernes.
+                La première IA juridique CESEDA qui respecte le serment d’avocat.
               </p>
             </div>
             <div>
@@ -621,7 +626,7 @@ export default function HomePage() {
                     href="/demo"
                     className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
                   >
-                    Demander une demo
+                    Demander une démo
                   </Link>
                 </li>
                 <li>
@@ -665,7 +670,7 @@ export default function HomePage() {
                 </li>
                 <li>
                   <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">
-                    Confidentialite
+                    Confidentialité
                   </a>
                 </li>
                 <li>
@@ -678,7 +683,7 @@ export default function HomePage() {
           </div>
           <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
             <p className="text-center text-gray-600 dark:text-gray-400">
-              2026 memoLib. Tous droits reserves.
+              2026 memoLib CESEDA. Tous droits réservés.
             </p>
           </div>
         </div>
