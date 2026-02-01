@@ -9,6 +9,7 @@ import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { NextRequest, NextResponse } from 'next/server';
 import { eventLogService } from '@/lib/services/event-log.service';
 import { filterRuleService } from '@/lib/services/filter-rule.service';
+import { smartInboxService } from '@/lib/services/smart-inbox.service';
 import { EventType, ActorType } from '@prisma/client';
 
 export async function POST(request: NextRequest) {
@@ -134,6 +135,11 @@ export async function POST(request: NextRequest) {
       await filterRuleService.applyActions(email.id, match.rule, tenant.id);
       logger.info(`[FILTER-RULE] Appliquée: ${match.rule.name} sur email ${email.id}`);
     }
+
+    // Phase 4: Calculer score Smart Inbox
+    const scoreResult = await smartInboxService.calculateScore(email, tenant.id);
+    await smartInboxService.saveScore(email.id, scoreResult, tenant.id);
+    logger.info(`[SMART-INBOX] Score calculé: ${scoreResult.score}/100 pour email ${email.id}`);
 
     // Creer les pieces jointes si presentes
     if (attachments && attachments.length > 0) {
