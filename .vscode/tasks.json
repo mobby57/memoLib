@@ -48,7 +48,7 @@
     {
       "label": "Frontend: Type Check",
       "type": "shell",
-      "command": "npx tsc --noEmit",
+      "command": "NODE_OPTIONS=--max-old-space-size=16384 npx tsc --noEmit --incremental",
       "options": {
         "cwd": "${workspaceFolder}/src/frontend"
       },
@@ -132,7 +132,7 @@
     {
       "label": "Pre-Commit: Full Check",
       "type": "shell",
-      "command": "npm run lint && npx tsc --noEmit && npm run build",
+      "command": "npm run lint && NODE_OPTIONS=--max-old-space-size=16384 npx tsc --noEmit --incremental && npm run build",
       "options": {
         "cwd": "${workspaceFolder}/src/frontend"
       },
