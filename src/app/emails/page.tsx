@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic to prevent prerendering errors with React hooks
+export const dynamic = 'force-dynamic';
+
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
 import { Card, Badge } from '@/components/ui';
