@@ -34,16 +34,22 @@ export const authOptions: NextAuthOptions = {
           }),
         ]
       : []),
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          // Scopes pour agir au nom de l'utilisateur
-          scope: 'read:user user:email repo write:org',
-        },
-      },
-    }),
+    // GitHub Provider (optionnel)
+    ...(process.env.GITHUB_CLIENT_ID &&
+    process.env.GITHUB_CLIENT_SECRET
+      ? [
+          GitHubProvider({
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+            authorization: {
+              params: {
+                // Scopes pour agir au nom de l'utilisateur
+                scope: 'read:user user:email repo write:org',
+              },
+            },
+          }),
+        ]
+      : []),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
