@@ -1,6 +1,6 @@
 /**
  * Tests EventLog Service
- * 
+ *
  * Validation RULE-004, RULE-005, RULE-006 (BUSINESS_RULES.md)
  */
 
@@ -10,20 +10,52 @@ import { EventType, ActorType } from '@prisma/client';
 
 describe('EventLog Service', () => {
   const testTenantId = 'test-tenant-123';
+  const testPlanId = 'test-plan-123';
   const testUserId = 'test-user-456';
 
   beforeAll(async () => {
-    // Cleanup avant tests
-    await prisma.eventLog.deleteMany({
-      where: { tenantId: testTenantId },
+    // Créer un plan + tenant de test (FK obligatoire)
+    await prisma.plan.upsert({
+      where: { id: testPlanId },
+      update: {},
+      create: {
+        id: testPlanId,
+        name: 'test-plan-eventlog',
+        displayName: 'Test Plan EventLog',
+        description: 'Plan de test pour EventLog',
+        priceMonthly: 0,
+        priceYearly: 0,
+        currency: 'EUR',
+        maxWorkspaces: 1,
+        maxDossiers: 10,
+        maxClients: 10,
+        maxStorageGb: 1,
+        maxUsers: 1,
+        aiAutonomyLevel: 1,
+        humanValidation: true,
+      },
     });
+
+    await prisma.tenant.upsert({
+      where: { id: testTenantId },
+      update: {},
+      create: {
+        id: testTenantId,
+        name: 'Test Tenant EventLog',
+        subdomain: 'test-eventlog',
+        planId: testPlanId,
+      },
+    });
+
+    // Cleanup avant tests (TRUNCATE n'active pas les triggers DELETE)
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE event_logs RESTART IDENTITY CASCADE');
   });
 
   afterAll(async () => {
     // Cleanup après tests
-    await prisma.eventLog.deleteMany({
-      where: { tenantId: testTenantId },
-    });
+    await prisma.$executeRawUnsafe('TRUNCATE TABLE event_logs RESTART IDENTITY CASCADE');
+    await prisma.$executeRaw`DELETE FROM "Tenant" WHERE id = ${testTenantId}`;
+    await prisma.$executeRaw`DELETE FROM "Plan" WHERE id = ${testPlanId}`;
     await prisma.$disconnect();
   });
 
@@ -79,10 +111,10 @@ describe('EventLog Service', () => {
       };
 
       const event1 = await eventLogService.createEventLog(params);
-      
+
       // Attendre 1ms pour garantir timestamp différent
       await new Promise(resolve => setTimeout(resolve, 1));
-      
+
       const event2 = await eventLogService.createEventLog(params);
 
       // Checksums DOIVENT être différents (timestamps différents)
@@ -104,22 +136,21 @@ describe('EventLog Service', () => {
     });
 
     it('should detect corrupted EventLog', async () => {
-      const eventLog = await eventLogService.createEventLog({
-        eventType: EventType.DUPLICATE_DETECTED,
-        entityType: 'flow',
-        entityId: 'flow-corrupt-test',
-        actorType: ActorType.SYSTEM,
-        tenantId: testTenantId,
-        metadata: {},
+      // Créer un EventLog volontairement corrompu (checksum invalide)
+      const eventLog = await prisma.eventLog.create({
+        data: {
+          timestamp: new Date(),
+          eventType: EventType.DUPLICATE_DETECTED,
+          entityType: 'flow',
+          entityId: 'flow-corrupt-test',
+          actorType: ActorType.SYSTEM,
+          actorId: null,
+          metadata: {},
+          tenantId: testTenantId,
+          immutable: true,
+          checksum: 'corrupted-hash',
+        },
       });
-
-      // Simuler corruption (ATTENTION: NE PAS FAIRE EN PROD !)
-      // En prod, le trigger DB devrait empêcher cela
-      await prisma.$executeRaw`
-        UPDATE event_logs 
-        SET checksum = 'corrupted-hash' 
-        WHERE id = ${eventLog.id}
-      `;
 
       const isValid = await eventLogService.verifyIntegrity(eventLog.id);
       expect(isValid).toBe(false);
@@ -170,7 +201,7 @@ describe('EventLog Service', () => {
     beforeAll(async () => {
       // Créer plusieurs événements pour test timeline
       const flowId = 'flow-timeline-test';
-      
+
       await eventLogService.createEventLog({
         eventType: EventType.FLOW_RECEIVED,
         entityType: 'flow',

@@ -16,7 +16,7 @@ export class GmailMonitor {
     );
 
     this.oauth2Client.setCredentials({
-      refresh_token: process.env.GMAIL_REFRESH_TOKEN
+      refresh_token: process.env.GMAIL_REFRESH_TOKEN,
     });
 
     this.gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
@@ -24,14 +24,14 @@ export class GmailMonitor {
 
   // Récupérer les nouveaux emails
   async fetchNewEmails(tenantId: string, lastCheckTime?: Date) {
-    const query = lastCheckTime 
+    const query = lastCheckTime
       ? `after:${Math.floor(lastCheckTime.getTime() / 1000)}`
       : 'is:unread';
 
     const response = await this.gmail.users.messages.list({
       userId: 'me',
       q: query,
-      maxResults: 50
+      maxResults: 50,
     });
 
     const messages = response.data.messages || [];
@@ -49,25 +49,24 @@ export class GmailMonitor {
     const msg = await this.gmail.users.messages.get({
       userId: 'me',
       id: messageId,
-      format: 'raw'
+      format: 'raw',
     });
 
     const rawEmail = Buffer.from(msg.data.raw, 'base64').toString('utf-8');
-        // RULE-005: Tracer réception flux
-        await createEventLog({
-          eventType: EventType.FLOW_RECEIVED,
-          entityType: 'email',
-          entityId: messageId,
-          actorType: ActorType.SYSTEM,
-          tenantId,
-          metadata: {
-            source: 'gmail',
-            messageId,
-            receivedAt: new Date().toISOString(),
-          },
-        });
+    // RULE-005: Tracer réception flux
+    await createEventLog({
+      eventType: EventType.FLOW_RECEIVED,
+      entityType: 'email',
+      entityId: messageId,
+      actorType: ActorType.SYSTEM,
+      tenantId,
+      metadata: {
+        source: 'gmail',
+        messageId,
+        receivedAt: new Date().toISOString(),
+      },
+    });
 
-    
     // Traiter avec le service email
     const result = await emailMonitor.processEmail(tenantId, rawEmail);
 
@@ -76,8 +75,8 @@ export class GmailMonitor {
       userId: 'me',
       id: messageId,
       requestBody: {
-        removeLabelIds: ['UNREAD']
-      }
+        removeLabelIds: ['UNREAD'],
+      },
     });
 
     return result;
@@ -86,20 +85,20 @@ export class GmailMonitor {
   // Monitoring continu (polling toutes les 30s)
   async startMonitoring(tenantId: string) {
     console.log(`📧 Monitoring Gmail pour tenant ${tenantId}...`);
-    
+
     let lastCheck = new Date();
 
     setInterval(async () => {
       try {
         const results = await this.fetchNewEmails(tenantId, lastCheck);
-        
+
         if (results.length > 0) {
           console.log(`✅ ${results.length} nouveaux emails traités`);
           results.forEach(r => {
             console.log(`  - ${r.action}: ${r.classification?.typeDossier}`);
           });
         }
-        
+
         lastCheck = new Date();
       } catch (error) {
         console.error('Erreur monitoring:', error);
