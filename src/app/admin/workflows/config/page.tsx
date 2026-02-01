@@ -3,16 +3,21 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
-import { Switch } from '@/components/ui/Switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select';
 import { Slider } from '@/components/ui/Slider';
-import { Badge } from '@/components/ui/Badge';
+import { Switch } from '@/components/ui/Switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { useEffect, useState } from 'react';
 
 /**
  * ️ Interface d'Administration - Configuration Avancee des Workflows
@@ -80,7 +85,7 @@ export default function WorkflowConfigPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={loadConfig}>
-             Recharger
+            Recharger
           </Button>
           <Button onClick={saveConfig} disabled={saving}>
             {saving ? ' Sauvegarde...' : ' Sauvegarder'}
@@ -100,25 +105,25 @@ export default function WorkflowConfigPage() {
               variant={preset === 'default' ? 'default' : 'outline'}
               onClick={() => loadPreset('default')}
             >
-               Par Defaut
+              Par Defaut
             </Button>
             <Button
               variant={preset === 'performance' ? 'default' : 'outline'}
               onClick={() => loadPreset('performance')}
             >
-               Performance
+              Performance
             </Button>
             <Button
               variant={preset === 'security' ? 'default' : 'outline'}
               onClick={() => loadPreset('security')}
             >
-               Securite
+              Securite
             </Button>
             <Button
               variant={preset === 'automated' ? 'default' : 'outline'}
               onClick={() => loadPreset('automated')}
             >
-               Automatique
+              Automatique
             </Button>
             <Button
               variant={preset === 'law-firm' ? 'default' : 'outline'}
@@ -145,8 +150,10 @@ export default function WorkflowConfigPage() {
         <TabsContent value="ai" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Intelligence Artificielle</CardTitle>
-              <CardDescription>Parametres de l'IA pour l'analyse et les suggestions</CardDescription>
+              <CardTitle>Analyse Intelligente</CardTitle>
+              <CardDescription>
+                Paramètres du système pour l'analyse et les suggestions
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
@@ -154,10 +161,12 @@ export default function WorkflowConfigPage() {
                   <Label>Provider</Label>
                   <Select
                     value={config.ai.provider}
-                    onValueChange={(value) => setConfig({
-                      ...config,
-                      ai: { ...config.ai, provider: value },
-                    })}
+                    onValueChange={value =>
+                      setConfig({
+                        ...config,
+                        ai: { ...config.ai, provider: value },
+                      })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -174,10 +183,12 @@ export default function WorkflowConfigPage() {
                   <Label>Modele</Label>
                   <Input
                     value={config.ai.model}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      ai: { ...config.ai, model: e.target.value },
-                    })}
+                    onChange={e =>
+                      setConfig({
+                        ...config,
+                        ai: { ...config.ai, model: e.target.value },
+                      })
+                    }
                     placeholder="llama3.2:latest"
                   />
                 </div>
@@ -186,17 +197,17 @@ export default function WorkflowConfigPage() {
                   <Label>Temperature: {config.ai.temperature}</Label>
                   <Slider
                     value={[config.ai.temperature]}
-                    onValueChange={([value]) => setConfig({
-                      ...config,
-                      ai: { ...config.ai, temperature: value },
-                    })}
+                    onValueChange={([value]) =>
+                      setConfig({
+                        ...config,
+                        ai: { ...config.ai, temperature: value },
+                      })
+                    }
                     min={0}
                     max={1}
                     step={0.1}
                   />
-                  <p className="text-xs text-gray-500">
-                    0 = Conservateur, 1 = Creatif
-                  </p>
+                  <p className="text-xs text-gray-500">0 = Conservateur, 1 = Creatif</p>
                 </div>
 
                 <div className="space-y-2">
@@ -204,10 +215,12 @@ export default function WorkflowConfigPage() {
                   <Input
                     type="number"
                     value={config.ai.maxTokens}
-                    onChange={(e) => setConfig({
-                      ...config,
-                      ai: { ...config.ai, maxTokens: parseInt(e.target.value) },
-                    })}
+                    onChange={e =>
+                      setConfig({
+                        ...config,
+                        ai: { ...config.ai, maxTokens: parseInt(e.target.value) },
+                      })
+                    }
                   />
                 </div>
 
@@ -215,10 +228,12 @@ export default function WorkflowConfigPage() {
                   <Label>Profondeur d'Analyse</Label>
                   <Select
                     value={config.ai.analysisDepth}
-                    onValueChange={(value) => setConfig({
-                      ...config,
-                      ai: { ...config.ai, analysisDepth: value },
-                    })}
+                    onValueChange={value =>
+                      setConfig({
+                        ...config,
+                        ai: { ...config.ai, analysisDepth: value },
+                      })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -235,10 +250,12 @@ export default function WorkflowConfigPage() {
                   <Label>Seuil de Confiance: {config.ai.confidenceThreshold}</Label>
                   <Slider
                     value={[config.ai.confidenceThreshold]}
-                    onValueChange={([value]) => setConfig({
-                      ...config,
-                      ai: { ...config.ai, confidenceThreshold: value },
-                    })}
+                    onValueChange={([value]) =>
+                      setConfig({
+                        ...config,
+                        ai: { ...config.ai, confidenceThreshold: value },
+                      })
+                    }
                     min={0}
                     max={1}
                     step={0.05}
@@ -249,10 +266,12 @@ export default function WorkflowConfigPage() {
               <div className="flex items-center space-x-2">
                 <Switch
                   checked={config.ai.fallbackEnabled}
-                  onCheckedChange={(checked) => setConfig({
-                    ...config,
-                    ai: { ...config.ai, fallbackEnabled: checked },
-                  })}
+                  onCheckedChange={checked =>
+                    setConfig({
+                      ...config,
+                      ai: { ...config.ai, fallbackEnabled: checked },
+                    })
+                  }
                 />
                 <Label>Activer le fallback (reponses par defaut si IA indisponible)</Label>
               </div>
@@ -271,10 +290,12 @@ export default function WorkflowConfigPage() {
               <div className="flex items-center space-x-2">
                 <Switch
                   checked={config.notifications.enabled}
-                  onCheckedChange={(checked) => setConfig({
-                    ...config,
-                    notifications: { ...config.notifications, enabled: checked },
-                  })}
+                  onCheckedChange={checked =>
+                    setConfig({
+                      ...config,
+                      notifications: { ...config.notifications, enabled: checked },
+                    })
+                  }
                 />
                 <Label>Activer les notifications</Label>
               </div>
@@ -282,11 +303,11 @@ export default function WorkflowConfigPage() {
               <div className="space-y-4">
                 <Label>Canaux de notification</Label>
                 <div className="grid grid-cols-2 gap-4">
-                  {['web', 'email', 'sms', 'webhook'].map((channel) => (
+                  {['web', 'email', 'sms', 'webhook'].map(channel => (
                     <div key={channel} className="flex items-center space-x-2">
                       <Switch
                         checked={config.notifications.channels.includes(channel)}
-                        onCheckedChange={(checked) => {
+                        onCheckedChange={checked => {
                           const channels = checked
                             ? [...config.notifications.channels, channel]
                             : config.notifications.channels.filter((c: string) => c !== channel);
@@ -303,7 +324,7 @@ export default function WorkflowConfigPage() {
               </div>
 
               {/* Priorites */}
-              {['critical', 'high', 'medium', 'low'].map((priority) => (
+              {['critical', 'high', 'medium', 'low'].map(priority => (
                 <Card key={priority}>
                   <CardHeader>
                     <CardTitle className="text-lg capitalize">{priority}</CardTitle>
@@ -313,19 +334,21 @@ export default function WorkflowConfigPage() {
                       <div className="flex items-center space-x-2">
                         <Switch
                           checked={config.notifications.priority[priority].sound}
-                          onCheckedChange={(checked) => setConfig({
-                            ...config,
-                            notifications: {
-                              ...config.notifications,
-                              priority: {
-                                ...config.notifications.priority,
-                                [priority]: {
-                                  ...config.notifications.priority[priority],
-                                  sound: checked,
+                          onCheckedChange={checked =>
+                            setConfig({
+                              ...config,
+                              notifications: {
+                                ...config.notifications,
+                                priority: {
+                                  ...config.notifications.priority,
+                                  [priority]: {
+                                    ...config.notifications.priority[priority],
+                                    sound: checked,
+                                  },
                                 },
                               },
-                            },
-                          })}
+                            })
+                          }
                         />
                         <Label> Son</Label>
                       </div>
@@ -333,19 +356,21 @@ export default function WorkflowConfigPage() {
                       <div className="flex items-center space-x-2">
                         <Switch
                           checked={config.notifications.priority[priority].dismissible}
-                          onCheckedChange={(checked) => setConfig({
-                            ...config,
-                            notifications: {
-                              ...config.notifications,
-                              priority: {
-                                ...config.notifications.priority,
-                                [priority]: {
-                                  ...config.notifications.priority[priority],
-                                  dismissible: checked,
+                          onCheckedChange={checked =>
+                            setConfig({
+                              ...config,
+                              notifications: {
+                                ...config.notifications,
+                                priority: {
+                                  ...config.notifications.priority,
+                                  [priority]: {
+                                    ...config.notifications.priority[priority],
+                                    dismissible: checked,
+                                  },
                                 },
                               },
-                            },
-                          })}
+                            })
+                          }
                         />
                         <Label>️ Dismissible</Label>
                       </div>
@@ -355,19 +380,21 @@ export default function WorkflowConfigPage() {
                         <Input
                           type="number"
                           value={config.notifications.priority[priority].timeoutMinutes}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            notifications: {
-                              ...config.notifications,
-                              priority: {
-                                ...config.notifications.priority,
-                                [priority]: {
-                                  ...config.notifications.priority[priority],
-                                  timeoutMinutes: parseInt(e.target.value),
+                          onChange={e =>
+                            setConfig({
+                              ...config,
+                              notifications: {
+                                ...config.notifications,
+                                priority: {
+                                  ...config.notifications.priority,
+                                  [priority]: {
+                                    ...config.notifications.priority[priority],
+                                    timeoutMinutes: parseInt(e.target.value),
+                                  },
                                 },
                               },
-                            },
-                          })}
+                            })
+                          }
                         />
                       </div>
 
@@ -376,19 +403,21 @@ export default function WorkflowConfigPage() {
                         <Input
                           type="number"
                           value={config.notifications.priority[priority].escalateAfterMinutes}
-                          onChange={(e) => setConfig({
-                            ...config,
-                            notifications: {
-                              ...config.notifications,
-                              priority: {
-                                ...config.notifications.priority,
-                                [priority]: {
-                                  ...config.notifications.priority[priority],
-                                  escalateAfterMinutes: parseInt(e.target.value),
+                          onChange={e =>
+                            setConfig({
+                              ...config,
+                              notifications: {
+                                ...config.notifications,
+                                priority: {
+                                  ...config.notifications.priority,
+                                  [priority]: {
+                                    ...config.notifications.priority[priority],
+                                    escalateAfterMinutes: parseInt(e.target.value),
+                                  },
                                 },
                               },
-                            },
-                          })}
+                            })
+                          }
                         />
                       </div>
                     </div>
@@ -405,16 +434,18 @@ export default function WorkflowConfigPage() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       checked={config.notifications.quietHours.enabled}
-                      onCheckedChange={(checked) => setConfig({
-                        ...config,
-                        notifications: {
-                          ...config.notifications,
-                          quietHours: {
-                            ...config.notifications.quietHours,
-                            enabled: checked,
+                      onCheckedChange={checked =>
+                        setConfig({
+                          ...config,
+                          notifications: {
+                            ...config.notifications,
+                            quietHours: {
+                              ...config.notifications.quietHours,
+                              enabled: checked,
+                            },
                           },
-                        },
-                      })}
+                        })
+                      }
                     />
                     <Label>Activer</Label>
                   </div>
@@ -425,16 +456,18 @@ export default function WorkflowConfigPage() {
                       <Input
                         type="time"
                         value={config.notifications.quietHours.start}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          notifications: {
-                            ...config.notifications,
-                            quietHours: {
-                              ...config.notifications.quietHours,
-                              start: e.target.value,
+                        onChange={e =>
+                          setConfig({
+                            ...config,
+                            notifications: {
+                              ...config.notifications,
+                              quietHours: {
+                                ...config.notifications.quietHours,
+                                start: e.target.value,
+                              },
                             },
-                          },
-                        })}
+                          })
+                        }
                       />
                     </div>
 
@@ -443,16 +476,18 @@ export default function WorkflowConfigPage() {
                       <Input
                         type="time"
                         value={config.notifications.quietHours.end}
-                        onChange={(e) => setConfig({
-                          ...config,
-                          notifications: {
-                            ...config.notifications,
-                            quietHours: {
-                              ...config.notifications.quietHours,
-                              end: e.target.value,
+                        onChange={e =>
+                          setConfig({
+                            ...config,
+                            notifications: {
+                              ...config.notifications,
+                              quietHours: {
+                                ...config.notifications.quietHours,
+                                end: e.target.value,
+                              },
                             },
-                          },
-                        })}
+                          })
+                        }
                       />
                     </div>
                   </div>

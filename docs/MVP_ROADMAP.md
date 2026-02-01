@@ -25,13 +25,13 @@ Livrer un produit **minimal mais complet** permettant de :
 
 ### Vue d'ensemble
 
-| Phase        | Dates     | Objectif          | Livrables clés                       |
-| ------------ | --------- | ----------------- | ------------------------------------ |
-| **Phase 0**  | J-7 → J0  | Préparation       | Environnements, design DB, maquettes |
-| **Phase 1**  | J1 → J30  | Fondations        | EventLog, normalisation, hash        |
-| **Phase 2**  | J31 → J60 | Analyse           | Suggestions automatiques, validation humaine   |
-| **Phase 3**  | J61 → J90 | Conformité        | Audit, métriques, export PDF         |
-| **Post-MVP** | J91+      | Industrialisation | Scaling, multi-canal                 |
+| Phase        | Dates     | Objectif          | Livrables clés                               |
+| ------------ | --------- | ----------------- | -------------------------------------------- |
+| **Phase 0**  | J-7 → J0  | Préparation       | Environnements, design DB, maquettes         |
+| **Phase 1**  | J1 → J30  | Fondations        | EventLog, normalisation, hash                |
+| **Phase 2**  | J31 → J60 | Analyse           | Suggestions automatiques, validation humaine |
+| **Phase 3**  | J61 → J90 | Conformité        | Audit, métriques, export PDF                 |
+| **Post-MVP** | J91+      | Industrialisation | Scaling, multi-canal                         |
 
 ---
 
@@ -500,7 +500,7 @@ Livrer un produit **minimal mais complet** permettant de :
 | Risque                           | Impact   | Probabilité | Mitigation                      |
 | -------------------------------- | -------- | ----------- | ------------------------------- |
 | **Perf ingestion > 1000 flux/j** | 🔴 Haut  | Moyen       | Tests de charge dès phase 1     |
-| **Classification imprécise**  | 🟠 Moyen | Moyen       | Validation humaine obligatoire  |
+| **Classification imprécise**     | 🟠 Moyen | Moyen       | Validation humaine obligatoire  |
 | **DB triggers complexes**        | 🟠 Moyen | Faible      | Tests unitaires exhaustifs      |
 | **Export PDF non conforme**      | 🔴 Haut  | Faible      | Validation par expert juridique |
 | **Retard développement**         | 🟠 Moyen | Moyen       | Buffer 10j avant démo État      |
