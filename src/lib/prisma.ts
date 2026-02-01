@@ -48,7 +48,14 @@ if (isTest) {
   prismaLocal = {
     tenant: {
       findUnique: async () => null,
+      findMany: async () => [],
       update: async () => ({}),
+    },
+    aiUsage: {
+      aggregate: async () => ({ _sum: { cost: 0 } }),
+    },
+    aIUsageLog: {
+      aggregate: async () => ({ _sum: { costEur: 0 } }),
     },
     quotaEvent: {
       create: async () => ({}),

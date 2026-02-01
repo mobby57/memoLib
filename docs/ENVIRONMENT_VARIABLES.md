@@ -1,18 +1,41 @@
-# Variables d'Environnement - MemoLib
+# 🔑 Variables d'Environnement - MemoLib
 
-## 🔧 Configuration Rapide
+**Last Updated**: 01/02/2026 | **Status**: ✅ Complete
+**Required for**: Development, Testing, Production
+
+---
+
+## 🚨 Security Notice
+
+**⚠️ NEVER commit `.env.local` to git!**
 
 ```bash
-# 1. Copier le template
+# Already in .gitignore, but verify:
+grep ".env.local" .gitignore
+```
+
+Store production secrets in:
+
+- **Azure**: Azure Key Vault (via managed identity)
+- **Local Dev**: `.env.local` (git-ignored)
+- **CI/CD**: GitHub Secrets or Azure Key Vault
+
+---
+
+## 🔧 Quick Setup
+
+```bash
+# 1. Copy template
 cp .env.example .env.local
 
-# 2. Générer les secrets
-openssl rand -base64 32  # Pour NEXTAUTH_SECRET
-openssl rand -hex 32     # Pour SECRET_KEY
+# 2. Fill in YOUR values (below)
+nano .env.local
 
-# 3. Configurer la base de données
-# Dev: SQLite (par défaut)
-# Prod: PostgreSQL (requis)
+# 3. Verify (don't echo secret values!)
+grep -v "^#" .env.local | grep -v "^$"
+
+# 4. Start development
+npm run dev:all
 ```
 
 ---
