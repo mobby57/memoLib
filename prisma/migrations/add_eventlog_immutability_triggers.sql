@@ -30,7 +30,7 @@ EXECUTE FUNCTION prevent_eventlog_modification();
 -- VERIFICATION
 -- ============================================
 -- Test (à exécuter après migration) :
--- 
+--
 -- 1. Insérer un EventLog :
 --    INSERT INTO event_logs (id, timestamp, event_type, entity_type, entity_id, actor_type, tenant_id, immutable, checksum, metadata)
 --    VALUES ('test-id', NOW(), 'FLOW_RECEIVED', 'flow', 'test-flow', 'SYSTEM', 'test-tenant', true, 'test-checksum', '{}');
