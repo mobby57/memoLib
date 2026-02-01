@@ -1,7 +1,7 @@
 # 🎉 EventLog Immuable — IMPLÉMENTÉ
 
-**Date** : 1er février 2026  
-**Phase** : 1 / Fondations MVP  
+**Date** : 1er février 2026
+**Phase** : 1 / Fondations MVP
 **Règles implémentées** : RULE-004, RULE-005, RULE-006
 
 ---
@@ -9,6 +9,7 @@
 ## ✅ CE QUI A ÉTÉ FAIT
 
 ### 1️⃣ Schema Prisma
+
 - ✅ Table `EventLog` créée avec tous les champs
 - ✅ Enum `EventType` (26 types d'événements)
 - ✅ Enum `ActorType` (USER, SYSTEM, AI)
@@ -18,6 +19,7 @@
 **Fichier** : [prisma/schema.prisma](../../prisma/schema.prisma)
 
 ### 2️⃣ Service Backend
+
 - ✅ `EventLogService` avec méthodes complètes
 - ✅ Calcul checksum SHA-256
 - ✅ Vérification intégrité
@@ -27,16 +29,19 @@
 **Fichier** : [src/lib/services/event-log.service.ts](../../src/lib/services/event-log.service.ts)
 
 ### 3️⃣ API Next.js
+
 - ✅ `GET /api/audit/timeline/[entityType]/[entityId]` : Timeline entité
 - ✅ `GET /api/audit/trail` : Audit trail admin
 - ✅ Authentification vérifiée
 - ✅ Pagination supportée
 
 **Fichiers** :
+
 - [src/app/api/audit/timeline/[entityType]/[entityId]/route.ts](../../src/app/api/audit/timeline/[entityType]/[entityId]/route.ts)
 - [src/app/api/audit/trail/route.ts](../../src/app/api/audit/trail/route.ts)
 
 ### 4️⃣ UI Timeline
+
 - ✅ Composant `AuditTimeline` avec affichage chronologique
 - ✅ Icônes par type d'événement
 - ✅ Badges acteur (USER/SYSTEM/AI)
@@ -46,13 +51,15 @@
 **Fichier** : [src/components/audit/AuditTimeline.tsx](../../src/components/audit/AuditTimeline.tsx)
 
 ### 5️⃣ Tests
+
 - ✅ Tests unitaires service (création, checksum, intégrité)
 - ✅ Tests timeline et audit trail
 - ✅ Tests tentative modification/suppression (avec trigger DB)
 
-**Fichier** : [src/__tests__/services/event-log.service.test.ts](../../src/__tests__/services/event-log.service.test.ts)
+**Fichier** : [src/**tests**/services/event-log.service.test.ts](../../src/__tests__/services/event-log.service.test.ts)
 
 ### 6️⃣ Intégration Gmail
+
 - ✅ EventLog créé à chaque réception email
 - ✅ Type `FLOW_RECEIVED` avec métadonnées
 - ✅ Acteur SYSTEM
@@ -60,6 +67,7 @@
 **Fichier** : [src/lib/email/gmail-monitor.ts](../../src/lib/email/gmail-monitor.ts)
 
 ### 7️⃣ Trigger PostgreSQL
+
 - ✅ Fonction `prevent_eventlog_modification()`
 - ✅ Trigger UPDATE bloqué
 - ✅ Trigger DELETE bloqué
@@ -71,6 +79,7 @@
 ## 🚀 INSTALLATION & DÉPLOIEMENT
 
 ### Prérequis
+
 - PostgreSQL 14+
 - Node.js 18+
 - Prisma CLI installé
@@ -78,17 +87,20 @@
 ### Étapes
 
 #### 1. Générer migration Prisma
+
 ```bash
 cd /workspaces/memolib
 npx prisma migrate dev --name add_eventlog_immutable
 ```
 
 Cela va :
+
 - Créer la table `event_logs`
 - Ajouter les enums `EventType` et `ActorType`
 - Appliquer les migrations
 
 #### 2. Appliquer triggers PostgreSQL
+
 ```bash
 # Se connecter à PostgreSQL
 psql -U postgres -d memolib_dev
@@ -98,16 +110,19 @@ psql -U postgres -d memolib_dev
 ```
 
 OU directement :
+
 ```bash
 psql -U postgres -d memolib_dev -f prisma/migrations/add_eventlog_immutability_triggers.sql
 ```
 
 #### 3. Générer client Prisma
+
 ```bash
 npx prisma generate
 ```
 
 #### 4. Vérifier installation
+
 ```bash
 # Test trigger immuabilité
 psql -U postgres -d memolib_dev -c "
@@ -166,12 +181,8 @@ export default function FlowDetailPage({ params }: { params: { id: string } }) {
   return (
     <div>
       <h1>Flux #{params.id}</h1>
-      
-      <AuditTimeline
-        entityType="flow"
-        entityId={params.id}
-        className="mt-6"
-      />
+
+      <AuditTimeline entityType="flow" entityId={params.id} className="mt-6" />
     </div>
   );
 }
@@ -192,11 +203,13 @@ curl -X GET 'http://localhost:3000/api/audit/trail?eventType=FLOW_RECEIVED&limit
 ## 🧪 TESTER
 
 ### Tests unitaires
+
 ```bash
 npm test -- src/__tests__/services/event-log.service.test.ts
 ```
 
 ### Tests E2E (à créer)
+
 ```typescript
 // e2e/eventlog.spec.ts
 test('User can view timeline', async ({ page }) => {
@@ -211,16 +224,19 @@ test('User can view timeline', async ({ page }) => {
 ## 📊 RÈGLES IMPLÉMENTÉES
 
 ### ✅ RULE-004 : Immuabilité absolue
+
 - Trigger PostgreSQL empêche UPDATE/DELETE
 - Prisma middleware (backup)
 - Tests validant le rejet des modifications
 
 ### ✅ RULE-005 : Exhaustivité
+
 - Tous événements significatifs tracés
 - Liste exhaustive dans enum `EventType`
 - EventLog créé dans `gmail-monitor.ts` (exemple)
 
 ### ✅ RULE-006 : Checksum intégrité
+
 - Hash SHA-256 calculé à la création
 - Fonction `verifyIntegrity()` pour validation
 - Cron job possible pour vérification périodique
@@ -230,6 +246,7 @@ test('User can view timeline', async ({ page }) => {
 ## 🔜 PROCHAINES ÉTAPES
 
 ### Phase 1 (suite)
+
 1. **Normalisation avec hash** (RULE-013)
    - Créer service `NormalizationService`
    - Calculer hash SHA-256 du contenu brut
@@ -245,6 +262,7 @@ test('User can view timeline', async ({ page }) => {
    - Vérifier 0 perte de données
 
 ### Phase 2
+
 4. **Classification IA** (RULE-007)
    - Service `ClassificationService`
    - Génération suggestions avec score confiance
@@ -312,6 +330,6 @@ await createEventLog({
 
 ---
 
-**Auteur** : Équipe Memo Lib  
-**Statut** : ✅ Implémenté, en attente migration DB  
+**Auteur** : Équipe Memo Lib
+**Statut** : ✅ Implémenté, en attente migration DB
 **Prochaine review** : Après tests sur environnement staging

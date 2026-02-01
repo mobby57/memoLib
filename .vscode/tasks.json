@@ -214,6 +214,24 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Clean: Workspace (Aggressive Dry Run)",
+      "type": "shell",
+      "command": "bash scripts/cleanup-workspace.sh --aggressive",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Clean: Workspace (Aggressive Apply)",
+      "type": "shell",
+      "command": "bash scripts/cleanup-workspace.sh --aggressive --apply",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ]
 }

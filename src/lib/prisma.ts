@@ -13,7 +13,11 @@ import 'dotenv/config';
  */
 
 // Detection environnement de test (Jest)
-const isTest = process.env.JEST_WORKER_ID !== undefined || process.env.NODE_ENV === 'test';
+const forceRealDbTests =
+  process.env.REAL_DB_TESTS === '1' || process.env.USE_REAL_DB_FOR_TESTS === '1';
+const isTest =
+  !forceRealDbTests &&
+  (process.env.JEST_WORKER_ID !== undefined || process.env.NODE_ENV === 'test');
 
 // Types pour le monitoring
 interface QueryMetrics {
@@ -168,6 +172,11 @@ if (!isTest && process.env.NODE_ENV === 'development') {
 // Soft delete middleware
 if (!isTest)
   prisma.$use(async (params, next) => {
+    // Ne pas appliquer le soft delete aux EventLog (immuabilité gérée par trigger DB)
+    if (params.model === 'EventLog') {
+      return next(params);
+    }
+
     // Intercepter les delete et les transformer en update
     if (params.action === 'delete') {
       params.action = 'update';
