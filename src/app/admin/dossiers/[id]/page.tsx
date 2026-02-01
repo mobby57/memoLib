@@ -8,69 +8,86 @@ export const dynamic = 'force-dynamic';
  * Affiche toutes les informations du dossier client
  */
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter, useParams } from 'next/navigation'
-import Link from 'next/link'
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import {
-  FileText, ArrowLeft, User, Calendar, Clock,
-  AlertCircle, CheckCircle, Upload, MessageSquare,
-  FileCheck, Edit, Trash2, Download, Send, Plus,
-  Scale, Briefcase, MapPin, Phone, Mail, Globe
-} from 'lucide-react'
-import { Card } from '@/components/ui'
-import { Badge } from '@/components/ui'
-import { Button } from '@/components/forms/Button'
-import { useToast } from '@/hooks/use-toast'
+  FileText,
+  ArrowLeft,
+  User,
+  Calendar,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  Upload,
+  MessageSquare,
+  FileCheck,
+  Edit,
+  Trash2,
+  Download,
+  Send,
+  Plus,
+  Scale,
+  Briefcase,
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+} from 'lucide-react';
+import { Card } from '@/components/ui';
+import { Badge } from '@/components/ui';
+import { Button } from '@/components/forms/Button';
+import { useToast } from '@/hooks/use-toast';
 
 interface Client {
-  id: string
-  nom: string
-  prenom: string
-  email: string
-  telephone?: string
-  nationalite?: string
-  dateNaissance?: string
-  adresse?: string
+  id: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone?: string;
+  nationalite?: string;
+  dateNaissance?: string;
+  adresse?: string;
 }
 
 interface Document {
-  id: string
-  name: string
-  type: string
-  size: number
-  createdAt: string
-  url?: string
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  createdAt: string;
+  url?: string;
 }
 
 interface Echeance {
-  id: string
-  titre: string
-  date: string
-  statut: 'PENDING' | 'DONE' | 'OVERDUE'
+  id: string;
+  titre: string;
+  date: string;
+  statut: 'PENDING' | 'DONE' | 'OVERDUE';
 }
 
 interface Message {
-  id: string
-  content: string
-  createdAt: string
-  isFromClient: boolean
+  id: string;
+  content: string;
+  createdAt: string;
+  isFromClient: boolean;
 }
 
 interface Dossier {
-  id: string
-  numeroDossier: string
-  typeDossier: string
-  objetDemande: string
-  statut: string
-  priorite: string
-  dateCreation: string
-  dateEcheance?: string
-  notes?: string
-  client: Client
-  documents: Document[]
-  echeances: Echeance[]
-  messages: Message[]
+  id: string;
+  numeroDossier: string;
+  typeDossier: string;
+  objetDemande: string;
+  statut: string;
+  priorite: string;
+  dateCreation: string;
+  dateEcheance?: string;
+  notes?: string;
+  client: Client;
+  documents: Document[];
+  echeances: Echeance[];
+  messages: Message[];
 }
 
 const STATUT_COLORS: Record<string, 'default' | 'info' | 'warning' | 'success' | 'danger'> = {
@@ -80,65 +97,67 @@ const STATUT_COLORS: Record<string, 'default' | 'info' | 'warning' | 'success' |
   TERMINE: 'success',
   REJETE: 'danger',
   ANNULE: 'default',
-}
+};
 
 const TYPES_LABELS: Record<string, string> = {
   TITRE_SEJOUR: 'Titre de Séjour',
   RECOURS_OQTF: 'Recours OQTF',
   NATURALISATION: 'Naturalisation',
   REGROUPEMENT_FAMILIAL: 'Regroupement Familial',
-  ASILE: 'Demande d\'Asile',
+  ASILE: "Demande d'Asile",
   VISA: 'Visa',
   AUTRE: 'Autre',
-}
+};
 
 export default function DossierDetailPage() {
-  const { data: session } = useSession()
-  const router = useRouter()
-  const params = useParams() as any
-  const { toast } = useToast()
+  const { data: session } = useSession();
+  const router = useRouter();
+  const params = useParams() as any;
+  const { toast } = useToast();
 
-  const [dossier, setDossier] = useState<Dossier | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'messages' | 'echeances'>('info')
+  const [dossier, setDossier] = useState<Dossier | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'info' | 'documents' | 'messages' | 'echeances'>(
+    'info'
+  );
 
-  const dossierId = params?.id as string
+  const dossierId = params?.id as string;
 
   useEffect(() => {
     if (dossierId) {
-      fetchDossier()
+      fetchDossier();
     }
-  }, [dossierId])
+  }, [dossierId]);
 
   const fetchDossier = async () => {
     try {
-      setLoading(true)
-      const res = await fetch(`/api/admin/dossiers/${dossierId}`)
+      setLoading(true);
+      const res = await fetch(`/api/admin/dossiers/${dossierId}`);
       if (!res.ok) {
         if (res.status === 404) {
           toast({
             variant: 'destructive',
             title: 'Dossier introuvable',
-            description: 'Ce dossier n\'existe pas ou a été supprimé'
-          })
-          router.push('/admin/dossiers')
-          return
+            description: "Ce dossier n'existe pas ou a été supprimé",
+          });
+          router.push('/admin/dossiers');
+          return;
         }
-        throw new Error('Erreur chargement')
+        throw new Error('Erreur chargement');
       }
 
-      const data = await res.json()
-      setDossier(data)
+      const data = await res.json();
+      setDossier(data);
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Erreur',
-        description: 'Impossible de charger le dossier'
-      })
+        description: 'Impossible de charger le dossier',
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const updateStatut = async (newStatut: string) => {
     try {
@@ -146,25 +165,25 @@ export default function DossierDetailPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ statut: newStatut }),
-      })
+      });
 
-      if (!res.ok) throw new Error('Erreur mise à jour')
+      if (!res.ok) throw new Error('Erreur mise à jour');
 
       toast({
         variant: 'success',
         title: 'Statut mis à jour',
-        description: `Le dossier est maintenant ${newStatut.replace('_', ' ')}`
-      })
+        description: `Le dossier est maintenant ${newStatut.replace('_', ' ')}`,
+      });
 
-      fetchDossier()
+      fetchDossier();
     } catch (error) {
       toast({
         variant: 'destructive',
         title: 'Erreur',
-        description: 'Impossible de mettre à jour le statut'
-      })
+        description: 'Impossible de mettre à jour le statut',
+      });
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -174,7 +193,7 @@ export default function DossierDetailPage() {
           <p className="mt-4 text-gray-600">Chargement du dossier...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!dossier) {
@@ -183,13 +202,15 @@ export default function DossierDetailPage() {
         <Card className="p-8 text-center">
           <AlertCircle className="mx-auto text-red-500 mb-4" size={48} />
           <h2 className="text-xl font-bold text-gray-900 mb-2">Dossier introuvable</h2>
-          <p className="text-gray-600 mb-4">Ce dossier n&apos;existe pas ou vous n&apos;y avez pas accès.</p>
+          <p className="text-gray-600 mb-4">
+            Ce dossier n&apos;existe pas ou vous n&apos;y avez pas accès.
+          </p>
           <Button onClick={() => router.push('/admin/dossiers')} className="bg-blue-600 text-white">
             Retour aux dossiers
           </Button>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -223,7 +244,10 @@ export default function DossierDetailPage() {
               <Badge variant={STATUT_COLORS[dossier.statut] as any} className="text-sm px-3 py-1">
                 {dossier.statut.replace('_', ' ')}
               </Badge>
-              <Badge variant={dossier.priorite === 'URGENTE' ? 'danger' : 'default'} className="text-sm px-3 py-1">
+              <Badge
+                variant={dossier.priorite === 'URGENTE' ? 'danger' : 'default'}
+                className="text-sm px-3 py-1"
+              >
                 {dossier.priorite}
               </Badge>
             </div>
@@ -233,10 +257,25 @@ export default function DossierDetailPage() {
           <div className="mt-4 flex gap-1 border-t pt-4">
             {[
               { id: 'info', label: 'Informations', icon: Briefcase },
-              { id: 'documents', label: 'Documents', icon: FileText, count: dossier.documents.length },
-              { id: 'messages', label: 'Messages', icon: MessageSquare, count: dossier.messages.length },
-              { id: 'echeances', label: 'Échéances', icon: Calendar, count: dossier.echeances.length },
-            ].map((tab) => (
+              {
+                id: 'documents',
+                label: 'Documents',
+                icon: FileText,
+                count: dossier.documents.length,
+              },
+              {
+                id: 'messages',
+                label: 'Messages',
+                icon: MessageSquare,
+                count: dossier.messages.length,
+              },
+              {
+                id: 'echeances',
+                label: 'Échéances',
+                icon: Calendar,
+                count: dossier.echeances.length,
+              },
+            ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
@@ -249,9 +288,11 @@ export default function DossierDetailPage() {
                 <tab.icon size={18} />
                 {tab.label}
                 {tab.count !== undefined && (
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    activeTab === tab.id ? 'bg-blue-500' : 'bg-gray-200'
-                  }`}>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full ${
+                      activeTab === tab.id ? 'bg-blue-500' : 'bg-gray-200'
+                    }`}
+                  >
                     {tab.count}
                   </span>
                 )}
@@ -336,14 +377,18 @@ export default function DossierDetailPage() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {dossier.documents.map((doc) => (
-                      <div key={doc.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    {dossier.documents.map(doc => (
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                      >
                         <div className="flex items-center gap-3">
                           <FileText className="text-blue-600" size={24} />
                           <div>
                             <p className="font-medium text-gray-900">{doc.name}</p>
                             <p className="text-sm text-gray-500">
-                              {(doc.size / 1024).toFixed(1)} KB • {new Date(doc.createdAt).toLocaleDateString('fr-FR')}
+                              {(doc.size / 1024).toFixed(1)} KB •{' '}
+                              {new Date(doc.createdAt).toLocaleDateString('fr-FR')}
                             </p>
                           </div>
                         </div>
@@ -378,13 +423,17 @@ export default function DossierDetailPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {dossier.messages.map((msg) => (
-                      <div key={msg.id} className={`p-4 rounded-lg ${
-                        msg.isFromClient ? 'bg-gray-100 ml-0 mr-12' : 'bg-blue-50 ml-12 mr-0'
-                      }`}>
+                    {dossier.messages.map(msg => (
+                      <div
+                        key={msg.id}
+                        className={`p-4 rounded-lg ${
+                          msg.isFromClient ? 'bg-gray-100 ml-0 mr-12' : 'bg-blue-50 ml-12 mr-0'
+                        }`}
+                      >
                         <p className="text-gray-800">{msg.content}</p>
                         <p className="text-xs text-gray-500 mt-2">
-                          {msg.isFromClient ? 'Client' : 'Vous'} • {new Date(msg.createdAt).toLocaleString('fr-FR')}
+                          {msg.isFromClient ? 'Client' : 'Vous'} •{' '}
+                          {new Date(msg.createdAt).toLocaleString('fr-FR')}
                         </p>
                       </div>
                     ))}
@@ -414,8 +463,11 @@ export default function DossierDetailPage() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {dossier.echeances.map((ech) => (
-                      <div key={ech.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    {dossier.echeances.map(ech => (
+                      <div
+                        key={ech.id}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                      >
                         <div className="flex items-center gap-3">
                           {ech.statut === 'DONE' ? (
                             <CheckCircle className="text-green-600" size={24} />
@@ -431,11 +483,20 @@ export default function DossierDetailPage() {
                             </p>
                           </div>
                         </div>
-                        <Badge variant={
-                          ech.statut === 'DONE' ? 'success' :
-                          ech.statut === 'OVERDUE' ? 'danger' : 'warning'
-                        }>
-                          {ech.statut === 'DONE' ? 'Fait' : ech.statut === 'OVERDUE' ? 'En retard' : 'À faire'}
+                        <Badge
+                          variant={
+                            ech.statut === 'DONE'
+                              ? 'success'
+                              : ech.statut === 'OVERDUE'
+                                ? 'danger'
+                                : 'warning'
+                          }
+                        >
+                          {ech.statut === 'DONE'
+                            ? 'Fait'
+                            : ech.statut === 'OVERDUE'
+                              ? 'En retard'
+                              : 'À faire'}
                         </Badge>
                       </div>
                     ))}
@@ -466,7 +527,10 @@ export default function DossierDetailPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 text-gray-600">
                     <Mail size={18} />
-                    <a href={`mailto:${dossier.client.email}`} className="text-blue-600 hover:underline">
+                    <a
+                      href={`mailto:${dossier.client.email}`}
+                      className="text-blue-600 hover:underline"
+                    >
                       {dossier.client.email}
                     </a>
                   </div>
@@ -474,7 +538,10 @@ export default function DossierDetailPage() {
                   {dossier.client.telephone && (
                     <div className="flex items-center gap-3 text-gray-600">
                       <Phone size={18} />
-                      <a href={`tel:${dossier.client.telephone}`} className="text-blue-600 hover:underline">
+                      <a
+                        href={`tel:${dossier.client.telephone}`}
+                        className="text-blue-600 hover:underline"
+                      >
                         {dossier.client.telephone}
                       </a>
                     </div>
@@ -520,7 +587,7 @@ export default function DossierDetailPage() {
                       {new Date(dossier.dateCreation).toLocaleDateString('fr-FR', {
                         day: 'numeric',
                         month: 'long',
-                        year: 'numeric'
+                        year: 'numeric',
                       })}
                     </p>
                   </div>
@@ -535,7 +602,7 @@ export default function DossierDetailPage() {
                         {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR', {
                           day: 'numeric',
                           month: 'long',
-                          year: 'numeric'
+                          year: 'numeric',
                         })}
                       </p>
                     </div>
@@ -547,5 +614,5 @@ export default function DossierDetailPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

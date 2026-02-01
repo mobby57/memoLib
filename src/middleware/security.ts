@@ -15,6 +15,9 @@ import type { NextRequest } from 'next/server';
  * Headers de securite OWASP compliant
  */
 export function addSecurityHeaders(response: NextResponse): NextResponse {
+  const version = process.env.NEXT_PUBLIC_APP_VERSION || 'unknown';
+  const commit = process.env.NEXT_PUBLIC_BUILD_COMMIT || '';
+
   // Content Security Policy - Strict mais fonctionnel
   const csp = [
     "default-src 'self'",
@@ -62,6 +65,12 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
   // Headers additionnels pour la confidentialite
   response.headers.set('X-Powered-By', ''); // Masquer la technologie
   response.headers.set('Server', ''); // Masquer le serveur
+
+  // Headers de version applicative
+  response.headers.set('x-app-version', version);
+  if (commit) {
+    response.headers.set('x-build-commit', commit);
+  }
   
   return response;
 }
