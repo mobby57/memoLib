@@ -18,14 +18,14 @@ datasource db {
 // ============================================
 
 enum InformationUnitStatus {
-  RECEIVED                // Information reçue, non traitée
-  CLASSIFIED              // Catégorisée (client, dossier, type)
-  ANALYZED                // Analysée par IA ou humain
-  INCOMPLETE              // Manque des éléments
-  AMBIGUOUS               // Nécessite clarification
-  HUMAN_ACTION_REQUIRED   // Escalade obligatoire
-  RESOLVED                // Traitée complètement
-  CLOSED                  // Archivée
+  RECEIVED // Information reçue, non traitée
+  CLASSIFIED // Catégorisée (client, dossier, type)
+  ANALYZED // Analysée par IA ou humain
+  INCOMPLETE // Manque des éléments
+  AMBIGUOUS // Nécessite clarification
+  HUMAN_ACTION_REQUIRED // Escalade obligatoire
+  RESOLVED // Traitée complètement
+  CLOSED // Archivée
 }
 
 enum InformationUnitSource {
@@ -38,28 +38,28 @@ enum InformationUnitSource {
 }
 
 enum DeadlineType {
-  RECOURS_GRACIEUX       // 2 mois
-  RECOURS_HIERARCHIQUE   // 2 mois
-  RECOURS_CONTENTIEUX    // 2 mois TA
-  APPEL                  // 1 mois CAA
-  CASSATION              // 2 mois CE
-  REPONSE_PREFECTURE     // Variable
-  CONVOCATION_AUDIENCE   // Variable
-  PRODUCTION_PIECES      // Fixé par juge
-  EXECUTION_DECISION     // Variable
-  OQTF                   // 30/90 jours
-  RETENTION              // 48h/28j/45j/90j
-  CUSTOM                 // Personnalisé
+  RECOURS_GRACIEUX // 2 mois
+  RECOURS_HIERARCHIQUE // 2 mois
+  RECOURS_CONTENTIEUX // 2 mois TA
+  APPEL // 1 mois CAA
+  CASSATION // 2 mois CE
+  REPONSE_PREFECTURE // Variable
+  CONVOCATION_AUDIENCE // Variable
+  PRODUCTION_PIECES // Fixé par juge
+  EXECUTION_DECISION // Variable
+  OQTF // 30/90 jours
+  RETENTION // 48h/28j/45j/90j
+  CUSTOM // Personnalisé
 }
 
 enum DeadlineStatus {
-  PENDING      // En attente
-  APPROACHING  // J-7
-  URGENT       // J-3
-  CRITICAL     // J-1
-  OVERDUE      // Dépassé
-  COMPLETED    // Respecté
-  CANCELLED    // Annulé
+  PENDING // En attente
+  APPROACHING // J-7
+  URGENT // J-3
+  CRITICAL // J-1
+  OVERDUE // Dépassé
+  COMPLETED // Respecté
+  CANCELLED // Annulé
 }
 
 enum ProofType {
@@ -97,6 +97,51 @@ enum AuditAction {
   REJECT
   ESCALATE
   ARCHIVE
+}
+
+enum EventType {
+  // Flux ingestion
+  FLOW_RECEIVED
+  FLOW_NORMALIZED
+  FLOW_CLASSIFIED
+
+  // Validation humaine
+  USER_VALIDATED_SUGGESTION
+  USER_REJECTED_SUGGESTION
+  USER_ASSIGNED_FLOW
+  USER_ASSIGNED_DOSSIER
+
+  // Doublons
+  DUPLICATE_DETECTED
+  DUPLICATE_MERGED
+  DUPLICATE_DISMISSED
+
+  // Commentaires & collaboration
+  USER_ADDED_COMMENT
+  USER_MENTIONED
+
+  // Sécurité & accès
+  ACCESS_LOGIN
+  ACCESS_LOGOUT
+  ACCESS_VIEWED_FLOW
+  ACCESS_DOWNLOADED_ATTACHMENT
+  ACCESS_EXPORTED_AUDIT
+  ACCESS_FORBIDDEN
+
+  // Système
+  SYSTEM_ERROR
+  SYSTEM_MAINTENANCE
+
+  // Workflows
+  WORKFLOW_STARTED
+  WORKFLOW_COMPLETED
+  WORKFLOW_FAILED
+}
+
+enum ActorType {
+  USER
+  SYSTEM
+  AI
 }
 
 enum ArchiveStatus {
@@ -204,6 +249,7 @@ model Tenant {
   legalDeadlines     LegalDeadline[]
   proofs             Proof[]
   auditLogs          AuditLog[]
+  eventLogs          EventLog[]
   archivePolicies    ArchivePolicy[]
   reports            Report[]
   channelMessages    ChannelMessage[]
@@ -316,9 +362,9 @@ model User {
 }
 
 model OAuthToken {
-  id       String @id @default(uuid())
-  userId   String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   provider     String // 'google' | 'microsoft' | 'github'
   accessToken  String
@@ -326,7 +372,7 @@ model OAuthToken {
   expiresAt    DateTime?
   scope        String? // space-separated scopes
 
-  connectedAt DateTime @default(now())
+  connectedAt DateTime  @default(now())
   lastUsedAt  DateTime?
   revokedAt   DateTime?
 
@@ -381,12 +427,12 @@ model Client {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  dossiers       Dossier[]
-  emails         Email[]
-  factures       Facture[]
-  calendarEvents CalendarEvent[]
-  documents      Document[]
-  legalDeadlines LegalDeadline[]
+  dossiers        Dossier[]
+  emails          Email[]
+  factures        Facture[]
+  calendarEvents  CalendarEvent[]
+  documents       Document[]
+  legalDeadlines  LegalDeadline[]
   channelMessages ChannelMessage[] @relation("ChannelMessages")
   rgpdConsents    RGPDConsent[]    @relation("RGPDConsents")
 
@@ -433,12 +479,12 @@ model Dossier {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  emails         Email[]
-  factures       Facture[]
-  calendarEvents CalendarEvent[]
-  documents      Document[]
-  legalDeadlines LegalDeadline[]
-  proofs         Proof[]
+  emails          Email[]
+  factures        Facture[]
+  calendarEvents  CalendarEvent[]
+  documents       Document[]
+  legalDeadlines  LegalDeadline[]
+  proofs          Proof[]
   channelMessages ChannelMessage[] @relation("ChannelMessages")
 
   @@unique([tenantId, numero])
@@ -447,36 +493,36 @@ model Dossier {
 }
 
 model Document {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   dossierId String?
   dossier   Dossier? @relation(fields: [dossierId], references: [id])
 
-  clientId  String?
-  client    Client?  @relation(fields: [clientId], references: [id])
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
 
-  filename    String
+  filename     String
   originalName String
-  mimeType    String
-  size        Int
-  storageKey  String
+  mimeType     String
+  size         Int
+  storageKey   String
 
   category    String?
   description String?
 
-  ocrProcessed Boolean @default(false)
-  ocrText      String?
+  ocrProcessed  Boolean @default(false)
+  ocrText       String?
   ocrConfidence Float?
   extractedData String?
 
-  aiAnalyzed  Boolean @default(false)
-  aiSummary   String?
-  aiMetadata  String?
+  aiAnalyzed Boolean @default(false)
+  aiSummary  String?
+  aiMetadata String?
 
-  uploadedBy  String
-  uploader    User     @relation(fields: [uploadedBy], references: [id])
+  uploadedBy String
+  uploader   User   @relation(fields: [uploadedBy], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -493,38 +539,38 @@ model Document {
 // ============================================
 
 model Facture {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  clientId  String
-  client    Client   @relation(fields: [clientId], references: [id])
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
 
   dossierId String?
   dossier   Dossier? @relation(fields: [dossierId], references: [id])
 
-  numero        String
-  reference     String?
-  description   String?
+  numero      String
+  reference   String?
+  description String?
 
-  montantHT     Float
-  tauxTVA       Float    @default(20)
-  montantTVA    Float
-  montantTTC    Float
+  montantHT  Float
+  tauxTVA    Float @default(20)
+  montantTVA Float
+  montantTTC Float
 
-  statut        String   @default("brouillon")
+  statut String @default("brouillon")
 
-  dateEmission  DateTime @default(now())
-  dateEcheance  DateTime
-  datePaiement  DateTime?
+  dateEmission DateTime  @default(now())
+  dateEcheance DateTime
+  datePaiement DateTime?
 
-  modePaiement  String?
+  modePaiement     String?
   referencePayment String?
 
-  notes         String?
-  conditions    String?
+  notes      String?
+  conditions String?
 
-  pdfUrl        String?
+  pdfUrl          String?
   stripeInvoiceId String?
 
   createdAt DateTime @default(now())
@@ -544,12 +590,12 @@ model LigneFacture {
   factureId String
   facture   Facture @relation(fields: [factureId], references: [id], onDelete: Cascade)
 
-  description String
-  quantite    Float   @default(1)
+  description  String
+  quantite     Float  @default(1)
   prixUnitaire Float
-  montantHT   Float
+  montantHT    Float
 
-  ordre       Int     @default(0)
+  ordre Int @default(0)
 
   createdAt DateTime @default(now())
 
@@ -557,9 +603,9 @@ model LigneFacture {
 }
 
 model Paiement {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   factureId String
-  facture   Facture  @relation(fields: [factureId], references: [id], onDelete: Cascade)
+  facture   Facture @relation(fields: [factureId], references: [id], onDelete: Cascade)
 
   montant   Float
   date      DateTime @default(now())
@@ -579,42 +625,42 @@ model Paiement {
 // ============================================
 
 model Email {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  messageId   String?  @unique
-  from        String
-  to          String
-  subject     String
-  body        String
-  htmlBody    String?
-  preview     String?
+  messageId String? @unique
+  from      String
+  to        String
+  subject   String
+  body      String
+  htmlBody  String?
+  preview   String?
 
-  category    String   @default("general-inquiry")
-  urgency     String   @default("medium")
-  sentiment   String   @default("neutral")
+  category  String @default("general-inquiry")
+  urgency   String @default("medium")
+  sentiment String @default("neutral")
 
-  isRead      Boolean  @default(false)
-  isStarred   Boolean  @default(false)
-  isArchived  Boolean  @default(false)
-  isProcessed Boolean  @default(false)
+  isRead      Boolean @default(false)
+  isStarred   Boolean @default(false)
+  isArchived  Boolean @default(false)
+  isProcessed Boolean @default(false)
 
-  aiAnalysis  String?
-  tags        String?
+  aiAnalysis String?
+  tags       String?
 
-  clientId    String?
-  client      Client?  @relation(fields: [clientId], references: [id])
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
 
-  dossierId   String?
-  dossier     Dossier? @relation(fields: [dossierId], references: [id])
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
 
-  receivedAt  DateTime @default(now())
+  receivedAt  DateTime  @default(now())
   readAt      DateTime?
   processedAt DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   workflows   WorkflowExecution[]
   attachments EmailAttachment[]
@@ -625,14 +671,14 @@ model Email {
 }
 
 model EmailAttachment {
-  id       String @id @default(uuid())
-  emailId  String
-  email    Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  id      String @id @default(uuid())
+  emailId String
+  email   Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
 
-  filename    String
-  mimeType    String
-  size        Int
-  storageKey  String?
+  filename   String
+  mimeType   String
+  size       Int
+  storageKey String?
 
   createdAt DateTime @default(now())
 
@@ -640,32 +686,32 @@ model EmailAttachment {
 }
 
 model WorkflowExecution {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   workflowId   String
   workflowName String
 
-  emailId      String?
-  email        Email?   @relation(fields: [emailId], references: [id])
+  emailId String?
+  email   Email?  @relation(fields: [emailId], references: [id])
 
-  status       String   @default("pending")
-  currentStep  String?
-  progress     Int      @default(0)
+  status      String  @default("pending")
+  currentStep String?
+  progress    Int     @default(0)
 
-  triggerType  String   @default("email")
-  triggerData  String?
+  triggerType String  @default("email")
+  triggerData String?
 
-  steps        String?
-  result       String?
-  error        String?
+  steps  String?
+  result String?
+  error  String?
 
-  startedAt    DateTime?
-  completedAt  DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([tenantId, status])
   @@index([workflowId])
@@ -677,36 +723,36 @@ model WorkflowExecution {
 // ============================================
 
 model CalendarEvent {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   dossierId String?
   dossier   Dossier? @relation(fields: [dossierId], references: [id])
 
-  clientId  String?
-  client    Client?  @relation(fields: [clientId], references: [id])
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
 
-  title     String
+  title       String
   description String?
-  location  String?
+  location    String?
 
   startDate DateTime
   endDate   DateTime
   allDay    Boolean  @default(false)
 
-  type      String   @default("rdv")
-  status    String   @default("confirmed")
+  type   String @default("rdv")
+  status String @default("confirmed")
 
-  googleEventId String?
+  googleEventId  String?
   outlookEventId String?
 
   reminders String?
 
-  isRecurring Boolean @default(false)
+  isRecurring    Boolean @default(false)
   recurrenceRule String?
 
   createdAt DateTime @default(now())
@@ -718,19 +764,19 @@ model CalendarEvent {
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type      String
-  title     String
-  message   String
-  data      String?
+  type    String
+  title   String
+  message String
+  data    String?
 
-  isRead    Boolean  @default(false)
-  readAt    DateTime?
+  isRead Boolean   @default(false)
+  readAt DateTime?
 
-  priority  String   @default("normal")
+  priority String @default("normal")
 
   createdAt DateTime @default(now())
 
@@ -743,43 +789,43 @@ model Notification {
 // ============================================
 
 model LegalDeadline {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   dossierId String
-  dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  dossier   Dossier @relation(fields: [dossierId], references: [id], onDelete: Cascade)
 
-  clientId  String
-  client    Client   @relation(fields: [clientId], references: [id])
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
 
-  type      DeadlineType
-  label     String
+  type        DeadlineType
+  label       String
   description String?
 
   referenceDate DateTime
   dueDate       DateTime
 
-  status    DeadlineStatus @default(PENDING)
+  status DeadlineStatus @default(PENDING)
 
-  legalBasis    String?
-  legalDays     Int?
+  legalBasis String?
+  legalDays  Int?
 
-  alertJ7Sent   Boolean @default(false)
-  alertJ3Sent   Boolean @default(false)
-  alertJ1Sent   Boolean @default(false)
+  alertJ7Sent Boolean @default(false)
+  alertJ3Sent Boolean @default(false)
+  alertJ1Sent Boolean @default(false)
 
-  completedAt   DateTime?
-  completedBy   String?
+  completedAt    DateTime?
+  completedBy    String?
   completionNote String?
 
-  proofId       String?
+  proofId String?
 
-  createdBy     String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  alerts        DeadlineAlert[]
+  alerts DeadlineAlert[]
 
   @@index([tenantId])
   @@index([dossierId])
@@ -789,16 +835,16 @@ model LegalDeadline {
 }
 
 model DeadlineAlert {
-  id          String   @id @default(uuid())
-  deadlineId  String
-  deadline    LegalDeadline @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
+  id         String        @id @default(uuid())
+  deadlineId String
+  deadline   LegalDeadline @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
 
-  alertType   String
-  sentAt      DateTime @default(now())
-  sentTo      String
-  channel     String
+  alertType String
+  sentAt    DateTime @default(now())
+  sentTo    String
+  channel   String
 
-  acknowledged Boolean @default(false)
+  acknowledged   Boolean   @default(false)
   acknowledgedAt DateTime?
   acknowledgedBy String?
 
@@ -806,18 +852,18 @@ model DeadlineAlert {
 }
 
 model LegalReference {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  code      String
-  article   String
-  version   String?
+  code    String
+  article String
+  version String?
 
-  title     String
-  content   String
-  summary   String?
+  title   String
+  content String
+  summary String?
 
-  category  String
-  keywords  String?
+  category String
+  keywords String?
 
   defaultDeadlineDays Int?
   deadlineType        String?
@@ -825,8 +871,8 @@ model LegalReference {
   legifrance_url String?
   eurlex_url     String?
 
-  isActive  Boolean  @default(true)
-  validFrom DateTime?
+  isActive   Boolean   @default(true)
+  validFrom  DateTime?
   validUntil DateTime?
 
   createdAt DateTime @default(now())
@@ -843,13 +889,13 @@ model LegalReference {
 // ============================================
 
 model InformationUnit {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  source        InformationUnitSource
-  content       String
-  contentHash   String   @unique
+  source      InformationUnitSource
+  content     String
+  contentHash String                @unique
 
   currentStatus InformationUnitStatus @default(RECEIVED)
 
@@ -860,11 +906,11 @@ model InformationUnit {
   lastStatusChangeBy String?
   lastStatusChangeAt DateTime?
 
-  receivedAt    DateTime @default(now())
-  classifiedAt  DateTime?
-  analyzedAt    DateTime?
-  resolvedAt    DateTime?
-  closedAt      DateTime?
+  receivedAt   DateTime  @default(now())
+  classifiedAt DateTime?
+  analyzedAt   DateTime?
+  resolvedAt   DateTime?
+  closedAt     DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -879,16 +925,16 @@ model InformationUnit {
 }
 
 model InformationStatusHistory {
-  id          String   @id @default(uuid())
-  unitId      String
-  unit        InformationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  id     String          @id @default(uuid())
+  unitId String
+  unit   InformationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
 
-  fromStatus  InformationUnitStatus?
-  toStatus    InformationUnitStatus
-  reason      String?
+  fromStatus InformationUnitStatus?
+  toStatus   InformationUnitStatus
+  reason     String?
 
-  changedBy   String
-  changedAt   DateTime @default(now())
+  changedBy String
+  changedAt DateTime @default(now())
 
   timestampHash String?
 
@@ -897,46 +943,46 @@ model InformationStatusHistory {
 }
 
 model Proof {
-  id                String   @id @default(uuid())
-  tenantId          String
-  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  type              ProofType
-  title             String
-  description       String?
+  type        ProofType
+  title       String
+  description String?
 
-  dossierId         String?
-  dossier           Dossier? @relation(fields: [dossierId], references: [id])
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
 
-  clientId          String?
+  clientId String?
 
-  documentId        String?
-  document          Document? @relation(fields: [documentId], references: [id])
+  documentId String?
+  document   Document? @relation(fields: [documentId], references: [id])
 
   informationUnitId String?
   informationUnit   InformationUnit? @relation(fields: [informationUnitId], references: [id])
 
-  fileStorageKey    String?
-  fileHash          String?
-  fileMimeType      String?
-  fileSize          Int?
+  fileStorageKey String?
+  fileHash       String?
+  fileMimeType   String?
+  fileSize       Int?
 
-  proofDate         DateTime
-  capturedAt        DateTime @default(now())
-  capturedBy        String
+  proofDate  DateTime
+  capturedAt DateTime @default(now())
+  capturedBy String
 
-  status            ProofStatus @default(PENDING_VALIDATION)
-  validatedBy       String?
-  validatedAt       DateTime?
-  rejectionReason   String?
+  status          ProofStatus @default(PENDING_VALIDATION)
+  validatedBy     String?
+  validatedAt     DateTime?
+  rejectionReason String?
 
-  timestampHash     String?
-  chainPreviousId   String?
+  timestampHash   String?
+  chainPreviousId String?
 
-  metadata          String?
+  metadata String?
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([tenantId])
   @@index([dossierId])
@@ -946,25 +992,25 @@ model Proof {
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   userId    String
   userEmail String
   userRole  String
 
-  action    AuditAction
+  action     AuditAction
   entityType String
-  entityId  String
+  entityId   String
 
-  oldValue  String?
-  newValue  String?
+  oldValue String?
+  newValue String?
 
   ipAddress String?
   userAgent String?
 
-  timestamp DateTime @default(now())
+  timestamp     DateTime @default(now())
   timestampHash String?
   previousLogId String?
 
@@ -978,33 +1024,77 @@ model AuditLog {
 }
 
 // ============================================
+// EVENTLOG IMMUABLE (RULE-004 à RULE-006)
+// Traçabilité légale opposable
+// ============================================
+
+model EventLog {
+  id String @id @default(cuid())
+
+  // Horodatage serveur (source de vérité)
+  timestamp DateTime @default(now())
+
+  // Type d'événement
+  eventType EventType
+
+  // Entité concernée
+  entityType String // 'flow', 'dossier', 'client', 'document', 'user'
+  entityId   String
+
+  // Acteur (utilisateur, système, IA)
+  actorType ActorType
+  actorId   String? // userId si actorType = USER
+
+  // Contexte & métadonnées
+  metadata Json // Données contextuelles (IP, user-agent, avant/après, etc.)
+
+  // Tenant (multi-tenancy)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Immuabilité garantie
+  immutable Boolean @default(true) // Toujours true, sécurité DB
+  checksum  String // SHA-256 de l'événement pour intégrité
+
+  // Chaînage (optionnel, pour audit avancé)
+  previousEventId String?
+
+  @@index([tenantId])
+  @@index([timestamp])
+  @@index([eventType])
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@map("event_logs")
+}
+
+// ============================================
 // NIVEAU 9 : CONFORMITÉ & ARCHIVAGE
 // ============================================
 
 model ArchivePolicy {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   entityType String
   entityId   String
 
-  status     ArchiveStatus @default(ACTIVE)
+  status ArchiveStatus @default(ACTIVE)
 
-  retentionDays    Int
-  retentionReason  String?
+  retentionDays   Int
+  retentionReason String?
 
-  lastAccessAt     DateTime?
-  archiveAt        DateTime?
-  deleteAt         DateTime?
+  lastAccessAt DateTime?
+  archiveAt    DateTime?
+  deleteAt     DateTime?
 
-  archivedAt       DateTime?
-  archivedBy       String?
-  deletedAt        DateTime?
-  deletedBy        String?
+  archivedAt DateTime?
+  archivedBy String?
+  deletedAt  DateTime?
+  deletedBy  String?
 
-  holdUntil        DateTime?
-  holdReason       String?
+  holdUntil  DateTime?
+  holdReason String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1017,12 +1107,12 @@ model ArchivePolicy {
 }
 
 model Report {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  type      ReportType
-  title     String
+  type        ReportType
+  title       String
   description String?
 
   parameters String?
@@ -1033,7 +1123,7 @@ model Report {
   periodStart DateTime?
   periodEnd   DateTime?
 
-  status    ReportStatus @default(PENDING)
+  status         ReportStatus @default(PENDING)
   fileStorageKey String?
   fileMimeType   String?
   fileSize       Int?
@@ -1041,13 +1131,13 @@ model Report {
   generatedAt DateTime?
   generatedBy String
 
-  isPublic    Boolean @default(false)
-  accessCount Int     @default(0)
+  isPublic     Boolean   @default(false)
+  accessCount  Int       @default(0)
   lastAccessAt DateTime?
 
-  expiresAt   DateTime?
+  expiresAt DateTime?
 
-  error       String?
+  error String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1105,20 +1195,20 @@ enum ConsentStatus {
 }
 
 model ChannelMessage {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
   channel   ChannelType
   direction MessageDirection @default(INBOUND)
-  status    MessageStatus @default(RECEIVED)
+  status    MessageStatus    @default(RECEIVED)
 
   // Expéditeur/Destinataire (JSON)
   senderData    Json
   recipientData Json?
 
   // Contenu
-  subject   String?
-  body      String   @db.Text
-  bodyHtml  String?  @db.Text
+  subject  String?
+  body     String  @db.Text
+  bodyHtml String? @db.Text
 
   // Pièces jointes (JSON array)
   attachments Json @default("[]")
@@ -1127,15 +1217,15 @@ model ChannelMessage {
   channelMetadata Json @default("{}")
 
   // Analyse IA
-  aiSummary   String?  @db.Text
+  aiSummary   String?       @db.Text
   aiCategory  String?
-  aiTags      String[] @default([])
+  aiTags      String[]      @default([])
   aiUrgency   UrgencyLevel?
   aiSentiment String?
   aiEntities  Json?
 
   // Horodatage
-  receivedAt  DateTime @default(now())
+  receivedAt  DateTime  @default(now())
   processedAt DateTime?
   archivedAt  DateTime?
 
@@ -1164,18 +1254,17 @@ model ChannelMessage {
   @@index([aiUrgency])
   @@index([receivedAt])
   @@index([consentStatus])
-
   @@map("channel_messages")
 }
 
 model RGPDConsent {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  clientId  String
-  client    Client   @relation("RGPDConsents", fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+  client   Client @relation("RGPDConsents", fields: [clientId], references: [id], onDelete: Cascade)
 
-  channel   ChannelType
-  purpose   String
+  channel ChannelType
+  purpose String
 
   granted   Boolean
   grantedAt DateTime?
@@ -1192,18 +1281,17 @@ model RGPDConsent {
   @@index([channel])
   @@index([granted])
   @@index([expiresAt])
-
   @@map("rgpd_consents")
 }
 
 model ChannelConfig {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  channel   ChannelType
-  enabled   Boolean  @default(true)
+  channel ChannelType
+  enabled Boolean     @default(true)
 
   // Configuration
   consentRequired  Boolean @default(true)
@@ -1212,8 +1300,8 @@ model ChannelConfig {
   aiProcessing     Boolean @default(true)
 
   // Webhook (si applicable)
-  webhookUrl       String?
-  webhookSecret    String?
+  webhookUrl    String?
+  webhookSecret String?
 
   // Credentials Key Vault reference
   keyVaultSecretName String?
@@ -1228,7 +1316,6 @@ model ChannelConfig {
   @@index([tenantId])
   @@index([channel])
   @@index([enabled])
-
   @@map("channel_configs")
 }
 
@@ -1237,22 +1324,22 @@ model ChannelConfig {
 // ============================================
 
 model AIUsageLog {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  provider    String   // 'ollama' | 'cloudflare'
-  operation   String   // 'generate' | 'chat' | 'embeddings'
-  model       String?
+  provider  String // 'ollama' | 'cloudflare'
+  operation String // 'generate' | 'chat' | 'embeddings'
+  model     String?
 
-  tokensUsed  Int      @default(0)
-  costEur     Float    @default(0)
-  latencyMs   Int?
+  tokensUsed Int   @default(0)
+  costEur    Float @default(0)
+  latencyMs  Int?
 
   // Contexte
-  endpoint    String?
-  success     Boolean  @default(true)
+  endpoint     String?
+  success      Boolean @default(true)
   errorMessage String?
 
   createdAt DateTime @default(now())
@@ -1261,34 +1348,33 @@ model AIUsageLog {
   @@index([provider])
   @@index([createdAt])
   @@index([tenantId, createdAt])
-
   @@map("ai_usage_logs")
 }
 
 // Résumé mensuel des coûts par tenant
 model AIMonthlySummary {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  year      Int
-  month     Int      // 1-12
+  year  Int
+  month Int // 1-12
 
   // Totaux
-  totalTokens     Int    @default(0)
-  totalCostEur    Float  @default(0)
-  ollamaTokens    Int    @default(0)
+  totalTokens      Int   @default(0)
+  totalCostEur     Float @default(0)
+  ollamaTokens     Int   @default(0)
   cloudflareTokens Int   @default(0)
-  cloudflareCost  Float  @default(0)
+  cloudflareCost   Float @default(0)
 
   // Limites
-  budgetLimit     Float  @default(0)
-  budgetUsedPct   Float  @default(0)
+  budgetLimit   Float @default(0)
+  budgetUsedPct Float @default(0)
 
   // Stats
-  requestCount    Int    @default(0)
-  avgLatencyMs    Float?
+  requestCount Int    @default(0)
+  avgLatencyMs Float?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1296,6 +1382,5 @@ model AIMonthlySummary {
   @@unique([tenantId, year, month])
   @@index([tenantId])
   @@index([year, month])
-
   @@map("ai_monthly_summaries")
 }
