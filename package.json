@@ -229,6 +229,6 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "undici": "^7.19.1",
-    "source-map-explorer": "^2.6.2"
+    "source-map-explorer": "^2.5.3"
   }
 }
