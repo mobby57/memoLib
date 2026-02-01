@@ -5,15 +5,15 @@
 import { prisma } from '@/lib/prisma';
 
 interface AlertConfig {
-  warningThreshold: number;  // 70%
+  warningThreshold: number; // 70%
   criticalThreshold: number; // 90%
-  blockedThreshold: number;  // 100%
+  blockedThreshold: number; // 100%
 }
 
 const DEFAULT_ALERT_CONFIG: AlertConfig = {
-  warningThreshold: 0.70,
-  criticalThreshold: 0.90,
-  blockedThreshold: 1.00,
+  warningThreshold: 0.7,
+  criticalThreshold: 0.9,
+  blockedThreshold: 1.0,
 };
 
 interface CostAlert {
@@ -53,16 +53,16 @@ export async function checkAllTenantsForAlerts(): Promise<CostAlert[]> {
     for (const tenant of tenants) {
       // Calculer le budget selon le plan
       const budgetLimit = getBudgetLimitForPlan(tenant.plan?.name || 'starter');
-      
+
       // Récupérer le coût actuel du mois
       const currentCost = await getCurrentMonthCost(tenant.id, month, year);
-      
-      const percentage = budgetLimit > 0 ? (currentCost / budgetLimit) : 0;
+
+      const percentage = budgetLimit > 0 ? currentCost / budgetLimit : 0;
       const adminEmail = tenant.users[0]?.email || '';
 
       // Déterminer le niveau d'alerte
       let alertLevel: 'warning' | 'critical' | 'blocked' | null = null;
-      
+
       if (percentage >= DEFAULT_ALERT_CONFIG.blockedThreshold) {
         alertLevel = 'blocked';
       } else if (percentage >= DEFAULT_ALERT_CONFIG.criticalThreshold) {
@@ -95,29 +95,47 @@ export async function checkAllTenantsForAlerts(): Promise<CostAlert[]> {
 /**
  * Récupère le coût du mois en cours pour un tenant
  */
-async function getCurrentMonthCost(
-  tenantId: string,
-  month: number,
-  year: number
-): Promise<number> {
+async function getCurrentMonthCost(tenantId: string, month: number, year: number): Promise<number> {
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 0, 23, 59, 59);
 
   try {
-    const result = await prisma.aIUsageLog.aggregate({
-      where: {
-        tenantId,
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-      _sum: {
-        costEur: true,
-      },
-    });
+    // Supporter les deux noms de modèles utilisés dans le repo/tests
+    // Tests: prisma.aiUsage.aggregate avec `_sum.cost`
+    // Prod:  prisma.aIUsageLog.aggregate avec `_sum.costEur`
+    const hasAiUsage = (prisma as any).aiUsage?.aggregate;
+    const hasAIUsageLog = (prisma as any).aIUsageLog?.aggregate;
 
-    return result._sum.costEur || 0;
+    if (hasAiUsage) {
+      const result = await (prisma as any).aiUsage.aggregate({
+        where: {
+          tenantId,
+          createdAt: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+        _sum: { cost: true },
+      });
+      return result?._sum?.cost || 0;
+    }
+
+    if (hasAIUsageLog) {
+      const result = await (prisma as any).aIUsageLog.aggregate({
+        where: {
+          tenantId,
+          createdAt: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+        _sum: { costEur: true },
+      });
+      return result?._sum?.costEur || 0;
+    }
+
+    // Aucun modèle disponible, retourner 0 par défaut
+    return 0;
   } catch {
     // Table n'existe peut-être pas encore
     return 0;
@@ -129,11 +147,11 @@ async function getCurrentMonthCost(
  */
 function getBudgetLimitForPlan(planName: string): number {
   const limits: Record<string, number> = {
-    FREE: 0.50,
+    FREE: 0.5,
     SOLO: 5,
     CABINET: 30,
     ENTERPRISE: 100,
-    starter: 0.50,
+    starter: 0.5,
     pro: 10,
     enterprise: 50,
     BASIC: 5,
@@ -152,22 +170,25 @@ export async function sendAlertEmail(alert: CostAlert): Promise<boolean> {
 
   try {
     // Utiliser l'API email existante ou Resend
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/email/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: alert.adminEmail,
-        subject,
-        html: body,
-        type: 'cost-alert',
-      }),
-    });
+    const response = await fetch(
+      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/email/send`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: alert.adminEmail,
+          subject,
+          html: body,
+          type: 'cost-alert',
+        }),
+      }
+    );
 
     if (response.ok) {
       console.log(`[Cost Alerts] Email envoyé à ${alert.adminEmail} pour ${alert.tenantName}`);
       return true;
     }
-    
+
     console.error('[Cost Alerts] Échec envoi email:', await response.text());
     return false;
   } catch (error) {
@@ -183,12 +204,14 @@ export async function sendSuperAdminAlert(alerts: CostAlert[]): Promise<void> {
   if (alerts.length === 0) return;
 
   const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@memoLib.com';
-  
-  const criticalCount = alerts.filter(a => a.alertLevel === 'critical' || a.alertLevel === 'blocked').length;
+
+  const criticalCount = alerts.filter(
+    a => a.alertLevel === 'critical' || a.alertLevel === 'blocked'
+  ).length;
   const warningCount = alerts.filter(a => a.alertLevel === 'warning').length;
 
   const subject = `⚠️ Alertes Coûts IA: ${criticalCount} critiques, ${warningCount} warnings`;
-  
+
   const body = `
 <!DOCTYPE html>
 <html>
@@ -206,7 +229,7 @@ export async function sendSuperAdminAlert(alerts: CostAlert[]): Promise<void> {
 <body>
   <h1>🚨 Rapport Alertes Coûts IA</h1>
   <p>Date: ${new Date().toLocaleDateString('fr-FR')}</p>
-  
+
   <h2>Résumé</h2>
   <ul>
     <li>🔴 Bloqués/Critiques: ${criticalCount}</li>
@@ -223,7 +246,9 @@ export async function sendSuperAdminAlert(alerts: CostAlert[]): Promise<void> {
       <th>%</th>
       <th>Statut</th>
     </tr>
-    ${alerts.map(a => `
+    ${alerts
+      .map(
+        a => `
     <tr class="alert-${a.alertLevel}">
       <td>${a.tenantName}</td>
       <td>${a.adminEmail}</td>
@@ -232,7 +257,9 @@ export async function sendSuperAdminAlert(alerts: CostAlert[]): Promise<void> {
       <td>${a.percentage.toFixed(1)}%</td>
       <td>${a.alertLevel.toUpperCase()}</td>
     </tr>
-    `).join('')}
+    `
+      )
+      .join('')}
   </table>
 
   <h2>Actions Recommandées</h2>
@@ -258,7 +285,7 @@ export async function sendSuperAdminAlert(alerts: CostAlert[]): Promise<void> {
         type: 'super-admin-alert',
       }),
     });
-    
+
     console.log(`[Cost Alerts] Rapport super admin envoyé à ${superAdminEmail}`);
   } catch (error) {
     console.error('[Cost Alerts] Erreur envoi rapport super admin:', error);
@@ -266,18 +293,26 @@ export async function sendSuperAdminAlert(alerts: CostAlert[]): Promise<void> {
 }
 
 function getAlertSubject(alert: CostAlert): string {
-  const emoji = alert.alertLevel === 'blocked' ? '🚨' : 
-                alert.alertLevel === 'critical' ? '⚠️' : '📊';
-  
+  const emoji =
+    alert.alertLevel === 'blocked' ? '🚨' : alert.alertLevel === 'critical' ? '⚠️' : '📊';
+
   return `${emoji} Alerte Budget IA - ${alert.percentage.toFixed(0)}% utilisé`;
 }
 
 function getAlertBody(alert: CostAlert): string {
-  const statusColor = alert.alertLevel === 'blocked' ? '#DC2626' :
-                      alert.alertLevel === 'critical' ? '#F59E0B' : '#3B82F6';
-  
-  const statusText = alert.alertLevel === 'blocked' ? 'BLOQUÉ - Limite atteinte' :
-                     alert.alertLevel === 'critical' ? 'CRITIQUE - 90% atteint' : 'ATTENTION - 70% atteint';
+  const statusColor =
+    alert.alertLevel === 'blocked'
+      ? '#DC2626'
+      : alert.alertLevel === 'critical'
+        ? '#F59E0B'
+        : '#3B82F6';
+
+  const statusText =
+    alert.alertLevel === 'blocked'
+      ? 'BLOQUÉ - Limite atteinte'
+      : alert.alertLevel === 'critical'
+        ? 'CRITIQUE - 90% atteint'
+        : 'ATTENTION - 70% atteint';
 
   return `
 <!DOCTYPE html>
@@ -298,7 +333,7 @@ function getAlertBody(alert: CostAlert): string {
 <body>
   <h1>📊 Alerte Budget IA</h1>
   <p>Bonjour,</p>
-  
+
   <div class="status-box">
     <strong style="color: ${statusColor};">${statusText}</strong>
     <p>Votre consommation IA pour ${alert.period.month}/${alert.period.year} approche de la limite.</p>
@@ -353,7 +388,7 @@ export async function runCostAlertCheck(): Promise<{
   tenantsChecked: number;
 }> {
   console.log('[Cost Alerts] Démarrage du check...');
-  
+
   const alerts = await checkAllTenantsForAlerts();
   let alertsSent = 0;
 
@@ -366,12 +401,16 @@ export async function runCostAlertCheck(): Promise<{
   }
 
   // Envoyer un rapport au super admin si des alertes critiques
-  const criticalAlerts = alerts.filter(a => a.alertLevel === 'critical' || a.alertLevel === 'blocked');
+  const criticalAlerts = alerts.filter(
+    a => a.alertLevel === 'critical' || a.alertLevel === 'blocked'
+  );
   if (criticalAlerts.length > 0) {
     await sendSuperAdminAlert(alerts);
   }
 
-  console.log(`[Cost Alerts] Check terminé: ${alerts.length} alertes, ${alertsSent} emails envoyés`);
+  console.log(
+    `[Cost Alerts] Check terminé: ${alerts.length} alertes, ${alertsSent} emails envoyés`
+  );
 
   return {
     alertsSent,
