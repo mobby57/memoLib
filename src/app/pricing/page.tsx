@@ -6,12 +6,22 @@ export const dynamic = 'force-dynamic';
  * Page Tarifs - Presentation des plans et fonctionnalites
  */
 
-import Link from 'next/link';
-import { 
-  Check, X, ArrowLeft, Zap, Building, Crown,
-  Users, FileText, HardDrive, Brain, Headphones,
-  Shield, Clock, Star
+import {
+  ArrowLeft,
+  Brain,
+  Building,
+  Check,
+  Clock,
+  Crown,
+  FileText,
+  Headphones,
+  Shield,
+  Star,
+  Users,
+  X,
+  Zap,
 } from 'lucide-react';
+import Link from 'next/link';
 
 const PLANS = [
   {
@@ -85,8 +95,9 @@ const PLANS = [
 const FEATURES_DETAILS = [
   {
     icon: Brain,
-    title: 'Intelligence Artificielle',
-    description: 'Analyse automatique des emails, classification des dossiers, suggestions intelligentes',
+    title: 'Analyse Intelligente',
+    description:
+      'Analyse automatique des emails, classification des dossiers, suggestions intelligentes',
   },
   {
     icon: FileText,
@@ -121,7 +132,10 @@ export default function PricingPage() {
       {/* Header */}
       <div className="bg-white/5 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors"
+          >
             <ArrowLeft className="w-5 h-5" />
             Retour
           </Link>
@@ -142,8 +156,8 @@ export default function PricingPage() {
           Tarifs simples et transparents
         </h1>
         <p className="text-xl text-blue-200 max-w-2xl mx-auto mb-8">
-          Choisissez le plan adapte a la taille de votre cabinet. 
-          Tous les plans incluent 14 jours d'essai gratuit.
+          Choisissez le plan adapte a la taille de votre cabinet. Tous les plans incluent 14 jours
+          d'essai gratuit.
         </p>
         <div className="inline-flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full text-sm">
           <Star className="w-4 h-4" />
@@ -154,15 +168,13 @@ export default function PricingPage() {
       {/* Plans */}
       <div className="max-w-7xl mx-auto px-4 pb-16">
         <div className="grid md:grid-cols-3 gap-8">
-          {PLANS.map((plan) => {
+          {PLANS.map(plan => {
             const Icon = plan.icon;
             return (
               <div
                 key={plan.id}
                 className={`relative bg-white/10 backdrop-blur-lg rounded-2xl border ${
-                  plan.popular 
-                    ? 'border-blue-400 ring-2 ring-blue-400/50' 
-                    : 'border-white/20'
+                  plan.popular ? 'border-blue-400 ring-2 ring-blue-400/50' : 'border-white/20'
                 } overflow-hidden`}
               >
                 {plan.popular && (
@@ -174,7 +186,9 @@ export default function PricingPage() {
                 <div className={`p-8 ${plan.popular ? 'pt-12' : ''}`}>
                   {/* Icon & Title */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-12 h-12 bg-${plan.color}-500/20 rounded-xl flex items-center justify-center`}>
+                    <div
+                      className={`w-12 h-12 bg-${plan.color}-500/20 rounded-xl flex items-center justify-center`}
+                    >
                       <Icon className={`w-6 h-6 text-${plan.color}-400`} />
                     </div>
                     <div>
@@ -189,9 +203,7 @@ export default function PricingPage() {
                       <span className="text-4xl font-bold text-white">{plan.price}€</span>
                       <span className="text-gray-400">/mois</span>
                     </div>
-                    <p className="text-sm text-green-400">
-                      ou {plan.priceAnnual}€/mois (annuel)
-                    </p>
+                    <p className="text-sm text-green-400">ou {plan.priceAnnual}€/mois (annuel)</p>
                   </div>
 
                   {/* CTA */}
@@ -256,9 +268,7 @@ export default function PricingPage() {
       {/* FAQ */}
       <div className="py-16 px-4">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">
-            Questions frequentes
-          </h2>
+          <h2 className="text-3xl font-bold text-white text-center mb-12">Questions frequentes</h2>
           <div className="space-y-6">
             {[
               {
@@ -271,11 +281,11 @@ export default function PricingPage() {
               },
               {
                 q: 'Y a-t-il un engagement ?',
-                a: 'Non, vous pouvez annuler a tout moment. L\'abonnement annuel offre simplement une reduction de 20%.',
+                a: "Non, vous pouvez annuler a tout moment. L'abonnement annuel offre simplement une reduction de 20%.",
               },
               {
-                q: 'Comment fonctionne l\'essai gratuit ?',
-                a: 'Vous beneficiez de 14 jours d\'acces complet sans carte bancaire. A la fin, vous choisissez votre plan.',
+                q: "Comment fonctionne l'essai gratuit ?",
+                a: "Vous beneficiez de 14 jours d'acces complet sans carte bancaire. A la fin, vous choisissez votre plan.",
               },
             ].map((faq, index) => (
               <div key={index} className="bg-white/5 rounded-xl p-6 border border-white/10">
@@ -290,9 +300,7 @@ export default function PricingPage() {
       {/* CTA */}
       <div className="bg-blue-600 py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Pret a transformer votre cabinet ?
-          </h2>
+          <h2 className="text-3xl font-bold text-white mb-4">Pret a transformer votre cabinet ?</h2>
           <p className="text-blue-100 mb-8">
             Rejoignez les centaines d'avocats qui font confiance à memoLib
           </p>

@@ -3,13 +3,13 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
 import SmartFormBuilder from '@/components/forms/SmartFormBuilder';
 import { formConfigs } from '@/lib/forms/formConfigs';
+import { useState } from 'react';
 
 /**
  *  Page: Formulaires Interactifs Intelligents
- * 
+ *
  * Interface pour acceder aux formulaires adaptatifs qui
  * responsabilisent les utilisateurs et impactent l'organisation
  */
@@ -29,7 +29,7 @@ export default function FormsPage() {
 
   if (selectedForm) {
     const config = formConfigs[selectedForm as keyof typeof formConfigs];
-    
+
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-6xl mx-auto px-4">
@@ -39,7 +39,7 @@ export default function FormsPage() {
           >
             [Back] Retour aux formulaires
           </button>
-          
+
           {showSuccess && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center">
@@ -50,8 +50,8 @@ export default function FormsPage() {
               </div>
             </div>
           )}
-          
-          <SmartFormBuilder 
+
+          <SmartFormBuilder
             config={config}
             onComplete={handleFormComplete}
             showImpactAnalysis={true}
@@ -66,11 +66,10 @@ export default function FormsPage() {
       <div className="max-w-6xl mx-auto px-4">
         {/* En-tete */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Formulaires Intelligents
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Formulaires Intelligents</h1>
           <p className="text-lg text-gray-600">
-            Formulaires adaptatifs avec analyse d'impact et suggestions IA pour responsabiliser les decisions
+            Formulaires adaptatifs avec analyse d'impact et suggestions IA pour responsabiliser les
+            decisions
           </p>
         </div>
 
@@ -97,7 +96,7 @@ export default function FormsPage() {
         {/* Liste des formulaires */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Demande de ressources */}
-          <div 
+          <div
             onClick={() => setSelectedForm('resourceRequest')}
             className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
           >
@@ -109,9 +108,7 @@ export default function FormsPage() {
                 RESOURCE
               </span>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Demande de Ressources
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Demande de Ressources</h3>
             <p className="text-sm text-gray-600 mb-4">
               Demander des ressources humaines, materielles ou budgetaires avec analyse d'impact
             </p>
@@ -122,7 +119,7 @@ export default function FormsPage() {
           </div>
 
           {/* Decision strategique */}
-          <div 
+          <div
             onClick={() => setSelectedForm('strategicDecision')}
             className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
           >
@@ -134,9 +131,7 @@ export default function FormsPage() {
                 STRATEGY
               </span>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Decision Strategique
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Decision Strategique</h3>
             <p className="text-sm text-gray-600 mb-4">
               Documenter et valider les decisions strategiques importantes avec analyse de risques
             </p>
@@ -147,7 +142,7 @@ export default function FormsPage() {
           </div>
 
           {/* evaluation des risques */}
-          <div 
+          <div
             onClick={() => setSelectedForm('riskAssessment')}
             className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
           >
@@ -159,9 +154,7 @@ export default function FormsPage() {
                 RISK
               </span>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              evaluation des Risques
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">evaluation des Risques</h3>
             <p className="text-sm text-gray-600 mb-4">
               Analyse systematique des risques avec calcul de probabilite et severite
             </p>
@@ -183,7 +176,7 @@ export default function FormsPage() {
               <div>
                 <h3 className="font-medium text-gray-900">Suggestions IA en temps reel</h3>
                 <p className="text-sm text-gray-600">
-                  L'IA analyse vos reponses et propose des suggestions contextuelles
+                  Le système analyse vos réponses et propose des suggestions contextuelles
                 </p>
               </div>
             </div>
