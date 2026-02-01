@@ -14,8 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/Select';
-import { Slider } from '@/components/ui/Slider';
-import { Switch } from '@/components/ui/Switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEffect, useState } from 'react';
 
@@ -276,14 +274,16 @@ export default function WorkflowConfigPage() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Switch
+                <input
+                  type="checkbox"
                   checked={config.ai.fallbackEnabled}
-                  onCheckedChange={checked =>
+                  onChange={(e) =>
                     setConfig({
                       ...config,
-                      ai: { ...config.ai, fallbackEnabled: checked },
+                      ai: { ...config.ai, fallbackEnabled: e.target.checked },
                     })
                   }
+                  className="w-4 h-4"
                 />
                 <Label>Activer le fallback (reponses par defaut si IA indisponible)</Label>
               </div>
@@ -300,15 +300,12 @@ export default function WorkflowConfigPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center space-x-2">
-                <Switch
+                <input
+                  type="checkbox"
                   checked={config.notifications.enabled}
-                  onCheckedChange={checked =>
-                    setConfig({
-                      ...config,
-                      notifications: { ...config.notifications, enabled: checked },
-                    })
-                  }
-                />
+                  onChange={(e) => setConfig({...config, ...e.target.value})} 
+                  className="w-4 h-4"
+                  />
                 <Label>Activer les notifications</Label>
               </div>
 
@@ -317,18 +314,12 @@ export default function WorkflowConfigPage() {
                 <div className="grid grid-cols-2 gap-4">
                   {['web', 'email', 'sms', 'webhook'].map(channel => (
                     <div key={channel} className="flex items-center space-x-2">
-                      <Switch
+                      <input
+                        type="checkbox"
                         checked={config.notifications.channels.includes(channel)}
-                        onCheckedChange={checked => {
-                          const channels = checked
-                            ? [...config.notifications.channels, channel]
-                            : config.notifications.channels.filter((c: string) => c !== channel);
-                          setConfig({
-                            ...config,
-                            notifications: { ...config.notifications, channels },
-                          });
-                        }}
-                      />
+                        onChange={(e) => setConfig({...config, ...e.target.value})} 
+                        className="w-4 h-4"
+                        />
                       <Label className="capitalize">{channel}</Label>
                     </div>
                   ))}
@@ -344,46 +335,22 @@ export default function WorkflowConfigPage() {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex items-center space-x-2">
-                        <Switch
+                        <input
+                          type="checkbox"
                           checked={config.notifications.priority[priority].sound}
-                          onCheckedChange={checked =>
-                            setConfig({
-                              ...config,
-                              notifications: {
-                                ...config.notifications,
-                                priority: {
-                                  ...config.notifications.priority,
-                                  [priority]: {
-                                    ...config.notifications.priority[priority],
-                                    sound: checked,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
+                          onChange={(e) => setConfig({...config, ...e.target.value})} 
+                          className="w-4 h-4"
+                          />
                         <Label> Son</Label>
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        <Switch
+                        <input
+                          type="checkbox"
                           checked={config.notifications.priority[priority].dismissible}
-                          onCheckedChange={checked =>
-                            setConfig({
-                              ...config,
-                              notifications: {
-                                ...config.notifications,
-                                priority: {
-                                  ...config.notifications.priority,
-                                  [priority]: {
-                                    ...config.notifications.priority[priority],
-                                    dismissible: checked,
-                                  },
-                                },
-                              },
-                            })
-                          }
-                        />
+                          onChange={(e) => setConfig({...config, ...e.target.value})} 
+                          className="w-4 h-4"
+                          />
                         <Label>️ Dismissible</Label>
                       </div>
 
@@ -444,21 +411,12 @@ export default function WorkflowConfigPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-2">
-                    <Switch
+                    <input
+                      type="checkbox"
                       checked={config.notifications.quietHours.enabled}
-                      onCheckedChange={checked =>
-                        setConfig({
-                          ...config,
-                          notifications: {
-                            ...config.notifications,
-                            quietHours: {
-                              ...config.notifications.quietHours,
-                              enabled: checked,
-                            },
-                          },
-                        })
-                      }
-                    />
+                      onChange={(e) => setConfig({...config, ...e.target.value})} 
+                      className="w-4 h-4"
+                      />
                     <Label>Activer</Label>
                   </div>
 
@@ -517,19 +475,19 @@ export default function WorkflowConfigPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
-                <Switch checked={config.forms.autofill} />
+                <input type="checkbox" checked={config.forms.autofill} className="w-4 h-4" />
                 <Label>Autofill avec donnees existantes</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Switch checked={config.forms.aiSuggestions} />
+                <input type="checkbox" checked={config.forms.aiSuggestions} className="w-4 h-4" />
                 <Label>Suggestions IA en temps reel</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Switch checked={config.forms.conditionalLogic} />
+                <input type="checkbox" checked={config.forms.conditionalLogic} className="w-4 h-4" />
                 <Label>Logique conditionnelle</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Switch checked={config.forms.saveProgress} />
+                <input type="checkbox" checked={config.forms.saveProgress} className="w-4 h-4" />
                 <Label>Sauvegarde automatique</Label>
               </div>
             </CardContent>
@@ -557,7 +515,7 @@ export default function WorkflowConfigPage() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Switch checked={config.calendar.autoSchedule} />
+                <input type="checkbox" checked={config.calendar.autoSchedule} className="w-4 h-4" />
                 <Label>Planification automatique</Label>
               </div>
 
@@ -581,15 +539,15 @@ export default function WorkflowConfigPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
-                <Switch checked={config.security.encryptData} />
+                <input type="checkbox" checked={config.security.encryptData} className="w-4 h-4" />
                 <Label>Chiffrement des donnees</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Switch checked={config.security.auditLog} />
+                <input type="checkbox" checked={config.security.auditLog} className="w-4 h-4" />
                 <Label>Journal d'audit</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Switch checked={config.security.requireTwoFactor} />
+                <input type="checkbox" checked={config.security.requireTwoFactor} className="w-4 h-4" />
                 <Label>Double authentification obligatoire</Label>
               </div>
 

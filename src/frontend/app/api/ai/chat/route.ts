@@ -1,14 +1,14 @@
 /**
  * AI Legal Assistant Chat API (Phase 8)
- * 
+ *
  * POST /api/ai/chat
  * - Soumet requête juridique à l'assistant IA
  * - Retourne réponse avec RAG (documents pertinents)
  * - Support multi-turn conversation
- * 
+ *
  * GET /api/ai/sessions
  * - Liste sessions chat utilisateur
- * 
+ *
  * GET /api/ai/sessions/[id]
  * - Récupère historique session
  */
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
         model: result.response.model,
         confidence: result.response.confidence,
         citations: result.response.citations,
-        ragDocuments: result.response.ragDocuments.map((d) => ({
+        ragDocuments: result.response.ragDocuments.map(d => ({
           id: d.id,
           title: d.title,
           source: d.source,
@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      sessions: sessions.map((s) => ({
+      sessions: sessions.map(s => ({
         id: s.id,
         title: s.title,
         dossierId: s.dossierId,

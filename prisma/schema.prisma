@@ -157,6 +157,14 @@ enum EventType {
   AI_SESSION_STARTED
   AI_SESSION_ENDED
 
+  // RGPD Compliance (Phase 9)
+  DATA_EXPORT_REQUESTED
+  DATA_EXPORTED
+  DATA_ANONYMIZED
+  DATA_DELETED
+  CONSENT_GRANTED
+  CONSENT_REVOKED
+
   // Workflows
   WORKFLOW_STARTED
   WORKFLOW_COMPLETED
@@ -286,6 +294,8 @@ model Tenant {
   filterRules        FilterRule[]
   comments           Comment[]
   chatSessions       ChatSession[]
+  dataExportRequests DataExportRequest[]
+  consentRecords     ConsentRecord[]
 
   @@index([planId])
   @@index([status])
@@ -387,6 +397,8 @@ model User {
   mentions       Mention[]
   chatSessions   ChatSession[]
   chatMessages   ChatMessage[]
+  dataExportRequests DataExportRequest[]
+  consentRecords ConsentRecord[]
 
   @@index([tenantId, email])
   @@index([role])
@@ -1436,6 +1448,63 @@ model RGPDConsent {
   @@index([granted])
   @@index([expiresAt])
   @@map("rgpd_consents")
+}
+
+// ============================================
+// RGPD COMPLIANCE (Phase 9)
+// ============================================
+
+model DataExportRequest {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status String @default("pending") // pending, processing, completed, failed, expired
+
+  requestedAt DateTime @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime? // Export URL expiration (7 days)
+
+  exportUrl  String? // S3/Blob URL or local path
+  exportSize Int? // Bytes
+  format     String @default("json") // json, pdf, csv
+
+  errorMessage String?
+
+  @@index([tenantId, userId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("data_export_requests")
+}
+
+model ConsentRecord {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  purpose String // 'data_processing', 'marketing', 'analytics', 'ai_training'
+
+  granted   Boolean
+  grantedAt DateTime?
+  revokedAt DateTime?
+
+  ipAddress     String?
+  userAgent     String?
+  consentMethod String? // 'explicit_checkbox', 'email_confirmation', 'verbal'
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, userId])
+  @@index([purpose])
+  @@index([granted])
+  @@map("consent_records")
 }
 
 model ChannelConfig {
