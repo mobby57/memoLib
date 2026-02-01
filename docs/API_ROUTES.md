@@ -6,7 +6,7 @@
 
 ## 📋 Overview
 
-This document catalogs all Flask backend API endpoints for MemoLib, a legal case management platform specializing in CESEDA (immigration law) AI predictions and deadline management.
+This document catalogs all Flask backend API endpoints for MemoLib, a legal case management platform specializing in CESEDA (immigration law) predictions and deadline management.
 
 **Base URL** (Development): `http://localhost:5000`
 **Base URL** (Production): `https://api.memolib.fr`

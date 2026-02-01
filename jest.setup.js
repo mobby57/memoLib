@@ -112,7 +112,7 @@ jest.mock('@otplib/preset-default', () => {
     // Force le nom d'application attendu par les tests
     keyuri: jest.fn(
       (email, _app, secret) =>
-        `otpauth://totp/${encodeURIComponent('IA Poste Manager')}:${encodeURIComponent(email)}?secret=${secret}`
+        `otpauth://totp/${encodeURIComponent('MemoLib Assistant')}:${encodeURIComponent(email)}?secret=${secret}`
     ),
     verify: jest.fn(
       ({ token, secret }) => Boolean(secret) && typeof token === 'string' && token.length === 6

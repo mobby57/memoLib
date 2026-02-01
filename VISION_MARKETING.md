@@ -2,17 +2,17 @@
 
 ## Positionnement Unique
 
-**memoLib = Première IA juridique CESEDA au monde respectant le serment d'avocat**
+**memoLib = Premier Assistant Juridique CESEDA Professionnel respectant le serment d’avocat**
 
 ### Proposition de Valeur (30 secondes pitch)
 
-> "Gérez 3x plus de dossiers CESEDA sans sacrifier la qualité juridique. Notre IA trouve la jurisprudence en 2 min vs 3h, prédit le taux de succès à 87%, et garantit zéro deadline ratée avec alertes OQTF automatiques. L'avocat décide, l'IA accélère."
+> "Gérez 3x plus de dossiers CESEDA sans sacrifier la qualité juridique. Notre assistant trouve la jurisprudence en 2 min vs 3h, prédit le taux de succès à 87%, et garantit zéro deadline ratée avec alertes OQTF automatiques. L'avocat décide, l'assistant accélère."
 
 ---
 
 ## 3 Piliers Produit (Core Features)
 
-### 1. IA Prédictive CESEDA 🧠
+### 1. Analyse Prédictive CESEDA 🧠
 
 **Promesse**: Connaître le taux de succès AVANT de déposer
 
@@ -38,7 +38,7 @@
 
 ---
 
-### 3. Génération Documents IA ✍️
+### 3. Génération Documents Assistée ✍️
 
 **Promesse**: Pré-rédaction en 30 sec, personnalisation en 2 min
 
@@ -81,7 +81,7 @@
 ### Homepage (Hero)
 
 ```
-Titre: L'IA qui Respecte Votre Serment d'Avocat
+Titre: L'Assistant qui Respecte Votre Serment d'Avocat
 Sous-titre: Gérez 3x Plus de Dossiers CESEDA sans Sacrifier la Qualité Juridique
 CTA: 🚀 Essai Gratuit 14 Jours (Sans CB)
 ```
@@ -90,14 +90,14 @@ CTA: 🚀 Essai Gratuit 14 Jours (Sans CB)
 
 ```
 Objet: Votre concurrent accepte 3x plus de dossiers CESEDA que vous. Voici comment.
-Preview: IA prédictive 87% précision + alertes OQTF automatiques = +47% CA/mois
+Preview: Analyse prédictive 87% précision + alertes OQTF automatiques = +47% CA/mois
 ```
 
 ### LinkedIn Ads
 
 ```
-Headline: Avocats CESEDA saturés : Cette IA trouve la jurisprudence en 2 min vs 3h
-Body: 347 cabinets nous font confiance. Première IA respectant le secret professionnel.
+Headline: Avocats CESEDA saturés : Cet assistant trouve la jurisprudence en 2 min vs 3h
+Body: 347 cabinets nous font confiance. Premier assistant respectant le secret professionnel.
 ```
 
 ---
@@ -107,7 +107,7 @@ Body: 347 cabinets nous font confiance. Première IA respectant le secret profes
 ### Métriques de Confiance
 
 - ✅ **347 cabinets** actifs (vs "10,000+" générique)
-- ✅ **87% précision** IA (audit externe indépendant)
+- ✅ **87% précision** d'analyse (audit externe indépendant)
 - ✅ **12,400 décisions** base propriétaire
 - ✅ **0 deadline** OQTF ratée en 2025 (tous clients)
 - ✅ **+47% CA moyen** cabinet (étude 6 mois)
@@ -116,7 +116,7 @@ Body: 347 cabinets nous font confiance. Première IA respectant le secret profes
 
 ```
 "Avant memoLib, je refusais 60% des demandes OQTF par manque de temps.
-Aujourd'hui j'accepte TOUS les dossiers rentables. L'IA fait la recherche
+Aujourd'hui j'accepte TOUS les dossiers rentables. L'assistant fait la recherche
 jurisprudentielle en 2 min, je me concentre sur la stratégie."
 
 - Maître Sarah K., Cabinet Immigration Paris 12ème
@@ -130,21 +130,21 @@ jurisprudentielle en 2 min, je me concentre sur la stratégie."
 ### Solo - 49€/mois
 
 - 10 clients max
-- IA Prédictive Niveau 1
+- Analyse Prédictive Niveau 1
 - Alertes délais SMS
 - **ROI**: 1 dossier/mois = rentabilisé
 
 ### Premium - 149€/mois ⭐ RECOMMANDÉ
 
 - 50 clients
-- IA Niveau 2 (Pré-rédaction)
+- Analyse Niveau 2 (Pré-rédaction)
 - 3 avocats
 - **ROI**: 3-4 dossiers/mois = rentabilisé
 
 ### Enterprise - 499€/mois
 
 - Clients illimités
-- IA Niveau 3 (Analyse juridique)
+- Analyse Niveau 3 (Analyse juridique)
 - Équipe illimitée
 - Support prioritaire 2h
 - **ROI**: Cabinet 5+ avocats
@@ -154,13 +154,13 @@ jurisprudentielle en 2 min, je me concentre sur la stratégie."
 ## Anti-Patterns à Éviter (Learnings)
 
 ❌ **Mauvais**: "Logiciel de gestion pour avocats"
-✅ **Bon**: "Première IA CESEDA prédictive au monde"
+✅ **Bon**: "Premier assistant CESEDA prédictif au monde"
 
 ❌ **Mauvais**: "Fonctionnalités: CRM, facturation, documents"
 ✅ **Bon**: "3x plus de dossiers acceptés, zéro deadline OQTF ratée"
 
-❌ **Mauvais**: "L'IA remplace l'avocat"
-✅ **Bon**: "L'avocat décide, l'IA accélère - Validation humaine obligatoire"
+❌ **Mauvais**: "L'assistant remplace l'avocat"
+✅ **Bon**: "L'avocat décide, l'assistant accélère - Validation humaine obligatoire"
 
 ❌ **Mauvais**: "10,000 clients, 98% satisfaction" (chiffres gonflés)
 ✅ **Bon**: "347 cabinets, 87% précision auditée, +47% CA moyen"
@@ -186,7 +186,7 @@ jurisprudentielle en 2 min, je me concentre sur la stratégie."
 
 - [ ] Campagne LinkedIn Ads
 - [ ] Partenariat Ordres Avocats
-- [ ] Webinar "IA & Déontologie CESEDA"
+- [ ] Webinar "Assistant & Déontologie CESEDA"
 
 ---
 
