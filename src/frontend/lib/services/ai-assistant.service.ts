@@ -93,6 +93,8 @@ export class AIAssistantService {
         actorId: userId,
         actorType: 'USER',
         eventType: 'AI_SESSION_STARTED',
+        entityType: 'chat_session',
+        entityId: session.id,
         metadata: {
           sessionId: session.id,
           dossierId,
@@ -117,6 +119,8 @@ export class AIAssistantService {
       actorId: userId,
       actorType: 'USER',
       eventType: 'AI_QUERY_SUBMITTED',
+      entityType: 'chat_session',
+      entityId: session.id,
       metadata: {
         sessionId: session.id,
         query: query.substring(0, 200),
@@ -177,6 +181,8 @@ export class AIAssistantService {
       actorId: userId,
       actorType: 'AI',
       eventType: 'AI_RESPONSE_GENERATED',
+      entityType: 'chat_session',
+      entityId: session.id,
       metadata: {
         sessionId: session.id,
         model: aiResponse.model,
@@ -575,6 +581,8 @@ Pour une analyse plus précise de votre situation, je vous recommande de consult
       actorId: userId,
       actorType: 'USER',
       eventType: 'AI_SESSION_ENDED',
+      entityType: 'chat_session',
+      entityId: sessionId,
       metadata: { sessionId },
     });
   }
