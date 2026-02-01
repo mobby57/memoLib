@@ -15,7 +15,7 @@ if (typeof globalThis.TextEncoder === 'undefined') {
 // Polyfill Web APIs for Next.js API route tests
 // These are needed for next/server imports
 if (typeof globalThis.Request === 'undefined') {
-  // Create minimal mock for Request/Response used by Next.js server
+  //  Polyfill TextEncoder/TextDecoder for Node.js test environment
   globalThis.Request = class Request {
     constructor(input, init = {}) {
       this.url = typeof input === 'string' ? input : input.url;
@@ -98,7 +98,27 @@ jest.mock('next/navigation', () => ({
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret';
 process.env.NEXTAUTH_URL = 'http://localhost:3000';
+process.env.STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || 'sk_test_12345';
 // Use a dummy valid PostgreSQL URL to satisfy Prisma datasource validation
 if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL = 'postgresql://user:pass@localhost:5432/testdb';
 }
+
+// ===== Mocks: 2FA (otplib) =====
+jest.mock('@otplib/preset-default', () => {
+  const authenticator = {
+    // Génère des secrets pseudo-uniques pour satisfaire les tests d'unicité
+    generateSecret: jest.fn(() => `TESTSECRET_${Math.random().toString(36).slice(2, 10)}`),
+    // Force le nom d'application attendu par les tests
+    keyuri: jest.fn(
+      (email, _app, secret) =>
+        `otpauth://totp/IA Poste Manager:${encodeURIComponent(email)}?secret=${secret}`
+    ),
+    verify: jest.fn(
+      ({ token, secret }) => Boolean(secret) && typeof token === 'string' && token.length === 6
+    ),
+  };
+  return { authenticator };
+});
+
+// (Stripe est mocké par test au besoin; pas de mock global ici pour éviter les conflits)
