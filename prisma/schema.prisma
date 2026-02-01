@@ -151,6 +151,12 @@ enum EventType {
   DOCUMENT_OCR_PROCESSED
   DOCUMENT_OCR_FAILED
 
+  // AI Legal Assistant (Phase 8)
+  AI_QUERY_SUBMITTED
+  AI_RESPONSE_GENERATED
+  AI_SESSION_STARTED
+  AI_SESSION_ENDED
+
   // Workflows
   WORKFLOW_STARTED
   WORKFLOW_COMPLETED
@@ -279,6 +285,7 @@ model Tenant {
   aiMonthlySummaries AIMonthlySummary[]
   filterRules        FilterRule[]
   comments           Comment[]
+  chatSessions       ChatSession[]
 
   @@index([planId])
   @@index([status])
@@ -378,6 +385,8 @@ model User {
   oauthTokens    OAuthToken[]
   comments       Comment[]
   mentions       Mention[]
+  chatSessions   ChatSession[]
+  chatMessages   ChatMessage[]
 
   @@index([tenantId, email])
   @@index([role])
@@ -511,6 +520,7 @@ model Dossier {
   proofs          Proof[]
   channelMessages ChannelMessage[] @relation("ChannelMessages")
   filterRules     FilterRule[]
+  chatSessions    ChatSession[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, statut])
@@ -760,6 +770,58 @@ model Mention {
   @@index([userId, notified])
   @@index([createdAt])
   @@map("mentions")
+}
+
+// ============================================
+// AI LEGAL ASSISTANT (Phase 8)
+// ============================================
+
+model ChatSession {
+  id       String @id @default(uuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title String? // Auto-generated from first query
+
+  // Optional link to specific dossier for context
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+
+  messages ChatMessage[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  endedAt   DateTime?
+
+  @@index([tenantId, userId])
+  @@index([dossierId])
+  @@index([createdAt])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String @id @default(uuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  role String // 'user', 'assistant', 'system'
+
+  content String // User query or AI response
+
+  // Metadata for AI responses
+  metadata Json? // { model, tokensUsed, ragDocuments: [...], confidence, citations: [...] }
+
+  createdAt DateTime @default(now())
+
+  @@index([sessionId, createdAt])
+  @@index([userId])
+  @@map("chat_messages")
 }
 
 model EmailAttachment {
