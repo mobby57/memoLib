@@ -405,17 +405,17 @@ export async function logAIAction(data: {
     // Utiliser le logger professionnel pour traçabilité IA
     const { logger } = await import('@/lib/logger');
 
-    logger.audit({
-      module: 'AI',
-      action: `AI_${data.action}`,
-      message: `Action IA: ${data.action} - ${data.validated ? 'Validé' : 'Non validé'}`,
-      context: {
-        tenantId: data.tenantId,
-        userId: data.userId || 'system',
+    logger.audit(
+      `AI_${data.action}`,
+      data.userId || 'system',
+      data.tenantId,
+      {
+        module: 'AI',
+        message: `Action IA: ${data.action} - ${data.validated ? 'Validé' : 'Non validé'}`,
         validated: data.validated,
         ...data.metadata,
-      },
-    });
+      }
+    );
 
     // En production, envoyer aussi à Sentry pour suivi IA
     if (process.env.NODE_ENV === 'production') {

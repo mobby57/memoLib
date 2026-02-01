@@ -41,6 +41,34 @@ Format attendu:
     "documents": ["documents mentionnés"],
     "references": ["numéros de dossier"]
   }
+
+  async generate(prompt: string): Promise<string> {
+    const response = await fetch(`${this.baseUrl}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: this.model,
+        prompt,
+        stream: false,
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Ollama unavailable');
+    }
+
+    const data: OllamaResponse = await response.json();
+    return data.response;
+  }
+
+  async generateJSON<T = any>(prompt: string): Promise<T> {
+    const text = await this.generate(prompt);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('Invalid JSON response');
+    }
+    return JSON.parse(jsonMatch[0]) as T;
+  }
 }`;
 
     try {
@@ -59,7 +87,7 @@ Format attendu:
 
       const data: OllamaResponse = await response.json();
       const jsonMatch = data.response.match(/\{[\s\S]*\}/);
-      
+
       if (jsonMatch) {
         return JSON.parse(jsonMatch[0]);
       }
