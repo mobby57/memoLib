@@ -51,11 +51,11 @@ export default function ClientDetailPage() {
             <CardContent className="space-y-4">
               <div>
                 <h3 className="text-2xl font-bold">{client.firstName} {client.lastName}</h3>
-                <Badge variant={client.user?.status === 'active' ? 'default' : 'secondary'}>
+                <Badge variant={client.user?.status === 'active' ? 'success' : 'warning'}>
                   {client.user?.status || 'Inactif'}
                 </Badge>
               </div>
-              
+
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-gray-500" />
