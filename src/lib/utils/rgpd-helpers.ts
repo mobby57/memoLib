@@ -15,7 +15,7 @@ import { prisma } from '@/lib/prisma';
  * Anonymize personal data for AI processing
  */
 export function anonymizeForAI<T extends Record<string, any>>(data: T): T {
-  const anonymized = { ...data };
+  const anonymized = { ...data } as Record<string, any>;
 
   // Fields to anonymize
   const sensitiveFields = [
@@ -44,7 +44,7 @@ export function anonymizeForAI<T extends Record<string, any>>(data: T): T {
     }
   }
 
-  return anonymized;
+  return anonymized as T;
 }
 
 /**

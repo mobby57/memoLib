@@ -420,8 +420,9 @@ export async function extractDeadlinesFromFile(
     if (mimeType === 'application/pdf') {
       // Extraction PDF avec pdf-parse si disponible
       try {
-        const pdfParse = await import('pdf-parse');
-        const pdfData = await pdfParse.default(fileBuffer);
+        const pdfParseModule: any = await import('pdf-parse');
+        const pdfParse = pdfParseModule.default ?? pdfParseModule;
+        const pdfData = await pdfParse(fileBuffer);
         documentText = pdfData.text;
       } catch (pdfError) {
         logger.warn('pdf-parse non disponible, extraction basique', { error: pdfError });

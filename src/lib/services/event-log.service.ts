@@ -10,8 +10,11 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { EventType, ActorType, Prisma, PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client';
 import { createHash } from 'crypto';
+
+type EventType = string;
+type ActorType = string;
 
 // ============================================
 // TYPES
@@ -84,7 +87,7 @@ export class EventLogService {
         entityId,
         actorType,
         actorId: actorId || null,
-        metadata: metadata as Prisma.InputJsonValue,
+        metadata: metadata as any,
         tenantId,
         immutable: true, // Toujours true (sécurité DB)
         checksum,
@@ -196,7 +199,7 @@ export class EventLogService {
   }): Promise<EventLogData[]> {
     const { tenantId, eventType, actorId, startDate, endDate, limit = 100, offset = 0 } = params;
 
-    const where: Prisma.EventLogWhereInput = {
+    const where: any = {
       tenantId,
       ...(eventType && { eventType }),
       ...(actorId && { actorId }),

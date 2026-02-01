@@ -171,7 +171,7 @@ if (!isTest && process.env.NODE_ENV === 'development') {
 
 // Soft delete middleware
 if (!isTest)
-  prisma.$use(async (params, next) => {
+  prisma.$use(async (params: any, next: any) => {
     // Ne pas appliquer le soft delete aux EventLog (immuabilité gérée par trigger DB)
     if (params.model === 'EventLog') {
       return next(params);
@@ -229,8 +229,8 @@ export const prismaExtended = prisma.$extends({
   model: {
     $allModels: {
       // Methode pour recuperer avec les enregistrements supprimes
-      async findManyWithDeleted<T>(this: T, args?: any) {
-        const context = Reflect.get(this, Symbol.for('prisma.client.context'));
+      async findManyWithDeleted<T extends object>(this: T, args?: any) {
+        const context = Reflect.get(this as object, Symbol.for('prisma.client.context'));
         return (context as any).findMany({
           ...args,
           where: {
@@ -241,8 +241,8 @@ export const prismaExtended = prisma.$extends({
       },
 
       // Methode pour supprimer definitivement
-      async hardDelete<T>(this: T, args: any) {
-        const context = Reflect.get(this, Symbol.for('prisma.client.context'));
+      async hardDelete<T extends object>(this: T, args: any) {
+        const context = Reflect.get(this as object, Symbol.for('prisma.client.context'));
         return (context as any).delete(args);
       },
     },

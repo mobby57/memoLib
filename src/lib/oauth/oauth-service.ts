@@ -33,7 +33,7 @@ export abstract class BaseOAuthConnector {
     this.config = OAuthConfigSchema.parse(config);
   }
 
-  abstract getAuthorizationUrl(state: string, scopes: string[]): string;
+  abstract getAuthorizationUrl(state: string, scopes?: string[]): string;
   abstract exchangeCode(
     code: string
   ): Promise<{ accessToken: string; refreshToken?: string; expiresIn: number }>;
@@ -230,7 +230,7 @@ export class GitHubOAuthConnector extends BaseOAuthConnector {
     };
   }
 
-  async refreshToken(_refreshToken: string) {
+  async refreshToken(_refreshToken: string): Promise<{ accessToken: string; expiresIn: number }> {
     throw new OAuthServiceError('github', 'GitHub does not support token refresh');
   }
 
@@ -264,7 +264,7 @@ export class OAuthService {
 
   getAuthorizationUrl(provider: OAuthProvider, state: string, scopes?: string[]): string {
     const connector = this.getConnector(provider);
-    return connector.getAuthorizationUrl(state, scopes);
+    return connector.getAuthorizationUrl(state, scopes ?? []);
   }
 
   async exchangeCode(provider: OAuthProvider, code: string) {
