@@ -3,10 +3,12 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
 import EmailProvider from 'next-auth/providers/email';
 import AzureADProvider from 'next-auth/providers/azure-ad';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     // Azure AD Provider pour authentification SSO (avocats CESEDA)
     ...(process.env.AZURE_CLIENT_ID &&
