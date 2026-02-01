@@ -41,6 +41,7 @@ Format attendu:
     "documents": ["documents mentionnés"],
     "references": ["numéros de dossier"]
   }
+}`;
 
   async generate(prompt: string): Promise<string> {
     const response = await fetch(`${this.baseUrl}/api/generate`, {
