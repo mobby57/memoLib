@@ -156,3 +156,7 @@ legacy/
 dbcodeio-public/
 dbcodeio-public/
 dbcodeio-public/
+
+# GitHub App credentials
+memolib-guardian*.pem
+.env.github-app
