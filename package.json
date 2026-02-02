@@ -156,7 +156,7 @@
     "googleapis": "^169.0.0",
     "handlebars": "^4.7.8",
     "ioredis": "^5.9.1",
-    "jspdf": "^4.0.0",
+    "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.562.0",
     "mailparser": "^3.9.1",
