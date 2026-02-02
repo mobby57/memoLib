@@ -5,12 +5,11 @@
 
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { analyzeEmail } from '@/lib/workflows/email-intelligence';
-import { NextRequest, NextResponse } from 'next/server';
 import { eventLogService } from '@/lib/services/event-log.service';
-import { filterRuleService } from '@/lib/services/filter-rule.service';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
-import { EventType, ActorType } from '@prisma/client';
+import { analyzeEmail } from '@/lib/workflows/email-intelligence';
+import { ActorType, EventType } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {

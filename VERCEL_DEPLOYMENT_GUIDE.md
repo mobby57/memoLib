@@ -19,7 +19,22 @@
 ## 🔑 Clés de Sécurité (À COPIER DANS VERCEL)
 
 ```bash
+# NextAuth
 NEXTAUTH_SECRET=li+95I281EhJlwgImcfdszt79uTItIipFuZ23gQrbYs=
+NEXTAUTH_URL=https://memolib.vercel.app
+
+# Sentry
+SENTRY_DSN=votre-sentry-dsn
+SENTRY_RELEASE=1.0.0
+
+# GitHub App (MemoLib Guardian)
+GITHUB_APP_ID=2782101
+GITHUB_APP_CLIENT_ID=Iv23li1esofvkxLzxiD1
+GITHUB_APP_CLIENT_SECRET=f13b7458307f23c30f66e133fdb2472690e6ef3b
+GITHUB_APP_PRIVATE_KEY=-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----
+GITHUB_WEBHOOK_SECRET=6thw5ec4b1DmGJj3fxLI9NuVOsU8aoWYykS0REiQZKpCdTl7PA2rFvgMHzXnBq
+
+# Base
 SECRET_KEY=225d23f8799ba86f844ab5e82c3cb351154e08b061d2c7dfcedac2b598c076ae
 ```
 
@@ -50,32 +65,27 @@ Allez à **Environment Variables** et ajoutez :
 
 ```
 NEXTAUTH_SECRET = li+95I281EhJlwgImcfdszt79uTItIipFuZ23gQrbYs=
-NEXTAUTH_URL = https://memolib-ceseda.vercel.app (remplacer par votre URL)
+NEXTAUTH_URL = https://memolib.vercel.app (remplacer par votre URL)
 DATABASE_URL = postgresql://user:pass@your-db.com:5432/memolib
 SECRET_KEY = 225d23f8799ba86f844ab5e82c3cb351154e08b061d2c7dfcedac2b598c076ae
 ```
 
-**Azure AD (SSO) - Optionnel en dev:**
+**GitHub App (MemoLib Guardian) - NOUVEAU:**
 
 ```
-AZURE_TENANT_ID = votre-tenant-id
-AZURE_CLIENT_ID = votre-client-id
-AZURE_CLIENT_SECRET = votre-client-secret
+GITHUB_APP_ID = 2782101
+GITHUB_APP_CLIENT_ID = Iv23li1esofvkxLzxiD1
+GITHUB_APP_CLIENT_SECRET = f13b7458307f23c30f66e133fdb2472690e6ef3b
+GITHUB_APP_PRIVATE_KEY = -----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----
+GITHUB_WEBHOOK_SECRET = 6thw5ec4b1DmGJj3fxLI9NuVOsU8aoWYykS0REiQZKpCdTl7PA2rFvgMHzXnBq
 ```
 
-**Stripe (Facturation) - Optionnel en dev:**
+**Sentry (Monitoring) - Optionnel:**
 
 ```
-STRIPE_SECRET_KEY = sk_test_votre-clé
-STRIPE_PUBLISHABLE_KEY = pk_test_votre-clé
-STRIPE_WEBHOOK_SECRET = whsec_votre-secret
-```
-
-**IA (Ollama local ou Azure OpenAI) - Optionnel:**
-
-```
-OLLAMA_BASE_URL = http://localhost:11434
-OLLAMA_MODEL = llama2
+SENTRY_DSN = votre-sentry-dsn
+SENTRY_RELEASE = 1.0.0
+SENTRY_ENVIRONMENT = production
 ```
 
 ### 4️⃣ Lancer le Déploiement
@@ -88,9 +98,11 @@ OLLAMA_MODEL = llama2
 
 **Vérifier l'URL:**
 
-- Visitez: https://memolib-ceseda.vercel.app
+- Visitez: https://memolib.vercel.app
 - Vérifiez homepage CESEDA
 - Vérifiez page /ceseda
+- Vérifiez GitHub App OAuth: https://memolib.vercel.app/api/auth/signin (bouton "GitHub")
+- Testez webhook GitHub: Créez une issue dans le repo → Vérifiez logs Vercel
 
 **Headers de version:**
 
@@ -122,20 +134,42 @@ curl -I https://memolib-ceseda.vercel.app | grep x-build-commit
 
 ---
 
-## 🔄 Flux de Déploiement Continu
+## 🤖 Déploiement Automatique avec GitHub Actions
+
+Un workflow GitHub Actions est maintenant configuré pour déployer automatiquement sur Vercel à chaque push sur `main` ou `production`.
+
+**Secrets GitHub requis:**
+
+```bash
+VERCEL_TOKEN=     # Token d'authentification Vercel
+VERCEL_ORG_ID=    # Org ID de votre compte Vercel
+VERCEL_PROJECT_ID= # Project ID du projet memolib
+```
+
+**Obtenez les tokens:**
+
+1. Allez sur https://vercel.com/account/tokens
+2. Créez un nouveau token: `Vercel Deploy Token`
+3. Copiez le token
+4. GitHub Settings → Secrets → Actions → `New repository secret`
+5. Ajoutez: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
+
+**Flux automatique:**
 
 ```
 Git push origin main
          ↓
-Vercel webhook trigger
+GitHub Actions trigger (deploy-vercel.yml)
          ↓
-npm install (avec --legacy-peer-deps auto)
+Vercel CLI login avec VERCEL_TOKEN
          ↓
-npm run build (Next.js 16 Turbopack)
+vercel deploy --prod
          ↓
-Vercel deploys
+URL en production en 3-5 min
          ↓
-URL live en 3-5 min
+Health check automatique
+         ↓
+Slack notification (optionnel)
 ```
 
 ---

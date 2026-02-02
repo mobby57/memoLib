@@ -3,11 +3,11 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useEffect, useState } from 'react';
 
 /**
  *  Dashboard DeVELOPPEMENT AVANCe
@@ -77,10 +77,10 @@ export default function DevDashboard() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => exportLogs('json')}>
-             Export JSON
+            Export JSON
           </Button>
           <Button variant="outline" onClick={() => exportLogs('csv')}>
-             Export CSV
+            Export CSV
           </Button>
           <Button variant="destructive" onClick={clearLogs}>
             ️ Clear Logs
@@ -108,9 +108,7 @@ export default function DevDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{aiStats?.total || 0}</div>
-            <p className="text-xs text-gray-500">
-              Avg: {aiStats?.averageDuration?.toFixed(0)}ms
-            </p>
+            <p className="text-xs text-gray-500">Avg: {aiStats?.averageDuration?.toFixed(0)}ms</p>
           </CardContent>
         </Card>
 
@@ -131,12 +129,8 @@ export default function DevDashboard() {
             <CardTitle className="text-sm">Performance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {metrics.averageDuration?.toFixed(0)}ms
-            </div>
-            <p className="text-xs text-gray-500">
-              {metrics.totalOperations} operations
-            </p>
+            <div className="text-2xl font-bold">{metrics.averageDuration?.toFixed(0)}ms</div>
+            <p className="text-xs text-gray-500">{metrics.totalOperations} operations</p>
           </CardContent>
         </Card>
       </div>
@@ -166,8 +160,8 @@ export default function DevDashboard() {
                       log.level === 'ERROR' || log.level === 'CRITICAL'
                         ? 'bg-red-50 border-red-300'
                         : log.level === 'WARN'
-                        ? 'bg-yellow-50 border-yellow-300'
-                        : 'bg-gray-50 border-gray-200'
+                          ? 'bg-yellow-50 border-yellow-300'
+                          : 'bg-gray-50 border-gray-200'
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -237,7 +231,10 @@ export default function DevDashboard() {
                   <h3 className="font-semibold mb-2">Modeles utilises</h3>
                   <div className="space-y-2">
                     {aiStats?.models?.map((model: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                      >
                         <span>{model.name}</span>
                         <Badge>{model.count} requetes</Badge>
                       </div>
@@ -280,7 +277,10 @@ export default function DevDashboard() {
                   <h3 className="font-semibold mb-2">Workflows par type</h3>
                   <div className="space-y-2">
                     {workflowStats?.byType?.map((type: any, idx: number) => (
-                      <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center p-3 bg-gray-50 rounded"
+                      >
                         <span>{type.name}</span>
                         <div className="flex gap-2">
                           <Badge variant="outline">{type.count} executions</Badge>

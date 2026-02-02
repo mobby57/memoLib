@@ -1,5 +1,27 @@
 {
   "name": "memolib",
+  "env": {
+    "GITHUB_APP_ID": {
+      "description": "GitHub App ID for MemoLib Guardian",
+      "required": true
+    },
+    "GITHUB_APP_CLIENT_ID": {
+      "description": "GitHub App Client ID for OAuth",
+      "required": true
+    },
+    "GITHUB_APP_CLIENT_SECRET": {
+      "description": "GitHub App Client Secret (sensitive)",
+      "required": true
+    },
+    "GITHUB_APP_PRIVATE_KEY": {
+      "description": "GitHub App Private Key (sensitive)",
+      "required": true
+    },
+    "GITHUB_WEBHOOK_SECRET": {
+      "description": "Webhook signature secret",
+      "required": true
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/deadline-alerts?token=${CRON_SECRET}",
