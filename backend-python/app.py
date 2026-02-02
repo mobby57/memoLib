@@ -3,6 +3,8 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -103,6 +105,64 @@ def save_data(filename, data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+def resolve_csv_path(csv_path: str | None) -> Path:
+    if csv_path:
+        candidate = Path(csv_path)
+        if not candidate.is_absolute():
+            candidate = ROOT_DIR / candidate
+    else:
+        candidate = ROOT_DIR / "titanic3.csv"
+
+    resolved = candidate.resolve()
+    if ROOT_DIR not in resolved.parents and resolved != ROOT_DIR:
+        raise ValueError("Chemin CSV non autorisé")
+    if not resolved.exists():
+        raise FileNotFoundError("Fichier CSV introuvable")
+    return resolved
+
+
+def prepare_titanic_data(csv_path: str | None) -> dict:
+    csv_file = resolve_csv_path(csv_path)
+    data = pd.read_csv(csv_file)
+
+    data.replace("?", np.nan, inplace=True)
+    data["age"] = pd.to_numeric(data["age"], errors="coerce")
+    data["fare"] = pd.to_numeric(data["fare"], errors="coerce")
+
+    missing = data.isna().sum().to_dict()
+    correlation = (
+        data.corr(numeric_only=True)
+        .abs()[["survived"]]
+        .sort_values("survived", ascending=False)
+        .to_dict()["survived"]
+    )
+
+    data.replace({"male": 1, "female": 0}, inplace=True)
+    data["relatives"] = data.apply(
+        lambda row: int((row["sibsp"] + row["parch"]) > 0), axis=1
+    )
+
+    correlation_with_relatives = (
+        data.corr(numeric_only=True)
+        .abs()[["survived"]]
+        .sort_values("survived", ascending=False)
+        .to_dict()["survived"]
+    )
+
+    prepared = data[["sex", "pclass", "age", "relatives", "fare", "survived"]].dropna()
+
+    return {
+        "csv_path": str(csv_file),
+        "rows_original": int(len(data)),
+        "rows_prepared": int(len(prepared)),
+        "columns": list(data.columns),
+        "missing_by_column": {k: int(v) for k, v in missing.items()},
+        "correlation_survived": correlation,
+        "correlation_survived_with_relatives": correlation_with_relatives,
+        "prepared_preview": prepared.head(5).to_dict(orient="records"),
+    }
+
+
 # Authentication API
 @app.route("/api/auth/login", methods=["POST"])
 def login():
@@ -183,6 +243,22 @@ def analyze_ceseda():
             "analysis": f"Analyse basée sur {positive_factors} facteurs positifs détectés",
         }
     )
+
+
+@app.route("/api/data/titanic/prepare", methods=["POST"])
+def prepare_titanic():
+    payload = request.get_json(silent=True) or {}
+    csv_path = payload.get("csv_path")
+
+    try:
+        result = prepare_titanic_data(csv_path)
+        return jsonify(result)
+    except FileNotFoundError as exc:
+        return jsonify({"error": str(exc)}), 404
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except Exception:
+        return jsonify({"error": "Erreur serveur"}), 500
 
 
 # Deadlines Management API
