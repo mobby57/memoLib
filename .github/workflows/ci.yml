@@ -1,32 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - '.github/workflows/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'pnpm-lock.yaml'
-      - 'yarn.lock'
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
-      - '*.txt'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - '.github/workflows/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'pnpm-lock.yaml'
-      - 'yarn.lock'
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
-      - '*.txt'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
