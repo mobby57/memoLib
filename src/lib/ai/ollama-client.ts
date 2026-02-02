@@ -43,6 +43,19 @@ Format attendu:
   }
 }`;
 
+    try {
+      return await this.generateJSON<EmailAnalysis>(prompt);
+    } catch (error) {
+      console.error('Ollama error:', error);
+      return {
+        typeDossier: 'GENERAL',
+        urgency: 'medium',
+        summary: 'Classification automatique échouée',
+        entities: {},
+      };
+    }
+  }
+
   async generate(prompt: string): Promise<string> {
     const response = await fetch(`${this.baseUrl}/api/generate`, {
       method: 'POST',
@@ -51,7 +64,8 @@ Format attendu:
         model: this.model,
         prompt,
         stream: false,
-      })
+        options: { temperature: 0.1 },
+      }),
     });
 
     if (!response.ok) {
@@ -70,46 +84,12 @@ Format attendu:
     }
     return JSON.parse(jsonMatch[0]) as T;
   }
-}`;
-
-    try {
-      const response = await fetch(`${this.baseUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.model,
-          prompt,
-          stream: false,
-          options: { temperature: 0.1 }
-        })
-      });
-
-      if (!response.ok) throw new Error('Ollama unavailable');
-
-      const data: OllamaResponse = await response.json();
-      const jsonMatch = data.response.match(/\{[\s\S]*\}/);
-
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
-      }
-
-      throw new Error('Invalid JSON response');
-    } catch (error) {
-      console.error('Ollama error:', error);
-      return {
-        typeDossier: 'GENERAL',
-        urgency: 'medium',
-        summary: 'Classification automatique échouée',
-        entities: {}
-      };
-    }
-  }
 
   async isAvailable(): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/api/tags`, {
         method: 'GET',
-        signal: AbortSignal.timeout(2000)
+        signal: AbortSignal.timeout(2000),
       });
       return response.ok;
     } catch {

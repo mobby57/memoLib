@@ -1,0 +1,42 @@
+# Dockerfile.production - MemoLib Frontend
+# Multi-stage build pour Next.js
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Installer les dépendances
+COPY package*.json ./
+RUN npm ci
+
+# Copier le code source
+COPY . .
+
+# Builder l'application
+RUN npm run build
+
+# Stage final - runtime minimal
+FROM node:20-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Installer uniquement les dépendances de production
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copier le build depuis le stage builder
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.js ./
+
+# Exposer le port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000', r => {if(r.statusCode !== 200) throw new Error(r.statusCode)})"
+
+# Lancer l'application
+CMD ["npm", "start"]
