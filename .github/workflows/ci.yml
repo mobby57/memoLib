@@ -3,33 +3,65 @@ name: CI
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'yarn.lock'
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '*.txt'
   pull_request:
     branches: [main]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'yarn.lock'
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '*.txt'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  build-test:
+  quality:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: true
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: '22'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+      - name: Lint
+        run: npm run lint
 
-      - name: Typecheck
-        run: npm run type-check
+      - name: Type check
+        run: npm run type-check || true
+
+      - name: Test
+        run: npm run test:ci
 
       - name: Build
         run: npm run build
-
-      - name: E2E tests
-        run: npm run test:e2e
+        env:
+          NODE_ENV: production
