@@ -8,14 +8,13 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "Europe/Paris"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 8
     labels:
       - "dependencies"
-      - "security"
+      - "npm"
     commit-message:
-      prefix: "chore(deps)"
+      prefix: "chore(deps-npm)"
       include: "scope"
-    versioning-strategy: increase
     allow:
       - dependency-type: "all"
     ignore:
@@ -26,6 +25,22 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "react-dom"
         update-types: ["version-update:semver-major"]
+
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "chore(deps-python)"
+      include: "scope"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -38,7 +53,7 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - "github-actions"
-      - "dependencies"
+      - "ci"
     commit-message:
       prefix: "chore(ci)"
       include: "scope"
