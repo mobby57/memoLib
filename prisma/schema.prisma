@@ -169,6 +169,12 @@ enum EventType {
   WORKFLOW_STARTED
   WORKFLOW_COMPLETED
   WORKFLOW_FAILED
+
+  // GitHub Events (Phase 4 - GitHub App)
+  GITHUB_EVENT_RECEIVED
+  GITHUB_EVENT_PROCESSED
+  GITHUB_EVENT_LINKED
+  GITHUB_EVENT_ERROR
 }
 
 enum ActorType {
@@ -296,6 +302,7 @@ model Tenant {
   chatSessions       ChatSession[]
   dataExportRequests DataExportRequest[]
   consentRecords     ConsentRecord[]
+  gitHubEventLogs    GitHubEventLog[]
 
   @@index([planId])
   @@index([status])
@@ -389,16 +396,16 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  notifications  Notification[]
-  calendarEvents CalendarEvent[]
-  documents      Document[]
-  oauthTokens    OAuthToken[]
-  comments       Comment[]
-  mentions       Mention[]
-  chatSessions   ChatSession[]
-  chatMessages   ChatMessage[]
+  notifications      Notification[]
+  calendarEvents     CalendarEvent[]
+  documents          Document[]
+  oauthTokens        OAuthToken[]
+  comments           Comment[]
+  mentions           Mention[]
+  chatSessions       ChatSession[]
+  chatMessages       ChatMessage[]
   dataExportRequests DataExportRequest[]
-  consentRecords ConsentRecord[]
+  consentRecords     ConsentRecord[]
 
   @@index([tenantId, email])
   @@index([role])
@@ -480,6 +487,7 @@ model Client {
   channelMessages ChannelMessage[] @relation("ChannelMessages")
   rgpdConsents    RGPDConsent[]    @relation("RGPDConsents")
   filterRules     FilterRule[]
+  gitHubEventLogs GitHubEventLog[]
 
   @@unique([tenantId, email])
   @@index([tenantId, email])
@@ -533,6 +541,7 @@ model Dossier {
   channelMessages ChannelMessage[] @relation("ChannelMessages")
   filterRules     FilterRule[]
   chatSessions    ChatSession[]
+  gitHubEventLogs GitHubEventLog[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, statut])
@@ -815,7 +824,7 @@ model ChatSession {
 }
 
 model ChatMessage {
-  id        String @id @default(uuid())
+  id        String      @id @default(uuid())
   sessionId String
   session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
@@ -1464,13 +1473,13 @@ model DataExportRequest {
 
   status String @default("pending") // pending, processing, completed, failed, expired
 
-  requestedAt DateTime @default(now())
+  requestedAt DateTime  @default(now())
   completedAt DateTime?
   expiresAt   DateTime? // Export URL expiration (7 days)
 
   exportUrl  String? // S3/Blob URL or local path
   exportSize Int? // Bytes
-  format     String @default("json") // json, pdf, csv
+  format     String  @default("json") // json, pdf, csv
 
   errorMessage String?
 
@@ -1670,4 +1679,71 @@ model FilterRule {
   @@index([dossierId])
   @@index([clientId])
   @@map("filter_rules")
+}
+
+// ============================================
+// GITHUB APP EVENT LOG (Phase 4)
+// ============================================
+
+enum GitHubEventType {
+  PUSH
+  PULL_REQUEST
+  ISSUES
+  ISSUE_COMMENT
+  WORKFLOW_RUN
+  CHECK_RUN
+  REPOSITORY
+  MEMBER
+}
+
+model GitHubEventLog {
+  id String @id @default(uuid())
+
+  // Identification de l'événement
+  deliveryId String          @unique // X-GitHub-Delivery header
+  eventType  GitHubEventType
+  action     String? // opened, closed, synchronize, etc.
+
+  // Hash immuable de l'événement
+  eventHash    String  @unique // SHA-256 du payload brut
+  previousHash String? // Hash de l'événement précédent (chaînage)
+
+  // Métadonnées GitHub
+  repository     String? // owner/repo
+  sender         String? // login du sender
+  senderEmail    String? // email du sender si disponible
+  installationId String? // Installation ID
+
+  // Payload complet (JSONB pour requêtes)
+  payload Json
+
+  // Horodatage certifié
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+
+  // Lien avec entités MemoLib (optionnel)
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id])
+
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Traçabilité
+  processed Boolean @default(false)
+  error     String?
+
+  createdAt DateTime @default(now())
+
+  @@index([eventType])
+  @@index([repository])
+  @@index([sender])
+  @@index([receivedAt])
+  @@index([dossierId])
+  @@index([clientId])
+  @@index([tenantId])
+  @@index([processed])
+  @@map("github_event_logs")
 }
