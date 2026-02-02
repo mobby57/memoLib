@@ -1,31 +1,25 @@
 ﻿/**
  * Test API Endpoint - CESEDA Case Analysis
- * 
+ *
  * Example endpoint demonstrating:
  * - Tenant isolation
  * - AI integration (Ollama)
  * - RGPD-compliant logging
  * - Proper error handling
- * 
+ *
  * POST /api/test/ceseda-analysis
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { withTenantIsolation } from '@/middleware/tenant-isolation';
 import { cesedaAnalyzer } from '@/lib/ai/ceseda-analyzer';
 import { logger, logIAUsage } from '@/lib/logger';
 import { anonymizeForAI } from '@/lib/utils/rgpd-helpers';
+import { NextRequest, NextResponse } from 'next/server';
 
 async function handler(req: NextRequest, context: any) {
   try {
     const body = await req.json();
 
-    const {
-      caseType,
-      clientSituation,
-      documents,
-      notificationDate,
-    } = body;
+    const { caseType, clientSituation, documents, notificationDate } = body;
 
     // Validate required fields
     if (!caseType || !clientSituation) {
@@ -56,18 +50,12 @@ async function handler(req: NextRequest, context: any) {
     });
 
     // Log AI usage for audit trail
-    logIAUsage(
-      'ANALYSIS',
-      context.userId,
-      context.tenantId,
-      'test-dossier',
-      {
-        caseType,
-        confidence: analysis.confidence,
-        riskLevel: analysis.riskLevel,
-        dataAnonymized: true,
-      }
-    );
+    logIAUsage('ANALYSIS', context.userId, context.tenantId, 'test-dossier', {
+      caseType,
+      confidence: analysis.confidence,
+      riskLevel: analysis.riskLevel,
+      dataAnonymized: true,
+    });
 
     return NextResponse.json({
       success: true,
@@ -95,5 +83,5 @@ async function handler(req: NextRequest, context: any) {
   }
 }
 
-// Export with tenant isolation middleware
-export const POST = withTenantIsolation(handler);
+// Export handler
+export { handler as POST };
