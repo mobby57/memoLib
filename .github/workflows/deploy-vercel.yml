@@ -1,0 +1,152 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - production
+
+concurrency:
+  group: vercel-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Vercel
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get commit info
+        id: commit
+        run: |
+          echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Deploy to Vercel (Production)
+        if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          vercel deploy \
+            --prod \
+            --token=${{ env.VERCEL_TOKEN }} \
+            --confirm \
+            --build-env NEXT_PUBLIC_BUILD_COMMIT=${{ steps.commit.outputs.sha }} \
+            --build-env NEXT_PUBLIC_BUILD_TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+      - name: Deploy to Vercel (Preview)
+        if: github.ref != 'refs/heads/main' && github.event.inputs.environment != 'production'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy \
+            --token=${{ env.VERCEL_TOKEN }} \
+            --build-env NEXT_PUBLIC_BUILD_COMMIT=${{ steps.commit.outputs.sha }} \
+            --build-env NEXT_PUBLIC_BUILD_TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ'))
+          echo "Preview URL: $DEPLOYMENT_URL"
+          echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+
+      - name: Comment PR with deployment URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy-preview.outputs.DEPLOYMENT_URL }}
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Vercel Preview Deployment\n\n[Visit Preview](${process.env.DEPLOYMENT_URL})`
+            })
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    name: Verify Deployment
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Wait for deployment
+        run: sleep 10
+
+      - name: Health check (Vercel)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          # Get latest deployment
+          DEPLOYMENT=$(curl -s -H "Authorization: Bearer ${{ env.VERCEL_TOKEN }}" \
+            "https://api.vercel.com/v6/deployments?projectId=${{ env.VERCEL_PROJECT_ID }}&limit=1" \
+            | jq -r '.deployments[0].url')
+
+          echo "Checking deployment: https://${DEPLOYMENT}"
+
+          # Try health check
+          for i in {1..5}; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://${DEPLOYMENT}/api/health")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Health check passed"
+              exit 0
+            fi
+            echo "Attempt $i: Got $HTTP_CODE, retrying in 5s..."
+            sleep 5
+          done
+
+          echo "❌ Health check failed"
+          exit 1
+
+      - name: Notify Slack (Optional)
+        if: always()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "${{ env.SLACK_WEBHOOK }}" ]; then
+            echo "Slack webhook not configured, skipping notification"
+            exit 0
+          fi
+
+          STATUS="${{ job.status }}"
+          EMOJI=$([ "$STATUS" = "success" ] && echo "✅" || echo "❌")
+
+          curl -X POST ${{ env.SLACK_WEBHOOK }} \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"text\": \"$EMOJI Vercel Deployment $STATUS\",
+              \"blocks\": [
+                {
+                  \"type\": \"section\",
+                  \"text\": {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \"*$EMOJI Vercel Deployment $STATUS*\n\n• Branch: \`${{ github.ref }}\`\n• Commit: \`${{ github.sha }}\`\"
+                  }
+                }
+              ]
+            }"
