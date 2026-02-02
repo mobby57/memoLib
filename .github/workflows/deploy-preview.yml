@@ -1,19 +1,7 @@
 name: Preview Deploy
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    branches: [main, develop]
-    paths:
-      - 'src/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'next.config.js'
-      - '.github/workflows/deploy-preview.yml'
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
-      - '*.txt'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref }}
