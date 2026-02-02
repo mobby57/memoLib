@@ -1,0 +1,174 @@
+name: Deploy MemoLib
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    name: Quality & Security Checks
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type checking
+        run: npm run type-check
+        continue-on-error: true
+
+      - name: Run tests
+        run: npm test -- --coverage --passWithNoTests
+
+      - name: Security audit
+        run: npm audit --production
+        continue-on-error: true
+
+      - name: Build
+        run: npm run build
+
+  deploy-staging:
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Deploy to Vercel (Staging)
+        run: |
+          npm install -g vercel
+          vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env staging
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy backend to Azure (Staging)
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
+            -p ${{ secrets.AZURE_CLIENT_SECRET }} \
+            --tenant ${{ secrets.AZURE_TENANT_ID }}
+
+          # Package backend
+          cd backend-python
+          zip -r ../backend-staging.zip . -x "*.pyc" "__pycache__/*" ".venv/*"
+          cd ..
+
+          # Deploy
+          az webapp deployment source config-zip \
+            --resource-group memolib-staging \
+            --name memolib-api-staging \
+            --src backend-staging.zip
+
+  deploy-production:
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run production tests
+        run: npm test -- --passWithNoTests
+
+      - name: Deploy to Vercel (Production)
+        run: |
+          npm install -g vercel
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy backend to Azure (Production)
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
+            -p ${{ secrets.AZURE_CLIENT_SECRET }} \
+            --tenant ${{ secrets.AZURE_TENANT_ID }}
+
+          # Package backend
+          cd backend-python
+          zip -r ../backend-prod.zip . -x "*.pyc" "__pycache__/*" ".venv/*"
+          cd ..
+
+          # Deploy
+          az webapp deployment source config-zip \
+            --resource-group memolib-prod \
+            --name memolib-api-prod \
+            --src backend-prod.zip
+
+      - name: Database migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f https://api.memolib.fr/api/health || exit 1
+
+      - name: Notify Slack
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "MemoLib Deployment",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*MemoLib Production Deployment*\nStatus: ${{ job.status }}\nRef: ${{ github.ref }}\nCommit: ${{ github.sha }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
