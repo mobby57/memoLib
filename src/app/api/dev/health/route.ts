@@ -1,6 +1,8 @@
 ﻿import { NextResponse } from 'next/server';
 
 const startTime = Date.now();
+const DEMO_MODE = process.env.DEMO_MODE === '1' || process.env.DEMO_MODE === 'true';
+const AI_HEALTH_STRICT = process.env.AI_HEALTH_STRICT !== 'false';
 
 /**
  * GET /api/dev/health - Health check systeme
@@ -51,6 +53,10 @@ async function checkDatabase(): Promise<{ healthy: boolean; message: string }> {
 }
 
 async function checkOllama(): Promise<{ healthy: boolean; message: string }> {
+  if (DEMO_MODE || !AI_HEALTH_STRICT) {
+    return { healthy: true, message: 'Ollama check skipped (demo)' };
+  }
+
   try {
     const response = await fetch('http://localhost:11434/api/tags', {
       signal: AbortSignal.timeout(2000),
@@ -65,6 +71,10 @@ async function checkOllama(): Promise<{ healthy: boolean; message: string }> {
 }
 
 function checkMemory(): { healthy: boolean; message: string; usage?: number } {
+  if (DEMO_MODE) {
+    return { healthy: true, message: 'Memory check skipped (demo)' };
+  }
+
   try {
     if (typeof process !== 'undefined' && process.memoryUsage) {
       const usage = process.memoryUsage();

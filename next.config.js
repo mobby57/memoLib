@@ -87,7 +87,7 @@ const nextConfig = {
   },
 
   //  Performance optimizations - Next.js 16 Best Practices
-    turbopack: isWindows ? false : undefined,
+  turbopack: isWindows ? false : undefined,
   experimental: {
     optimizeCss: true,
     // Optimise les imports de packages lourds (tree-shaking automatique)
