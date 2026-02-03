@@ -125,5 +125,8 @@
 
   // ===== DOCKER =====
   "docker.showStartPage": false,
-  "python-envs.pythonProjects": []
+  "python-envs.pythonProjects": [],
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+  }
 }
