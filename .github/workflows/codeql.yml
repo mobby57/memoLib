@@ -1,0 +1,35 @@
+name: codeql-analyze
+
+on:
+  pull_request:
+    branches: [main, memolib-2.0]
+  push:
+    branches: [main, memolib-2.0]
+  schedule:
+    - cron: '0 6 * * 1' # Weekly on Monday
+
+permissions:
+  security-events: write
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript, python]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
