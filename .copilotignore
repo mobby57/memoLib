@@ -1,0 +1,68 @@
+# =============================================================================
+# 🚫 COPILOT EXCLUSIONS - MEMOLIB
+# =============================================================================
+# Fichier .copilotignore pour contrôler GitHub Copilot
+# Secteurs: Juridique, Médical, Administratif → RGPD strict
+# =============================================================================
+
+# =============================================================================
+# 🗄️ MIGRATIONS BASE DE DONNÉES (TRAÇABILITÉ LÉGALE)
+# =============================================================================
+prisma/migrations/**
+**/migrations/**
+*.sql
+
+# =============================================================================
+# 🔒 SERVICES MÉTIER CRITIQUES
+# =============================================================================
+src/lib/services/legal-proof.service.ts
+src/lib/services/event-log.service.ts
+src/lib/services/rgpd-compliance.service.ts
+src/lib/services/signature-electronic.service.ts
+src/lib/services/tenant-isolation.service.ts
+
+# =============================================================================
+# 🏛️ RGPD & CONFORMITÉ
+# =============================================================================
+src/lib/rgpd/**
+docs/legal/**
+compliance/**
+src/lib/gdpr/**
+
+# =============================================================================
+# 🔐 SÉCURITÉ & SECRETS
+# =============================================================================
+.env*
+!.env.example
+secrets/**
+config/security/**
+config/auth/**
+azure-ad/**
+
+# =============================================================================
+# 📜 SCHÉMAS & CONFIGURATION SENSIBLE
+# =============================================================================
+prisma/schema.prisma
+src/lib/auth/**
+middleware/security/**
+
+# =============================================================================
+# 📊 LOGS & AUDIT
+# =============================================================================
+backend-python/app/routes/audit.py
+backend-python/app/services/event_log.py
+src/lib/monitoring/legal-audit.ts
+
+# =============================================================================
+# ⚖️ RÈGLES MÉTIER SECTORIELLES
+# =============================================================================
+src/lib/rules/legal/**
+src/lib/rules/medical/**
+src/lib/validators/rgpd-validator.ts
+
+# =============================================================================
+# 🧪 TESTS SENSIBLES
+# =============================================================================
+tests/**/*legal*.spec.ts
+tests/**/*rgpd*.spec.ts
+tests/**/*compliance*.spec.ts

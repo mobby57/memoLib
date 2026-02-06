@@ -1,17 +1,14 @@
 {
-    "extends": "./tsconfig.json",
-    "compilerOptions": {
-        "module": "esnext",
-        "moduleResolution": "bundler"
-    },
-    "include": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "src/**/*.d.ts",
-        "types/**/*.d.ts"
-    ],
-    "exclude": [
-        "tests/**",
-        "src/__tests__/**"
-    ]
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler"
+  },
+  "include": [
+    "src/frontend/**/*.ts",
+    "src/frontend/**/*.tsx",
+    "src/frontend/**/*.d.ts",
+    "types/**/*.d.ts"
+  ],
+  "exclude": ["tests/**", "src/frontend/__tests__/**", "src/**"]
 }
