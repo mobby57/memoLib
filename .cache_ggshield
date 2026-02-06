@@ -1,1 +1,1 @@
-{"last_found_secrets": [{"name": "Generic Password - commit://staged/src/app/api/demo/seed/route.ts", "match": "924d4a117da6e16a824749383242bfa8cf049165fca0813bf946b054f623f404"}]}
+{"last_found_secrets": [{"match": "de2151e4b5af73ed8cd723627b90af3a4f4b253b33f1f277dfc9b34796b89618", "name": "Company Email Password - commit://staged/DEMO_ROUTES.md"}, {"match": "924d4a117da6e16a824749383242bfa8cf049165fca0813bf946b054f623f404", "name": "Generic Password - commit://staged/create-demo-accounts.js"}]}
