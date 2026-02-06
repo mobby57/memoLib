@@ -12,8 +12,8 @@
 
 const nextConfig = {
     typescript: {
-        // Autoriser le build même si des erreurs TS existent (CI vérifie séparément)
-        ignoreBuildErrors: true,
+        // Build errors are checked separately in CI
+        ignoreBuildErrors: false,
     },
     images: {
         // Image formats (modern formats first)
