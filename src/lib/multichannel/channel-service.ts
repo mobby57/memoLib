@@ -4,25 +4,32 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { 
-  ChannelType, 
-  NormalizedMessage, 
-  WebhookPayload,
-  AIAnalysis,
-  AuditEntry,
-  ChannelConfig,
-  UrgencyLevel,
-  Attachment
-} from './types';
+import * as crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  DeclanAdapter,
+  DocumentAdapter,
+  EmailAdapter,
+  FormAdapter,
+  InternalAdapter,
+  LinkedInAdapter,
+  SlackAdapter,
+  SMSAdapter,
+  TeamsAdapter,
+  TwitterAdapter,
+  VoiceAdapter,
+  WhatsAppAdapter,
+} from './adapters';
 import { AIService } from './ai-processor';
 import { AuditService } from './audit-service';
-import { v4 as uuidv4 } from 'uuid';
+import { AIAnalysis, AuditEntry, ChannelType, NormalizedMessage, WebhookPayload } from './types';
 
 /**
  * Adaptateurs pour chaque canal
  */
-interface ChannelAdapter {
+export interface ChannelAdapter {
   parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>>;
+  extractExternalId(payload: Record<string, unknown>): string | undefined;
   validateSignature?(signature: string, payload: string, secret: string): boolean;
   sendMessage?(message: NormalizedMessage): Promise<{ success: boolean; externalId?: string }>;
 }
@@ -39,6 +46,57 @@ export class MultiChannelService {
     this.aiService = new AIService();
     this.auditService = new AuditService();
     this.registerAdapters();
+  }
+
+  /**
+   * Calculer le checksum d'un message pour détection doublons
+   * Hash déterministe basé sur: canal + externalId OU (expéditeur + contenu + timestamp)
+   */
+  private computeChecksum(
+    message: Partial<NormalizedMessage>,
+    channel: ChannelType,
+    externalId?: string
+  ): string {
+    const checksumData = {
+      channel,
+      externalId: externalId || undefined,
+      sender: message.sender?.email || message.sender?.phone || message.sender?.externalId,
+      body: message.body,
+      subject: message.subject,
+      // Arrondir à la minute pour éviter doublons sur renvois rapides
+      timestamp: message.timestamps?.received
+        ? Math.floor(new Date(message.timestamps.received).getTime() / 60000)
+        : undefined,
+    };
+
+    const dataString = JSON.stringify(checksumData);
+    return crypto.createHash('sha256').update(dataString).digest('hex');
+  }
+
+  /**
+   * Vérifier si un message est un doublon
+   */
+  private async isDuplicate(checksum: string): Promise<boolean> {
+    const existing = await prisma.channelMessage.findFirst({
+      where: { checksum },
+      select: { id: true, createdAt: true },
+    });
+
+    if (existing) {
+      // Audit du doublon détecté
+      await this.auditService.log({
+        action: 'DUPLICATE_MESSAGE_DETECTED',
+        channel: 'SYSTEM' as any,
+        details: {
+          checksum,
+          originalMessageId: existing.id,
+          originalReceivedAt: existing.createdAt,
+        },
+      });
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -64,7 +122,7 @@ export class MultiChannelService {
    */
   async receiveMessage(webhookPayload: WebhookPayload): Promise<NormalizedMessage> {
     const { channel, payload, signature, timestamp } = webhookPayload;
-    
+
     const adapter = this.adapters.get(channel);
     if (!adapter) {
       throw new Error(`Canal non supporté: ${channel}`);
@@ -83,12 +141,17 @@ export class MultiChannelService {
       }
     }
 
+    // Extraire externalId du payload source
+    const externalId = adapter.extractExternalId(payload);
+
     // Parser le payload vers format normalisé
     const parsedMessage = await adapter.parseWebhook(payload);
-    
+
     // Créer le message normalisé complet
     const message: NormalizedMessage = {
       id: uuidv4(),
+      externalId,
+      checksum: '', // Sera calculé ci-dessous
       channel,
       direction: 'INBOUND',
       status: 'RECEIVED',
@@ -106,60 +169,34 @@ export class MultiChannelService {
       auditTrail: [],
     };
 
-    // Log réception
-    this.addAuditEntry(message, 'MESSAGE_RECEIVED', 'SYSTEM', { channel });
+    // Calculer checksum pour détection doublons
+    message.checksum = this.computeChecksum(message, channel, externalId);
 
-    // Stocker en base
+    // Vérifier doublon AVANT stockage
+    const isDup = await this.isDuplicate(message.checksum);
+    if (isDup) {
+      throw new Error(
+        `Message doublon détecté (checksum: ${message.checksum.substring(0, 12)}...)`
+      );
+    }
+
+    // Stocker le message
     await this.storeMessage(message);
 
-    // Traitement IA asynchrone
-    this.processWithAI(message).catch(console.error);
+    // Ajouter entrée audit
+    this.addAuditEntry(message, 'MESSAGE_RECEIVED', 'SYSTEM', {
+      channel: channel,
+      externalId: externalId,
+    });
+
+    // Traiter avec IA (asynchrone, non-bloquant)
+    if (message.body) {
+      this.processWithAI(message).catch(err => {
+        console.error(`[AI Processing Error] ${message.id}:`, err);
+      });
+    }
 
     return message;
-  }
-
-  /**
-   * Traitement IA du message
-   */
-  async processWithAI(message: NormalizedMessage): Promise<NormalizedMessage> {
-    try {
-      message.status = 'PROCESSING';
-      await this.updateMessageStatus(message.id, 'PROCESSING');
-
-      // Analyse IA
-      const analysis = await this.aiService.analyzeMessage(message);
-      message.aiAnalysis = analysis;
-
-      // Détection d'urgence
-      if (analysis.urgency === 'CRITICAL' || analysis.urgency === 'HIGH') {
-        await this.createUrgentAlert(message, analysis);
-      }
-
-      // Auto-linking client/dossier
-      if (message.sender.email || message.sender.phone) {
-        await this.autoLinkClient(message);
-      }
-
-      message.status = 'PROCESSED';
-      message.timestamps.processed = new Date();
-      
-      this.addAuditEntry(message, 'AI_PROCESSING_COMPLETE', 'AI', {
-        summary: analysis.summary,
-        urgency: analysis.urgency,
-        tags: analysis.tags,
-      });
-
-      await this.updateMessage(message);
-      
-      return message;
-    } catch (error) {
-      message.status = 'FAILED';
-      this.addAuditEntry(message, 'AI_PROCESSING_FAILED', 'SYSTEM', { 
-        error: (error as Error).message 
-      });
-      await this.updateMessageStatus(message.id, 'FAILED');
-      throw error;
-    }
   }
 
   /**
@@ -169,6 +206,8 @@ export class MultiChannelService {
     await prisma.channelMessage.create({
       data: {
         id: message.id,
+        externalId: message.externalId,
+        checksum: message.checksum,
         channel: message.channel,
         direction: message.direction,
         status: message.status,
@@ -249,17 +288,14 @@ export class MultiChannelService {
   private async autoLinkClient(message: NormalizedMessage): Promise<void> {
     const client = await prisma.client.findFirst({
       where: {
-        OR: [
-          { email: message.sender.email },
-          { phone: message.sender.phone },
-        ],
+        OR: [{ email: message.sender.email }, { phone: message.sender.phone }],
       },
     });
 
     if (client) {
       message.clientId = client.id;
       message.tenantId = client.tenantId;
-      
+
       this.addAuditEntry(message, 'CLIENT_AUTO_LINKED', 'SYSTEM', {
         clientId: client.id,
         matchedBy: message.sender.email ? 'email' : 'phone',
@@ -280,8 +316,8 @@ export class MultiChannelService {
    * Ajouter une entrée d'audit
    */
   private addAuditEntry(
-    message: NormalizedMessage, 
-    action: string, 
+    message: NormalizedMessage,
+    action: string,
     actorType: 'SYSTEM' | 'USER' | 'AI',
     details: Record<string, unknown> = {}
   ): void {
@@ -297,17 +333,29 @@ export class MultiChannelService {
   /**
    * Obtenir les messages d'un tenant
    */
-  async getMessages(tenantId: string, options: {
-    channel?: ChannelType;
-    status?: string;
-    clientId?: string;
-    dossierId?: string;
-    startDate?: Date;
-    endDate?: Date;
-    page?: number;
-    limit?: number;
-  } = {}): Promise<{ messages: NormalizedMessage[]; total: number }> {
-    const { channel, status, clientId, dossierId, startDate, endDate, page = 1, limit = 50 } = options;
+  async getMessages(
+    tenantId: string,
+    options: {
+      channel?: ChannelType;
+      status?: string;
+      clientId?: string;
+      dossierId?: string;
+      startDate?: Date;
+      endDate?: Date;
+      page?: number;
+      limit?: number;
+    } = {}
+  ): Promise<{ messages: NormalizedMessage[]; total: number }> {
+    const {
+      channel,
+      status,
+      clientId,
+      dossierId,
+      startDate,
+      endDate,
+      page = 1,
+      limit = 50,
+    } = options;
 
     const where: any = { tenantId };
     if (channel) where.channel = channel;
@@ -352,17 +400,19 @@ export class MultiChannelService {
       bodyHtml: db.bodyHtml,
       attachments: db.attachments || [],
       channelMetadata: db.channelMetadata || {},
-      aiAnalysis: db.aiSummary ? {
-        summary: db.aiSummary,
-        category: db.aiCategory,
-        tags: db.aiTags || [],
-        urgency: db.aiUrgency || 'LOW',
-        entities: [],
-        suggestedActions: [],
-        missingInfo: [],
-        processedAt: db.processedAt,
-        confidence: 0.8,
-      } : undefined,
+      aiAnalysis: db.aiSummary
+        ? {
+            summary: db.aiSummary,
+            category: db.aiCategory,
+            tags: db.aiTags || [],
+            urgency: db.aiUrgency || 'LOW',
+            entities: [],
+            suggestedActions: [],
+            missingInfo: [],
+            processedAt: db.processedAt,
+            confidence: 0.8,
+          }
+        : undefined,
       timestamps: {
         received: db.receivedAt,
         processed: db.processedAt,
@@ -395,298 +445,6 @@ export class MultiChannelService {
     });
 
     return stats;
-  }
-}
-
-// ===== ADAPTATEURS CANAUX =====
-
-class EmailAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    return {
-      sender: {
-        email: payload.from as string,
-        name: payload.fromName as string,
-      },
-      recipient: {
-        email: payload.to as string,
-      },
-      subject: payload.subject as string,
-      body: payload.text as string,
-      bodyHtml: payload.html as string,
-      attachments: (payload.attachments as any[])?.map(a => ({
-        id: uuidv4(),
-        filename: a.filename,
-        mimeType: a.contentType,
-        size: a.size,
-        url: a.url,
-      })) || [],
-    };
-  }
-}
-
-class WhatsAppAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    const message = (payload.entry as any[])?.[0]?.changes?.[0]?.value?.messages?.[0];
-    const contact = (payload.entry as any[])?.[0]?.changes?.[0]?.value?.contacts?.[0];
-    
-    return {
-      sender: {
-        phone: message?.from,
-        name: contact?.profile?.name,
-        externalId: message?.id,
-      },
-      body: message?.text?.body || message?.caption || '',
-      attachments: message?.type !== 'text' ? [{
-        id: uuidv4(),
-        filename: `${message?.type}_${Date.now()}`,
-        mimeType: this.getMimeType(message?.type),
-        size: 0,
-        url: message?.[message?.type]?.url,
-      }] : [],
-      channelMetadata: { messageType: message?.type },
-    };
-  }
-
-  validateSignature(signature: string, payload: string, secret: string): boolean {
-    const crypto = require('crypto');
-    const expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-    return signature === `sha256=${expectedSig}`;
-  }
-
-  private getMimeType(type: string): string {
-    const mimeTypes: Record<string, string> = {
-      image: 'image/jpeg',
-      video: 'video/mp4',
-      audio: 'audio/ogg',
-      document: 'application/octet-stream',
-    };
-    return mimeTypes[type] || 'application/octet-stream';
-  }
-}
-
-class SMSAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    // Format Twilio
-    return {
-      sender: {
-        phone: payload.From as string,
-      },
-      recipient: {
-        phone: payload.To as string,
-      },
-      body: payload.Body as string,
-      channelMetadata: {
-        messageSid: payload.MessageSid,
-        accountSid: payload.AccountSid,
-      },
-    };
-  }
-
-  validateSignature(signature: string, payload: string, secret: string): boolean {
-    // Validation signature Twilio - implémentation manuelle sans dépendance
-    // Référence: https://www.twilio.com/docs/usage/security
-    try {
-      const crypto = require('crypto');
-      const url = process.env.TWILIO_WEBHOOK_URL || '';
-      const params = JSON.parse(payload);
-      
-      // Construire la chaîne de données à signer
-      let data = url;
-      Object.keys(params).sort().forEach(key => {
-        data += key + params[key];
-      });
-      
-      // Calculer le HMAC-SHA1
-      const computedSignature = crypto
-        .createHmac('sha1', secret)
-        .update(Buffer.from(data, 'utf-8'))
-        .digest('base64');
-      
-      return signature === computedSignature;
-    } catch (error) {
-      console.error('[SMS] Signature validation error:', error);
-      return false;
-    }
-  }
-}
-
-class VoiceAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    return {
-      sender: {
-        phone: payload.From as string,
-        name: payload.CallerName as string,
-      },
-      body: payload.TranscriptionText as string || '[Transcription en cours...]',
-      channelMetadata: {
-        callSid: payload.CallSid,
-        callDuration: payload.CallDuration,
-        recordingUrl: payload.RecordingUrl,
-        transcriptionSid: payload.TranscriptionSid,
-      },
-      attachments: payload.RecordingUrl ? [{
-        id: uuidv4(),
-        filename: `call_${payload.CallSid}.mp3`,
-        mimeType: 'audio/mpeg',
-        size: 0,
-        url: payload.RecordingUrl as string,
-      }] : [],
-    };
-  }
-}
-
-class SlackAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    const event = payload.event as any;
-    return {
-      sender: {
-        externalId: event?.user,
-        name: event?.user_profile?.display_name,
-      },
-      body: event?.text || '',
-      channelMetadata: {
-        channel: event?.channel,
-        ts: event?.ts,
-        threadTs: event?.thread_ts,
-      },
-      attachments: (event?.files as any[])?.map(f => ({
-        id: uuidv4(),
-        filename: f.name,
-        mimeType: f.mimetype,
-        size: f.size,
-        url: f.url_private,
-      })) || [],
-    };
-  }
-
-  validateSignature(signature: string, payload: string, secret: string): boolean {
-    const crypto = require('crypto');
-    const [version, hash] = signature.split('=');
-    const baseString = `${version}:${Date.now() / 1000}:${payload}`;
-    const computedHash = crypto.createHmac('sha256', secret).update(baseString).digest('hex');
-    return hash === computedHash;
-  }
-}
-
-class TeamsAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    return {
-      sender: {
-        externalId: (payload.from as any)?.id,
-        name: (payload.from as any)?.name,
-      },
-      body: payload.text as string || '',
-      channelMetadata: {
-        conversationId: (payload.conversation as any)?.id,
-        activityId: payload.id,
-      },
-      attachments: (payload.attachments as any[])?.map(a => ({
-        id: uuidv4(),
-        filename: a.name || 'attachment',
-        mimeType: a.contentType,
-        size: 0,
-        url: a.contentUrl,
-      })) || [],
-    };
-  }
-}
-
-class LinkedInAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    return {
-      sender: {
-        externalId: payload.senderId as string,
-      },
-      body: payload.message as string || '',
-      channelMetadata: payload,
-    };
-  }
-}
-
-class TwitterAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    const dm = (payload.direct_message_events as any[])?.[0];
-    return {
-      sender: {
-        externalId: dm?.message_create?.sender_id,
-      },
-      body: dm?.message_create?.message_data?.text || '',
-      channelMetadata: payload,
-    };
-  }
-}
-
-class FormAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    return {
-      sender: {
-        email: payload.email as string,
-        name: payload.name as string,
-        phone: payload.phone as string,
-      },
-      subject: payload.subject as string || 'Formulaire soumis',
-      body: payload.message as string || JSON.stringify(payload.formData),
-      channelMetadata: {
-        formId: payload.formId,
-        formType: payload.formType,
-        formData: payload.formData,
-      },
-      consent: {
-        status: payload.consentGiven ? 'GRANTED' : 'PENDING',
-        grantedAt: payload.consentGiven ? new Date() : undefined,
-        purpose: payload.consentPurpose as string,
-      },
-    };
-  }
-}
-
-class DocumentAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    return {
-      sender: {
-        id: payload.uploadedBy as string,
-      },
-      body: payload.description as string || 'Document uploadé',
-      attachments: [{
-        id: uuidv4(),
-        filename: payload.filename as string,
-        mimeType: payload.mimeType as string,
-        size: payload.size as number,
-        blobPath: payload.blobPath as string,
-        url: payload.url as string,
-      }],
-      channelMetadata: {
-        documentType: payload.documentType,
-        category: payload.category,
-      },
-    };
-  }
-}
-
-class DeclanAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    return {
-      body: payload.eventDescription as string || JSON.stringify(payload),
-      channelMetadata: {
-        eventType: payload.eventType,
-        workflowId: payload.workflowId,
-        triggeredBy: payload.triggeredBy,
-      },
-    };
-  }
-}
-
-class InternalAdapter implements ChannelAdapter {
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    return {
-      sender: {
-        id: payload.userId as string,
-        name: payload.userName as string,
-      },
-      body: payload.message as string || '',
-      subject: payload.subject as string,
-      channelMetadata: payload,
-    };
   }
 }
 

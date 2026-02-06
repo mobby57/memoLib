@@ -1,11 +1,11 @@
-import NextAuth, { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GitHubProvider from 'next-auth/providers/github';
-import EmailProvider from 'next-auth/providers/email';
-import AzureADProvider from 'next-auth/providers/azure-ad';
+import { prisma } from '@/lib/prisma';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
+import NextAuth, { NextAuthOptions } from 'next-auth';
+import AzureADProvider from 'next-auth/providers/azure-ad';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import EmailProvider from 'next-auth/providers/email';
+import GitHubProvider from 'next-auth/providers/github';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -37,8 +37,7 @@ export const authOptions: NextAuthOptions = {
         ]
       : []),
     // GitHub Provider (optionnel)
-    ...(process.env.GITHUB_CLIENT_ID &&
-    process.env.GITHUB_CLIENT_SECRET
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
       ? [
           GitHubProvider({
             clientId: process.env.GITHUB_CLIENT_ID,
@@ -63,51 +62,116 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Identifiants requis');
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-          include: {
-            tenant: {
-              select: {
-                id: true,
-                name: true,
-                status: true,
-                plan: { select: { name: true } },
-              },
-            },
-            client: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
+        // MODE DEMO - Comptes de démonstration hardcodés
+        const demoUsers: Record<string, any> = {
+          'admin@memolib.fr': {
+            id: 'demo-admin-1',
+            email: 'admin@memolib.fr',
+            name: 'Admin Demo',
+            role: 'SUPER_ADMIN',
+            password: 'admin123',
+            tenantId: 'demo-tenant-1',
+            tenantName: 'Cabinet Demo',
+            tenantPlan: 'enterprise',
+            clientId: null,
           },
-        });
+          'avocat@memolib.fr': {
+            id: 'demo-lawyer-1',
+            email: 'avocat@memolib.fr',
+            name: 'Avocat Demo',
+            role: 'LAWYER',
+            password: 'admin123',
+            tenantId: 'demo-tenant-1',
+            tenantName: 'Cabinet Demo',
+            tenantPlan: 'professional',
+            clientId: null,
+          },
+          'client@memolib.fr': {
+            id: 'demo-client-1',
+            email: 'client@memolib.fr',
+            name: 'Client Demo',
+            role: 'CLIENT',
+            password: 'demo123',
+            tenantId: 'demo-tenant-1',
+            tenantName: 'Cabinet Demo',
+            tenantPlan: 'professional',
+            clientId: 'demo-client-1',
+          },
+        };
 
-        if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
-          throw new Error('Identifiants invalides');
+        // Vérifier les comptes de démo
+        const demoUser = demoUsers[credentials.email];
+        if (demoUser) {
+          console.log('[DEMO AUTH] Tentative avec compte démo:', credentials.email);
+          console.log('[DEMO AUTH] Password fourni:', credentials.password);
+          console.log('[DEMO AUTH] Password attendu:', demoUser.password);
+
+          if (demoUser.password === credentials.password) {
+            console.log('[DEMO AUTH] ✅ Authentification réussie');
+            // Retourner sans les données sensibles
+            const { password, ...userWithoutPassword } = demoUser;
+            return userWithoutPassword;
+          } else {
+            console.log('[DEMO AUTH] ❌ Mot de passe incorrect');
+            throw new Error('Identifiants invalides');
+          }
         }
 
-        if (user.role === 'ADMIN' && (!user.tenant || user.tenant.status !== 'active')) {
-          throw new Error('Cabinet inactif');
-        }
-        if (
-          user.role === 'CLIENT' &&
-          (!user.tenant || user.tenant.status !== 'active' || !user.clientId)
-        ) {
-          throw new Error('Profil client incomplet');
-        }
+        // Sinon, chercher dans la base de données
+        try {
+          console.log('[DB AUTH] Recherche dans la base de données:', credentials.email);
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+            include: {
+              tenant: {
+                select: {
+                  id: true,
+                  name: true,
+                  status: true,
+                  plan: { select: { name: true } },
+                },
+              },
+              client: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          });
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          tenantId: user.tenantId,
-          tenantName: user.tenant?.name,
-          tenantPlan: user.tenant?.plan?.name,
-          clientId: user.clientId,
-        } as any;
+          if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
+            throw new Error('Identifiants invalides');
+          }
+
+          if (user.role === 'ADMIN' && (!user.tenant || user.tenant.status !== 'active')) {
+            throw new Error('Cabinet inactif');
+          }
+          if (
+            user.role === 'CLIENT' &&
+            (!user.tenant || user.tenant.status !== 'active' || !user.clientId)
+          ) {
+            throw new Error('Profil client incomplet');
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            tenantId: user.tenantId,
+            tenantName: user.tenant?.name,
+            tenantPlan: user.tenant?.plan?.name,
+            clientId: user.clientId,
+          } as any;
+        } catch (dbError: any) {
+          // Si la base de données n'est pas accessible et on est en démo, accepter les comptes démo
+          if (dbError.message?.includes("Can't reach database")) {
+            throw new Error('Identifiants invalides (DB indisponible)');
+          }
+          throw dbError;
+        }
       },
     }),
   ],
@@ -204,7 +268,20 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async redirect({ url, baseUrl }) {
+    async redirect({ url, baseUrl, user }) {
+      // Redirection intelligente selon le rôle
+      if (url.startsWith('/auth/')) {
+        // Depuis la page de login, rediriger selon le rôle
+        if ((user as any)?.role === 'SUPER_ADMIN') {
+          return `${baseUrl}/super-admin/dashboard`;
+        } else if ((user as any)?.role === 'LAWYER' || (user as any)?.role === 'ADMIN') {
+          return `${baseUrl}/dashboard`;
+        } else if ((user as any)?.role === 'CLIENT') {
+          return `${baseUrl}/client-dashboard`;
+        }
+        return `${baseUrl}/dashboard`;
+      }
+
       if (url.startsWith('/')) return `${baseUrl}${url}`;
       if (new URL(url).origin === baseUrl) return url;
       return baseUrl;

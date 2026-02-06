@@ -3,7 +3,7 @@
  * Tous les canaux de communication normalisés
  */
 
-export type ChannelType = 
+export type ChannelType =
   | 'EMAIL'
   | 'WHATSAPP'
   | 'SMS'
@@ -19,12 +19,7 @@ export type ChannelType =
 
 export type MessageDirection = 'INBOUND' | 'OUTBOUND';
 
-export type MessageStatus = 
-  | 'RECEIVED'
-  | 'PROCESSING'
-  | 'PROCESSED'
-  | 'FAILED'
-  | 'ARCHIVED';
+export type MessageStatus = 'RECEIVED' | 'PROCESSING' | 'PROCESSED' | 'FAILED' | 'ARCHIVED';
 
 export type UrgencyLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
@@ -35,10 +30,12 @@ export type ConsentStatus = 'PENDING' | 'GRANTED' | 'REVOKED' | 'NOT_REQUIRED';
  */
 export interface NormalizedMessage {
   id: string;
+  externalId?: string; // ID unique du message source (Gmail messageId, WhatsApp messageId, etc.)
+  checksum: string; // Hash SHA-256 pour détection doublons
   channel: ChannelType;
   direction: MessageDirection;
   status: MessageStatus;
-  
+
   // Métadonnées expéditeur/destinataire
   sender: {
     id?: string;
@@ -53,28 +50,28 @@ export interface NormalizedMessage {
     email?: string;
     phone?: string;
   };
-  
+
   // Contenu
   subject?: string;
   body: string;
   bodyHtml?: string;
-  
+
   // Pièces jointes
   attachments: Attachment[];
-  
+
   // Métadonnées canal
   channelMetadata: Record<string, unknown>;
-  
+
   // IA / ML
   aiAnalysis?: AIAnalysis;
-  
+
   // Audit
   timestamps: {
     received: Date;
     processed?: Date;
     archived?: Date;
   };
-  
+
   // RGPD
   consent: {
     status: ConsentStatus;
@@ -82,12 +79,12 @@ export interface NormalizedMessage {
     revokedAt?: Date;
     purpose?: string;
   };
-  
+
   // Liens métier
   tenantId?: string;
   clientId?: string;
   dossierId?: string;
-  
+
   // Audit trail
   auditTrail: AuditEntry[];
 }

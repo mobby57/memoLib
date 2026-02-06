@@ -16,6 +16,7 @@ gunicorn>=21.2.0
 numpy>=1.26.0
 pandas>=2.1.0
 scikit-learn>=1.4.0
+plotly>=5.18.0  # For analysis notebook visualization
 
 # ============================================
 # OLLAMA & IA LOCALE
@@ -30,6 +31,9 @@ httpx>=0.26.0
 python-multipart>=0.0.6
 pydantic>=2.5.0
 python-dotenv>=1.0.0
+apscheduler>=3.10.4  # Scheduled jobs for pipeline
+requests>=2.31.0  # HTTP requests for Prisma integration
+python-ulid>=2.3.0  # ULID generation for immutable IDs
 
 # ============================================
 # PDF GENERATION
@@ -73,7 +77,7 @@ cryptography>=43.0.3
 # ============================================
 prometheus-client>=0.19.0
 prometheus-fastapi-instrumentator>=6.1.0
-sentry-sdk>=1.40.0
+sentry-sdk>=1.40.0  # Error tracking and monitoring
 
 # ============================================
 # TESTING

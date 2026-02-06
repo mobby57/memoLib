@@ -1,9 +1,9 @@
-import { google } from 'googleapis';
 import { authenticate } from '@google-cloud/local-auth';
-import { simpleParser, ParsedMail } from 'mailparser';
 import * as fs from 'fs';
-import * as path from 'path';
 import { OAuth2Client } from 'google-auth-library';
+import { google } from 'googleapis';
+import { ParsedMail } from 'mailparser';
+import * as path from 'path';
 
 // Chemins pour les credentials
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
@@ -29,7 +29,7 @@ class EmailMonitor {
 
       const content = fs.readFileSync(TOKEN_PATH, 'utf-8');
       const credentials = JSON.parse(content);
-      
+
       return google.auth.fromJSON(credentials) as any as OAuth2Client;
     } catch (err) {
       return null;
@@ -43,14 +43,14 @@ class EmailMonitor {
     const content = fs.readFileSync(CREDENTIALS_PATH, 'utf-8');
     const keys = JSON.parse(content);
     const key = keys.installed || keys.web;
-    
+
     const payload = JSON.stringify({
       type: 'authorized_user',
       client_id: key.client_id,
       client_secret: key.client_secret,
       refresh_token: client.credentials.refresh_token,
     });
-    
+
     fs.writeFileSync(TOKEN_PATH, payload);
   }
 
@@ -76,16 +76,16 @@ class EmailMonitor {
 
       // Charger les credentials sauvegardés ou authentifier
       let client = await this.loadSavedCredentials();
-      
+
       if (!client) {
         console.log('🌐 Première connexion - authentification OAuth requise...');
-        console.log('   (Une fenêtre de navigateur va s\'ouvrir)\n');
-        
+        console.log("   (Une fenêtre de navigateur va s'ouvrir)\n");
+
         client = await authenticate({
           scopes: SCOPES,
           keyfilePath: CREDENTIALS_PATH,
         });
-        
+
         if (client.credentials) {
           await this.saveCredentials(client);
         }
@@ -93,10 +93,10 @@ class EmailMonitor {
 
       this.auth = client;
       this.gmail = google.gmail({ version: 'v1', auth: client as any });
-      
+
       console.log('✅ Authentifié avec succès!\n');
     } catch (err: any) {
-      console.error('❌ Erreur d\'authentification:', err.message);
+      console.error("❌ Erreur d'authentification:", err.message);
       throw err;
     }
   }
@@ -190,7 +190,7 @@ class EmailMonitor {
       // Vérifier les pièces jointes
       const parts = this.getAllParts(message.data.payload);
       const attachments = parts.filter((part: any) => part.filename && part.filename.length > 0);
-      
+
       if (attachments.length > 0) {
         console.log(`📎 Pièces jointes: ${attachments.length}`);
         attachments.forEach((att: any, i: number) => {
@@ -207,8 +207,8 @@ class EmailMonitor {
         text: body,
         attachments: attachments.map((a: any) => ({
           filename: a.filename,
-          size: a.body.size || 0
-        })) as any
+          size: a.body.size || 0,
+        })) as any,
       };
 
       const classification = this.classifyEmail(emailData);
@@ -222,7 +222,6 @@ class EmailMonitor {
 
       // Sauvegarder
       this.saveEmailForAnalysis(emailData, classification);
-
     } catch (err: any) {
       console.error(`❌ Erreur traitement email ${messageId}:`, err.message);
     }
@@ -240,7 +239,7 @@ class EmailMonitor {
           break;
         }
       }
-      
+
       // Si pas de text/plain, chercher text/html
       if (!body) {
         for (const part of payload.parts) {
@@ -267,15 +266,24 @@ class EmailMonitor {
     return parts;
   }
 
-  private classifyEmail(email: ParsedMail | any): { 
-    type: 'nouveau_client' | 'reponse_client' | 'laposte_notification' | 'ceseda' | 'urgent' | 'spam' | 'general';
+  private classifyEmail(email: ParsedMail | any): {
+    type:
+      | 'nouveau_client'
+      | 'reponse_client'
+      | 'laposte_notification'
+      | 'ceseda'
+      | 'urgent'
+      | 'spam'
+      | 'general';
     priority: 'critical' | 'high' | 'medium' | 'low';
     confidence: number;
     tags: string[];
     suggestedAction?: string;
   } {
     const subject = (email.subject || '').toLowerCase();
-    const from = (typeof email.from === 'string' ? email.from : email.from?.text || '').toLowerCase();
+    const from = (
+      typeof email.from === 'string' ? email.from : email.from?.text || ''
+    ).toLowerCase();
     const text = (email.text || '').toLowerCase();
     const fullContent = `${subject} ${from} ${text}`;
 
@@ -285,26 +293,55 @@ class EmailMonitor {
     const tags: string[] = [];
 
     // === DÉTECTION CESEDA (Priorité maximale) ===
-    const cesedaKeywords = ['ceseda', 'titre de séjour', 'carte de resident', 'ofpra', 'oqtf', 'préfecture', 'asile', 'réfugié'];
+    const cesedaKeywords = [
+      'ceseda',
+      'titre de séjour',
+      'carte de resident',
+      'ofpra',
+      'oqtf',
+      'préfecture',
+      'asile',
+      'réfugié',
+    ];
     const cesedaScore = cesedaKeywords.filter(k => fullContent.includes(k)).length;
     if (cesedaScore >= 2) {
       type = 'ceseda';
       priority = 'critical';
-      confidence = Math.min(0.7 + (cesedaScore * 0.1), 0.95);
+      confidence = Math.min(0.7 + cesedaScore * 0.1, 0.95);
       tags.push('CESEDA', 'Droit des étrangers');
-      return { type, priority, confidence, tags, suggestedAction: 'Traiter en urgence - Délais CESEDA critiques' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Traiter en urgence - Délais CESEDA critiques',
+      };
     }
 
     // === DÉTECTION NOUVEAU CLIENT (Haute priorité) ===
-    const newClientKeywords = ['premier contact', 'nouveau dossier', 'besoin avocat', 'consultation', 'rendez-vous'];
+    const newClientKeywords = [
+      'premier contact',
+      'nouveau dossier',
+      'besoin avocat',
+      'consultation',
+      'rendez-vous',
+    ];
     const newClientScore = newClientKeywords.filter(k => fullContent.includes(k)).length;
-    if (newClientScore >= 2 || 
-        (subject.includes('demande') && (text.includes('avocat') || text.includes('aide juridique')))) {
+    if (
+      newClientScore >= 2 ||
+      (subject.includes('demande') && (text.includes('avocat') || text.includes('aide juridique')))
+    ) {
       type = 'nouveau_client';
       priority = 'high';
-      confidence = Math.min(0.6 + (newClientScore * 0.15), 0.9);
+      confidence = Math.min(0.6 + newClientScore * 0.15, 0.9);
       tags.push('Nouveau client', 'Premier contact');
-      return { type, priority, confidence, tags, suggestedAction: 'Créer dossier et programmer consultation' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Créer dossier et programmer consultation',
+      };
     }
 
     // === DÉTECTION RÉPONSE CLIENT ===
@@ -313,57 +350,97 @@ class EmailMonitor {
     if (responseScore >= 1 && !from.includes('noreply') && !from.includes('no-reply')) {
       type = 'reponse_client';
       priority = 'high';
-      confidence = Math.min(0.55 + (responseScore * 0.15), 0.85);
+      confidence = Math.min(0.55 + responseScore * 0.15, 0.85);
       tags.push('Réponse client', 'Suivi dossier');
-      return { type, priority, confidence, tags, suggestedAction: 'Mettre à jour le dossier client' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Mettre à jour le dossier client',
+      };
     }
 
     // === DÉTECTION LA POSTE ===
-    if (from.includes('laposte') || from.includes('colissimo') || 
-        subject.includes('suivi') || subject.includes('colis') ||
-        text.includes('numéro de suivi') || text.includes('lettre recommandée')) {
+    if (
+      from.includes('laposte') ||
+      from.includes('colissimo') ||
+      subject.includes('suivi') ||
+      subject.includes('colis') ||
+      text.includes('numéro de suivi') ||
+      text.includes('lettre recommandée')
+    ) {
       type = 'laposte_notification';
       priority = 'high';
       confidence = 0.9;
       tags.push('La Poste', 'Suivi courrier');
-      return { type, priority, confidence, tags, suggestedAction: 'Extraire numéro de suivi et associer au dossier' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Extraire numéro de suivi et associer au dossier',
+      };
     }
 
     // === DÉTECTION URGENT ===
-    const urgentKeywords = ['urgent', 'important', 'immédiat', 'expulsion', 'délai', 'deadline', '!!', '!!!'];
+    const urgentKeywords = [
+      'urgent',
+      'important',
+      'immédiat',
+      'expulsion',
+      'délai',
+      'deadline',
+      '!!',
+      '!!!',
+    ];
     const urgentScore = urgentKeywords.filter(k => fullContent.includes(k)).length;
     if (urgentScore >= 2) {
       type = 'urgent';
       priority = 'critical';
-      confidence = Math.min(0.65 + (urgentScore * 0.1), 0.85);
+      confidence = Math.min(0.65 + urgentScore * 0.1, 0.85);
       tags.push('Urgent', 'Prioritaire');
       return { type, priority, confidence, tags, suggestedAction: 'Notifier avocat immédiatement' };
     }
 
     // === DÉTECTION SPAM ===
-    const spamKeywords = ['viagra', 'casino', 'lottery', 'prize', 'click here', 'unsubscribe', 'marketing'];
+    const spamKeywords = [
+      'viagra',
+      'casino',
+      'lottery',
+      'prize',
+      'click here',
+      'unsubscribe',
+      'marketing',
+    ];
     const spamScore = spamKeywords.filter(k => fullContent.includes(k)).length;
     if (spamScore >= 2 || from.includes('noreply') || from.includes('newsletter')) {
       type = 'spam';
       priority = 'low';
-      confidence = Math.min(0.7 + (spamScore * 0.1), 0.95);
+      confidence = Math.min(0.7 + spamScore * 0.1, 0.95);
       tags.push('Spam', 'À ignorer');
-      return { type, priority, confidence, tags, suggestedAction: 'Marquer comme spam et archiver' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Marquer comme spam et archiver',
+      };
     }
 
     // === PAR DÉFAUT ===
-    return { 
-      type, 
-      priority, 
-      confidence, 
-      tags: tags.length > 0 ? tags : ['Non classifié'], 
-      suggestedAction: 'Révision manuelle nécessaire' 
+    return {
+      type,
+      priority,
+      confidence,
+      tags: tags.length > 0 ? tags : ['Non classifié'],
+      suggestedAction: 'Révision manuelle nécessaire',
     };
   }
 
   private saveEmailForAnalysis(email: ParsedMail | any, classification: any): void {
     const logsDir = path.join(process.cwd(), 'logs', 'emails');
-    
+
     if (!fs.existsSync(logsDir)) {
       fs.mkdirSync(logsDir, { recursive: true });
     }
@@ -381,7 +458,7 @@ class EmailMonitor {
       classification,
       hasAttachments: (email.attachments?.length || 0) > 0,
       attachmentCount: email.attachments?.length || 0,
-      preview: email.text?.substring(0, 200)
+      preview: email.text?.substring(0, 200),
     };
 
     try {
@@ -397,7 +474,7 @@ class EmailMonitor {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   async disconnect(): Promise<void> {
@@ -408,7 +485,7 @@ class EmailMonitor {
 // Démarrage
 async function main() {
   console.log('╔══════════════════════════════════════════╗');
-  console.log('║   📧 IA POSTE MANAGER - Email Monitor   ║');
+  console.log('║   📧 memoLib - Email Monitor   ║');
   console.log('╚══════════════════════════════════════════╝\n');
 
   const monitor = new EmailMonitor();

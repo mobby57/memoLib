@@ -1,14 +1,14 @@
 ﻿/**
- * Icones pour l'application iaPostemanage
+ * Icones pour l'application memoLib
  */
 
-export { IconMenu } from './IconMenu';
-export { IconClose } from './IconClose';
-export { IconSearch } from './IconSearch';
-export { IconUser } from './IconUser';
-export { IconFile } from './IconFile';
-export { IconDashboard } from './IconDashboard';
-export { IconSettings } from './IconSettings';
-export { IconCheck } from './IconCheck';
 export { IconAlert } from './IconAlert';
+export { IconCheck } from './IconCheck';
+export { IconClose } from './IconClose';
+export { IconDashboard } from './IconDashboard';
+export { IconFile } from './IconFile';
 export { IconLogout } from './IconLogout';
+export { IconMenu } from './IconMenu';
+export { IconSearch } from './IconSearch';
+export { IconSettings } from './IconSettings';
+export { IconUser } from './IconUser';

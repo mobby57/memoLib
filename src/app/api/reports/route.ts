@@ -1,6 +1,6 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
+﻿import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
 type ReportType = 'factures' | 'dossiers' | 'clients' | 'activite' | 'financier';
 
@@ -174,9 +174,9 @@ async function getReportData(
         ),
         factures: {
           total: factures.length,
-          payees: factures.filter((f) => f.statut === 'payee').length,
-          enAttente: factures.filter((f) => f.statut === 'envoyee').length,
-          enRetard: factures.filter((f) => f.statut === 'en_retard').length,
+          payees: factures.filter(f => f.statut === 'payee').length,
+          enAttente: factures.filter(f => f.statut === 'envoyee').length,
+          enRetard: factures.filter(f => f.statut === 'en_retard').length,
         },
       };
 
@@ -206,7 +206,7 @@ async function generateReport(
 
   // Pour PDF, generer un HTML et le convertir
   const html = generateHTMLReport(type, data);
-  
+
   // En production, utiliser puppeteer ou playwright pour convertir en PDF
   // Pour l'instant, retourner le HTML comme placeholder
   const pdfPlaceholder = `
@@ -222,10 +222,10 @@ endobj
 endobj
 xref
 0 4
-0000000000 65535 f 
-0000000009 00000 n 
-0000000058 00000 n 
-0000000115 00000 n 
+0000000000 65535 f
+0000000009 00000 n
+0000000058 00000 n
+0000000115 00000 n
 trailer
 << /Size 4 /Root 1 0 R >>
 startxref
@@ -333,7 +333,7 @@ function generateHTMLReport(type: ReportType, data: unknown): string {
 <body>
   <h1>${title}</h1>
   <p>Genere le ${new Date().toLocaleDateString('fr-FR')} a ${new Date().toLocaleTimeString('fr-FR')}</p>
-  
+
   <div class="summary">
     <strong>Resume:</strong> ${Array.isArray(data) ? data.length : 0} enregistrements
   </div>
@@ -341,7 +341,7 @@ function generateHTMLReport(type: ReportType, data: unknown): string {
   <pre>${JSON.stringify(data, null, 2).substring(0, 5000)}</pre>
 
   <div class="footer">
-    <p>IAPosteManager - Rapport automatique</p>
+    <p>memoLib - Rapport automatique</p>
   </div>
 </body>
 </html>

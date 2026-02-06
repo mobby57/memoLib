@@ -1,5 +1,5 @@
 # ===========================================
-# IAPosteManager - .gitignore Production
+# MemoLib - .gitignore
 # ===========================================
 
 # Python
@@ -18,6 +18,7 @@ dist/
 build/
 *.so
 *.egg
+*.pyc
 
 # Node.js / Frontend
 node_modules/
@@ -54,6 +55,11 @@ security-keys-backup-*.txt
 *.sqlite3
 *.db-journal
 memolib.db
+dev.db
+prod.db
+prisma/dev.db
+prisma/prod.db
+prisma/prisma/dev.db
 
 # Logs
 logs/
@@ -74,6 +80,11 @@ archive/
 temp_*
 diagnostic_*
 temp_recording_*
+temp_*.txt
+temp_url.txt
+temp_val.txt
+temp_nextauth_url.txt
+test-upload-temp.txt
 coverage/
 .coverage
 .nyc_output/
@@ -136,27 +147,65 @@ grafana_data/
 # Build artifacts
 .next/
 out/
+out-azure/
 dist/
 .turbo/
 .swc/
 .wrangler/
 .vercel/
+.open-next/
+nextjs-app/
 
 # Cache
 node_modules/.cache/
 .jest-cache/
 .eslintcache
+.cache/
+.cache_ggshield
+.tsbuildinfo
 
 # Logs
 *.log
 npm-debug.log*
+dev-error.log
+dev-output.log
+dev-server.log
+server.log
+build.log
+build-full.log
+build-output.log
+dev.log
 
-# Legacy
+# Legacy & Unused
 legacy/
 dbcodeio-public/
-dbcodeio-public/
-dbcodeio-public/
+app-sentry-backup/
+backend-python/
+frontend-node/
 
 # GitHub App credentials
+*.pem
 memolib-guardian*.pem
+ia-poste-manager-pro*.pem
 .env.github-app
+prod-key.txt
+
+# Reports & Analysis
+bugs-report.json
+database-test-report.json
+migration-report.json
+performance-metrics.json
+ascii-conversion-report.txt
+type-errors.txt
+type-errors-new.txt
+
+# Test Results
+test-results/
+playwright-report/
+.playwright/
+
+# Backups
+backups/
+*.backup
+*.tar.gz
+dev_backup_*.db

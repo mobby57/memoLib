@@ -76,6 +76,81 @@ export async function POST(req: Request) {
 - Monitoring: Sentry via `sentry.*.config.ts` et `instrumentation.ts`.
 - Sécurité: jamais d’actions automatiques sur données sensibles; validation explicite requise (voir `docs/ARCHITECTURE.md`).
 - Environnements: `.env.local` en dev; ne pas hardcoder les secrets (voir `docs/ENVIRONMENT_VARIABLES.md`).
+## Pattern Adapter Multi-Canal (Architecture centrale)
+
+**Objectif**: Normaliser tous les flux d'information (emails, WhatsApp, SMS, formulaires, etc.) vers un format unique avant traitement.
+
+**Localisation**: `src/lib/multichannel/`
+
+### Structure
+
+```
+src/lib/multichannel/
+├── types.ts              # Contrat: NormalizedMessage (interface unique)
+├── adapters/
+│   └── index.ts          # 12 adapters (Email, WhatsApp, SMS, Voice, Slack, Teams, etc.)
+├── adapter-factory.ts    # Factory pattern: création/gestion adapters
+├── channel-service.ts    # Service orchestrateur
+└── audit-service.ts      # Traçabilité blockchain-style
+```
+
+### Règles d'implémentation
+
+1. **Tout flux entrant DOIT passer par un Adapter**
+   - Chaque source externe → 1 adapter dédié
+   - Adapter transforme payload natif → `NormalizedMessage`
+   - Ne jamais court-circuiter l'adapter
+
+2. **Déduplication obligatoire**
+   - Chaque message calcule un `checksum` (SHA-256)
+   - Basé sur: `canal + externalId` OU `sender + body + timestamp`
+   - Rejet automatique des doublons avant stockage
+
+3. **Extraction externalId**
+   - Tous les adapters DOIVENT implémenter `extractExternalId()`
+   - Utiliser l'ID source (Gmail messageId, WhatsApp msgId, Twilio SID, etc.)
+   - Permet traçabilité source-to-sink
+
+4. **Factory obligatoire**
+   - Utiliser `AdapterFactory.getAdapter(channel)` pour obtenir adapter
+   - Ne jamais instancier directement `new EmailAdapter()`
+   - Permet remplacement/mock facile pour tests
+
+### Exemple d'ajout de nouveau canal
+
+```ts
+// 1. Créer adapter dans src/lib/multichannel/adapters/index.ts
+export class NewChannelAdapter implements ChannelAdapter {
+  extractExternalId(payload: Record<string, unknown>): string | undefined {
+    return payload.messageId as string;
+  }
+
+  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
+    return {
+      sender: { email: payload.from },
+      body: payload.text,
+      // ...
+    };
+  }
+}
+
+// 2. Enregistrer dans AdapterFactory
+// (déjà géré automatiquement si type ajouté dans ChannelType)
+```
+
+### Conformité légale (CNIL/RGPD)
+
+- ✅ **Séparation claire**: normalisation ≠ modification du contenu original
+- ✅ **Auditabilité**: source → transformation → stockage tracé
+- ✅ **Justification**: "Données normalisées pour traitement uniforme, contenu préservé"
+- ✅ **Déduplication légale**: économie de stockage + prévention spam
+
+### Points de vigilance
+
+- Chaque adapter calcule checksum au même endroit (déterminisme)
+- Métadonnées sources préservées dans `channelMetadata`
+- Validation signatures (WhatsApp, Twilio, Slack) pour sécurité
+- Ne jamais logger le contenu brut (RGPD)
 
 ## Données et intégrations
 
