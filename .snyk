@@ -1,0 +1,26 @@
+# Snyk configuration for MemoLib
+version: v1.22.0
+
+# Exclude non-MemoLib files from scanning
+exclude:
+  global:
+    - IaPosteManager.csproj
+    - '*.csproj'
+    - Dockerfile.backend
+    - Dockerfile.fly
+    - Dockerfile.production
+    - Dockerfile.secure
+    - ai-service/**
+    - docker/**
+    - frontend-node/**
+    - src/backend/**
+    - pull_requests/**
+    - '**/*.pem'
+
+# Only scan MemoLib Next.js project
+include:
+  - package.json
+  - package-lock.json
+  - prisma/schema.prisma
+  - src/**/*.ts
+  - src/**/*.tsx
