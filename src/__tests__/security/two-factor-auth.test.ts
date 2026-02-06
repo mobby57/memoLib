@@ -3,16 +3,16 @@
  * @jest-environment node
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import {
   generate2FASecret,
-  generateQRCode,
-  verify2FAToken,
   generateBackupCodes,
+  generateQRCode,
   hashBackupCode,
-  verifyBackupCode,
   is2FARequired,
+  verify2FAToken,
+  verifyBackupCode,
 } from '@/lib/security/two-factor-auth';
 
 describe('two-factor-auth', () => {
@@ -27,17 +27,17 @@ describe('two-factor-auth', () => {
       expect(result.qrCodeUrl).toContain('otpauth://totp/');
     });
 
-    it('devrait inclure l\'email encodé dans l\'URL TOTP', () => {
+    it("devrait inclure l'email encodé dans l'URL TOTP", () => {
       const result = generate2FASecret('user@domain.com');
 
       // L'URL devrait contenir l'email encodé
       expect(result.qrCodeUrl).toContain('user%40domain.com');
     });
 
-    it('devrait inclure le nom de l\'app dans l\'URL', () => {
+    it("devrait inclure le nom de l'app dans l'URL", () => {
       const result = generate2FASecret('test@test.com');
 
-      expect(result.qrCodeUrl).toContain('IA%20Poste%20Manager');
+      expect(result.qrCodeUrl).toContain('memoLib');
     });
 
     it('devrait générer des secrets uniques', () => {
@@ -60,7 +60,7 @@ describe('two-factor-auth', () => {
       expect(result.length).toBeGreaterThan(100);
     });
 
-    it('devrait fonctionner avec l\'URL générée par generate2FASecret', async () => {
+    it("devrait fonctionner avec l'URL générée par generate2FASecret", async () => {
       const { qrCodeUrl } = generate2FASecret('test@example.com');
       const result = await generateQRCode(qrCodeUrl);
 

@@ -3,12 +3,12 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { signIn } from 'next-auth/react';
-import { useState, FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { logger } from '@/lib/logger';
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Shield, Zap, Users, CheckCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Eye, EyeOff, Lock, Mail, Shield, Users, Zap } from 'lucide-react';
+import { signIn } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { FormEvent, useEffect, useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -50,7 +50,14 @@ export default function LoginPage() {
         setError('Email ou mot de passe incorrect');
         setLoading(false);
       } else if (result?.ok) {
-        window.location.href = '/dashboard';
+        // Redirection basée sur l'email (déterminé côté serveur)
+        if (email === 'admin@memolib.fr') {
+          router.push('/super-admin/dashboard');
+        } else if (email === 'client@memolib.fr') {
+          router.push('/client-dashboard');
+        } else {
+          router.push('/dashboard');
+        }
       }
     } catch (error) {
       logger.error('Erreur connexion utilisateur', { error, email });

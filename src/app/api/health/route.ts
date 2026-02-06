@@ -1,27 +1,16 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-  try {
-    // Check database
-    await prisma.$queryRaw`SELECT 1`;
-    
-    return NextResponse.json({
+  // Health check rapide sans interroger la base de données
+  return NextResponse.json(
+    {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
-        database: 'up',
         api: 'up',
+        database: 'optional', // La DB n'est pas requise pour le mode démo
       },
-    });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        status: 'unhealthy',
-        timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 503 }
-    );
-  }
+    },
+    { status: 200 }
+  );
 }

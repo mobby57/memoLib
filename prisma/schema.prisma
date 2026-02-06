@@ -175,6 +175,12 @@ enum EventType {
   GITHUB_EVENT_PROCESSED
   GITHUB_EVENT_LINKED
   GITHUB_EVENT_ERROR
+
+  // Analysis Pipeline Events (Legal Flow Classification)
+  ANALYSIS_PIPELINE_EXECUTED
+  ANALYSIS_RULE_APPLIED
+  DUPLICATE_PROPOSED_FOR_LINKING
+  DEADLINE_EXTRACTED
 }
 
 enum ActorType {
@@ -303,6 +309,7 @@ model Tenant {
   dataExportRequests DataExportRequest[]
   consentRecords     ConsentRecord[]
   gitHubEventLogs    GitHubEventLog[]
+  legalProofs        LegalProof[]
 
   @@index([planId])
   @@index([status])
@@ -406,6 +413,7 @@ model User {
   chatMessages       ChatMessage[]
   dataExportRequests DataExportRequest[]
   consentRecords     ConsentRecord[]
+  legalProofs        LegalProof[]
 
   @@index([tenantId, email])
   @@index([role])
@@ -488,6 +496,7 @@ model Client {
   rgpdConsents    RGPDConsent[]    @relation("RGPDConsents")
   filterRules     FilterRule[]
   gitHubEventLogs GitHubEventLog[]
+  legalProofs     LegalProof[]
 
   @@unique([tenantId, email])
   @@index([tenantId, email])
@@ -542,6 +551,7 @@ model Dossier {
   filterRules     FilterRule[]
   chatSessions    ChatSession[]
   gitHubEventLogs GitHubEventLog[]
+  legalProofs     LegalProof[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, statut])
@@ -1372,6 +1382,10 @@ enum ConsentStatus {
 model ChannelMessage {
   id String @id @default(uuid())
 
+  // Identifiants source et déduplication
+  externalId String? // ID unique du message source (Gmail messageId, WhatsApp msgId, etc.)
+  checksum   String  @unique // Hash SHA-256 pour détection doublons
+
   channel   ChannelType
   direction MessageDirection @default(INBOUND)
   status    MessageStatus    @default(RECEIVED)
@@ -1429,6 +1443,8 @@ model ChannelMessage {
   @@index([aiUrgency])
   @@index([receivedAt])
   @@index([consentStatus])
+  @@index([externalId])
+  @@index([checksum])
   @@map("channel_messages")
 }
 
@@ -1746,4 +1762,90 @@ model GitHubEventLog {
   @@index([tenantId])
   @@index([processed])
   @@map("github_event_logs")
+}
+
+// ============================================
+// LEGAL PROOF SYSTEM (Pilier #4: Preuve Native)
+// ============================================
+
+enum LegalProofType {
+  DOCUMENT
+  ACTION
+  COMMUNICATION
+  TRANSACTION
+  VALIDATION
+}
+
+enum LegalSignatureType {
+  SIMPLE
+  ADVANCED
+  QUALIFIED
+}
+
+enum LegalProofFormat {
+  JSON
+  PDF
+  XML
+  BLOCKCHAIN
+}
+
+model LegalProof {
+  id String @id @default(uuid())
+
+  // Type de preuve
+  type LegalProofType
+
+  // Contenu et métadonnées
+  content  String // Description de ce qui est prouvé
+  reason   String // Raison de la génération
+  metadata Json // Métadonnées additionnelles (jurisdiction, etc.)
+
+  // Cryptographie
+  hash      String  @unique // SHA-256 du contenu
+  algorithm String  @default("SHA-256")
+  hashChain String? // Hash de la preuve précédente (chaînage blockchain)
+
+  // Horodatage RFC 3161
+  timestamp           DateTime
+  timestampToken      String? // Token RFC 3161 de l'autorité de certification
+  timestampAuthority  String? // URL de la TSA
+  timestampCertificat String? // Certificat de la TSA
+
+  // Signatures électroniques eIDAS
+  signatures Json @default("[]") // Array de DigitalSignature
+
+  // Juridiction et conformité
+  jurisdiction String? // FR, EU, etc.
+  legalBasis   String? // Base légale (article de loi)
+  retention    Int? // Durée de rétention en jours
+
+  // Validité
+  isValid    Boolean   @default(true)
+  expiration DateTime? // Date d'expiration
+  revokedAt  DateTime? // Date de révocation
+
+  // Relation avec les entités du système
+  userId   String
+  user     User    @relation(fields: [userId], references: [id])
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+
+  tenantId String
+  tenant   Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Audit trail
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([userId])
+  @@index([dossierId])
+  @@index([clientId])
+  @@index([tenantId])
+  @@index([timestamp])
+  @@index([isValid])
+  @@index([createdAt])
+  @@map("legal_proofs")
 }

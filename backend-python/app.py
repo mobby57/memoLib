@@ -1,12 +1,36 @@
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+
+# Sentry integration for monitoring
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+
+    SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+    if SENTRY_DSN:
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            integrations=[FlaskIntegration()],
+            traces_sample_rate=0.1,  # 10% sampling
+            environment=os.getenv("FLASK_ENV", "development"),
+        )
+        print("✅ Sentry monitoring initialized")
+    else:
+        print("⚠️  Sentry DSN not configured")
+except ImportError:
+    print("⚠️  sentry-sdk not installed")
+
+# Add Python pipeline path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 app = Flask(__name__)
 CORS(
@@ -435,6 +459,175 @@ def list_templates():
     ]
 
     return jsonify({"templates": templates})
+
+
+# ============================================================================
+# ANALYSIS PIPELINE ENDPOINTS (MOTEUR D'ANALYSE DES FLUX)
+# ============================================================================
+
+try:
+    from analysis.config import get_config
+    from analysis.pipelines.pipeline import AnalysisPipeline
+    from analysis.pipelines.rules_engine import DeadlineExtractor, RuleEngine
+    from analysis.schemas.models import InformationUnitSchema
+
+    PIPELINE_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️  Pipeline module not available: {e}")
+    PIPELINE_AVAILABLE = False
+
+
+@app.route("/analysis/health", methods=["GET"])
+def analysis_health():
+    """Vérifier l'état du service d'analyse"""
+    return jsonify(
+        {
+            "status": "OK" if PIPELINE_AVAILABLE else "UNAVAILABLE",
+            "service": "Analysis Pipeline",
+            "features": [
+                "Legal flow classification",
+                "Duplicate detection",
+                "Deadline extraction",
+                "EventLog generation",
+            ],
+            "timestamp": datetime.now().isoformat(),
+        }
+    )
+
+
+@app.route("/analysis/execute", methods=["POST"])
+def execute_pipeline():
+    """Exécuter le pipeline complet d'analyse"""
+    if not PIPELINE_AVAILABLE:
+        return jsonify({"error": "Pipeline not available"}), 500
+
+    try:
+        pipeline = AnalysisPipeline()
+        result = pipeline.execute()
+
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "events_generated": result.events_generated,
+                    "duplicates_detected": result.duplicates_detected,
+                    "processing_time_seconds": result.processing_time_seconds,
+                    "rules_applied": result.rules_applied,
+                    "errors": result.errors,
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/analysis/test-rules", methods=["POST"])
+def test_rules():
+    """Tester les règles sur une unité unique"""
+    if not PIPELINE_AVAILABLE:
+        return jsonify({"error": "Pipeline not available"}), 500
+
+    try:
+        data = request.get_json()
+
+        # Valider schéma
+        unit = InformationUnitSchema(
+            source=data.get("source", "API"),
+            content=data.get("content", ""),
+            content_hash=data.get("content_hash", ""),
+            metadata=data.get("metadata", {}),
+            tenant_id=data.get("tenant_id", "default"),
+        )
+
+        # Appliquer les règles
+        engine = RuleEngine()
+        priority, applied_rules, score = engine.apply_all_rules(
+            unit=unit, historical_count=data.get("historical_count", 0)
+        )
+
+        # Extraire les deadlines
+        extractor = DeadlineExtractor()
+        deadlines = extractor.extract_deadlines(unit.content)
+
+        return (
+            jsonify(
+                {
+                    "priority": priority,
+                    "applied_rules": applied_rules,
+                    "score": score,
+                    "deadlines": deadlines,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/analysis/stats", methods=["GET"])
+def analysis_stats():
+    """Obtenir les statistiques du pipeline"""
+    if not PIPELINE_AVAILABLE:
+        return jsonify({"error": "Pipeline not available"}), 500
+
+    try:
+        # TODO: Implémenter en lisant depuis Prisma EventLog
+        return (
+            jsonify(
+                {
+                    "daily": {
+                        "total_flows": 0,
+                        "critical": 0,
+                        "high": 0,
+                        "medium": 0,
+                        "low": 0,
+                    },
+                    "weekly": {
+                        "total_flows": 0,
+                        "duplicates_found": 0,
+                        "avg_processing_time": 0,
+                    },
+                    "configuration": get_config(),
+                }
+            ),
+            200,
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ============================================================================
+# SCHEDULED JOBS (APScheduler)
+# ============================================================================
+
+
+def scheduled_pipeline_job():
+    """Job exécuté toutes les 4 heures pour analyser les flux"""
+    try:
+        pipeline = AnalysisPipeline()
+        result = pipeline.execute()
+        print(
+            f"✅ Scheduled pipeline executed: {result.events_generated} events generated"
+        )
+    except Exception as e:
+        print(f"❌ Scheduled pipeline error: {e}")
+
+
+# Initialiser le scheduler
+scheduler = BackgroundScheduler()
+if PIPELINE_AVAILABLE:
+    scheduler.add_job(
+        func=scheduled_pipeline_job,
+        trigger="interval",
+        hours=4,
+        id="analysis_pipeline",
+        name="Analysis Pipeline (4h interval)",
+        replace_existing=True,
+    )
+    scheduler.start()
+    print("✅ APScheduler initialized (4-hour interval for analysis pipeline)")
 
 
 # ============================================================================

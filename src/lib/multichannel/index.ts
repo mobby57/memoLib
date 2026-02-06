@@ -7,9 +7,13 @@
 export * from './types';
 
 // Services
-export { MultiChannelService, multiChannelService } from './channel-service';
 export { AIService, aiService } from './ai-processor';
 export { AuditService, auditService } from './audit-service';
+export { MultiChannelService, multiChannelService } from './channel-service';
+
+// Adapters & Factory
+export { AdapterFactory } from './adapter-factory';
+export * from './adapters';
 
 // Canaux supportés
 export const SUPPORTED_CHANNELS = [

@@ -1,5 +1,5 @@
 ﻿/**
- * IA POSTE MANAGER - Systeme de Logging Juridique Professionnel
+ * memoLib - Systeme de Logging Juridique Professionnel
  *
  * Logging specialise pour cabinet d'avocats CESEDA avec:
  * - Conformite RGPD (anonymisation automatique)

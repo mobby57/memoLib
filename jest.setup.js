@@ -105,6 +105,22 @@ if (!process.env.DATABASE_URL) {
 }
 
 // ===== Mocks: 2FA (otplib) =====
+jest.mock('otplib', () => {
+  class TOTPMock {
+    keyuri(email, app, secret) {
+      return `otpauth://totp/${encodeURIComponent(app)}:${encodeURIComponent(email)}?secret=${secret}`;
+    }
+    check(token, secret) {
+      return Boolean(secret) && typeof token === 'string' && token.length === 6;
+    }
+  }
+
+  return {
+    TOTP: TOTPMock,
+    generateSecret: jest.fn(() => `TESTSECRET_${Math.random().toString(36).slice(2, 10)}`),
+  };
+});
+
 jest.mock('@otplib/preset-default', () => {
   const authenticator = {
     // Génère des secrets pseudo-uniques pour satisfaire les tests d'unicité
@@ -122,3 +138,91 @@ jest.mock('@otplib/preset-default', () => {
 });
 
 // (Stripe est mocké par test au besoin; pas de mock global ici pour éviter les conflits)
+
+// ===== Mocks: Redis / Cache =====
+// Mock Redis pour éviter les erreurs de connexion dans les tests
+jest.mock('@/lib/cache/redis', () => ({
+  redis: {
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue('OK'),
+    del: jest.fn().mockResolvedValue(1),
+    exists: jest.fn().mockResolvedValue(0),
+    expire: jest.fn().mockResolvedValue(1),
+    ttl: jest.fn().mockResolvedValue(-1),
+    scan: jest.fn().mockResolvedValue(['0', []]),
+    keys: jest.fn().mockResolvedValue([]),
+    flushall: jest.fn().mockResolvedValue('OK'),
+    quit: jest.fn().mockResolvedValue('OK'),
+  },
+  getRedisClient: jest.fn(() => ({
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue('OK'),
+    del: jest.fn().mockResolvedValue(1),
+    exists: jest.fn().mockResolvedValue(0),
+    expire: jest.fn().mockResolvedValue(1),
+    quit: jest.fn().mockResolvedValue('OK'),
+  })),
+}));
+
+// Mock du SmartCache pour éviter les erreurs Redis
+jest.mock('@/lib/cache/smart-cache', () => ({
+  SmartCache: jest.fn().mockImplementation(() => ({
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(true),
+    delete: jest.fn().mockResolvedValue(true),
+    invalidate: jest.fn().mockResolvedValue(true),
+    clear: jest.fn().mockResolvedValue(true),
+  })),
+  smartCache: {
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(true),
+    delete: jest.fn().mockResolvedValue(true),
+    invalidate: jest.fn().mockResolvedValue(true),
+    clear: jest.fn().mockResolvedValue(true),
+  },
+}));
+
+// Suppression des logs de cache dans les tests
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  // Ignorer les erreurs Redis dans les tests
+  if (
+    typeof args[0] === 'string' &&
+    (args[0].includes('[Cache]') ||
+      args[0].includes('Redis connection failed') ||
+      args[0].includes('Redis write failed') ||
+      args[0].includes('Redis delete failed') ||
+      args[0].includes('Redis scan failed'))
+  ) {
+    return;
+  }
+  originalConsoleError.call(console, ...args);
+};
+
+// ===== Mock Global Prisma pour tous les tests =====
+// Cela évite les conflits avec les mocks individuels dans les tests
+global.createPrismaMock = () => ({
+  tenant: {
+    findMany: jest.fn().mockResolvedValue([]),
+    findUnique: jest.fn().mockResolvedValue(null),
+    create: jest.fn().mockResolvedValue({}),
+    update: jest.fn().mockResolvedValue({}),
+    delete: jest.fn().mockResolvedValue({}),
+  },
+  aiUsage: {
+    aggregate: jest.fn().mockResolvedValue({ _sum: { costUSD: 0 } }),
+    findMany: jest.fn().mockResolvedValue([]),
+    create: jest.fn().mockResolvedValue({}),
+  },
+  quotaEvent: {
+    create: jest.fn().mockResolvedValue({}),
+    findMany: jest.fn().mockResolvedValue([]),
+  },
+  eventLog: {
+    create: jest.fn().mockResolvedValue({}),
+    findMany: jest.fn().mockResolvedValue([]),
+    count: jest.fn().mockResolvedValue(0),
+  },
+  $on: jest.fn(),
+  $disconnect: jest.fn().mockResolvedValue(null),
+});
