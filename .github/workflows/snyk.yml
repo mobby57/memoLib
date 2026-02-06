@@ -1,0 +1,27 @@
+name: snyk-securit
+
+on:
+  pull_request:
+    branches: [main, memolib-2.0]
+  push:
+    branches: [main, memolib-2.0]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      # Skip if no SNYK_TOKEN configured
+      - name: Skip if no token
+        if: env.SNYK_TOKEN == ''
+        run: echo "Snyk token not configured, skipping"
