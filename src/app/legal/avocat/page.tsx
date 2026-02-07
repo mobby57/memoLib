@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import SectionHeader from '@/components/ui/SectionHeader';
-import Card from '@/components/ui/Card';
+import Card from '@/components/ui/card';
 import Button from '@/components/ui/Button';
 
 export default function AvocatPage() {

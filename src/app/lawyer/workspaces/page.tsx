@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -98,7 +98,7 @@ export default function WorkspacesPage() {
                 <option value="CONTEXT_IDENTIFIED"> Contexte identifie</option>
                 <option value="OBLIGATIONS_DEDUCED"> Obligations deduites</option>
                 <option value="MISSING_IDENTIFIED"> Manques identifies</option>
-                <option value="RISK_EVALUATED">️ Risques evalues</option>
+                <option value="RISK_EVALUATED">? Risques evalues</option>
                 <option value="ACTION_PROPOSED"> Action proposee</option>
                 <option value="READY_FOR_HUMAN"> Pret pour humain</option>
               </select>
@@ -111,7 +111,7 @@ export default function WorkspacesPage() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-            <p className="text-red-700">️ Erreur de chargement des workspaces</p>
+            <p className="text-red-700">? Erreur de chargement des workspaces</p>
             <p className="text-sm text-red-600 mt-1">Verifiez votre connexion internet</p>
           </div>
         )}

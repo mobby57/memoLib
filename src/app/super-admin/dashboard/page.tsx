@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -169,7 +169,7 @@ export default function SuperAdminDashboard() {
                 />
               </svg>
             </div>
-            <p className="text-3xl font-bold">{stats.totalMRR.toLocaleString('fr-FR')}â‚¬</p>
+            <p className="text-3xl font-bold">{stats.totalMRR.toLocaleString('fr-FR')}€</p>
             <p className="text-xs mt-2 opacity-75">Revenu mensuel recurrent</p>
           </div>
 
@@ -186,7 +186,7 @@ export default function SuperAdminDashboard() {
                 />
               </svg>
             </div>
-            <p className="text-3xl font-bold">{stats.totalARR.toLocaleString('fr-FR')}â‚¬</p>
+            <p className="text-3xl font-bold">{stats.totalARR.toLocaleString('fr-FR')}€</p>
             <p className="text-xs mt-2 opacity-75">Revenu annuel recurrent</p>
           </div>
 
@@ -242,12 +242,12 @@ export default function SuperAdminDashboard() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Prix unitaire</span>
-                    <span className="font-semibold text-gray-900">{plan.priceMonthly}â‚¬/mois</span>
+                    <span className="font-semibold text-gray-900">{plan.priceMonthly}€/mois</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">MRR de ce plan</span>
                     <span className="font-semibold text-green-600">
-                      {plan.mrr.toLocaleString('fr-FR')}â‚¬
+                      {plan.mrr.toLocaleString('fr-FR')}€
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -283,15 +283,15 @@ export default function SuperAdminDashboard() {
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
                 <span className="text-sm font-medium text-gray-700">Objectif Court Terme</span>
-                <span className="text-lg font-bold text-blue-600">3 490â‚¬</span>
+                <span className="text-lg font-bold text-blue-600">3 490€</span>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
                 <span className="text-sm font-medium text-gray-700">Objectif Moyen Terme</span>
-                <span className="text-lg font-bold text-purple-600">20 000â‚¬</span>
+                <span className="text-lg font-bold text-purple-600">20 000€</span>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
                 <span className="text-sm font-medium text-gray-700">Objectif Long Terme</span>
-                <span className="text-lg font-bold text-green-600">150 000â‚¬</span>
+                <span className="text-lg font-bold text-green-600">150 000€</span>
               </div>
             </div>
 
@@ -319,7 +319,7 @@ export default function SuperAdminDashboard() {
               <div className="p-3 border border-gray-200 rounded">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium text-gray-700">10 x Cabinet</span>
-                  <span className="text-green-600 font-bold">3 490â‚¬</span>
+                  <span className="text-green-600 font-bold">3 490€</span>
                 </div>
                 <p className="text-xs text-gray-500">Sweet spot - Meilleure marge</p>
               </div>
@@ -329,7 +329,7 @@ export default function SuperAdminDashboard() {
                   <span className="text-sm font-medium text-gray-700">
                     50 x Cabinet + 5 x Enterprise
                   </span>
-                  <span className="text-blue-600 font-bold">19 945â‚¬</span>
+                  <span className="text-blue-600 font-bold">19 945€</span>
                 </div>
                 <p className="text-xs text-gray-500">Scaling phase</p>
               </div>
@@ -339,7 +339,7 @@ export default function SuperAdminDashboard() {
                   <span className="text-sm font-medium text-gray-700">
                     200 x Cabinet + 50 x Enterprise
                   </span>
-                  <span className="text-purple-600 font-bold">94 750â‚¬</span>
+                  <span className="text-purple-600 font-bold">94 750€</span>
                 </div>
                 <p className="text-xs text-gray-500">Croissance etablie</p>
               </div>

@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import Link from "next/link"
 import { ProcedureType, PROCEDURE_COLORS, PROCEDURE_LABELS } from "@/types/cesda"
@@ -96,7 +96,7 @@ export default function WorkspaceCard({ workspace, onClick }: WorkspaceCardProps
       {workspace.deadlineDate && (
         <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
           <div className="flex items-center gap-2">
-            <span className="text-sm">️</span>
+            <span className="text-sm">?</span>
             <span className="text-sm text-gray-700">echeance:</span>
           </div>
           <div className="text-right">

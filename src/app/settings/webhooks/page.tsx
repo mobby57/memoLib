@@ -1,4 +1,4 @@
-﻿import WebhookConfig from '@/components/WebhookConfig';
+import WebhookConfig from '@/components/WebhookConfig';
 
 export default function WebhooksPage() {
   return <WebhookConfig />;

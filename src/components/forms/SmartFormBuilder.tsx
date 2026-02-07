@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -309,7 +309,7 @@ export default function SmartFormBuilder({
                 field.impactAnalysis.level === 'medium' ? 'text-yellow-600' :
                 'text-green-600'
               }`}>
-                {field.impactAnalysis.level === 'critical' ? '️' :
+                {field.impactAnalysis.level === 'critical' ? '?' :
                  field.impactAnalysis.level === 'high' ? '' :
                  field.impactAnalysis.level === 'medium' ? '' : ''}
               </span>
@@ -402,7 +402,7 @@ export default function SmartFormBuilder({
         {config.requiresApproval && (
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-start">
-              <span className="text-yellow-600 mr-2">️</span>
+              <span className="text-yellow-600 mr-2">?</span>
               <div>
                 <p className="font-medium text-yellow-900">Approbation requise</p>
                 <p className="text-sm text-yellow-700 mt-1">

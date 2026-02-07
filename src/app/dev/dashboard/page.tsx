@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEffect, useState } from 'react';
 
@@ -83,7 +83,7 @@ export default function DevDashboard() {
             Export CSV
           </Button>
           <Button variant="destructive" onClick={clearLogs}>
-            ️ Clear Logs
+            ? Clear Logs
           </Button>
         </div>
       </div>

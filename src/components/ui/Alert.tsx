@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { ReactNode } from 'react';
 import { AlertCircle, CheckCircle, Info, XCircle, X } from 'lucide-react';

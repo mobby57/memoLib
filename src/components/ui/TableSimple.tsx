@@ -1,4 +1,4 @@
-﻿
+
 
 export interface Column<T> {
   header: string;

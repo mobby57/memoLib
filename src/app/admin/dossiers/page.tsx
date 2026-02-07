@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -332,7 +332,7 @@ export default function DossiersAvocatPage() {
                     </div>
                   </div>
 
-                  {/* Actions - stopPropagation pour éviter navigation lors du clic */}
+                  {/* Actions - stopPropagation pour �viter navigation lors du clic */}
                   <div className="flex flex-col gap-2 ml-4" onClick={(e) => e.stopPropagation()}>
                     <Button
                       onClick={() => router.push(`/admin/dossiers/${dossier.id}/edit`)}

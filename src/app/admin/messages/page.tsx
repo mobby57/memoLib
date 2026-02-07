@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -261,7 +261,7 @@ export default function MessagesAdmin() {
                       disabled={sending || !newMessage.trim()}
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold transition-colors"
                     >
-                      {sending ? '...' : 'Envoyer ️'}
+                      {sending ? '...' : 'Envoyer ?'}
                     </button>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">Appuyez sur Entree pour envoyer, Maj+Entree pour nouvelle ligne</p>

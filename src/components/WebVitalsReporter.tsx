@@ -1,4 +1,4 @@
-ï»¿// Web Vitals Reporter - Next.js Performance Monitoring
+// Web Vitals Reporter - Next.js Performance Monitoring
 // https://nextjs.org/docs/app/api-reference/functions/use-report-web-vitals
 'use client';
 
@@ -6,7 +6,7 @@ import { useReportWebVitals } from 'next/web-vitals';
 
 export function WebVitalsReporter() {
   useReportWebVitals((metric) => {
-    // Log en dÃ©veloppement
+    // Log en développement
     if (process.env.NODE_ENV === 'development') {
       console.log(`[Web Vitals] ${metric.name}:`, {
         value: Math.round(metric.value * 100) / 100,
@@ -15,10 +15,10 @@ export function WebVitalsReporter() {
       });
     }
 
-    // Envoyer Ã  votre service d'analytics en production
+    // Envoyer à votre service d'analytics en production
     // Exemples: Vercel Analytics, Google Analytics, custom endpoint
     if (process.env.NODE_ENV === 'production') {
-      // Option 1: Vercel Analytics (automatique si dÃ©ployÃ© sur Vercel)
+      // Option 1: Vercel Analytics (automatique si déployé sur Vercel)
       
       // Option 2: Google Analytics 4
       // window.gtag?.('event', metric.name, {
@@ -49,7 +49,7 @@ export function WebVitalsReporter() {
   return null;
 }
 
-// Types de mÃ©triques:
+// Types de métriques:
 // - LCP (Largest Contentful Paint): < 2.5s = bon
 // - FID (First Input Delay): < 100ms = bon  
 // - CLS (Cumulative Layout Shift): < 0.1 = bon

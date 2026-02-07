@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react'
-import { Card } from '@/components/ui/Card'
+import { Card } from '@/components/ui/card'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import { Button } from '@/components/forms/Button'
 import { Input } from '@/components/forms/Input'
@@ -140,7 +140,7 @@ export default function AIAssistantPage() {
         <Card className="p-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">Cout estime</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-            {stats.estimatedCost.toFixed(2)}€
+            {stats.estimatedCost.toFixed(2)}�
           </p>
         </Card>
         <Card className="p-4">
@@ -350,7 +350,7 @@ export default function AIAssistantPage() {
                         }`}
                       >
                         <p className="font-medium text-sm text-gray-900 dark:text-white">
-                          {factor.impact === 'positif' ? '' : '️'} {factor.factor}
+                          {factor.impact === 'positif' ? '' : '?'} {factor.factor}
                         </p>
                         <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                           {factor.description}

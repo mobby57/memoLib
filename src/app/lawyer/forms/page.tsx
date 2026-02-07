@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -114,7 +114,7 @@ export default function FormsPage() {
             </p>
             <div className="flex items-center justify-between text-xs text-gray-500">
               <span> IA activee</span>
-              <span>️ Approbation requise</span>
+              <span>? Approbation requise</span>
             </div>
           </div>
 
@@ -125,7 +125,7 @@ export default function FormsPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">🎯</span>
+                <span className="text-2xl">??</span>
               </div>
               <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
                 STRATEGY
@@ -137,7 +137,7 @@ export default function FormsPage() {
             </p>
             <div className="flex items-center justify-between text-xs text-gray-500">
               <span> IA activee</span>
-              <span>️ Approbation requise</span>
+              <span>? Approbation requise</span>
             </div>
           </div>
 
@@ -148,7 +148,7 @@ export default function FormsPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">️</span>
+                <span className="text-2xl">?</span>
               </div>
               <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
                 RISK
@@ -176,7 +176,7 @@ export default function FormsPage() {
               <div>
                 <h3 className="font-medium text-gray-900">Suggestions IA en temps reel</h3>
                 <p className="text-sm text-gray-600">
-                  Le système analyse vos réponses et propose des suggestions contextuelles
+                  Le syst�me analyse vos r�ponses et propose des suggestions contextuelles
                 </p>
               </div>
             </div>

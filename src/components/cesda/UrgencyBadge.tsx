@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { UrgencyLevel, URGENCY_COLORS } from "@/types/cesda"
 

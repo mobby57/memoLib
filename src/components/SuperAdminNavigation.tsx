@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,11 +9,11 @@ export default function SuperAdminNavigation() {
 
   const navItems = [
     { href: '/super-admin', label: 'Dashboard', icon: '' },
-    { href: '/super-admin/tenants', label: 'Tenants', icon: '🏢' },
+    { href: '/super-admin/tenants', label: 'Tenants', icon: '??' },
     { href: '/super-admin/plans', label: 'Plans', icon: '' },
     { href: '/super-admin/users', label: 'Users', icon: '' },
-    { href: '/super-admin/support', label: 'Support', icon: '🎫' },
-    { href: '/super-admin/settings', label: 'Settings', icon: '️' },
+    { href: '/super-admin/support', label: 'Support', icon: '??' },
+    { href: '/super-admin/settings', label: 'Settings', icon: '?' },
   ];
 
   const isActive = (href: string) => pathname === href;

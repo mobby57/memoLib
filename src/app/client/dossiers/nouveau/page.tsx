@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -47,31 +47,31 @@ const TYPES_DEMANDE = [
   { 
     value: 'RECOURS_OQTF', 
     label: 'Recours OQTF', 
-    icon: '️',
+    icon: '?',
     description: 'Contestation d\'une Obligation de Quitter le Territoire'
   },
   { 
     value: 'NATURALISATION', 
     label: 'Naturalisation', 
-    icon: '🇫🇷',
+    icon: '????',
     description: 'Demande de naturalisation francaise'
   },
   { 
     value: 'REGROUPEMENT_FAMILIAL', 
     label: 'Regroupement Familial', 
-    icon: '‍‍‍',
+    icon: '???',
     description: 'Faire venir votre famille en France'
   },
   { 
     value: 'ASILE', 
     label: 'Demande d\'Asile', 
-    icon: '️',
+    icon: '?',
     description: 'Protection internationale'
   },
   { 
     value: 'VISA', 
     label: 'Visa', 
-    icon: '️',
+    icon: '?',
     description: 'Demande de visa (court ou long sejour)'
   },
   { 

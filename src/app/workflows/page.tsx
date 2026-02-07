@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react'
-import { Card } from '@/components/ui/Card'
+import { Card } from '@/components/ui/card'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import { Button } from '@/components/forms/Button'
 import { Modal } from '@/components/forms/Modal'
@@ -92,7 +92,7 @@ export default function WorkflowsPage() {
     generate_document: ' Document',
     create_notification: ' Notification',
     webhook: ' Webhook',
-    run_script: '️ Script',
+    run_script: '? Script',
   }
 
   return (

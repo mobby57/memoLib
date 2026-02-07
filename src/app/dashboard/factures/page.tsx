@@ -1,4 +1,4 @@
-Ôªø'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -132,19 +132,19 @@ export default function FacturesPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-500">Total Facture</p>
-          <p className="text-2xl font-bold text-gray-900">{stats.total.toFixed(2)}‚Ç¨</p>
+          <p className="text-2xl font-bold text-gray-900">{stats.total.toFixed(2)}Ä</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-500">Payees</p>
-          <p className="text-2xl font-bold text-green-600">{stats.payees.toFixed(2)}‚Ç¨</p>
+          <p className="text-2xl font-bold text-green-600">{stats.payees.toFixed(2)}Ä</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-500">En attente</p>
-          <p className="text-2xl font-bold text-blue-600">{stats.enAttente.toFixed(2)}‚Ç¨</p>
+          <p className="text-2xl font-bold text-blue-600">{stats.enAttente.toFixed(2)}Ä</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-500">En retard</p>
-          <p className="text-2xl font-bold text-red-600">{stats.enRetard.toFixed(2)}‚Ç¨</p>
+          <p className="text-2xl font-bold text-red-600">{stats.enRetard.toFixed(2)}Ä</p>
         </div>
       </div>
 
@@ -199,7 +199,7 @@ export default function FacturesPage() {
                     {facture.client.firstName} {facture.client.lastName}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap font-medium">
-                    {facture.montantTTC.toFixed(2)}‚Ç¨
+                    {facture.montantTTC.toFixed(2)}Ä
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">{getStatutBadge(facture.statut)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -213,7 +213,7 @@ export default function FacturesPage() {
                       onClick={() => setSelectedFacture(facture)}
                       className="text-blue-600 hover:text-blue-800 mr-3"
                     >
-                      Ô∏è Voir
+                      ? Voir
                     </button>
                     <button className="text-gray-600 hover:text-gray-800"> PDF</button>
                   </td>
@@ -373,7 +373,7 @@ function NewFactureModal({
                   onClick={() => removeLigne(index)}
                   className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
                 >
-                  Ô∏è
+                  ?
                 </button>
               </div>
             ))}
@@ -386,15 +386,15 @@ function NewFactureModal({
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex justify-between mb-1">
               <span>Total HT:</span>
-              <span>{total.toFixed(2)}‚Ç¨</span>
+              <span>{total.toFixed(2)}Ä</span>
             </div>
             <div className="flex justify-between mb-1">
               <span>TVA (20%):</span>
-              <span>{tva.toFixed(2)}‚Ç¨</span>
+              <span>{tva.toFixed(2)}Ä</span>
             </div>
             <div className="flex justify-between font-bold text-lg">
               <span>Total TTC:</span>
-              <span>{ttc.toFixed(2)}‚Ç¨</span>
+              <span>{ttc.toFixed(2)}Ä</span>
             </div>
           </div>
         </div>
@@ -488,8 +488,8 @@ function FactureDetailModal({
                   <tr key={i} className="border-t">
                     <td className="py-2">{ligne.description}</td>
                     <td className="py-2 text-right">{ligne.quantite}</td>
-                    <td className="py-2 text-right">{ligne.prixUnitaire.toFixed(2)}‚Ç¨</td>
-                    <td className="py-2 text-right">{ligne.montantHT.toFixed(2)}‚Ç¨</td>
+                    <td className="py-2 text-right">{ligne.prixUnitaire.toFixed(2)}Ä</td>
+                    <td className="py-2 text-right">{ligne.montantHT.toFixed(2)}Ä</td>
                   </tr>
                 ))}
               </tbody>
@@ -500,15 +500,15 @@ function FactureDetailModal({
           <div className="border-t pt-4">
             <div className="flex justify-between mb-1">
               <span>Total HT:</span>
-              <span>{facture.montantHT.toFixed(2)}‚Ç¨</span>
+              <span>{facture.montantHT.toFixed(2)}Ä</span>
             </div>
             <div className="flex justify-between mb-1">
               <span>TVA ({facture.montantTVA > 0 ? '20' : '0'}%):</span>
-              <span>{facture.montantTVA.toFixed(2)}‚Ç¨</span>
+              <span>{facture.montantTVA.toFixed(2)}Ä</span>
             </div>
             <div className="flex justify-between font-bold text-lg">
               <span>Total TTC:</span>
-              <span>{facture.montantTTC.toFixed(2)}‚Ç¨</span>
+              <span>{facture.montantTTC.toFixed(2)}Ä</span>
             </div>
           </div>
 

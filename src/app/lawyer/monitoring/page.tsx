@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -167,7 +167,7 @@ export default function MonitoringPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                🎛️ Monitoring Systeme
+                ??? Monitoring Systeme
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
                 etat en temps reel de tous les workflows avances
@@ -280,7 +280,7 @@ export default function MonitoringPage() {
 
                   <div className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(system.status)}`}>
                     {system.status === 'online' ? ' Operationnel' : 
-                     system.status === 'warning' ? '️ Attention' : 
+                     system.status === 'warning' ? '? Attention' : 
                      ' Hors ligne'}
                   </div>
                 </div>

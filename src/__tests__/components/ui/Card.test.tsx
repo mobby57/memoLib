@@ -1,4 +1,4 @@
-ï»¿/**
+/**
  * Tests pour les composants Card
  * Couverture: Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter
  */
@@ -11,7 +11,7 @@ import {
   CardContent, 
   CardDescription, 
   CardFooter 
-} from '@/components/ui/Card';
+} from '@/components/ui/card';
 
 describe('Card Components', () => {
   describe('Card', () => {
@@ -28,7 +28,7 @@ describe('Card Components', () => {
       expect(card).toHaveClass('rounded-lg', 'border', 'shadow-sm');
     });
 
-    it('devrait accepter des classes personnalisÃ©es', () => {
+    it('devrait accepter des classes personnalisées', () => {
       render(<Card data-testid="card" className="custom-card">Test</Card>);
       expect(screen.getByTestId('card')).toHaveClass('custom-card');
     });
@@ -110,8 +110,8 @@ describe('Card Components', () => {
     });
   });
 
-  describe('Composition complÃ¨te', () => {
-    it('devrait rendre une card complÃ¨te avec tous les sous-composants', () => {
+  describe('Composition complète', () => {
+    it('devrait rendre une card complète avec tous les sous-composants', () => {
       render(
         <Card data-testid="full-card">
           <CardHeader>
@@ -143,10 +143,10 @@ describe('Card Components', () => {
           </CardHeader>
           <CardContent>
             <p>Statut: En cours</p>
-            <p>CrÃ©Ã© le: 01/01/2024</p>
+            <p>Créé le: 01/01/2024</p>
           </CardContent>
           <CardFooter>
-            <button>Voir dÃ©tails</button>
+            <button>Voir détails</button>
             <button>Modifier</button>
           </CardFooter>
         </Card>
@@ -155,12 +155,12 @@ describe('Card Components', () => {
       expect(screen.getByRole('article')).toBeInTheDocument();
       expect(screen.getByText('Dossier #123')).toBeInTheDocument();
       expect(screen.getByText('Client: Jean Dupont')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /voir dÃ©tails/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /voir détails/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /modifier/i })).toBeInTheDocument();
     });
   });
 
-  describe('AccessibilitÃ©', () => {
+  describe('Accessibilité', () => {
     it('devrait permettre un role article', () => {
       render(<Card role="article">Contenu accessible</Card>);
       expect(screen.getByRole('article')).toBeInTheDocument();

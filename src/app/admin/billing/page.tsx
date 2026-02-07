@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -153,7 +153,7 @@ export default function BillingPage() {
               <div>
                 <p className="text-sm text-gray-600">Tarif</p>
                 <p className="text-lg font-semibold text-gray-900">
-                  {subscription.pricePerMonth}€/mois
+                  {subscription.pricePerMonth}�/mois
                 </p>
               </div>
               <div>
@@ -181,7 +181,7 @@ export default function BillingPage() {
                     <div>
                       <p className="font-semibold capitalize">{quota.type}</p>
                       <p className="text-sm">
-                        {quota.current} / {quota.limit === -1 ? '∞' : quota.limit}
+                        {quota.current} / {quota.limit === -1 ? '8' : quota.limit}
                       </p>
                     </div>
                     <div className="text-right">
@@ -200,8 +200,8 @@ export default function BillingPage() {
                   {quota.percentage >= 80 && (
                     <p className="text-xs mt-2">
                       {quota.percentage >= 100 
-                        ? '️ Quota depasse - Veuillez mettre a niveau votre plan'
-                        : '️ Approche de la limite - Envisagez une mise a niveau'}
+                        ? '? Quota depasse - Veuillez mettre a niveau votre plan'
+                        : '? Approche de la limite - Envisagez une mise a niveau'}
                     </p>
                   )}
                 </div>
@@ -234,29 +234,29 @@ export default function BillingPage() {
                 </div>
                 
                 <div className="text-center mb-6">
-                  <p className="text-4xl font-bold text-gray-900">{plan.priceMonthly}€</p>
+                  <p className="text-4xl font-bold text-gray-900">{plan.priceMonthly}�</p>
                   <p className="text-sm text-gray-600">par mois</p>
                   <p className="text-sm text-gray-500 mt-1">
-                    {plan.priceYearly}€/an (economie de {Math.round((1 - plan.priceYearly / (plan.priceMonthly * 12)) * 100)}%)
+                    {plan.priceYearly}�/an (economie de {Math.round((1 - plan.priceYearly / (plan.priceMonthly * 12)) * 100)}%)
                   </p>
                 </div>
                 
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Workspaces</span>
-                    <span className="font-semibold">{plan.maxWorkspaces === -1 ? '∞' : plan.maxWorkspaces}</span>
+                    <span className="font-semibold">{plan.maxWorkspaces === -1 ? '8' : plan.maxWorkspaces}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Dossiers/mois</span>
-                    <span className="font-semibold">{plan.maxDossiers === -1 ? '∞' : plan.maxDossiers}</span>
+                    <span className="font-semibold">{plan.maxDossiers === -1 ? '8' : plan.maxDossiers}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Clients</span>
-                    <span className="font-semibold">{plan.maxClients === -1 ? '∞' : plan.maxClients}</span>
+                    <span className="font-semibold">{plan.maxClients === -1 ? '8' : plan.maxClients}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Utilisateurs</span>
-                    <span className="font-semibold">{plan.maxUsers === -1 ? '∞' : plan.maxUsers}</span>
+                    <span className="font-semibold">{plan.maxUsers === -1 ? '8' : plan.maxUsers}</span>
                   </div>
                 </div>
                 

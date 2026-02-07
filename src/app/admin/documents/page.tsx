@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -177,7 +177,7 @@ export default function DocumentsAdmin() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                ️ Images
+                ? Images
               </button>
               <button
                 onClick={() => setFilterType('word')}
@@ -264,7 +264,7 @@ export default function DocumentsAdmin() {
                           onClick={() => downloadDocument(doc.id, doc.nom)}
                           className="px-4 py-2 bg-blue-500 text-white rounded text-sm font-semibold hover:bg-blue-600 transition-colors"
                         >
-                          Telecharger ️
+                          Telecharger ?
                         </button>
                       </td>
                     </tr>

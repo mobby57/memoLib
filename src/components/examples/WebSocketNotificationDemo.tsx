@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * WebSocket Notification Demo Component
@@ -99,7 +99,7 @@ export function WebSocketNotificationDemo({ tenantId }: { tenantId: string }) {
         {
           id: data.id,
           type: 'system',
-          message: `ℹ️ ${data.title}: ${data.message}`,
+          message: `?? ${data.title}: ${data.message}`,
           timestamp: new Date(data.timestamp),
           priority: data.level,
         },

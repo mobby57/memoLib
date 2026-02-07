@@ -1,10 +1,10 @@
-ï»¿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState, useMemo } from 'react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { Breadcrumb, Alert } from '@/components/ui';
 import { 
   TrendingUp, 
@@ -239,7 +239,7 @@ export default function AnalyticsPage() {
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Mois prochain</div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {revenueForecast.nextMonth.predicted.toFixed(0)} â‚¬
+              {revenueForecast.nextMonth.predicted.toFixed(0)} €
             </div>
             <div className="flex items-center gap-2 mt-1">
               {getTrendIcon(revenueForecast.nextMonth.trend)}
@@ -255,7 +255,7 @@ export default function AnalyticsPage() {
           <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Dans 3 mois</div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {revenueForecast.next3Months.predicted.toFixed(0)} â‚¬
+              {revenueForecast.next3Months.predicted.toFixed(0)} €
             </div>
             <div className="flex items-center gap-2 mt-1">
               {getTrendIcon(revenueForecast.next3Months.trend)}
@@ -271,7 +271,7 @@ export default function AnalyticsPage() {
           <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
             <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Dans 6 mois</div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {revenueForecast.next6Months.predicted.toFixed(0)} â‚¬
+              {revenueForecast.next6Months.predicted.toFixed(0)} €
             </div>
             <div className="flex items-center gap-2 mt-1">
               {getTrendIcon(revenueForecast.next6Months.trend)}

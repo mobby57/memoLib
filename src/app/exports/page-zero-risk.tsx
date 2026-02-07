@@ -1,9 +1,9 @@
-﻿'use client'
+'use client'
 
 import { ZeroRiskExport } from '@/lib/zero-risk-export'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Download, Upload, FileText, Database } from 'lucide-react'
 
 export default function ExportsPage() {
@@ -106,7 +106,7 @@ export default function ExportsPage() {
       
       <Card>
         <CardHeader>
-          <CardTitle>️ Securite ZeRO RISQUE</CardTitle>
+          <CardTitle>? Securite ZeRO RISQUE</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm">

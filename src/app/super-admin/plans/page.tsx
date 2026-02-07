@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -87,12 +87,12 @@ export default function PlansPage() {
                 <p className="text-gray-600 text-sm mt-1">{plan.description}</p>
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-gray-900">
-                    {plan.priceMonthly}â‚¬
+                    {plan.priceMonthly}€
                   </span>
                   <span className="text-gray-600">/mois</span>
                 </div>
                 <div className="text-sm text-gray-500 mt-2">
-                  {plan.priceYearly}â‚¬/an (2 mois offerts)
+                  {plan.priceYearly}€/an (2 mois offerts)
                 </div>
               </div>
 

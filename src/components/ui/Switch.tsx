@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 export const Switch = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
   ({ className, ...props }, ref) => (

@@ -1,4 +1,4 @@
-﻿// Force dynamic rendering to prevent Html import error from NextAuth pages
+// Force dynamic rendering to prevent Html import error from NextAuth pages
 export const dynamic = 'force-dynamic';
 
 export default function NotFound() {

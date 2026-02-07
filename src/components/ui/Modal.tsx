@@ -1,1 +1,1 @@
-﻿export { Modal } from '../forms/Modal';
+export { Modal } from '../forms/Modal';
