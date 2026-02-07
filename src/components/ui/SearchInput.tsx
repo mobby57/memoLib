@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { forwardRef, InputHTMLAttributes } from 'react';
 import { Search, X } from 'lucide-react';

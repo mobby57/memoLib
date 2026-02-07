@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useSession } from 'next-auth/react';
 import { Bell, User, Search } from 'lucide-react';

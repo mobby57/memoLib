@@ -1,4 +1,4 @@
-// Dashboard Loading UI - Skeleton pour le tableau de bord
+﻿// Dashboard Loading UI - Skeleton pour le tableau de bord
 // https://nextjs.org/docs/app/api-reference/file-conventions/loading
 
 export default function DashboardLoading() {
