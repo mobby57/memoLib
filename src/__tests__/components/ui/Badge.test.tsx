@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Tests pour le composant Badge
  * Couverture: variants, sizes, rendu
  */
@@ -13,7 +13,7 @@ describe('Badge Component', () => {
       expect(screen.getByText('Nouveau')).toBeInTheDocument();
     });
 
-    it('devrait être un span', () => {
+    it('devrait ï¿½tre un span', () => {
       render(<Badge>Test</Badge>);
       const badge = screen.getByText('Test');
       expect(badge.tagName).toBe('SPAN');
@@ -31,15 +31,15 @@ describe('Badge Component', () => {
   });
 
   describe('Variants', () => {
-    it('devrait rendre le variant default par défaut', () => {
+    it('devrait rendre le variant default par dï¿½faut', () => {
       render(<Badge>Default</Badge>);
       const badge = screen.getByText('Default');
       expect(badge).toHaveClass('bg-gray-100', 'text-gray-800');
     });
 
     it('devrait rendre le variant success', () => {
-      render(<Badge variant="success">Succès</Badge>);
-      const badge = screen.getByText('Succès');
+      render(<Badge variant="success">Succï¿½s</Badge>);
+      const badge = screen.getByText('Succï¿½s');
       expect(badge).toHaveClass('bg-green-100', 'text-green-800');
     });
 
@@ -63,7 +63,7 @@ describe('Badge Component', () => {
   });
 
   describe('Sizes', () => {
-    it('devrait rendre la taille md par défaut', () => {
+    it('devrait rendre la taille md par dï¿½faut', () => {
       render(<Badge>Medium</Badge>);
       const badge = screen.getByText('Medium');
       expect(badge).toHaveClass('px-2.5', 'py-1', 'text-sm');
@@ -84,8 +84,8 @@ describe('Badge Component', () => {
 
   describe('Combinaisons', () => {
     it('devrait combiner variant et size', () => {
-      render(<Badge variant="success" size="sm">Petit Succès</Badge>);
-      const badge = screen.getByText('Petit Succès');
+      render(<Badge variant="success" size="sm">Petit Succï¿½s</Badge>);
+      const badge = screen.getByText('Petit Succï¿½s');
       expect(badge).toHaveClass('bg-green-100', 'text-green-800', 'text-xs');
     });
 
@@ -96,15 +96,15 @@ describe('Badge Component', () => {
   });
 
   describe('Contenu complexe', () => {
-    it('devrait rendre avec une icône', () => {
+    it('devrait rendre avec une icï¿½ne', () => {
       render(
         <Badge variant="success">
           <span data-testid="icon">?</span>
-          Validé
+          Validï¿½
         </Badge>
       );
       expect(screen.getByTestId('icon')).toBeInTheDocument();
-      expect(screen.getByText('Validé')).toBeInTheDocument();
+      expect(screen.getByText('Validï¿½')).toBeInTheDocument();
     });
 
     it('devrait rendre un nombre', () => {
@@ -133,7 +133,7 @@ describe('Badge Component', () => {
     });
   });
 
-  describe('Cas d\'utilisation réels', () => {
+  describe('Cas d\'utilisation rï¿½els', () => {
     it('devrait fonctionner pour un statut de dossier', () => {
       render(<Badge variant="warning" size="sm">En cours</Badge>);
       const badge = screen.getByText('En cours');
@@ -146,7 +146,7 @@ describe('Badge Component', () => {
       expect(badge).toHaveClass('bg-red-100');
     });
 
-    it('devrait fonctionner pour un label de priorité', () => {
+    it('devrait fonctionner pour un label de prioritï¿½', () => {
       render(<Badge variant="danger" size="lg">URGENT</Badge>);
       const badge = screen.getByText('URGENT');
       expect(badge).toHaveClass('bg-red-100', 'text-base');

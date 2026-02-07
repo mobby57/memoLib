@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -91,13 +91,13 @@ export default function AIUsagePage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">?? Mon Usage IA</h1>
             <p className="mt-2 text-gray-600">
-              Suivez votre consommation IA et optimisez vos coûts
+              Suivez votre consommation IA et optimisez vos coï¿½ts
             </p>
           </div>
 
-          {/* Sélecteur de période */}
+          {/* Sï¿½lecteur de pï¿½riode */}
           <div className="bg-white rounded-lg shadow p-4 mb-6 flex gap-4 items-center">
-            <label className="text-sm font-medium text-gray-700">Période:</label>
+            <label className="text-sm font-medium text-gray-700">Pï¿½riode:</label>
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
@@ -136,10 +136,10 @@ export default function AIUsagePage() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">Budget IA - {data.period.label}</h2>
-                    <p className="text-sm text-gray-600">Plan {data.plan.name} • {data.plan.aiIncluded} inclus</p>
+                    <p className="text-sm text-gray-600">Plan {data.plan.name} ï¿½ {data.plan.aiIncluded} inclus</p>
                   </div>
                   <span className={`px-4 py-2 rounded-full text-white font-medium ${getStatusColor(data.budget.status)}`}>
-                    {data.budget.status === 'exceeded' ? '?? Dépassé' :
+                    {data.budget.status === 'exceeded' ? '?? Dï¿½passï¿½' :
                      data.budget.status === 'critical' ? '?? Critique' :
                      data.budget.status === 'warning' ? '?? Attention' : '? OK'}
                   </span>
@@ -148,8 +148,8 @@ export default function AIUsagePage() {
                 {/* Barre de progression */}
                 <div className="mb-4">
                   <div className="flex justify-between text-sm mb-1">
-                    <span>{data.budget.used.toFixed(2)}€ utilisés</span>
-                    <span>{data.budget.limit}€ limite</span>
+                    <span>{data.budget.used.toFixed(2)}ï¿½ utilisï¿½s</span>
+                    <span>{data.budget.limit}ï¿½ limite</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-4">
                     <div
@@ -158,23 +158,23 @@ export default function AIUsagePage() {
                     ></div>
                   </div>
                   <p className="text-center text-sm mt-1 text-gray-600">
-                    {data.budget.percentage.toFixed(1)}% du budget utilisé
+                    {data.budget.percentage.toFixed(1)}% du budget utilisï¿½
                   </p>
                 </div>
 
                 {/* Stats rapides */}
                 <div className="grid grid-cols-3 gap-4 mt-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">{data.budget.remaining.toFixed(2)}€</div>
+                    <div className="text-2xl font-bold text-gray-900">{data.budget.remaining.toFixed(2)}ï¿½</div>
                     <div className="text-sm text-gray-600">Restant</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-gray-900">{data.usage.totalRequests}</div>
-                    <div className="text-sm text-gray-600">Requêtes</div>
+                    <div className="text-sm text-gray-600">Requï¿½tes</div>
                   </div>
                   <div className="text-center">
                     <div className={`text-2xl font-bold ${data.projection.willExceed ? 'text-red-600' : 'text-gray-900'}`}>
-                      {data.projection.endOfMonth.toFixed(2)}€
+                      {data.projection.endOfMonth.toFixed(2)}ï¿½
                     </div>
                     <div className="text-sm text-gray-600">Projection fin de mois</div>
                   </div>
@@ -193,10 +193,10 @@ export default function AIUsagePage() {
                 </div>
               )}
 
-              {/* Détails par modèle */}
+              {/* Dï¿½tails par modï¿½le */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="bg-white rounded-lg shadow p-6">
-                  <h3 className="text-lg font-semibold mb-4">?? Usage par Modèle</h3>
+                  <h3 className="text-lg font-semibold mb-4">?? Usage par Modï¿½le</h3>
                   {Object.keys(data.breakdown.byModel).length > 0 ? (
                     <div className="space-y-3">
                       {Object.entries(data.breakdown.byModel).map(([model, stats]) => (
@@ -206,14 +206,14 @@ export default function AIUsagePage() {
                             <span className="text-sm text-gray-500 ml-2">({stats.requests} req)</span>
                           </div>
                           <span className={`font-semibold ${model.includes('ollama') ? 'text-green-600' : 'text-gray-900'}`}>
-                            {stats.cost.toFixed(4)}€
+                            {stats.cost.toFixed(4)}ï¿½
                             {model.includes('ollama') && ' ??'}
                           </span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-center py-4">Aucune donnée ce mois</p>
+                    <p className="text-gray-500 text-center py-4">Aucune donnï¿½e ce mois</p>
                   )}
                 </div>
 
@@ -221,26 +221,26 @@ export default function AIUsagePage() {
                   <h3 className="text-lg font-semibold mb-4">?? Statistiques</h3>
                   <div className="space-y-4">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Coût total</span>
-                      <span className="font-semibold">{data.usage.totalCost.toFixed(2)}€</span>
+                      <span className="text-gray-600">Coï¿½t total</span>
+                      <span className="font-semibold">{data.usage.totalCost.toFixed(2)}ï¿½</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Requêtes totales</span>
+                      <span className="text-gray-600">Requï¿½tes totales</span>
                       <span className="font-semibold">{data.usage.totalRequests}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Tokens utilisés</span>
+                      <span className="text-gray-600">Tokens utilisï¿½s</span>
                       <span className="font-semibold">{data.usage.totalTokens.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Coût moyen/requête</span>
-                      <span className="font-semibold">{data.usage.avgCostPerRequest.toFixed(4)}€</span>
+                      <span className="text-gray-600">Coï¿½t moyen/requï¿½te</span>
+                      <span className="font-semibold">{data.usage.avgCostPerRequest.toFixed(4)}ï¿½</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Graphique quotidien simplifié */}
+              {/* Graphique quotidien simplifiï¿½ */}
               {data.breakdown.daily.length > 0 && (
                 <div className="bg-white rounded-lg shadow p-6">
                   <h3 className="text-lg font-semibold mb-4">?? Usage Quotidien</h3>
@@ -273,9 +273,9 @@ export default function AIUsagePage() {
                 <div className="flex items-start gap-4">
                   <div className="text-4xl">??</div>
                   <div>
-                    <h3 className="text-lg font-semibold text-green-900">Réduisez vos coûts à 0€ avec Ollama</h3>
+                    <h3 className="text-lg font-semibold text-green-900">Rï¿½duisez vos coï¿½ts ï¿½ 0ï¿½ avec Ollama</h3>
                     <p className="text-green-800 mt-1">
-                      Ollama exécute l&apos;IA localement sur votre serveur. C&apos;est gratuit et plus rapide !
+                      Ollama exï¿½cute l&apos;IA localement sur votre serveur. C&apos;est gratuit et plus rapide !
                     </p>
                     <a
                       href="https://ollama.ai"
@@ -291,7 +291,7 @@ export default function AIUsagePage() {
             </>
           ) : (
             <div className="text-center py-20 text-gray-500">
-              Aucune donnée disponible
+              Aucune donnï¿½e disponible
             </div>
           )}
         </div>

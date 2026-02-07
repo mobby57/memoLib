@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Formulaire Complet - Client remplit son dossier
  * Toutes informations + documents + listes deroulantes
  */
@@ -784,7 +784,7 @@ export default function NouveauDossierClient() {
 
                   <div>
                     <label className="block font-semibold mb-2">
-                      Salaire mensuel net (€)
+                      Salaire mensuel net (ï¿½)
                     </label>
                     <input
                       type="number"

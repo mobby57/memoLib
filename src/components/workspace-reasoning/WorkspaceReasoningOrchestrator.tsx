@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Orchestrateur principal du Workspace Reasoning
  * Route vers le bon composant d'etat + Timeline de progression
  */

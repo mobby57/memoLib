@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel Risques - Matrice Probabilite x Severite

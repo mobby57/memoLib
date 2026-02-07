@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { Search, X, FileText, Users, FolderOpen, Mail, Filter, Clock, TrendingUp } from 'lucide-react';

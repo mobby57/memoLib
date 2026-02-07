@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -153,7 +153,7 @@ export default function BillingPage() {
               <div>
                 <p className="text-sm text-gray-600">Tarif</p>
                 <p className="text-lg font-semibold text-gray-900">
-                  {subscription.pricePerMonth}€/mois
+                  {subscription.pricePerMonth}ï¿½/mois
                 </p>
               </div>
               <div>
@@ -234,10 +234,10 @@ export default function BillingPage() {
                 </div>
                 
                 <div className="text-center mb-6">
-                  <p className="text-4xl font-bold text-gray-900">{plan.priceMonthly}€</p>
+                  <p className="text-4xl font-bold text-gray-900">{plan.priceMonthly}ï¿½</p>
                   <p className="text-sm text-gray-600">par mois</p>
                   <p className="text-sm text-gray-500 mt-1">
-                    {plan.priceYearly}€/an (economie de {Math.round((1 - plan.priceYearly / (plan.priceMonthly * 12)) * 100)}%)
+                    {plan.priceYearly}ï¿½/an (economie de {Math.round((1 - plan.priceYearly / (plan.priceMonthly * 12)) * 100)}%)
                   </p>
                 </div>
                 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 
 const TOOLBAR_ACTIONS = ['bold', 'italic', 'underline', 'link', 'code'] as const;
 

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Custom Error Page for Pages Router
  * Required to prevent NextAuth's default pages from using Html import
  */
