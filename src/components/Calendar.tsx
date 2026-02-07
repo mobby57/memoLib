@@ -1,9 +1,8 @@
 ﻿'use client';
 
-import { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Clock, MapPin, Users, FileText } from 'lucide-react';
-import { Card } from './ui/Card';
-import { Badge } from './ui/Badge';
+import { Card } from '@/components/ui/card';
+import { ChevronLeft, ChevronRight, Clock, FileText, MapPin, Plus, Users } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 export interface CalendarEvent {
   id: string;
