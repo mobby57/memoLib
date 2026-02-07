@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import SectionHeader from '@/components/ui/SectionHeader';
-import Card from '@/components/ui/card';
 import Button from '@/components/ui/Button';
+import SectionHeader from '@/components/ui/SectionHeader';
+import { Card } from '@/components/ui/card';
+import Link from 'next/link';
 
 export default function AvocatPage() {
   return (
