@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 /**
  * Real-Time Notification Center

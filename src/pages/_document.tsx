@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Custom Document for Pages Router
  * Required to properly handle Html imports for NextAuth pages
  */

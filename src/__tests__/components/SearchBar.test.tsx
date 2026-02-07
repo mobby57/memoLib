@@ -1,6 +1,6 @@
-/**
+ï»¿/**
  * Tests pour SearchBar component
- * Couverture: recherche, filtres, résultats
+ * Couverture: recherche, filtres, rï¿½sultats
  */
 
 import React from 'react';
@@ -31,7 +31,7 @@ jest.mock('lucide-react', () => ({
 // Mock fetch
 global.fetch = jest.fn();
 
-// Import après les mocks
+// Import aprï¿½s les mocks
 import SearchBar from '@/components/SearchBar';
 
 describe('SearchBar Component', () => {
@@ -56,7 +56,7 @@ describe('SearchBar Component', () => {
       expect(input).toBeInTheDocument();
     });
 
-    it('devrait afficher l\'icône de recherche', () => {
+    it('devrait afficher l\'icï¿½ne de recherche', () => {
       render(<SearchBar />);
       
       expect(screen.getByTestId('search-icon')).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe('SearchResult Structure', () => {
       type: 'dossier',
       title: 'Dossier DOS-001',
       subtitle: 'Client: Jean Dupont',
-      description: 'Titre de séjour',
+      description: 'Titre de sï¿½jour',
       score: 0.95,
       url: '/dossiers/dos-001',
       date: '2024-01-15',
@@ -148,7 +148,7 @@ describe('Filtre par type', () => {
     expect(filtered).toHaveLength(2);
   });
 
-  it('devrait retourner tous les résultats sans filtre', () => {
+  it('devrait retourner tous les rï¿½sultats sans filtre', () => {
     const filterByType = (results: any[], types: string[]) => {
       if (types.length === 0) return results;
       return results.filter(r => types.includes(r.type));
@@ -164,8 +164,8 @@ describe('Filtre par type', () => {
   });
 });
 
-describe('Tri des résultats par score', () => {
-  it('devrait trier par score décroissant', () => {
+describe('Tri des rï¿½sultats par score', () => {
+  it('devrait trier par score dï¿½croissant', () => {
     const results = [
       { id: '1', score: 0.5 },
       { id: '2', score: 0.9 },
@@ -181,7 +181,7 @@ describe('Tri des résultats par score', () => {
 });
 
 describe('Raccourci clavier Ctrl+K', () => {
-  it('devrait être le raccourci standard', () => {
+  it('devrait ï¿½tre le raccourci standard', () => {
     const shortcut = { ctrl: true, key: 'k' };
     
     expect(shortcut.ctrl).toBe(true);

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Shadcn-compatible Tabs components

@@ -1,4 +1,4 @@
-
+﻿
 
 export interface IconAlertProps extends React.SVGProps<SVGSVGElement> {
   size?: number;

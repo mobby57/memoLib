@@ -1,219 +1,151 @@
-'use client';
+﻿'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Loader, Plus, TrendingUp, Users, FileText, DollarSign } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 
-interface DashboardStats {
-  totalDossiers: number;
-  totalClients: number;
-  totalFactures: number;
-  revenueMonth: number;
-  recentDossiers: any[];
-  upcomingDeadlines: any[];
-}
-
-export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchDashboard();
-  }, []);
-
-  async function fetchDashboard() {
-    setLoading(true);
-    try {
-      // Pour la démo, on crée des données statiques
-      // En production, ce serait un endpoint /api/v1/dashboard
-      setStats({
-        totalDossiers: 24,
-        totalClients: 18,
-        totalFactures: 42,
-        revenueMonth: 12500,
-        recentDossiers: [],
-        upcomingDeadlines: [],
-      });
-    } catch (error) {
-      console.error('Failed to fetch dashboard:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader className="animate-spin text-blue-600" size={32} />
-      </div>
-    );
-  }
+export default function TermsPage() {
+  const router = useRouter();
 
   return (
-    <div className="space-y-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-slate-900">Bienvenue</h1>
-          <p className="text-slate-600 mt-1">Voici un résumé de votre activité</p>
+      <div className="border-b bg-white sticky top-0 z-40">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+          >
+            <ArrowLeft size={20} />
+            Retour
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900">Conditions Générales d'Utilisation (CGU)</h1>
         </div>
-        <Link href="/dossiers/new">
-          <Button size="lg">
-            <Plus size={20} className="mr-2" />
-            Nouveau Dossier
-          </Button>
-        </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Total Dossiers */}
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-slate-600 mb-1">Dossiers Actifs</p>
-              <p className="text-3xl font-bold text-slate-900">{stats?.totalDossiers || 0}</p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <FileText className="text-blue-600" size={24} />
-            </div>
-          </div>
-          <p className="text-xs text-slate-600 mt-4 flex items-center gap-1">
-            <TrendingUp size={14} className="text-green-600" />
-            +5 ce mois
-          </p>
-        </div>
+      {/* Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="prose prose-lg max-w-none text-gray-700">
+          <div className="space-y-8">
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Définitions</h2>
+              <div className="space-y-2">
+                <p><strong>Service :</strong> La plateforme MemoLib accessible via memolib.fly.dev</p>
+                <p><strong>Utilisateur :</strong> Toute personne inscrite et utilisant le Service</p>
+                <p><strong>Contenu :</strong> Dossiers, clients, documents créés par l'Utilisateur</p>
+              </div>
+            </section>
 
-        {/* Total Clients */}
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-slate-600 mb-1">Clients</p>
-              <p className="text-3xl font-bold text-slate-900">{stats?.totalClients || 0}</p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Users className="text-green-600" size={24} />
-            </div>
-          </div>
-          <p className="text-xs text-slate-600 mt-4 flex items-center gap-1">
-            <TrendingUp size={14} className="text-green-600" />
-            +2 ce mois
-          </p>
-        </div>
-
-        {/* Total Factures */}
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-slate-600 mb-1">Factures</p>
-              <p className="text-3xl font-bold text-slate-900">{stats?.totalFactures || 0}</p>
-            </div>
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <FileText className="text-orange-600" size={24} />
-            </div>
-          </div>
-          <p className="text-xs text-slate-600 mt-4 flex items-center gap-1">
-            <TrendingUp size={14} className="text-green-600" />
-            +8 ce mois
-          </p>
-        </div>
-
-        {/* Revenue */}
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-slate-600 mb-1">Revenu (30j)</p>
-              <p className="text-3xl font-bold text-slate-900">
-                {(stats?.revenueMonth || 0).toLocaleString('fr-FR')} €
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Acceptation des CGU</h2>
+              <p>
+                En utilisant MemoLib, vous acceptez l'intégralité de ces CGU. Si vous n'acceptez pas
+                ces conditions, veuillez ne pas utiliser le Service.
               </p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <DollarSign className="text-purple-600" size={24} />
-            </div>
-          </div>
-          <p className="text-xs text-slate-600 mt-4 flex items-center gap-1">
-            <TrendingUp size={14} className="text-green-600" />
-            +12% vs mois passé
-          </p>
-        </div>
-      </div>
+            </section>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Actions rapides</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Link href="/dossiers/new">
-            <Button variant="outline" className="w-full">Nouveau Dossier</Button>
-          </Link>
-          <Link href="/clients/new">
-            <Button variant="outline" className="w-full">Nouveau Client</Button>
-          </Link>
-          <Link href="/factures/new">
-            <Button variant="outline" className="w-full">Nouvelle Facture</Button>
-          </Link>
-          <Link href="/documents">
-            <Button variant="outline" className="w-full">Documents</Button>
-          </Link>
-        </div>
-      </div>
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Licence d'Utilisation</h2>
+              <p>
+                MemoLib vous octroie une licence non-exclusive, non-transférable et révocable
+                d'accès et d'utilisation du Service selon votre plan d'abonnement.
+              </p>
+              <p className="mt-2">
+                Vous ne pouvez pas :
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Reproduire, dupliquer ou copier le code source</li>
+                <li>Revendre ou affermer l'accès au Service</li>
+                <li>Utiliser le Service pour des activités illégales</li>
+                <li>Contourner la sécurité ou les limitations du Service</li>
+                <li>Dépasser les limites de votre plan (clients, dossiers, stockage)</li>
+              </ul>
+            </section>
 
-      {/* Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Cases */}
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Dossiers récents</h2>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-              <div>
-                <p className="font-medium text-slate-900">Affaire Martin c/ Dupont</p>
-                <p className="text-sm text-slate-600">Créé il y a 2 jours</p>
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Plans d'Abonnement</h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Plan Gratuit</h3>
+                  <p>5 clients, 10 dossiers, 1 Go de stockage</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Plan Pro (29€/mois)</h3>
+                  <p>50 clients, 500 dossiers, 50 Go, Analyse IA, Rapports avancés</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Plan Enterprise (99€/mois)</h3>
+                  <p>Clients illimités, Dossiers illimités, 500 Go, Accès API, Support 24/7</p>
+                </div>
               </div>
-              <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
-                Actif
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-              <div>
-                <p className="font-medium text-slate-900">Contrat de société</p>
-                <p className="text-sm text-slate-600">Créé il y a 5 jours</p>
-              </div>
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
-                En attente
-              </span>
-            </div>
-          </div>
-          <Link href="/dossiers">
-            <Button variant="outline" className="w-full mt-4">Voir tous les dossiers</Button>
-          </Link>
-        </div>
+            </section>
 
-        {/* Upcoming Deadlines */}
-        <div className="bg-white rounded-lg border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Délais à venir</h2>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
-              <div>
-                <p className="font-medium text-slate-900">Recours gracieux</p>
-                <p className="text-sm text-slate-600">Échéance: 7 février</p>
-              </div>
-              <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">
-                Urgent
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div>
-                <p className="font-medium text-slate-900">Appel</p>
-                <p className="text-sm text-slate-600">Échéance: 14 février</p>
-              </div>
-              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">
-                Attention
-              </span>
-            </div>
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Facturation et Paiement</h2>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Les paiements sont traités par Stripe de manière sécurisée</li>
+                <li>Les abonnements se renouvellent automatiquement</li>
+                <li>Vous pouvez annuler votre abonnement à tout moment</li>
+                <li>Essai gratuit de 14 jours pour les nouveaux utilisateurs (plans payants)</li>
+                <li>Pas de remboursement pour les périodes partielles</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Propriété du Contenu</h2>
+              <p>
+                Vous conservez la propriété intégrale de votre Contenu. En utilisant le Service,
+                vous nous accordez une licence pour stocker, héberger et traiter votre Contenu selon votre instruction.
+              </p>
+              <p className="mt-2">
+                Nous ne partageons jamais votre Contenu avec des tiers sans votre consentement explicite.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Responsabilité</h2>
+              <p className="font-semibold">
+                🔴 Limitation de responsabilité importante :
+              </p>
+              <p>
+                MemoLib est un outil d'assistance. Vous restez entièrement responsable de la qualité
+                juridique de votre travail. Any output est destiné à vous assister, pas à remplacer
+                votre jugement professionnel.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Suspension et Résiliation</h2>
+              <p>
+                Nous nous réservons le droit de suspendre ou résilier votre accès au Service si vous :
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Violez ces CGU</li>
+                <li>Utilisez le Service de manière abusive ou nuisible</li>
+                <li>Ne payez pas les frais dus</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Modifications du Service</h2>
+              <p>
+                MemoLib se réserve le droit de modifier, suspendre ou discontinuer le Service à tout
+                moment, avec ou sans préavis.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Droit Applicable</h2>
+              <p>
+                Ces CGU sont régies par la loi française et soumises à la juridiction exclusive des
+                tribunaux français.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Contact</h2>
+              <p>Pour toute question : <span className="font-mono">contact@memolib.fr</span></p>
+            </section>
           </div>
-          <Link href="/calendar">
-            <Button variant="outline" className="w-full mt-4">Voir l'agenda</Button>
-          </Link>
         </div>
       </div>
     </div>

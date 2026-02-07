@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel Faits - Affichage des faits certains

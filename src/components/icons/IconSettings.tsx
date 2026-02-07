@@ -1,4 +1,4 @@
-
+﻿
 
 export interface IconSettingsProps extends React.SVGProps<SVGSVGElement> {
   size?: number;

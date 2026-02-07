@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { StickyNote, Plus, Pin, Edit, Trash2, Save, X, Tag, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';

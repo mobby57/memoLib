@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -158,7 +158,7 @@ export default function WorkflowConfigPage() {
             <CardHeader>
               <CardTitle>Analyse Intelligente</CardTitle>
               <CardDescription>
-                Paramètres du système pour l'analyse et les suggestions
+                Paramï¿½tres du systï¿½me pour l'analyse et les suggestions
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

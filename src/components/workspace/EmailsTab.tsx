@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Mail, Star, Archive, Check, X, AlertTriangle, Calendar, Paperclip } from 'lucide-react';
 import { useState } from 'react';

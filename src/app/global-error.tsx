@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 import { useEffect } from 'react';
 
@@ -72,7 +72,7 @@ export default function GlobalError({
               color: '#6b7280',
               marginBottom: '1.5rem'
             }}>
-              Une erreur inattendue s'est produite. Veuillez rafraîchir la page.
+              Une erreur inattendue s'est produite. Veuillez rafraï¿½chir la page.
             </p>
 
             {error.digest && (
@@ -99,7 +99,7 @@ export default function GlobalError({
                   fontWeight: '500'
                 }}
               >
-                Réessayer
+                Rï¿½essayer
               </button>
               <button
                 onClick={() => window.location.href = '/'}

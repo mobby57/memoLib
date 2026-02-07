@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -136,7 +136,7 @@ export default function CalendrierPage() {
 
     if (isEditing && editingEventId) {
       setEvents(events.map(e => (e.id === editingEventId ? eventData : e)));
-      showToast('Événement modifié avec succès', 'success');
+      showToast('ï¿½vï¿½nement modifiï¿½ avec succï¿½s', 'success');
     } else {
       setEvents([...events, eventData]);
       showToast('evenement ajoute avec succes', 'success');

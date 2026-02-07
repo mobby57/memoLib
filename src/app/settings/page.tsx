@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -288,7 +288,7 @@ export default function SettingsPage() {
                       >
                         <option value="fr">Francais</option>
                         <option value="en">English</option>
-                        <option value="es">Español</option>
+                        <option value="es">Espaï¿½ol</option>
                       </select>
                     </div>
 

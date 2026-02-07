@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat OBLIGATIONS_DEDUCED
  * Obligations conditionnelles : "SI contexte X ALORS obligation Y"
  */

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant de Recherche Semantique
  * Interface de recherche intelligente avec IA
  * 

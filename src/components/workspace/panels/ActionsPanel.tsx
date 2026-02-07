@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel Actions Proposees - Reduction d'incertitude

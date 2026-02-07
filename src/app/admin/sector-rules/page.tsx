@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Page Admin: Règles Sectorielles

@@ -1,4 +1,4 @@
-interface PDFViewerProps {
+﻿interface PDFViewerProps {
     src: string;
     title?: string;
     height?: number;

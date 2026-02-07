@@ -1,4 +1,4 @@
-export default function AdminDashboardPage() {
+﻿export default function AdminDashboardPage() {
   return (
     <section className="space-y-6">
       <header>

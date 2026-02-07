@@ -1,4 +1,4 @@
-
+﻿
 
 export interface IconMenuProps extends React.SVGProps<SVGSVGElement> {
   size?: number;

@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 import { TrendingUp, TrendingDown, Clock, Target, DollarSign, Users, FileCheck, AlertTriangle, Calendar, Percent } from 'lucide-react';
 
@@ -213,11 +213,11 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <MetricWidget
           title="Chiffre d'affaires mensuel"
-          value={`${(data.monthlyRevenue / 1000).toFixed(1)}k€`}
+          value={`${(data.monthlyRevenue / 1000).toFixed(1)}kï¿½`}
           icon={<DollarSign className="w-6 h-6" />}
           color="purple"
           trend={data.trends.monthlyRevenue}
-          trendLabel={`Objectif: ${(data.monthlyGoal / 1000)}k€`}
+          trendLabel={`Objectif: ${(data.monthlyGoal / 1000)}kï¿½`}
           progress={revenueProgress}
         />
 
@@ -283,7 +283,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className={revenueProgress >= 100 ? 'text-green-800 dark:text-green-300' : 'text-blue-800 dark:text-blue-300'}>
-                    {data.monthlyRevenue.toLocaleString()}€ / {data.monthlyGoal.toLocaleString()}€
+                    {data.monthlyRevenue.toLocaleString()}ï¿½ / {data.monthlyGoal.toLocaleString()}ï¿½
                   </span>
                   <span className={`font-bold ${
                     revenueProgress >= 100 ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'
@@ -301,7 +301,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
                 </div>
                 {revenueProgress < 100 && (
                   <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                    Encore {(data.monthlyGoal - data.monthlyRevenue).toLocaleString()}€ pour atteindre l'objectif
+                    Encore {(data.monthlyGoal - data.monthlyRevenue).toLocaleString()}ï¿½ pour atteindre l'objectif
                   </p>
                 )}
               </div>

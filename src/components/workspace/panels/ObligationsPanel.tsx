@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel Obligations - Ce qui est requis

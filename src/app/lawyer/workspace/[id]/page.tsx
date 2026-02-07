@@ -1,563 +1,282 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 /**
- * 🧠 Workspace Viewer - Interface Complète du Raisonnement
- *
- * 1 ÉCRAN = 1 ÉTAT
- * Timeline visuelle + Panels contextuels + Actions intelligentes
- * Avec SWR pour auto-refresh temps réel
+ * ?? Nouveau Workspace - Creation d'un espace de raisonnement
+ * Formulaire intelligent pour initialiser un workspace depuis differentes sources
  */
 
-import { WorkspaceTimeline } from '@/components/workspace/WorkspaceTimeline';
-import { ActionsPanel } from '@/components/workspace/panels/ActionsPanel';
-import { ContextPanel } from '@/components/workspace/panels/ContextPanel';
-import { FactsPanel } from '@/components/workspace/panels/FactsPanel';
-import { MissingPanel } from '@/components/workspace/panels/MissingPanel';
-import { ObligationsPanel } from '@/components/workspace/panels/ObligationsPanel';
-import { ReadyPanel } from '@/components/workspace/panels/ReadyPanel';
-import { RisksPanel } from '@/components/workspace/panels/RisksPanel';
-import {
-  WorkspaceReasoning,
-  WorkspaceState,
-  formatUncertaintyLevel,
-} from '@/types/workspace-reasoning';
-import { ArrowLeft, Lock, Sparkles, Unlock } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { AlertCircle, ArrowLeft, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import useSWR from 'swr';
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+type SourceType = 'EMAIL' | 'FORM' | 'PHONE' | 'COURRIER' | 'MANUAL';
 
-export default function WorkspacePage() {
-  const params = useParams();
+const SOURCE_TYPE_CONFIG = {
+  EMAIL: {
+    icon: '',
+    label: 'Email',
+    description: 'Creer depuis un email recu',
+  },
+  FORM: {
+    icon: '',
+    label: 'Formulaire',
+    description: 'Creer depuis une soumission de formulaire',
+  },
+  PHONE: {
+    icon: '',
+    label: 'Telephone',
+    description: 'Creer depuis un appel telephonique',
+  },
+  COURRIER: {
+    icon: '?',
+    label: 'Courrier',
+    description: 'Creer depuis un courrier postal',
+  },
+  MANUAL: {
+    icon: '?',
+    label: 'Manuel',
+    description: 'Creer manuellement un workspace',
+  },
+};
+
+const PROCEDURE_TYPES = [
+  { value: 'OQTF', label: 'OQTF - Obligation de Quitter le Territoire' },
+  { value: 'REFUS_TITRE', label: 'Refus de Titre de Sejour' },
+  { value: 'RETRAIT_TITRE', label: 'Retrait de Titre de Sejour' },
+  { value: 'NATURALISATION', label: 'Naturalisation' },
+  { value: 'REGROUPEMENT_FAMILIAL', label: 'Regroupement Familial' },
+  { value: 'ASILE', label: "Demande d'Asile" },
+  { value: 'AUTRE', label: 'Autre procedure CESEDA' },
+];
+
+export default function NewWorkspacePage() {
   const router = useRouter();
-  const workspaceId = params.id as string;
-  const [selectedState, setSelectedState] = useState<WorkspaceState | null>(null);
+  const [sourceType, setSourceType] = useState<SourceType>('EMAIL');
+  const [sourceRaw, setSourceRaw] = useState('');
+  const [procedureType, setProcedureType] = useState('OQTF');
+  const [sourceMetadata, setSourceMetadata] = useState({
+    from: '',
+    subject: '',
+    receivedDate: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // SWR avec auto-refresh toutes les 5 secondes
-  const { data, error, isLoading, mutate } = useSWR(
-    workspaceId ? `/api/lawyer/workspace/${workspaceId}` : null,
-    fetcher,
-    {
-      refreshInterval: 5000, // 5 secondes
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-    }
-  );
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
 
-  // Extraire les données de SWR
-  const workspace = data?.workspace as WorkspaceReasoning | null;
-  const facts = workspace?.facts || [];
-  const contexts = workspace?.contexts || [];
-  const obligations = workspace?.obligations || [];
-  const missingElements = workspace?.missingElements || [];
-  const risks = workspace?.risks || [];
-  const actions = workspace?.proposedActions || [];
-  const traces = workspace?.reasoningTraces || [];
-  // Handlers d'actions
-  async function handleResolve(missingElementId: string, resolution: string) {
-    try {
-      const response = await fetch(`/api/lawyer/workspace/${workspaceId}/resolve-missing`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ missingElementId, resolution }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Erreur de résolution');
-      }
-
-      // Revalider les données pour obtenir la version mise à jour
-      mutate();
-    } catch (error) {
-      console.error('Erreur résolution:', error);
-      alert(error instanceof Error ? error.message : 'Erreur de résolution');
-    }
-  }
-
-  async function handleExecute(actionId: string, result?: string) {
-    try {
-      const response = await fetch(`/api/lawyer/workspace/${workspaceId}/execute-action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ actionId, result }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Erreur d'exécution");
-      }
-
-      // Revalider les données
-      mutate();
-    } catch (error) {
-      console.error('Erreur exécution:', error);
-      alert(error instanceof Error ? error.message : "Erreur d'exécution");
-    }
-  }
-
-  async function handleLock() {
-    if (!confirm('Verrouiller ce workspace ? Cette action est irréversible.')) {
+    if (!sourceRaw.trim()) {
+      setError('Le contenu source est requis');
       return;
     }
 
     try {
-      const response = await fetch(`/api/lawyer/workspace/${workspaceId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ locked: true }),
-      });
+      setLoading(true);
+      setError(null);
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Erreur de verrouillage');
-      }
-
-      mutate();
-    } catch (error) {
-      console.error('Erreur verrouillage:', error);
-      alert(error instanceof Error ? error.message : 'Erreur de verrouillage');
-    }
-  }
-
-  async function handleExport(format: 'json' | 'markdown' = 'markdown') {
-    try {
-      const response = await fetch(`/api/lawyer/workspace/${workspaceId}/export?format=${format}`);
-
-      if (!response.ok) {
-        throw new Error("Erreur d'export");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `workspace-${workspaceId}.${format === 'json' ? 'json' : 'md'}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Erreur export:', error);
-      alert("Erreur d'export");
-    }
-  }
-
-  // Handler: Exécuter raisonnement IA
-  const [isExecutingAI, setIsExecutingAI] = React.useState(false);
-
-  async function handleExecuteAI() {
-    if (!workspace) return;
-
-    setIsExecutingAI(true);
-
-    try {
-      const response = await fetch(`/api/lawyer/workspace/${workspaceId}/execute-reasoning`, {
+      const response = await fetch('/api/lawyer/workspaces', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'next' }),
+        body: JSON.stringify({
+          type: 'reasoning',
+          sourceType,
+          sourceRaw,
+          sourceMetadata: JSON.stringify(sourceMetadata),
+          procedureType,
+        }),
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Échec du raisonnement');
-      }
 
       const data = await response.json();
 
-      // Revalidate SWR
-      mutate();
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur de creation');
+      }
 
-      // Feedback utilisateur
-      alert(
-        `✅ Raisonnement IA exécuté!\n\nNouvel état: ${data.result.newState}\nIncertitude: ${(data.result.uncertaintyLevel * 100).toFixed(0)}%`
-      );
-    } catch (error) {
-      console.error('Erreur IA:', error);
-      alert(`❌ ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      // Rediriger vers le workspace cree
+      router.push(`/lawyer/workspace/${data.workspace.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur de creation');
     } finally {
-      setIsExecutingAI(false);
+      setLoading(false);
     }
   }
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin text-6xl mb-4">🧠</div>
-          <p className="text-gray-600">Chargement du raisonnement...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error || !workspace) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl mb-4">❌</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {error ? 'Erreur de chargement' : 'Workspace introuvable'}
-          </h1>
-          <button
-            onClick={() => router.push('/lawyer/workspaces')}
-            className="text-blue-600 hover:underline"
-          >
-            Retour à la liste
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const uncertaintyInfo = formatUncertaintyLevel(workspace.uncertaintyLevel);
-  const completedStates = getCompletedStates(workspace.currentState);
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => router.push('/lawyer/workspaces')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Retour
+          </button>
 
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <span className="text-3xl">🧠</span>
-                  Workspace #{workspace.id.slice(0, 8)}
-                </h1>
-                <p className="text-sm text-gray-600 mt-1">
-                  Source : {workspace.sourceType} • Créé le{' '}
-                  {new Date(workspace.createdAt).toLocaleDateString('fr-FR')}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Niveau d'incertitude */}
-              <div className="px-4 py-2 bg-gray-100 rounded-lg">
-                <div className="text-xs text-gray-600 mb-1">Incertitude</div>
-                <div className={`text-sm font-bold ${uncertaintyInfo.color}`}>
-                  {uncertaintyInfo.label}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {Math.round(workspace.uncertaintyLevel * 100)}%
-                </div>
-              </div>
-
-              {/* Verrouillage */}
-              <div
-                className={`
-                  px-4 py-2 rounded-lg flex items-center gap-2
-                  ${workspace.locked ? 'bg-green-100' : 'bg-orange-100'}
-                `}
-              >
-                {workspace.locked ? (
-                  <>
-                    <Lock className="w-4 h-4 text-green-600" />
-                    <span className="text-sm font-medium text-green-700">Verrouillé</span>
-                  </>
-                ) : (
-                  <>
-                    <Unlock className="w-4 h-4 text-orange-600" />
-                    <span className="text-sm font-medium text-orange-700">En cours</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Timeline */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6">
-          <WorkspaceTimeline
-            currentState={workspace.currentState}
-            completedStates={completedStates}
-            onClick={state => setSelectedState(state)}
-          />
-        </div>
-      </div>
-
-      {/* Contenu principal */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-3 gap-6">
-          {/* Colonne principale (2/3) */}
-          <div className="col-span-2 space-y-6">
-            {/* Panel contextuel selon l'état sélectionné */}
-            {renderStatePanel()}
-
-            {/* Traces de raisonnement */}
-            {traces.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purple-500" />
-                  Traces de Raisonnement ({traces.length})
-                </h3>
-
-                <div className="space-y-3">
-                  {traces.map(trace => (
-                    <div
-                      key={trace.id}
-                      className="border-l-4 border-purple-500 bg-purple-50 p-4 rounded-r"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-semibold text-purple-900">{trace.step}</span>
-                        <span className="text-xs text-gray-500">
-                          {new Date(trace.createdAt).toLocaleTimeString('fr-FR')}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-700">{trace.explanation}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar (1/3) */}
-          <div className="space-y-6">
-            {/* Message source */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Message Source</h3>
-              <div className="bg-gray-50 rounded p-4 border border-gray-100">
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{workspace.sourceRaw}</p>
-              </div>
-            </div>
-
-            {/* Stats rapides */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Statistiques</h3>
-
-              <div className="space-y-3">
-                <StatItem label="Faits extraits" value={facts.length} icon="✓" />
-                <StatItem label="Contextes" value={contexts.length} icon="🧭" />
-                <StatItem label="Obligations" value={obligations.length} icon="📜" />
-                <StatItem
-                  label="Manques"
-                  value={missingElements.filter(m => !m.resolved).length}
-                  icon="❗"
-                  highlight={missingElements.some(m => m.blocking && !m.resolved)}
-                />
-                <StatItem label="Risques" value={risks.length} icon="⚠️" />
-                <StatItem label="Actions" value={actions.length} icon="👉" />
-              </div>
-            </div>
-
-            {/* Actions rapides */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Actions Rapides</h3>
-
-              <div className="space-y-2">
-                {/* Bouton IA - Visible seulement si pas au dernier état et pas verrouillé */}
-                {workspace.currentState !== 'READY_FOR_HUMAN' && !workspace.locked && (
-                  <button
-                    onClick={handleExecuteAI}
-                    disabled={isExecutingAI}
-                    className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded hover:from-purple-700 hover:to-blue-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isExecutingAI ? (
-                      <>
-                        <div className="animate-spin">⚙️</div>
-                        <span>IA en cours...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>🧠</span>
-                        <span>Exécuter Raisonnement IA</span>
-                      </>
-                    )}
-                  </button>
-                )}
-
-                <button
-                  onClick={() => handleExport('markdown')}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
-                >
-                  Exporter (Markdown)
-                </button>
-
-                <button
-                  onClick={() => handleExport('json')}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors text-sm font-medium"
-                >
-                  Exporter (JSON)
-                </button>
-
-                {!workspace.locked && (
-                  <button
-                    onClick={handleLock}
-                    className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm font-medium"
-                  >
-                    Verrouiller et finaliser
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  function renderStatePanel() {
-    const state = selectedState || workspace!.currentState;
-
-    switch (state) {
-      case 'RECEIVED':
-        return <ReceivedPanel workspace={workspace!} />;
-
-      case 'FACTS_EXTRACTED':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <FactsPanel facts={facts} />
-          </div>
-        );
-
-      case 'CONTEXT_IDENTIFIED':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <ContextPanel contexts={contexts} />
-          </div>
-        );
-
-      case 'OBLIGATIONS_DEDUCED':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <ObligationsPanel obligations={obligations} contexts={contexts} />
-          </div>
-        );
-
-      case 'MISSING_IDENTIFIED':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <MissingPanel missingElements={missingElements} onResolve={handleResolve} />
-          </div>
-        );
-
-      case 'RISK_EVALUATED':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <RisksPanel risks={risks} />
-          </div>
-        );
-
-      case 'ACTION_PROPOSED':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <ActionsPanel actions={actions} onExecute={handleExecute} />
-          </div>
-        );
-
-      case 'READY_FOR_HUMAN':
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <ReadyPanel
-              workspace={workspace!}
-              summary={{
-                factsCount: facts.length,
-                contextsCount: contexts.length,
-                obligationsCount: obligations.length,
-                missingResolved: missingElements.filter(m => m.resolved).length,
-                risksEvaluated: risks.length,
-                actionsProposed: actions.length,
-              }}
-              onLock={handleLock}
-              onExport={handleExport}
-            />
-          </div>
-        );
-
-      default:
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🚧</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Panel en construction</h3>
-              <p className="text-gray-600">
-                L'interface pour l'état "{state}" sera bientôt disponible.
-              </p>
-            </div>
-          </div>
-        );
-    }
-  }
-}
-
-function ReceivedPanel({ workspace }: { workspace: WorkspaceReasoning }) {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="text-center py-8">
-        <div className="text-6xl mb-4">📥</div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Signal Brut Reçu</h3>
-        <p className="text-gray-600 mb-6">
-          Le workspace vient d'être créé. L'analyse n'a pas encore commencé.
-        </p>
-
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-          <p className="text-sm text-blue-800">
-            <strong>Prochaine étape :</strong> Extraction des faits certains du message source.
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+            <span className="text-4xl"></span>
+            Nouveau Workspace de Raisonnement
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Creez un espace de raisonnement pour analyser intelligemment une situation juridique
           </p>
         </div>
       </div>
+
+      {/* Form */}
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Error */}
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-red-800">Erreur</h3>
+                <p className="text-red-700">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Source Type */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-4">
+              Type de Source
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {Object.entries(SOURCE_TYPE_CONFIG).map(([key, config]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSourceType(key as SourceType)}
+                  className={`p-4 rounded-lg border-2 transition-all ${
+                    sourceType === key
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="text-3xl mb-2">{config.icon}</div>
+                  <div className="font-semibold text-gray-900 dark:text-white">{config.label}</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                    {config.description}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Source Metadata (si EMAIL) */}
+          {sourceType === 'EMAIL' && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+                Metadonnees Email
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    De (expediteur)
+                  </label>
+                  <input
+                    type="email"
+                    value={sourceMetadata.from}
+                    onChange={e => setSourceMetadata({ ...sourceMetadata, from: e.target.value })}
+                    placeholder="client@example.com"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Objet
+                  </label>
+                  <input
+                    type="text"
+                    value={sourceMetadata.subject}
+                    onChange={e =>
+                      setSourceMetadata({ ...sourceMetadata, subject: e.target.value })
+                    }
+                    placeholder="Demande d'assistance juridique..."
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Source Content */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              Contenu Source *
+            </label>
+            <textarea
+              value={sourceRaw}
+              onChange={e => setSourceRaw(e.target.value)}
+              placeholder={`Collez ici le contenu du ${SOURCE_TYPE_CONFIG[sourceType].label.toLowerCase()}...\n\nExemple:\nBonjour Maitre,\n\nJe vous contacte car j'ai recu une OQTF il y a 3 jours. Je suis en France depuis 5 ans avec ma famille...`}
+              rows={12}
+              required
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white font-mono text-sm"
+            />
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              Le moteur d'IA analysera ce texte pour extraire les faits, identifier le contexte et
+              deduire les obligations juridiques.
+            </p>
+          </div>
+
+          {/* Procedure Type */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              Type de Procedure CESEDA (optionnel)
+            </label>
+            <select
+              value={procedureType}
+              onChange={e => setProcedureType(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">-- Non specifie --</option>
+              {PROCEDURE_TYPES.map(proc => (
+                <option key={proc.value} value={proc.value}>
+                  {proc.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              Le syst�me peut d�tecter automatiquement le type de proc�dure, mais vous pouvez le
+              sp�cifier.
+            </p>
+          </div>
+
+          {/* Submit */}
+          <div className="flex items-center justify-between pt-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-6 py-3 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            >
+              Annuler
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading || !sourceRaw.trim()}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                  Creation en cours...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5" />
+                  Creer le Workspace
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
-}
-
-function StatItem({
-  label,
-  value,
-  icon,
-  highlight = false,
-}: {
-  label: string;
-  value: number;
-  icon: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-gray-600 flex items-center gap-2">
-        <span>{icon}</span>
-        {label}
-      </span>
-      <span
-        className={`
-          text-sm font-bold
-          ${highlight ? 'text-red-600' : 'text-gray-900'}
-        `}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function getCompletedStates(currentState: WorkspaceState): WorkspaceState[] {
-  const stateOrder: WorkspaceState[] = [
-    'RECEIVED',
-    'FACTS_EXTRACTED',
-    'CONTEXT_IDENTIFIED',
-    'OBLIGATIONS_DEDUCED',
-    'MISSING_IDENTIFIED',
-    'RISK_EVALUATED',
-    'ACTION_PROPOSED',
-    'READY_FOR_HUMAN',
-  ];
-
-  const currentIndex = stateOrder.indexOf(currentState);
-  return stateOrder.slice(0, currentIndex);
 }

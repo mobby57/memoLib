@@ -1,6 +1,6 @@
-/**
+ï»¿/**
  * Tests pour le composant Pagination
- * Couverture: navigation, pages, états désactivés
+ * Couverture: navigation, pages, ï¿½tats dï¿½sactivï¿½s
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -26,7 +26,7 @@ describe('Pagination Component', () => {
 
     it('devrait afficher les informations de pagination', () => {
       render(<Pagination {...defaultProps} totalItems={100} itemsPerPage={10} />);
-      // Les infos sont affichées - utiliser getAllByText car il y a plusieurs éléments avec "1"
+      // Les infos sont affichï¿½es - utiliser getAllByText car il y a plusieurs ï¿½lï¿½ments avec "1"
       expect(screen.getAllByText(/^1$/).length).toBeGreaterThan(0);
     });
   });
@@ -40,7 +40,7 @@ describe('Pagination Component', () => {
       expect(onPageChange).toHaveBeenCalledWith(2);
     });
 
-    it('devrait appeler onPageChange avec page précédente', () => {
+    it('devrait appeler onPageChange avec page prï¿½cï¿½dente', () => {
       const onPageChange = jest.fn();
       render(<Pagination {...defaultProps} currentPage={5} onPageChange={onPageChange} />);
       
@@ -48,18 +48,18 @@ describe('Pagination Component', () => {
       expect(onPageChange).toHaveBeenCalledWith(4);
     });
 
-    it('devrait désactiver Precedent sur la première page', () => {
+    it('devrait dï¿½sactiver Precedent sur la premiï¿½re page', () => {
       render(<Pagination {...defaultProps} currentPage={1} />);
       expect(screen.getByText('Precedent')).toBeDisabled();
     });
 
-    it('devrait désactiver Suivant sur la dernière page', () => {
+    it('devrait dï¿½sactiver Suivant sur la derniï¿½re page', () => {
       render(<Pagination {...defaultProps} currentPage={10} totalPages={10} />);
       expect(screen.getByText('Suivant')).toBeDisabled();
     });
   });
 
-  describe('Affichage des numéros de page', () => {
+  describe('Affichage des numï¿½ros de page', () => {
     it('devrait afficher toutes les pages si total <= 7', () => {
       render(<Pagination {...defaultProps} totalPages={5} />);
       
@@ -74,7 +74,7 @@ describe('Pagination Component', () => {
       expect(ellipsis.length).toBeGreaterThan(0);
     });
 
-    it('devrait mettre en évidence la page courante', () => {
+    it('devrait mettre en ï¿½vidence la page courante', () => {
       render(<Pagination {...defaultProps} currentPage={3} totalPages={5} />);
       const currentButton = screen.getByRole('button', { name: '3' });
       expect(currentButton).toHaveClass('bg-blue-600');
@@ -82,9 +82,9 @@ describe('Pagination Component', () => {
   });
 
   describe('First/Last navigation', () => {
-    it('devrait afficher les boutons first/last par défaut', () => {
+    it('devrait afficher les boutons first/last par dï¿½faut', () => {
       render(<Pagination {...defaultProps} totalPages={20} currentPage={10} />);
-      // Les boutons avec chevrons doubles sont présents
+      // Les boutons avec chevrons doubles sont prï¿½sents
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(4);
     });
@@ -97,8 +97,8 @@ describe('Pagination Component', () => {
     });
   });
 
-  describe('Changement de page par numéro', () => {
-    it('devrait naviguer au clic sur un numéro de page', () => {
+  describe('Changement de page par numï¿½ro', () => {
+    it('devrait naviguer au clic sur un numï¿½ro de page', () => {
       const onPageChange = jest.fn();
       render(<Pagination {...defaultProps} totalPages={5} onPageChange={onPageChange} />);
       
@@ -150,13 +150,13 @@ describe('Pagination Component', () => {
   });
 
   describe('Edge cases', () => {
-    it('devrait gérer 1 seule page', () => {
+    it('devrait gï¿½rer 1 seule page', () => {
       render(<Pagination {...defaultProps} currentPage={1} totalPages={1} />);
       expect(screen.getByText('Precedent')).toBeDisabled();
       expect(screen.getByText('Suivant')).toBeDisabled();
     });
 
-    it('devrait gérer 0 pages', () => {
+    it('devrait gï¿½rer 0 pages', () => {
       render(<Pagination {...defaultProps} currentPage={0} totalPages={0} />);
       // Doit rendre sans erreur
       expect(screen.getByText('Precedent')).toBeInTheDocument();

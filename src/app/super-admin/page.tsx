@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -34,7 +34,7 @@ export default function SuperAdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Attendre que la session soit chargée avant de vérifier le rôle
+    // Attendre que la session soit chargï¿½e avant de vï¿½rifier le rï¿½le
     if (status === 'loading') return;
     
     if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
@@ -126,7 +126,7 @@ export default function SuperAdminDashboard() {
               <div>
                 <p className="text-sm text-gray-600">Revenue Total</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
-                  {stats?.totalRevenue?.toFixed(0) || 0}€
+                  {stats?.totalRevenue?.toFixed(0) || 0}ï¿½
                 </p>
                 <p className="text-xs text-green-600 mt-1">+12% ce mois</p>
               </div>

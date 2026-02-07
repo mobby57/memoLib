@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -45,7 +45,7 @@ interface ChannelStats {
   totalMessages: number;
 }
 
-// Icônes par canal
+// Icï¿½nes par canal
 const channelIcons: Record<string, any> = {
   EMAIL: Mail,
   WHATSAPP: MessageSquare,
@@ -150,7 +150,7 @@ export default function MultiChannelDashboard() {
     );
   });
 
-  // Rafraîchir les données
+  // Rafraï¿½chir les donnï¿½es
   const refresh = async () => {
     setLoading(true);
     await Promise.all([loadMessages(), loadStats()]);
@@ -161,7 +161,7 @@ export default function MultiChannelDashboard() {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-        <span className="ml-2 text-gray-600">Chargement des données multi-canal...</span>
+        <span className="ml-2 text-gray-600">Chargement des donnï¿½es multi-canal...</span>
       </div>
     );
   }
@@ -173,7 +173,7 @@ export default function MultiChannelDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">?? Centre de Communication Multi-Canal</h1>
-            <p className="text-gray-500 mt-1">Tous vos canaux de communication centralisés</p>
+            <p className="text-gray-500 mt-1">Tous vos canaux de communication centralisï¿½s</p>
           </div>
           <div className="flex items-center gap-3">
             <select
@@ -181,7 +181,7 @@ export default function MultiChannelDashboard() {
               onChange={(e) => setPeriod(e.target.value)}
               className="border rounded-lg px-3 py-2 text-sm"
             >
-              <option value="24h">Dernières 24h</option>
+              <option value="24h">Derniï¿½res 24h</option>
               <option value="7d">7 derniers jours</option>
               <option value="30d">30 derniers jours</option>
               <option value="90d">90 derniers jours</option>
@@ -303,11 +303,11 @@ export default function MultiChannelDashboard() {
               className="border rounded-lg px-3 py-2 text-sm"
             >
               <option value="">Tous les statuts</option>
-              <option value="RECEIVED">Reçu</option>
+              <option value="RECEIVED">Reï¿½u</option>
               <option value="PROCESSING">En traitement</option>
-              <option value="PROCESSED">Traité</option>
-              <option value="FAILED">Échoué</option>
-              <option value="ARCHIVED">Archivé</option>
+              <option value="PROCESSED">Traitï¿½</option>
+              <option value="FAILED">ï¿½chouï¿½</option>
+              <option value="ARCHIVED">Archivï¿½</option>
             </select>
           </div>
           <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
@@ -328,7 +328,7 @@ export default function MultiChannelDashboard() {
             {filteredMessages.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
                 <Mail className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>Aucun message trouvé</p>
+                <p>Aucun message trouvï¿½</p>
               </div>
             ) : (
               filteredMessages.map((msg) => {
@@ -395,7 +395,7 @@ export default function MultiChannelDashboard() {
           {/* Message Details */}
           {selectedMessage && (
             <div className="bg-white rounded-xl shadow-sm border p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Détails du message</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">Dï¿½tails du message</h3>
               <div className="space-y-3">
                 <div>
                   <label className="text-xs text-gray-500">Canal</label>
@@ -408,7 +408,7 @@ export default function MultiChannelDashboard() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Expéditeur</label>
+                  <label className="text-xs text-gray-500">Expï¿½diteur</label>
                   <p className="font-medium">
                     {selectedMessage.sender.name || selectedMessage.sender.email || selectedMessage.sender.phone}
                   </p>
@@ -420,9 +420,9 @@ export default function MultiChannelDashboard() {
                   </div>
                 )}
                 <div>
-                  <label className="text-xs text-gray-500">Résumé IA</label>
+                  <label className="text-xs text-gray-500">Rï¿½sumï¿½ IA</label>
                   <p className="text-sm text-gray-700">
-                    {selectedMessage.aiAnalysis?.summary || 'Pas de résumé disponible'}
+                    {selectedMessage.aiAnalysis?.summary || 'Pas de rï¿½sumï¿½ disponible'}
                   </p>
                 </div>
                 {selectedMessage.aiAnalysis?.tags && selectedMessage.aiAnalysis.tags.length > 0 && (
@@ -439,7 +439,7 @@ export default function MultiChannelDashboard() {
                 )}
                 <div className="pt-3 border-t flex gap-2">
                   <button className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600">
-                    Répondre
+                    Rï¿½pondre
                   </button>
                   <button className="px-3 py-2 border rounded-lg text-sm hover:bg-gray-50">
                     Archiver
@@ -451,7 +451,7 @@ export default function MultiChannelDashboard() {
 
           {/* Channel Distribution */}
           <div className="bg-white rounded-xl shadow-sm border p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Répartition par canal</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">Rï¿½partition par canal</h3>
             <div className="space-y-2">
               {stats?.byChannel?.map(({ channel, count }) => {
                 const Icon = channelIcons[channel] || Mail;

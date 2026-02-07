@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * SessionTimeoutMonitor - Composant de securite pour gerer l'expiration de session
