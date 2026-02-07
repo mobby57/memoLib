@@ -1,9 +1,8 @@
 'use client';
 
-import React from 'react';
-import { Activity, Users, DollarSign, Clock } from 'lucide-react';
 import StatsGrid from '@/components/ui/StatsGrid';
-import Card from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { Activity, Clock, DollarSign, Users } from 'lucide-react';
 
 export default function AdminDashboard() {
     const stats = [
