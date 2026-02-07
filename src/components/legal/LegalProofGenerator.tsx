@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Shield, Download, CheckCircle, Loader2 } from 'lucide-react';

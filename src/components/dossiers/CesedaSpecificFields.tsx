@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 /**
  * Champs specifiques par type de dossier CESEDA
@@ -606,7 +606,7 @@ function FormulaireTitreSejour() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Salaire brut mensuel (€)
+                Salaire brut mensuel (ï¿½)
               </label>
               <input
                 type="number"
@@ -892,7 +892,7 @@ function FormulaireNaturalisation() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Revenus annuels (€)
+            Revenus annuels (ï¿½)
           </label>
           <input
             type="number"
@@ -1077,7 +1077,7 @@ function FormulaireRegroupementFamilial() {
         {/* Ressources */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Revenus mensuels nets (€) <span className="text-red-500">*</span>
+            Revenus mensuels nets (ï¿½) <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -1119,7 +1119,7 @@ function FormulaireRegroupementFamilial() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Surface habitable (m²) <span className="text-red-500">*</span>
+            Surface habitable (mï¿½) <span className="text-red-500">*</span>
           </label>
           <input
             type="number"

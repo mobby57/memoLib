@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Tests pour Sidebar component
  * Couverture: navigation, items de menu, expansion
  */
@@ -43,7 +43,7 @@ jest.mock('lucide-react', () => ({
   Archive: () => <span data-testid="archive-icon">Archive</span>,
 }));
 
-// Import après les mocks
+// Import aprï¿½s les mocks
 import Sidebar from '@/components/Sidebar';
 
 describe('Sidebar Component', () => {
@@ -51,11 +51,11 @@ describe('Sidebar Component', () => {
     it('devrait rendre le sidebar', () => {
       render(<Sidebar />);
       
-      // Le sidebar devrait être rendu - utiliser getAllByText car il y a plusieurs éléments
+      // Le sidebar devrait ï¿½tre rendu - utiliser getAllByText car il y a plusieurs ï¿½lï¿½ments
       expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
     });
 
-    it('devrait afficher les éléments de menu principaux', () => {
+    it('devrait afficher les ï¿½lï¿½ments de menu principaux', () => {
       render(<Sidebar />);
       
       expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
@@ -76,7 +76,7 @@ describe('Menu Items Structure', () => {
     { name: 'Dossiers', href: '/dossiers', badge: 42 },
     { name: 'Clients', href: '/clients' },
     { name: 'Documents', href: '/documents' },
-    { name: 'Échéances', href: '/echeances' },
+    { name: 'ï¿½chï¿½ances', href: '/echeances' },
   ];
 
   it('devrait avoir Dashboard comme premier item', () => {
@@ -102,10 +102,10 @@ describe('SubMenu Items', () => {
     { name: 'Nouveaux dossiers', href: '/dossiers?filter=new', filter: 'new' },
     { name: 'En cours', href: '/dossiers?filter=active', filter: 'active' },
     { name: 'En attente', href: '/dossiers?filter=pending', filter: 'pending' },
-    { name: 'Terminés', href: '/dossiers?filter=completed', filter: 'completed' },
+    { name: 'Terminï¿½s', href: '/dossiers?filter=completed', filter: 'completed' },
   ];
 
-  it('devrait avoir différents filtres', () => {
+  it('devrait avoir diffï¿½rents filtres', () => {
     const filters = subItems.map(s => s.filter).filter(Boolean);
     expect(filters).toContain('new');
     expect(filters).toContain('active');
@@ -120,7 +120,7 @@ describe('SubMenu Items', () => {
 });
 
 describe('Toggle Expand Logic', () => {
-  it('devrait ajouter un item à la liste expandée', () => {
+  it('devrait ajouter un item ï¿½ la liste expandï¿½e', () => {
     let expandedItems: string[] = [];
     
     const toggleExpand = (itemName: string) => {
@@ -135,7 +135,7 @@ describe('Toggle Expand Logic', () => {
     expect(expandedItems).toContain('Dossiers');
   });
 
-  it('devrait retirer un item déjà expandé', () => {
+  it('devrait retirer un item dï¿½jï¿½ expandï¿½', () => {
     let expandedItems: string[] = ['Dossiers'];
     
     const toggleExpand = (itemName: string) => {
@@ -152,7 +152,7 @@ describe('Toggle Expand Logic', () => {
 });
 
 describe('Pathname Detection', () => {
-  it('devrait détecter la page active', () => {
+  it('devrait dï¿½tecter la page active', () => {
     const isActive = (pathname: string, href: string) => {
       if (href === '/dashboard') {
         return pathname === href;
@@ -173,7 +173,7 @@ describe('Role-based Menu', () => {
     const menuForRole = (role: string) => {
       const baseMenu = ['Dashboard', 'Dossiers'];
       if (role === 'AVOCAT' || role === 'ADMIN') {
-        return [...baseMenu, 'Clients', 'Documents', 'Échéances'];
+        return [...baseMenu, 'Clients', 'Documents', 'ï¿½chï¿½ances'];
       }
       return baseMenu;
     };

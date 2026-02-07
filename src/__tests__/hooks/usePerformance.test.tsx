@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tests pour hooks/usePerformance.ts
  * Tests des hooks de performance
  */

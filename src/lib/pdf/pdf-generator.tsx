@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Service de génération de PDF
  * Utilise @react-pdf/renderer pour la génération côté serveur
  */

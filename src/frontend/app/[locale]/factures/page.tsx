@@ -1,137 +1,153 @@
-'use client';
+﻿'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Plus, Eye, Download, Loader } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 
-interface Facture {
-  id: string;
-  numero: string;
-  montantTTC: number;
-  statut: string;
-  createdAt: string;
-}
-
-export default function FacturesPage() {
-  const [factures, setFactures] = useState<Facture[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
-
-  useEffect(() => {
-    fetchFactures();
-  }, [filter]);
-
-  async function fetchFactures() {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (filter !== 'all') params.append('statut', filter);
-
-      const response = await fetch(`/api/v1/factures?${params}`);
-      const data = await response.json();
-      setFactures(data.data || []);
-    } catch (error) {
-      console.error('Failed to fetch factures:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const statutColors: Record<string, string> = {
-    draft: 'bg-gray-100 text-gray-800',
-    sent: 'bg-blue-100 text-blue-800',
-    paid: 'bg-green-100 text-green-800',
-    overdue: 'bg-red-100 text-red-800',
-  };
+export default function TermsPage() {
+  const router = useRouter();
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Factures</h1>
-          <p className="text-slate-600 mt-1">Gérez vos factures</p>
+      <div className="border-b bg-white sticky top-0 z-40">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+          >
+            <ArrowLeft size={20} />
+            Retour
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900">Conditions Générales d'Utilisation (CGU)</h1>
         </div>
-        <Link href="/factures/new">
-          <Button>
-            <Plus size={20} className="mr-2" />
-            Nouvelle Facture
-          </Button>
-        </Link>
       </div>
 
-      {/* Filter */}
-      <div className="bg-white rounded-lg border border-slate-200 p-4">
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 border border-slate-200 rounded-lg text-sm"
-        >
-          <option value="all">Tous</option>
-          <option value="draft">Brouillon</option>
-          <option value="sent">Envoyée</option>
-          <option value="paid">Payée</option>
-          <option value="overdue">Impayée</option>
-        </select>
-      </div>
+      {/* Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="prose prose-lg max-w-none text-gray-700">
+          <div className="space-y-8">
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Définitions</h2>
+              <div className="space-y-2">
+                <p><strong>Service :</strong> La plateforme MemoLib accessible via memolib.fly.dev</p>
+                <p><strong>Utilisateur :</strong> Toute personne inscrite et utilisant le Service</p>
+                <p><strong>Contenu :</strong> Dossiers, clients, documents créés par l'Utilisateur</p>
+              </div>
+            </section>
 
-      {/* Table */}
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader className="animate-spin text-blue-600" size={32} />
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Acceptation des CGU</h2>
+              <p>
+                En utilisant MemoLib, vous acceptez l'intégralité de ces CGU. Si vous n'acceptez pas
+                ces conditions, veuillez ne pas utiliser le Service.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Licence d'Utilisation</h2>
+              <p>
+                MemoLib vous octroie une licence non-exclusive, non-transférable et révocable
+                d'accès et d'utilisation du Service selon votre plan d'abonnement.
+              </p>
+              <p className="mt-2">
+                Vous ne pouvez pas :
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Reproduire, dupliquer ou copier le code source</li>
+                <li>Revendre ou affermer l'accès au Service</li>
+                <li>Utiliser le Service pour des activités illégales</li>
+                <li>Contourner la sécurité ou les limitations du Service</li>
+                <li>Dépasser les limites de votre plan (clients, dossiers, stockage)</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Plans d'Abonnement</h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Plan Gratuit</h3>
+                  <p>5 clients, 10 dossiers, 1 Go de stockage</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Plan Pro (29€/mois)</h3>
+                  <p>50 clients, 500 dossiers, 50 Go, Analyse IA, Rapports avancés</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Plan Enterprise (99€/mois)</h3>
+                  <p>Clients illimités, Dossiers illimités, 500 Go, Accès API, Support 24/7</p>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Facturation et Paiement</h2>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Les paiements sont traités par Stripe de manière sécurisée</li>
+                <li>Les abonnements se renouvellent automatiquement</li>
+                <li>Vous pouvez annuler votre abonnement à tout moment</li>
+                <li>Essai gratuit de 14 jours pour les nouveaux utilisateurs (plans payants)</li>
+                <li>Pas de remboursement pour les périodes partielles</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Propriété du Contenu</h2>
+              <p>
+                Vous conservez la propriété intégrale de votre Contenu. En utilisant le Service,
+                vous nous accordez une licence pour stocker, héberger et traiter votre Contenu selon votre instruction.
+              </p>
+              <p className="mt-2">
+                Nous ne partageons jamais votre Contenu avec des tiers sans votre consentement explicite.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Responsabilité</h2>
+              <p className="font-semibold">
+                🔴 Limitation de responsabilité importante :
+              </p>
+              <p>
+                MemoLib est un outil d'assistance. Vous restez entièrement responsable de la qualité
+                juridique de votre travail. Any output est destiné à vous assister, pas à remplacer
+                votre jugement professionnel.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Suspension et Résiliation</h2>
+              <p>
+                Nous nous réservons le droit de suspendre ou résilier votre accès au Service si vous :
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Violez ces CGU</li>
+                <li>Utilisez le Service de manière abusive ou nuisible</li>
+                <li>Ne payez pas les frais dus</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Modifications du Service</h2>
+              <p>
+                MemoLib se réserve le droit de modifier, suspendre ou discontinuer le Service à tout
+                moment, avec ou sans préavis.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Droit Applicable</h2>
+              <p>
+                Ces CGU sont régies par la loi française et soumises à la juridiction exclusive des
+                tribunaux français.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Contact</h2>
+              <p>Pour toute question : <span className="font-mono">contact@memolib.fr</span></p>
+            </section>
+          </div>
         </div>
-      ) : factures.length === 0 ? (
-        <div className="bg-white rounded-lg border border-slate-200 py-12 text-center">
-          <p className="text-slate-600">Aucune facture trouvée</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Numéro</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Montant TTC</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Statut</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Date</th>
-                <th className="px-6 py-3 text-right text-sm font-semibold text-slate-900">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {factures.map((facture) => (
-                <tr key={facture.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                    {facture.numero}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-slate-900">
-                    {facture.montantTTC.toFixed(2)} €
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${statutColors[facture.statut] || 'bg-slate-100 text-slate-800'}`}>
-                      {facture.statut}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {new Date(facture.createdAt).toLocaleDateString('fr-FR')}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link href={`/factures/${facture.id}`}>
-                        <Button variant="ghost" size="sm">
-                          <Eye size={16} />
-                        </Button>
-                      </Link>
-                      <Button variant="ghost" size="sm">
-                        <Download size={16} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

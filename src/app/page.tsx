@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -53,29 +53,29 @@ function useCounter(end: number, duration: number = 2000) {
 // Testimonials data
 const testimonials = [
   {
-    name: 'Maître Claire Martin',
-    role: 'Avocate spécialisée CESEDA',
-    cabinet: 'Cabinet Martin & Associés',
+    name: 'Maï¿½tre Claire Martin',
+    role: 'Avocate spï¿½cialisï¿½e CESEDA',
+    cabinet: 'Cabinet Martin & Associï¿½s',
     content:
-      "L'analyse prédictive CESEDA m'a fait gagner un temps considérable. Je traite 3x plus de dossiers sans compromettre la qualité.",
+      "L'analyse prï¿½dictive CESEDA m'a fait gagner un temps considï¿½rable. Je traite 3x plus de dossiers sans compromettre la qualitï¿½.",
     avatar: 'CM',
     rating: 5,
   },
   {
-    name: 'Maître Karim Benali',
-    role: 'Avocat en droit des étrangers',
+    name: 'Maï¿½tre Karim Benali',
+    role: 'Avocat en droit des ï¿½trangers',
     cabinet: 'Benali Avocats',
     content:
-      'Les alertes délais sont irréprochables. Zéro OQTF manquée depuis que nous utilisons memoLib CESEDA.',
+      'Les alertes dï¿½lais sont irrï¿½prochables. Zï¿½ro OQTF manquï¿½e depuis que nous utilisons memoLib CESEDA.',
     avatar: 'KB',
     rating: 5,
   },
   {
-    name: 'Maître Sophie Bernard',
-    role: 'Avocate en droit d’asile',
+    name: 'Maï¿½tre Sophie Bernard',
+    role: 'Avocate en droit dï¿½asile',
     cabinet: 'Cabinet Bernard',
     content:
-      'La génération d’ébauches me permet de me concentrer sur la stratégie. L’IA suggère, je valide — parfaitement déontologique.',
+      'La gï¿½nï¿½ration dï¿½ï¿½bauches me permet de me concentrer sur la stratï¿½gie. Lï¿½IA suggï¿½re, je valide ï¿½ parfaitement dï¿½ontologique.',
     avatar: 'SB',
     rating: 5,
   },
@@ -86,26 +86,26 @@ const faqs = [
   {
     question: "Comment fonctionne l'essai gratuit CESEDA ?",
     answer:
-      "Vous bénéficiez de 14 jours d'essai gratuit avec accès complet aux modules CESEDA. Aucune carte bancaire n'est requise.",
+      "Vous bï¿½nï¿½ficiez de 14 jours d'essai gratuit avec accï¿½s complet aux modules CESEDA. Aucune carte bancaire n'est requise.",
   },
   {
-    question: 'L’IA respecte-t-elle la déontologie ? ',
+    question: 'Lï¿½IA respecte-t-elle la dï¿½ontologie ? ',
     answer:
-      'Oui. L’IA propose, l’avocat dispose. Les documents sont soumis à validation humaine obligatoire avant toute utilisation.',
+      'Oui. Lï¿½IA propose, lï¿½avocat dispose. Les documents sont soumis ï¿½ validation humaine obligatoire avant toute utilisation.',
   },
   {
-    question: 'Où sont hébergées les données ?',
+    question: 'Oï¿½ sont hï¿½bergï¿½es les donnï¿½es ?',
     answer:
-      'Hébergement en France, chiffrement AES-256, conformité RGPD. Vos dossiers restent strictement confidentiels.',
+      'Hï¿½bergement en France, chiffrement AES-256, conformitï¿½ RGPD. Vos dossiers restent strictement confidentiels.',
   },
   {
-    question: 'Comment sont gérés les délais OQTF ?',
-    answer: 'Alertes multi-canal à J-30, J-7 et J-2 avec escalade si non-lu. Aucun délai oublié.',
+    question: 'Comment sont gï¿½rï¿½s les dï¿½lais OQTF ?',
+    answer: 'Alertes multi-canal ï¿½ J-30, J-7 et J-2 avec escalade si non-lu. Aucun dï¿½lai oubliï¿½.',
   },
   {
     question: 'Puis-je importer mes dossiers actuels ?',
     answer:
-      'Oui, import gratuit depuis Excel/CSV et intégration des historiques pour l’analyse CESEDA.',
+      'Oui, import gratuit depuis Excel/CSV et intï¿½gration des historiques pour lï¿½analyse CESEDA.',
   },
 ];
 
@@ -236,15 +236,15 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto">
-              L’IA qui respecte votre serment d’avocat
+              Lï¿½IA qui respecte votre serment dï¿½avocat
             </p>
             <p className="text-lg text-gray-500 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-              Gérez{' '}
+              Gï¿½rez{' '}
               <span className="font-semibold text-blue-600 dark:text-blue-400">
                 3x plus de dossiers CESEDA
               </span>
-              sans sacrifier la qualité juridique, avec des alertes délais et des ébauches
-              contrôlées.
+              sans sacrifier la qualitï¿½ juridique, avec des alertes dï¿½lais et des ï¿½bauches
+              contrï¿½lï¿½es.
             </p>
 
             {/* CTA Buttons */}
@@ -255,7 +255,7 @@ export default function HomePage() {
                   className="group inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl hover:scale-105"
                 >
                   <LogIn className="mr-2 w-5 h-5" />
-                  Accéder au Dashboard
+                  Accï¿½der au Dashboard
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               ) : (
@@ -273,7 +273,7 @@ export default function HomePage() {
                     className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border-2 border-blue-200 dark:border-blue-800 rounded-xl hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all"
                   >
                     <Calendar className="mr-2 w-5 h-5" />
-                    Découvrir CESEDA
+                    Dï¿½couvrir CESEDA
                   </Link>
                 </>
               )}
@@ -291,7 +291,7 @@ export default function HomePage() {
               </div>
               <div className="flex items-center gap-2">
                 <Globe className="w-5 h-5 text-indigo-500" />
-                <span>Hébergé en Europe</span>
+                <span>Hï¿½bergï¿½ en Europe</span>
               </div>
             </div>
           </div>
@@ -310,7 +310,7 @@ export default function HomePage() {
               <div className="text-4xl md:text-5xl font-bold mb-2">
                 {dossiers.count.toLocaleString()}+
               </div>
-              <div className="text-blue-200">Dossiers CESEDA analysés</div>
+              <div className="text-blue-200">Dossiers CESEDA analysï¿½s</div>
             </div>
             <div className="p-6">
               <div className="text-4xl md:text-5xl font-bold mb-2">{satisfaction.count}%</div>
@@ -318,7 +318,7 @@ export default function HomePage() {
             </div>
             <div className="p-6">
               <div className="text-4xl md:text-5xl font-bold mb-2">{economies.count}%</div>
-              <div className="text-blue-200">Temps économisé</div>
+              <div className="text-blue-200">Temps ï¿½conomisï¿½</div>
             </div>
           </div>
         </div>
@@ -329,10 +329,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Les 3 piliers CESEDA + Sécurité déontologique
+              Les 3 piliers CESEDA + Sï¿½curitï¿½ dï¿½ontologique
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Une suite spécialisée pour avocats en droit des étrangers
+              Une suite spï¿½cialisï¿½e pour avocats en droit des ï¿½trangers
             </p>
           </div>
 
@@ -342,10 +342,10 @@ export default function HomePage() {
                 <FileText className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                IA Prédictive CESEDA
+                IA Prï¿½dictive CESEDA
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Analyse des chances de succès en 2 minutes avec 87% de précision.
+                Analyse des chances de succï¿½s en 2 minutes avec 87% de prï¿½cision.
               </p>
             </div>
 
@@ -354,10 +354,10 @@ export default function HomePage() {
                 <Clock className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Alertes Délais OQTF
+                Alertes Dï¿½lais OQTF
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Notifications multi-canal à J-30, J-7 et J-2 avec escalade automatique.
+                Notifications multi-canal ï¿½ J-30, J-7 et J-2 avec escalade automatique.
               </p>
             </div>
 
@@ -366,10 +366,10 @@ export default function HomePage() {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Génération Documents IA
+                Gï¿½nï¿½ration Documents IA
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Ébauches en 30 secondes, validation avocat obligatoire avant diffusion.
+                ï¿½bauches en 30 secondes, validation avocat obligatoire avant diffusion.
               </p>
             </div>
 
@@ -378,10 +378,10 @@ export default function HomePage() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Déontologie d’abord
+                Dï¿½ontologie dï¿½abord
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                L’IA assiste, vous décidez. Contrôle humain obligatoire sur chaque document.
+                Lï¿½IA assiste, vous dï¿½cidez. Contrï¿½le humain obligatoire sur chaque document.
               </p>
             </div>
 
@@ -393,7 +393,7 @@ export default function HomePage() {
                 Chiffrement AES-256
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Données chiffrées de bout en bout, accès strictement contrôlé.
+                Donnï¿½es chiffrï¿½es de bout en bout, accï¿½s strictement contrï¿½lï¿½.
               </p>
             </div>
 
@@ -402,10 +402,10 @@ export default function HomePage() {
                 <Globe className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Hébergé en France
+                Hï¿½bergï¿½ en France
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Hébergement européen conforme RGPD, confidentialité avocat-client garantie.
+                Hï¿½bergement europï¿½en conforme RGPD, confidentialitï¿½ avocat-client garantie.
               </p>
             </div>
           </div>
@@ -422,13 +422,13 @@ export default function HomePage() {
               </h2>
               <div className="space-y-4">
                 {[
-                  { text: 'Spécialisation CESEDA (droit des étrangers)', icon: Award },
-                  { text: 'Alertes délais OQTF multi-canal', icon: Clock },
-                  { text: 'Analyse prédictive en 2 minutes', icon: TrendingUp },
-                  { text: 'Ébauches contrôlées par avocat', icon: FileText },
-                  { text: 'Chiffrement AES-256 & hébergement France', icon: Lock },
-                  { text: 'Conformité RGPD et confidentialité', icon: Shield },
-                  { text: 'Mises à jour jurisprudentielles quotidiennes', icon: Zap },
+                  { text: 'Spï¿½cialisation CESEDA (droit des ï¿½trangers)', icon: Award },
+                  { text: 'Alertes dï¿½lais OQTF multi-canal', icon: Clock },
+                  { text: 'Analyse prï¿½dictive en 2 minutes', icon: TrendingUp },
+                  { text: 'ï¿½bauches contrï¿½lï¿½es par avocat', icon: FileText },
+                  { text: 'Chiffrement AES-256 & hï¿½bergement France', icon: Lock },
+                  { text: 'Conformitï¿½ RGPD et confidentialitï¿½', icon: Shield },
+                  { text: 'Mises ï¿½ jour jurisprudentielles quotidiennes', icon: Zap },
                 ].map((benefit, index) => (
                   <div
                     key={index}
@@ -450,10 +450,10 @@ export default function HomePage() {
                 </span>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Démarrez en 5 minutes
+                Dï¿½marrez en 5 minutes
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Rejoignez les cabinets CESEDA qui gagnent du temps sans compromettre la qualité.
+                Rejoignez les cabinets CESEDA qui gagnent du temps sans compromettre la qualitï¿½.
               </p>
               <ul className="space-y-3 mb-6">
                 <li className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
@@ -488,7 +488,7 @@ export default function HomePage() {
               Ils nous font confiance (CESEDA)
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Découvrez ce que les cabinets CESEDA disent de nous
+              Dï¿½couvrez ce que les cabinets CESEDA disent de nous
             </p>
           </div>
 
@@ -552,7 +552,7 @@ export default function HomePage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Questions fréquentes
+              Questions frï¿½quentes
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
               Tout ce que vous devez savoir sur memoLib CESEDA
@@ -594,7 +594,7 @@ export default function HomePage() {
               className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline font-medium"
             >
               <MessageSquare className="w-5 h-5" />
-              Contactez notre équipe
+              Contactez notre ï¿½quipe
             </Link>
           </div>
         </div>
@@ -626,7 +626,7 @@ export default function HomePage() {
                     href="/demo"
                     className="text-gray-600 dark:text-gray-400 hover:text-blue-600"
                   >
-                    Demander une démo
+                    Demander une dï¿½mo
                   </Link>
                 </li>
                 <li>
@@ -670,7 +670,7 @@ export default function HomePage() {
                 </li>
                 <li>
                   <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600">
-                    Confidentialité
+                    Confidentialitï¿½
                   </a>
                 </li>
                 <li>
@@ -683,7 +683,7 @@ export default function HomePage() {
           </div>
           <div className="border-t border-gray-200 dark:border-gray-700 pt-8">
             <p className="text-center text-gray-600 dark:text-gray-400">
-              2026 memoLib CESEDA. Tous droits réservés.
+              2026 memoLib CESEDA. Tous droits rï¿½servï¿½s.
             </p>
           </div>
         </div>

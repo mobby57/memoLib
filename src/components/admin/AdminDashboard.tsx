@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import StatsGrid from '@/components/ui/StatsGrid';
 import { Card } from '@/components/ui/card';

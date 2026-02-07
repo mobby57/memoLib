@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors
 export const dynamic = 'force-dynamic';

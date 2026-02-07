@@ -1,15 +1,15 @@
-'use client';
+﻿'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function DtailsTchePage() {
+export default function TimelineBurndownPage() {
   return (
     <div className="container mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Détails Tâche</CardTitle>
+          <CardTitle>Timeline/Burndown</CardTitle>
           <CardDescription>
-            Priorité: 🔴 Haute
+            Priorité: 🟡 Moyenne
           </CardDescription>
         </CardHeader>
         <CardContent>

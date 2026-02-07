@@ -1,176 +1,153 @@
-'use client';
+﻿'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus, Search, Eye, Edit, Trash2, Loader } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
-interface Dossier {
-  id: string;
-  numero: string;
-  clientId: string;
-  statut: string;
-  description?: string;
-  createdAt: string;
-}
-
-export default function DossiersPage() {
-  const [dossiers, setDossiers] = useState<Dossier[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('all');
+export default function TermsPage() {
   const router = useRouter();
 
-  useEffect(() => {
-    fetchDossiers();
-  }, [filter]);
-
-  async function fetchDossiers() {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (filter !== 'all') params.append('statut', filter);
-      if (search) params.append('search', search);
-
-      const response = await fetch(`/api/v1/dossiers?${params}`);
-      const data = await response.json();
-      setDossiers(data.data || []);
-    } catch (error) {
-      console.error('Failed to fetch dossiers:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleDelete(id: string) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce dossier ?')) return;
-
-    try {
-      const response = await fetch(`/api/v1/dossiers/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setDossiers(dossiers.filter(d => d.id !== id));
-      }
-    } catch (error) {
-      console.error('Failed to delete dossier:', error);
-    }
-  }
-
-  const statutColors: Record<string, string> = {
-    open: 'bg-green-100 text-green-800',
-    pending: 'bg-yellow-100 text-yellow-800',
-    closed: 'bg-gray-100 text-gray-800',
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Dossiers</h1>
-          <p className="text-slate-600 mt-1">Gérez vos dossiers juridiques</p>
+      <div className="border-b bg-white sticky top-0 z-40">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+          >
+            <ArrowLeft size={20} />
+            Retour
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900">Conditions Générales d'Utilisation (CGU)</h1>
         </div>
-        <Link href="/dossiers/new">
-          <Button>
-            <Plus size={20} className="mr-2" />
-            Nouveau Dossier
-          </Button>
-        </Link>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-lg border border-slate-200 p-4 flex items-center gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
-            <Input
-              placeholder="Rechercher par numéro ou client..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyUp={(e) => e.key === 'Enter' && fetchDossiers()}
-              className="pl-10"
-            />
+      {/* Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="prose prose-lg max-w-none text-gray-700">
+          <div className="space-y-8">
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Définitions</h2>
+              <div className="space-y-2">
+                <p><strong>Service :</strong> La plateforme MemoLib accessible via memolib.fly.dev</p>
+                <p><strong>Utilisateur :</strong> Toute personne inscrite et utilisant le Service</p>
+                <p><strong>Contenu :</strong> Dossiers, clients, documents créés par l'Utilisateur</p>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Acceptation des CGU</h2>
+              <p>
+                En utilisant MemoLib, vous acceptez l'intégralité de ces CGU. Si vous n'acceptez pas
+                ces conditions, veuillez ne pas utiliser le Service.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Licence d'Utilisation</h2>
+              <p>
+                MemoLib vous octroie une licence non-exclusive, non-transférable et révocable
+                d'accès et d'utilisation du Service selon votre plan d'abonnement.
+              </p>
+              <p className="mt-2">
+                Vous ne pouvez pas :
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Reproduire, dupliquer ou copier le code source</li>
+                <li>Revendre ou affermer l'accès au Service</li>
+                <li>Utiliser le Service pour des activités illégales</li>
+                <li>Contourner la sécurité ou les limitations du Service</li>
+                <li>Dépasser les limites de votre plan (clients, dossiers, stockage)</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Plans d'Abonnement</h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Plan Gratuit</h3>
+                  <p>5 clients, 10 dossiers, 1 Go de stockage</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Plan Pro (29€/mois)</h3>
+                  <p>50 clients, 500 dossiers, 50 Go, Analyse IA, Rapports avancés</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">Plan Enterprise (99€/mois)</h3>
+                  <p>Clients illimités, Dossiers illimités, 500 Go, Accès API, Support 24/7</p>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Facturation et Paiement</h2>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Les paiements sont traités par Stripe de manière sécurisée</li>
+                <li>Les abonnements se renouvellent automatiquement</li>
+                <li>Vous pouvez annuler votre abonnement à tout moment</li>
+                <li>Essai gratuit de 14 jours pour les nouveaux utilisateurs (plans payants)</li>
+                <li>Pas de remboursement pour les périodes partielles</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Propriété du Contenu</h2>
+              <p>
+                Vous conservez la propriété intégrale de votre Contenu. En utilisant le Service,
+                vous nous accordez une licence pour stocker, héberger et traiter votre Contenu selon votre instruction.
+              </p>
+              <p className="mt-2">
+                Nous ne partageons jamais votre Contenu avec des tiers sans votre consentement explicite.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Responsabilité</h2>
+              <p className="font-semibold">
+                🔴 Limitation de responsabilité importante :
+              </p>
+              <p>
+                MemoLib est un outil d'assistance. Vous restez entièrement responsable de la qualité
+                juridique de votre travail. Any output est destiné à vous assister, pas à remplacer
+                votre jugement professionnel.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Suspension et Résiliation</h2>
+              <p>
+                Nous nous réservons le droit de suspendre ou résilier votre accès au Service si vous :
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>Violez ces CGU</li>
+                <li>Utilisez le Service de manière abusive ou nuisible</li>
+                <li>Ne payez pas les frais dus</li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Modifications du Service</h2>
+              <p>
+                MemoLib se réserve le droit de modifier, suspendre ou discontinuer le Service à tout
+                moment, avec ou sans préavis.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Droit Applicable</h2>
+              <p>
+                Ces CGU sont régies par la loi française et soumises à la juridiction exclusive des
+                tribunaux français.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Contact</h2>
+              <p>Pour toute question : <span className="font-mono">contact@memolib.fr</span></p>
+            </section>
           </div>
         </div>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="px-4 py-2 border border-slate-200 rounded-lg text-sm"
-        >
-          <option value="all">Tous</option>
-          <option value="open">Ouvert</option>
-          <option value="pending">En attente</option>
-          <option value="closed">Closé</option>
-        </select>
       </div>
-
-      {/* Table */}
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader className="animate-spin text-blue-600" size={32} />
-        </div>
-      ) : dossiers.length === 0 ? (
-        <div className="bg-white rounded-lg border border-slate-200 py-12 text-center">
-          <p className="text-slate-600">Aucun dossier trouvé</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Numéro</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Client</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Statut</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Date</th>
-                <th className="px-6 py-3 text-right text-sm font-semibold text-slate-900">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {dossiers.map((dossier) => (
-                <tr key={dossier.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-medium text-slate-900">
-                    {dossier.numero}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">{dossier.clientId}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${statutColors[dossier.statut] || 'bg-slate-100 text-slate-800'}`}>
-                      {dossier.statut}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {new Date(dossier.createdAt).toLocaleDateString('fr-FR')}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link href={`/dossiers/${dossier.id}`}>
-                        <Button variant="ghost" size="sm">
-                          <Eye size={16} />
-                        </Button>
-                      </Link>
-                      <Link href={`/dossiers/${dossier.id}/edit`}>
-                        <Button variant="ghost" size="sm">
-                          <Edit size={16} />
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(dossier.id)}
-                      >
-                        <Trash2 size={16} className="text-red-600" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }

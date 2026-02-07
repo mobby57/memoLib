@@ -1,15 +1,15 @@
-'use client';
+﻿'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function DtailsDevisPage() {
+export default function RestoreBackupPage() {
   return (
     <div className="container mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Détails Devis</CardTitle>
+          <CardTitle>Restore Backup</CardTitle>
           <CardDescription>
-            Priorité: 🔴 Haute
+            Priorité: 🟢 Basse
           </CardDescription>
         </CardHeader>
         <CardContent>

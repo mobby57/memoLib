@@ -1,4 +1,4 @@
-'use client'
+ï»¿'use client'
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -96,7 +96,7 @@ export default function SuperAdminDashboard() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalRevenue}€</div>
+            <div className="text-2xl font-bold">{stats.totalRevenue}ï¿½</div>
           </CardContent>
         </Card>
 
@@ -135,7 +135,7 @@ export default function SuperAdminDashboard() {
                   <Badge variant={tenant.status === 'Active' ? 'success' : 'danger'}>
                     {tenant.status}
                   </Badge>
-                  <span className="text-sm font-medium">{tenant.revenue}€/mois</span>
+                  <span className="text-sm font-medium">{tenant.revenue}ï¿½/mois</span>
                   <Button variant="outline" size="sm">
                     <Settings className="w-4 h-4" />
                   </Button>

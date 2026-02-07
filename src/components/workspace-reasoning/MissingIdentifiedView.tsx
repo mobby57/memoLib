@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Composant d'affichage de l'etat MISSING_IDENTIFIED
  * CoeUR DU MVP - Montrer pourquoi on NE PEUT PAS agir
  */

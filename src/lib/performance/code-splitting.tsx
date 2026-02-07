@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Code Splitting & Lazy Loading Configuration
  *
  * Optimizes bundle size and loading performance

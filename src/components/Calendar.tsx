@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Clock, MapPin, Users, FileText } from 'lucide-react';

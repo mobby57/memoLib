@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -50,7 +50,7 @@ export default function LoginPage() {
         setError('Email ou mot de passe incorrect');
         setLoading(false);
       } else if (result?.ok) {
-        // Redirection basée sur l'email (déterminé côté serveur)
+        // Redirection basï¿½e sur l'email (dï¿½terminï¿½ cï¿½tï¿½ serveur)
         if (email === 'admin@memolib.fr') {
           router.push('/super-admin/dashboard');
         } else if (email === 'client@memolib.fr') {
@@ -86,12 +86,12 @@ export default function LoginPage() {
           </Link>
 
           <h2 className="text-4xl font-bold text-white mb-6">
-            Gérez votre cabinet avec intelligence
+            Gï¿½rez votre cabinet avec intelligence
           </h2>
 
           <p className="text-blue-200 text-lg mb-12">
-            La solution complète pour les avocats modernes : dossiers, clients, factures et IA
-            intégrée.
+            La solution complï¿½te pour les avocats modernes : dossiers, clients, factures et IA
+            intï¿½grï¿½e.
           </p>
 
           <div className="space-y-6">
@@ -100,9 +100,9 @@ export default function LoginPage() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-white mb-1">Sécurité maximale</h3>
+                <h3 className="font-semibold text-white mb-1">Sï¿½curitï¿½ maximale</h3>
                 <p className="text-blue-200 text-sm">
-                  Chiffrement AES-256 et conformité RGPD garantie
+                  Chiffrement AES-256 et conformitï¿½ RGPD garantie
                 </p>
               </div>
             </div>
@@ -112,7 +112,7 @@ export default function LoginPage() {
                 <Zap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-white mb-1">IA intégrée</h3>
+                <h3 className="font-semibold text-white mb-1">IA intï¿½grï¿½e</h3>
                 <p className="text-blue-200 text-sm">
                   Analyse automatique des documents et suggestions intelligentes
                 </p>
@@ -126,7 +126,7 @@ export default function LoginPage() {
               <div>
                 <h3 className="font-semibold text-white mb-1">Multi-cabinet</h3>
                 <p className="text-blue-200 text-sm">
-                  Gérez plusieurs cabinets avec un seul compte
+                  Gï¿½rez plusieurs cabinets avec un seul compte
                 </p>
               </div>
             </div>
@@ -146,11 +146,11 @@ export default function LoginPage() {
           {/* Form card */}
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Connexion</h2>
-            <p className="text-gray-500 mb-6">Accédez à votre espace de gestion</p>
+            <p className="text-gray-500 mb-6">Accï¿½dez ï¿½ votre espace de gestion</p>
 
             {timeoutMessage && (
               <div className="mb-4 bg-amber-50 border-l-4 border-amber-500 text-amber-800 px-4 py-3 rounded-r">
-                <p className="font-semibold">?? Session expirée</p>
+                <p className="font-semibold">?? Session expirï¿½e</p>
                 <p className="text-sm">{timeoutMessage}</p>
               </div>
             )}
@@ -195,7 +195,7 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     required
                     className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    placeholder="••••••••"
+                    placeholder="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
                   />
                   <button
                     type="button"
@@ -221,7 +221,7 @@ export default function LoginPage() {
                   href="/auth/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                 >
-                  Mot de passe oublié ?
+                  Mot de passe oubliï¿½ ?
                 </Link>
               </div>
 
@@ -302,7 +302,7 @@ export default function LoginPage() {
             <details className="mt-6">
               <summary className="cursor-pointer text-sm font-semibold text-gray-700 flex items-center gap-2 hover:text-blue-600">
                 <span>??</span>
-                <span>Comptes de démonstration</span>
+                <span>Comptes de dï¿½monstration</span>
               </summary>
               <div className="mt-3 space-y-2 text-xs">
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
@@ -326,15 +326,15 @@ export default function LoginPage() {
             <p className="text-blue-200 text-sm">
               Pas encore de compte ?{' '}
               <Link href="/auth/register" className="font-semibold text-white hover:underline">
-                Créer un compte
+                Crï¿½er un compte
               </Link>
             </p>
             <div className="flex items-center justify-center gap-4 text-xs text-blue-300/70">
               <span className="flex items-center gap-1">
-                <Shield className="w-3 h-3" /> Sécurisé
+                <Shield className="w-3 h-3" /> Sï¿½curisï¿½
               </span>
               <span className="flex items-center gap-1">
-                <Lock className="w-3 h-3" /> Chiffré
+                <Lock className="w-3 h-3" /> Chiffrï¿½
               </span>
               <span className="flex items-center gap-1">
                 <CheckCircle className="w-3 h-3" /> RGPD
@@ -344,7 +344,7 @@ export default function LoginPage() {
               href="/"
               className="inline-block text-blue-200 hover:text-white text-sm hover:underline"
             >
-              ? Retour à l'accueil
+              ? Retour ï¿½ l'accueil
             </Link>
           </div>
         </div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * WebSocket Notification Demo Component

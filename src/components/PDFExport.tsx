@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 import { FileDown, Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -130,7 +130,7 @@ function generateFacturePDF(doc: any, facture: any) {
   // Tableau des services
   const tableData = [
     ['Description', 'Montant HT'],
-    [facture.description || 'Prestation juridique', `${facture.montant.toFixed(2)} €`]
+    [facture.description || 'Prestation juridique', `${facture.montant.toFixed(2)} ï¿½`]
   ];
   
   (doc as any).autoTable({
@@ -148,15 +148,15 @@ function generateFacturePDF(doc: any, facture: any) {
   
   doc.setFontSize(10);
   doc.text('Montant HT:', pageWidth - 80, finalY);
-  doc.text(`${facture.montant.toFixed(2)} €`, pageWidth - 30, finalY, { align: 'right' });
+  doc.text(`${facture.montant.toFixed(2)} ï¿½`, pageWidth - 30, finalY, { align: 'right' });
   
   doc.text('TVA (20%):', pageWidth - 80, finalY + 7);
-  doc.text(`${(facture.montant * 0.20).toFixed(2)} €`, pageWidth - 30, finalY + 7, { align: 'right' });
+  doc.text(`${(facture.montant * 0.20).toFixed(2)} ï¿½`, pageWidth - 30, finalY + 7, { align: 'right' });
   
   doc.setFontSize(12);
   doc.setFont(undefined, 'bold');
   doc.text('TOTAL TTC:', pageWidth - 80, finalY + 17);
-  doc.text(`${montantTTC.toFixed(2)} €`, pageWidth - 30, finalY + 17, { align: 'right' });
+  doc.text(`${montantTTC.toFixed(2)} ï¿½`, pageWidth - 30, finalY + 17, { align: 'right' });
   
   // Statut
   const statusY = finalY + 30;

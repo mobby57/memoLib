@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Panel READY FOR HUMAN - etat final actionnable

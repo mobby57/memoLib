@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -242,8 +242,8 @@ export default function NewWorkspacePage() {
               ))}
             </select>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              Le système peut détecter automatiquement le type de procédure, mais vous pouvez le
-              spécifier.
+              Le systï¿½me peut dï¿½tecter automatiquement le type de procï¿½dure, mais vous pouvez le
+              spï¿½cifier.
             </p>
           </div>
 

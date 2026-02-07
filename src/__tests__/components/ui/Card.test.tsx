@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Tests pour les composants Card
  * Couverture: Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter
  */
@@ -28,7 +28,7 @@ describe('Card Components', () => {
       expect(card).toHaveClass('rounded-lg', 'border', 'shadow-sm');
     });
 
-    it('devrait accepter des classes personnalisées', () => {
+    it('devrait accepter des classes personnalisï¿½es', () => {
       render(<Card data-testid="card" className="custom-card">Test</Card>);
       expect(screen.getByTestId('card')).toHaveClass('custom-card');
     });
@@ -110,8 +110,8 @@ describe('Card Components', () => {
     });
   });
 
-  describe('Composition complète', () => {
-    it('devrait rendre une card complète avec tous les sous-composants', () => {
+  describe('Composition complï¿½te', () => {
+    it('devrait rendre une card complï¿½te avec tous les sous-composants', () => {
       render(
         <Card data-testid="full-card">
           <CardHeader>
@@ -143,10 +143,10 @@ describe('Card Components', () => {
           </CardHeader>
           <CardContent>
             <p>Statut: En cours</p>
-            <p>Créé le: 01/01/2024</p>
+            <p>Crï¿½ï¿½ le: 01/01/2024</p>
           </CardContent>
           <CardFooter>
-            <button>Voir détails</button>
+            <button>Voir dï¿½tails</button>
             <button>Modifier</button>
           </CardFooter>
         </Card>
@@ -155,12 +155,12 @@ describe('Card Components', () => {
       expect(screen.getByRole('article')).toBeInTheDocument();
       expect(screen.getByText('Dossier #123')).toBeInTheDocument();
       expect(screen.getByText('Client: Jean Dupont')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /voir détails/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /voir dï¿½tails/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /modifier/i })).toBeInTheDocument();
     });
   });
 
-  describe('Accessibilité', () => {
+  describe('Accessibilitï¿½', () => {
     it('devrait permettre un role article', () => {
       render(<Card role="article">Contenu accessible</Card>);
       expect(screen.getByRole('article')).toBeInTheDocument();

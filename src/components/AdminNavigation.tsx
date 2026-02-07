@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 import Link from 'next/link';
 
@@ -54,7 +54,7 @@ export default function AdminNavigation() {
               href="/admin/costs"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all"
             >
-              ?? Coûts IA
+              ?? Coï¿½ts IA
             </Link>
             <Link
               href="/admin/parametres"

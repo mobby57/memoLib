@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -176,7 +176,7 @@ export default function FormsPage() {
               <div>
                 <h3 className="font-medium text-gray-900">Suggestions IA en temps reel</h3>
                 <p className="text-sm text-gray-600">
-                  Le système analyse vos réponses et propose des suggestions contextuelles
+                  Le systï¿½me analyse vos rï¿½ponses et propose des suggestions contextuelles
                 </p>
               </div>
             </div>
