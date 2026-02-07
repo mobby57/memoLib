@@ -1,98 +1,27 @@
-# Dependencies
-node_modules/
+node_modules
+.next
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
-
-# Testing
-coverage/
-.jest-cache/
-test-results/
-playwright-report/
-__tests__/
-*.test.ts
-*.test.tsx
-*.spec.ts
-
-# Build artifacts
-.next/
-out/
-dist/
-.turbo/
-.swc/
-.tsbuildinfo
-
-# Cache
-.cache/
-.eslintcache
-.cache_ggshield
-
-# Environment & Secrets
-.env.local
-.env.*.local
-*.pem
-*.key
-credentials/
-
-# Databases
-*.db
-*.sqlite
-*.sqlite3
-prisma/dev.db
-prisma/prod.db
-backups/
-
-# Logs
-*.log
-logs/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Git
-.git/
-.gitignore
-.gitattributes
-
-# Documentation
-docs/
-*.md
-!README.md
-
-# Legacy
-legacy/
-dbcodeio-public/
-app-sentry-backup/
-
-# Temporary
-temp_*
-*.tmp
-*.temp
-
-# CI/CD
-.github/
-.husky/
-
-# Vercel
-.vercel/
-.wrangler/
-
-# Python
-__pycache__/
-*.py[cod]
-venv/
-.Python
-
-# Analysis
-analysis/
-ai-service/
-security/
-marketing/
+.env*.local
+coverage
+.nyc_output
+.cache
+.parcel-cache
+.next
+out
+build
+dist
+.turbo
+.wrangler
+.vercel
+.azure
+test-results
+playwright-report
+.jest-cache
+.swc
