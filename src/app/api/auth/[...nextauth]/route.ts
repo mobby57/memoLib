@@ -62,58 +62,50 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Identifiants requis');
         }
 
-        // MODE DEMO - Comptes de démonstration hardcodés
-        const demoUsers: Record<string, any> = {
-          'admin@memolib.fr': {
-            id: 'demo-admin-1',
-            email: 'admin@memolib.fr',
-            name: 'Admin Demo',
-            role: 'SUPER_ADMIN',
-            password: 'admin123',
-            tenantId: 'demo-tenant-1',
-            tenantName: 'Cabinet Demo',
-            tenantPlan: 'enterprise',
-            clientId: null,
-          },
-          'avocat@memolib.fr': {
-            id: 'demo-lawyer-1',
-            email: 'avocat@memolib.fr',
-            name: 'Avocat Demo',
-            role: 'LAWYER',
-            password: 'admin123',
-            tenantId: 'demo-tenant-1',
-            tenantName: 'Cabinet Demo',
-            tenantPlan: 'professional',
-            clientId: null,
-          },
-          'client@memolib.fr': {
-            id: 'demo-client-1',
-            email: 'client@memolib.fr',
-            name: 'Client Demo',
-            role: 'CLIENT',
-            password: 'demo123',
-            tenantId: 'demo-tenant-1',
-            tenantName: 'Cabinet Demo',
-            tenantPlan: 'professional',
-            clientId: 'demo-client-1',
-          },
-        };
+        // MODE DEMO - Seulement en développement
+        const isDemoMode = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true';
+        
+        if (isDemoMode) {
+          const demoUsers: Record<string, any> = {
+            'admin@memolib.fr': {
+              id: 'demo-admin-1',
+              email: 'admin@memolib.fr',
+              name: 'Admin Demo',
+              role: 'SUPER_ADMIN',
+              password: process.env.DEMO_ADMIN_PASSWORD || 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'enterprise',
+              clientId: null,
+            },
+            'avocat@memolib.fr': {
+              id: 'demo-lawyer-1',
+              email: 'avocat@memolib.fr',
+              name: 'Avocat Demo',
+              role: 'LAWYER',
+              password: process.env.DEMO_LAWYER_PASSWORD || 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'client@memolib.fr': {
+              id: 'demo-client-1',
+              email: 'client@memolib.fr',
+              name: 'Client Demo',
+              role: 'CLIENT',
+              password: process.env.DEMO_CLIENT_PASSWORD || 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: 'demo-client-1',
+            },
+          };
 
-        // Vérifier les comptes de démo
-        const demoUser = demoUsers[credentials.email];
-        if (demoUser) {
-          console.log('[DEMO AUTH] Tentative avec compte démo:', credentials.email);
-          console.log('[DEMO AUTH] Password fourni:', credentials.password);
-          console.log('[DEMO AUTH] Password attendu:', demoUser.password);
-
-          if (demoUser.password === credentials.password) {
-            console.log('[DEMO AUTH] ✅ Authentification réussie');
-            // Retourner sans les données sensibles
+          const demoUser = demoUsers[credentials.email];
+          if (demoUser && demoUser.password === credentials.password) {
             const { password, ...userWithoutPassword } = demoUser;
             return userWithoutPassword;
-          } else {
-            console.log('[DEMO AUTH] ❌ Mot de passe incorrect');
-            throw new Error('Identifiants invalides');
           }
         }
 
@@ -341,9 +333,9 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    // Session expire apres 1 heure d'inactivite pour la securite
-    maxAge: 60 * 60, // 1 heure (3600 secondes)
-    updateAge: 5 * 60, // Mise a jour toutes les 5 minutes
+    // Session adaptée aux avocats (8h de travail)
+    maxAge: 8 * 60 * 60, // 8 heures (28800 secondes)
+    updateAge: 15 * 60, // Mise a jour toutes les 15 minutes
   },
   cookies: {
     sessionToken: {
@@ -356,7 +348,7 @@ export const authOptions: NextAuthOptions = {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60, // 1 heure
+        maxAge: 8 * 60 * 60, // 8 heures
       },
     },
     callbackUrl: {
