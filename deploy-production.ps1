@@ -9,15 +9,15 @@ Write-Host "`n📋 1. Vérifications..." -ForegroundColor Yellow
 
 Set-Location src\frontend
 
-Write-Host "  → Linting..."
+Write-Host "  -> Linting..."
 npm run lint
-if ($LASTEXITCODE -ne 0) { Write-Host "❌ Lint failed" -ForegroundColor Red; exit 1 }
+if ($LASTEXITCODE -ne 0) { Write-Host "X Lint failed" -ForegroundColor Red; exit 1 }
 
-Write-Host "  → Type checking..."
+Write-Host "  -> Type checking..."
 npx tsc --noEmit
-if ($LASTEXITCODE -ne 0) { Write-Host "❌ Type check failed" -ForegroundColor Red; exit 1 }
+if ($LASTEXITCODE -ne 0) { Write-Host "X Type check failed" -ForegroundColor Red; exit 1 }
 
-Write-Host "  → Tests E2E..."
+Write-Host "  -> Tests E2E..."
 npx playwright test --workers=100%
 if ($LASTEXITCODE -ne 0) { Write-Host "❌ Tests failed" -ForegroundColor Red; exit 1 }
 
