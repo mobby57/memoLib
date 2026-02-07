@@ -1,7 +1,7 @@
 # ✅ VALIDATION COMPLÈTE - Pattern Adapter Multi-Canal
 
-**Date**: 2026-02-07  
-**Statut**: SUCCÈS (4/4 canaux validés)  
+**Date**: 2026-02-07
+**Statut**: SUCCÈS (4/4 canaux validés)
 **Configuration**: In-Memory Store (sans PostgreSQL)
 
 ## 🎯 Résumé des tests
@@ -44,7 +44,7 @@ La logique de détection des doublons fonctionne correctement :
    - Interface compatible maintenue
    - `computeChecksum()`, `checkDuplicate()`, `storeChannelMessage()`
 
-2. **[db.ts](src/frontend/lib/db.ts)**  
+2. **[db.ts](src/frontend/lib/db.ts)**
    - In-Memory Map JavaScript
    - Pas de dépendance PostgreSQL
    - Export: `storeChannelMessage()`, `checkDuplicate()`, `getStoreStats()`
