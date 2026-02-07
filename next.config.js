@@ -25,6 +25,7 @@ const isWindows = process.platform === 'win32';
 const getOutputMode = () => {
   if (isAzureStaticExport) return 'export';
   if (isVercel) return undefined; // Vercel handles this automatically
+  if (process.env.FLY_APP_NAME) return 'standalone'; // Fly.io deployment
   if (isWindows && !process.env.FORCE_STANDALONE) return undefined; // Avoid Windows path issues
   return 'standalone'; // Default for other platforms (Linux, macOS)
 };
