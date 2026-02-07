@@ -21,7 +21,6 @@ jobs:
         with:
           args: --severity-threshold=high
 
-      # Skip if no SNYK_TOKEN configured
       - name: Skip if no token
-        if: env.SNYK_TOKEN == ''
+        if: ${{ env.SNYK_TOKEN == '' }}
         run: echo "Snyk token not configured, skipping"

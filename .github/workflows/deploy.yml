@@ -77,6 +77,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy backend to Azure (Staging)
+        if: secrets.AZURE_CLIENT_ID != ''
         run: |
           az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
             -p ${{ secrets.AZURE_CLIENT_SECRET }} \
@@ -127,6 +128,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy backend to Azure (Production)
+        if: secrets.AZURE_CLIENT_ID != ''
         run: |
           az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
             -p ${{ secrets.AZURE_CLIENT_SECRET }} \
@@ -144,6 +146,7 @@ jobs:
             --src backend-prod.zip
 
       - name: Database migrations
+        if: secrets.PROD_DATABASE_URL != ''
         run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
@@ -154,7 +157,7 @@ jobs:
           curl -f https://api.memolib.fr/api/health || exit 1
 
       - name: Notify Slack
-        if: always()
+        if: always() && secrets.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1
         with:
           payload: |
