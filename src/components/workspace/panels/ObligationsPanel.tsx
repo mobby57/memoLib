@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Panel Obligations - Ce qui est requis
@@ -113,7 +113,7 @@ export function ObligationsPanel({ obligations, contexts = [], onAddObligation }
       {/* Note explicative */}
       <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm">
         <p className="text-orange-800">
-          <strong>️ Regle #3 :</strong> Chaque obligation est liee a un contexte specifique. 
+          <strong>? Regle #3 :</strong> Chaque obligation est liee a un contexte specifique. 
           Les obligations decoulent du cadre identifie.
         </p>
       </div>

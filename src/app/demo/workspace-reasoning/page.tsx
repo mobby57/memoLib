@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Page de demonstration du Workspace Reasoning Engine
  * Test interactif du systeme MVP avec API reelle
  */

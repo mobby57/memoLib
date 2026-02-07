@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Composant d'affichage de l'etat ACTION_PROPOSED
  * Proposer UNE SEULE action utile pour reduire l'incertitude
  */
@@ -32,7 +32,7 @@ export function ActionProposedView({
       QUESTION: '',
       DOCUMENT_REQUEST: '',
       ALERT: '',
-      ESCALATION: '️',
+      ESCALATION: '?',
       FORM_SEND: '',
     };
     return icons[type];
@@ -86,7 +86,7 @@ export function ActionProposedView({
             {action.target && (
               <div className="mb-3 p-3 bg-white border border-gray-300 rounded">
                 <div className="text-sm">
-                  <span className="font-semibold text-gray-700">🎯 Destinataire:</span>
+                  <span className="font-semibold text-gray-700">?? Destinataire:</span>
                   <span className="text-gray-600 ml-2">{action.target}</span>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export function ActionProposedView({
                   }`}
                 >
                   {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-                  ️ Executer cette action
+                  ? Executer cette action
                 </button>
                 
                 <button
@@ -165,7 +165,7 @@ export function ActionProposedView({
       {/* Principe methodologique */}
       <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
         <div className="flex items-start gap-3">
-          <div className="text-2xl">🎯</div>
+          <div className="text-2xl">??</div>
           <div className="text-sm text-blue-900">
             <div className="font-semibold mb-1">Principe:</div>
             <p>
@@ -235,7 +235,7 @@ export function ActionProposedView({
       {pending.length > 0 && (
         <div className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
           <div className="flex items-start gap-3">
-            <div className="text-2xl">️</div>
+            <div className="text-2xl">?</div>
             <div className="text-sm text-yellow-900">
               <div className="font-semibold mb-1">Attention:</div>
               <p>

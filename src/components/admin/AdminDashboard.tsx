@@ -3,7 +3,7 @@
 import React from 'react';
 import { Activity, Users, DollarSign, Clock } from 'lucide-react';
 import StatsGrid from '@/components/ui/StatsGrid';
-import Card from '@/components/ui/Card';
+import Card from '@/components/ui/card';
 
 export default function AdminDashboard() {
     const stats = [
