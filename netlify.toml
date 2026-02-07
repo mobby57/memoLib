@@ -1,0 +1,16 @@
+[build]
+  command = "cd src/frontend && npm install && npm run build"
+  publish = "src/frontend/.next"
+
+[build.environment]
+ NODE_VERSION = "20.19.5"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Next.js 14+ handles routing automatically via server
+# No manual redirects needed
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  directory = "src/frontend/.netlify/functions"
