@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -7,7 +7,7 @@ import { Calendar, CalendarEvent } from '@/components/Calendar';
 import { Button, Input } from '@/components/forms';
 import { Modal } from '@/components/forms/Modal';
 import { Alert, Breadcrumb } from '@/components/ui';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertTriangle, Calendar as CalendarIcon, Clock, TrendingUp } from 'lucide-react';
@@ -136,7 +136,7 @@ export default function CalendrierPage() {
 
     if (isEditing && editingEventId) {
       setEvents(events.map(e => (e.id === editingEventId ? eventData : e)));
-      showToast('Ã‰vÃ©nement modifiÃ© avec succÃ¨s', 'success');
+      showToast('Événement modifié avec succès', 'success');
     } else {
       setEvents([...events, eventData]);
       showToast('evenement ajoute avec succes', 'success');

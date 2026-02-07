@@ -1,4 +1,4 @@
-﻿
+
 
 export interface IconDashboardProps extends React.SVGProps<SVGSVGElement> {
   size?: number;

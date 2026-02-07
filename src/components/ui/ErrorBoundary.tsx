@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
@@ -170,7 +170,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 onClick={() => (window.location.href = '/')}
                 className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
               >
-                🏠 Retour a l'accueil
+                ?? Retour a l'accueil
               </button>
 
               {process.env.NODE_ENV === 'development' && (

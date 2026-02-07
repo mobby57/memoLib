@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -34,7 +34,7 @@ export default function SuperAdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Attendre que la session soit chargée avant de vérifier le rôle
+    // Attendre que la session soit charg�e avant de v�rifier le r�le
     if (status === 'loading') return;
     
     if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
@@ -101,7 +101,7 @@ export default function SuperAdminDashboard() {
                 </p>
               </div>
               <div className="bg-purple-100 p-3 rounded-lg">
-                <span className="text-2xl">🏢</span>
+                <span className="text-2xl">??</span>
               </div>
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function SuperAdminDashboard() {
               <div>
                 <p className="text-sm text-gray-600">Revenue Total</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
-                  {stats?.totalRevenue?.toFixed(0) || 0}€
+                  {stats?.totalRevenue?.toFixed(0) || 0}�
                 </p>
                 <p className="text-xs text-green-600 mt-1">+12% ce mois</p>
               </div>
@@ -159,7 +159,7 @@ export default function SuperAdminDashboard() {
             className="bg-gradient-to-br from-purple-500 to-indigo-600 p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-200 text-white group"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-3xl">🏢</span>
+              <span className="text-3xl">??</span>
               <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
             </div>
             <h3 className="text-xl font-bold mb-2">Gerer les Tenants</h3>
@@ -183,7 +183,7 @@ export default function SuperAdminDashboard() {
             className="bg-gradient-to-br from-green-500 to-emerald-600 p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-200 text-white group"
           >
             <div className="flex items-center justify-between mb-4">
-              <span className="text-3xl">🎫</span>
+              <span className="text-3xl">??</span>
               <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
             </div>
             <h3 className="text-xl font-bold mb-2">Support</h3>

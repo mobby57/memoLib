@@ -1,6 +1,6 @@
-ï»¿/**
+/**
  * Tests pour le composant LoadingSpinner
- * Couverture: tailles, couleurs, accessibilitÃ©, skeleton
+ * Couverture: tailles, couleurs, accessibilité, skeleton
  */
 
 import { render, screen } from '@testing-library/react';
@@ -13,7 +13,7 @@ describe('LoadingSpinner Component', () => {
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
-    it('devrait avoir le texte sr-only pour accessibilitÃ©', () => {
+    it('devrait avoir le texte sr-only pour accessibilité', () => {
       render(<LoadingSpinner />);
       expect(screen.getByText('Chargement...')).toBeInTheDocument();
       expect(screen.getByText('Chargement...')).toHaveClass('sr-only');
@@ -26,7 +26,7 @@ describe('LoadingSpinner Component', () => {
   });
 
   describe('Sizes', () => {
-    it('devrait rendre la taille md par dÃ©faut', () => {
+    it('devrait rendre la taille md par défaut', () => {
       render(<LoadingSpinner />);
       const svg = screen.getByRole('status').querySelector('svg');
       expect(svg).toHaveClass('w-6', 'h-6');
@@ -46,7 +46,7 @@ describe('LoadingSpinner Component', () => {
   });
 
   describe('Colors', () => {
-    it('devrait rendre la couleur blue par dÃ©faut', () => {
+    it('devrait rendre la couleur blue par défaut', () => {
       render(<LoadingSpinner />);
       const svg = screen.getByRole('status').querySelector('svg');
       expect(svg).toHaveClass('text-blue-600');
@@ -79,8 +79,8 @@ describe('LoadingSpinner Component', () => {
     });
   });
 
-  describe('Classes personnalisÃ©es', () => {
-    it('devrait accepter des classes personnalisÃ©es sur le conteneur', () => {
+  describe('Classes personnalisées', () => {
+    it('devrait accepter des classes personnalisées sur le conteneur', () => {
       render(<LoadingSpinner className="mt-4 mx-auto" />);
       expect(screen.getByRole('status')).toHaveClass('mt-4', 'mx-auto');
     });
@@ -134,7 +134,7 @@ describe('DashboardSkeleton Component', () => {
     expect(mainGrid).toBeInTheDocument();
   });
 
-  it('devrait avoir des dÃ©lais d\'animation dÃ©calÃ©s', () => {
+  it('devrait avoir des délais d\'animation décalés', () => {
     render(<DashboardSkeleton />);
     const cards = document.querySelectorAll('.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4 > div');
     

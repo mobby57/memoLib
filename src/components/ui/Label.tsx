@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 
 export const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(

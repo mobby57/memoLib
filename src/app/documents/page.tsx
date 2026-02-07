@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react'
-import { Card } from '@/components/ui/Card'
+import { Card } from '@/components/ui/card'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import FileUploader from '@/components/FileUploader'
 import { getStoredFiles, getFileVersions, deleteFile, downloadFile, formatFileSize, getFileIcon, getStorageStats, type StoredFile } from '@/lib/services/storageService'

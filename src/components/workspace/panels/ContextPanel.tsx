@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Panel Contextes - Hypotheses de cadrage
@@ -22,7 +22,7 @@ const TYPE_LABELS: Record<string, string> = {
 
 const CERTAINTY_CONFIG: Record<string, { label: string; color: string; icon: string }> = {
   POSSIBLE: { label: 'Possible', color: 'text-yellow-600', icon: '' },
-  PROBABLE: { label: 'Probable', color: 'text-orange-600', icon: '️' },
+  PROBABLE: { label: 'Probable', color: 'text-orange-600', icon: '?' },
   CONFIRMED: { label: 'Confirme', color: 'text-green-600', icon: '[Check]' },
 };
 

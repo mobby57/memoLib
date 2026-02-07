@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Composant d'affichage de l'etat RISK_EVALUATED
  * evaluer les risques de se tromper - Impact x Probabilite
  */
@@ -83,7 +83,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
               
               {risk.irreversible && (
                 <span className="px-3 py-1 text-sm font-bold bg-purple-600 text-white rounded">
-                  ️ IRReVERSIBLE
+                  ? IRReVERSIBLE
                 </span>
               )}
             </div>
@@ -107,7 +107,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
               
               <div className="p-3 bg-white border border-gray-300 rounded">
                 <div className="text-sm">
-                  <span className="font-semibold text-gray-700">🎲 Probabilite:</span>
+                  <span className="font-semibold text-gray-700">?? Probabilite:</span>
                   <div className="mt-1">
                     <span className={`px-2 py-1 text-xs font-medium rounded ${probabilityBadge.color}`}>
                       {probabilityBadge.label}
@@ -131,7 +131,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
             {risk.irreversible && (
               <div className="p-3 bg-purple-50 border-2 border-purple-300 rounded-lg mb-4">
                 <div className="flex items-start gap-2">
-                  <div className="text-xl">️</div>
+                  <div className="text-xl">?</div>
                   <div className="text-sm text-purple-900">
                     <div className="font-bold mb-1">Risque IRReVERSIBLE</div>
                     <p>Une fois materialise, ce risque ne peut pas etre annule. Exige une validation humaine renforcee.</p>
@@ -158,7 +158,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">️ Risques evalues</h2>
+        <h2 className="text-2xl font-bold text-gray-900">? Risques evalues</h2>
         <p className="text-gray-600 mt-1">
           Consequences possibles d'une action prematuree ou basee sur une hypothese erronee
         </p>
@@ -179,7 +179,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
         </div>
         
         <div className="p-4 bg-purple-50 border-2 border-purple-200 rounded-lg">
-          <div className="text-3xl text-purple-600 mb-2">️</div>
+          <div className="text-3xl text-purple-600 mb-2">?</div>
           <div className="text-2xl font-bold text-purple-900">{irreversibleRisks.length}</div>
           <div className="text-sm text-purple-700">Irreversible{irreversibleRisks.length > 1 ? 's' : ''}</div>
         </div>
@@ -251,7 +251,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
               - Impact/Probabilite MOYEN = 2 <br />
               - Impact/Probabilite eLEVe = 3 <br />
               <br />
-              Score ≥ 6 = CRITIQUE - Score 3-5 = MODeRe - Score &lt; 3 = FAIBLE
+              Score = 6 = CRITIQUE - Score 3-5 = MODeRe - Score &lt; 3 = FAIBLE
             </p>
           </div>
         </div>

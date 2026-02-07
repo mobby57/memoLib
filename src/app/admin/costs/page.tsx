@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -68,7 +68,7 @@ export default function AdminCostsPage() {
         setSummary(data.summary || null);
       }
     } catch (error) {
-      console.error('Erreur chargement coÃ»ts:', error);
+      console.error('Erreur chargement coûts:', error);
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ export default function AdminCostsPage() {
       
       if (res.ok) {
         const result = await res.json();
-        alert(result.message || 'Action effectuÃ©e');
+        alert(result.message || 'Action effectuée');
         loadCosts();
       } else {
         alert('Erreur lors de l\'action');
@@ -100,7 +100,7 @@ export default function AdminCostsPage() {
   const createOverageInvoice = async (tenant: TenantCost) => {
     if (!tenant.billableOverage) return;
     
-    if (!confirm(`CrÃ©er une facture de ${tenant.billableOverage.amount}â‚¬ TTC pour ${tenant.name}?`)) {
+    if (!confirm(`Créer une facture de ${tenant.billableOverage.amount}€ TTC pour ${tenant.name}?`)) {
       return;
     }
 
@@ -114,7 +114,7 @@ export default function AdminCostsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'exceeded':
-        return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">DÃ©passÃ©</span>;
+        return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Dépassé</span>;
       case 'warning':
         return <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Attention</span>;
       default:
@@ -129,15 +129,15 @@ export default function AdminCostsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">ðŸ’° Gestion des CoÃ»ts IA</h1>
+          <h1 className="text-3xl font-bold text-gray-900">?? Gestion des Coûts IA</h1>
           <p className="mt-2 text-gray-600">
-            Surveillez les coÃ»ts par tenant et facturez les dÃ©passements
+            Surveillez les coûts par tenant et facturez les dépassements
           </p>
         </div>
 
-        {/* Filtres pÃ©riode */}
+        {/* Filtres période */}
         <div className="bg-white rounded-lg shadow p-4 mb-6 flex gap-4 items-center">
-          <label className="text-sm font-medium text-gray-700">PÃ©riode:</label>
+          <label className="text-sm font-medium text-gray-700">Période:</label>
           <select 
             value={selectedMonth} 
             onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
@@ -161,11 +161,11 @@ export default function AdminCostsPage() {
             onClick={loadCosts}
             className="ml-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            ðŸ”„ Actualiser
+            ?? Actualiser
           </button>
         </div>
 
-        {/* RÃ©sumÃ© global */}
+        {/* Résumé global */}
         {summary && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
             <div className="bg-white rounded-lg shadow p-4">
@@ -173,21 +173,21 @@ export default function AdminCostsPage() {
               <p className="text-2xl font-bold text-gray-900">{summary.totalTenants}</p>
             </div>
             <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-600">CoÃ»t IA Total</p>
-              <p className="text-2xl font-bold text-blue-600">{summary.totalAICost.toFixed(2)}â‚¬</p>
+              <p className="text-sm text-gray-600">Coût IA Total</p>
+              <p className="text-2xl font-bold text-blue-600">{summary.totalAICost.toFixed(2)}€</p>
             </div>
             <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-600">SurcoÃ»ts</p>
-              <p className="text-2xl font-bold text-orange-600">{summary.totalOverage.toFixed(2)}â‚¬</p>
+              <p className="text-sm text-gray-600">Surcoûts</p>
+              <p className="text-2xl font-bold text-orange-600">{summary.totalOverage.toFixed(2)}€</p>
             </div>
             <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-600">Tenants en dÃ©passement</p>
+              <p className="text-sm text-gray-600">Tenants en dépassement</p>
               <p className="text-2xl font-bold text-red-600">{summary.tenantsOverBudget}</p>
             </div>
             <div className="bg-white rounded-lg shadow p-4 border-2 border-green-500">
-              <p className="text-sm text-gray-600">ðŸ’µ Facturable</p>
-              <p className="text-2xl font-bold text-green-600">{summary.potentialBilling.toFixed(2)}â‚¬</p>
-              <p className="text-xs text-gray-500">SurcoÃ»ts + 50%</p>
+              <p className="text-sm text-gray-600">?? Facturable</p>
+              <p className="text-2xl font-bold text-green-600">{summary.potentialBilling.toFixed(2)}€</p>
+              <p className="text-xs text-gray-500">Surcoûts + 50%</p>
             </div>
           </div>
         )}
@@ -200,7 +200,7 @@ export default function AdminCostsPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tenant</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revenu</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">CoÃ»t IA</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Coût IA</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Budget</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -216,7 +216,7 @@ export default function AdminCostsPage() {
               ) : tenants.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                    Aucun tenant trouvÃ©
+                    Aucun tenant trouvé
                   </td>
                 </tr>
               ) : (
@@ -234,12 +234,12 @@ export default function AdminCostsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900">
-                      {tenant.plan.priceMonthly}â‚¬/mois
+                      {tenant.plan.priceMonthly}€/mois
                     </td>
                     <td className="px-6 py-4">
                       <div>
                         <p className={`font-bold ${tenant.aiCosts.overage > 0 ? 'text-red-600' : 'text-gray-900'}`}>
-                          {tenant.aiCosts.current.toFixed(2)}â‚¬
+                          {tenant.aiCosts.current.toFixed(2)}€
                         </p>
                         <p className="text-xs text-gray-500">{tenant.aiCosts.tokens} tokens</p>
                       </div>
@@ -255,14 +255,14 @@ export default function AdminCostsPage() {
                         />
                       </div>
                       <p className="text-xs text-gray-500">
-                        {tenant.aiCosts.current.toFixed(2)}â‚¬ / {tenant.aiCosts.limit}â‚¬
+                        {tenant.aiCosts.current.toFixed(2)}€ / {tenant.aiCosts.limit}€
                       </p>
                     </td>
                     <td className="px-6 py-4">
                       {getStatusBadge(tenant.aiCosts.status)}
                       {tenant.aiCosts.overage > 0 && (
                         <p className="text-xs text-red-600 mt-1">
-                          +{tenant.aiCosts.overage.toFixed(2)}â‚¬
+                          +{tenant.aiCosts.overage.toFixed(2)}€
                         </p>
                       )}
                     </td>
@@ -274,7 +274,7 @@ export default function AdminCostsPage() {
                             disabled={actionLoading === tenant.id}
                             className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
                           >
-                            ðŸ’µ Facturer {tenant.billableOverage.amount.toFixed(2)}â‚¬
+                            ?? Facturer {tenant.billableOverage.amount.toFixed(2)}€
                           </button>
                         )}
                         <button
@@ -289,7 +289,7 @@ export default function AdminCostsPage() {
                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                           } disabled:opacity-50`}
                         >
-                          {tenant.aiCosts.status === 'exceeded' ? 'ðŸš« Bloquer IA' : 'âœ“ IA OK'}
+                          {tenant.aiCosts.status === 'exceeded' ? '?? Bloquer IA' : '? IA OK'}
                         </button>
                       </div>
                     </td>
@@ -300,14 +300,14 @@ export default function AdminCostsPage() {
           </table>
         </div>
 
-        {/* LÃ©gende */}
+        {/* Légende */}
         <div className="mt-6 bg-blue-50 rounded-lg p-4">
-          <h3 className="font-medium text-blue-900 mb-2">ðŸ“Š Comment Ã§a marche</h3>
+          <h3 className="font-medium text-blue-900 mb-2">?? Comment ça marche</h3>
           <ul className="text-sm text-blue-800 space-y-1">
-            <li>â€¢ <strong>Budget IA</strong>: Limite mensuelle de coÃ»ts cloud (Ollama = gratuit)</li>
-            <li>â€¢ <strong>SurcoÃ»t</strong>: DÃ©passement du budget inclus dans le plan</li>
-            <li>â€¢ <strong>Facturation</strong>: SurcoÃ»t Ã— 1.5 (majoration 50%)</li>
-            <li>â€¢ <strong>Bloquer IA</strong>: DÃ©sactive l&apos;accÃ¨s Ã  l&apos;IA cloud pour ce tenant</li>
+            <li>• <strong>Budget IA</strong>: Limite mensuelle de coûts cloud (Ollama = gratuit)</li>
+            <li>• <strong>Surcoût</strong>: Dépassement du budget inclus dans le plan</li>
+            <li>• <strong>Facturation</strong>: Surcoût × 1.5 (majoration 50%)</li>
+            <li>• <strong>Bloquer IA</strong>: Désactive l&apos;accès à l&apos;IA cloud pour ce tenant</li>
           </ul>
         </div>
       </div>

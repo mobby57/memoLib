@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -234,7 +234,7 @@ export default function DocumentUploadPage() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">
-                      {doc.filename.endsWith('.pdf') ? '' : '️'}
+                      {doc.filename.endsWith('.pdf') ? '' : '?'}
                     </span>
                     <div>
                       <p className="font-medium">{doc.filename}</p>

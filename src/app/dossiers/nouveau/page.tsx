@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -88,7 +88,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'RECOURS_OQTF', 
     label: 'Recours OQTF', 
-    icon: '️',
+    icon: '?',
     description: 'Recours contre obligation de quitter le territoire',
     delais: ['48h refere-liberte', '2 mois recours gracieux', '2 mois TA'],
     documents: ['OQTF', 'Passeport', 'Preuves attaches', 'Certificats']
@@ -96,7 +96,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'NATURALISATION', 
     label: 'Naturalisation', 
-    icon: '🇫🇷',
+    icon: '????',
     description: 'Demande de nationalite francaise',
     delais: ['Instruction 12-18 mois', 'Entretien prefecture'],
     documents: ['Passeport', 'Titre sejour 5 ans', 'Certificat francais B1', 'Bulletins salaire']
@@ -104,7 +104,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'REGROUPEMENT_FAMILIAL', 
     label: 'Regroupement Familial', 
-    icon: '‍‍',
+    icon: '??',
     description: 'Faire venir sa famille en France',
     delais: ['6 mois instruction', 'Visite logement'],
     documents: ['Titre sejour', 'Justificatif ressources', 'Acte mariage', 'Bail']
@@ -112,7 +112,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'ASILE', 
     label: 'Demande d\'Asile', 
-    icon: '🏠',
+    icon: '??',
     description: 'Protection internationale',
     delais: ['Procedure acceleree 15 jours', 'Procedure normale 6 mois', 'CNDA 5 mois'],
     documents: ['Recit', 'Preuves persecution', 'Documents identite', 'Convocation OFPRA']
@@ -120,7 +120,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'VISA', 
     label: 'Visa Long Sejour', 
-    icon: '️',
+    icon: '?',
     description: 'VLS-TS etudes, travail, famille',
     delais: ['Rendez-vous consulat', 'Instruction 15 jours-3 mois'],
     documents: ['Passeport', 'Photos', 'Assurance', 'Justificatifs motif']
