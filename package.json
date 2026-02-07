@@ -90,6 +90,8 @@
     "email:setup": "tsx scripts/email-setup.ts",
     "email:to-workspace": "tsx scripts/email-to-workspace.ts",
     "email:to-workspace:ai": "tsx scripts/email-to-workspace-ai.ts",
+    "email:test": "tsx scripts/test-email-processing.ts",
+    "email:thread": "tsx scripts/test-email-threading.ts",
     "gmail:auth": "node scripts/gmail-auth.js",
     "ai:test": "tsx scripts/ai-test.ts",
     "ai:test:ceseda": "tsx scripts/ai-test-ceseda.ts",
@@ -118,7 +120,13 @@
     "dx:setup": "npm install && npx prisma generate && npm run dev",
     "dx:reset": "npm run clean && npm run dx:setup",
     "dx:check": "npm run lint && npm run type-check && npm run test",
-    "dx:health": "node -e \"console.log(\"✅ Node:\", process.version)\""
+    "dx:health": "node -e 'console.log(\"✅ Node:\", process.version)'",
+    "monitor:prod": "tsx scripts/monitor-production.ts",
+    "monitor:loop": "tsx scripts/monitor-loop.ts",
+    "monitor:custom": "tsx scripts/monitor-loop.ts",
+    "demo:script": "tsx scripts/demo-script.ts",
+    "demo:run": "npm run dev",
+    "demo:all": "tsx scripts/demo-all-features.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -147,7 +155,7 @@
     "@types/qrcode": "^1.5.6",
     "@types/socket.io": "^3.0.1",
     "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.36.1",
+    "@upstash/redis": "^1.36.2",
     "@vercel/blob": "^2.0.1",
     "bcryptjs": "^3.0.3",
     "cloudflare": "^5.2.0",

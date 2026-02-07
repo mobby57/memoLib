@@ -226,22 +226,19 @@ async function main() {
 
   console.log('✅ Tenant démo créé:', demoTenant.id);
 
-  // 4. Super Admin
-  console.log('👤 Création du super admin...');
+  // 4. Utilisateurs
+  console.log('👤 Création des utilisateurs...');
 
   const bcrypt = require('bcryptjs');
-  const hashedPassword = await bcrypt.hash('SuperAdmin2026!', 10);
-
+  
+  // Super Admin
   const superAdmin = await prisma.user.upsert({
-    where: { email: 'superadmin@memoLib.com' },
-    update: {
-      password: hashedPassword,
-      role: 'SUPER_ADMIN',
-    },
+    where: { email: 'superadmin@memolib.com' },
+    update: { password: await bcrypt.hash('SuperAdmin2026!', 10), role: 'SUPER_ADMIN' },
     create: {
-      email: 'superadmin@memoLib.com',
+      email: 'superadmin@memolib.com',
       name: 'Super Admin',
-      password: hashedPassword,
+      password: await bcrypt.hash('SuperAdmin2026!', 10),
       role: 'SUPER_ADMIN',
       status: 'active',
       language: 'fr',
@@ -249,9 +246,45 @@ async function main() {
     },
   });
 
-  console.log('✅ Super admin créé:', superAdmin.id);
+  // Avocat
+  const avocat = await prisma.user.upsert({
+    where: { email: 'avocat@memolib.fr' },
+    update: { password: await bcrypt.hash('Avocat2026!', 10), role: 'LAWYER' },
+    create: {
+      email: 'avocat@memolib.fr',
+      name: 'Maître Dupont',
+      password: await bcrypt.hash('Avocat2026!', 10),
+      role: 'LAWYER',
+      tenantId: demoTenant.id,
+      status: 'active',
+      language: 'fr',
+      timezone: 'Europe/Paris',
+    },
+  });
 
-  console.log('🎉 Seeding terminé avec succès !');
+  // Client
+  const client = await prisma.user.upsert({
+    where: { email: 'client@memolib.fr' },
+    update: { password: await bcrypt.hash('Client2026!', 10), role: 'USER' },
+    create: {
+      email: 'client@memolib.fr',
+      name: 'Jean Martin',
+      password: await bcrypt.hash('Client2026!', 10),
+      role: 'USER',
+      tenantId: demoTenant.id,
+      status: 'active',
+      language: 'fr',
+      timezone: 'Europe/Paris',
+    },
+  });
+
+  console.log('✅ Utilisateurs créés:', { superAdmin: superAdmin.id, avocat: avocat.id, client: client.id });
+
+  console.log('\n🎉 Seeding terminé avec succès !');
+  console.log('\n📋 IDENTIFIANTS:');
+  console.log('   Super Admin: superadmin@memolib.com / SuperAdmin2026!');
+  console.log('   Avocat: avocat@memolib.fr / Avocat2026!');
+  console.log('   Client: client@memolib.fr / Client2026!');
 }
 
 main()
