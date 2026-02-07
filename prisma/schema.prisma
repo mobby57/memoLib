@@ -99,6 +99,29 @@ enum AuditAction {
   ARCHIVE
 }
 
+enum SubscriptionPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  UNPAID
+  INCOMPLETE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  CANCELED
+}
+
 enum EventType {
   // Flux ingestion
   FLOW_RECEIVED
@@ -414,6 +437,7 @@ model User {
   dataExportRequests DataExportRequest[]
   consentRecords     ConsentRecord[]
   legalProofs        LegalProof[]
+  billingSubscription BillingSubscription?
 
   @@index([tenantId, email])
   @@index([role])
@@ -1848,4 +1872,75 @@ model LegalProof {
   @@index([isValid])
   @@index([createdAt])
   @@map("legal_proofs")
+}
+
+// ============================================
+// SUBSCRIPTION & BILLING MODELS
+// ============================================
+
+model BillingSubscription {
+  id               String                @id @default(uuid())
+  userId           String                @unique
+  user             User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan             SubscriptionPlan      @default(FREE)
+  status           SubscriptionStatus    @default(ACTIVE)
+  stripeCustomerId String?               @unique
+  stripeSubscriptionId String?          @unique
+  stripePriceId    String?
+  currentPeriodStart DateTime?
+  currentPeriodEnd DateTime?
+  cancelAtPeriodEnd Boolean             @default(false)
+  canceledAt       DateTime?
+  trialStart       DateTime?
+  trialEnd         DateTime?
+  maxClients       Int                   @default(5)
+  maxDossiers      Int                   @default(10)
+  maxStorage       Int                   @default(1024)
+  hasAIFeatures    Boolean               @default(false)
+  hasAdvancedReports Boolean             @default(false)
+  hasAPIAccess     Boolean               @default(false)
+  hasPrioritySupport Boolean             @default(false)
+  metadata         Json                  @default("{}")
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  payments         BillingPayment[]
+
+  @@index([userId])
+  @@index([plan])
+  @@index([status])
+  @@index([stripeCustomerId])
+  @@map("billing_subscriptions")
+}
+
+model BillingPayment {
+  id                    String              @id @default(uuid())
+  subscriptionId        String
+  subscription          BillingSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  stripePaymentIntentId String?             @unique
+  stripeInvoiceId       String?             @unique
+  amount                Int
+  currency              String              @default("eur")
+  status                PaymentStatus       @default(PENDING)
+  description           String?
+  billingEmail          String?
+  billingName           String?
+  billingAddress        Json?
+  paymentMethod         String?
+  last4                 String?
+  brand                 String?
+  paidAt                DateTime?
+  failedAt              DateTime?
+  refundedAt            DateTime?
+  failureCode           String?
+  failureMessage        String?
+  stripeEventId         String?
+  metadata              Json                @default("{}")
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([stripePaymentIntentId])
+  @@index([createdAt])
+  @@map("billing_payments")
 }
