@@ -48,22 +48,12 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 
-# Copy startup script with migrations
-COPY start-with-migrations.js ./start-with-migrations.js
-
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Install Prisma CLI AFTER copying standalone (to avoid being overwritten)
-# Must be done as root before switching to nextjs user  
-RUN npm install prisma@5.22.0 --save-dev --legacy-peer-deps
-
-# Create npm cache directory for nextjs user with correct permissions
-RUN mkdir -p /tmp/.npm && chown -R nextjs:nodejs /tmp/.npm
 
 USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "start-with-migrations.js"]
+CMD ["node", "server.js"]
