@@ -1,183 +1,37 @@
-# Instructions pour Agents IA (MemoLib)
+# Instructions de revue de code GitHub Copilot - MemoLib
 
-Objectif: rendre un agent immédiatement productif dans ce dépôt en respectant l’architecture, les conventions et les flux de travail du projet.
+## Langue et style
+- Répondre en français pour toutes les revues de code
+- Utiliser un ton professionnel et constructif
 
-## Vue d’ensemble
+## Sécurité et conformité
+- Vérifier la conformité RGPD (pas de logs de données personnelles)
+- Valider l'absence de credentials en dur
+- Vérifier les headers de sécurité (CSP, HSTS)
+- Valider l'authentification et les permissions sur les routes API
 
-- Frontend: Next.js 16 (App Router) dans `src/frontend`.
-- Backend: Python (FastAPI en `src/backend`, Flask local en `backend-python`).
-- Données: Prisma côté Next, SQLAlchemy côté Python selon service.
-- Auth: Azure AD via NextAuth; secrets en prod via Azure Key Vault.
-- Intégrations: Microsoft Graph, Twilio (WhatsApp/SMS), OpenAI/Llama, Azure Blob.
+## Architecture Next.js
+- Privilégier les Server Components par défaut
+- Utiliser "use client" uniquement si nécessaire (hooks, événements)
+- Valider la structure App Router (app/ directory)
+- Vérifier les imports de chemins absolus (@/)
 
-## Architecture et frontières
+## Base de données et Prisma
+- Valider les transactions pour les opérations multiples
+- Vérifier la gestion des erreurs Prisma
+- S'assurer de la fermeture des connexions
 
-- UI/pages: `src/frontend/app` (Server Components). Exemple: `src/frontend/app/(dashboard)/page.tsx`.
-- API Frontend (server-only): `src/frontend/app/api/**/route.ts` pour auth/webhooks/intégrations et orchestration vers Python.
-- Backend Python: logique métier et endpoints en `src/backend` (ex. `main_fastapi.py`, `routes/`) ; dev local Flask en `backend-python/app.py`.
-- Communication: appels HTTP depuis les routes Next.js vers Python (local `http://localhost:5000`), éviter l’accès DB direct inter-composants.
+## Performance
+- Éviter les nested ternary operators
+- Privilégier la lisibilité sur la concision
+- Vérifier les dépendances inutiles dans useEffect
+- Valider le lazy loading des composants lourds
 
-Exemple d’appel depuis une route Next.js vers le backend local:
+## TypeScript
+- Éviter les `any`, privilégier les types stricts
+- Valider la cohérence des interfaces
+- Vérifier les null checks
 
-```ts
-// src/frontend/app/api/ai/process/route.ts
-export async function POST(req: Request) {
-  const body = await req.json();
-  const res = await fetch('http://localhost:5000/ai/process', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  return new Response(await res.text(), { status: res.status });
-}
-```
-
-### Exemples supplémentaires
-
-```ts
-// src/frontend/app/api/emails/process/route.ts
-export async function POST(req: Request) {
-  const payload = await req.json();
-  const r = await fetch('http://localhost:5000/emails/process', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  return new Response(await r.text(), { status: r.status });
-}
-```
-
-```ts
-// src/frontend/app/api/webhooks/twilio/route.ts
-export async function POST(req: Request) {
-  const form = await req.formData();
-  const body = form.get('Body');
-  await fetch('http://localhost:5000/webhooks/twilio', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ body }),
-  });
-  return new Response('OK');
-}
-```
-
-## Flux de développement et tâches clés
-
-- Installer dépendances: tâche VS Code "Install: All Dependencies" (npm + Python).
-- Démarrer tout: "Full Stack: Start All" (Next dev + Flask dev). Individuel: "Frontend: Dev", "Backend: Flask Dev".
-- Tests: "Full Stack: Test All" (équivalent `npm test` + `pytest`). Lint: "Full Stack: Lint All".
-- Build/Type-check: "Frontend: Build", "Frontend: Type Check", "Frontend: Lint".
-- Docker (backend Node tâches): vérifier `src/backend/package.json` avant usage.
-
-## Conventions du projet
-
-- API Next: `app/api/**/route.ts` (server-only, pas d’UI).
-- Services/utils: `src/frontend/lib/`, hooks `src/frontend/hooks/`, UI réutilisable `src/frontend/components/`.
-- Monitoring: Sentry via `sentry.*.config.ts` et `instrumentation.ts`.
-- Sécurité: jamais d’actions automatiques sur données sensibles; validation explicite requise (voir `docs/ARCHITECTURE.md`).
-- Environnements: `.env.local` en dev; ne pas hardcoder les secrets (voir `docs/ENVIRONMENT_VARIABLES.md`).
-## Pattern Adapter Multi-Canal (Architecture centrale)
-
-**Objectif**: Normaliser tous les flux d'information (emails, WhatsApp, SMS, formulaires, etc.) vers un format unique avant traitement.
-
-**Localisation**: `src/lib/multichannel/`
-
-### Structure
-
-```
-src/lib/multichannel/
-├── types.ts              # Contrat: NormalizedMessage (interface unique)
-├── adapters/
-│   └── index.ts          # 12 adapters (Email, WhatsApp, SMS, Voice, Slack, Teams, etc.)
-├── adapter-factory.ts    # Factory pattern: création/gestion adapters
-├── channel-service.ts    # Service orchestrateur
-└── audit-service.ts      # Traçabilité blockchain-style
-```
-
-### Règles d'implémentation
-
-1. **Tout flux entrant DOIT passer par un Adapter**
-   - Chaque source externe → 1 adapter dédié
-   - Adapter transforme payload natif → `NormalizedMessage`
-   - Ne jamais court-circuiter l'adapter
-
-2. **Déduplication obligatoire**
-   - Chaque message calcule un `checksum` (SHA-256)
-   - Basé sur: `canal + externalId` OU `sender + body + timestamp`
-   - Rejet automatique des doublons avant stockage
-
-3. **Extraction externalId**
-   - Tous les adapters DOIVENT implémenter `extractExternalId()`
-   - Utiliser l'ID source (Gmail messageId, WhatsApp msgId, Twilio SID, etc.)
-   - Permet traçabilité source-to-sink
-
-4. **Factory obligatoire**
-   - Utiliser `AdapterFactory.getAdapter(channel)` pour obtenir adapter
-   - Ne jamais instancier directement `new EmailAdapter()`
-   - Permet remplacement/mock facile pour tests
-
-### Exemple d'ajout de nouveau canal
-
-```ts
-// 1. Créer adapter dans src/lib/multichannel/adapters/index.ts
-export class NewChannelAdapter implements ChannelAdapter {
-  extractExternalId(payload: Record<string, unknown>): string | undefined {
-    return payload.messageId as string;
-  }
-
-  async parseWebhook(payload: Record<string, unknown>): Promise<Partial<NormalizedMessage>> {
-    return {
-      sender: { email: payload.from },
-      body: payload.text,
-      // ...
-    };
-  }
-}
-
-// 2. Enregistrer dans AdapterFactory
-// (déjà géré automatiquement si type ajouté dans ChannelType)
-```
-
-### Conformité légale (CNIL/RGPD)
-
-- ✅ **Séparation claire**: normalisation ≠ modification du contenu original
-- ✅ **Auditabilité**: source → transformation → stockage tracé
-- ✅ **Justification**: "Données normalisées pour traitement uniforme, contenu préservé"
-- ✅ **Déduplication légale**: économie de stockage + prévention spam
-
-### Points de vigilance
-
-- Chaque adapter calcule checksum au même endroit (déterminisme)
-- Métadonnées sources préservées dans `channelMetadata`
-- Validation signatures (WhatsApp, Twilio, Slack) pour sécurité
-- Ne jamais logger le contenu brut (RGPD)
-
-## Données et intégrations
-
-- Prisma (Next) via `prisma/`; Studio disponible via scripts npm.
-- Python: DB avec `models.py`/`database.py`; endpoints en `routes/`.
-- Intégrations: orchestrer via `app/api/**`, déléguer le traitement lourd au backend Python.
-
-## Tests et qualité
-
-- Frontend: `npm test`, dossiers `__tests__/`, `tests/` (Playwright E2E possible).
-- Backend: tâche "Backend: Pytest" ou "Full Stack: Test All".
-- Pre-commit: "Pre-Commit: Full Check" (lint + type-check + build frontend).
-
-## Points d’attention
-
-- Backend variants: `src/backend` (FastAPI) et `backend-python` (Flask dev). Utiliser "Backend: Flask Dev" (port 5000) en local; confirmer l’environnement cible avant modification d’endpoints.
-- Responsabilités: Next.js gère auth/webhooks/intégrations; Python gère IA et logique métier lourde.
-- Sécurité: SSO Azure AD, audit, aucune automatisation sur données sensibles.
-
-## Références utiles
-
-- README: `README.md`
-- Architecture: `docs/ARCHITECTURE.md`
-- Environnement: `docs/ENVIRONMENT_VARIABLES.md`
-- Config Next: `next.config.js`, `open-next.config.ts`
-- Sentry: `sentry.client.config.ts`, `sentry.server.config.ts`, `instrumentation.ts`
-
----
-
-Feedback souhaité: confirmer le backend cible (Flask vs FastAPI), le pattern d’accès DB préféré côté Python, et les endpoints inter-composants à stabiliser pour documenter des exemples supplémentaires.
+## Tests
+- Suggérer des tests pour la logique métier critique
+- Valider la couverture des edge cases
