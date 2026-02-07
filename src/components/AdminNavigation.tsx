@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 
@@ -12,7 +12,7 @@ export default function AdminNavigation() {
               href="/admin"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              🏠 Dashboard
+              ?? Dashboard
             </Link>
             <Link
               href="/admin/clients"
@@ -48,19 +48,19 @@ export default function AdminNavigation() {
               href="/admin/ai-usage"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-all"
             >
-              🤖 Usage IA
+              ?? Usage IA
             </Link>
             <Link
               href="/admin/costs"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all"
             >
-              💰 Coûts IA
+              ?? Co�ts IA
             </Link>
             <Link
               href="/admin/parametres"
               className="px-4 py-2 rounded-lg font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all"
             >
-              ⚙️ Parametres
+              ?? Parametres
             </Link>
           </div>
 

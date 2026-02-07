@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react'
-import { Card } from '@/components/ui/Card'
+import { Card } from '@/components/ui/card'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import { Button } from '@/components/forms/Button'
 import { Input } from '@/components/forms/Input'
@@ -176,7 +176,7 @@ export default function ExportsPage() {
 
         <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
           <p className="text-sm text-blue-800 dark:text-blue-300">
-            ℹ Le rapport inclut : Vue d'ensemble, liste des factures, analyse par client
+            ? Le rapport inclut : Vue d'ensemble, liste des factures, analyse par client
           </p>
         </div>
       </Card>

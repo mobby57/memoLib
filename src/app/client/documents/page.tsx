@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -92,7 +92,7 @@ export default function DocumentsClient() {
 
   const getFileIcon = (mimeType: string) => {
     if (mimeType.includes('pdf')) return '';
-    if (mimeType.includes('image')) return '️';
+    if (mimeType.includes('image')) return '?';
     if (mimeType.includes('word') || mimeType.includes('document')) return '';
     if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '';
     return '';
@@ -213,7 +213,7 @@ export default function DocumentsClient() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                ️ Images
+                ? Images
               </button>
               <button
                 onClick={() => setFilter('word')}
@@ -261,7 +261,7 @@ export default function DocumentsClient() {
                       download
                       title="Telecharger"
                     >
-                      ️
+                      ?
                     </a>
                   </div>
                   

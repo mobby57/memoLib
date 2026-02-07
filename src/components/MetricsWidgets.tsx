@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 import { TrendingUp, TrendingDown, Clock, Target, DollarSign, Users, FileCheck, AlertTriangle, Calendar, Percent } from 'lucide-react';
 
@@ -213,11 +213,11 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <MetricWidget
           title="Chiffre d'affaires mensuel"
-          value={`${(data.monthlyRevenue / 1000).toFixed(1)}kâ‚¬`}
+          value={`${(data.monthlyRevenue / 1000).toFixed(1)}k€`}
           icon={<DollarSign className="w-6 h-6" />}
           color="purple"
           trend={data.trends.monthlyRevenue}
-          trendLabel={`Objectif: ${(data.monthlyGoal / 1000)}kâ‚¬`}
+          trendLabel={`Objectif: ${(data.monthlyGoal / 1000)}k€`}
           progress={revenueProgress}
         />
 
@@ -235,7 +235,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
           value={data.pendingValidations}
           icon={<AlertTriangle className="w-6 h-6" />}
           color={data.pendingValidations === 0 ? 'green' : data.pendingValidations <= 5 ? 'orange' : 'red'}
-          badge={data.pendingValidations === 0 ? ' a jour' : 'ï¸ Action requise'}
+          badge={data.pendingValidations === 0 ? ' a jour' : '? Action requise'}
           trendLabel={data.pendingValidations === 0 ? 'Tous les dossiers a jour' : `${data.pendingValidations} dossiers necessitent une validation`}
         />
       </div>
@@ -278,12 +278,12 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
                   ? 'text-green-900 dark:text-green-200' 
                   : 'text-blue-900 dark:text-blue-200'
               }`}>
-                {revenueProgress >= 100 ? 'ðŸŽ‰ Objectif mensuel atteint !' : 'ðŸŽ¯ Objectif mensuel'}
+                {revenueProgress >= 100 ? '?? Objectif mensuel atteint !' : '?? Objectif mensuel'}
               </h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className={revenueProgress >= 100 ? 'text-green-800 dark:text-green-300' : 'text-blue-800 dark:text-blue-300'}>
-                    {data.monthlyRevenue.toLocaleString()}â‚¬ / {data.monthlyGoal.toLocaleString()}â‚¬
+                    {data.monthlyRevenue.toLocaleString()}€ / {data.monthlyGoal.toLocaleString()}€
                   </span>
                   <span className={`font-bold ${
                     revenueProgress >= 100 ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'
@@ -301,7 +301,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
                 </div>
                 {revenueProgress < 100 && (
                   <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                    Encore {(data.monthlyGoal - data.monthlyRevenue).toLocaleString()}â‚¬ pour atteindre l'objectif
+                    Encore {(data.monthlyGoal - data.monthlyRevenue).toLocaleString()}€ pour atteindre l'objectif
                   </p>
                 )}
               </div>

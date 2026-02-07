@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import { FileText, Plus, Edit, Trash2, Eye, Copy } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/forms/Button';
 import { Modal } from '@/components/forms/Modal';
 import { Input } from '@/components/forms/Input';

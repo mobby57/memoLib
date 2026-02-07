@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { FileText, CheckCircle2, Clock, AlertTriangle, Calendar, Plus } from 'lucide-react';
 

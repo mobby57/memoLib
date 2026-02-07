@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -66,7 +66,7 @@ export default function ProjectStatusPage() {
         {/* System Status */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold mb-4">️ Base de Donnees</h3>
+            <h3 className="font-semibold mb-4">? Base de Donnees</h3>
             <StatusIndicator status={status.database} label="PostgreSQL" />
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border">
@@ -90,7 +90,7 @@ export default function ProjectStatusPage() {
             <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
               <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">[Check]</div>
               <div>
-                <div className="font-medium">🏛️ Expert Juridique</div>
+                <div className="font-medium">??? Expert Juridique</div>
                 <div className="text-xs text-gray-600">CESEDA valide</div>
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function ProjectStatusPage() {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <a href="/dashboard" className="block bg-blue-600 text-white p-6 rounded-lg hover:bg-blue-700">
-            <div className="text-xl font-semibold mb-2">🏠 Dashboard</div>
+            <div className="text-xl font-semibold mb-2">?? Dashboard</div>
             <div className="text-blue-100">Tableau de bord principal</div>
           </a>
           <a href="/advanced-features" className="block bg-purple-600 text-white p-6 rounded-lg hover:bg-purple-700">
@@ -149,7 +149,7 @@ export default function ProjectStatusPage() {
             <div className="text-purple-100">Fonctionnalites innovantes</div>
           </a>
           <a href="/dossiers" className="block bg-green-600 text-white p-6 rounded-lg hover:bg-green-700">
-            <div className="text-xl font-semibold mb-2">️ Dossiers</div>
+            <div className="text-xl font-semibold mb-2">? Dossiers</div>
             <div className="text-green-100">Gestion CESEDA</div>
           </a>
         </div>

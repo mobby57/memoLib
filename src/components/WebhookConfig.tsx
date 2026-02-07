@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 import { useState } from 'react';
 
@@ -70,7 +70,7 @@ export default function WebhookConfig() {
                 }),
               });
               if (response.ok) {
-                alert('Webhook sauvegardÃ© avec succÃ¨s');
+                alert('Webhook sauvegardé avec succès');
               } else {
                 alert('Erreur lors de la sauvegarde');
               }

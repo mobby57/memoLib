@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Composant Suggestions Intelligentes
  * Affiche les suggestions proactives de l'IA
  * 
@@ -89,7 +89,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
           border: 'border-orange-300',
           text: 'text-orange-800',
           badge: 'bg-orange-600',
-          icon: '️'
+          icon: '?'
         };
       case 'MEDIUM':
         return {
@@ -105,7 +105,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
           border: 'border-blue-300',
           text: 'text-blue-800',
           badge: 'bg-blue-600',
-          icon: 'ℹ️'
+          icon: '??'
         };
     }
   };
@@ -170,11 +170,11 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
                 {/* Details */}
                 <div className="flex items-center gap-4 text-xs text-gray-600 mb-3">
                   <div className="flex items-center gap-1">
-                    <span>🎯</span>
+                    <span>??</span>
                     <span>Confiance: {(suggestion.confidence * 100).toFixed(0)}%</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span>️</span>
+                    <span>?</span>
                     <span>~{suggestion.estimatedTimeMinutes} min</span>
                   </div>
                   <div className="flex items-center gap-1">

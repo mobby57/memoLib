@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with useSession hook
 export const dynamic = 'force-dynamic';
@@ -415,12 +415,12 @@ export default function FacturesPage() {
     {
       accessor: 'montantHT' as const,
       header: 'Montant HT',
-      render: (value: number) => `${value.toFixed(2)} â‚¬`,
+      render: (value: number) => `${value.toFixed(2)} €`,
     },
     {
       accessor: 'montantTTC' as const,
       header: 'Montant TTC',
-      render: (value: number) => `${value.toFixed(2)} â‚¬`,
+      render: (value: number) => `${value.toFixed(2)} €`,
     },
     {
       accessor: 'statut' as const,
@@ -512,7 +512,7 @@ export default function FacturesPage() {
               Gestion des factures
             </h1>
             <p className="text-emerald-100 mt-2 max-w-lg">
-              CA Total: {stats.total.toFixed(2)} â‚¬ - Dont {stats.montantPaye.toFixed(2)} â‚¬ encaissÃ©
+              CA Total: {stats.total.toFixed(2)} € - Dont {stats.montantPaye.toFixed(2)} € encaissé
             </p>
           </div>
           <div className="flex gap-2">
@@ -539,18 +539,18 @@ export default function FacturesPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-emerald-600" />
-            RÃ©partition du chiffre d&apos;affaires
+            Répartition du chiffre d&apos;affaires
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Barre de progression CA encaissÃ© */}
+          {/* Barre de progression CA encaissé */}
           <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
-                EncaissÃ©
+                Encaissé
               </span>
               <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
-                {stats.montantPaye.toFixed(2)} â‚¬
+                {stats.montantPaye.toFixed(2)} €
               </span>
             </div>
             <div className="w-full bg-emerald-200 dark:bg-emerald-800 rounded-full h-3">
@@ -573,7 +573,7 @@ export default function FacturesPage() {
                 En attente
               </span>
               <span className="text-sm font-bold text-blue-700 dark:text-blue-300">
-                {stats.montantEnAttente.toFixed(2)} â‚¬
+                {stats.montantEnAttente.toFixed(2)} €
               </span>
             </div>
             <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-3">
@@ -615,7 +615,7 @@ export default function FacturesPage() {
                 <>
                   <CheckCircle className="w-5 h-5 text-green-500" />
                   <span className="text-xs text-green-600 dark:text-green-400">
-                    Tout est Ã  jour
+                    Tout est à jour
                   </span>
                 </>
               )}
@@ -629,7 +629,7 @@ export default function FacturesPage() {
         <div className="transform hover:scale-105 transition-transform duration-300">
           <StatCard
             title="CA Total"
-            value={`${stats.total.toFixed(2)} â‚¬`}
+            value={`${stats.total.toFixed(2)} €`}
             icon={TrendingUp}
             trend={{ value: 15, isPositive: true }}
           />
@@ -637,14 +637,14 @@ export default function FacturesPage() {
         <div className="transform hover:scale-105 transition-transform duration-300">
           <StatCard
             title="Montant paye"
-            value={`${stats.montantPaye.toFixed(2)} â‚¬`}
+            value={`${stats.montantPaye.toFixed(2)} €`}
             icon={CheckCircle}
           />
         </div>
         <div className="transform hover:scale-105 transition-transform duration-300">
           <StatCard
             title="En attente"
-            value={`${stats.montantEnAttente.toFixed(2)} â‚¬`}
+            value={`${stats.montantEnAttente.toFixed(2)} €`}
             icon={Clock}
           />
         </div>
@@ -792,7 +792,7 @@ export default function FacturesPage() {
               </label>
               <input
                 type="text"
-                value={`${calculerMontantTTC()} â‚¬`}
+                value={`${calculerMontantTTC()} €`}
                 disabled
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
               />

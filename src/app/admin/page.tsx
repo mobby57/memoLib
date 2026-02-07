@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Dashboard Admin/Avocat - Gestion du cabinet
  * Niveau 2 : Gestion clients, dossiers, avec limites plan
  */

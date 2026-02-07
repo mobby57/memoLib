@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Panel Actions Proposees - Reduction d'incertitude
@@ -24,7 +24,7 @@ const TYPE_ICONS: Record<string, string> = {
   QUESTION: '',
   DOCUMENT_REQUEST: '',
   ALERT: '',
-  ESCALATION: '️',
+  ESCALATION: '?',
   FORM_SEND: '',
 };
 

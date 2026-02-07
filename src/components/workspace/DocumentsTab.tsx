@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Archive, FileText, Image, Video, File, Download, Eye, Check, X, Upload, Plus, Filter, Search } from 'lucide-react';
 import { useState } from 'react';

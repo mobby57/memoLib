@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Composant Dashboard Analytique Avance
  * Visualisation des metriques IA et tendances
  * 
@@ -146,7 +146,7 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
           {analytics.improvements.map((improvement, index) => {
             const statusConfig = {
               improving: { color: 'bg-green-500', icon: '', text: 'En amelioration' },
-              stable: { color: 'bg-blue-500', icon: '️', text: 'Stable' },
+              stable: { color: 'bg-blue-500', icon: '?', text: 'Stable' },
               declining: { color: 'bg-red-500', icon: '', text: 'En baisse' }
             };
             
@@ -195,7 +195,7 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
       {/* Repartition des actions */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4">
-          🎯 Repartition des Actions IA
+          ?? Repartition des Actions IA
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {analytics.actionsByType.map((action, index) => {
@@ -309,7 +309,7 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
             .filter(i => i.status === 'declining')
             .map((improvement, index) => (
               <div key={index} className="flex items-start gap-2 text-sm">
-                <span className="text-red-600">️</span>
+                <span className="text-red-600">?</span>
                 <span className="text-gray-700">
                   <strong>{improvement.actionType}</strong>: Performance en baisse de{' '}
                   {Math.abs(improvement.improvement * 100).toFixed(1)}%. Reviser les prompts systeme.
@@ -329,7 +329,7 @@ export function AnalyticsDashboard({ tenantId }: { tenantId: string }) {
             ))}
           {analytics.globalSuccessRate > 0.85 && (
             <div className="flex items-start gap-2 text-sm">
-              <span className="text-blue-600">🎉</span>
+              <span className="text-blue-600">??</span>
               <span className="text-gray-700">
                 Excellent taux de succes global ({(analytics.globalSuccessRate * 100).toFixed(0)}
                 %). Le systeme fonctionne de maniere optimale.

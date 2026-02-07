@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Composant d'affichage de l'etat CONTEXT_IDENTIFIED
  * Presenter des cadres possibles, jamais une verite
  */
@@ -28,8 +28,8 @@ export function ContextIdentifiedView({
   
   const getTypeIcon = (type: ContextHypothesis['type']) => {
     const icons = {
-      LEGAL: '️',
-      ADMINISTRATIVE: '🏛️',
+      LEGAL: '?',
+      ADMINISTRATIVE: '???',
       PROCEDURAL: '',
       TEMPORAL: '',
       RELATIONAL: '',

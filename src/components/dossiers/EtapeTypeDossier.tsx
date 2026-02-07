@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useFormContext } from 'react-hook-form'
 import { Calendar, AlertTriangle } from 'lucide-react'
@@ -17,7 +17,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'RECOURS_OQTF', 
     label: 'Recours OQTF', 
-    icon: '️',
+    icon: '?',
     description: 'Recours contre une obligation de quitter le territoire francais',
     delais: '48h pour refere-liberte, 2 mois pour TA',
     urgence: 'critique',
@@ -26,7 +26,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'NATURALISATION', 
     label: 'Naturalisation', 
-    icon: '🇫🇷',
+    icon: '????',
     description: 'Demande d\'acquisition de la nationalite francaise',
     delais: 'Instruction 12 a 18 mois',
     urgence: 'normale',
@@ -35,7 +35,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'REGROUPEMENT_FAMILIAL', 
     label: 'Regroupement Familial', 
-    icon: '‍‍',
+    icon: '??',
     description: 'Faire venir sa famille en France (conjoint, enfants)',
     delais: 'Instruction 6 mois, visite logement',
     urgence: 'normale',
@@ -44,7 +44,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'ASILE', 
     label: 'Demande d\'Asile', 
-    icon: '🏠',
+    icon: '??',
     description: 'Demande de protection internationale (refugie, protection subsidiaire)',
     delais: '15 jours procedure acceleree, 6 mois normale',
     urgence: 'haute',
@@ -53,7 +53,7 @@ const TYPES_DOSSIER = [
   { 
     value: 'VISA', 
     label: 'Visa Long Sejour', 
-    icon: '️',
+    icon: '?',
     description: 'VLS-TS pour etudes, travail, famille',
     delais: '15 jours a 3 mois',
     urgence: 'normale',

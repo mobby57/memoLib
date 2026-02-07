@@ -1,4 +1,4 @@
-ï»¿/**
+/**
  * Page de demonstration des fonctionnalites avancees
  * Recherche semantique, Suggestions, Analytics
  */
@@ -99,7 +99,7 @@ export default function AdvancedFeaturesPage() {
               <h2 className="text-xl font-bold text-gray-900 mb-2">Apprentissage Continu</h2>
               <p className="text-gray-700">
                 Le systeme analyse chaque validation humaine pour ameliorer ses predictions. Plus
-                vous validez, plus le systÃ¨me devient prÃ©cis et adaptÃ© Ã  votre cabinet.
+                vous validez, plus le système devient précis et adapté à votre cabinet.
               </p>
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4">
@@ -130,7 +130,7 @@ export default function AdvancedFeaturesPage() {
               <h2 className="text-xl font-bold text-gray-900 mb-2">IA Proactive</h2>
               <p className="text-gray-700 mb-4">
                 Le moteur d'analyse surveille en permanence vos dossiers pour identifier les
-                opportunitÃ©s d'amelioration et vous suggerer des actions pertinentes.
+                opportunités d'amelioration et vous suggerer des actions pertinentes.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div className="bg-white rounded-lg p-3 text-center">
@@ -163,8 +163,8 @@ export default function AdvancedFeaturesPage() {
                 Recherche par Sens, pas par Mots-Cles
               </h2>
               <p className="text-gray-700 mb-4">
-                Utilisez le pouvoir des embeddings IA pour trouver des dossiers similaires mÃªme
-                s'ils n'ont pas les mÃªmes mots-clÃ©s. Le systÃ¨me comprend le contexte.
+                Utilisez le pouvoir des embeddings IA pour trouver des dossiers similaires même
+                s'ils n'ont pas les mêmes mots-clés. Le système comprend le contexte.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4">

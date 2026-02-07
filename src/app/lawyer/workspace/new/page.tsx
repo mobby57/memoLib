@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 /**
- * 🆕 Nouveau Workspace - Creation d'un espace de raisonnement
+ * ?? Nouveau Workspace - Creation d'un espace de raisonnement
  * Formulaire intelligent pour initialiser un workspace depuis differentes sources
  */
 
@@ -31,12 +31,12 @@ const SOURCE_TYPE_CONFIG = {
     description: 'Creer depuis un appel telephonique',
   },
   COURRIER: {
-    icon: '️',
+    icon: '?',
     label: 'Courrier',
     description: 'Creer depuis un courrier postal',
   },
   MANUAL: {
-    icon: '️',
+    icon: '?',
     label: 'Manuel',
     description: 'Creer manuellement un workspace',
   },
@@ -242,8 +242,8 @@ export default function NewWorkspacePage() {
               ))}
             </select>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              Le système peut détecter automatiquement le type de procédure, mais vous pouvez le
-              spécifier.
+              Le syst�me peut d�tecter automatiquement le type de proc�dure, mais vous pouvez le
+              sp�cifier.
             </p>
           </div>
 

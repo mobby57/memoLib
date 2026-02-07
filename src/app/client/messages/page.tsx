@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -281,7 +281,7 @@ export default function MessagesClient() {
       <div className="max-w-5xl mx-auto px-8 pb-8 w-full">
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">️</span>
+            <span className="text-2xl">?</span>
             <div>
               <p className="font-semibold text-yellow-800 mb-1">Informations importantes</p>
               <ul className="text-sm text-yellow-700 space-y-1">

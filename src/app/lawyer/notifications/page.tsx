@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Alert } from '@/components/ui/Alert';
@@ -78,8 +78,8 @@ export default function NotificationsPage() {
 
   const getSeverityIcon = (severity: string) => {
     if (severity === 'critical') return '';
-    if (severity === 'warning') return '️';
-    return 'ℹ️';
+    if (severity === 'warning') return '?';
+    return '??';
   };
 
   if (loading) {

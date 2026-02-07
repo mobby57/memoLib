@@ -1,6 +1,6 @@
-ï»¿/**
+/**
  * Tests pour le composant Button
- * Couverture: variants, sizes, Ã©tats, accessibilitÃ©
+ * Couverture: variants, sizes, états, accessibilité
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -13,10 +13,10 @@ describe('Button Component', () => {
       expect(screen.getByRole('button', { name: /cliquer/i })).toBeInTheDocument();
     });
 
-    it('devrait avoir le type button par dÃ©faut', () => {
+    it('devrait avoir le type button par défaut', () => {
       render(<Button>Test</Button>);
       const button = screen.getByRole('button');
-      // Le type peut Ãªtre undefined ou 'button' selon l'implÃ©mentation
+      // Le type peut être undefined ou 'button' selon l'implémentation
       const type = button.getAttribute('type');
       expect(type === null || type === 'button').toBe(true);
     });
@@ -28,7 +28,7 @@ describe('Button Component', () => {
   });
 
   describe('Variants', () => {
-    it('devrait rendre le variant default par dÃ©faut', () => {
+    it('devrait rendre le variant default par défaut', () => {
       render(<Button>Default</Button>);
       const button = screen.getByRole('button');
       expect(button).toHaveClass('bg-primary');
@@ -54,7 +54,7 @@ describe('Button Component', () => {
   });
 
   describe('Sizes', () => {
-    it('devrait rendre la taille default par dÃ©faut', () => {
+    it('devrait rendre la taille default par défaut', () => {
       render(<Button>Default Size</Button>);
       const button = screen.getByRole('button');
       expect(button).toHaveClass('h-10');
@@ -73,23 +73,23 @@ describe('Button Component', () => {
     });
   });
 
-  describe('Ã‰tats', () => {
-    it('devrait Ãªtre dÃ©sactivÃ© quand disabled est true', () => {
-      render(<Button disabled>DÃ©sactivÃ©</Button>);
+  describe('États', () => {
+    it('devrait être désactivé quand disabled est true', () => {
+      render(<Button disabled>Désactivé</Button>);
       const button = screen.getByRole('button');
       expect(button).toBeDisabled();
       expect(button).toHaveClass('disabled:opacity-50');
     });
 
-    it('ne devrait pas dÃ©clencher onClick quand dÃ©sactivÃ©', () => {
+    it('ne devrait pas déclencher onClick quand désactivé', () => {
       const handleClick = jest.fn();
-      render(<Button disabled onClick={handleClick}>DÃ©sactivÃ©</Button>);
+      render(<Button disabled onClick={handleClick}>Désactivé</Button>);
       
       fireEvent.click(screen.getByRole('button'));
       expect(handleClick).not.toHaveBeenCalled();
     });
 
-    it('devrait dÃ©clencher onClick quand cliquÃ©', () => {
+    it('devrait déclencher onClick quand cliqué', () => {
       const handleClick = jest.fn();
       render(<Button onClick={handleClick}>Cliquer</Button>);
       
@@ -98,21 +98,21 @@ describe('Button Component', () => {
     });
   });
 
-  describe('Classes personnalisÃ©es', () => {
-    it('devrait accepter des classes personnalisÃ©es', () => {
+  describe('Classes personnalisées', () => {
+    it('devrait accepter des classes personnalisées', () => {
       render(<Button className="custom-class">Custom</Button>);
       expect(screen.getByRole('button')).toHaveClass('custom-class');
     });
 
-    it('devrait combiner les classes par dÃ©faut et personnalisÃ©es', () => {
+    it('devrait combiner les classes par défaut et personnalisées', () => {
       render(<Button variant="outline" className="mt-4">Combined</Button>);
       const button = screen.getByRole('button');
       expect(button).toHaveClass('border', 'mt-4');
     });
   });
 
-  describe('AccessibilitÃ©', () => {
-    it('devrait Ãªtre focusable', () => {
+  describe('Accessibilité', () => {
+    it('devrait être focusable', () => {
       render(<Button>Focus me</Button>);
       const button = screen.getByRole('button');
       button.focus();
@@ -135,12 +135,12 @@ describe('Button Component', () => {
     it('devrait rendre des enfants complexes', () => {
       render(
         <Button>
-          <span data-testid="icon">ðŸ”¥</span>
-          <span>Avec icÃ´ne</span>
+          <span data-testid="icon">??</span>
+          <span>Avec icône</span>
         </Button>
       );
       expect(screen.getByTestId('icon')).toBeInTheDocument();
-      expect(screen.getByText('Avec icÃ´ne')).toBeInTheDocument();
+      expect(screen.getByText('Avec icône')).toBeInTheDocument();
     });
   });
 

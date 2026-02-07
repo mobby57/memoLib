@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -67,7 +67,7 @@ export default function CalendarPage() {
   const getTypeIcon = (type: string) => {
     const icons: Record<string, string> = {
       rdv: '',
-      audience: '️',
+      audience: '?',
       deadline: '',
       rappel: '',
       autre: '',
@@ -171,7 +171,7 @@ export default function CalendarPage() {
             onClick={() => navigateMonth(-1)}
             className="p-2 hover:bg-gray-100 rounded-lg"
           >
-            ️
+            ?
           </button>
           <h2 className="text-xl font-semibold min-w-[200px] text-center">
             {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
@@ -180,7 +180,7 @@ export default function CalendarPage() {
             onClick={() => navigateMonth(1)}
             className="p-2 hover:bg-gray-100 rounded-lg"
           >
-            ️
+            ?
           </button>
         </div>
 
@@ -430,7 +430,7 @@ function NewEventModal({
               className="w-full px-3 py-2 border rounded-lg"
             >
               <option value="rdv"> Rendez-vous</option>
-              <option value="audience">️ Audience</option>
+              <option value="audience">? Audience</option>
               <option value="deadline"> echeance</option>
               <option value="rappel"> Rappel</option>
               <option value="autre"> Autre</option>
@@ -526,7 +526,7 @@ function EventDetailModal({
 
   const typeLabels: Record<string, string> = {
     rdv: ' Rendez-vous',
-    audience: '️ Audience',
+    audience: '? Audience',
     deadline: ' echeance',
     rappel: ' Rappel',
     autre: ' Autre',
@@ -601,7 +601,7 @@ function EventDetailModal({
             disabled={loading}
             className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50"
           >
-            ️ Supprimer
+            ? Supprimer
           </button>
           <button onClick={onClose} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">
             Fermer

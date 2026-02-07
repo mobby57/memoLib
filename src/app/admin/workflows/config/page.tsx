@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import {
@@ -26,7 +26,7 @@ const CardDescription = ({ children }: { children: React.ReactNode }) => (
 );
 
 /**
- * ️ Interface d'Administration - Configuration Avancee des Workflows
+ * ? Interface d'Administration - Configuration Avancee des Workflows
  */
 
 export default function WorkflowConfigPage() {
@@ -86,7 +86,7 @@ export default function WorkflowConfigPage() {
       {/* En-tete */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">️ Configuration Avancee</h1>
+          <h1 className="text-3xl font-bold">? Configuration Avancee</h1>
           <p className="text-gray-600">Personnalisation complete des workflows intelligents</p>
         </div>
         <div className="flex gap-2">
@@ -102,7 +102,7 @@ export default function WorkflowConfigPage() {
       {/* Presets */}
       <Card>
         <CardHeader>
-          <CardTitle>🎨 Configurations Predefinies</CardTitle>
+          <CardTitle>?? Configurations Predefinies</CardTitle>
           <CardDescription>Charger une configuration optimisee</CardDescription>
         </CardHeader>
         <CardContent>
@@ -136,7 +136,7 @@ export default function WorkflowConfigPage() {
               onClick={() => loadPreset('law-firm')}
               className="col-span-2"
             >
-              ️ Cabinet Juridique
+              ? Cabinet Juridique
             </Button>
           </div>
         </CardContent>
@@ -158,7 +158,7 @@ export default function WorkflowConfigPage() {
             <CardHeader>
               <CardTitle>Analyse Intelligente</CardTitle>
               <CardDescription>
-                Paramètres du système pour l'analyse et les suggestions
+                Param�tres du syst�me pour l'analyse et les suggestions
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -351,7 +351,7 @@ export default function WorkflowConfigPage() {
                           onChange={(e) => setConfig({...config, ...e.target.value})} 
                           className="w-4 h-4"
                           />
-                        <Label>️ Dismissible</Label>
+                        <Label>? Dismissible</Label>
                       </div>
 
                       <div className="space-y-2">

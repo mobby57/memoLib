@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -101,7 +101,7 @@ export default function DashboardPage() {
 
   // Redirection selon le role
   useEffect(() => {
-    // Attendre que la session soit chargÃ©e
+    // Attendre que la session soit chargée
     if (isLoading) return;
 
     if (!isAuthenticated) {
@@ -167,12 +167,12 @@ export default function DashboardPage() {
     try {
       setLoading(true);
 
-      // DÃ‰MO MODE: Utiliser les donnÃ©es mockÃ©es directement pour rapiditÃ©
+      // DÉMO MODE: Utiliser les données mockées directement pour rapidité
       const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || !user?.tenantId;
 
       let statsData;
       if (isDemoMode) {
-        // DonnÃ©es de dÃ©mo - ZÃ‰RO latence
+        // Données de démo - ZÉRO latence
         statsData = {
           totalDossiers: 24,
           dossiersActifs: 18,
@@ -333,7 +333,7 @@ export default function DashboardPage() {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Bonjour';
-    if (hour < 18) return 'Bon aprÃ¨s-midi';
+    if (hour < 18) return 'Bon après-midi';
     return 'Bonsoir';
   };
 
@@ -345,10 +345,10 @@ export default function DashboardPage() {
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold">
-              {getGreeting()}, {user?.name?.split(' ')[0]} ğŸ‘‹
+              {getGreeting()}, {user?.name?.split(' ')[0]} ??
             </h1>
             <p className="text-blue-100 mt-1">
-              Voici un aperÃ§u de votre cabinet â€¢{' '}
+              Voici un aperçu de votre cabinet •{' '}
               {new Date().toLocaleDateString('fr-FR', {
                 weekday: 'long',
                 day: 'numeric',
@@ -369,7 +369,7 @@ export default function DashboardPage() {
               onClick={() => setShowMetrics(!showMetrics)}
               className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 text-sm font-medium transition-colors"
             >
-              {showMetrics ? 'ğŸ“Š Masquer mÃ©triques' : 'ğŸ“Š Voir mÃ©triques'}
+              {showMetrics ? '?? Masquer métriques' : '?? Voir métriques'}
             </button>
             <Link
               href="/ai-assistant"
@@ -492,7 +492,7 @@ export default function DashboardPage() {
           trend={{ value: Math.abs(stats.trends.factures), isPositive: false }}
         />
         <StatCard
-          title="Revenus (â‚¬)"
+          title="Revenus (€)"
           value={`${(stats.revenus / 1000).toFixed(0)}K`}
           icon={DollarSign}
           trend={{ value: stats.trends.revenus, isPositive: true }}
@@ -593,7 +593,7 @@ export default function DashboardPage() {
                         dataKey="revenus"
                         stroke="#10b981"
                         strokeWidth={3}
-                        name="Revenus (â‚¬)"
+                        name="Revenus (€)"
                         dot={{ fill: '#10b981', r: 5 }}
                       />
                     </LineChart>

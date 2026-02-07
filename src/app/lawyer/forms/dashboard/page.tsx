@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 
@@ -374,8 +374,8 @@ export default function FormsDashboardPage() {
 function formatFormType(type: string): string {
   const types: Record<string, string> = {
     'resource-request': ' Demande de Ressources',
-    'strategic-decision': '🎯 Decision Strategique',
-    'risk-assessment': '️ evaluation de Risque',
+    'strategic-decision': '?? Decision Strategique',
+    'risk-assessment': '? evaluation de Risque',
   };
   return types[type] || type;
 }

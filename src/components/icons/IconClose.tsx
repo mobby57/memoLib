@@ -1,4 +1,4 @@
-﻿
+
 
 export interface IconCloseProps extends React.SVGProps<SVGSVGElement> {
   size?: number;

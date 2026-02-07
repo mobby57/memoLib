@@ -1,6 +1,6 @@
-ï»¿/**
+/**
  * Tests pour ThemeProvider component
- * Couverture: contexte, thÃ¨mes, tokens couleurs
+ * Couverture: contexte, thèmes, tokens couleurs
  */
 
 import React from 'react';
@@ -8,7 +8,7 @@ import { render, screen } from '@testing-library/react';
 import { renderHook } from '@testing-library/react';
 import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 
-// Couleurs mockÃ©es pour les tests
+// Couleurs mockées pour les tests
 const mockColors = {
   'iris-100': '#5B5BD6',
   'iris-80': '#6E6ADE',
@@ -30,7 +30,7 @@ describe('ThemeProvider Component', () => {
       expect(screen.getByTestId('child')).toBeInTheDocument();
     });
 
-    it('devrait appliquer le thÃ¨me light par dÃ©faut', () => {
+    it('devrait appliquer le thème light par défaut', () => {
       render(
         <ThemeProvider>
           <div data-testid="child">Test</div>
@@ -41,7 +41,7 @@ describe('ThemeProvider Component', () => {
       expect(themeDiv).toHaveClass('theme-light');
     });
 
-    it('devrait appliquer le thÃ¨me dark quand spÃ©cifiÃ©', () => {
+    it('devrait appliquer le thème dark quand spécifié', () => {
       render(
         <ThemeProvider theme="dark">
           <div data-testid="child">Test</div>
@@ -58,7 +58,7 @@ describe('ThemeProvider Component', () => {
       <ThemeProvider theme="light">{children}</ThemeProvider>
     );
 
-    it('devrait retourner le thÃ¨me actuel', () => {
+    it('devrait retourner le thème actuel', () => {
       const { result } = renderHook(() => useTheme(), { wrapper });
 
       expect(result.current.theme).toBe('light');
@@ -120,22 +120,22 @@ describe('CSS Variables', () => {
     '--color-button',
   ];
 
-  it('devrait dÃ©finir --color-primary', () => {
+  it('devrait définir --color-primary', () => {
     expect(cssVariables).toContain('--color-primary');
   });
 
-  it('devrait dÃ©finir --color-secondary', () => {
+  it('devrait définir --color-secondary', () => {
     expect(cssVariables).toContain('--color-secondary');
   });
 
-  it('devrait dÃ©finir les Ã©tats hover', () => {
+  it('devrait définir les états hover', () => {
     expect(cssVariables).toContain('--color-primary-hover');
     expect(cssVariables).toContain('--color-secondary-hover');
   });
 });
 
 describe('ThemeContext Default Values', () => {
-  it('devrait avoir des valeurs par dÃ©faut', () => {
+  it('devrait avoir des valeurs par défaut', () => {
     const defaultContext = {
       theme: 'light' as const,
       colors: mockColors,
@@ -148,20 +148,20 @@ describe('ThemeContext Default Values', () => {
 
 describe('Memoization', () => {
   it('devrait memoizer le contexte', () => {
-    // Test que useMemo est utilisÃ© pour Ã©viter les re-renders inutiles
+    // Test que useMemo est utilisé pour éviter les re-renders inutiles
     const memoizedValue = {
       theme: 'light' as const,
       colors: mockColors,
     };
 
-    // Les valeurs doivent Ãªtre stables
+    // Les valeurs doivent être stables
     expect(memoizedValue.theme).toBe('light');
     expect(Object.keys(memoizedValue)).toEqual(['theme', 'colors']);
   });
 });
 
 describe('Color Contrast', () => {
-  // Helper pour calculer la luminositÃ© relative
+  // Helper pour calculer la luminosité relative
   const getLuminance = (hex: string): number => {
     const rgb = parseInt(hex.slice(1), 16);
     const r = (rgb >> 16) & 0xff;
@@ -170,7 +170,7 @@ describe('Color Contrast', () => {
     return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   };
 
-  it('background devrait Ãªtre clair pour le thÃ¨me light', () => {
+  it('background devrait être clair pour le thème light', () => {
     if (mockColors.background.startsWith('#')) {
       const luminance = getLuminance(mockColors.background);
       expect(luminance).toBeGreaterThan(0.5);

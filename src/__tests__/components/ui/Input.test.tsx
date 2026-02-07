@@ -1,6 +1,6 @@
-ï»¿/**
+/**
  * Tests pour le composant Input
- * Couverture: props, Ã©tats, accessibilitÃ©
+ * Couverture: props, états, accessibilité
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -22,9 +22,9 @@ describe('Input Component', () => {
   });
 
   describe('Types', () => {
-    it('devrait rendre un input text par dÃ©faut', () => {
+    it('devrait rendre un input text par défaut', () => {
       render(<Input data-testid="input" />);
-      // Le type peut Ãªtre undefined si non spÃ©cifiÃ©, ce qui est Ã©quivalent Ã  text
+      // Le type peut être undefined si non spécifié, ce qui est équivalent à text
       const input = screen.getByTestId('input');
       const type = input.getAttribute('type');
       expect(type === null || type === 'text').toBe(true);
@@ -59,17 +59,17 @@ describe('Input Component', () => {
   });
 
   describe('Valeur', () => {
-    it('devrait accepter une valeur contrÃ´lÃ©e', () => {
+    it('devrait accepter une valeur contrôlée', () => {
       render(<Input value="valeur test" onChange={() => {}} />);
       expect(screen.getByRole('textbox')).toHaveValue('valeur test');
     });
 
-    it('devrait accepter une valeur par dÃ©faut', () => {
-      render(<Input defaultValue="valeur par dÃ©faut" />);
-      expect(screen.getByRole('textbox')).toHaveValue('valeur par dÃ©faut');
+    it('devrait accepter une valeur par défaut', () => {
+      render(<Input defaultValue="valeur par défaut" />);
+      expect(screen.getByRole('textbox')).toHaveValue('valeur par défaut');
     });
 
-    it('devrait dÃ©clencher onChange lors de la saisie', async () => {
+    it('devrait déclencher onChange lors de la saisie', async () => {
       const handleChange = jest.fn();
       render(<Input onChange={handleChange} />);
       
@@ -78,8 +78,8 @@ describe('Input Component', () => {
     });
   });
 
-  describe('Ã‰tats', () => {
-    it('devrait Ãªtre dÃ©sactivÃ© quand disabled', () => {
+  describe('États', () => {
+    it('devrait être désactivé quand disabled', () => {
       render(<Input disabled />);
       expect(screen.getByRole('textbox')).toBeDisabled();
     });
@@ -89,13 +89,13 @@ describe('Input Component', () => {
       expect(screen.getByRole('textbox')).toHaveClass('disabled:cursor-not-allowed', 'disabled:opacity-50');
     });
 
-    it('devrait Ãªtre en lecture seule quand readOnly', () => {
+    it('devrait être en lecture seule quand readOnly', () => {
       render(<Input readOnly defaultValue="lecture seule" />);
       const input = screen.getByRole('textbox');
       expect(input).toHaveAttribute('readonly');
     });
 
-    it('devrait Ãªtre requis quand required', () => {
+    it('devrait être requis quand required', () => {
       render(<Input required />);
       expect(screen.getByRole('textbox')).toBeRequired();
     });
@@ -112,7 +112,7 @@ describe('Input Component', () => {
       expect(screen.getByRole('textbox')).toHaveClass('focus:ring-blue-400');
     });
 
-    it('devrait Ãªtre focusable', () => {
+    it('devrait être focusable', () => {
       render(<Input />);
       const input = screen.getByRole('textbox');
       input.focus();
@@ -120,8 +120,8 @@ describe('Input Component', () => {
     });
   });
 
-  describe('Classes personnalisÃ©es', () => {
-    it('devrait accepter des classes personnalisÃ©es', () => {
+  describe('Classes personnalisées', () => {
+    it('devrait accepter des classes personnalisées', () => {
       render(<Input className="custom-input" />);
       expect(screen.getByRole('textbox')).toHaveClass('custom-input');
     });
@@ -177,7 +177,7 @@ describe('Input Component', () => {
     });
   });
 
-  describe('AccessibilitÃ©', () => {
+  describe('Accessibilité', () => {
     it('devrait accepter aria-label', () => {
       render(<Input aria-label="Champ de recherche" />);
       expect(screen.getByRole('textbox')).toHaveAttribute('aria-label', 'Champ de recherche');
@@ -199,8 +199,8 @@ describe('Input Component', () => {
     });
   });
 
-  describe('Ã‰vÃ©nements', () => {
-    it('devrait dÃ©clencher onFocus', () => {
+  describe('Événements', () => {
+    it('devrait déclencher onFocus', () => {
       const handleFocus = jest.fn();
       render(<Input onFocus={handleFocus} />);
       
@@ -208,7 +208,7 @@ describe('Input Component', () => {
       expect(handleFocus).toHaveBeenCalledTimes(1);
     });
 
-    it('devrait dÃ©clencher onBlur', () => {
+    it('devrait déclencher onBlur', () => {
       const handleBlur = jest.fn();
       render(<Input onBlur={handleBlur} />);
       
@@ -218,7 +218,7 @@ describe('Input Component', () => {
       expect(handleBlur).toHaveBeenCalledTimes(1);
     });
 
-    it('devrait dÃ©clencher onKeyDown', async () => {
+    it('devrait déclencher onKeyDown', async () => {
       const handleKeyDown = jest.fn();
       render(<Input onKeyDown={handleKeyDown} />);
       

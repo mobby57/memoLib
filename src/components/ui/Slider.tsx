@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 export const Slider = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (

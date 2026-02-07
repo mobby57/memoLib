@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 /**
  * Champs specifiques par type de dossier CESEDA
@@ -606,7 +606,7 @@ function FormulaireTitreSejour() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Salaire brut mensuel (€)
+                Salaire brut mensuel (�)
               </label>
               <input
                 type="number"
@@ -753,7 +753,7 @@ function FormulaireNaturalisation() {
   return (
     <div className="space-y-6 bg-indigo-50 border border-indigo-200 rounded-lg p-6">
       <div className="flex items-start gap-3">
-        <div className="text-3xl">🇫🇷</div>
+        <div className="text-3xl">????</div>
         <div>
           <h3 className="text-xl font-bold text-indigo-900 mb-1">Naturalisation Francaise</h3>
           <p className="text-sm text-indigo-700">Acquisition de la nationalite francaise par decret ou declaration</p>
@@ -892,7 +892,7 @@ function FormulaireNaturalisation() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Revenus annuels (€)
+            Revenus annuels (�)
           </label>
           <input
             type="number"
@@ -1077,7 +1077,7 @@ function FormulaireRegroupementFamilial() {
         {/* Ressources */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Revenus mensuels nets (€) <span className="text-red-500">*</span>
+            Revenus mensuels nets (�) <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -1119,7 +1119,7 @@ function FormulaireRegroupementFamilial() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Surface habitable (m²) <span className="text-red-500">*</span>
+            Surface habitable (m�) <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -1236,7 +1236,7 @@ function FormulaireRegroupementFamilial() {
             <p className="font-medium mb-1">Conditions du regroupement familial :</p>
             <ul className="list-disc list-inside space-y-1 text-blue-800">
               <li><strong>Residence</strong> : 18 mois minimum de residence reguliere en France</li>
-              <li><strong>Ressources</strong> : Revenus ≥ SMIC (stables et reguliers)</li>
+              <li><strong>Ressources</strong> : Revenus = SMIC (stables et reguliers)</li>
               <li><strong>Logement</strong> : Surface minimale selon composition familiale + visite OFII</li>
               <li><strong>Delai</strong> : Instruction 6 mois environ + visite logement</li>
               <li><strong>Famille</strong> : Conjoint + enfants mineurs (sauf exceptions)</li>

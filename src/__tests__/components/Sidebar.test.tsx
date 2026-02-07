@@ -1,4 +1,4 @@
-ï»¿/**
+/**
  * Tests pour Sidebar component
  * Couverture: navigation, items de menu, expansion
  */
@@ -32,8 +32,8 @@ jest.mock('lucide-react', () => ({
   Workflow: () => <span data-testid="workflow-icon">Workflow</span>,
   FileDown: () => <span data-testid="filedown-icon">FileDown</span>,
   Sparkles: () => <span data-testid="sparkles-icon">Sparkles</span>,
-  ChevronRight: () => <span data-testid="chevron-right">â†’</span>,
-  ChevronDown: () => <span data-testid="chevron-down">â†“</span>,
+  ChevronRight: () => <span data-testid="chevron-right">?</span>,
+  ChevronDown: () => <span data-testid="chevron-down">?</span>,
   Plus: () => <span data-testid="plus-icon">+</span>,
   Search: () => <span data-testid="search-icon">Search</span>,
   AlertCircle: () => <span data-testid="alert-icon">Alert</span>,
@@ -43,7 +43,7 @@ jest.mock('lucide-react', () => ({
   Archive: () => <span data-testid="archive-icon">Archive</span>,
 }));
 
-// Import aprÃ¨s les mocks
+// Import après les mocks
 import Sidebar from '@/components/Sidebar';
 
 describe('Sidebar Component', () => {
@@ -51,11 +51,11 @@ describe('Sidebar Component', () => {
     it('devrait rendre le sidebar', () => {
       render(<Sidebar />);
       
-      // Le sidebar devrait Ãªtre rendu - utiliser getAllByText car il y a plusieurs Ã©lÃ©ments
+      // Le sidebar devrait être rendu - utiliser getAllByText car il y a plusieurs éléments
       expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
     });
 
-    it('devrait afficher les Ã©lÃ©ments de menu principaux', () => {
+    it('devrait afficher les éléments de menu principaux', () => {
       render(<Sidebar />);
       
       expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
@@ -76,7 +76,7 @@ describe('Menu Items Structure', () => {
     { name: 'Dossiers', href: '/dossiers', badge: 42 },
     { name: 'Clients', href: '/clients' },
     { name: 'Documents', href: '/documents' },
-    { name: 'Ã‰chÃ©ances', href: '/echeances' },
+    { name: 'Échéances', href: '/echeances' },
   ];
 
   it('devrait avoir Dashboard comme premier item', () => {
@@ -102,10 +102,10 @@ describe('SubMenu Items', () => {
     { name: 'Nouveaux dossiers', href: '/dossiers?filter=new', filter: 'new' },
     { name: 'En cours', href: '/dossiers?filter=active', filter: 'active' },
     { name: 'En attente', href: '/dossiers?filter=pending', filter: 'pending' },
-    { name: 'TerminÃ©s', href: '/dossiers?filter=completed', filter: 'completed' },
+    { name: 'Terminés', href: '/dossiers?filter=completed', filter: 'completed' },
   ];
 
-  it('devrait avoir diffÃ©rents filtres', () => {
+  it('devrait avoir différents filtres', () => {
     const filters = subItems.map(s => s.filter).filter(Boolean);
     expect(filters).toContain('new');
     expect(filters).toContain('active');
@@ -120,7 +120,7 @@ describe('SubMenu Items', () => {
 });
 
 describe('Toggle Expand Logic', () => {
-  it('devrait ajouter un item Ã  la liste expandÃ©e', () => {
+  it('devrait ajouter un item à la liste expandée', () => {
     let expandedItems: string[] = [];
     
     const toggleExpand = (itemName: string) => {
@@ -135,7 +135,7 @@ describe('Toggle Expand Logic', () => {
     expect(expandedItems).toContain('Dossiers');
   });
 
-  it('devrait retirer un item dÃ©jÃ  expandÃ©', () => {
+  it('devrait retirer un item déjà expandé', () => {
     let expandedItems: string[] = ['Dossiers'];
     
     const toggleExpand = (itemName: string) => {
@@ -152,7 +152,7 @@ describe('Toggle Expand Logic', () => {
 });
 
 describe('Pathname Detection', () => {
-  it('devrait dÃ©tecter la page active', () => {
+  it('devrait détecter la page active', () => {
     const isActive = (pathname: string, href: string) => {
       if (href === '/dashboard') {
         return pathname === href;
@@ -173,7 +173,7 @@ describe('Role-based Menu', () => {
     const menuForRole = (role: string) => {
       const baseMenu = ['Dashboard', 'Dossiers'];
       if (role === 'AVOCAT' || role === 'ADMIN') {
-        return [...baseMenu, 'Clients', 'Documents', 'Ã‰chÃ©ances'];
+        return [...baseMenu, 'Clients', 'Documents', 'Échéances'];
       }
       return baseMenu;
     };

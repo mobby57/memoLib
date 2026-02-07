@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Panel Manques - CoeUR DU MVP
@@ -25,9 +25,9 @@ const TYPE_LABELS: Record<string, string> = {
 const TYPE_ICONS: Record<string, string> = {
   INFORMATION: '',
   DOCUMENT: '',
-  DECISION: '️',
+  DECISION: '?',
   VALIDATION: '',
-  HUMAN_EXPERTISE: '‍️',
+  HUMAN_EXPERTISE: '??',
 };
 
 export function MissingPanel({ missingElements, onResolve, onAddMissing }: MissingPanelProps) {
