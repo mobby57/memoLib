@@ -1,6 +1,5 @@
 // ============================================
-// PRISMA SCHEMA CORE — MEMOLIB
-// Version simplifiée pour MVP
+// PRISMA SCHEMA SIMPLIFIÉ — MEMOLIB
 // ============================================
 
 generator client {

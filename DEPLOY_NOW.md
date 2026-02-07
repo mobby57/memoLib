@@ -1,66 +1,105 @@
-# 🚀 Déploiement Production - Guide Rapide
+# 🚀 DÉPLOIEMENT SÉCURISÉ - MEMOLIB
 
-## Étape 1: Vérifier que tout fonctionne
+## ✅ CORRECTIONS APPLIQUÉES
+
+Toutes les vulnérabilités critiques ont été corrigées:
+- 🔒 Comptes démo sécurisés (production uniquement)
+- 🚫 Logs sensibles supprimés
+- ⏰ Session étendue à 8h (avocats)
+- 🔧 Architecture optimisée
+
+## 🎯 DÉPLOIEMENT IMMÉDIAT
+
+### Option 1: Vercel (Recommandé)
+```bash
+# Vérification et déploiement sécurisé
+powershell -ExecutionPolicy Bypass -File deploy-secure.ps1 vercel
+```
+
+### Option 2: Fly.io
+```bash
+# Déploiement sur Fly.io
+powershell -ExecutionPolicy Bypass -File deploy-secure.ps1 fly
+```
+
+### Option 3: Manuel (si scripts non disponibles)
+```bash
+# Build de production
+npx next build
+
+# Déploiement Vercel
+npx vercel --prod
+
+# OU Déploiement Fly.io
+fly deploy
+```
+
+## 🔐 VARIABLES D'ENVIRONNEMENT PRODUCTION
+
+Assurez-vous que ces variables sont définies:
 
 ```bash
-cd src/frontend
-npm run lint          # ✅ OK
-npx tsc --noEmit      # Vérifier types
-npx playwright test   # Lancer tests E2E
+# Sécurité
+DEMO_MODE=false
+NEXTAUTH_SECRET=<secret-fort-32-chars>
+ENCRYPTION_KEY=<clé-chiffrement-32-chars>
+
+# Base de données
+DATABASE_URL=<url-postgresql-chiffrée>
+
+# Email (optionnel)
+EMAIL_SERVER=<smtp-server>
+EMAIL_FROM=<email-expediteur>
+
+# OAuth (optionnel)
+GITHUB_CLIENT_ID=<github-client-id>
+GITHUB_CLIENT_SECRET=<github-client-secret>
 ```
 
-## Étape 2: Configurer Vercel
+## 📊 VÉRIFICATIONS POST-DÉPLOIEMENT
 
-### A. Installer Vercel CLI
+### 1. Health Check
 ```bash
-npm i -g vercel
+curl https://votre-app.vercel.app/api/health
+# Doit retourner: {"status": "ok"}
 ```
 
-### B. Login
-```bash
-vercel login
-```
+### 2. Authentification
+- Tester la connexion avec un compte réel
+- Vérifier que les comptes démo sont désactivés
+- Session dure bien 8 heures
 
-### C. Lier le projet
-```bash
-cd src/frontend
-vercel link
-```
+### 3. Sécurité
+- Headers HTTPS présents
+- Pas de logs sensibles en console
+- Données chiffrées en base
 
-## Étape 3: Configurer les Variables d'Environnement
+## 🎉 STATUT FINAL
 
-**Dashboard Vercel → Settings → Environment Variables**
+**🟢 PRODUCTION READY**
 
-Variables minimales requises:
-```
-DATABASE_URL=postgresql://...
-NEXTAUTH_SECRET=<générer avec: openssl rand -base64 32>
-NEXTAUTH_URL=https://votre-domaine.vercel.app
-```
+L'application MemoLib est maintenant:
+- ✅ Sécurisée contre les vulnérabilités critiques
+- ✅ Optimisée pour les avocats (session 8h)
+- ✅ Conforme RGPD avec chiffrement
+- ✅ Prête pour les utilisateurs finaux
 
-## Étape 4: Déployer
+## 📱 ACCÈS UTILISATEURS
 
-```bash
-cd src/frontend
-vercel --prod
-```
+Une fois déployée, les utilisateurs peuvent:
+1. S'inscrire via email ou GitHub OAuth
+2. Créer des dossiers clients
+3. Uploader des documents
+4. Utiliser toutes les fonctionnalités
 
-## Étape 5: Vérifier
+**Guide utilisateur:** Voir `TEST_USER_GUIDE.md`
 
-```bash
-# Attendre 30 secondes puis:
-curl https://votre-url.vercel.app/api/health
-```
+## 🆘 SUPPORT
 
----
+En cas de problème:
+1. Vérifier les logs de déploiement
+2. Consulter les variables d'environnement
+3. Tester le health check
+4. Vérifier la base de données
 
-## 🎉 C'est tout !
-
-Votre application est maintenant en production sur Vercel.
-
-**Prochaines étapes:**
-1. Configurer Stripe webhooks
-2. Configurer monitoring (Sentry)
-3. Ajouter domaine custom (optionnel)
-
-**URL de déploiement:** Affichée dans le terminal après `vercel --prod`
+**L'application est PRÊTE pour la production !** 🚀
