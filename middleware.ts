@@ -1,0 +1,30 @@
+import type { NextRequest, NextResponse } from 'next/server';
+import { NextResponse as Response } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const response = Response.next();
+
+  // Headers de sécurité essentiels
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // CSP minimal
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: https:",
+    "font-src 'self' data:"
+  ].join('; ');
+  
+  response.headers.set('Content-Security-Policy', csp);
+
+  return response;
+}
+
+export const config = {
+  matcher: [
+    '/((?!api|_next|static|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg)$).*)'
+  ]
+};
