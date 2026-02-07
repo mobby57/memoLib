@@ -1,4 +1,5 @@
 import { checkDuplicate, computeChecksum, storeChannelMessage } from '@/lib/deduplication-service';
+import { addRateLimitHeaders, checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import * as Sentry from '@sentry/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -65,6 +66,30 @@ export async function POST(req: NextRequest) {
   const startTime = performance.now();
 
   try {
+    // 🔒 Rate Limiting - Protection DDoS
+    const clientIP = getClientIP(req);
+    const rateInfo = await checkRateLimit(clientIP, 'webhook');
+
+    if (!rateInfo.success) {
+      Sentry.captureMessage('Rate limit exceeded', {
+        level: 'warning',
+        tags: { ip: clientIP, endpoint: 'webhook' },
+        extra: { remaining: rateInfo.remaining, reset: rateInfo.reset },
+      });
+
+      const response = NextResponse.json(
+        {
+          success: false,
+          error: 'RATE_LIMIT_EXCEEDED',
+          message: 'Trop de requêtes. Veuillez réessayer plus tard.',
+          retryAfter: rateInfo.reset.toISOString(),
+        },
+        { status: 429 }
+      );
+
+      return addRateLimitHeaders(response, rateInfo);
+    }
+
     const payload = await req.json();
 
     // Compute checksum for deduplication
