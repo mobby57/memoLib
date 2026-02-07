@@ -1,9 +1,10 @@
-import { prisma } from '@/lib/prisma';
+import * as db from '@/lib/db';
 import crypto from 'crypto';
 
 /**
  * Déduplication service pour les messages multi-canal
  * Utilise le checksum SHA-256 pour détecter les doublons
+ * Version in-memory (sans PostgreSQL)
  */
 
 export async function computeChecksum(payload: any): Promise<string> {
@@ -15,10 +16,7 @@ export async function computeChecksum(payload: any): Promise<string> {
  * Vérifie si un message a déjà été traité (duplicate)
  */
 export async function checkDuplicate(checksum: string): Promise<boolean> {
-  const existing = await prisma.channelMessage.findUnique({
-    where: { checksum },
-  });
-  return !!existing;
+  return await db.checkDuplicate(checksum);
 }
 
 /**
@@ -39,19 +37,24 @@ export async function storeChannelMessage(data: {
     throw new Error('DUPLICATE: Ce message a déjà été traité');
   }
 
-  // Créer le message
-  const message = await prisma.channelMessage.create({
-    data: {
-      externalId: data.externalId,
-      checksum: data.checksum,
-      channel: (data.channel?.toUpperCase() as any) || 'EMAIL',
-      senderData: data.sender,
-      body: data.body,
-      subject: data.subject,
-      channelMetadata: data.channelMetadata || {},
-      status: 'RECEIVED',
-    },
+  // Stocker avec db.ts in-memory
+  const id = await db.storeChannelMessage({
+    channel: data.channel,
+    external_id: data.externalId,
+    checksum: data.checksum,
+    sender_email: data.sender.email,
+    sender_phone: data.sender.phone,
+    subject: data.subject,
+    body: data.body,
   });
 
-  return message;
+  // Retourner un objet compatible avec l'API attendue
+  return {
+    id: id!,
+    externalId: data.externalId,
+    checksum: data.checksum,
+    channel: data.channel,
+    status: 'RECEIVED',
+    receivedAt: new Date(),
+  };
 }
