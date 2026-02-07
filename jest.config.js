@@ -1,105 +1,100 @@
-const nextJest = require('next/jest');
-
-const createJestConfig = nextJest({
-  // Provide the path to your Next.js app to load next.config.js and .env files
-  dir: './',
-});
-
-// Add any custom config to be passed to Jest
-const customJestConfig = {
+// Jest configuration optimisée pour 80% coverage
+module.exports = {
+  preset: 'next/jest',
+  testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'jest-environment-jsdom',
-
-  // ========== OPTIMISATIONS MÉMOIRE ==========
-  maxWorkers: '50%', // Utilise 50% des CPUs disponibles
-  workerIdleMemoryLimit: '512MB', // Limite mémoire par worker
-
-  testPathIgnorePatterns: [
-    '<rootDir>/.next/',
-    '<rootDir>/node_modules/',
-    '<rootDir>/node_modules_backup/',
-    '<rootDir>/coverage/',
-    '<rootDir>/venv/',
-    '<rootDir>/frontend-node/',
-    // Skip API route tests - they require full Next.js server environment
-    // Use E2E tests (Playwright/Cypress) for API testing instead
-    '<rootDir>/src/__tests__/api/',
-    '<rootDir>/src/app/api/',
-  ]
-    .concat(process.env.JEST_SKIP_BILLING ? ['<rootDir>/src/__tests__/billing/'] : [])
-    .concat(
-      process.env.JEST_SKIP_SECURITY_2FA
-        ? ['<rootDir>/src/__tests__/security/two-factor-auth.test.ts']
-        : []
-    ),
-  modulePathIgnorePatterns: [
-    '<rootDir>/node_modules_backup/',
-    '<rootDir>/.next/standalone/',
-    '<rootDir>/venv/',
-    '<rootDir>/frontend-node/',
-  ],
-  collectCoverageFrom: [
-    // Cibler uniquement les fichiers avec tests existants
-    'src/lib/**/*.ts',
-    'src/components/**/*.tsx',
-    'src/hooks/**/*.ts',
-    'src/hooks/**/*.tsx',
-    'src/utils/**/*.ts',
-    // Exclusions
-    '!src/**/*.d.ts',
-    '!src/**/*.stories.{js,jsx,ts,tsx}',
-    '!src/**/index.{js,jsx,ts,tsx}',
-    '!src/types/**/*',
-    '!src/**/*.types.ts',
-    '!src/lib/legifrance/**/*', // API externe
-    '!src/lib/email/**/*', // Services email mock
-    '!src/lib/workflows/**/*', // Trop complexe
-    '!src/app/**/*', // Pages React (testées via E2E)
-  ],
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/node_modules_backup/',
-    '/.next/',
-    '/coverage/',
-    '/prisma/',
-    '/scripts/',
-    '/docs/',
-    '/src/app/', // Exclure les pages
-  ],
+  
+  // Coverage configuration
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
+  
+  // Coverage thresholds (80% target)
   coverageThreshold: {
     global: {
-      branches: 3,
-      functions: 3,
-      lines: 3,
-      statements: 3,
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
     },
+    // Specific thresholds for critical files
+    './src/lib/auth.ts': {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90
+    },
+    './src/lib/security/': {
+      branches: 95,
+      functions: 95,
+      lines: 95,
+      statements: 95
+    }
   },
-  moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '^@otplib/preset-default$': '<rootDir>/src/__mocks__/otplib-preset-default.ts',
-  },
+  
+  // Test patterns
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',
+    '<rootDir>/__tests__/**/*.{js,jsx,ts,tsx}'
   ],
-  transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
+  
+  // Module name mapping
+  moduleNameMapping: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/components/(.*)$': '<rootDir>/src/components/$1',
+    '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@/hooks/(.*)$': '<rootDir>/src/hooks/$1',
+    '^@/types/(.*)$': '<rootDir>/src/types/$1'
   },
-  transformIgnorePatterns: [
-    '/node_modules/(?!(@scure|otplib|@otplib)/).*/',
-    '/node_modules_backup/',
-    '^.+\\.module\\.(css|sass|scss)$',
+  
+  // Transform configuration
+  transform: {
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }]
+  },
+  
+  // Mock configuration
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  
+  // Ignore patterns
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/node_modules/',
+    '<rootDir>/out/',
+    '<rootDir>/build/'
   ],
-  watchPathIgnorePatterns: ['<rootDir>/node_modules_backup/'],
-
-  // ========== OPTIMISATIONS PERFORMANCES ==========
-  clearMocks: true, // Clear mocks automatiquement
-  restoreMocks: true, // Restore mocks automatiquement
-  testTimeout: 10000, // Timeout 10s par test
-
-  // Cache Jest pour accélérer les exécutions
+  
+  // Coverage ignore patterns
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/.next/',
+    '/coverage/',
+    '/public/',
+    '/prisma/',
+    '/scripts/',
+    '/__tests__/',
+    '/test-results/',
+    '.d.ts$'
+  ],
+  
+  // Performance optimization
+  maxWorkers: '50%',
+  cache: true,
   cacheDirectory: '<rootDir>/.jest-cache',
+  
+  // Test timeout
+  testTimeout: 10000,
+  
+  // Verbose output for debugging
+  verbose: false,
+  
+  // Collect coverage from these files
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.{js,jsx,ts,tsx}',
+    '!src/**/__tests__/**',
+    '!src/**/*.test.{js,jsx,ts,tsx}',
+    '!src/**/*.spec.{js,jsx,ts,tsx}'
+  ]
 };
-
-// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
-module.exports = createJestConfig(customJestConfig);
