@@ -36,6 +36,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV HOME="/tmp"
 # Placeholder env vars to allow build - real values set in Fly secrets
 ENV STRIPE_SECRET_KEY=""
 ENV DATABASE_URL=""
@@ -47,15 +48,15 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 
+# Install Prisma CLI for migrations (must be done as root before switching to nextjs user)
+RUN npm install prisma --save-dev --legacy-peer-deps
+
 # Copy startup script with migrations
 COPY start-with-migrations.js ./start-with-migrations.js
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Install Prisma CLI for migrations (only the CLI, client is already in the build)
-RUN npm install prisma --save-dev --legacy-peer-deps
 
 USER nextjs
 
