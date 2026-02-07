@@ -120,7 +120,7 @@
     "dx:setup": "npm install && npx prisma generate && npm run dev",
     "dx:reset": "npm run clean && npm run dx:setup",
     "dx:check": "npm run lint && npm run type-check && npm run test",
-    "dx:health": "node -e \"console.log(\"✅ Node:\", process.version)\"",
+    "dx:health": "node -e 'console.log(\"✅ Node:\", process.version)'",
     "monitor:prod": "tsx scripts/monitor-production.ts",
     "monitor:loop": "tsx scripts/monitor-loop.ts",
     "monitor:custom": "tsx scripts/monitor-loop.ts",
