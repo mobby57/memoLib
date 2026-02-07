@@ -1,32 +1,37 @@
+import createIntlMiddleware from 'next-intl/middleware';
 import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
 
 /**
- * Middleware de sécurité global pour MemoLib
- * Applique les headers de sécurité recommandés pour la production
+ * Middleware combiné: i18n + sécurité globale pour MemoLib
+ * - Applique l'internationalisation (next-intl)
+ * - Applique les headers de sécurité recommandés pour la production
  *
  * Références:
  * - OWASP Secure Headers Project
  * - Next.js Security Best Practices
  * - ANSSI Recommandations sécurité web
  */
+
+// Configuration i18n
+const intlMiddleware = createIntlMiddleware({
+  locales: ['en', 'fr', 'es', 'de', 'pt', 'ja', 'zh', 'hi', 'ru', 'ko'],
+  defaultLocale: 'en',
+});
+
 export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+  // Appliquer d'abord l'internationalisation (routing + locale detection)
+  const response = intlMiddleware(request);
 
   // 🔒 X-Frame-Options: Prévient les attaques clickjacking
-  // DENY = ne peut pas être affiché dans un iframe
   response.headers.set('X-Frame-Options', 'DENY');
 
   // 🔒 X-Content-Type-Options: Empêche le MIME-sniffing
-  //Force les navigateurs à respecter le Content-Type déclaré
   response.headers.set('X-Content-Type-Options', 'nosniff');
 
   // 🔒 Referrer-Policy: Contrôle les informations envoyées dans le header Referer
-  // strict-origin-when-cross-origin = envoie l'origine uniquement en HTTPS
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   // 🔒 Permissions-Policy: Désactive les APIs sensibles du navigateur
-  // Bloque l'accès à la géolocalisation, micro, caméra par défaut
   response.headers.set(
     'Permissions-Policy',
     'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=()'
@@ -36,7 +41,6 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-DNS-Prefetch-Control', 'off');
 
   // 🔒 Content-Security-Policy (CSP)
-  // Politique stricte pour prévenir XSS et injections de code
   const cspDirectives = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com",
@@ -56,9 +60,6 @@ export function middleware(request: NextRequest) {
   response.headers.set('Content-Security-Policy', cspDirectives.join('; '));
 
   // 🔒 HSTS (HTTP Strict Transport Security) - PRODUCTION SEULEMENT
-  // Force HTTPS pour 2 ans (63072000 secondes)
-  // includeSubDomains = applique aussi aux sous-domaines
-  // preload = eligible pour la HSTS preload list des navigateurs
   if (process.env.NODE_ENV === 'production') {
     response.headers.set(
       'Strict-Transport-Security',
@@ -66,11 +67,10 @@ export function middleware(request: NextRequest) {
     );
   }
 
-  // 🔒 X-XSS-Protection: Protection XSS legacy (pour anciens navigateurs)
-  // Mode=block arrête le rendu si XSS détecté
+  // 🔒 X-XSS-Protection: Protection XSS legacy
   response.headers.set('X-XSS-Protection', '1; mode=block');
 
-  // 📊 Server header - Masquer la version (sécurité par obscurité)
+  // 📊 Server header - Masquer la version
   response.headers.delete('Server');
   response.headers.delete('X-Powered-By');
 
@@ -80,22 +80,18 @@ export function middleware(request: NextRequest) {
 /**
  * Configuration du matcher
  *
- * Applique le middleware à toutes les routes SAUF:
+ * Applique le middleware à toutes les routes sauf:
+ * - API endpoints
  * - Fichiers statiques Next.js (_next/static)
  * - Images optimisées (_next/image)
  * - Favicon et images root
- * - API health check (besoin de réponses rapides)
+ * 
+ * next-intl gère automatiquement:
+ * - Routing par locale (/en, /fr, /es, etc.)
+ * - Redirection vers locale par défaut
  */
 export const config = {
   matcher: [
-    /*
-     * Match toutes les routes sauf:
-     * - api/health (pas de overhead sur health checks)
-     * - _next/static (fichiers statiques)
-     * - _next/image (images optimisées)
-     * - favicon.ico
-     * - fichiers .png, .jpg, .jpeg, .gif, .svg, .webp (statiques)
-     */
-    '/((?!api/health|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp)$).*)',
+    '/((?!api|_next|public|static|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp)$).*)',
   ],
 };
