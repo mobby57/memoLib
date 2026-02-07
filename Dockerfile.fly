@@ -51,6 +51,9 @@ COPY --from=builder /app/package.json ./package.json
 # Install Prisma CLI for migrations (must be done as root before switching to nextjs user)
 RUN npm install prisma --save-dev --legacy-peer-deps
 
+# Create npm cache directory for nextjs user with correct permissions
+RUN mkdir -p /tmp/.npm && chown -R nextjs:nodejs /tmp/.npm
+
 # Copy startup script with migrations
 COPY start-with-migrations.js ./start-with-migrations.js
 
