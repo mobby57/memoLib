@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useCallback, useRef } from 'react';
 import { Upload, X, FileText, Image, File, Check, AlertCircle, Loader2 } from 'lucide-react';

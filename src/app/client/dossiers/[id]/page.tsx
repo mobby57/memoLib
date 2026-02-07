@@ -1,502 +1,353 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+/**
+ * Interface Client - Formulaire Simplifie de Demande
+ * Les clients creent leur demande, l'avocat la transforme en dossier complet
+ */
 
-interface Document {
-  id: string;
-  filename: string;
-  originalName: string;
-  mimeType: string;
-  sizeBytes: number;
-  uploadedAt: string;
-  description?: string;
-}
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { 
+  FileText, Send, ArrowLeft, AlertCircle, CheckCircle,
+  Briefcase, Calendar
+} from 'lucide-react'
+import { Card } from '@/components/ui'
+import { Badge } from '@/components/ui'
+import { useToast } from '@/hooks/use-toast'
+import { Button } from '@/components/forms/Button'
 
-interface Echeance {
-  id: string;
-  titre: string;
-  dateEcheance: string;
-  priorite: string;
-  statut: string;
-  description?: string;
-}
+// Schema simplifie pour les clients
+const demandeSchema = z.object({
+  typeDossier: z.enum([
+    'TITRE_SEJOUR', 'RECOURS_OQTF', 'NATURALISATION', 
+    'REGROUPEMENT_FAMILIAL', 'ASILE', 'VISA', 'AUTRE'
+  ]),
+  objetDemande: z.string().min(20, 'Decrivez votre demande en minimum 20 caracteres'),
+  dateEcheance: z.string().optional(),
+  urgence: z.boolean().optional(),
+  complementInfo: z.string().optional(),
+})
 
-interface Dossier {
-  id: string;
-  numero: string;
-  typeDossier: string;
-  objet?: string;
-  description?: string;
-  statut: string;
-  priorite: string;
-  dateCreation: string;
-  dateEcheance?: string;
-  articleCeseda?: string;
-  notes?: string;
-  documents?: Document[];
-  echeances?: Echeance[];
-  client?: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-}
+type DemandeFormData = z.infer<typeof demandeSchema>
 
-export default function DossierDetailsClient() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const params = useParams();
-  const dossierId = params.id as string;
+const TYPES_DEMANDE = [
+  { 
+    value: 'TITRE_SEJOUR', 
+    label: 'Titre de Sejour', 
+    icon: '',
+    description: 'Premiere demande ou renouvellement de titre de sejour'
+  },
+  { 
+    value: 'RECOURS_OQTF', 
+    label: 'Recours OQTF', 
+    icon: '?',
+    description: 'Contestation d\'une Obligation de Quitter le Territoire'
+  },
+  { 
+    value: 'NATURALISATION', 
+    label: 'Naturalisation', 
+    icon: '????',
+    description: 'Demande de naturalisation francaise'
+  },
+  { 
+    value: 'REGROUPEMENT_FAMILIAL', 
+    label: 'Regroupement Familial', 
+    icon: '???',
+    description: 'Faire venir votre famille en France'
+  },
+  { 
+    value: 'ASILE', 
+    label: 'Demande d\'Asile', 
+    icon: '?',
+    description: 'Protection internationale'
+  },
+  { 
+    value: 'VISA', 
+    label: 'Visa', 
+    icon: '?',
+    description: 'Demande de visa (court ou long sejour)'
+  },
+  { 
+    value: 'AUTRE', 
+    label: 'Autre demande', 
+    icon: '',
+    description: 'Autre type de demarche administrative'
+  },
+]
 
-  const [dossier, setDossier] = useState<Dossier | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'infos' | 'documents' | 'echeances' | 'timeline'>('infos');
-  const [uploadingDoc, setUploadingDoc] = useState(false);
+export default function NouvelleDemandePage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const { toast } = useToast()
+  
+  const [loading, setLoading] = useState(false)
+  const [selectedType, setSelectedType] = useState<string>('')
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<DemandeFormData>({
+    resolver: zodResolver(demandeSchema),
+  })
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/login');
-    } else if (session?.user && session.user.role !== 'CLIENT') {
-      router.push('/dashboard');
-    } else if (session?.user?.role === 'CLIENT') {
-      fetchDossier();
+      router.push('/auth/login')
+    } else if (session?.user?.role !== 'CLIENT') {
+      router.push('/dashboard')
     }
-  }, [session, status, router, dossierId]);
+  }, [session, status])
 
-  const fetchDossier = async () => {
+  const onSubmit = async (data: DemandeFormData) => {
     try {
-      const res = await fetch(`/api/client/dossiers/${dossierId}`);
+      setLoading(true)
       
-      if (!res.ok) {
-        if (res.status === 403) {
-          setError('Vous n\'avez pas accès à ce dossier');
-        } else if (res.status === 404) {
-          setError('Dossier non trouvé');
-        } else {
-          setError('Erreur lors du chargement du dossier');
-        }
-        setLoading(false);
-        return;
-      }
-
-      const data = await res.json();
-      setDossier(data);
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching dossier:', err);
-      setError('Erreur de connexion');
-      setLoading(false);
-    }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingDoc(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('dossierId', dossierId);
-    formData.append('description', 'Document téléversé par le client');
-
-    try {
-      const res = await fetch('/api/client/documents/upload', {
+      const res = await fetch('/api/client/demandes', {
         method: 'POST',
-        body: formData,
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          priorite: data.urgence ? 'URGENTE' : 'NORMALE',
+          statut: 'BROUILLON', // Les demandes clients commencent en brouillon
+        }),
+      })
 
-      if (res.ok) {
-        await fetchDossier(); // Refresh
-        alert('Document téléversé avec succès !');
-      } else {
-        alert('Erreur lors du téléversement');
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Erreur lors de l\'envoi de la demande')
       }
-    } catch (err) {
-      alert('Erreur de connexion');
+
+      const result = await res.json()
+      
+      toast({
+        variant: 'success',
+        title: 'Demande envoyee !',
+        description: 'Votre demande a ete transmise a votre avocat qui la traitera dans les plus brefs delais.'
+      })
+
+      router.push('/client/dossiers')
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erreur',
+        description: (error as Error).message
+      })
     } finally {
-      setUploadingDoc(false);
+      setLoading(false)
     }
-  };
-
-  const formatBytes = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  };
-
-  const getStatutColor = (statut: string) => {
-    switch (statut) {
-      case 'urgent': return 'bg-red-100 text-red-800 border-red-300';
-      case 'en_cours': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'termine': return 'bg-green-100 text-green-800 border-green-300';
-      case 'archive': return 'bg-gray-100 text-gray-800 border-gray-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  const getPrioriteColor = (priorite: string) => {
-    switch (priorite) {
-      case 'critique': return 'bg-red-500 text-white';
-      case 'haute': return 'bg-orange-500 text-white';
-      case 'normale': return 'bg-blue-500 text-white';
-      case 'basse': return 'bg-gray-400 text-white';
-      default: return 'bg-gray-400 text-white';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement du dossier...</p>
-        </div>
-      </div>
-    );
   }
 
-  if (error || !dossier) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
-          <div className="text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Erreur</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <Link
-            href="/client"
-            className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
-          >
-            Retour au tableau de bord
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const urgence = watch('urgence')
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Header */}
-      <header className="bg-white shadow-md border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/client"
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <span className="text-2xl">←</span>
-              </Link>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  {dossier.typeDossier}
-                </h1>
-                <p className="text-gray-600 mt-1">Dossier {dossier.numero}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className={`px-4 py-2 rounded-full text-sm font-semibold border-2 ${getStatutColor(dossier.statut)}`}>
-                {dossier.statut.replace('_', ' ').toUpperCase()}
-              </span>
-              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getPrioriteColor(dossier.priorite)}`}>
-                Priorité: {dossier.priorite}
-              </span>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <Button
+            onClick={() => router.back()}
+            className="mb-4 bg-gray-600 hover:bg-gray-700 text-white flex items-center gap-2"
+          >
+            <ArrowLeft size={20} />
+            Retour
+          </Button>
+          
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <FileText className="text-blue-600" size={32} />
+              Nouvelle Demande
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Decrivez votre situation et votre demande. Votre avocat vous contactera rapidement.
+            </p>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-8 py-8">
-        {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
-          <div className="flex border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab('infos')}
-              className={`flex-1 px-6 py-4 font-semibold transition-colors ${
-                activeTab === 'infos'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              📋 Informations
-            </button>
-            <button
-              onClick={() => setActiveTab('documents')}
-              className={`flex-1 px-6 py-4 font-semibold transition-colors ${
-                activeTab === 'documents'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              📄 Documents ({dossier.documents?.length || 0})
-            </button>
-            <button
-              onClick={() => setActiveTab('echeances')}
-              className={`flex-1 px-6 py-4 font-semibold transition-colors ${
-                activeTab === 'echeances'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              ⏰ Échéances ({dossier.echeances?.length || 0})
-            </button>
-            <button
-              onClick={() => setActiveTab('timeline')}
-              className={`flex-1 px-6 py-4 font-semibold transition-colors ${
-                activeTab === 'timeline'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              📅 Timeline
-            </button>
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Selection du type de demande */}
+          <Card className="p-6 bg-white">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Briefcase className="text-blue-600" size={24} />
+              Type de demarche
+            </h2>
 
-          <div className="p-8">
-            {/* Tab: Informations */}
-            {activeTab === 'infos' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-sm font-semibold text-gray-500 uppercase">Type de Dossier</label>
-                    <p className="text-lg font-semibold text-gray-900 mt-1">{dossier.typeDossier}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-gray-500 uppercase">Numéro</label>
-                    <p className="text-lg font-semibold text-gray-900 mt-1">{dossier.numero}</p>
-                  </div>
-                  {dossier.articleCeseda && (
-                    <div>
-                      <label className="text-sm font-semibold text-gray-500 uppercase">Article CESEDA</label>
-                      <p className="text-lg font-semibold text-gray-900 mt-1">{dossier.articleCeseda}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {TYPES_DEMANDE.map((type) => (
+                <div
+                  key={type.value}
+                  onClick={() => {
+                    setSelectedType(type.value)
+                    setValue('typeDossier', type.value as any)
+                  }}
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    selectedType === type.value
+                      ? 'border-blue-600 bg-blue-50'
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">{type.icon}</span>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{type.label}</h3>
+                      <p className="text-sm text-gray-600 mt-1">{type.description}</p>
                     </div>
-                  )}
-                  <div>
-                    <label className="text-sm font-semibold text-gray-500 uppercase">Date de Création</label>
-                    <p className="text-lg font-semibold text-gray-900 mt-1">
-                      {new Date(dossier.dateCreation).toLocaleDateString('fr-FR')}
-                    </p>
+                    {selectedType === type.value && (
+                      <CheckCircle className="text-blue-600" size={20} />
+                    )}
                   </div>
-                  {dossier.dateEcheance && (
-                    <div>
-                      <label className="text-sm font-semibold text-gray-500 uppercase">Date d'Échéance</label>
-                      <p className="text-lg font-semibold text-red-600 mt-1">
-                        {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}
-                      </p>
-                    </div>
-                  )}
                 </div>
+              ))}
+            </div>
+            
+            {errors.typeDossier && (
+              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle size={14} />
+                {errors.typeDossier.message}
+              </p>
+            )}
+          </Card>
 
-                {dossier.objet && (
-                  <div>
-                    <label className="text-sm font-semibold text-gray-500 uppercase">Objet</label>
-                    <p className="text-gray-900 mt-2">{dossier.objet}</p>
-                  </div>
-                )}
+          {/* Description de la demande */}
+          <Card className="p-6 bg-white">
+            <h2 className="text-xl font-semibold mb-4">Decrivez votre demande</h2>
 
-                {dossier.description && (
-                  <div>
-                    <label className="text-sm font-semibold text-gray-500 uppercase">Description</label>
-                    <p className="text-gray-700 mt-2 leading-relaxed">{dossier.description}</p>
-                  </div>
-                )}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Objet de votre demande *
+                </label>
+                <textarea
+                  {...register('objetDemande')}
+                  rows={5}
+                  placeholder="Decrivez votre situation et ce que vous souhaitez obtenir (minimum 20 caracteres)...
 
-                {dossier.notes && (
-                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-                    <label className="text-sm font-semibold text-yellow-800 uppercase">Notes</label>
-                    <p className="text-yellow-900 mt-2">{dossier.notes}</p>
-                  </div>
+Exemples :
+- Je souhaite renouveler mon titre de sejour qui expire le 15/06/2026
+- J'ai recu une OQTF et je souhaite faire un recours
+- Je vis en France depuis 5 ans et souhaite demander la naturalisation"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
+                ></textarea>
+                {errors.objetDemande && (
+                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle size={14} />
+                    {errors.objetDemande.message}
+                  </p>
                 )}
               </div>
-            )}
 
-            {/* Tab: Documents */}
-            {activeTab === 'documents' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-900">Documents du dossier</h3>
-                  <div>
-                    <label className="cursor-pointer inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors">
-                      <span>📤</span>
-                      {uploadingDoc ? 'Téléversement...' : 'Ajouter un document'}
-                      <input
-                        type="file"
-                        className="hidden"
-                        onChange={handleFileUpload}
-                        disabled={uploadingDoc}
-                      />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Date echeance */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date limite (si applicable)
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                    <input
+                      type="date"
+                      {...register('dateEcheance')}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Par ex: date d'expiration de titre, date d'audience...
+                  </p>
+                </div>
+
+                {/* Urgence */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Situation urgente ?
+                  </label>
+                  <div className="flex items-center gap-3 h-12">
+                    <input
+                      type="checkbox"
+                      {...register('urgence')}
+                      id="urgence"
+                      className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="urgence" className="text-gray-700 cursor-pointer">
+                      Oui, c'est urgent
                     </label>
                   </div>
-                </div>
-
-                {!dossier.documents || dossier.documents.length === 0 ? (
-                  <div className="text-center py-12 bg-gray-50 rounded-lg">
-                    <span className="text-6xl mb-4 block">📄</span>
-                    <p className="text-gray-500 text-lg">Aucun document pour ce dossier</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {dossier.documents.map((doc) => (
-                      <div key={doc.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4 flex-1">
-                            <div className="bg-blue-100 p-3 rounded-lg">
-                              <span className="text-2xl">📄</span>
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-gray-900">{doc.originalName}</h4>
-                              {doc.description && (
-                                <p className="text-sm text-gray-600 mt-1">{doc.description}</p>
-                              )}
-                              <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                                <span>{formatBytes(doc.sizeBytes)}</span>
-                                <span>•</span>
-                                <span>{new Date(doc.uploadedAt).toLocaleDateString('fr-FR')}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <a
-                            href={`/api/client/documents/${doc.id}/download`}
-                            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-semibold transition-colors"
-                            download
-                          >
-                            Télécharger
-                          </a>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Tab: Échéances */}
-            {activeTab === 'echeances' && (
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Échéances et délais</h3>
-
-                {!dossier.echeances || dossier.echeances.length === 0 ? (
-                  <div className="text-center py-12 bg-gray-50 rounded-lg">
-                    <span className="text-6xl mb-4 block">⏰</span>
-                    <p className="text-gray-500 text-lg">Aucune échéance enregistrée</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {dossier.echeances.map((echeance) => (
-                      <div key={echeance.id} className="border border-gray-200 rounded-lg p-4 bg-white">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h4 className="font-semibold text-gray-900">{echeance.titre}</h4>
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getPrioriteColor(echeance.priorite)}`}>
-                                {echeance.priorite}
-                              </span>
-                            </div>
-                            {echeance.description && (
-                              <p className="text-gray-600 mb-3">{echeance.description}</p>
-                            )}
-                            <div className="flex items-center gap-4 text-sm">
-                              <span className="text-gray-500">
-                                📅 {new Date(echeance.dateEcheance).toLocaleDateString('fr-FR')}
-                              </span>
-                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                                echeance.statut === 'respectee' ? 'bg-green-100 text-green-800' :
-                                echeance.statut === 'en_attente' ? 'bg-orange-100 text-orange-800' :
-                                'bg-red-100 text-red-800'
-                              }`}>
-                                {echeance.statut}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Tab: Timeline */}
-            {activeTab === 'timeline' && (
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Historique du dossier</h3>
-                
-                <div className="relative">
-                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
-                  
-                  <div className="space-y-6">
-                    <div className="relative pl-12">
-                      <div className="absolute left-0 top-1 bg-blue-500 rounded-full p-2">
-                        <span className="text-white text-sm">📁</span>
-                      </div>
-                      <div className="bg-white border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-gray-900">Dossier créé</h4>
-                          <span className="text-sm text-gray-500">
-                            {new Date(dossier.dateCreation).toLocaleDateString('fr-FR')}
-                          </span>
-                        </div>
-                        <p className="text-gray-600">Le dossier {dossier.numero} a été ouvert</p>
-                      </div>
-                    </div>
-
-                    {dossier.documents && dossier.documents.map((doc) => (
-                      <div key={doc.id} className="relative pl-12">
-                        <div className="absolute left-0 top-1 bg-green-500 rounded-full p-2">
-                          <span className="text-white text-sm">📄</span>
-                        </div>
-                        <div className="bg-white border border-gray-200 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-gray-900">Document ajouté</h4>
-                            <span className="text-sm text-gray-500">
-                              {new Date(doc.uploadedAt).toLocaleDateString('fr-FR')}
-                            </span>
-                          </div>
-                          <p className="text-gray-600">{doc.originalName}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  {urgence && (
+                    <Badge variant="danger" >
+                       Traitement prioritaire
+                    </Badge>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Actions rapides */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
-              <span className="text-2xl">💬</span>
-              <div className="text-left">
-                <div className="font-semibold text-gray-900">Contacter mon avocat</div>
-                <div className="text-sm text-gray-500">Envoyer un message</div>
+              {/* Informations complementaires */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Informations complementaires (optionnel)
+                </label>
+                <textarea
+                  {...register('complementInfo')}
+                  rows={3}
+                  placeholder="Ajoutez toute information utile : documents deja en votre possession, demarches deja effectuees, questions specifiques..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
+                ></textarea>
               </div>
-            </button>
-            <button className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
-              <span className="text-2xl">📤</span>
-              <div className="text-left">
-                <div className="font-semibold text-gray-900">Ajouter des documents</div>
-                <div className="text-sm text-gray-500">Téléverser des fichiers</div>
+            </div>
+          </Card>
+
+          {/* Informations */}
+          <Card className="p-4 bg-blue-50 border border-blue-200">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="text-blue-600 mt-1" size={20} />
+              <div className="text-sm text-blue-900">
+                <p className="font-medium mb-1">a savoir :</p>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li>Votre demande sera transmise a votre avocat</li>
+                  <li>Vous recevrez une confirmation par email</li>
+                  <li>L'avocat vous contactera sous 24-48h</li>
+                  <li>Vous pourrez suivre l'avancement dans votre espace "Mes Dossiers"</li>
+                </ul>
               </div>
-            </button>
-            <button className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
-              <span className="text-2xl">🔔</span>
-              <div className="text-left">
-                <div className="font-semibold text-gray-900">Notifications</div>
-                <div className="text-sm text-gray-500">Gérer les alertes</div>
-              </div>
-            </button>
+            </div>
+          </Card>
+
+          {/* Actions */}
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              onClick={() => router.back()}
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Envoi en cours...
+                </>
+              ) : (
+                <>
+                  <Send size={20} />
+                  Envoyer ma Demande
+                </>
+              )}
+            </Button>
           </div>
-        </div>
-      </main>
+        </form>
+      </div>
     </div>
-  );
+  )
 }
