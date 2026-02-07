@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
@@ -11,7 +12,7 @@ const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
