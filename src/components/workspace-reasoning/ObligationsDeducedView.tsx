@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Composant d'affichage de l'etat OBLIGATIONS_DEDUCED
  * Obligations conditionnelles : "SI contexte X ALORS obligation Y"
  */
@@ -66,7 +66,7 @@ export function ObligationsDeducedView({
       >
         <div className="flex items-start gap-4">
           <div className="text-3xl">
-            {obligation.critical ? '️' : ''}
+            {obligation.critical ? '?' : ''}
           </div>
           
           <div className="flex-1">
@@ -141,7 +141,7 @@ export function ObligationsDeducedView({
                   }`}
                 >
                   {loading?.mutation && <Loader2 className="h-4 w-4 animate-spin" />}
-                  ️ Marquer comme critique
+                  ? Marquer comme critique
                 </button>
               )}
             </div>
@@ -174,7 +174,7 @@ export function ObligationsDeducedView({
         </div>
         
         <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
-          <div className="text-3xl text-red-600 mb-2">️</div>
+          <div className="text-3xl text-red-600 mb-2">?</div>
           <div className="text-2xl font-bold text-red-900">{critical.length}</div>
           <div className="text-sm text-red-700">Critique{critical.length > 1 ? 's' : ''}</div>
         </div>
@@ -190,7 +190,7 @@ export function ObligationsDeducedView({
       {critical.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-red-700">
-            ️ Obligations critiques ({critical.length})
+            ? Obligations critiques ({critical.length})
           </h3>
           <div className="space-y-4">
             {critical.map(renderObligation)}
@@ -230,7 +230,7 @@ export function ObligationsDeducedView({
       {/* Avertissement methodologique */}
       <div className="p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
         <div className="flex items-start gap-3">
-          <div className="text-2xl">️</div>
+          <div className="text-2xl">?</div>
           <div className="text-sm text-yellow-900">
             <div className="font-semibold mb-1">Attention:</div>
             <p>

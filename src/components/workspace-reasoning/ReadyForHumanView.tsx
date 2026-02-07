@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Composant d'affichage de l'etat READY_FOR_HUMAN
  * Synthese executive + Handoff a l'humain
  */
@@ -92,7 +92,7 @@ export function ReadyForHumanView({
     <div className="space-y-6">
       {/* Titre */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">🎯 Pret pour decision humaine</h2>
+        <h2 className="text-2xl font-bold text-gray-900">?? Pret pour decision humaine</h2>
         <p className="text-gray-600 mt-1">
           Synthese du raisonnement et recommandation
         </p>
@@ -180,7 +180,7 @@ export function ReadyForHumanView({
         </div>
         
         <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg text-center">
-          <div className="text-3xl mb-2">️</div>
+          <div className="text-3xl mb-2">?</div>
           <div className="text-2xl font-bold text-red-900">{risks.length}</div>
           <div className="text-sm text-red-700">Risque{risks.length > 1 ? 's' : ''}</div>
         </div>
@@ -220,7 +220,7 @@ export function ReadyForHumanView({
           {criticalObligations.length > 0 && (
             <div className="p-4 bg-orange-50 border-2 border-orange-300 rounded-lg">
               <div className="font-semibold text-orange-900 mb-2">
-                ️ {criticalObligations.length} obligation{criticalObligations.length > 1 ? 's' : ''} critique{criticalObligations.length > 1 ? 's' : ''}:
+                ? {criticalObligations.length} obligation{criticalObligations.length > 1 ? 's' : ''} critique{criticalObligations.length > 1 ? 's' : ''}:
               </div>
               <ul className="list-disc list-inside text-sm text-orange-800 space-y-1">
                 {criticalObligations.map(o => (
@@ -252,7 +252,7 @@ export function ReadyForHumanView({
       {/* Avertissement methodologique */}
       <div className="p-4 bg-purple-50 border-2 border-purple-200 rounded-lg">
         <div className="flex items-start gap-3">
-          <div className="text-2xl">️</div>
+          <div className="text-2xl">?</div>
           <div className="text-sm text-purple-900">
             <div className="font-semibold mb-1">Rappel important:</div>
             <p>

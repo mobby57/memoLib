@@ -1,4 +1,4 @@
-ï»¿/**
+/**
  * Dashboard Client - Vue personnelle
  * Niveau 3 : Acces uniquement aux propres dossiers du client
  */
@@ -22,7 +22,7 @@ export default function ClientDashboard() {
 
   const handlePayment = async (factureId: string) => {
     try {
-      // CrÃ©er une session de paiement Stripe
+      // Créer une session de paiement Stripe
       const response = await fetch('/api/payments/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,7 +30,7 @@ export default function ClientDashboard() {
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la crÃ©ation de la session de paiement');
+        throw new Error('Erreur lors de la création de la session de paiement');
       }
 
       const { url, sessionId } = await response.json();
@@ -39,11 +39,11 @@ export default function ClientDashboard() {
         // Rediriger vers Stripe Checkout
         window.location.href = url;
       } else {
-        alert('Session de paiement crÃ©Ã©e. ID: ' + sessionId);
+        alert('Session de paiement créée. ID: ' + sessionId);
       }
     } catch (error) {
       console.error('Erreur de paiement:', error);
-      alert("Erreur lors de l'initialisation du paiement. Veuillez rÃ©essayer.");
+      alert("Erreur lors de l'initialisation du paiement. Veuillez réessayer.");
     }
   };
 

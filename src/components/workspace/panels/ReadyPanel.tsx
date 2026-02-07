@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Panel READY FOR HUMAN - etat final actionnable
@@ -74,7 +74,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
         
         <p className="text-sm text-gray-600 mt-2">
           {uncertaintyPercent < 20 ? ' Tres faible incertitude - Actionnable' :
-           uncertaintyPercent < 50 ? '️ Incertitude moderee - Validation recommandee' :
+           uncertaintyPercent < 50 ? '? Incertitude moderee - Validation recommandee' :
            uncertaintyPercent < 80 ? ' Incertitude elevee - Validation requise' :
            ' Incertitude critique - Investigation approfondie necessaire'}
         </p>
@@ -112,7 +112,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
             color="green"
           />
           <SummaryCard
-            icon="️"
+            icon="?"
             label="Risques evalues"
             value={summary.risksEvaluated}
             color="red"
@@ -129,7 +129,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
       {/* Metadonnees workspace */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          ℹ Informations Workspace
+          ? Informations Workspace
         </h3>
         
         <div className="space-y-3 text-sm">
@@ -176,7 +176,7 @@ export function ReadyPanel({ workspace, summary, onLock, onExport, onExecute }: 
       {/* Actions finales */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          🎯 Actions Disponibles
+          ?? Actions Disponibles
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -55,12 +55,12 @@ export default function AdvancedFeaturesPage() {
                 <div className="bg-green-50 p-4 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">95%</div>
                   <div className="text-sm text-green-700">Taux de succes IA</div>
-                  <div className="text-xs text-green-600 mt-1">️ +5% ce mois</div>
+                  <div className="text-xs text-green-600 mt-1">? +5% ce mois</div>
                 </div>
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">87%</div>
                   <div className="text-sm text-blue-700">Confiance moyenne</div>
-                  <div className="text-xs text-blue-600 mt-1">️ Stable</div>
+                  <div className="text-xs text-blue-600 mt-1">? Stable</div>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600">342</div>
@@ -76,12 +76,12 @@ export default function AdvancedFeaturesPage() {
               <h2 className="text-xl font-semibold mb-4"> Predictions IA</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">️ Delais Estimes</h3>
+                  <h3 className="font-semibold mb-2">? Delais Estimes</h3>
                   <div className="text-lg font-semibold">45 jours</div>
                   <div className="text-sm text-gray-500">Confiance: 85%</div>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">🎯 Chance de Succes</h3>
+                  <h3 className="font-semibold mb-2">?? Chance de Succes</h3>
                   <div className="text-lg font-semibold text-green-600">72%</div>
                   <div className="text-sm text-gray-500">Base sur 127 cas similaires</div>
                 </div>
@@ -111,7 +111,7 @@ export default function AdvancedFeaturesPage() {
                   </div>
                 </div>
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <h3 className="font-semibold text-blue-800 mb-2">️ Blockchain</h3>
+                  <h3 className="font-semibold text-blue-800 mb-2">? Blockchain</h3>
                   <div className="text-sm text-blue-700">
                      1,247 actions auditees<br/>
                      Hash: 0x4a7b...c9e2<br/>

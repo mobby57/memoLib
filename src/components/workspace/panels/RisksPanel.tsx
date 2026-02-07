@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Panel Risques - Matrice Probabilite x Severite
@@ -22,7 +22,7 @@ export function RisksPanel({ risks, onAddRisk }: RisksPanelProps) {
   if (risks.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-6xl mb-4">️</div>
+        <div className="text-6xl mb-4">?</div>
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           Aucun risque identifie
         </h3>
@@ -88,7 +88,7 @@ export function RisksPanel({ risks, onAddRisk }: RisksPanelProps) {
             <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div>
               <h4 className="font-semibold text-red-900">
-                ️ {criticalRisks.length} risque(s) critique(s) detecte(s)
+                ? {criticalRisks.length} risque(s) critique(s) detecte(s)
               </h4>
               <p className="text-sm text-red-700 mt-1">
                 Ces risques necessitent une attention immediate avant toute action.
@@ -175,7 +175,7 @@ function RiskCard({ risk }: { risk: Risk }) {
           </span>
           <div>
             <h5 className="font-semibold text-gray-900">
-              {risk.irreversible && '️ IRReVERSIBLE - '}
+              {risk.irreversible && '? IRReVERSIBLE - '}
               Score: {risk.riskScore}/9
             </h5>
             <p className="text-xs text-gray-600 mt-1">

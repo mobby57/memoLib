@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Formulaire Complet - Client remplit son dossier
  * Toutes informations + documents + listes deroulantes
  */
@@ -15,11 +15,11 @@ import { useEffect, useState, FormEvent } from 'react';
 // Types de dossiers CESEDA
 const TYPES_DOSSIER = [
   { value: 'TITRE_SEJOUR', label: ' Demande Titre de Sejour' },
-  { value: 'RECOURS_OQTF', label: '️ Recours OQTF' },
-  { value: 'NATURALISATION', label: '🇫🇷 Demande Naturalisation' },
-  { value: 'REGROUPEMENT_FAMILIAL', label: '‍‍ Regroupement Familial' },
-  { value: 'ASILE', label: '🏠 Demande Asile' },
-  { value: 'VISA', label: '️ Demande Visa' },
+  { value: 'RECOURS_OQTF', label: '? Recours OQTF' },
+  { value: 'NATURALISATION', label: '???? Demande Naturalisation' },
+  { value: 'REGROUPEMENT_FAMILIAL', label: '?? Regroupement Familial' },
+  { value: 'ASILE', label: '?? Demande Asile' },
+  { value: 'VISA', label: '? Demande Visa' },
   { value: 'AUTRE', label: ' Autre' },
 ];
 
@@ -360,7 +360,7 @@ export default function NouveauDossierClient() {
                   className="w-5 h-5"
                 />
                 <label htmlFor="urgence" className="font-semibold">
-                  ️ Dossier urgent (OQTF, deadline proche)
+                  ? Dossier urgent (OQTF, deadline proche)
                 </label>
               </div>
             </div>
@@ -554,7 +554,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 4 : Adresse */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>🏠</span>
+              <span>??</span>
               Domicile Actuel
             </h2>
             
@@ -634,7 +634,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 5 : Situation Familiale */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>‍‍‍</span>
+              <span>???</span>
               Situation Familiale
             </h2>
             
@@ -784,7 +784,7 @@ export default function NouveauDossierClient() {
 
                   <div>
                     <label className="block font-semibold mb-2">
-                      Salaire mensuel net (€)
+                      Salaire mensuel net (�)
                     </label>
                     <input
                       type="number"
@@ -826,7 +826,7 @@ export default function NouveauDossierClient() {
           {/* SECTION 7 : Parcours en France */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-              <span>🇫🇷</span>
+              <span>????</span>
               Parcours en France
             </h2>
             

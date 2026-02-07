@@ -1,4 +1,4 @@
-﻿
+
 
 export interface IconCheckProps extends React.SVGProps<SVGSVGElement> {
   size?: number;

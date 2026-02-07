@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Composant d'affichage de l'etat RECEIVED
  * Objectif: Confirmer ce qui est recu, rien de plus
  */
@@ -144,7 +144,7 @@ export function ReceivedStateView({ workspace, onStartAnalysis, loading, onRefre
       {/* Actions */}
       <div className="flex items-center justify-between pt-4 border-t border-gray-200">
         <div className="text-sm text-gray-500">
-          ️ Aucune modification manuelle autorisee a ce stade
+          ? Aucune modification manuelle autorisee a ce stade
         </div>
         
         <div className="flex gap-3">
