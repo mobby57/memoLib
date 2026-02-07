@@ -14,9 +14,6 @@ http://:project.pages.dev/* https://:project.pages.dev/:splat 301!
 # Redirect root to dashboard based on role (géré par Next.js)
 # /dashboard /lawyer/dashboard 302
 
-# Trailing slash normalization
-/*/ /:splat 301
-
 # Legacy routes
 /admin /super-admin 301
 /settings/profile /settings/account 301
