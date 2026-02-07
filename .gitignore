@@ -209,3 +209,6 @@ backups/
 *.backup
 *.tar.gz
 dev_backup_*.db
+
+# Local Netlify folder
+.netlify
