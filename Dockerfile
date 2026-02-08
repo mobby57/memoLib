@@ -2,8 +2,8 @@ FROM node:20-alpine AS base
 
 FROM base AS deps
 WORKDIR /app
-# Install Python and build tools for native modules (better-sqlite3)
-RUN apk add --no-cache python3 make g++
+# Install Python, build tools for native modules (better-sqlite3), and OpenSSL for Prisma
+RUN apk add --no-cache python3 make g++ openssl
 COPY package*.json ./
 # Copy Prisma schema before npm install (needed for postinstall hook)
 COPY prisma ./prisma
@@ -11,8 +11,8 @@ RUN npm ci --only=production
 
 FROM base AS builder
 WORKDIR /app
-# Install Python and build tools for native modules (better-sqlite3)
-RUN apk add --no-cache python3 make g++
+# Install Python, build tools for native modules (better-sqlite3), and OpenSSL for Prisma
+RUN apk add --no-cache python3 make g++ openssl
 COPY package*.json ./
 # Copy Prisma schema before npm install (needed for postinstall hook)
 COPY prisma ./prisma
@@ -24,6 +24,8 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+# Install OpenSSL for Prisma runtime
+RUN apk add --no-cache openssl
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
