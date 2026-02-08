@@ -3,23 +3,16 @@ import type { NextRequest } from 'next/server';
 
 /**
  * Middleware combiné: i18n + sécurité globale pour MemoLib
- * - Applique l'internationalisation (next-intl)
- * - Applique les headers de sécurité recommandés pour la production
- *
- * Références:
- * - OWASP Secure Headers Project
- * - Next.js Security Best Practices
- * - ANSSI Recommandations sécurité web
+ * - Route les requêtes vers le bon [locale]
+ * - Applique les headers de sécurité globaux
  */
 
-// Configuration i18n
 const intlMiddleware = createIntlMiddleware({
   locales: ['en', 'fr', 'es', 'de', 'pt', 'ja', 'zh', 'hi', 'ru', 'ko'],
   defaultLocale: 'en',
 });
 
 export function middleware(request: NextRequest) {
-  // Appliquer d'abord l'internationalisation (routing + locale detection)
   const response = intlMiddleware(request);
 
   // 🔒 X-Frame-Options: Prévient les attaques clickjacking
@@ -85,13 +78,9 @@ export function middleware(request: NextRequest) {
  * - Fichiers statiques Next.js (_next/static)
  * - Images optimisées (_next/image)
  * - Favicon et images root
- * 
- * next-intl gère automatiquement:
- * - Routing par locale (/en, /fr, /es, etc.)
- * - Redirection vers locale par défaut
  */
 export const config = {
   matcher: [
-    '/((?!api|_next|public|static|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp)$).*)',
+    '/((?!api|_next|static|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp)$).*)',
   ],
 };
