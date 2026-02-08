@@ -11,7 +11,11 @@ RUN npm ci --only=production
 
 FROM base AS builder
 WORKDIR /app
+# Install Python and build tools for native modules (better-sqlite3)
+RUN apk add --no-cache python3 make g++
 COPY package*.json ./
+# Copy Prisma schema before npm install (needed for postinstall hook)
+COPY prisma ./prisma
 RUN npm ci
 COPY . .
 RUN npx prisma generate
