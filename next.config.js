@@ -25,9 +25,10 @@ const isWindows = process.platform === 'win32';
 const getOutputMode = () => {
   if (isAzureStaticExport) return 'export';
   if (isVercel) return undefined; // Vercel handles this automatically
-  if (process.env.FLY_APP_NAME) return 'standalone'; // Fly.io deployment
+  // TEMPORARY: Disable standalone on Fly.io to fix middleware.js.nft.json issue
+  // if (process.env.FLY_APP_NAME) return 'standalone'; // Fly.io deployment
   if (isWindows && !process.env.FORCE_STANDALONE) return undefined; // Avoid Windows path issues
-  return 'standalone'; // Default for other platforms (Linux, macOS)
+  return undefined; // TEMP: Use default mode to avoid middleware NFT issues
 };
 
 const nextConfig = {
