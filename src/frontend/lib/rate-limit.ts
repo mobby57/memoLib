@@ -1,14 +1,14 @@
 /**
  * Rate Limiting Service - Production DDoS Protection
- * 
+ *
  * Utilise Upstash Redis pour un rate limiting distribué
  * Compatible avec les déploiements multi-instances (Vercel, Azure, etc.)
- * 
+ *
  * Installation requise:
  * ```bash
  * npm install @upstash/ratelimit @upstash/redis
  * ```
- * 
+ *
  * Configuration Upstash:
  * 1. Créer compte gratuit: https://upstash.com
  * 2. Créer database Redis
@@ -16,22 +16,22 @@
  * 4. Ajouter dans .env.local:
  *    UPSTASH_REDIS_REST_URL="https://xxx.upstash.io"
  *    UPSTASH_REDIS_REST_TOKEN="xxx"
- * 
+ *
  * Usage dans route API:
  * ```typescript
  * import { ratelimit, checkRateLimit } from '@/lib/rate-limit';
- * 
+ *
  * export async function POST(req: Request) {
  *   const ip = req.headers.get('x-forwarded-for') || 'unknown';
  *   const { success, remaining } = await checkRateLimit(ip);
- *   
+ *
  *   if (!success) {
- *     return new Response('Too Many Requests', { 
+ *     return new Response('Too Many Requests', {
  *       status: 429,
  *       headers: { 'X-RateLimit-Remaining': remaining.toString() }
  *     });
  *   }
- *   
+ *
  *   // Process request...
  * }
  * ```
@@ -52,7 +52,7 @@ const redis =
 
 /**
  * Rate limiter principal - Sliding Window Algorithm
- * 
+ *
  * Limites:
  * - 10 requêtes par 10 secondes par IP
  * - Fenêtre glissante (plus précis que fixed window)
@@ -69,7 +69,7 @@ export const ratelimit = redis
 
 /**
  * Rate limiter strict pour webhooks
- * 
+ *
  * Limites plus restrictives pour les endpoints publics:
  * - 5 requêtes par minute par IP
  * - Token bucket algorithm (burst autorisé)
@@ -85,7 +85,7 @@ export const webhookRatelimit = redis
 
 /**
  * Rate limiter pour authentification
- * 
+ *
  * Protection contre brute force:
  * - 5 tentatives par heure par IP
  * - Fixed window (reset complet après 1h)
@@ -101,7 +101,7 @@ export const authRatelimit = redis
 
 /**
  * Helper function pour vérifier rate limit
- * 
+ *
  * @param identifier - IP address ou user ID
  * @param type - Type de rate limiter ('default' | 'webhook' | 'auth')
  * @returns { success: boolean, remaining: number, reset: Date }
@@ -146,7 +146,7 @@ export async function checkRateLimit(
 
 /**
  * Middleware helper pour ajouter headers rate limit
- * 
+ *
  * @param response - NextResponse
  * @param rateInfo - Résultat de checkRateLimit
  */
