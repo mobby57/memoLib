@@ -45,6 +45,9 @@ CORS(
     },
 )
 
+# Initialize scheduler
+scheduler = BackgroundScheduler()
+
 # Configuration
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(exist_ok=True)
@@ -593,6 +596,120 @@ def analysis_stats():
                 }
             ),
             200,
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ============================================================================
+# AUTO MODE ENDPOINTS (SCHEDULER CONTROL)
+# ============================================================================
+
+
+@app.route("/api/auto/status", methods=["GET"])
+def auto_status():
+    """Check if auto mode (scheduler) is running"""
+    try:
+        jobs = scheduler.get_jobs()
+        pipeline_job = next(
+            (job for job in jobs if job.id == "analysis_pipeline"), None
+        )
+
+        return jsonify(
+            {
+                "auto_mode_enabled": scheduler.running,
+                "pipeline_job_active": pipeline_job is not None,
+                "next_run": (
+                    pipeline_job.next_run_time.isoformat()
+                    if pipeline_job and pipeline_job.next_run_time
+                    else None
+                ),
+                "job_count": len(jobs),
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/auto/start", methods=["POST"])
+def auto_start():
+    """Start the scheduler for auto mode"""
+    if not PIPELINE_AVAILABLE:
+        return jsonify({"error": "Pipeline not available"}), 500
+
+    try:
+        if not scheduler.running:
+            scheduler.start()
+            print("✅ APScheduler started (auto mode enabled)")
+
+        # Ensure the pipeline job is added
+        jobs = scheduler.get_jobs()
+        pipeline_job = next(
+            (job for job in jobs if job.id == "analysis_pipeline"), None
+        )
+
+        if not pipeline_job:
+            scheduler.add_job(
+                func=scheduled_pipeline_job,
+                trigger="interval",
+                hours=4,
+                id="analysis_pipeline",
+                name="Analysis Pipeline (4h interval)",
+                replace_existing=True,
+            )
+            print("✅ Analysis pipeline job added")
+
+        return jsonify(
+            {
+                "status": "started",
+                "message": "Auto mode enabled",
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/auto/stop", methods=["POST"])
+def auto_stop():
+    """Stop the scheduler for auto mode"""
+    try:
+        if scheduler.running:
+            scheduler.shutdown(wait=False)
+            print("✅ APScheduler stopped (auto mode disabled)")
+
+        return jsonify(
+            {
+                "status": "stopped",
+                "message": "Auto mode disabled",
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/auto/trigger", methods=["POST"])
+def auto_trigger():
+    """Manually trigger the analysis pipeline"""
+    if not PIPELINE_AVAILABLE:
+        return jsonify({"error": "Pipeline not available"}), 500
+
+    try:
+        pipeline = AnalysisPipeline()
+        result = pipeline.execute()
+
+        return jsonify(
+            {
+                "status": "triggered",
+                "events_generated": result.events_generated,
+                "duplicates_detected": result.duplicates_detected,
+                "processing_time_seconds": result.processing_time_seconds,
+                "rules_applied": result.rules_applied,
+                "errors": result.errors,
+                "timestamp": datetime.now().isoformat(),
+            }
         )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
