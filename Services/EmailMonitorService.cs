@@ -37,6 +37,7 @@ public class EmailMonitorService : BackgroundService
         var username = _configuration["EmailMonitor:Username"];
         var password = _configuration["EmailMonitor:Password"];
         var intervalSeconds = _configuration.GetValue<int>("EmailMonitor:IntervalSeconds", 60);
+        var batchSize = _configuration.GetValue<int>("EmailMonitor:BatchSize", 50);
 
         _logger.LogInformation($"Email monitor démarré: {username}@{host}:{port}");
 
@@ -44,6 +45,13 @@ public class EmailMonitorService : BackgroundService
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || port <= 0)
+                {
+                    _logger.LogWarning("EmailMonitor activé mais configuration IMAP incomplète (host/port/username/password). Nouveau test au prochain cycle.");
+                    await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken);
+                    continue;
+                }
+
                 using var client = new ImapClient();
                 await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.SslOnConnect, stoppingToken);
                 await client.AuthenticateAsync(username, password, stoppingToken);
@@ -51,13 +59,21 @@ public class EmailMonitorService : BackgroundService
                 var inbox = client.Inbox;
                 await inbox.OpenAsync(FolderAccess.ReadWrite, stoppingToken);
 
-                var uids = await inbox.SearchAsync(SearchQuery.All, stoppingToken);
+                // Optimisation: traiter seulement les emails récents non lus
+                var query = SearchQuery.And(SearchQuery.NotSeen, SearchQuery.DeliveredAfter(DateTime.UtcNow.AddDays(-7)));
+                var uids = await inbox.SearchAsync(query, stoppingToken);
 
-                foreach (var uid in uids)
+                // Traitement par batch pour éviter la surcharge
+                var batches = uids.Take(batchSize).Chunk(10);
+                foreach (var batch in batches)
                 {
-                    var message = await inbox.GetMessageAsync(uid, stoppingToken);
-                    await ProcessEmailAsync(message, stoppingToken);
-                    await inbox.AddFlagsAsync(uid, MessageFlags.Seen, true, stoppingToken);
+                    var tasks = batch.Select(async uid =>
+                    {
+                        var message = await inbox.GetMessageAsync(uid, stoppingToken);
+                        await ProcessEmailAsync(message, stoppingToken);
+                        await inbox.AddFlagsAsync(uid, MessageFlags.Seen, true, stoppingToken);
+                    });
+                    await Task.WhenAll(tasks);
                 }
 
                 await client.DisconnectAsync(true, stoppingToken);
@@ -170,7 +186,7 @@ public class EmailMonitorService : BackgroundService
 
                 using (var stream = File.Create(filePath))
                 {
-                    attachment.Content.DecodeTo(stream);
+                    attachment.Content?.DecodeTo(stream);
                 }
 
                 var attachmentRecord = new Attachment

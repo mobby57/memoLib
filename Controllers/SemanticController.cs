@@ -85,7 +85,7 @@ public class SemanticController : ControllerBase
         {
             try
             {
-                var eventEmbedding = JsonSerializer.Deserialize<Dictionary<string, double>>(ev.EmbeddingVector);
+                var eventEmbedding = JsonSerializer.Deserialize<Dictionary<string, double>>(ev.EmbeddingVector ?? "");
                 if (eventEmbedding == null)
                     continue;
 

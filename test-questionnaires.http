@@ -1,0 +1,70 @@
+### Tests API - Système de Questionnaires
+
+# Variables
+@baseUrl = http://localhost:5078
+@token = YOUR_JWT_TOKEN_HERE
+
+### 1. Authentification (récupérer le token)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@memolib.local",
+  "password": "admin123"
+}
+
+### 2. Récupérer les questionnaires pour un événement
+GET {{baseUrl}}/api/questionnaire/for-event/EVENT_ID_HERE
+Authorization: Bearer {{token}}
+
+### 3. Soumettre une réponse de questionnaire
+POST {{baseUrl}}/api/questionnaire/response
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "questionnaireId": "QUESTIONNAIRE_ID_HERE",
+  "caseId": "CASE_ID_HERE", 
+  "eventId": "EVENT_ID_HERE",
+  "answers": {
+    "QUESTION_ID_1": "Oui",
+    "QUESTION_ID_2": "true",
+    "QUESTION_ID_3": "Excellent service client",
+    "QUESTION_ID_4": "2024-12-31"
+  }
+}
+
+### 4. Récupérer les réponses d'un dossier
+GET {{baseUrl}}/api/questionnaire/case/CASE_ID_HERE/responses
+Authorization: Bearer {{token}}
+
+### 5. Test complet - Workflow de clôture
+# 5.1 Récupérer un dossier avec événements
+GET {{baseUrl}}/api/cases
+Authorization: Bearer {{token}}
+
+# 5.2 Récupérer les questionnaires pour le premier événement
+GET {{baseUrl}}/api/questionnaire/for-event/FIRST_EVENT_ID
+Authorization: Bearer {{token}}
+
+# 5.3 Compléter le questionnaire
+POST {{baseUrl}}/api/questionnaire/response
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "questionnaireId": "RETURNED_QUESTIONNAIRE_ID",
+  "caseId": "CASE_ID_FROM_STEP_1",
+  "eventId": "FIRST_EVENT_ID", 
+  "answers": {
+    "QUESTION_1_ID": "Oui",
+    "QUESTION_2_ID": "true",
+    "QUESTION_3_ID": "2024-12-31",
+    "QUESTION_4_ID": "Client très satisfait du service"
+  }
+}
+
+### Notes d'utilisation:
+# 1. Remplacer YOUR_JWT_TOKEN_HERE par le token obtenu à l'étape 1
+# 2. Remplacer les ID placeholders par les vrais IDs de votre base
+# 3. Les questionnaires par défaut sont créés au démarrage de l'application

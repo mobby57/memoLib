@@ -58,6 +58,31 @@
     <script>
         const API_BASE = 'http://localhost:5078/api';
         let currentEmails = [];
+        let authToken = localStorage.getItem('authToken');
+
+        async function apiCall(url, options = {}) {
+            if (!authToken) {
+                showError('Non authentifié. Connectez-vous d\'abord sur demo.html');
+                throw new Error('Non authentifié');
+            }
+            
+            const headers = {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            const response = await fetch(url, { ...options, headers });
+            
+            if (response.status === 401) {
+                localStorage.removeItem('authToken');
+                authToken = null;
+                showError('Session expirée. Reconnectez-vous sur demo.html');
+                throw new Error('Non authentifié');
+            }
+            
+            return response;
+        }
 
         async function showAllEmails() {
             document.getElementById('searchInput').value = '';
@@ -66,7 +91,11 @@
             document.getElementById('emailList').innerHTML = '';
             
             try {
-                const response = await fetch(`${API_BASE}/event`);
+                const response = await apiCall(`${API_BASE}/search/events`, {
+                    method: 'POST',
+                    body: JSON.stringify({ text: '' })
+                });
+                
                 if (!response.ok) throw new Error('Erreur lors du chargement des emails');
                 
                 const events = await response.json();
@@ -91,7 +120,11 @@
             document.getElementById('emailList').innerHTML = '';
             
             try {
-                const response = await fetch(`${API_BASE}/event/search?query=${encodeURIComponent(query)}`);
+                const response = await apiCall(`${API_BASE}/search/events`, {
+                    method: 'POST',
+                    body: JSON.stringify({ text: query })
+                });
+                
                 if (!response.ok) throw new Error('Erreur lors de la recherche');
                 
                 const events = await response.json();
@@ -113,13 +146,18 @@
             }
 
             emailList.innerHTML = emails.map(email => {
-                const metadata = JSON.parse(email.metadata || '{}');
+                let metadata = {};
+                try {
+                    metadata = JSON.parse(email.rawPayload || '{}');
+                } catch (e) {
+                    metadata = {};
+                }
                 const subject = metadata.Subject || 'Sans sujet';
                 const from = metadata.From || 'Expéditeur inconnu';
-                const date = new Date(email.timestamp).toLocaleString('fr-FR');
+                const date = new Date(email.occurredAt).toLocaleString('fr-FR');
                 
                 return `
-                    <div class="email-item" onclick="loadAttachments(${email.id})">
+                    <div class="email-item" onclick="loadAttachments('${email.id}')">
                         <div class="email-subject">${escapeHtml(subject)}</div>
                         <div class="email-meta">De: ${escapeHtml(from)} | ${date}</div>
                     </div>
@@ -134,16 +172,21 @@
             
             const email = currentEmails.find(e => e.id === eventId);
             if (email) {
-                const metadata = JSON.parse(email.metadata || '{}');
+                let metadata = {};
+                try {
+                    metadata = JSON.parse(email.rawPayload || '{}');
+                } catch (e) {
+                    metadata = {};
+                }
                 document.getElementById('emailDetails').innerHTML = `
                     <strong>Sujet:</strong> ${escapeHtml(metadata.Subject || 'Sans sujet')}<br>
                     <strong>De:</strong> ${escapeHtml(metadata.From || 'Inconnu')}<br>
-                    <strong>Date:</strong> ${new Date(email.timestamp).toLocaleString('fr-FR')}
+                    <strong>Date:</strong> ${new Date(email.occurredAt).toLocaleString('fr-FR')}
                 `;
             }
             
             try {
-                const response = await fetch(`${API_BASE}/attachment/event/${eventId}`);
+                const response = await apiCall(`${API_BASE}/attachment/event/${eventId}`);
                 if (!response.ok) throw new Error('Erreur lors du chargement des pièces jointes');
                 
                 const attachments = await response.json();

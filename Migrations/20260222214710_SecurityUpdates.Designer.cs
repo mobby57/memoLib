@@ -3,6 +3,7 @@ using System;
 using MemoLib.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MemoLib.Api.Migrations
 {
     [DbContext(typeof(MemoLibDbContext))]
-    partial class MemoLibDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260222214710_SecurityUpdates")]
+    partial class SecurityUpdates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");

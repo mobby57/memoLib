@@ -1,0 +1,56 @@
+name: MemoLib CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore MemoLib.Api/MemoLib.Api.csproj
+    
+    - name: Build
+      run: dotnet build MemoLib.Api/MemoLib.Api.csproj --no-restore
+    
+    - name: Test
+      run: dotnet test MemoLib.Api/MemoLib.Api.csproj --no-build --verbosity normal
+    
+    - name: Security scan
+      run: |
+        dotnet tool install --global security-scan
+        security-scan MemoLib.Api/
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Publish
+      run: dotnet publish MemoLib.Api/MemoLib.Api.csproj -c Release -o ./publish
+    
+    - name: Deploy to Azure
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./publish

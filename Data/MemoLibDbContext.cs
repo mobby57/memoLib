@@ -19,6 +19,11 @@ public class MemoLibDbContext : DbContext
     public DbSet<CaseShare> CaseShares => Set<CaseShare>();
     public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
     public DbSet<Attachment> Attachments => Set<Attachment>();
+    public DbSet<Questionnaire> Questionnaires => Set<Questionnaire>();
+    public DbSet<Question> Questions => Set<Question>();
+    public DbSet<QuestionnaireResponse> QuestionnaireResponses => Set<QuestionnaireResponse>();
+    public DbSet<Answer> Answers => Set<Answer>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,5 +70,14 @@ public class MemoLibDbContext : DbContext
 
         modelBuilder.Entity<Attachment>()
             .HasIndex(a => a.EventId);
+
+        modelBuilder.Entity<Question>()
+            .HasIndex(q => new { q.QuestionnaireId, q.Order });
+
+        modelBuilder.Entity<QuestionnaireResponse>()
+            .HasIndex(qr => new { qr.CaseId, qr.EventId });
+
+        modelBuilder.Entity<Answer>()
+            .HasIndex(a => a.ResponseId);
     }
 }

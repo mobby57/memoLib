@@ -10,6 +10,7 @@ using MailKit.Search;
 using MimeKit;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace MemoLib.Api.Controllers;
 
@@ -32,7 +33,7 @@ public class EmailScanController : ControllerBase
     }
 
     [HttpPost("manual")]
-    public async Task<IActionResult> ManualScan()
+    public async Task<IActionResult> ManualScan([FromQuery] bool unreadOnly = false, [FromQuery] int daysBack = 0)
     {
         if (!this.TryGetCurrentUserId(out var userId))
             return Unauthorized();
@@ -65,8 +66,29 @@ public class EmailScanController : ControllerBase
             var inbox = client.Inbox;
             await inbox.OpenAsync(FolderAccess.ReadWrite);
 
-            var uids = await inbox.SearchAsync(SearchQuery.All);
+            var query = SearchQuery.All;
+
+            if (unreadOnly)
+            {
+                query = SearchQuery.NotSeen;
+            }
+
+            if (daysBack > 0)
+            {
+                var deliveredAfter = SearchQuery.DeliveredAfter(DateTime.UtcNow.AddDays(-daysBack));
+                query = SearchQuery.And(query, deliveredAfter);
+            }
+
+            var uids = await inbox.SearchAsync(query);
             _logger.LogInformation($"Scan manuel: {uids.Count} emails trouvés");
+
+            var previewLimit = 50;
+            var lineDetails = new List<object>();
+            var withPhone = 0;
+            var withAddress = 0;
+            var withAttachments = 0;
+            var clientsCreated = 0;
+            var requiresAttentionCount = 0;
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
@@ -92,8 +114,26 @@ public class EmailScanController : ControllerBase
                 var message = await inbox.GetMessageAsync(uid);
                 var from = message.From.Mailboxes.FirstOrDefault()?.Address ?? "unknown@unknown.com";
                 var subject = message.Subject ?? "";
-                var body = message.TextBody ?? message.HtmlBody ?? "";
+                var bodyText = message.TextBody ?? "";
+                var bodyHtml = message.HtmlBody ?? "";
+                var body = !string.IsNullOrWhiteSpace(bodyText) ? bodyText : bodyHtml;
                 var externalId = message.MessageId ?? $"EMAIL-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+                var toRecipients = string.Join(", ", message.To.Mailboxes.Select(m => m.Address));
+                var ccRecipients = string.Join(", ", message.Cc.Mailboxes.Select(m => m.Address));
+                var bccRecipients = string.Join(", ", message.Bcc.Mailboxes.Select(m => m.Address));
+                var replyToRecipients = string.Join(", ", message.ReplyTo.Mailboxes.Select(m => m.Address));
+                var attachmentNames = message.Attachments
+                    .OfType<MimePart>()
+                    .Select(a => a.FileName ?? "piece-jointe")
+                    .ToList();
+
+                var extractedPhone = _extractor.ExtractPhone(body);
+                var extractedAddress = _extractor.ExtractAddress(body);
+                var normalizedSenderName = _extractor.NormalizeName(message.From.Mailboxes.FirstOrDefault()?.Name, from);
+
+                if (!string.IsNullOrWhiteSpace(extractedPhone)) withPhone++;
+                if (!string.IsNullOrWhiteSpace(extractedAddress)) withAddress++;
+                if (attachmentNames.Count > 0) withAttachments++;
 
                 var checksum = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(body)));
                 var duplicate = await _context.Events.FirstOrDefaultAsync(e => e.ExternalId == externalId || e.Checksum == checksum);
@@ -101,29 +141,76 @@ public class EmailScanController : ControllerBase
                 if (duplicate != null)
                 {
                     duplicates++;
+
+                    if (lineDetails.Count < previewLimit)
+                    {
+                        lineDetails.Add(new
+                        {
+                            status = "duplicate",
+                            occurredAt = message.Date.UtcDateTime,
+                            from,
+                            to = toRecipients,
+                            cc = ccRecipients,
+                            bcc = bccRecipients,
+                            replyTo = replyToRecipients,
+                            subject,
+                            messageId = externalId,
+                            checksum,
+                            hasAttachments = attachmentNames.Count > 0,
+                            attachmentNames,
+                            bodyLength = body.Length,
+                            extractedPhone,
+                            extractedAddress,
+                            normalizedSenderName,
+                            eventId = duplicate.Id
+                        });
+                    }
+
                     continue;
                 }
 
                 // Créer ou récupérer le client
                 var businessClient = await _context.Clients.FirstOrDefaultAsync(c => c.Email.ToLower() == from.ToLower());
+                var clientCreated = false;
                 if (businessClient == null && from != "unknown@unknown.com")
                 {
-                    var senderMailbox = message.From.Mailboxes.FirstOrDefault();
-                    var rawName = senderMailbox?.Name;
-                    
                     businessClient = new Client
                     {
                         Id = Guid.NewGuid(),
                         UserId = user.Id,
-                        Name = _extractor.NormalizeName(rawName, from),
+                        Name = normalizedSenderName,
                         Email = from,
-                        PhoneNumber = _extractor.ExtractPhone(body),
-                        Address = _extractor.ExtractAddress(body),
+                        PhoneNumber = extractedPhone,
+                        Address = extractedAddress,
                         CreatedAt = DateTime.UtcNow
                     };
                     _context.Clients.Add(businessClient);
                     await _context.SaveChangesAsync();
+                    clientCreated = true;
+                    clientsCreated++;
                 }
+
+                var rawPayload = JsonSerializer.Serialize(new
+                {
+                    from,
+                    to = toRecipients,
+                    cc = ccRecipients,
+                    bcc = bccRecipients,
+                    replyTo = replyToRecipients,
+                    subject,
+                    bodyText,
+                    bodyHtml,
+                    body,
+                    messageId = externalId,
+                    occurredAt = message.Date.UtcDateTime,
+                    attachments = attachmentNames,
+                    extracted = new
+                    {
+                        senderName = normalizedSenderName,
+                        phone = extractedPhone,
+                        address = extractedAddress
+                    }
+                });
 
                 var evt = new Event
                 {
@@ -133,11 +220,16 @@ public class EmailScanController : ControllerBase
                     ExternalId = externalId,
                     OccurredAt = message.Date.UtcDateTime,
                     IngestedAt = DateTime.UtcNow,
-                    RawPayload = $"{{\"from\":\"{from}\",\"subject\":\"{subject}\",\"body\":\"{body}\"}}",
+                    RawPayload = rawPayload,
                     Checksum = checksum,
                     ValidationFlags = string.IsNullOrWhiteSpace(from) ? "MISSING_SENDER" : null,
                     RequiresAttention = string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(subject)
                 };
+
+                if (evt.RequiresAttention)
+                {
+                    requiresAttentionCount++;
+                }
 
                 _context.Events.Add(evt);
                 await _context.SaveChangesAsync();
@@ -163,15 +255,72 @@ public class EmailScanController : ControllerBase
                 }
 
                 ingested++;
+
+                if (lineDetails.Count < previewLimit)
+                {
+                    lineDetails.Add(new
+                    {
+                        status = "ingested",
+                        occurredAt = message.Date.UtcDateTime,
+                        from,
+                        to = toRecipients,
+                        cc = ccRecipients,
+                        bcc = bccRecipients,
+                        replyTo = replyToRecipients,
+                        subject,
+                        messageId = externalId,
+                        checksum,
+                        hasAttachments = attachmentNames.Count > 0,
+                        attachmentNames,
+                        bodyLength = body.Length,
+                        extractedPhone,
+                        extractedAddress,
+                        normalizedSenderName,
+                        clientCreated,
+                        eventId = evt.Id,
+                        requiresAttention = evt.RequiresAttention
+                    });
+                }
             }
 
             await client.DisconnectAsync(true);
 
             return Ok(new { 
                 message = "Scan terminé", 
+                unreadOnly,
+                daysBack,
                 totalEmails = uids.Count,
                 ingested, 
-                duplicates 
+                duplicates,
+                fieldsCaptured = new[]
+                {
+                    "from",
+                    "to",
+                    "cc",
+                    "bcc",
+                    "replyTo",
+                    "subject",
+                    "messageId",
+                    "occurredAt",
+                    "bodyText",
+                    "bodyHtml",
+                    "attachments",
+                    "extracted.senderName",
+                    "extracted.phone",
+                    "extracted.address",
+                    "checksum",
+                    "requiresAttention"
+                },
+                exploitation = new
+                {
+                    withPhone,
+                    withAddress,
+                    withAttachments,
+                    clientsCreated,
+                    requiresAttention = requiresAttentionCount
+                },
+                linesPreviewCount = lineDetails.Count,
+                linesPreview = lineDetails
             });
         }
         catch (Exception ex)

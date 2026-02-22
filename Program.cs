@@ -50,11 +50,30 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
 builder.Services.AddScoped<EmbeddingService>();
 builder.Services.AddScoped<JwtTokenService>();
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<ClientInfoExtractor>();
+builder.Services.AddScoped<UrlValidationService>();
+builder.Services.AddScoped<PasswordResetService>();
+builder.Services.AddScoped<BruteForceProtectionService>();
+builder.Services.AddScoped<EmailValidationService>();
+builder.Services.AddScoped<QuestionnaireService>();
+builder.Services.AddScoped<PushNotificationService>();
+builder.Services.AddScoped<AnalyticsService>();
+builder.Services.AddScoped<TemplateEngineService>();
+builder.Services.AddSignalR();
 builder.Services.AddHostedService<EmailMonitorService>();
 builder.Services.AddDbContext<MemoLibDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
@@ -108,9 +127,14 @@ using (var scope = app.Services.CreateScope())
 
         db.SaveChanges();
     }
+
+    // Seed questionnaires par défaut
+    await QuestionnaireSeeder.SeedDefaultQuestionnaires(db);
 }
 
+app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<CacheMiddleware>();
 app.UseMiddleware<RateLimitingMiddleware>();
 
 if (!disableHttpsRedirection)
@@ -119,6 +143,7 @@ if (!disableHttpsRedirection)
 }
 
 app.UseCors("FrontendPolicy");
+app.UseSession();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
@@ -150,6 +175,7 @@ app.MapPost("/api/system/stop", (HttpContext http, IHostApplicationLifetime life
     return Results.Ok(new { message = "Arrêt demandé" });
 });
 app.MapControllers();
+app.MapHub<MemoLib.Api.Hubs.NotificationHub>("/notificationHub");
 
 app.Run();
 

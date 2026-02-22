@@ -65,3 +65,10 @@ public class RefreshResponse
     public DateTime ExpiresAt { get; set; }
     public UserDto User { get; set; } = null!;
 }
+
+public class ResetPasswordRequest
+{
+    public string Email { get; set; } = null!;
+    public string CurrentPassword { get; set; } = null!;
+    public string NewPassword { get; set; } = null!;
+}

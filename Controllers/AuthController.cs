@@ -18,17 +18,23 @@ public class AuthController : ControllerBase
     private readonly PasswordService _passwordService;
     private readonly ILogger<AuthController> _logger;
     private readonly MemoLibDbContext _dbContext;
+    private readonly BruteForceProtectionService _bruteForceProtection;
+    private readonly EmailValidationService _emailValidation;
 
     public AuthController(
         JwtTokenService jwtService,
         PasswordService passwordService,
         ILogger<AuthController> logger,
-        MemoLibDbContext dbContext)
+        MemoLibDbContext dbContext,
+        BruteForceProtectionService bruteForceProtection,
+        EmailValidationService emailValidation)
     {
         _jwtService = jwtService;
         _passwordService = passwordService;
         _logger = logger;
         _dbContext = dbContext;
+        _bruteForceProtection = bruteForceProtection;
+        _emailValidation = emailValidation;
     }
 
     private static UserDto MapToUserDto(User user) => new()
@@ -44,9 +50,23 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+        var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        
+        if (await _bruteForceProtection.IsLockedOutAsync(clientIp))
         {
+            return StatusCode(429, new { message = "Trop de tentatives. Réessayez plus tard." });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
             return BadRequest(new { message = "Email et mot de passe requis" });
+        }
+
+        if (!_emailValidation.ValidateEmail(request.Email).IsValid)
+        {
+            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
+            return BadRequest(new { message = "Format d'email invalide" });
         }
 
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
@@ -54,10 +74,12 @@ public class AuthController : ControllerBase
 
         if (user == null || !_passwordService.VerifyPassword(request.Password, user.Password))
         {
-            _logger.LogWarning("Tentative de connexion échouée pour: {Email}", normalizedEmail);
+            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
+            _logger.LogWarning("Tentative de connexion échouée pour: {Email} depuis {IP}", normalizedEmail, clientIp);
             return Unauthorized(new { message = "Identifiants invalides" });
         }
 
+        await _bruteForceProtection.RecordSuccessfulLoginAsync(clientIp);
         var authToken = _jwtService.GenerateToken(user);
 
         var response = new LoginResponse
@@ -69,7 +91,6 @@ public class AuthController : ControllerBase
         };
 
         _logger.LogInformation("Connexion réussie pour: {Email}", user.Email);
-
         return Ok(response);
     }
 
@@ -92,9 +113,9 @@ public class AuthController : ControllerBase
     /// Rafraîchit un JWT token via un refresh token
     /// </summary>
     [HttpPost("refresh")]
-    public IActionResult RefreshToken([FromBody] RefreshRequest request)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshRequest request)
     {
-        if (string.IsNullOrEmpty(request.RefreshToken))
+        if (request == null || string.IsNullOrWhiteSpace(request.RefreshToken))
         {
             return BadRequest(new { message = "Refresh token requis" });
         }
@@ -106,8 +127,6 @@ public class AuthController : ControllerBase
 
         var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var email = principal.FindFirst(ClaimTypes.Email)?.Value;
-        var createdAtValue = principal.FindFirst("createdAt")?.Value;
-
         if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(email))
         {
             return Unauthorized(new { message = "Refresh token incomplet" });
@@ -118,18 +137,16 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Refresh token invalide" });
         }
 
-        var createdAt = DateTime.UtcNow;
-        if (!string.IsNullOrEmpty(createdAtValue) && DateTime.TryParse(createdAtValue, out var parsedDate))
-        {
-            createdAt = parsedDate;
-        }
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var user = await _dbContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == parsedUserId && u.Email == normalizedEmail);
 
-        var user = new User
+        if (user == null)
         {
-            Id = parsedUserId,
-            Email = email,
-            CreatedAt = createdAt
-        };
+            _logger.LogWarning("Refresh refusé: utilisateur introuvable pour {UserId}", parsedUserId);
+            return Unauthorized(new { message = "Refresh token invalide" });
+        }
 
         var authToken = _jwtService.GenerateToken(user);
 
@@ -165,6 +182,44 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Change le mot de passe (utilisateur authentifié)
+    /// </summary>
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        if (string.IsNullOrEmpty(request.CurrentPassword) || string.IsNullOrEmpty(request.NewPassword))
+        {
+            return BadRequest(new { message = "Mot de passe actuel et nouveau requis" });
+        }
+
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized(new { message = "Non authentifié" });
+        }
+
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null)
+        {
+            return NotFound(new { message = "Utilisateur introuvable" });
+        }
+
+        if (!_passwordService.VerifyPassword(request.CurrentPassword, user.Password))
+        {
+            _logger.LogWarning("Tentative de changement avec mauvais mot de passe pour: {UserId}", userId);
+            await Task.Delay(2000);
+            return Unauthorized(new { message = "Mot de passe actuel incorrect" });
+        }
+
+        user.Password = _passwordService.HashPassword(request.NewPassword);
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Mot de passe changé pour: {UserId}", userId);
+        return Ok(new { message = "Mot de passe changé avec succès" });
+    }
+
+    /// <summary>
     /// Enregistre un nouvel utilisateur (avocat)
     /// </summary>
     [HttpPost("register")]
@@ -173,6 +228,11 @@ public class AuthController : ControllerBase
         var validation = RegisterRequestValidator.Validate(request.Email, request.Password, request.Name);
         if (!validation.IsValid)
             return BadRequest(new { message = validation.Error });
+
+        if (!_emailValidation.ValidateEmail(request.Email).IsValid)
+        {
+            return BadRequest(new { message = "Format d'email invalide" });
+        }
 
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
@@ -185,7 +245,6 @@ public class AuthController : ControllerBase
             return Conflict(new { message = "Un compte existe déjà avec cet email" });
         }
 
-        // Hash du mot de passe simple (à remplacer par un algorithme dédié en production)
         var hashedPasswordStr = _passwordService.HashPassword(request.Password);
 
         var user = new User
@@ -214,7 +273,7 @@ public class AuthController : ControllerBase
         });
         await _dbContext.SaveChangesAsync();
 
-        _logger.LogInformation("Nouvel utilisateur inscrit: {Email}", request.Email);
+        _logger.LogInformation("Nouvel utilisateur inscrit: {Email}", user.Email);
 
         return Ok(new RegisterResponse
         {
@@ -225,3 +284,5 @@ public class AuthController : ControllerBase
         });
     }
 }
+
+public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
