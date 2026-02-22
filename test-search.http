@@ -1,0 +1,65 @@
+@baseUrl = http://localhost:5078
+
+### Auth login
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@memolib.local",
+  "password": "memolib2024!"
+}
+
+### 1. Recherche par texte simple
+POST {{baseUrl}}/api/search/events
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "text": "Machine"
+}
+
+### 2. Recherche par texte (autre mot)
+POST {{baseUrl}}/api/search/events
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "text": "production"
+}
+
+### 3. Recherche par plage de dates
+POST {{baseUrl}}/api/search/events
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "from": "2026-02-10T00:00:00Z",
+  "to": "2026-02-11T00:00:00Z"
+}
+
+### 4. Recherche combinée (texte + date)
+POST {{baseUrl}}/api/search/events
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "text": "production",
+  "from": "2026-02-01T00:00:00Z"
+}
+
+### 5. Recherche par source (remplacer par un vrai sourceId)
+POST {{baseUrl}}/api/search/events
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "sourceId": "00000000-0000-0000-0000-000000000000"
+}
+
+### 6. Recherche vide (tous les events, limité à 100)
+POST {{baseUrl}}/api/search/events
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{}

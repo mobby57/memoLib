@@ -1,0 +1,56 @@
+name: Promote Stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_tag:
+        description: 'Tag source à promouvoir (ex: v2026.02.21)'
+        required: true
+        type: string
+      stable_tag:
+        description: 'Tag cible stable'
+        required: false
+        default: 'stable'
+        type: string
+      title:
+        description: 'Titre release stable (optionnel)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run promote-stable script
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          SOURCE_TAG: ${{ github.event.inputs.source_tag }}
+          STABLE_TAG: ${{ github.event.inputs.stable_tag }}
+          TITLE: ${{ github.event.inputs.title }}
+        run: |
+          $args = @(
+            '-ExecutionPolicy', 'Bypass',
+            '-File', '.\scripts\promote-stable.ps1',
+            '-Owner', $env:OWNER,
+            '-Repo', $env:REPO,
+            '-SourceTag', $env:SOURCE_TAG,
+            '-StableTag', $env:STABLE_TAG
+          )
+
+          if (-not [string]::IsNullOrWhiteSpace($env:TITLE)) {
+            $args += @('-Title', $env:TITLE)
+          }
+
+          powershell @args

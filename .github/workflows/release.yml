@@ -1,0 +1,102 @@
+name: Release Local Demo
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'stable'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag release (optionnel, sinon auto ou tag courant)'
+        required: false
+        default: ''
+      title:
+        description: 'Titre release (optionnel)'
+        required: false
+        default: ''
+      notes:
+        description: 'Notes release (optionnel)'
+        required: false
+        default: 'Release locale auto-générée depuis GitHub Actions.'
+      prerelease:
+        description: 'Marquer comme pre-release'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\NuGet\Cache
+            ~\.nuget\packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 9.*
+
+      - name: Add dotnet tools to PATH
+        shell: pwsh
+        run: |
+          "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build + smoke + package (no publish)
+        shell: pwsh
+        env:
+          JwtSettings__SecretKey: MEMOLIB_RELEASE_SECRET_2026_32_CHARS_MINIMUM
+          DisableHttpsRedirection: true
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\scripts\go-all.ps1 -SkipPublish
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          INPUT_TITLE: ${{ github.event.inputs.title }}
+          INPUT_NOTES: ${{ github.event.inputs.notes }}
+          INPUT_PRERELEASE: ${{ github.event.inputs.prerelease }}
+          REF_TAG: ${{ github.ref_name }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          $tag = if (-not [string]::IsNullOrWhiteSpace($env:INPUT_TAG)) { $env:INPUT_TAG } elseif (-not [string]::IsNullOrWhiteSpace($env:REF_TAG)) { $env:REF_TAG } else { '' }
+          $title = if (-not [string]::IsNullOrWhiteSpace($env:INPUT_TITLE)) { $env:INPUT_TITLE } else { '' }
+          $notes = if (-not [string]::IsNullOrWhiteSpace($env:INPUT_NOTES)) { $env:INPUT_NOTES } else { 'Release locale auto-générée depuis GitHub Actions.' }
+          $isPre = [System.Convert]::ToBoolean($env:INPUT_PRERELEASE)
+
+          $args = @(
+            '-ExecutionPolicy', 'Bypass',
+            '-File', '.\scripts\publish-github-release.ps1',
+            '-Owner', $env:OWNER,
+            '-Repo', $env:REPO,
+            '-Tag', $tag,
+            '-Title', $title,
+            '-Notes', $notes
+          )
+
+          if ($isPre) {
+            $args += '-Prerelease'
+          }
+
+          powershell @args

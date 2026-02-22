@@ -1,0 +1,36 @@
+## Build results
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+
+## Database files (keep structure, not data)
+*.db
+*.db-shm
+*.db-wal
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio
+.vs/
+*.vsidx
+*.vspscc
+*.vspx
+
+## Uploads (files uploaded by users)
+uploads/
+
+## Logs
+*.log
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## Secrets
+appsettings.Development.json
+appsettings.Production.json

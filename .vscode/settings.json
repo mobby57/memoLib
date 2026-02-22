@@ -1,0 +1,88 @@
+{
+  // ===========================================
+  // VS Code Performance Optimizations for .NET
+  // MemoLib.Api Project
+  // ===========================================
+  
+  // -------- OmniSharp / C# Optimizations --------
+  "omnisharp.enableRoslynAnalyzers": false,
+  "omnisharp.enableEditorConfigSupport": false,
+  "omnisharp.enableMsBuildLoadProjectsOnDemand": true,
+  "omnisharp.useModernNet": true,
+  "omnisharp.autoStart": true,
+  "csharp.semanticHighlighting.enabled": true,
+  "csharp.suppressDotnetInstallWarning": true,
+  "csharp.suppressExcessPropertyWarnings": false,
+  "csharp.suppressMissingCompilationUnitWarnings": true,
+
+  // -------- File Exclusions (Critical for Performance) --------
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/*.user": true,
+    "**/*.suo": true,
+    "**/bin": true,
+    "**/obj": true,
+    "**/.vs": true,
+    "**/TestResults": true,
+    "**/.dotnet": true,
+    "**/.nuget": true
+  },
+
+  // -------- Search Exclusions --------
+  "search.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/.vs": true,
+    "**/TestResults": true,
+    "**/*.user": true,
+    "**/*.suo": true,
+    "**/.dotnet": true
+  },
+
+  // -------- Editor Performance --------
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.inlineSuggest.enabled": true,
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  "editor.suggestSelection": "first",
+  "editor.tabCompletion": "on",
+  "editor.wordBasedSuggestions": "matching",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+
+  // -------- Files & HTTP --------
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.associations": {
+    "*.cs": "csharp",
+    "*.csproj": "xml",
+    "*.sln": "Solution"
+  },
+  "http.systemCertificates": true,
+
+  // -------- Telemetry (Reduce overhead) --------
+  "telemetry.telemetryLevel": "off",
+  "extensions.autoCheckUpdates": false,
+  "extensions.autoUpdate": false,
+
+  // -------- Debugging --------
+  "debug.console.fontSize": 12,
+  "debug.inlineValues": false,
+
+  // -------- Less Memory Intensive Settings --------
+  "editor.minimap.enabled": false,
+  "editor.cursorBlinking": "smooth",
+  "editor.smoothScrolling": true,
+  "editor.renderWhitespace": "selection",
+  "editor.renderLineHighlight": "line",
+  "window.newWindowDimensions": "inherit"
+}

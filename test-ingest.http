@@ -1,0 +1,50 @@
+@baseUrl = http://localhost:5078
+
+### Auth login
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@memolib.local",
+  "password": "memolib2024!"
+}
+
+### Test ingestion email
+POST {{baseUrl}}/api/ingest/email
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "externalId": "msg-001",
+  "from": "client@test.com",
+  "subject": "Incident production",
+  "body": "Machine arrêtée depuis 10h",
+  "occurredAt": "2026-02-10T08:30:00Z"
+}
+
+### Test déduplication (même email)
+POST {{baseUrl}}/api/ingest/email
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "externalId": "msg-001",
+  "from": "client@test.com",
+  "subject": "Incident production",
+  "body": "Machine arrêtée depuis 10h",
+  "occurredAt": "2026-02-10T08:30:00Z"
+}
+
+### Test second email différent
+POST {{baseUrl}}/api/ingest/email
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "externalId": "msg-002",
+  "from": "avocat@cabinet.fr",
+  "subject": "Dossier urgent",
+  "body": "Besoin de documents pour audience demain",
+  "occurredAt": "2026-02-10T14:00:00Z"
+}

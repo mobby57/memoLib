@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\NuGet\Cache
+            ~\.nuget\packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 9.*
+
+      - name: Add dotnet tools to PATH
+        shell: pwsh
+        run: |
+          "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+      - name: Go all local (no publish)
+        shell: pwsh
+        env:
+          JwtSettings__SecretKey: MEMOLIB_CI_SECRET_2026_32_CHARS_MINIMUM
+          DisableHttpsRedirection: true
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\scripts\go-all.ps1 -SkipPublish
+
+      - name: Upload local demo artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: memolib-local-demo-latest
+          path: |
+            dist/memolib-local-demo-latest.zip
+            dist/memolib-local-demo-latest.sha256.txt
+          if-no-files-found: ignore
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t memolib-api:ci .
+
+      - name: Run Docker container
+        run: |
+          docker run -d --name memolib-api-ci -p 8091:8080 \
+            -e ASPNETCORE_ENVIRONMENT=Development \
+            -e JwtSettings__SecretKey=MEMOLIB_CI_SECRET_2026_32_CHARS_MINIMUM \
+            -e ConnectionStrings__Default='Data Source=/app/memolib.ci.db' \
+            -e DisableHttpsRedirection=true \
+            memolib-api:ci
+
+      - name: Wait for health endpoint
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8091/health > /dev/null; then
+              echo "API ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "API failed to become ready"
+          docker logs memolib-api-ci || true
+          exit 1
+
+      - name: Run smoke test
+        shell: pwsh
+        run: ./scripts/smoke-running-local.ps1 -BaseUrl 'http://localhost:8091'
+
+      - name: Dump logs on failure
+        if: failure()
+        run: docker logs memolib-api-ci
+
+      - name: Cleanup container
+        if: always()
+        run: docker rm -f memolib-api-ci
