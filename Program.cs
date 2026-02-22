@@ -59,11 +59,16 @@ builder.Services.AddHostedService<EmailMonitorService>();
 builder.Services.AddDbContext<MemoLibDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5078" };
+
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("FrontendPolicy", policy =>
     {
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        policy.WithOrigins(corsOrigins)
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
 
@@ -113,7 +118,7 @@ if (!disableHttpsRedirection)
     app.UseHttpsRedirection();
 }
 
-app.UseCors();
+app.UseCors("FrontendPolicy");
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
