@@ -256,9 +256,60 @@
             if (isUrlSafe(origin)) return origin;
             return 'http://localhost:5078';
         })();
+        const PINNED_MONITOR_EMAIL = 'sarraboudjellal57@gmail.com';
+        const PINNED_MONITOR_PASSWORD = localStorage.getItem('memolibMonitorPassword') || 'SecurePass123!';
+        localStorage.setItem('memolibMonitorEmail', PINNED_MONITOR_EMAIL);
+        const LOGIN_EMAIL_KEY = 'memolibMonitorEmail';
+        const LOGIN_PASSWORD_KEY = 'memolibMonitorPassword';
+        const LOGIN_NAME_KEY = 'memolibMonitorName';
 
         let token = null;
         let csrfToken = generateCSRFToken();
+
+        function persistSession(email, jwtToken) {
+            if (!jwtToken) return;
+            token = jwtToken;
+            localStorage.setItem('authToken', jwtToken);
+            localStorage.setItem('memolibAuthToken', jwtToken);
+            sessionStorage.setItem('authToken', jwtToken);
+            if (email) {
+                localStorage.setItem('memolibUserEmail', email);
+            }
+        }
+
+        function restoreSession() {
+            const storedToken = localStorage.getItem('authToken')
+                || localStorage.getItem('memolibAuthToken')
+                || sessionStorage.getItem('authToken');
+            const storedEmail = localStorage.getItem('memolibUserEmail');
+
+            if (storedToken) {
+                token = storedToken;
+            }
+
+            if (storedEmail) {
+                updateCurrentUserDisplay(storedEmail);
+            }
+        }
+
+        function prefillCredentials() {
+            const email = localStorage.getItem(LOGIN_EMAIL_KEY) || PINNED_MONITOR_EMAIL;
+            const password = localStorage.getItem(LOGIN_PASSWORD_KEY) || PINNED_MONITOR_PASSWORD;
+            const name = localStorage.getItem(LOGIN_NAME_KEY) || 'Sarra Boudjellal';
+
+            const setValue = (id, value) => {
+                const input = document.getElementById(id);
+                if (input && !input.value) {
+                    input.value = value;
+                }
+            };
+
+            setValue('login-email', email);
+            setValue('login-password', password);
+            setValue('reg-email', email);
+            setValue('reg-password', password);
+            setValue('reg-name', name);
+        }
 
         // Mise à jour des tokens CSRF
         function updateCSRFTokens() {
@@ -273,10 +324,14 @@
                 throw new Error('URL non autorisée pour des raisons de sécurité');
             }
 
+            const timeoutMs = Number.isFinite(options.timeoutMs) ? options.timeoutMs : SECURITY_CONFIG.timeoutMs;
+            const fetchOptions = { ...options };
+            delete fetchOptions.timeoutMs;
+
             const headers = {
                 'Content-Type': 'application/json',
                 'X-CSRF-Token': csrfToken,
-                ...options.headers
+                ...fetchOptions.headers
             };
 
             if (token) {
@@ -284,11 +339,11 @@
             }
 
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), SECURITY_CONFIG.timeoutMs);
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
             try {
                 const response = await fetch(url, {
-                    ...options,
+                    ...fetchOptions,
                     headers,
                     signal: controller.signal
                 });
@@ -318,6 +373,10 @@
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
             const name = document.getElementById('reg-name').value;
+
+            localStorage.setItem(LOGIN_EMAIL_KEY, email || PINNED_MONITOR_EMAIL);
+            localStorage.setItem(LOGIN_PASSWORD_KEY, password || PINNED_MONITOR_PASSWORD);
+            localStorage.setItem(LOGIN_NAME_KEY, name || 'Sarra Boudjellal');
 
             // Validation côté client
             if (!email || !password || !name) {
@@ -354,6 +413,9 @@
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
+            localStorage.setItem(LOGIN_EMAIL_KEY, email || PINNED_MONITOR_EMAIL);
+            localStorage.setItem(LOGIN_PASSWORD_KEY, password || PINNED_MONITOR_PASSWORD);
+
             if (!email || !password) {
                 showResult('login-result', '❌ Email et mot de passe requis', false);
                 return;
@@ -367,7 +429,7 @@
                 
                 const data = await res.json();
                 if (res.ok) {
-                    token = data.token;
+                    persistSession(email, data.token);
                     updateCurrentUserDisplay(email);
                     showResult('login-result', `✅ Connecté avec succès!`);
                     updateCSRFTokens();
@@ -379,6 +441,31 @@
             }
         }
 
+        async function keepPinnedSessionAlive() {
+            const loginEmail = PINNED_MONITOR_EMAIL;
+            const loginPassword = localStorage.getItem('memolibMonitorPassword') || PINNED_MONITOR_PASSWORD;
+
+            try {
+                const res = await secureFetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    body: JSON.stringify({ email: loginEmail, password: loginPassword })
+                });
+
+                if (!res.ok) {
+                    return;
+                }
+
+                const data = await res.json();
+                if (!data?.token) {
+                    return;
+                }
+
+                persistSession(loginEmail, data.token);
+                updateCurrentUserDisplay(loginEmail);
+            } catch {
+            }
+        }
+
         async function manualEmailScan() {
             if (!token) {
                 showResult('scan-result', '❌ Connectez-vous d\'abord', false);
@@ -387,7 +474,8 @@
 
             try {
                 const res = await secureFetch(`${API_URL}/api/email-scan/manual`, {
-                    method: 'POST'
+                    method: 'POST',
+                    timeoutMs: 240000
                 });
                 
                 const data = await res.json();
@@ -397,7 +485,10 @@
                     showResult('scan-result', `❌ Erreur: ${data.message}`, false);
                 }
             } catch (err) {
-                showResult('scan-result', `❌ Erreur: ${err.message}`, false);
+                const message = err?.name === 'AbortError'
+                    ? 'Le scan prend plus de temps que prévu. Réessayez, ou réduisez le volume (emails non lus / période plus courte).'
+                    : err.message;
+                showResult('scan-result', `❌ Erreur: ${message}`, false);
             }
         }
 
@@ -484,7 +575,10 @@
         });
 
         // Initialisation sécurisée
+        prefillCredentials();
         updateCSRFTokens();
+        restoreSession();
+        keepPinnedSessionAlive();
         
         // Vérification périodique de la sécurité
         setInterval(() => {
@@ -492,6 +586,8 @@
                 console.warn('Liens externes non sécurisés détectés');
             }
         }, 5000);
+
+        setInterval(keepPinnedSessionAlive, 180000);
 
         console.log('🔒 MemoLib chargé avec protections de sécurité activées');
     </script>

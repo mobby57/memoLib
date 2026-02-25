@@ -329,7 +329,7 @@
             if (origin && origin.startsWith('http')) return origin;
             return 'http://localhost:5078';
         })();
-        const UI_MODE = (new URLSearchParams(window.location.search).get('mode') || 'restricted').toLowerCase();
+        const UI_MODE = (new URLSearchParams(window.location.search).get('mode') || 'complete').toLowerCase();
         const IS_RESTRICTED = UI_MODE === 'restricted';
         let token = null;
         let installPromptEvent = null;
@@ -339,6 +339,32 @@
         let selectedClientRaw = null;
         let realtimeDashboard = null;
         let templateManager = null;
+
+        function persistSession(email, jwtToken) {
+            if (!jwtToken) return;
+            token = jwtToken;
+            localStorage.setItem('authToken', jwtToken);
+            localStorage.setItem('memolibAuthToken', jwtToken);
+            sessionStorage.setItem('authToken', jwtToken);
+            if (email) {
+                localStorage.setItem('memolibUserEmail', email);
+            }
+        }
+
+        function restoreSession() {
+            const storedToken = localStorage.getItem('authToken')
+                || localStorage.getItem('memolibAuthToken')
+                || sessionStorage.getItem('authToken');
+            const storedEmail = localStorage.getItem('memolibUserEmail');
+
+            if (storedToken) {
+                token = storedToken;
+            }
+
+            if (storedEmail) {
+                updateCurrentUserDisplay(storedEmail);
+            }
+        }
                 function applyAccessMode() {
                     const accessModeText = document.getElementById('accessModeText');
                     if (accessModeText) {
@@ -369,6 +395,9 @@
             ingestBody: 'Bonjour Maître, je souhaite un rendez-vous pour mon dossier. Merci.',
             searchText: 'rendez-vous dossier'
         };
+        const PINNED_MONITOR_EMAIL = 'sarraboudjellal57@gmail.com';
+        const PINNED_MONITOR_PASSWORD = localStorage.getItem('memolibMonitorPassword') || DEFAULT_DEMO.password;
+        localStorage.setItem('memolibMonitorEmail', PINNED_MONITOR_EMAIL);
 
         function setServiceStatus(isUp, text) {
             const dot = document.getElementById('statusDot');
@@ -454,8 +483,11 @@
         }
 
         async function autoConnectDefaultUser() {
-            const loginEmail = document.getElementById('login-email')?.value || DEFAULT_DEMO.email;
-            const loginPassword = document.getElementById('login-password')?.value || DEFAULT_DEMO.password;
+            const loginEmail = PINNED_MONITOR_EMAIL;
+            const loginPassword = PINNED_MONITOR_PASSWORD;
+
+            localStorage.setItem('memolibMonitorEmail', loginEmail);
+            localStorage.setItem('memolibMonitorPassword', loginPassword);
 
             const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -473,7 +505,7 @@
             try {
                 const loginData = await loginOnce();
                 if (loginData?.token) {
-                    token = loginData.token;
+                    persistSession(loginEmail, loginData.token);
                     updateCurrentUserDisplay(loginEmail);
                     showResult('login-result', '✅ Connecté automatiquement (compte démo)');
                     await refreshAnomalyBadge();
@@ -510,12 +542,38 @@
                     return;
                 }
 
-                token = retryLoginData.token;
+                persistSession(loginEmail, retryLoginData.token);
                 updateCurrentUserDisplay(loginEmail);
                 showResult('login-result', '✅ Connecté automatiquement (compte démo créé)');
                 await refreshAnomalyBadge();
             } catch (err) {
                 showResult('login-result', `❌ Erreur auto-connexion: ${err.message}`, false);
+            }
+        }
+
+        async function keepPinnedSessionAlive() {
+            const loginEmail = PINNED_MONITOR_EMAIL;
+            const loginPassword = localStorage.getItem('memolibMonitorPassword') || PINNED_MONITOR_PASSWORD;
+
+            try {
+                const loginRes = await apiFetchWithFallback('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: loginEmail, password: loginPassword })
+                });
+
+                if (!loginRes.ok) {
+                    return;
+                }
+
+                const loginData = await loginRes.json();
+                if (!loginData?.token) {
+                    return;
+                }
+
+                persistSession(loginEmail, loginData.token);
+                updateCurrentUserDisplay(loginEmail);
+            } catch {
             }
         }
 
@@ -771,7 +829,7 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    token = data.token;
+                    persistSession(email, data.token);
                     updateCurrentUserDisplay(email);
                     showResult('login-result', `✅ Connecté avec succès! Token reçu.`);
                     await refreshAnomalyBadge();
@@ -804,7 +862,7 @@
                                 const retryData = await readResponseDataSafe(retry);
 
                                 if (retry.ok) {
-                                    token = retryData.token;
+                                    persistSession(email, retryData.token);
                                     updateCurrentUserDisplay(email);
                                     showResult('login-result', `✅ Connecté avec succès!`);
                                     await refreshAnomalyBadge();
@@ -2447,13 +2505,16 @@
         });
 
         prefillDemoFields();
+        restoreSession();
         applyAccessMode();
         autoConnectDefaultUser();
+        keepPinnedSessionAlive();
         refreshServiceStatus();
         setInterval(refreshServiceStatus, 5000);
         setInterval(() => {
             if (token) refreshAnomalyBadge();
         }, 8000);
+        setInterval(keepPinnedSessionAlive, 180000);
     </script>
 </body>
 </html>

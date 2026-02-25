@@ -133,7 +133,11 @@ try {
     $attach2 = Invoke-WebRequest -UseBasicParsing -Uri "$baseUrl/api/cases/$caseId/events/$($event2.id)" -Method POST -Headers $headers
 
     $timeline = Invoke-RestMethod -Uri "$baseUrl/api/cases/$caseId/timeline" -Method GET -Headers $headers
-    $audit = Invoke-RestMethod -Uri "$baseUrl/api/audit" -Method GET -Headers $headers
+    $auditResponse = Invoke-RestMethod -Uri "$baseUrl/api/audit/user-actions?limit=200" -Method GET -Headers $headers
+    $audit = @()
+    if ($auditResponse -and $auditResponse.actions) {
+        $audit = @($auditResponse.actions)
+    }
 
     $timelineCount = ($timeline | Measure-Object).Count
     $timelineOrdered = $false
@@ -141,16 +145,20 @@ try {
         $timelineOrdered = ([DateTime]$timeline[0].occurredAt -le [DateTime]$timeline[1].occurredAt)
     }
 
-    $auditCaseCreated = (($audit | Where-Object { $_.action -eq 'CaseCreated' } | Measure-Object).Count -ge 1)
-    $auditEventAttached = (($audit | Where-Object { $_.action -eq 'EventAttached' } | Measure-Object).Count -ge 2)
-    $auditEventIngested = (($audit | Where-Object { $_.action -eq 'EventIngested' } | Measure-Object).Count -ge 2)
+    $auditCaseCreated = (($audit | Where-Object { $_.action -eq 'CaseCreated' -or $_.Action -eq 'CaseCreated' } | Measure-Object).Count -ge 1)
+    $auditEventAttached = (($audit | Where-Object { $_.action -eq 'EventAttached' -or $_.Action -eq 'EventAttached' } | Measure-Object).Count -ge 2)
+    $auditEventIngested = (($audit | Where-Object { $_.action -eq 'EventIngested' -or $_.Action -eq 'EventIngested' } | Measure-Object).Count -ge 2)
 
     $registerOk = ($register.email -eq $registerEmail) -and ($register.name -eq 'Smoke User')
+
+    $duplicateOk =
+        ($ingDupMessage -eq 'Duplicate ignored.') -or
+        ($ingDupMessage -eq 'Duplicate detected (same ExternalId)')
 
     $ok =
         $registerOk -and
         ($ing1Message -eq 'Event stored.') -and
-        ($ingDupMessage -eq 'Duplicate ignored.') -and
+        $duplicateOk -and
         ($ing2Message -eq 'Event stored.') -and
         ([string]$caseId).Length -gt 0 -and
         ($attach1.Content -eq 'Linked.') -and

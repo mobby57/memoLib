@@ -100,8 +100,13 @@ try {
     $timeline = Invoke-RestMethod -Uri "$BaseUrl/api/cases/$caseId/timeline" -Method GET -Headers $headers
     $timelineCount = ($timeline | Measure-Object).Count
 
-    $audit = Invoke-RestMethod -Uri "$BaseUrl/api/audit" -Method GET -Headers $headers
-    $auditCount = ($audit | Measure-Object).Count
+    $auditResponse = Invoke-RestMethod -Uri "$BaseUrl/api/audit/user-actions?limit=50" -Method GET -Headers $headers
+    if ($auditResponse -and $auditResponse.actions) {
+        $auditCount = (@($auditResponse.actions) | Measure-Object).Count
+    }
+    else {
+        $auditCount = 0
+    }
 }
 catch {
     Write-Host "Erreur auto-flow: $($_.Exception.Message)"
