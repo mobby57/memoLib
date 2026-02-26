@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Test Webhook Multichannel</title>
+    <style>
+      body {
+        font-family: Arial;
+        padding: 20px;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Test Webhook Multichannel</h1>
+    <button onclick="testWebhook()">Send Test Webhook</button>
+    <div id="result"></div>
+
+    <script>
+      async function testWebhook() {
+        const payload = {
+          channel: 'email',
+          from: 'test@example.com',
+          subject: 'Test Final avec DB',
+          body: 'Message de test final',
+          messageId: 'msg-final-001',
+        };
+
+        try {
+          const response = await fetch('/api/webhooks/test-multichannel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await response.json();
+          document.getElementById('result').innerHTML = `
+                    <h2>Response: ${response.status}</h2>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+        } catch (error) {
+          document.getElementById('result').innerHTML =
+            `<h2 style="color: red;">Error: ${error.message}</h2>`;
+        }
+      }
+    </script>
+  </body>
+</html>

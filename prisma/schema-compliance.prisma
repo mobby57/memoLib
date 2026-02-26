@@ -1,0 +1,269 @@
+// GDPR & Compliance Schema Extension for MemoLib
+// Implements data protection and audit requirements
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Consent Records (GDPR Article 7)
+model UserConsent {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type           String   // essential, analytics, marketing, personalization, third_party
+  granted        Boolean
+  ipAddress      String
+  userAgent      String
+  policyVersion  String   // Version of privacy policy at time of consent
+  
+  grantedAt      DateTime @default(now())
+  revokedAt      DateTime?
+  
+  @@index([userId, type])
+  @@index([grantedAt])
+  @@map("user_consents")
+}
+
+// Data Export Requests (GDPR Article 15, 20)
+model DataExportRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  format      String   // json, csv, pdf
+  categories  String[] // profile, communications, financial, usage, preferences, technical
+  
+  status      String   @default("pending") // pending, processing, completed, failed
+  downloadUrl String?
+  
+  requestedAt DateTime @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime // Auto-delete after 30 days
+  
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("data_export_requests")
+}
+
+// Account Deletion Requests (GDPR Article 17)
+model DeletionRequest {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  reason       String?
+  status       String   @default("scheduled") // pending, scheduled, completed, cancelled
+  
+  requestedAt  DateTime @default(now())
+  scheduledFor DateTime // 30-day grace period
+  executedAt   DateTime?
+  cancelledAt  DateTime?
+  
+  @@index([userId])
+  @@index([status])
+  @@index([scheduledFor])
+  @@map("deletion_requests")
+}
+
+// Audit Logs (Compliance & Security)
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  action     String   // login, logout, data_export, consent_change, etc.
+  resource   String?  // What was affected (email, workspace, payment, etc.)
+  resourceId String?
+  
+  ipAddress  String
+  userAgent  String
+  location   String?  // Geo-location (city, country)
+  
+  status     String   // success, failure, error
+  metadata   Json?    // Additional context
+  
+  createdAt  DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([resourceId])
+  @@map("audit_logs")
+}
+
+// Data Breach Records (GDPR Article 33, 34)
+model DataBreach {
+  id             String   @id @default(cuid())
+  
+  breachType     String   // unauthorized_access, data_leak, ransomware, etc.
+  description    String   @db.Text
+  severity       String   // low, medium, high, critical
+  
+  affectedUsers  Int      // Number of affected users
+  affectedData   String[] // profile, financial, communications, etc.
+  
+  discoveredAt   DateTime @default(now())
+  notifiedAt     DateTime? // When users/authorities were notified
+  resolvedAt     DateTime?
+  
+  mitigationSteps String?  @db.Text
+  
+  reportedToAuthority Boolean @default(false)
+  authorityReference  String? // Reference number from DPA
+  
+  @@index([severity])
+  @@index([discoveredAt])
+  @@map("data_breaches")
+}
+
+// Legal Document Acceptances (ToS, Privacy Policy)
+model LegalAcceptance {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  documentType String   // tos, privacy_policy, cookie_policy, dpa
+  version      String   // Document version (e.g., "2.1.0")
+  
+  acceptedAt   DateTime @default(now())
+  ipAddress    String
+  userAgent    String
+  
+  @@unique([userId, documentType, version])
+  @@index([userId])
+  @@index([documentType])
+  @@map("legal_acceptances")
+}
+
+// Data Processing Activities (GDPR Article 30)
+model DataProcessingActivity {
+  id              String   @id @default(cuid())
+  
+  name            String   // Email processing, Payment processing, etc.
+  purpose         String   @db.Text
+  legalBasis      String   // consent, contract, legal_obligation, legitimate_interest
+  
+  dataCategories  String[] // personal_data, financial, health, etc.
+  recipientTypes  String[] // internal, cloud_providers, payment_processors
+  
+  retentionPeriod Int      // Days
+  securityMeasures String  @db.Text
+  
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("data_processing_activities")
+}
+
+// Data Subject Requests Log (All GDPR requests)
+model DataSubjectRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  requestType String   // access, rectification, erasure, restriction, portability, objection
+  status      String   @default("received") // received, in_progress, completed, rejected
+  
+  details     String?  @db.Text
+  response    String?  @db.Text
+  
+  requestedAt  DateTime @default(now())
+  respondedAt  DateTime?
+  deadline     DateTime // Must respond within 30 days
+  
+  @@index([userId])
+  @@index([requestType])
+  @@index([status])
+  @@index([deadline])
+  @@map("data_subject_requests")
+}
+
+// Cookie Consent Records
+model CookieConsent {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  sessionId  String?  // For anonymous users
+  
+  essential       Boolean @default(true)
+  analytics       Boolean @default(false)
+  marketing       Boolean @default(false)
+  personalization Boolean @default(false)
+  
+  ipAddress  String
+  userAgent  String
+  consentedAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@map("cookie_consents")
+}
+
+// Tax Records (Multi-jurisdiction compliance)
+model TaxRecord {
+  id              String   @id @default(cuid())
+  
+  invoiceId       String?
+  invoice         Invoice? @relation(fields: [invoiceId], references: [id])
+  
+  jurisdiction    String   // US-CA, EU-DE, CA-ON, etc.
+  taxType         String   // sales_tax, vat, gst, hst
+  taxRate         Float    // Percentage (e.g., 0.20 for 20%)
+  taxableAmount   Int      // In cents
+  taxAmount       Int      // In cents
+  
+  taxIdNumber     String?  // VAT number, Tax ID
+  reverseCharge   Boolean  @default(false)
+  
+  filedAt         DateTime?
+  filingReference String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([jurisdiction])
+  @@index([taxType])
+  @@index([createdAt])
+  @@map("tax_records")
+}
+
+// Extend User model with compliance fields
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  
+  // Compliance fields
+  deletedAt     DateTime?
+  
+  // Relations
+  consents             UserConsent[]
+  exportRequests       DataExportRequest[]
+  deletionRequests     DeletionRequest[]
+  auditLogs            AuditLog[]
+  legalAcceptances     LegalAcceptance[]
+  dataSubjectRequests  DataSubjectRequest[]
+  cookieConsents       CookieConsent[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("users")
+}
+
+// Extend Invoice model with tax compliance
+model Invoice {
+  id         String      @id @default(cuid())
+  taxRecords TaxRecord[]
+  
+  @@map("invoices")
+}

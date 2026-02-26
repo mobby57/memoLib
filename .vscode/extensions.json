@@ -1,0 +1,109 @@
+{
+  // =============================================================================
+  // 🎯 EXTENSIONS RECOMMANDÉES MEMOLIB
+  // =============================================================================
+  // Chaîne de responsabilité:
+  // 1️⃣ ESLint → 2️⃣ TypeScript → 3️⃣ Tailwind → 4️⃣ IntelliCode → 5️⃣ Copilot → 6️⃣ Amazon Q
+  //
+  // Secteurs: Juridique, Médical, Administratif
+  // Documentation: .vscode/SETUP_GUIDE.md
+  // =============================================================================
+
+  "recommendations": [
+    // =========================================================================
+    // 1️⃣ QUALITÉ DE CODE - OBLIGATOIRE
+    // =========================================================================
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+
+    // =========================================================================
+    // 2️⃣ TYPESCRIPT & JAVASCRIPT - OBLIGATOIRE
+    // =========================================================================
+    "ms-vscode.vscode-typescript-next",
+
+    // =========================================================================
+    // 3️⃣ UI & CSS - OBLIGATOIRE
+    // =========================================================================
+    "bradlc.vscode-tailwindcss",
+
+    // =========================================================================
+    // 4️⃣ PYTHON (BACKEND FLASK) - OBLIGATOIRE
+    // =========================================================================
+    "ms-python.python",
+    "ms-python.black-formatter",
+    "ms-python.isort",
+    "ms-python.flake8",
+
+    // =========================================================================
+    // 5️⃣ INTELLIGENCE ASSISTÉE - RECOMMANDÉ
+    // =========================================================================
+    "VisualStudioExptTeam.vscodeintellicode",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+
+    // =========================================================================
+    // 6️⃣ INFRASTRUCTURE CLOUD - OPTIONNEL
+    // =========================================================================
+    "amazonwebservices.aws-toolkit-vscode",
+
+    // =========================================================================
+    // ☁️ AZURE - RECOMMANDÉ (DÉPLOIEMENT)
+    // =========================================================================
+    "ms-vscode.azure-account",
+    "ms-azuretools.vscode-azurestaticwebapps",
+    "ms-azuretools.vscode-azurefunctions",
+    "ms-azuretools.vscode-azureresourcegroups",
+
+    // =========================================================================
+    // 🗄️ BASE DE DONNÉES - RECOMMANDÉ
+    // =========================================================================
+    "Prisma.prisma",
+    "ckolkman.vscode-postgres",
+
+    // =========================================================================
+    // 🐋 DOCKER - RECOMMANDÉ
+    // =========================================================================
+    "ms-azuretools.vscode-docker",
+
+    // =========================================================================
+    // 🔗 GITHUB & CI/CD - RECOMMANDÉ
+    // =========================================================================
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+
+    // =========================================================================
+    // 🧪 TESTS - RECOMMANDÉ
+    // =========================================================================
+    "Orta.vscode-jest",
+    "hbenl.vscode-test-explorer",
+
+    // =========================================================================
+    // 📝 DOCUMENTATION & PRODUCTIVITÉ - OPTIONNEL
+    // =========================================================================
+    "aaron-bond.better-comments",
+    "usernamehw.errorlens",
+    "christian-kohler.path-intellisense",
+    "yzhang.markdown-all-in-one",
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-french",
+    "mikestead.dotenv",
+    "hediet.vscode-drawio"
+  ],
+
+  // =============================================================================
+  // ⚠️ EXTENSIONS NON RECOMMANDÉES (CONFLITS)
+  // =============================================================================
+  "unwantedRecommendations": [
+    // Conflit avec ESLint
+    "dbaeumer.jshint",
+
+    // Conflit avec Prettier
+    "HookyQR.beautify",
+
+    // Conflit avec TypeScript natif
+    "pmneo.tsimporter",
+
+    // Conflit avec Tailwind IntelliSense
+    "stylelint.vscode-stylelint"
+  ]
+}
