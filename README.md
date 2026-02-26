@@ -1,89 +1,120 @@
 # 🚀 MemoLib - Système de Gestion d'Emails pour Cabinets d'Avocats
 
-Système intelligent de gestion des communications par email avec détection automatique de clients, création de dossiers, et workflow complet.
+[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Status](https://img.shields.io/badge/status-production--ready-brightgreen)]()
 
-## ✨ Fonctionnalités
+Système intelligent de gestion des communications par email avec détection automatique de clients, création de dossiers, workflow complet et fonctionnalités avancées.
+
+## ✨ Fonctionnalités Principales
 
 ### 📧 Gestion Emails
-- ✅ Monitoring automatique Gmail (IMAP)
-- ✅ Scan manuel de tous les emails
-- ✅ Détection automatique des doublons
-- ✅ Extraction automatique des informations clients (téléphone, adresse)
-- ✅ Envoi d'emails depuis l'application
-- ✅ Templates d'emails réutilisables
+- ✅ **Monitoring automatique Gmail** (IMAP) - Scan toutes les 60 secondes
+- ✅ **Scan manuel** de tous les emails existants
+- ✅ **Détection automatique des doublons** (par ID et contenu)
+- ✅ **Extraction automatique** des informations clients (téléphone, adresse)
+- ✅ **Envoi d'emails** depuis l'application (SMTP)
+- ✅ **Templates réutilisables** avec variables dynamiques
+- ✅ **Pièces jointes** - Upload/download sécurisé
 
 ### 📁 Gestion Dossiers
-- ✅ Création automatique de dossiers
-- ✅ Workflow de statut (OPEN → IN_PROGRESS → CLOSED)
-- ✅ Attribution à des avocats
-- ✅ Tags et catégorisation
-- ✅ Priorités et échéances
-- ✅ Filtres avancés multi-critères
-- ✅ Timeline complète par dossier
+- ✅ **Création automatique** depuis emails entrants
+- ✅ **Workflow de statut** (OPEN → IN_PROGRESS → CLOSED)
+- ✅ **Attribution** à des avocats spécifiques
+- ✅ **Tags et catégorisation** flexible
+- ✅ **Priorités** (0-5) et **échéances**
+- ✅ **Filtres avancés** multi-critères
+- ✅ **Timeline complète** par dossier avec tous les événements
+- ✅ **Fusion intelligente** des doublons
 
 ### 👥 Gestion Clients
-- ✅ Création automatique depuis emails
-- ✅ Extraction auto des coordonnées
-- ✅ Vue 360° client
-- ✅ Historique complet
-- ✅ Détection de doublons
+- ✅ **Création automatique** depuis expéditeurs emails
+- ✅ **Extraction auto** des coordonnées (regex intelligent)
+- ✅ **Vue 360°** client avec historique complet
+- ✅ **Détection de doublons** par email
+- ✅ **Édition en ligne** des informations
+- ✅ **Règles métier** (normalisation, VIP)
 
 ### 🔍 Recherche Intelligente
-- ✅ Recherche textuelle
-- ✅ Recherche par embeddings (similarité)
-- ✅ Recherche sémantique IA
-- ✅ Regroupement automatique des doublons
+- ✅ **Recherche textuelle** classique
+- ✅ **Recherche par embeddings** (similarité vectorielle)
+- ✅ **Recherche sémantique IA** (compréhension du contexte)
+- ✅ **Regroupement automatique** des doublons
+- ✅ **Filtres combinés** (statut + tag + priorité)
 
-### 📊 Analytics
-- ✅ Dashboard intelligent
-- ✅ Statistiques complètes
-- ✅ Centre d'anomalies
-- ✅ Journal d'audit complet
+### 📊 Analytics & Monitoring
+- ✅ **Dashboard intelligent** avec vue d'ensemble
+- ✅ **Statistiques complètes** (emails/jour, types, sévérité)
+- ✅ **Centre d'anomalies** centralisé
+- ✅ **Journal d'audit** complet de toutes les actions
+- ✅ **Notifications** en temps réel
+- ✅ **Alertes** pour emails nécessitant attention
 
-### 📎 Pièces Jointes
-- ✅ Upload de fichiers
-- ✅ Téléchargement sécurisé
-- ✅ Association aux emails
+## 🛠️ Stack Technique
 
-## 🛠️ Technologies
+### Backend
+- **Framework**: ASP.NET Core 9.0
+- **ORM**: Entity Framework Core 9.0
+- **Base de données**: SQLite (production-ready)
+- **Email**: MailKit 4.15.0 (IMAP/SMTP)
+- **Authentification**: JWT Bearer avec BCrypt
+- **Validation**: FluentValidation
 
-- **Backend**: ASP.NET Core 9.0
-- **Base de données**: SQLite (Entity Framework Core)
-- **Email**: MailKit (IMAP/SMTP)
-- **Auth**: JWT Bearer
-- **Frontend**: HTML/CSS/JavaScript vanilla
+### Frontend
+- **Interface**: HTML5/CSS3/JavaScript ES6+
+- **Design**: Responsive, mobile-friendly
+- **PWA**: Installable sur desktop/mobile
 
-## 📦 Installation
+### Sécurité
+- **Hashing**: BCrypt pour mots de passe
+- **Secrets**: User Secrets (hors du code)
+- **Isolation**: Multi-tenant par utilisateur
+- **Audit**: Traçabilité complète
+
+## 📦 Installation Rapide
 
 ### Prérequis
-- .NET 9.0 SDK
-- Git
-- Compte Gmail avec mot de passe d'application
+- ✅ .NET 9.0 SDK ([Télécharger](https://dotnet.microsoft.com/download))
+- ✅ Git ([Télécharger](https://git-scm.com/))
+- ✅ Compte Gmail avec mot de passe d'application ([Guide](https://myaccount.google.com/apppasswords))
 
-### Étape 1: Cloner le projet
+### Installation en 3 Commandes
+
 ```powershell
+# 1. Cloner le projet
 git clone https://github.com/VOTRE_USERNAME/MemoLib.git
 cd MemoLib/MemoLib.Api
-```
 
-### Étape 2: Restaurer le projet
-```powershell
+# 2. Restaurer automatiquement (packages + DB + secrets)
 .\restore-project.ps1
-```
 
-Ce script va:
-1. Restaurer les packages NuGet
-2. Créer la base de données
-3. Compiler le projet
-4. Configurer les secrets utilisateur
-
-### Étape 3: Lancer l'application
-```powershell
+# 3. Lancer l'application
 dotnet run
 ```
 
-**API**: http://localhost:5078  
-**Interface**: http://localhost:5078/demo.html
+**🌐 Accès:**
+- **API**: http://localhost:5078
+- **Interface**: http://localhost:5078/demo.html
+- **Swagger**: http://localhost:5078/swagger (si activé)
+
+### Installation Manuelle
+
+```powershell
+# Restaurer les packages
+dotnet restore
+
+# Créer la base de données
+dotnet ef database update
+
+# Configurer le mot de passe email
+dotnet user-secrets set "EmailMonitor:Password" "votre-mot-de-passe-app"
+
+# Compiler
+dotnet build
+
+# Lancer
+dotnet run
+```
 
 ## ⚙️ Configuration
 
@@ -204,19 +235,40 @@ PATCH /api/cases/{id}/status
 { "status": "CLOSED" }
 ```
 
-## 🔄 Sauvegarde
+## 🔄 Sauvegarde & Restauration
 
-### Sauvegarder sur Git
+### Sauvegarder vos Modifications
+
 ```powershell
+# Méthode automatique (recommandée)
 .\backup-git.ps1
+git push
+
+# OU manuellement
+git add .
+git commit -m "Description des changements"
+git push origin main
 ```
 
-### Restaurer sur un autre PC
+### Restaurer sur un Autre PC
+
 ```powershell
+# 1. Cloner depuis GitHub
 git clone https://github.com/VOTRE_USERNAME/MemoLib.git
 cd MemoLib/MemoLib.Api
+
+# 2. Restaurer automatiquement
 .\restore-project.ps1
+
+# 3. Lancer
+dotnet run
 ```
+
+**✅ Le script `restore-project.ps1` fait tout automatiquement:**
+- Restaure les packages NuGet
+- Crée la base de données
+- Compile le projet
+- Configure les secrets utilisateur
 
 ## 📁 Structure du Projet
 
@@ -240,11 +292,41 @@ MemoLib.Api/
 dotnet run
 ```
 
-### Production (Azure - Optionnel)
-1. Créer une App Service sur Azure
+### Production
+
+#### Option 1: Local (Recommandé pour PME)
+- ✅ Aucun coût
+- ✅ Contrôle total
+- ✅ Données en local
+- ✅ Performance maximale
+
+```powershell
+# Publier en mode Release
+dotnet publish -c Release
+
+# Exécuter
+cd bin/Release/net9.0/publish
+.\MemoLib.Api.exe
+```
+
+#### Option 2: Cloud Azure (Optionnel)
+
+**Prérequis:**
+- Compte Azure
+- Azure CLI installé
+
+**Étapes:**
+1. Créer une App Service
 2. Remplacer SQLite par Azure SQL Database
-3. Configurer les secrets dans Azure Key Vault
-4. Déployer via GitHub Actions ou Azure DevOps
+3. Configurer secrets dans Azure Key Vault
+4. Déployer via GitHub Actions
+
+**Coût estimé:** ~50-100€/mois
+
+**⚠️ Note:** Azure n'est nécessaire que pour:
+- Accès depuis plusieurs bureaux distants
+- Scalabilité 100+ utilisateurs
+- Haute disponibilité 99.9%
 
 ## 🐛 Dépannage
 
@@ -285,6 +367,67 @@ Les contributions sont les bienvenues ! Ouvrez une issue ou une pull request.
 
 Pour toute question, consultez la documentation ou ouvrez une issue sur GitHub.
 
+## 📈 Roadmap
+
+### Version 1.0 (Actuelle) ✅
+- [x] Monitoring automatique Gmail
+- [x] Gestion complète dossiers
+- [x] Workflow statut/tags/priorités
+- [x] Templates emails
+- [x] Pièces jointes
+- [x] Recherche intelligente
+- [x] Dashboard analytics
+- [x] Centre anomalies
+
+### Version 1.1 (Prochaine) 🚧
+- [ ] Notifications temps réel (SignalR)
+- [ ] Templates IA intelligents
+- [ ] Calendrier intégré
+- [ ] Export PDF/Excel
+- [ ] Rapports personnalisés
+
+### Version 2.0 (Future) 💡
+- [ ] Application mobile (iOS/Android)
+- [ ] Facturation automatique
+- [ ] Intégration tribunaux
+- [ ] IA classification emails
+- [ ] Reconnaissance vocale
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues !
+
+1. Fork le projet
+2. Créez une branche (`git checkout -b feature/AmazingFeature`)
+3. Commit vos changements (`git commit -m 'Add AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
+
+## 📄 Licence
+
+MIT License - Libre d'utilisation commerciale et personnelle.
+
+Voir [LICENSE](LICENSE) pour plus de détails.
+
+## 👥 Auteurs
+
+Développé pour les cabinets d'avocats et professionnels du droit.
+
+## 📞 Support
+
+- 📧 **Email**: support@memolib.com
+- 📚 **Documentation**: Voir les fichiers `.md` dans le projet
+- 🐛 **Issues**: [GitHub Issues](https://github.com/VOTRE_USERNAME/MemoLib/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/VOTRE_USERNAME/MemoLib/discussions)
+
+## ⭐ Star History
+
+Si ce projet vous aide, n'hésitez pas à lui donner une étoile ⭐
+
 ---
 
-**⚠️ Note**: Ce projet est 100% local. Azure n'est nécessaire que pour un déploiement cloud en production.
+**📌 Note Importante**: Ce projet est 100% local par défaut. Azure n'est nécessaire que pour un déploiement cloud multi-sites.
+
+**🎯 Parfait pour**: Cabinets d'avocats, notaires, huissiers, experts juridiques, PME juridiques.
+
+**💰 Coût**: Gratuit en local, ~50-100€/mois sur Azure (optionnel).
