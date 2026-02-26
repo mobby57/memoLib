@@ -1,36 +1,20 @@
-## Build results
-bin/
-obj/
-[Dd]ebug/
-[Rr]elease/
+# Secrets et identifiants
+appsettings.json
+appsettings.*.json
+!appsettings.Development.json.example
 
-## Database files (keep structure, not data)
+# Base de données
 *.db
 *.db-shm
 *.db-wal
 
-## User-specific files
+# Build
+bin/
+obj/
 *.user
 *.suo
-*.userosscache
-*.sln.docstates
 
-## Visual Studio
+# IDE
 .vs/
-*.vsidx
-*.vspscc
-*.vspx
-
-## Uploads (files uploaded by users)
-uploads/
-
-## Logs
-*.log
-
-## OS files
-.DS_Store
-Thumbs.db
-
-## Secrets
-appsettings.Development.json
-appsettings.Production.json
+.vscode/
+*.swp

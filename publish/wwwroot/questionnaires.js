@@ -6,9 +6,13 @@ class QuestionnaireManager {
     }
 
     async getQuestionnaires(eventId) {
-        const response = await fetch(`${this.apiBase}/api/questionnaire/for-event/${eventId}`, {
+        const response = await fetch(`${this.apiBase}/api/questionnaire/for-event/${encodeURIComponent(eventId)}`, {
             headers: { 'Authorization': `Bearer ${this.token}` }
         });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Chargement questionnaires impossible (${response.status}) ${errorText}`);
+        }
         return await response.json();
     }
 
@@ -21,7 +25,14 @@ class QuestionnaireManager {
             },
             body: JSON.stringify({ questionnaireId, caseId, eventId, answers })
         });
-        return await response.json();
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            const msg = payload?.message || payload?.title || `Soumission refusée (${response.status})`;
+            throw new Error(msg);
+        }
+
+        return payload;
     }
 
     renderQuestionnaire(questionnaire, containerId) {
@@ -128,6 +139,19 @@ class QuestionnaireManager {
             try {
                 const caseId = form.dataset.caseId;
                 const eventId = form.dataset.eventId;
+
+                if (!eventId) {
+                    throw new Error('Event ID manquant pour ce questionnaire.');
+                }
+                if (!caseId || caseId === 'unknown') {
+                    throw new Error('Case ID manquant. Ouvrez ce questionnaire depuis un email lié à un dossier.');
+                }
+
+                const submitBtn = form.querySelector('button');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Envoi...';
+                }
                 
                 await this.submitResponse(questionnaireId, caseId, eventId, answers);
                 
@@ -138,13 +162,43 @@ class QuestionnaireManager {
                 form.querySelector('button').disabled = true;
                 form.querySelector('button').textContent = 'Déjà complété';
                 
-                showNotification('Questionnaire complété avec succès', 'success');
+                notifyQuestionnaire('Questionnaire complété avec succès', 'success');
             } catch (error) {
-                showNotification('Erreur lors de la soumission', 'error');
+                notifyQuestionnaire(`Erreur lors de la soumission: ${error.message || 'inconnue'}`, 'error');
+                const btn = form.querySelector('button');
+                if (btn && btn.textContent === 'Envoi...') {
+                    btn.disabled = false;
+                    btn.textContent = 'Soumettre';
+                }
                 console.error(error);
             }
         });
     }
+}
+
+function notifyQuestionnaire(message, type = 'info') {
+    if (typeof showNotification === 'function') {
+        showNotification(message, type);
+        return;
+    }
+
+    const fallback = document.createElement('div');
+    fallback.className = `result ${type === 'error' ? 'error' : 'success'}`;
+    fallback.style.marginTop = '10px';
+    fallback.textContent = message;
+
+    const container = document.getElementById('questionnaires-container');
+    if (container) {
+        container.prepend(fallback);
+        setTimeout(() => fallback.remove(), 3500);
+    }
+}
+
+function buildQuestionnairesSummary(questionnaires) {
+    const total = questionnaires.length;
+    const completed = questionnaires.filter(q => q.isCompleted).length;
+    const pending = total - completed;
+    return `<div class="result" style="margin-bottom:12px;">📋 ${total} checklist(s) • ✅ ${completed} terminée(s) • ⏳ ${pending} à faire</div>`;
 }
 
 // Intégration dans l'interface existante
@@ -154,30 +208,66 @@ function showEventQuestionnaires(eventId, caseId) {
     modal.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Questionnaires de clôture</h2>
-                <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">×</button>
+                <h2>Checklist de fin de traitement</h2>
+                <div>
+                    <button class="btn" style="padding:6px 10px; font-size:12px;" onclick="showEventQuestionnaires('${eventId}', '${caseId || 'unknown'}')">↻ Recharger</button>
+                    <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">×</button>
+                </div>
             </div>
             <div class="modal-body">
+                <div class="result" style="margin-bottom:12px;">Référence email: ${eventId} ${caseId ? `| Dossier: ${caseId}` : ''}</div>
                 <div id="questionnaires-container"></div>
             </div>
         </div>
     `;
     
     document.body.appendChild(modal);
-    
-    const qm = new QuestionnaireManager('http://localhost:5078', localStorage.getItem('token'));
-    
-    qm.getQuestionnaires(eventId).then(questionnaires => {
-        questionnaires.forEach(q => {
-            qm.renderQuestionnaire(q, 'questionnaires-container');
-            // Ajouter les IDs nécessaires aux formulaires
-            const form = document.querySelector(`form[data-questionnaire-id="${q.id}"]`);
-            if (form) {
-                form.dataset.caseId = caseId;
-                form.dataset.eventId = eventId;
+
+    const apiBase = (typeof API_URL === 'string' && API_URL.startsWith('http'))
+        ? API_URL
+        : window.location.origin;
+
+    const authToken = (typeof token !== 'undefined' && token)
+        || localStorage.getItem('authToken')
+        || localStorage.getItem('memolibAuthToken')
+        || localStorage.getItem('token');
+
+    const container = document.getElementById('questionnaires-container');
+    if (!container) return;
+
+    if (!authToken) {
+        container.innerHTML = `<div class="result error">❌ Connectez-vous pour charger les questionnaires.</div>`;
+        return;
+    }
+
+    container.innerHTML = `<div class="result">⏳ Chargement des questionnaires...</div>`;
+
+    const qm = new QuestionnaireManager(apiBase, authToken);
+
+    qm.getQuestionnaires(eventId)
+        .then(questionnaires => {
+            container.innerHTML = '';
+
+            if (!Array.isArray(questionnaires) || questionnaires.length === 0) {
+                container.innerHTML = `<div class="result">ℹ️ Aucune checklist disponible pour cet email.<br>Conseil: vérifiez qu'un dossier est bien lié à l'email et que des checklists actives existent.</div>`;
+                return;
             }
+
+            container.innerHTML = buildQuestionnairesSummary(questionnaires);
+
+            questionnaires.forEach(q => {
+                qm.renderQuestionnaire(q, 'questionnaires-container');
+                const form = document.querySelector(`form[data-questionnaire-id="${q.id}"]`);
+                if (form) {
+                    form.dataset.caseId = caseId;
+                    form.dataset.eventId = eventId;
+                }
+            });
+        })
+        .catch(error => {
+            container.innerHTML = `<div class="result error">❌ ${error.message}</div>`;
+            console.error(error);
         });
-    });
 }
 
 // CSS pour les questionnaires

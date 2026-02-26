@@ -73,6 +73,17 @@ builder.Services.AddScoped<QuestionnaireService>();
 builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<TemplateEngineService>();
+builder.Services.AddScoped<SatisfactionSurveyService>();
+builder.Services.AddScoped<ReversibleAnonymizationService>();
+builder.Services.AddScoped<LegalSectorSecurityService>();
+builder.Services.AddScoped<GdprAnonymizationService>();
+builder.Services.AddScoped<IntelligentEmailAdapterService>();
+builder.Services.AddScoped<EmailSchemaValidationService>();
+builder.Services.AddScoped<IntelligentWorkspaceOrganizerService>();
+builder.Services.AddScoped<TeamManagementService>();
+builder.Services.AddScoped<BillingService>();
+builder.Services.AddScoped<DocumentGenerationService>();
+builder.Services.AddScoped<CalendarService>();
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<EmailMonitorService>();
 builder.Services.AddDbContext<MemoLibDbContext>(options =>

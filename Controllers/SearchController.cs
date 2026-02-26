@@ -39,8 +39,12 @@ public class SearchController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(request.Text))
         {
+            var normalizedText = request.Text.Trim().ToLower();
             query = query.Where(e =>
-                e.RawPayload.Contains(request.Text));
+                (e.RawPayload != null && e.RawPayload.ToLower().Contains(normalizedText)) ||
+                (e.TextForEmbedding != null && e.TextForEmbedding.ToLower().Contains(normalizedText)) ||
+                (e.ExternalId != null && e.ExternalId.ToLower().Contains(normalizedText))
+            );
         }
 
         if (request.From.HasValue)
@@ -61,10 +65,13 @@ public class SearchController : ControllerBase
                 e.SourceId == request.SourceId.Value);
         }
 
-        var results = await query
-            .OrderByDescending(e => e.OccurredAt)
-            .Take(100)
-            .ToListAsync();
+        var orderedQuery = query.OrderByDescending(e => e.OccurredAt);
+
+        var results = request.ReturnAll
+            ? await orderedQuery.Take(5000).ToListAsync()
+            : await orderedQuery
+                .Take(Math.Clamp(request.Limit ?? 100, 1, 1000))
+                .ToListAsync();
 
         return Ok(results);
     }

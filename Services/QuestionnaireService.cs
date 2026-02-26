@@ -16,17 +16,35 @@ public class QuestionnaireService
 
     public async Task<List<Questionnaire>> GetActiveQuestionnairesForEventAsync(string eventType, string? tags = null)
     {
-        var query = _context.Questionnaires
-            .Include(q => q.Questions.OrderBy(qu => qu.Order))
-            .Where(q => q.IsActive && q.EventType == eventType);
+        var normalizedEventType = string.IsNullOrWhiteSpace(eventType)
+            ? "EMAIL"
+            : eventType.Trim().ToUpperInvariant();
 
-        if (!string.IsNullOrEmpty(tags))
+        var questionnaires = await _context.Questionnaires
+            .Include(q => q.Questions.OrderBy(qu => qu.Order))
+            .Where(q => q.IsActive && q.EventType.ToUpper() == normalizedEventType)
+            .ToListAsync();
+
+        if (string.IsNullOrWhiteSpace(tags))
         {
-            var tagList = tags.Split(',').Select(t => t.Trim()).ToList();
-            query = query.Where(q => tagList.Any(tag => q.Tags!.Contains(tag)));
+            return questionnaires;
         }
 
-        return await query.ToListAsync();
+        var tagList = tags
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(t => t.ToLowerInvariant())
+            .Distinct()
+            .ToList();
+
+        if (tagList.Count == 0)
+        {
+            return questionnaires;
+        }
+
+        return questionnaires
+            .Where(q => string.IsNullOrWhiteSpace(q.Tags)
+                        || tagList.Any(tag => q.Tags!.Contains(tag, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
     }
 
     public async Task<QuestionnaireResponse> SaveResponseAsync(Guid questionnaireId, Guid caseId, Guid eventId, Guid userId, Dictionary<Guid, string> answers)

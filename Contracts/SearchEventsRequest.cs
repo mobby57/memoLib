@@ -6,4 +6,6 @@ public class SearchEventsRequest
     public DateTime? From { get; set; }
     public DateTime? To { get; set; }
     public Guid? SourceId { get; set; }
+    public bool ReturnAll { get; set; }
+    public int? Limit { get; set; }
 }

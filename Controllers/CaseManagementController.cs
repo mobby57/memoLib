@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Data;
+using MemoLib.Api.Services;
 
 namespace MemoLib.Api.Controllers;
 
@@ -11,8 +12,13 @@ namespace MemoLib.Api.Controllers;
 public class CaseManagementController : ControllerBase
 {
     private readonly MemoLibDbContext _db;
+    private readonly SatisfactionSurveyService _surveyService;
 
-    public CaseManagementController(MemoLibDbContext db) => _db = db;
+    public CaseManagementController(MemoLibDbContext db, SatisfactionSurveyService surveyService)
+    {
+        _db = db;
+        _surveyService = surveyService;
+    }
 
     [HttpPatch("{caseId}/status")]
     public async Task<IActionResult> UpdateStatus(Guid caseId, [FromBody] UpdateStatusRequest req)
@@ -21,9 +27,21 @@ public class CaseManagementController : ControllerBase
         var c = await _db.Cases.FirstOrDefaultAsync(x => x.Id == caseId && x.UserId == userId);
         if (c == null) return NotFound();
 
+        var wasClosed = c.Status == "CLOSED";
         c.Status = req.Status;
-        if (req.Status == "CLOSED") c.ClosedAt = DateTime.UtcNow;
-        await _db.SaveChangesAsync();
+        if (req.Status == "CLOSED" && !wasClosed)
+        {
+            c.ClosedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            
+            // Envoyer automatiquement l'enquête de satisfaction
+            await _surveyService.SendSurveyOnCaseClosureAsync(caseId);
+        }
+        else
+        {
+            await _db.SaveChangesAsync();
+        }
+        
         return Ok(c);
     }
 

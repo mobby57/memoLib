@@ -12,11 +12,13 @@
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
         .header h1 { font-size: 2.5em; margin-bottom: 10px; }
         .header p { font-size: 1.2em; opacity: 0.9; }
-        .card { background: white; border-radius: 10px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .card h2 { color: #667eea; margin-bottom: 15px; }
-        .btn { background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px; }
-        .btn:hover { background: #5568d3; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); backdrop-filter: blur(10px); transition: all 0.3s ease; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .card h2 { color: #667eea; margin-bottom: 15px; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 5px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); background: linear-gradient(45deg, #5568d3, #6a4c93); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
         .input-group input, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
@@ -62,7 +64,15 @@
     <div class="container">
         <div class="header">
             <h1>🚀 MemoLib</h1>
-            <p>Gestion intelligente des communications pour cabinets d'avocats</p>
+            <p>Votre assistant simple pour suivre vos emails, clients et dossiers</p>
+        </div>
+
+        <div class="guide-box">
+            <strong>Comment démarrer (2 minutes)</strong><br>
+            1) Allez dans <strong>🔐 Authentification</strong> et connectez-vous.<br>
+            2) Ouvrez <strong>📧 Ingestion Email</strong> puis cliquez sur <strong>Scanner tous les emails maintenant</strong>.<br>
+            3) Consultez <strong>📁 Gestion Dossiers</strong> et <strong>🔍 Recherche</strong> pour retrouver vos messages.<br>
+            4) Utilisez <strong>⚠️ Alertes</strong> pour traiter les points à vérifier.
         </div>
 
         <div class="quickbar">
@@ -71,11 +81,14 @@
             <button class="btn" onclick="openAnomalyCenter()">Centre anomalies</button>
             <button class="btn" onclick="showAdvancedDashboard()" style="background:#28a745;">📊 Dashboard Avancé</button>
             <button class="btn" onclick="initDemoData()" style="background:#28a745;">Initialiser base démo</button>
+            <button class="btn" onclick="testCriticalAlert()" style="background:#dc3545;">🚨 Test Alerte</button>
             <span id="statusDot" class="status-dot"></span>
             <strong>État service:</strong>
             <span id="serviceStatusText">Vérification...</span>
             <strong>Anomalies ouvertes:</strong>
             <span id="anomalyCountText">-</span>
+            <strong>Emails total:</strong>
+            <span id="emailCountDisplay" style="color:#28a745;font-weight:bold;">0</span>
             <strong id="currentUserDisplay" style="color:#667eea; margin-left:15px;"></strong>
             <span id="accessModeText"></span>
         </div>
@@ -91,13 +104,14 @@
             <button class="tab" onclick="showTab('stats')">📊 Analytics</button>
             <button class="tab" onclick="showTab('export')">📤 Export</button>
             <button class="tab" onclick="showTab('audit')">🧾 Audit</button>
+            <button class="tab" onclick="showTab('team')">⚖️ Équipe</button>
         </div>
 
         <!-- Auth Tab -->
         <div id="auth-tab" class="tab-content">
             <div class="card">
                 <h2>Inscription</h2>
-                <p style="color:#666; margin-bottom:15px;">📝 Créez un compte avocat pour accéder à MemoLib. Le mot de passe doit contenir au moins 8 caractères avec majuscules, minuscules et chiffres.</p>
+                <p style="color:#666; margin-bottom:15px;">📝 Créez votre compte en 30 secondes. Une fois créé, vous pourrez scanner vos emails et retrouver facilement vos dossiers.</p>
                 <div class="input-group">
                     <label>Email</label>
                     <input type="email" id="reg-email" placeholder="avocat@cabinet.fr" autocomplete="off">
@@ -116,7 +130,7 @@
 
             <div class="card">
                 <h2>Connexion</h2>
-                <p style="color:#666; margin-bottom:15px;">🔑 Connectez-vous avec votre compte. Un compte démo est automatiquement créé au chargement de la page.</p>
+                <p style="color:#666; margin-bottom:15px;">🔑 Connectez-vous pour accéder à vos données. Si vous êtes nouveau, utilisez l'inscription juste au-dessus.</p>
                 <div class="input-group">
                     <label>Email</label>
                     <input type="email" id="login-email" placeholder="avocat@cabinet.fr" autocomplete="off">
@@ -134,14 +148,22 @@
         <div id="ingest-tab" class="tab-content hidden">
             <div class="card">
                 <h2>Scan manuel emails</h2>
-                <p style="color:#666; margin-bottom:15px;">🔄 Déclenchez un scan immédiat de votre boîte email pour récupérer tous les emails existants.</p>
+                <p style="color:#666; margin-bottom:15px;">🔄 Ce bouton lit votre boîte mail et importe vos emails dans MemoLib. Vous verrez ensuite un résumé clair de ce qui a été trouvé.</p>
                 <button class="btn" onclick="manualEmailScan()" style="background:#ff9800;">Scanner tous les emails maintenant</button>
                 <button class="btn" onclick="checkDatabaseStats()" style="background:#2196F3;">Vérifier la base de données</button>
                 <div id="scan-result"></div>
             </div>
             <div class="card">
-                <h2>Ingérer un email</h2>
-                <p style="color:#666; margin-bottom:15px;">📧 Simulez la réception d'un email client. Le système détecte automatiquement les doublons (par ID externe ou contenu identique) et crée des notifications pour toute anomalie. Aucun email n'est rejeté.</p>
+                <h2>Ingérer un email de test</h2>
+                <p style="color:#666; margin-bottom:15px;">🧪 <strong>Mode test</strong> : Simulez la réception d'un email sans avoir à l'envoyer réellement. Pratique pour tester le système avant de connecter votre vraie boîte mail.</p>
+                <div class="guide-box">
+                    <strong>💡 Comment ça marche ?</strong><br>
+                    1. Remplissez les champs ci-dessous (comme si c'était un email reçu)<br>
+                    2. Cliquez sur "Ingérer"<br>
+                    3. MemoLib va créer automatiquement un dossier et un client<br>
+                    <br>
+                    <strong>Exemple d'usage :</strong> Vous voulez voir comment le système traite un email d'un client nommé "Sophie Martin" ? Mettez son email dans "De", écrivez un sujet et un message, puis cliquez sur Ingérer. Le système va créer le dossier automatiquement !
+                </div>
                 <div class="input-group">
                     <label>De</label>
                     <input type="email" id="email-from" placeholder="client@example.com">
@@ -167,19 +189,22 @@
         <div id="search-tab" class="tab-content hidden">
             <div class="card">
                 <h2>Recherche d'emails</h2>
-                <p style="color:#666; margin-bottom:15px;">🔍 Recherchez dans vos emails par mots-clés (recherche textuelle), par similarité vectorielle (embeddings), ou par IA sémantique. Les doublons peuvent être regroupés automatiquement pour une présentation professionnelle.</p>
+                <p style="color:#666; margin-bottom:15px;">🔍 Tapez simplement un mot, une phrase, un nom ou un sujet pour retrouver rapidement les emails concernés.</p>
                 <div class="input-group">
                     <label>Recherche textuelle</label>
                     <input type="text" id="search-text" placeholder="Mots-clés...">
                     <div class="search-options">
                         <label><input type="checkbox" id="search-group-duplicates" checked> Regrouper les doublons</label>
                         <label><input type="checkbox" id="search-show-ids"> Afficher les IDs techniques</label>
+                        <label><input type="checkbox" id="search-show-full-content" checked> Afficher le contenu complet</label>
                     </div>
                 </div>
                 <button class="btn" onclick="searchEvents()">Rechercher</button>
-                <button class="btn" onclick="generateEmbeddings()">Générer embeddings</button>
-                <button class="btn" onclick="embeddingSearch()">Recherche embeddings</button>
-                <button class="btn" onclick="semanticSearch()">Recherche IA</button>
+                <button class="btn" onclick="loadAllReceivedEmails()" style="background:#1f8f3a;">Voir tous les emails reçus</button>
+                <button class="btn" onclick="generateEmbeddings()">Préparer la recherche intelligente</button>
+                <button class="btn" onclick="embeddingSearch()">Recherche par similarité</button>
+                <button class="btn" onclick="semanticSearch()">Recherche par sens (IA)</button>
+                <div class="guide-box">Astuce: commencez par <strong>Voir tous les emails reçus</strong>, puis utilisez la recherche par similarité/sens pour retrouver des messages proches même sans mots exacts.</div>
                 <div id="search-result"></div>
             </div>
         </div>
@@ -188,7 +213,7 @@
         <div id="client-tab" class="tab-content hidden">
             <div class="card">
                 <h2>Clients</h2>
-                <p style="color:#666; margin-bottom:12px;">👤 Gérez vos clients. Le système détecte automatiquement les doublons par email (insensible à la casse). Vous pouvez créer un client unique avec plusieurs dossiers, ou générer une base de 20 clients pour tester.</p>
+                <p style="color:#666; margin-bottom:12px;">👤 Créez et consultez vos fiches clients. MemoLib regroupe automatiquement les doublons pour garder une base propre.</p>
                 <div class="input-group">
                     <label>Nom</label>
                     <input type="text" id="client-name" placeholder="Mme Martin">
@@ -216,7 +241,7 @@
         <div id="client-detail-tab" class="tab-content hidden">
             <div class="card">
                 <h2>Client détaillé</h2>
-                <p style="color:#666; margin-bottom:12px;">Vue 360° client : profil, édition, règles, dossiers liés, événements récents, anomalies et annexes.</p>
+                <p style="color:#666; margin-bottom:12px;">Vue complète du client: coordonnées, dossiers liés, derniers échanges et points à surveiller.</p>
 
                 <div id="client-detail-empty" class="result">Sélectionnez un client depuis l’onglet Clients (clic sur une ligne).</div>
 
@@ -319,8 +344,53 @@
         </div>
     </div>
 
+    <!-- Team Tab -->
+    <div id="team-tab" class="tab-content hidden">
+        <div class="card">
+            <h2>⚖️ Gestion d'Équipe</h2>
+            <p>Gérez les membres de votre cabinet et leurs permissions</p>
+            
+            <!-- Inviter un membre -->
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3>➕ Inviter un Membre</h3>
+                <form id="teamInviteForm">
+                    <div class="input-group">
+                        <label>Email:</label>
+                        <input type="email" id="teamInviteEmail" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Rôle:</label>
+                        <select id="teamInviteRole">
+                            <option value="PARTNER">Associé</option>
+                            <option value="LAWYER">Avocat</option>
+                            <option value="PARALEGAL">Juriste</option>
+                            <option value="SECRETARY">Secrétaire</option>
+                            <option value="INTERN">Stagiaire</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Envoyer Invitation</button>
+                </form>
+                <div id="teamInviteResult"></div>
+            </div>
+            
+            <!-- Membres actuels -->
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3>👥 Membres de l'Équipe</h3>
+                <div id="teamMembersList">Chargement...</div>
+            </div>
+            
+            <!-- Invitations en attente -->
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3>⏳ Invitations en Attente</h3>
+                <div id="teamPendingList">Chargement...</div>
+            </div>
+        </div>
+    </div>
+
     <script src="questionnaires.js"></script>
     <script src="advanced-features.js"></script>
+    <script src="auto-demo.js"></script>
+    <script src="team-module.js"></script>
     <script src="https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
     <script>
         const API_URL = (() => {
@@ -339,6 +409,66 @@
         let selectedClientRaw = null;
         let realtimeDashboard = null;
         let templateManager = null;
+        let criticalAlerts = null;
+
+        // Système d'alertes critiques
+        class CriticalAlertSystem {
+            constructor(apiUrl, token) {
+                this.apiUrl = apiUrl;
+                this.token = token;
+                this.connection = null;
+                this.soundEnabled = true;
+            }
+
+            async initialize() {
+                this.connection = new signalR.HubConnectionBuilder()
+                    .withUrl(`${this.apiUrl}/notificationHub`)
+                    .build();
+
+                this.connection.on('UrgentAlert', (data) => {
+                    this.showCriticalAlert(data);
+                    if (this.soundEnabled) this.playUrgentSound();
+                });
+
+                this.connection.on('DeadlineAlert', (data) => {
+                    this.showDeadlineAlert(data);
+                });
+
+                this.connection.on('NewEmail', (data) => {
+                    this.updateEmailCounter(data.count);
+                    this.showEmailNotification(data);
+                });
+
+                await this.connection.start();
+            }
+
+            showCriticalAlert(data) {
+                const alertHtml = `
+                    <div class="critical-alert" style="position:fixed;top:20px;right:20px;z-index:9999;background:#dc3545;color:white;padding:20px;border-radius:10px;box-shadow:0 5px 20px rgba(220,53,69,0.5);max-width:400px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="font-size:24px;">🚨</span>
+                            <div>
+                                <strong>ALERTE CRITIQUE</strong><br>
+                                <span>${data.message}</span><br>
+                                <small>${new Date(data.timestamp).toLocaleString('fr-FR')}</small>
+                            </div>
+                            <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;">×</button>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', alertHtml);
+                setTimeout(() => {
+                    const alert = document.querySelector('.critical-alert');
+                    if (alert) alert.remove();
+                }, 10000);
+            }
+
+            playUrgentSound() {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+                audio.volume = 0.3;
+                audio.play().catch(() => {});
+            }
+        }
 
         function persistSession(email, jwtToken) {
             if (!jwtToken) return;
@@ -376,260 +506,7 @@
                     if (!IS_RESTRICTED) return;
 
                     const alertsTabButton = document.getElementById('alertsTabButton');
-                    const alertsTab = document.getElementById('alerts-tab');
-                    if (alertsTabButton) alertsTabButton.style.display = 'none';
-                    if (alertsTab) alertsTab.classList.add('hidden');
-                }
-
-        const DEFAULT_DEMO = {
-            email: 'sarraboudjellal57@gmail.com',
-            password: 'SecurePass123!',
-            name: 'Sarra Boudjellal',
-            clientRef: 'CLI-MARTIN-001',
-            clientName: 'Mme Martin',
-            clientEmail: 'client.martin@example.com',
-            clientPhone: '+33 6 12 34 56 78',
-            clientAddress: '12 rue de la Paix, Paris',
-            ingestFrom: 'contact.client@example.com',
-            ingestSubject: 'Demande de rendez-vous',
-            ingestBody: 'Bonjour Maître, je souhaite un rendez-vous pour mon dossier. Merci.',
-            searchText: 'rendez-vous dossier'
-        };
-        const PINNED_MONITOR_EMAIL = 'sarraboudjellal57@gmail.com';
-        const PINNED_MONITOR_PASSWORD = localStorage.getItem('memolibMonitorPassword') || DEFAULT_DEMO.password;
-        localStorage.setItem('memolibMonitorEmail', PINNED_MONITOR_EMAIL);
-
-        function setServiceStatus(isUp, text) {
-            const dot = document.getElementById('statusDot');
-            const textEl = document.getElementById('serviceStatusText');
-            if (!dot || !textEl) return;
-            dot.classList.remove('ok', 'err');
-            if (isUp === true) dot.classList.add('ok');
-            if (isUp === false) dot.classList.add('err');
-            textEl.textContent = text;
-
-            const auditBanner = document.getElementById('auditApiBanner');
-            if (auditBanner) {
-                auditBanner.classList.remove('ok', 'err');
-                if (isUp === true) {
-                    auditBanner.classList.add('ok');
-                    auditBanner.textContent = '✅ API en ligne: les actions Audit/Anomalies sont disponibles.';
-                } else if (isUp === false) {
-                    auditBanner.classList.add('err');
-                    auditBanner.textContent = '❌ API hors ligne: impossible de charger Audit/Anomalies pour le moment.';
-                } else {
-                    auditBanner.textContent = '⏳ Vérification de l\'API...';
-                }
-            }
-        }
-
-        async function refreshServiceStatus() {
-            try {
-                const res = await apiFetchWithFallback('/health');
-                if (res.ok) setServiceStatus(true, 'En cours');
-                else setServiceStatus(false, `Arrêté / indisponible (${res.status})`);
-            } catch {
-                setServiceStatus(false, 'Arrêté / indisponible');
-            }
-        }
-
-        async function apiFetchWithFallback(path, options = {}) {
-            const bases = [API_URL, 'http://localhost:5078', 'http://localhost:8080']
-                .filter((value, index, array) => array.indexOf(value) === index);
-
-            let lastError = null;
-            for (const base of bases) {
-                try {
-                    const response = await fetch(`${base}${path}`, options);
-
-                    if (
-                        response.status === 404
-                        && base === window.location.origin
-                        && /localhost:3000$/i.test(window.location.origin)
-                    ) {
-                        continue;
-                    }
-
-                    return response;
-                } catch (err) {
-                    lastError = err;
-                }
-            }
-
-            throw new Error(
-                `API indisponible sur ${bases.join(', ')}${lastError?.message ? ` (${lastError.message})` : ''}`
-            );
-        }
-
-        function prefillDemoFields() {
-            const set = (id, value) => {
-                const el = document.getElementById(id);
-                if (el) el.value = value;
-            };
-
-            set('reg-email', DEFAULT_DEMO.email);
-            set('reg-password', DEFAULT_DEMO.password);
-            set('reg-name', DEFAULT_DEMO.name);
-            set('login-email', DEFAULT_DEMO.email);
-            set('login-password', DEFAULT_DEMO.password);
-            set('client-name', DEFAULT_DEMO.clientName);
-            set('client-email', DEFAULT_DEMO.clientEmail);
-            set('client-phone', DEFAULT_DEMO.clientPhone);
-            set('client-address', DEFAULT_DEMO.clientAddress);
-            set('email-from', DEFAULT_DEMO.ingestFrom);
-            set('email-subject', DEFAULT_DEMO.ingestSubject);
-            set('email-body', DEFAULT_DEMO.ingestBody);
-            set('search-text', DEFAULT_DEMO.searchText);
-        }
-
-        async function autoConnectDefaultUser() {
-            const loginEmail = PINNED_MONITOR_EMAIL;
-            const loginPassword = PINNED_MONITOR_PASSWORD;
-
-            localStorage.setItem('memolibMonitorEmail', loginEmail);
-            localStorage.setItem('memolibMonitorPassword', loginPassword);
-
-            const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-            const loginOnce = async () => {
-                const loginRes = await apiFetchWithFallback('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: loginEmail, password: loginPassword })
-                });
-
-                if (!loginRes.ok) return null;
-                return loginRes.json();
-            };
-
-            try {
-                const loginData = await loginOnce();
-                if (loginData?.token) {
-                    persistSession(loginEmail, loginData.token);
-                    updateCurrentUserDisplay(loginEmail);
-                    showResult('login-result', '✅ Connecté automatiquement (compte démo)');
-                    await refreshAnomalyBadge();
-                    return;
-                }
-
-                const registerRes = await apiFetchWithFallback('/api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: loginEmail,
-                        password: loginPassword,
-                        name: DEFAULT_DEMO.name,
-                        role: 'AVOCAT',
-                        plan: 'CABINET'
-                    })
-                });
-
-                if (!registerRes.ok && registerRes.status !== 409) {
-                    const text = await registerRes.text();
-                    showResult('login-result', `❌ Auto-connexion impossible: ${text}`, false);
-                    return;
-                }
-
-                let retryLoginData = null;
-                for (let attempt = 1; attempt <= 4; attempt++) {
-                    retryLoginData = await loginOnce();
-                    if (retryLoginData?.token) break;
-                    await wait(700);
-                }
-
-                if (!retryLoginData?.token) {
-                    showResult('login-result', '❌ Connexion auto échouée (API indisponible ou identifiants invalides)', false);
-                    return;
-                }
-
-                persistSession(loginEmail, retryLoginData.token);
-                updateCurrentUserDisplay(loginEmail);
-                showResult('login-result', '✅ Connecté automatiquement (compte démo créé)');
-                await refreshAnomalyBadge();
-            } catch (err) {
-                showResult('login-result', `❌ Erreur auto-connexion: ${err.message}`, false);
-            }
-        }
-
-        async function keepPinnedSessionAlive() {
-            const loginEmail = PINNED_MONITOR_EMAIL;
-            const loginPassword = localStorage.getItem('memolibMonitorPassword') || PINNED_MONITOR_PASSWORD;
-
-            try {
-                const loginRes = await apiFetchWithFallback('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: loginEmail, password: loginPassword })
-                });
-
-                if (!loginRes.ok) {
-                    return;
-                }
-
-                const loginData = await loginRes.json();
-                if (!loginData?.token) {
-                    return;
-                }
-
-                persistSession(loginEmail, loginData.token);
-                updateCurrentUserDisplay(loginEmail);
-            } catch {
-            }
-        }
-
-        function updateCurrentUserDisplay(email) {
-            const display = document.getElementById('currentUserDisplay');
-            if (display && email) {
-                display.textContent = `👤 ${email}`;
-            }
-        }
-
-        window.addEventListener('beforeinstallprompt', (event) => {
-            event.preventDefault();
-            installPromptEvent = event;
-        });
-
-        async function installApp() {
-            if (!installPromptEvent) {
-                alert('Installation non disponible ici. Utilisez le menu du navigateur: Installer l\'application.');
-                return;
-            }
-
-            installPromptEvent.prompt();
-            await installPromptEvent.userChoice;
-            installPromptEvent = null;
-        }
-
-        async function stopApplication() {
-            setServiceStatus(false, 'Arrêt en cours...');
-            const res = await fetch(`${API_URL}/api/system/stop`, { method: 'POST' });
-            if (!res.ok) {
-                setServiceStatus(true, 'En cours');
-                const text = await res.text();
-                throw new Error(`Arrêt refusé (${res.status}) ${text}`);
-            }
-            setTimeout(() => refreshServiceStatus(), 1000);
-        }
-
-        function showTab(tabName) {
-            if (IS_RESTRICTED && tabName === 'alerts') {
-                tabName = 'audit';
-            }
-
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabName + '-tab').classList.remove('hidden');
-            const activeButton = Array.from(document.querySelectorAll('.tab'))
-                .find(btn => btn.getAttribute('onclick') === `showTab('${tabName}')`);
-            if (activeButton) activeButton.classList.add('active');
-        }
-
-        function showResult(elementId, message, isSuccess = true) {
-            const el = document.getElementById(elementId);
-            el.innerHTML = `<div class="result ${isSuccess ? 'success' : 'error'}">${message}</div>`;
-        }
-
-        async function readResponseDataSafe(response) {
+                    // showTab gère directement le chargement de l'onglet équipe (module team-module.js).
             const text = await response.text();
             if (!text || !text.trim()) return null;
 
@@ -672,13 +549,14 @@
             }
         }
 
-        function buildReadableEventDigest(payload, occurredAt) {
+        function buildReadableEventDigest(payload, occurredAt, options = {}) {
+            const includeFullBody = options.includeFullBody === true;
             const from = payload?.from || payload?.From || 'Expéditeur non identifié';
             const subject = payload?.subject || payload?.Subject || 'Sujet non renseigné';
             const body = payload?.body || payload?.Body || '';
             const meta = extractMetaFromBody(body);
             const cleaned = (meta.cleanedBody || body || '').trim();
-            const shortWhat = cleaned.length > 220 ? `${cleaned.substring(0, 220)}...` : cleaned;
+            const shortWhat = includeFullBody ? cleaned : (cleaned.length > 220 ? `${cleaned.substring(0, 220)}...` : cleaned);
 
             const what = shortWhat || 'Contenu non disponible';
             const when = new Date(occurredAt).toLocaleString('fr-FR');
@@ -766,10 +644,11 @@
             }
         }
 
-        function renderRichEmailBlock(payload, occurredAt, eventId = null) {
+        function renderRichEmailBlock(payload, occurredAt, eventId = null, options = {}) {
             const subject = payload?.subject || payload?.Subject || 'N/A';
-            const digest = buildReadableEventDigest(payload, occurredAt);
+            const digest = buildReadableEventDigest(payload, occurredAt, options);
             const meta = digest.meta;
+            const safeCaseId = payload?.caseId || payload?.CaseId || lastCaseId || 'unknown';
 
             let html = `<div class="guide-box"><strong>Qui:</strong> ${digest.who}<br><strong>Quand:</strong> ${digest.when}<br><strong>Quoi:</strong> ${digest.what}<br><strong>Statut action:</strong> ${digest.actionStatus}<br><strong>Action conseillée:</strong> ${digest.actionDetail}<br><strong>Décision finale:</strong> Utilisateur</div>`;
             html += `<div><strong>Sujet:</strong> ${subject}</div>`;
@@ -780,7 +659,7 @@
             }
             if (eventId) {
                     html += `<button class="btn" style="padding:6px 10px; font-size:12px;" onclick="createCaseFromEvent('${eventId}', '${encodeURIComponent(subject)}')">Créer dossier depuis cet email</button>`;
-                    html += `<button class="btn" style="padding:6px 10px; font-size:12px;" onclick="showEventQuestionnaires('${eventId}', '${caseId || 'unknown'}')">📋 Questionnaires</button>`;
+                    html += `<button class="btn" style="padding:6px 10px; font-size:12px;" onclick="showEventQuestionnaires('${eventId}', '${safeCaseId}')">📋 Questionnaires</button>`;
                     html += `<button class="btn" style="padding:6px 10px; font-size:12px;" onclick="showTemplateModal('${eventId}', '${meta.cleanedBody}', '${subject}')">📝 Réponse IA</button>`;
             }
             if (meta.clientDbId) html += `<span class="meta-chip">ClientDbId: ${meta.clientDbId}</span>`;
@@ -835,8 +714,10 @@
                     await refreshAnomalyBadge();
                     
                     // Initialiser les fonctionnalités avancées
-                    realtimeDashboard = new RealtimeDashboard('http://localhost:5078', token);
-                    templateManager = new TemplateManager('http://localhost:5078', token);
+                    realtimeDashboard = new RealtimeDashboard(API_URL, token);
+                    templateManager = new TemplateManager(API_URL, token);
+                    criticalAlerts = new CriticalAlertSystem(API_URL, token);
+                    await criticalAlerts.initialize();
                 } else {
                     const message = (data?.message || '').toString().toLowerCase();
                     const canAutoCreate = message.includes('identifiants invalides');
@@ -970,8 +851,8 @@
                     }
 
                     if (isNotif) {
-                        html += `<button class="btn" style="margin-top:8px;" onclick="dismissNotificationFromCenter('${i.id}')">Action directe: Ignorer notification</button>`;
-                        html += `<button class="btn" style="margin-top:8px;" onclick="resolveNotificationFromCenter('${i.id}')">Marquer résolue</button>`;
+                        html += `<button class="btn" style="margin-top:8px;" onclick="dismissNotificationFromCenter('${i.id}')">Ignorer (log)</button>`;
+                        html += `<button class="btn" style="margin-top:8px; background:#2e7d32;" onclick="resolveNotificationFromCenter('${i.id}')">Clôturer manuellement (log)</button>`;
                     }
 
                     html += '</div>';
@@ -1030,7 +911,10 @@
                     body: JSON.stringify({ reason: 'Traité depuis le centre anomalies' })
                 });
                 if (res.ok) {
+                    showResult('anomaly-center-result', '✅ Notification ignorée et loguée.');
                     await loadAnomalyCenter();
+                    await loadAlerts();
+                    await refreshAnomalyBadge();
                 } else {
                     alert('Impossible d\'ignorer la notification');
                 }
@@ -1041,7 +925,7 @@
 
         async function resolveNotificationFromCenter(notificationId) {
             if (!token) return;
-            const resolution = prompt('Résolution à enregistrer:', 'Traité depuis le centre anomalies');
+            const resolution = prompt('Action de clôture à enregistrer:', 'Clôture manuelle validée depuis le centre anomalies');
             if (!resolution) return;
 
             try {
@@ -1054,7 +938,10 @@
                     body: JSON.stringify({ resolution, action: 'CENTRE_ANOMALIES' })
                 });
                 if (res.ok) {
+                    showResult('anomaly-center-result', '✅ Notification clôturée manuellement et loguée.');
                     await loadAnomalyCenter();
+                    await loadAlerts();
+                    await refreshAnomalyBadge();
                 } else {
                     alert('Impossible de résoudre la notification');
                 }
@@ -1094,21 +981,310 @@
             }
         }
 
+        function escapeScanHtml(text) {
+            const value = text == null ? '' : String(text);
+            const div = document.createElement('div');
+            div.textContent = value;
+            return div.innerHTML;
+        }
+
+        function getSortedFilteredScanRows(rows) {
+            const statusFilter = document.getElementById('scan-status-filter')?.value || 'all';
+            const sortOrder = document.getElementById('scan-sort-order')?.value || 'dateDesc';
+
+            let filtered = Array.isArray(rows) ? [...rows] : [];
+
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(r => (r?.status || '').toLowerCase() === statusFilter);
+            }
+
+            filtered.sort((a, b) => {
+                const da = new Date(a?.occurredAt || 0).getTime();
+                const db = new Date(b?.occurredAt || 0).getTime();
+
+                if (sortOrder === 'dateAsc') return da - db;
+                if (sortOrder === 'status') {
+                    const sa = (a?.status || '').toLowerCase();
+                    const sb = (b?.status || '').toLowerCase();
+                    return sa.localeCompare(sb) || (db - da);
+                }
+
+                return db - da;
+            });
+
+            return filtered;
+        }
+
+        function refreshStructuredScanResultView() {
+            if (!window.__lastStructuredScanData) return;
+            const container = document.getElementById('scan-result');
+            if (!container) return;
+            container.innerHTML = renderStructuredScanResult(window.__lastStructuredScanData);
+        }
+
+        function renderStructuredScanResult(data) {
+            const rows = Array.isArray(data?.linesPreview) ? data.linesPreview : [];
+            const sortedRows = getSortedFilteredScanRows(rows);
+            const statusFilter = document.getElementById('scan-status-filter')?.value || 'all';
+            const sortOrder = document.getElementById('scan-sort-order')?.value || 'dateDesc';
+            const cards = sortedRows.map((row, index) => {
+                const status = row?.status || 'unknown';
+                const date = row?.occurredAt ? new Date(row.occurredAt).toLocaleString('fr-FR') : '-';
+                const from = escapeScanHtml(row?.from || '-');
+                const to = escapeScanHtml(row?.to || '-');
+                const subject = escapeScanHtml(row?.subject || '(sans sujet)');
+                const bodyPreview = escapeScanHtml(row?.bodyPreview || '');
+                const attachmentNames = Array.isArray(row?.attachmentNames) && row.attachmentNames.length > 0
+                    ? row.attachmentNames.map(a => escapeScanHtml(a)).join(', ')
+                    : 'Aucune';
+                const encodedFrom = encodeURIComponent(row?.from || '');
+                const encodedTo = encodeURIComponent(row?.to || '');
+                const encodedSubject = encodeURIComponent(row?.subject || '');
+                const encodedBody = encodeURIComponent(row?.bodyPreview || '');
+                const encodedMessageId = encodeURIComponent(row?.messageId || '');
+
+                return `
+                    <div class="result" style="margin-top:10px; text-align:left;">
+                        <strong>#${index + 1} • ${status.toUpperCase()}</strong><br>
+                        <strong>Date:</strong> ${date}<br>
+                        <strong>De:</strong> ${from}<br>
+                        <strong>À:</strong> ${to}<br>
+                        <strong>Sujet:</strong> ${subject}<br>
+                        <strong>Pièces jointes:</strong> ${attachmentNames}<br>
+                        <strong>Contenu:</strong><br>
+                        <div style="white-space:pre-wrap; background:#fff; border:1px solid #ddd; padding:8px; border-radius:4px; margin-top:6px;">${bodyPreview || '(vide)'}</div>
+                        <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="btn" style="padding:6px 10px; font-size:12px;" onclick="openReplyComposerFromScan('${encodedFrom}','${encodedTo}','${encodedSubject}','${encodedBody}','${encodedMessageId}')">Répondre à cet email</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const summary = `
+                <div class="result success" style="text-align:left;">
+                    <strong>✅ ${escapeScanHtml(data?.message || 'Scan terminé')}</strong><br>
+                    Total: <strong>${data?.totalEmails ?? 0}</strong> |
+                    Ingérés: <strong>${data?.ingested ?? 0}</strong> |
+                    Doublons: <strong>${data?.duplicates ?? 0}</strong><br>
+                    Aperçu affiché: <strong>${sortedRows.length}</strong>${data?.hasMorePreview ? ` / ${data?.totalEmails ?? 0} (augmentez la limite si besoin)` : ''}
+                </div>
+            `;
+
+            const controls = `
+                <div class="result" style="margin-top:10px; text-align:left;">
+                    <strong>Organisation structurée</strong><br>
+                    <label style="margin-right:10px;">Filtre statut:
+                        <select id="scan-status-filter" onchange="refreshStructuredScanResultView()">
+                            <option value="all" ${statusFilter === 'all' ? 'selected' : ''}>Tous</option>
+                            <option value="ingested" ${statusFilter === 'ingested' ? 'selected' : ''}>Ingérés</option>
+                            <option value="duplicate" ${statusFilter === 'duplicate' ? 'selected' : ''}>Doublons</option>
+                        </select>
+                    </label>
+                    <label>Tri:
+                        <select id="scan-sort-order" onchange="refreshStructuredScanResultView()">
+                            <option value="dateDesc" ${sortOrder === 'dateDesc' ? 'selected' : ''}>Date (plus récent)</option>
+                            <option value="dateAsc" ${sortOrder === 'dateAsc' ? 'selected' : ''}>Date (plus ancien)</option>
+                            <option value="status" ${sortOrder === 'status' ? 'selected' : ''}>Statut puis date</option>
+                        </select>
+                    </label>
+                    <div style="margin-top:8px; color:#555;">Lignes affichées: <strong>${sortedRows.length}</strong></div>
+                </div>
+            `;
+
+            return summary + controls + (cards || '<div class="result">Aucun email à afficher dans cet aperçu.</div>');
+        }
+
+        function getCurrentUserEmail() {
+            return (localStorage.getItem('memolibUserEmail') || '').trim().toLowerCase();
+        }
+
+        function chooseReplyRecipient(from, to) {
+            const me = getCurrentUserEmail();
+            const fromValue = (from || '').trim();
+            const toValue = (to || '').trim();
+
+            if (fromValue && fromValue.toLowerCase() !== me) return fromValue;
+            if (toValue) return toValue.split(/[;,]/)[0].trim();
+            return fromValue || toValue;
+        }
+
+        function closeScanReplyModal() {
+            const modal = document.getElementById('scanReplyModal');
+            if (modal) modal.remove();
+        }
+
+        function openReplyComposerFromScan(fromEnc, toEnc, subjectEnc, bodyEnc, messageIdEnc) {
+            const from = decodeURIComponent(fromEnc || '');
+            const to = decodeURIComponent(toEnc || '');
+            const subject = decodeURIComponent(subjectEnc || '');
+            const bodyPreview = decodeURIComponent(bodyEnc || '');
+            const messageId = decodeURIComponent(messageIdEnc || '');
+            const recipient = chooseReplyRecipient(from, to);
+
+            const modalHtml = `
+                <div class="modal" id="scanReplyModal" style="display:block;" onclick="if(event.target.id==='scanReplyModal') closeScanReplyModal()">
+                    <div class="modal-content">
+                        <span class="modal-close" onclick="closeScanReplyModal()">&times;</span>
+                        <h2 style="color:#667eea; margin-bottom:12px;">Réponse à envoyer</h2>
+                        <div class="guide-box"><strong>Email source:</strong> ${escapeScanHtml(subject || '(sans sujet)')}<br><strong>De:</strong> ${escapeScanHtml(from || '-')} | <strong>À:</strong> ${escapeScanHtml(to || '-')}<br><strong>Référence:</strong> ${escapeScanHtml(messageId || '-')}</div>
+
+                        <div class="input-group">
+                            <label>Destinataire</label>
+                            <input type="email" id="scan-reply-to" value="${escapeScanHtml(recipient)}" />
+                        </div>
+                        <div class="input-group">
+                            <label>Sujet</label>
+                            <input type="text" id="scan-reply-subject" value="${escapeScanHtml(subject ? `Re: ${subject}` : 'Re: Votre message')}" />
+                        </div>
+                        <div class="input-group">
+                            <label>Message</label>
+                            <textarea id="scan-reply-body" rows="10">Bonjour,\n\nMerci pour votre message.\n\nJe reviens vers vous rapidement avec la suite.\n\nCordialement,</textarea>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="btn" onclick="suggestScanReplyFromAi()">Proposer un brouillon</button>
+                            <button class="btn" style="background:#1f8f3a;" onclick="sendScanReply()">Envoyer la réponse</button>
+                            <button class="btn" style="background:#888;" onclick="closeScanReplyModal()">Fermer</button>
+                        </div>
+                        <div id="scan-reply-status"></div>
+                        <div class="result" style="margin-top:10px;"><strong>Résumé du mail reçu:</strong><br>${escapeScanHtml(bodyPreview || '(aucun aperçu)')}</div>
+                    </div>
+                </div>
+            `;
+
+            const existing = document.getElementById('scanReplyModal');
+            if (existing) existing.remove();
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        async function suggestScanReplyFromAi() {
+            if (!token) return;
+
+            const subject = document.getElementById('scan-reply-subject')?.value || '';
+            const currentBody = document.getElementById('scan-reply-body')?.value || '';
+            const status = document.getElementById('scan-reply-status');
+            if (status) status.innerHTML = `<div class="result">⏳ Génération du brouillon...</div>`;
+
+            try {
+                const res = await apiFetchWithFallback('/api/templates/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ clientContext: currentBody, subject, caseType: 'general' })
+                });
+
+                const data = await readResponseDataSafe(res);
+                if (!res.ok) {
+                    if (status) status.innerHTML = `<div class="result error">❌ Brouillon indisponible.</div>`;
+                    return;
+                }
+
+                const generated = data?.generatedResponse || '';
+                const bodyField = document.getElementById('scan-reply-body');
+                if (bodyField && generated) {
+                    bodyField.value = generated;
+                }
+                if (status) status.innerHTML = `<div class="result success">✅ Brouillon proposé. Vous pouvez modifier avant envoi.</div>`;
+            } catch (err) {
+                if (status) status.innerHTML = `<div class="result error">❌ Erreur brouillon: ${err.message}</div>`;
+            }
+        }
+
+        async function sendScanReply() {
+            if (!token) return;
+
+            const to = document.getElementById('scan-reply-to')?.value?.trim() || '';
+            const subject = document.getElementById('scan-reply-subject')?.value?.trim() || '';
+            const body = document.getElementById('scan-reply-body')?.value?.trim() || '';
+            const status = document.getElementById('scan-reply-status');
+
+            if (!to || !subject || !body) {
+                if (status) status.innerHTML = `<div class="result error">❌ Destinataire, sujet et message sont obligatoires.</div>`;
+                return;
+            }
+
+            if (status) status.innerHTML = `<div class="result">⏳ Envoi en cours...</div>`;
+
+            try {
+                const res = await apiFetchWithFallback('/api/SecureEmail/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ to, subject, body })
+                });
+
+                const data = await readResponseDataSafe(res);
+                if (!res.ok) {
+                    const msg = data?.message || 'Envoi impossible';
+                    if (status) status.innerHTML = `<div class="result error">❌ ${msg}</div>`;
+                    return;
+                }
+
+                if (status) status.innerHTML = `<div class="result success">✅ Réponse envoyée à ${escapeScanHtml(to)}.</div>`;
+            } catch (err) {
+                if (status) status.innerHTML = `<div class="result error">❌ Erreur envoi: ${err.message}</div>`;
+            }
+        }
+
+        function extractBodyFromRawPayload(rawPayload) {
+            if (!rawPayload) return '';
+            try {
+                const parsed = JSON.parse(rawPayload);
+                return (parsed.body || parsed.bodyText || parsed.bodyHtml || '').toString();
+            } catch {
+                return '';
+            }
+        }
+
+        async function enrichScanRowsWithBodies(rows) {
+            if (!Array.isArray(rows) || rows.length === 0) return rows;
+            if (rows.some(r => r?.bodyPreview)) return rows;
+
+            const res = await apiFetchWithFallback('/api/search/events', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ text: '' })
+            });
+
+            if (!res.ok) return rows;
+
+            const events = await res.json();
+            const map = new Map();
+            (Array.isArray(events) ? events : []).forEach(ev => {
+                if (ev?.externalId) {
+                    map.set(ev.externalId, extractBodyFromRawPayload(ev.rawPayload));
+                }
+            });
+
+            return rows.map(row => {
+                if (row?.bodyPreview) return row;
+                const fallbackBody = map.get(row?.messageId) || '';
+                const bodyPreview = fallbackBody.length > 600 ? `${fallbackBody.slice(0, 600)}...` : fallbackBody;
+                return { ...row, bodyPreview };
+            });
+        }
+
         async function manualEmailScan() {
             if (!token) return showResult('scan-result', '❌ Connectez-vous d\'abord', false);
 
             showResult('scan-result', '⏳ Scan en cours... Cela peut prendre quelques minutes.');
 
             try {
-                const res = await apiFetchWithFallback('/api/email-scan/manual', {
+                const res = await apiFetchWithFallback('/api/email-scan/manual?previewLimit=500', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    showResult('scan-result', `✅ ${data.message}<br>Total: ${data.totalEmails} emails<br>Ingérés: ${data.ingested}<br>Doublons ignorés: ${data.duplicates}`);
-                    showTab('cases');
-                    await listCases();
+                    data.linesPreview = await enrichScanRowsWithBodies(Array.isArray(data?.linesPreview) ? data.linesPreview : []);
+                    window.__lastStructuredScanData = data;
+                    document.getElementById('scan-result').innerHTML = renderStructuredScanResult(data);
                 } else {
                     const raw = (data?.message || '').toString();
                     const text = raw.toLowerCase();
@@ -1186,51 +1362,95 @@
             }
         }
 
+        function renderSearchEventsList(events, titleLabel, options = {}) {
+            const showIds = document.getElementById('search-show-ids')?.checked === true;
+            const includeFullBody = options.includeFullBody === true;
+
+            let html = `<div class="result success">✅ ${events.length} email(s) ${titleLabel}</div>`;
+            if (includeFullBody) {
+                html += '<div class="guide-box"><strong>Affichage complet activé</strong>: chaque email ci-dessous contient tout le texte récupéré (pas seulement un extrait).</div>';
+            }
+
+            html += '<div class="event-list">';
+            events.forEach((e, index) => {
+                const payload = parseRawPayloadSafe(e.rawPayload);
+                html += `<div class="event-item case-item" onclick="showEventDetail('${e.id}')">`;
+                html += `<div class="date">#${index + 1} • ${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>`;
+                if (showIds) {
+                    html += `<div class="search-ids">EventId: ${e.id}${e.externalId ? ` | ExternalId: ${e.externalId}` : ''}</div>`;
+                }
+                html += renderRichEmailBlock(payload, e.occurredAt, e.id, { includeFullBody });
+                html += '</div>';
+            });
+            html += '</div>';
+            document.getElementById('search-result').innerHTML = html;
+        }
+
         async function searchEvents() {
             if (!token) return showResult('search-result', '❌ Connectez-vous d\'abord', false);
 
             const text = document.getElementById('search-text').value;
+            const includeFullBody = document.getElementById('search-show-full-content')?.checked !== false;
 
             try {
                 const res = await fetch(`${API_URL}/api/search/events`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ text })
+                    body: JSON.stringify({ text, limit: 500 })
                 });
-                
+
                 if (!res.ok) {
                     const errorText = await res.text();
                     return showResult('search-result', `❌ Erreur ${res.status}: ${errorText}`, false);
                 }
-                
+
                 const contentType = res.headers.get('content-type');
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await res.text();
                     return showResult('search-result', `❌ Réponse invalide (non-JSON): ${text.substring(0, 200)}`, false);
                 }
-                
+
                 const data = await res.json();
                 if (!Array.isArray(data)) {
                     return showResult('search-result', '❌ Format de réponse invalide', false);
                 }
-                
-                let html = `<div class="result success">✅ ${data.length} résultat(s) trouvé(s)</div>`;
-                html += '<div class="event-list">';
-                data.forEach(e => {
-                    const payload = parseRawPayloadSafe(e.rawPayload);
-                    const from = payload.From || payload.from || 'N/A';
-                    const subject = payload.Subject || payload.subject || 'N/A';
-                    const body = payload.Body || payload.body || '';
-                    
-                    html += `<div class="event-item case-item" onclick="showEventDetail('${e.id}')">`;
-                    html += renderRichEmailBlock(payload, e.occurredAt, e.id);
-                    html += '</div>';
+
+                renderSearchEventsList(data, 'trouvé(s)', { includeFullBody });
+            } catch (err) {
+                showResult('search-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function loadAllReceivedEmails() {
+            if (!token) return showResult('search-result', '❌ Connectez-vous d\'abord', false);
+
+            const includeFullBody = document.getElementById('search-show-full-content')?.checked !== false;
+            showResult('search-result', '⏳ Chargement de tous les emails reçus...');
+
+            try {
+                const res = await fetch(`${API_URL}/api/search/events`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ text: '', returnAll: true })
                 });
-                html += '</div>';
-                document.getElementById('search-result').innerHTML = html;
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    return showResult('search-result', `❌ Erreur ${res.status}: ${errorText}`, false);
+                }
+
+                const data = await res.json();
+                if (!Array.isArray(data)) {
+                    return showResult('search-result', '❌ Format de réponse invalide', false);
+                }
+
+                renderSearchEventsList(data, 'reçu(s) (chargement complet)', { includeFullBody });
             } catch (err) {
                 showResult('search-result', `❌ Erreur: ${err.message}`, false);
             }
@@ -1845,7 +2065,7 @@
                     `Conseil: recherche "CLI-" dans Recherche intelligente.`
                 );
             } catch (err) {
-                showResult('client-result', `❌ Erreur génération 20 clients: ${err.message}. Vérifiez que l'API tourne (http://localhost:5078/health).`, false);
+                showResult('client-result', `❌ Erreur génération 20 clients: ${err.message}. Vérifiez que l'API tourne (${API_URL}/health).`, false);
             }
         }
 
@@ -1985,6 +2205,7 @@
 
         async function listCases() {
             if (!token) return showResult('cases-result', '❌ Connectez-vous d\'abord', false);
+            setLoadingState('cases-result', '⏳ Chargement des dossiers...');
 
             try {
                 const [casesRes, anomaliesRes] = await Promise.all([
@@ -1996,8 +2217,8 @@
                     })
                 ]);
 
-                const data = await casesRes.json();
-                const anomaliesData = anomaliesRes.ok ? await anomaliesRes.json() : null;
+                const data = await readResponseDataSafe(casesRes);
+                const anomaliesData = anomaliesRes.ok ? await readResponseDataSafe(anomaliesRes) : null;
                 const openAnomalies = anomaliesData?.summary?.totalOpenAnomalies ?? 'N/A';
 
                 if (casesRes.ok) {
@@ -2168,25 +2389,73 @@
             if (modal) modal.style.display = 'none';
         }
 
-        PLACEHOLDER
-                alert(`Erreur: ${err.message}`);
-            }
-        }
-
         function closeEventModal() {
             const modal = document.getElementById('eventModal');
             if (modal) modal.style.display = 'none';
         }
 
-        async function loadStats() {
-            if (!token) return showResult('stats-result', '❌ Connectez-vous d\'abord', false);
+        async function showEventDetail(eventId) {
+            if (!token) return alert('Connectez-vous d\'abord');
 
             try {
-                const [perDay, byType, avgSev] = await Promise.all([
-                    apiFetchWithFallback('/api/stats/events-per-day', { headers: { 'Authorization': `Bearer ${token}` }}).then(r => r.json()),
-                    apiFetchWithFallback('/api/stats/events-by-type', { headers: { 'Authorization': `Bearer ${token}` }}).then(r => r.json()),
-                    apiFetchWithFallback('/api/stats/average-severity', { headers: { 'Authorization': `Bearer ${token}` }}).then(r => r.json())
+                const res = await fetch(`${API_URL}/api/events/${eventId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!res.ok) {
+                    alert('Impossible de charger l\'événement');
+                    return;
+                }
+                
+                const event = await res.json();
+                const payload = parseRawPayloadSafe(event.rawPayload);
+                const digest = buildReadableEventDigest(payload, event.occurredAt, { includeFullBody: true });
+                
+                let html = `<div class="modal" id="eventModal" onclick="if(event.target.id==='eventModal')closeEventModal()">
+                    <div class="modal-content">
+                        <span class="modal-close" onclick="closeEventModal()">&times;</span>
+                        <h2 style="color: #667eea; margin-bottom: 20px;">Détail de l'événement</h2>
+                        <div style="margin-bottom: 15px;"><strong>ID:</strong> ${event.id}</div>
+                        <div style="margin-bottom: 15px;"><strong>Date:</strong> ${digest.when}</div>
+                        <div style="margin-bottom: 15px;"><strong>De:</strong> ${digest.who}</div>
+                        <div style="margin-bottom: 15px;"><strong>Sujet:</strong> ${payload.subject || 'N/A'}</div>
+                        <div style="margin-bottom: 15px;"><strong>Contenu:</strong></div>
+                        <div style="white-space: pre-wrap; background: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto;">${digest.what}</div>`;
+                
+                if (event.validationFlags) {
+                    html += `<div style="margin-top: 15px; color: orange;"><strong>⚠️ Anomalies:</strong> ${event.validationFlags}</div>`;
+                }
+                
+                html += `</div></div>`;
+                
+                const existing = document.getElementById('eventModal');
+                if (existing) existing.remove();
+                
+                document.body.insertAdjacentHTML('beforeend', html);
+                document.getElementById('eventModal').style.display = 'block';
+            } catch (err) {
+                alert(`Erreur: ${err.message}`);
+            }
+        }
+
+        async function loadStats() {
+            if (!token) return showResult('stats-result', '❌ Connectez-vous d\'abord', false);
+            setLoadingState('stats-result', '⏳ Chargement des indicateurs...');
+
+            try {
+                const [perDayRes, byTypeRes, avgSevRes] = await Promise.all([
+                    apiFetchWithFallback('/api/stats/events-per-day', { headers: { 'Authorization': `Bearer ${token}` }}),
+                    apiFetchWithFallback('/api/stats/events-by-type', { headers: { 'Authorization': `Bearer ${token}` }}),
+                    apiFetchWithFallback('/api/stats/average-severity', { headers: { 'Authorization': `Bearer ${token}` }})
                 ]);
+
+                if (!perDayRes.ok || !byTypeRes.ok || !avgSevRes.ok) {
+                    return showResult('stats-result', '❌ Impossible de charger les statistiques', false);
+                }
+
+                const perDay = await readResponseDataSafe(perDayRes);
+                const byType = await readResponseDataSafe(byTypeRes);
+                const avgSev = await readResponseDataSafe(avgSevRes);
 
                 const totalEmails = (perDay || []).reduce((a,b) => a + b.count, 0);
                 const activeDays = (perDay || []).length;
@@ -2281,46 +2550,275 @@
 
         async function loadAlerts() {
             if (!token) return showResult('alerts-result', '❌ Connectez-vous d\'abord', false);
+            setLoadingState('alerts-result', '⏳ Chargement des alertes et notifications...');
 
             try {
-                const res = await apiFetchWithFallback('/api/alerts/requires-attention', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    if (data.count === 0) {
-                        showResult('alerts-result', '✅ Aucun email ne nécessite d\'attention');
-                    } else {
-                        let html = `<div class="result" style="border-left-color: orange; background: #fff3cd;">⚠️ ${data.count} email(s) nécessitent votre attention<br><strong>Décision finale:</strong> Utilisateur (les actions proposées sont des aides)<br>`;
-                        html += `<button class="btn" style="margin-top:8px; background:#c62828;" onclick="bulkDeleteAllAttentionEvents(${data.count})">Supprimer tout d'un coup (${data.count})</button>`;
-                        html += `<button class="btn" style="margin-top:8px; background:#8d6e63;" onclick="bulkDeleteAttentionExcept(${data.count})">Tout supprimer sauf un type...</button>`;
-                        html += `</div>`;
-                        html += '<div class="event-list">';
-                        data.events.forEach(e => {
-                            const payload = parseRawPayloadSafe(e.rawPayload);
-                            const flags = e.validationFlags ? e.validationFlags.split(',') : [];
-                            const from = payload.from || payload.From || 'Manquant';
-                            const subject = payload.subject || payload.Subject || 'Manquant';
-                            const body = payload.body || payload.Body || '';
-                            
-                            html += `<div class="event-item case-item" style="border-left-color: orange; cursor:pointer;" onclick="showEventDetail('${e.id}')">
-                                <div class="date">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
-                                <div><strong>De:</strong> <span style="color:${from === 'Manquant' ? 'red' : 'inherit'};">${from}</span></div>
-                                <div><strong>Sujet:</strong> <span style="color:${subject === 'Manquant' ? 'red' : 'inherit'};">${subject}</span></div>
-                                <div class="content" style="margin-top:8px;">${body.substring(0, 150)}${body.length > 150 ? '...' : ''}</div>
-                                <div style="color: orange; margin-top: 8px;">⚠️ Anomalies: ${flags.join(', ')}</div>
-                                <button class="btn" style="margin-top: 8px;" onclick="event.stopPropagation(); showEventDetail('${e.id}')">Voir tous les détails</button>
-                                <button class="btn" style="margin-top: 8px; background:#c62828;" onclick="event.stopPropagation(); deleteEventFromAlert('${e.id}')">Supprimer cet événement</button>
-                            </div>`;
-                        });
-                        html += '</div>';
-                        document.getElementById('alerts-result').innerHTML = html;
-                    }
-                } else {
-                    showResult('alerts-result', `❌ Erreur`, false);
+                const [attentionRes, notificationsRes] = await Promise.all([
+                    apiFetchWithFallback('/api/alerts/requires-attention', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    apiFetchWithFallback('/api/notifications?unreadOnly=true', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    })
+                ]);
+
+                const attentionData = await readResponseDataSafe(attentionRes);
+                const unreadNotifications = await readResponseDataSafe(notificationsRes);
+
+                if (!attentionRes.ok) {
+                    return showResult('alerts-result', '❌ Erreur chargement alertes', false);
                 }
+
+                const notifications = Array.isArray(unreadNotifications) ? unreadNotifications : [];
+                const data = attentionData || { count: 0, events: [] };
+
+                if ((data.count || 0) === 0 && notifications.length === 0) {
+                    return showResult('alerts-result', '✅ Aucun email en anomalie et aucune notification en attente.');
+                }
+
+                let html = '';
+
+                if ((data.count || 0) > 0) {
+                    html += `<div class="result" style="border-left-color: orange; background: #fff3cd;">⚠️ ${data.count} email(s) nécessitent votre attention<br><strong>Décision finale:</strong> Utilisateur (les actions proposées sont des aides)<br>`;
+                    html += `<button class="btn" style="margin-top:8px; background:#c62828;" onclick="bulkDeleteAllAttentionEvents(${data.count})">Supprimer tout d'un coup (${data.count})</button>`;
+                    html += `<button class="btn" style="margin-top:8px; background:#8d6e63;" onclick="bulkDeleteAttentionExcept(${data.count})">Tout supprimer sauf un type...</button>`;
+                    html += `</div>`;
+
+                    html += '<div class="event-list">';
+                    data.events.forEach(e => {
+                        const payload = parseRawPayloadSafe(e.rawPayload);
+                        const flags = e.validationFlags ? e.validationFlags.split(',') : [];
+                        const from = payload.from || payload.From || 'Manquant';
+                        const subject = payload.subject || payload.Subject || 'Manquant';
+                        const body = payload.body || payload.Body || '';
+                        const readableFlags = renderReadableAnomalyFlags(flags);
+
+                        html += `<div class="event-item case-item" style="border-left-color: orange; cursor:pointer;" onclick="showEventDetail('${e.id}')">
+                            <div class="date">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                            <div><strong>De:</strong> <span style="color:${from === 'Manquant' ? 'red' : 'inherit'};">${escapeScanHtml(from)}</span></div>
+                            <div><strong>Sujet:</strong> <span style="color:${subject === 'Manquant' ? 'red' : 'inherit'};">${escapeScanHtml(subject)}</span></div>
+                            <div class="content" style="margin-top:8px;">${escapeScanHtml(body.substring(0, 150))}${body.length > 150 ? '...' : ''}</div>
+                            <div style="color: orange; margin-top: 8px;">⚠️ Anomalies: ${readableFlags}</div>
+                            <button class="btn" style="margin-top: 8px;" onclick="event.stopPropagation(); showEventDetail('${e.id}')">Voir tous les détails</button>
+                            <button class="btn" style="margin-top: 8px; background:#c62828;" onclick="event.stopPropagation(); deleteEventFromAlert('${e.id}')">Supprimer cet événement</button>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+
+                html += `<div class="result" style="margin-top:10px; border-left-color:#667eea; background:#eef3ff;">🔔 Notifications à traiter: <strong>${notifications.length}</strong>`;
+                if (notifications.length > 0) {
+                    html += `<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">`;
+                    html += `<button class="btn" onclick="toggleAllAlertNotifications(true)">Tout cocher</button>`;
+                    html += `<button class="btn" onclick="toggleAllAlertNotifications(false)">Tout décocher</button>`;
+                    html += `<button class="btn" style="background:#2e7d32;" onclick="closeSelectedNotificationsManually()">Clôturer la sélection (log)</button>`;
+                    html += `</div>`;
+                }
+                html += `</div>`;
+
+                if (notifications.length > 0) {
+                    html += '<div class="event-list">';
+                    notifications.forEach(n => {
+                        html += `<div class="event-item" style="border-left-color:#667eea;">
+                            <label style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                                <input type="checkbox" class="alert-notification-checkbox" value="${escapeScanHtml(n.id)}" />
+                                <span>Sélectionner pour clôture groupée</span>
+                            </label>
+                            <div class="date">${new Date(n.createdAt).toLocaleString('fr-FR')} - ${escapeScanHtml(n.type || 'INFO')}</div>
+                            <div><strong>${escapeScanHtml(n.title || 'Notification')}</strong></div>
+                            <div class="content">${escapeScanHtml(n.message || '')}</div>
+                            <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn" onclick="markNotificationAsRead('${n.id}')">Marquer lue</button>
+                                <button class="btn" style="background:#2e7d32;" onclick="closeNotificationManually('${n.id}')">Clôturer manuellement (log)</button>
+                                <button class="btn" style="background:#8d6e63;" onclick="dismissNotificationFromAlerts('${n.id}')">Ignorer (log)</button>
+                            </div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+
+                document.getElementById('alerts-result').innerHTML = html;
             } catch (err) {
                 showResult('alerts-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        const ANOMALY_FLAG_LABELS = {
+            DUPLICATE_EXTERNAL_ID: 'Email déjà reçu (même identifiant)',
+            DUPLICATE_CONTENT: 'Contenu identique à un email existant',
+            MISSING_SENDER: 'Expéditeur manquant',
+            MISSING_SUBJECT: 'Sujet manquant',
+            MISSING_BODY: 'Contenu du message manquant'
+        };
+
+        function getReadableAnomalyFlag(flag) {
+            const key = (flag || '').toString().trim().toUpperCase();
+            return ANOMALY_FLAG_LABELS[key] || key || 'Anomalie non précisée';
+        }
+
+        function renderReadableAnomalyFlags(flags) {
+            if (!Array.isArray(flags) || flags.length === 0) {
+                return '<span class="meta-chip">Aucune anomalie</span>';
+            }
+
+            return flags
+                .filter(Boolean)
+                .map(f => {
+                    const raw = (f || '').toString().trim().toUpperCase();
+                    const label = getReadableAnomalyFlag(raw);
+                    return `<span class="meta-chip" title="Code: ${escapeScanHtml(raw)}">${escapeScanHtml(label)}</span>`;
+                })
+                .join(' ');
+        }
+
+        async function markNotificationAsRead(notificationId) {
+            if (!token) return;
+
+            try {
+                const res = await apiFetchWithFallback(`/api/notifications/${notificationId}/mark-read`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await readResponseDataSafe(res);
+                if (!res.ok) {
+                    return showResult('alerts-result', `❌ Impossible de marquer comme lue: ${data?.message || 'erreur'}`, false);
+                }
+
+                showResult('alerts-result', '✅ Notification marquée comme lue (action loguée).');
+                await loadAlerts();
+                await refreshAnomalyBadge();
+            } catch (err) {
+                showResult('alerts-result', `❌ Erreur marquage notification: ${err.message}`, false);
+            }
+        }
+
+        function getSelectedAlertNotificationIds() {
+            return Array.from(document.querySelectorAll('.alert-notification-checkbox:checked'))
+                .map(input => input.value)
+                .filter(Boolean);
+        }
+
+        function toggleAllAlertNotifications(checked) {
+            document.querySelectorAll('.alert-notification-checkbox').forEach(input => {
+                input.checked = checked === true;
+            });
+        }
+
+        async function closeSelectedNotificationsManually() {
+            if (!token) return;
+
+            const ids = getSelectedAlertNotificationIds();
+            if (ids.length === 0) {
+                return showResult('alerts-result', '⚠️ Cochez au moins une notification à clôturer.', false);
+            }
+
+            const resolution = prompt(
+                `Action de clôture à journaliser pour ${ids.length} notification(s):`,
+                'Clôture groupée validée par l\'utilisateur'
+            );
+
+            if (!resolution) return;
+
+            let successCount = 0;
+            let failureCount = 0;
+
+            for (const notificationId of ids) {
+                try {
+                    const res = await apiFetchWithFallback(`/api/notifications/${notificationId}/resolve`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ resolution, action: 'MANUAL_CLOSE_BULK' })
+                    });
+
+                    if (res.ok) {
+                        successCount++;
+                    } else {
+                        failureCount++;
+                    }
+                } catch {
+                    failureCount++;
+                }
+            }
+
+            if (failureCount === 0) {
+                showResult('alerts-result', `✅ ${successCount} notification(s) clôturée(s) et loguée(s).`);
+            } else {
+                showResult('alerts-result', `⚠️ Clôture groupée partielle: ${successCount} réussie(s), ${failureCount} en échec.`, false);
+            }
+
+            await loadAlerts();
+            await refreshAnomalyBadge();
+
+            const anomalyCenterEl = document.getElementById('anomaly-center-result');
+            if (anomalyCenterEl && anomalyCenterEl.innerHTML.trim().length > 0) {
+                await loadAnomalyCenter();
+            }
+        }
+
+        async function closeNotificationManually(notificationId) {
+            if (!token) return;
+
+            const resolution = prompt('Action de clôture à journaliser:', 'Clôture manuelle validée par l\'utilisateur');
+            if (!resolution) return;
+
+            try {
+                const res = await apiFetchWithFallback(`/api/notifications/${notificationId}/resolve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ resolution, action: 'MANUAL_CLOSE' })
+                });
+
+                const data = await readResponseDataSafe(res);
+                if (!res.ok) {
+                    return showResult('alerts-result', `❌ Clôture manuelle impossible: ${data?.message || 'erreur'}`, false);
+                }
+
+                showResult('alerts-result', '✅ Notification clôturée manuellement et loguée dans l\'audit.');
+                await loadAlerts();
+                await refreshAnomalyBadge();
+
+                const anomalyCenterEl = document.getElementById('anomaly-center-result');
+                if (anomalyCenterEl && anomalyCenterEl.innerHTML.trim().length > 0) {
+                    await loadAnomalyCenter();
+                }
+            } catch (err) {
+                showResult('alerts-result', `❌ Erreur clôture manuelle: ${err.message}`, false);
+            }
+        }
+
+        async function dismissNotificationFromAlerts(notificationId) {
+            if (!token) return;
+
+            const reason = prompt('Raison de fermeture (optionnel):', 'Notification traitée manuellement');
+            if (reason === null) return;
+
+            try {
+                const res = await apiFetchWithFallback(`/api/notifications/${notificationId}/dismiss`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ reason })
+                });
+
+                const data = await readResponseDataSafe(res);
+                if (!res.ok) {
+                    return showResult('alerts-result', `❌ Fermeture impossible: ${data?.message || 'erreur'}`, false);
+                }
+
+                showResult('alerts-result', '✅ Notification fermée et loguée.');
+                await loadAlerts();
+                await refreshAnomalyBadge();
+            } catch (err) {
+                showResult('alerts-result', `❌ Erreur fermeture notification: ${err.message}`, false);
             }
         }
 
@@ -2405,6 +2903,7 @@
 
         async function loadAudit() {
             if (!token) return showResult('audit-result', '❌ Connectez-vous d\'abord', false);
+            setLoadingState('audit-result', '⏳ Chargement de l\'historique d\'audit...');
 
             try {
                 const res = await apiFetchWithFallback('/api/audit/user-actions?limit=100', {
@@ -2515,6 +3014,292 @@
             if (token) refreshAnomalyBadge();
         }, 8000);
         setInterval(keepPinnedSessionAlive, 180000);
+
+        async function testCriticalAlert() {
+            if (criticalAlerts) {
+                await criticalAlerts.sendUrgentAlert('Test d\'alerte critique - Nouveau dossier urgent reçu!');
+                criticalAlerts.showCriticalAlert({
+                    message: 'Test réussi! Système d\'alertes opérationnel.',
+                    timestamp: new Date().toISOString()
+                });
+            } else {
+                alert('Connectez-vous d\'abord pour tester les alertes');
+            }
+        }
+
+        // Team management functions
+        async function loadTeamData() {
+            if (!token) {
+                document.getElementById('teamMembersList').innerHTML = 'Connectez-vous d\'abord';
+                document.getElementById('teamPendingList').innerHTML = 'Connectez-vous d\'abord';
+                return;
+            }
+
+            setLoadingState('teamMembersList', '⏳ Chargement des membres...');
+            setLoadingState('teamPendingList', '⏳ Chargement des invitations...');
+            
+            try {
+                const response = await apiFetchWithFallback('/api/team/members', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await readResponseDataSafe(response);
+                
+                if (response.ok) {
+                    displayTeamMembers(data.members || []);
+                    displayPendingInvitations(data.pendingInvitations || []);
+                } else {
+                    const errorMessage = typeof data === 'string' ? data : (data?.message || 'Erreur de chargement');
+                    document.getElementById('teamMembersList').innerHTML = `Erreur: ${errorMessage}`;
+                    document.getElementById('teamPendingList').innerHTML = `Erreur: ${errorMessage}`;
+                }
+            } catch (error) {
+                document.getElementById('teamMembersList').innerHTML = 'Erreur de connexion';
+                document.getElementById('teamPendingList').innerHTML = 'Erreur de connexion';
+            }
+        }
+        
+        function displayTeamMembers(members) {
+            const container = document.getElementById('teamMembersList');
+            if (!members || members.length === 0) {
+                container.innerHTML = 'Aucun membre dans l\'équipe. Invitez des collaborateurs ci-dessus.';
+                return;
+            }
+            
+            let html = '<div class="event-list">';
+            members.forEach(member => {
+                const memberId = pickValue(member, 'id', 'Id');
+                const user = pickValue(member, 'user', 'User') || {};
+                const role = pickValue(member, 'role', 'Role') || 'N/A';
+                const joinedAt = pickValue(member, 'joinedAt', 'JoinedAt');
+                const roleLabel = getRoleLabel(role);
+
+                const roleOptions = ['OWNER', 'PARTNER', 'LAWYER', 'PARALEGAL', 'SECRETARY', 'INTERN']
+                    .map(r => `<option value="${r}" ${r === role ? 'selected' : ''}>${getRoleLabel(r)}</option>`)
+                    .join('');
+
+                html += `<div class="event-item">
+                    <strong>${pickValue(user, 'name', 'Name') || 'N/A'}</strong>
+                    <div class="date">${pickValue(user, 'email', 'Email') || 'N/A'} - ${roleLabel}</div>
+                    <div class="content">Rejoint le ${joinedAt ? new Date(joinedAt).toLocaleDateString('fr-FR') : 'N/A'}</div>
+                    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                        <select id="team-role-${memberId}" style="padding:6px; border-radius:4px; border:1px solid #ddd;">
+                            ${roleOptions}
+                        </select>
+                        <button class="btn" onclick="updateTeamMemberRole('${memberId}')">Changer rôle</button>
+                        <button class="btn" style="background:#c62828;" onclick="removeTeamMember('${memberId}')">Retirer membre</button>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        function displayPendingInvitations(invitations) {
+            const container = document.getElementById('teamPendingList');
+            if (!invitations || invitations.length === 0) {
+                container.innerHTML = 'Aucune invitation en attente.';
+                return;
+            }
+            
+            let html = '<div class="event-list">';
+            invitations.forEach(inv => {
+                const role = pickValue(inv, 'role', 'Role') || 'N/A';
+                const email = pickValue(inv, 'email', 'Email') || 'N/A';
+                const createdAt = pickValue(inv, 'createdAt', 'CreatedAt');
+                const expiresAt = pickValue(inv, 'expiresAt', 'ExpiresAt');
+                const roleLabel = getRoleLabel(role);
+                const encodedEmail = encodeURIComponent(email);
+                const encodedRole = encodeURIComponent(role);
+                html += `<div class="event-item">
+                    <strong>${email}</strong>
+                    <div class="date">${roleLabel}</div>
+                    <div class="content">Envoyée le ${createdAt ? new Date(createdAt).toLocaleDateString('fr-FR') : 'N/A'}</div>
+                    <div class="content">Expire le ${expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR') : 'N/A'}</div>
+                    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn" onclick="resendPendingInvitation('${encodedEmail}','${encodedRole}')">Renvoyer invitation</button>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        function getRoleLabel(role) {
+            const labels = {
+                'OWNER': 'Propriétaire',
+                'PARTNER': 'Associé',
+                'LAWYER': 'Avocat',
+                'PARALEGAL': 'Juriste',
+                'SECRETARY': 'Secrétaire',
+                'INTERN': 'Stagiaire'
+            };
+            return labels[role] || role;
+        }
+
+        async function updateTeamMemberRole(memberId) {
+            if (!token) return showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
+
+            const select = document.getElementById(`team-role-${memberId}`);
+            const role = select?.value;
+            if (!role) {
+                return showResult('teamInviteResult', 'Rôle invalide', false);
+            }
+
+            try {
+                const response = await apiFetchWithFallback(`/api/team/members/${memberId}/role`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ role })
+                });
+
+                const data = await readResponseDataSafe(response);
+                if (!response.ok) {
+                    const msg = typeof data === 'string' ? data : (data?.message || 'Mise à jour impossible');
+                    return showResult('teamInviteResult', `❌ ${msg}`, false);
+                }
+
+                showResult('teamInviteResult', `✅ Rôle mis à jour (${getRoleLabel(role)}).`);
+                await loadTeamData();
+            } catch (error) {
+                showResult('teamInviteResult', '❌ Erreur de connexion', false);
+            }
+        }
+
+        async function removeTeamMember(memberId) {
+            if (!token) return showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
+
+            const confirmed = confirm('Retirer ce membre de l\'équipe ?');
+            if (!confirmed) return;
+
+            try {
+                const response = await apiFetchWithFallback(`/api/team/members/${memberId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await readResponseDataSafe(response);
+                if (!response.ok) {
+                    const msg = typeof data === 'string' ? data : (data?.message || 'Suppression impossible');
+                    return showResult('teamInviteResult', `❌ ${msg}`, false);
+                }
+
+                showResult('teamInviteResult', '✅ Membre retiré de l\'équipe.');
+                await loadTeamData();
+            } catch (error) {
+                showResult('teamInviteResult', '❌ Erreur de connexion', false);
+            }
+        }
+
+        async function copyTeamInviteUrl(encodedUrl) {
+            const inviteUrl = decodeURIComponent(encodedUrl || '');
+            if (!inviteUrl) return;
+
+            try {
+                await navigator.clipboard.writeText(inviteUrl);
+                showResult('teamInviteResult', `✅ Lien d'invitation copié.<br><small>${inviteUrl}</small>`);
+            } catch {
+                showResult('teamInviteResult', `✅ Invitation créée. Copiez ce lien:<br><small>${inviteUrl}</small>`);
+            }
+        }
+
+        async function resendPendingInvitation(emailEnc, roleEnc) {
+            if (!token) return showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
+
+            const email = decodeURIComponent(emailEnc || '');
+            const role = decodeURIComponent(roleEnc || '');
+
+            if (!email || !role) {
+                return showResult('teamInviteResult', 'Invitation invalide', false);
+            }
+
+            try {
+                const response = await apiFetchWithFallback('/api/team/invite', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ email, role })
+                });
+
+                const data = await readResponseDataSafe(response);
+                if (!response.ok) {
+                    const msg = typeof data === 'string' ? data : (data?.message || 'Impossible de renvoyer l\'invitation');
+                    return showResult('teamInviteResult', `❌ ${msg}`, false);
+                }
+
+                const inviteUrl = (data?.inviteUrl || '').toString();
+                const encodedInviteUrl = encodeURIComponent(inviteUrl);
+                let message = `✅ Invitation renvoyée à ${email}`;
+
+                if (inviteUrl) {
+                    message += `<br><small>Lien: ${inviteUrl}</small>`;
+                    message += `<br><button class="btn" onclick="copyTeamInviteUrl('${encodedInviteUrl}')">Copier le lien d'invitation</button>`;
+                }
+
+                showResult('teamInviteResult', message);
+                await loadTeamData();
+            } catch {
+                showResult('teamInviteResult', '❌ Erreur de connexion', false);
+            }
+        }
+        
+        // Team invite form handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const teamForm = document.getElementById('teamInviteForm');
+            if (teamForm) {
+                teamForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    if (!token) {
+                        showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
+                        return;
+                    }
+                    
+                    const email = document.getElementById('teamInviteEmail').value;
+                    const role = document.getElementById('teamInviteRole').value;
+                    
+                    try {
+                        const response = await fetch(`${API_URL}/api/team/invite`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ email, role })
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            const inviteUrl = (data?.inviteUrl || '').toString();
+                            const encodedInviteUrl = encodeURIComponent(inviteUrl);
+
+                            let message = `✅ Invitation envoyée à ${email}`;
+                            if (inviteUrl) {
+                                message += `<br><small>Lien: ${inviteUrl}</small>`;
+                                message += `<br><button class="btn" onclick="copyTeamInviteUrl('${encodedInviteUrl}')">Copier le lien d'invitation</button>`;
+                            }
+
+                            showResult('teamInviteResult', message);
+                            document.getElementById('teamInviteForm').reset();
+                            loadTeamData();
+                        } else {
+                            const errorData = await response.json().catch(() => ({}));
+                            showResult('teamInviteResult', `Erreur: ${errorData.message || 'Impossible d\'envoyer l\'invitation'}`, false);
+                        }
+                    } catch (error) {
+                        showResult('teamInviteResult', 'Erreur de connexion', false);
+                    }
+                });
+            }
+        });
+        
+        // showTab gère directement le chargement de l'onglet équipe.
     </script>
 </body>
 </html>

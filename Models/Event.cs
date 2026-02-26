@@ -15,4 +15,6 @@ public class Event
     public string? EmbeddingVector { get; set; }
     public string? ValidationFlags { get; set; }
     public bool RequiresAttention { get; set; }
+    
+    public virtual Source? Source { get; set; }
 }

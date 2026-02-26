@@ -2,7 +2,11 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MemoLib.Api.Data;
+using MemoLib.Api.Models;
 using MimeKit;
+using System.Security.Cryptography;
 
 namespace MemoLib.Api.Controllers;
 
@@ -13,11 +17,13 @@ public class PublicContactController : ControllerBase
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<PublicContactController> _logger;
+    private readonly MemoLibDbContext _context;
 
-    public PublicContactController(IConfiguration configuration, ILogger<PublicContactController> logger)
+    public PublicContactController(IConfiguration configuration, ILogger<PublicContactController> logger, MemoLibDbContext context)
     {
         _configuration = configuration;
         _logger = logger;
+        _context = context;
     }
 
     [HttpPost]
@@ -99,6 +105,15 @@ public class PublicContactController : ControllerBase
                 await smtp.AuthenticateAsync(smtpUsername, smtpPassword);
 
             await smtp.SendAsync(message);
+
+            await TrySendOnboardingLinkAsync(
+                request,
+                smtp,
+                fromEmail,
+                request.NeedType,
+                request.Timeline,
+                request.ContactPref);
+
             await smtp.DisconnectAsync(true);
 
             _logger.LogInformation("Contact public envoyé: from={From} to={To}", email, toEmail);
@@ -110,6 +125,84 @@ public class PublicContactController : ControllerBase
             _logger.LogError(ex, "Erreur envoi contact public");
             return StatusCode(500, new { message = "Échec de l'envoi serveur. Réessayez ou utilisez l'envoi manuel." });
         }
+    }
+
+    private async Task TrySendOnboardingLinkAsync(
+        PublicContactRequest request,
+        SmtpClient smtp,
+        string fromEmail,
+        string? needType,
+        string? timeline,
+        string? contactPref)
+    {
+        var templateIdRaw = _configuration["Onboarding:AutoTemplateId"];
+        if (!Guid.TryParse(templateIdRaw, out var templateId))
+            return;
+
+        var template = await _context.ClientOnboardingTemplates
+            .FirstOrDefaultAsync(t => t.Id == templateId && t.IsActive);
+
+        if (template == null)
+            return;
+
+        var token = GenerateToken();
+        var now = DateTime.UtcNow;
+        var onboarding = new ClientOnboardingRequest
+        {
+            Id = Guid.NewGuid(),
+            TemplateId = templateId,
+            OwnerUserId = template.UserId,
+            ClientName = request.Name.Trim(),
+            ClientEmail = request.Email.Trim(),
+            AccessToken = token,
+            Status = "PENDING",
+            CreatedAt = now,
+            ExpiresAt = now.AddDays(7),
+            AnswersJson = System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, string>
+            {
+                ["context"] = request.Details,
+                ["needType"] = needType ?? string.Empty,
+                ["timeline"] = timeline ?? string.Empty,
+                ["contactPreference"] = contactPref ?? string.Empty
+            })
+        };
+
+        _context.ClientOnboardingRequests.Add(onboarding);
+        await _context.SaveChangesAsync();
+
+        var frontendBaseUrl = _configuration["Onboarding:FrontendBaseUrl"]
+            ?? _configuration["PublicApp:BaseUrl"]
+            ?? "http://localhost:5078";
+        var link = $"{frontendBaseUrl.TrimEnd('/')}/onboarding.html?token={Uri.EscapeDataString(token)}";
+
+        var onboardingMail = new MimeMessage();
+        onboardingMail.From.Add(MailboxAddress.Parse(fromEmail));
+        onboardingMail.To.Add(MailboxAddress.Parse(request.Email.Trim()));
+        onboardingMail.Subject = "Votre formulaire d'inscription MemoLib";
+        onboardingMail.Body = new TextPart("plain")
+        {
+            Text = string.Join('\n',
+            [
+                $"Bonjour {request.Name.Trim()},",
+                "",
+                "Merci pour votre demande.",
+                "Pour démarrer, merci de compléter votre formulaire d'inscription intelligent :",
+                link,
+                "",
+                "Vous pourrez indiquer les pièces à fournir et les participants du dossier.",
+                "",
+                "MemoLib"
+            ])
+        };
+
+        await smtp.SendAsync(onboardingMail);
+    }
+
+    private static string GenerateToken()
+    {
+        Span<byte> bytes = stackalloc byte[24];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToHexString(bytes).ToLowerInvariant();
     }
 }
 

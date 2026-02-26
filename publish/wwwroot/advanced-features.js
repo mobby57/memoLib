@@ -68,7 +68,17 @@ class RealtimeDashboard {
             const response = await fetch(`${this.apiBase}/api/dashboard/realtime-stats`, {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
-            const data = await response.json();
+
+            if (!response.ok) {
+                return;
+            }
+
+            const text = await response.text();
+            if (!text || !text.trim()) {
+                return;
+            }
+
+            const data = JSON.parse(text);
             
             const counter = document.getElementById('emails-today-counter');
             if (counter) counter.textContent = data.emailsToday;
@@ -86,15 +96,36 @@ class RealtimeDashboard {
     }
 
     async loadDashboardMetrics() {
+        const container = document.getElementById('dashboard-metrics');
         try {
             const response = await fetch(`${this.apiBase}/api/dashboard/metrics`, {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             });
-            const metrics = await response.json();
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                if (container) {
+                    container.innerHTML = `<div class="result error">❌ Impossible de charger les métriques (${response.status}). ${errorText || ''}</div>`;
+                }
+                return;
+            }
+
+            const text = await response.text();
+            if (!text || !text.trim()) {
+                if (container) {
+                    container.innerHTML = `<div class="result">ℹ️ Aucune métrique disponible pour le moment.</div>`;
+                }
+                return;
+            }
+
+            const metrics = JSON.parse(text);
             
             this.renderMetrics(metrics);
         } catch (err) {
             console.error('Erreur chargement métriques:', err);
+            if (container) {
+                container.innerHTML = `<div class="result error">❌ Erreur dashboard: ${err.message}</div>`;
+            }
         }
     }
 
@@ -234,14 +265,14 @@ async function generateTemplateResponse(eventId) {
     const context = document.getElementById('template-context').value;
     const subject = document.getElementById('template-subject').value;
     
-    const tm = new TemplateManager('http://localhost:5078', localStorage.getItem('token'));
+    const tm = new TemplateManager(resolveApiBase(), resolveAuthToken());
     
     try {
         const response = await tm.generateResponse(context, subject, caseType);
         
         document.getElementById('template-result').innerHTML = `
             <div class="result success">
-                <h3>Réponse générée :</h3>
+                <h3>Réponse proposée :</h3>
                 <div class="generated-response">
                     <pre>${response}</pre>
                 </div>
@@ -273,19 +304,43 @@ function showAdvancedDashboard() {
     modal.innerHTML = `
         <div class="modal-content dashboard-modal">
             <div class="modal-header">
-                <h2>📊 Dashboard Avancé</h2>
+                <h2>📊 Vue d'activité</h2>
                 <button class="close-btn" onclick="this.closest('.modal-overlay').remove()">×</button>
             </div>
             <div class="modal-body">
-                <div id="dashboard-metrics">Chargement des métriques...</div>
+                <div id="dashboard-metrics">Chargement des indicateurs...</div>
             </div>
         </div>
     `;
     
     document.body.appendChild(modal);
-    
-    const dashboard = new RealtimeDashboard('http://localhost:5078', localStorage.getItem('token'));
+
+    const apiBase = resolveApiBase();
+    const authToken = resolveAuthToken();
+    const metricsContainer = document.getElementById('dashboard-metrics');
+
+    if (!authToken) {
+        if (metricsContainer) {
+            metricsContainer.innerHTML = `<div class="result error">❌ Session non connectée. Connectez-vous puis réessayez.</div>`;
+        }
+        return;
+    }
+
+    const dashboard = new RealtimeDashboard(apiBase, authToken);
     dashboard.loadDashboardMetrics();
+}
+
+function resolveApiBase() {
+    if (typeof API_URL === 'string' && API_URL.startsWith('http')) return API_URL;
+    if (window.location && window.location.origin && window.location.origin.startsWith('http')) return window.location.origin;
+    return 'http://localhost:8091';
+}
+
+function resolveAuthToken() {
+    return localStorage.getItem('authToken')
+        || localStorage.getItem('memolibAuthToken')
+        || localStorage.getItem('token')
+        || null;
 }
 
 // Demander permission notifications

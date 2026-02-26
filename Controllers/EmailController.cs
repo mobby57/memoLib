@@ -24,6 +24,19 @@ public class EmailController : ControllerBase
     public async Task<IActionResult> SendEmail([FromBody] SendEmailRequest req)
     {
         if (!this.TryGetCurrentUserId(out var userId)) return Unauthorized();
+        
+        // Validation des entrées
+        if (string.IsNullOrWhiteSpace(req.To) || string.IsNullOrWhiteSpace(req.Subject) || string.IsNullOrWhiteSpace(req.Body))
+            return BadRequest(new { message = "To, Subject et Body sont obligatoires" });
+        
+        // Validation email destinataire
+        if (!System.Text.RegularExpressions.Regex.IsMatch(req.To, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            return BadRequest(new { message = "Adresse email destinataire invalide" });
+        
+        // Protection injection SMTP
+        if (req.To.Contains('\n') || req.To.Contains('\r') || req.Subject.Contains('\n') || req.Subject.Contains('\r'))
+            return BadRequest(new { message = "Caractères interdits détectés" });
+        
         var smtpHost = _config["EmailMonitor:SmtpHost"] ?? "smtp.gmail.com";
         var smtpPort = int.Parse(_config["EmailMonitor:SmtpPort"] ?? "587");
         var username = _config["EmailMonitor:Username"];
@@ -32,23 +45,34 @@ public class EmailController : ControllerBase
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             return BadRequest(new { message = "SMTP not configured" });
 
-        using var client = new SmtpClient(smtpHost, smtpPort)
+        try
         {
-            EnableSsl = true,
-            Credentials = new NetworkCredential(username, password)
-        };
+            using var client = new SmtpClient(smtpHost, smtpPort)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(username, password)
+            };
 
-        var mail = new MailMessage
+            var mail = new MailMessage
+            {
+                From = new MailAddress(username),
+                Subject = req.Subject,
+                Body = req.Body,
+                IsBodyHtml = false
+            };
+            mail.To.Add(req.To);
+
+            await client.SendMailAsync(mail);
+            return Ok(new { message = "Email sent", to = req.To });
+        }
+        catch (FormatException)
         {
-            From = new MailAddress(username),
-            Subject = req.Subject,
-            Body = req.Body,
-            IsBodyHtml = false
-        };
-        mail.To.Add(req.To);
-
-        await client.SendMailAsync(mail);
-        return Ok(new { message = "Email sent", to = req.To });
+            return BadRequest(new { message = "Format d'email invalide" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Erreur envoi email", error = ex.Message });
+        }
     }
 
     [HttpPost("templates")]

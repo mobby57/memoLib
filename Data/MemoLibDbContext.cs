@@ -24,6 +24,12 @@ public class MemoLibDbContext : DbContext
     public DbSet<QuestionnaireResponse> QuestionnaireResponses => Set<QuestionnaireResponse>();
     public DbSet<Answer> Answers => Set<Answer>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+    public DbSet<UserEmailConfig> UserEmailConfigs => Set<UserEmailConfig>();
+    public DbSet<UserInvitation> UserInvitations => Set<UserInvitation>();
+    public DbSet<UserTeamMembership> UserTeamMemberships => Set<UserTeamMembership>();
+    public DbSet<SatisfactionSurvey> SatisfactionSurveys => Set<SatisfactionSurvey>();
+    public DbSet<ClientOnboardingTemplate> ClientOnboardingTemplates => Set<ClientOnboardingTemplate>();
+    public DbSet<ClientOnboardingRequest> ClientOnboardingRequests => Set<ClientOnboardingRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,5 +85,15 @@ public class MemoLibDbContext : DbContext
 
         modelBuilder.Entity<Answer>()
             .HasIndex(a => a.ResponseId);
+
+        modelBuilder.Entity<ClientOnboardingTemplate>()
+            .HasIndex(t => new { t.UserId, t.IsActive });
+
+        modelBuilder.Entity<ClientOnboardingRequest>()
+            .HasIndex(r => r.AccessToken)
+            .IsUnique();
+
+        modelBuilder.Entity<ClientOnboardingRequest>()
+            .HasIndex(r => new { r.OwnerUserId, r.Status, r.CreatedAt });
     }
 }

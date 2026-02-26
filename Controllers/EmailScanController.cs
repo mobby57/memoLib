@@ -11,6 +11,8 @@ using MimeKit;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace MemoLib.Api.Controllers;
 
@@ -33,7 +35,7 @@ public class EmailScanController : ControllerBase
     }
 
     [HttpPost("manual")]
-    public async Task<IActionResult> ManualScan([FromQuery] bool unreadOnly = false, [FromQuery] int daysBack = 0)
+    public async Task<IActionResult> ManualScan([FromQuery] bool unreadOnly = false, [FromQuery] int daysBack = 0, [FromQuery] int previewLimit = 200)
     {
         if (!this.TryGetCurrentUserId(out var userId))
             return Unauthorized();
@@ -82,7 +84,7 @@ public class EmailScanController : ControllerBase
             var uids = await inbox.SearchAsync(query);
             _logger.LogInformation($"Scan manuel: {uids.Count} emails trouvés");
 
-            var previewLimit = 50;
+            var previewLimitUsed = Math.Clamp(previewLimit <= 0 ? 200 : previewLimit, 1, 1000);
             var lineDetails = new List<object>();
             var withPhone = 0;
             var withAddress = 0;
@@ -109,14 +111,14 @@ public class EmailScanController : ControllerBase
 
             int ingested = 0, duplicates = 0;
 
-            foreach (var uid in uids)
+            foreach (var uid in uids.Reverse())
             {
                 var message = await inbox.GetMessageAsync(uid);
                 var from = message.From.Mailboxes.FirstOrDefault()?.Address ?? "unknown@unknown.com";
                 var subject = message.Subject ?? "";
                 var bodyText = message.TextBody ?? "";
                 var bodyHtml = message.HtmlBody ?? "";
-                var body = !string.IsNullOrWhiteSpace(bodyText) ? bodyText : bodyHtml;
+                var body = GetReadableBody(bodyText, bodyHtml);
                 var externalId = message.MessageId ?? $"EMAIL-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
                 var toRecipients = string.Join(", ", message.To.Mailboxes.Select(m => m.Address));
                 var ccRecipients = string.Join(", ", message.Cc.Mailboxes.Select(m => m.Address));
@@ -137,12 +139,13 @@ public class EmailScanController : ControllerBase
 
                 var checksum = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(body)));
                 var duplicate = await _context.Events.FirstOrDefaultAsync(e => e.ExternalId == externalId || e.Checksum == checksum);
+                var bodyPreview = body.Length > 2000 ? body[..2000] + "..." : body;
 
                 if (duplicate != null)
                 {
                     duplicates++;
 
-                    if (lineDetails.Count < previewLimit)
+                    if (lineDetails.Count < previewLimitUsed)
                     {
                         lineDetails.Add(new
                         {
@@ -159,6 +162,7 @@ public class EmailScanController : ControllerBase
                             hasAttachments = attachmentNames.Count > 0,
                             attachmentNames,
                             bodyLength = body.Length,
+                            bodyPreview,
                             extractedPhone,
                             extractedAddress,
                             normalizedSenderName,
@@ -256,7 +260,7 @@ public class EmailScanController : ControllerBase
 
                 ingested++;
 
-                if (lineDetails.Count < previewLimit)
+                if (lineDetails.Count < previewLimitUsed)
                 {
                     lineDetails.Add(new
                     {
@@ -273,6 +277,7 @@ public class EmailScanController : ControllerBase
                         hasAttachments = attachmentNames.Count > 0,
                         attachmentNames,
                         bodyLength = body.Length,
+                        bodyPreview,
                         extractedPhone,
                         extractedAddress,
                         normalizedSenderName,
@@ -289,9 +294,11 @@ public class EmailScanController : ControllerBase
                 message = "Scan terminé", 
                 unreadOnly,
                 daysBack,
+                previewLimitUsed,
                 totalEmails = uids.Count,
                 ingested, 
                 duplicates,
+                hasMorePreview = uids.Count > lineDetails.Count,
                 fieldsCaptured = new[]
                 {
                     "from",
@@ -371,5 +378,33 @@ public class EmailScanController : ControllerBase
 
             return StatusCode(500, new { message = "Erreur technique pendant le scan manuel.", details = ex.Message });
         }
+    }
+
+    private static string GetReadableBody(string bodyText, string bodyHtml)
+    {
+        if (!string.IsNullOrWhiteSpace(bodyText))
+            return NormalizeWhitespace(bodyText);
+
+        if (string.IsNullOrWhiteSpace(bodyHtml))
+            return string.Empty;
+
+        var noScript = Regex.Replace(bodyHtml, "<script[\\s\\S]*?</script>", " ", RegexOptions.IgnoreCase);
+        var noStyle = Regex.Replace(noScript, "<style[\\s\\S]*?</style>", " ", RegexOptions.IgnoreCase);
+        var withLineBreaks = Regex.Replace(noStyle, "<(br|/p|/div|/li|/tr|/h[1-6])\\b[^>]*>", "\n", RegexOptions.IgnoreCase);
+        var textOnly = Regex.Replace(withLineBreaks, "<[^>]+>", " ");
+        var decoded = WebUtility.HtmlDecode(textOnly);
+        return NormalizeWhitespace(decoded);
+    }
+
+    private static string NormalizeWhitespace(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return string.Empty;
+
+        var normalized = input.Replace("\r\n", "\n").Replace('\r', '\n');
+        normalized = Regex.Replace(normalized, "[\\t\\f\\v]+", " ");
+        normalized = Regex.Replace(normalized, "\\n{3,}", "\n\n");
+        normalized = Regex.Replace(normalized, "[ ]{2,}", " ");
+        return normalized.Trim();
     }
 }

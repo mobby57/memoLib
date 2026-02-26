@@ -58,7 +58,12 @@ public class SecureSearchController : ControllerBase
         if (!string.IsNullOrWhiteSpace(request.Text))
         {
             var sanitizedText = request.Text.Trim();
-            query = query.Where(e => e.RawPayload.Contains(sanitizedText));
+            var normalizedText = sanitizedText.ToLower();
+            query = query.Where(e =>
+                (e.RawPayload != null && e.RawPayload.ToLower().Contains(normalizedText)) ||
+                (e.TextForEmbedding != null && e.TextForEmbedding.ToLower().Contains(normalizedText)) ||
+                (e.ExternalId != null && e.ExternalId.ToLower().Contains(normalizedText))
+            );
         }
 
         if (request.From.HasValue)
@@ -76,10 +81,13 @@ public class SecureSearchController : ControllerBase
             query = query.Where(e => e.SourceId == request.SourceId.Value);
         }
 
-        var results = await query
-            .OrderByDescending(e => e.OccurredAt)
-            .Take(50) // Limiter les résultats
-            .ToListAsync();
+        var orderedQuery = query.OrderByDescending(e => e.OccurredAt);
+
+        var results = request.ReturnAll
+            ? await orderedQuery.Take(2000).ToListAsync()
+            : await orderedQuery
+                .Take(Math.Clamp(request.Limit ?? 50, 1, 500))
+                .ToListAsync();
 
         _logger.LogInformation("Recherche effectuée par {UserId}: {Text}, {Count} résultats", 
             userId, request.Text ?? "vide", results.Count);

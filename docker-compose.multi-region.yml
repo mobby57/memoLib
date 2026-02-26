@@ -1,0 +1,93 @@
+# Multi-Region Docker Configuration
+
+version: '3.8'
+
+services:
+  # France Instance
+  memolib-france:
+    build: .
+    environment:
+      - ASPNETCORE_ENVIRONMENT=France
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ConnectionStrings__Default=Host=postgres-france;Database=memolib_fr;Username=app_fr;Password=${DB_PASSWORD_FR}
+      - DataSovereignty__Region=France
+      - DataSovereignty__CrossBorderTransfer=false
+    volumes:
+      - ./data/france:/app/data
+      - ./uploads/france:/app/uploads
+    networks:
+      - france-network
+    deploy:
+      placement:
+        constraints:
+          - node.labels.region == france
+
+  postgres-france:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=memolib_fr
+      - POSTGRES_USER=app_fr
+      - POSTGRES_PASSWORD=${DB_PASSWORD_FR}
+    volumes:
+      - postgres-france-data:/var/lib/postgresql/data
+    networks:
+      - france-network
+    deploy:
+      placement:
+        constraints:
+          - node.labels.region == france
+
+  # Germany Instance  
+  memolib-germany:
+    build: .
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Germany
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ConnectionStrings__Default=Host=postgres-germany;Database=memolib_de;Username=app_de;Password=${DB_PASSWORD_DE}
+      - DataSovereignty__Region=Germany
+      - DataSovereignty__CrossBorderTransfer=false
+    volumes:
+      - ./data/germany:/app/data
+      - ./uploads/germany:/app/uploads
+    networks:
+      - germany-network
+    deploy:
+      placement:
+        constraints:
+          - node.labels.region == germany
+
+  postgres-germany:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=memolib_de
+      - POSTGRES_USER=app_de
+      - POSTGRES_PASSWORD=${DB_PASSWORD_DE}
+    volumes:
+      - postgres-germany-data:/var/lib/postgresql/data
+    networks:
+      - germany-network
+    deploy:
+      placement:
+        constraints:
+          - node.labels.region == germany
+
+networks:
+  france-network:
+    driver: overlay
+    attachable: false
+    internal: true
+  germany-network:
+    driver: overlay
+    attachable: false
+    internal: true
+
+volumes:
+  postgres-france-data:
+  postgres-germany-data:
+
+# Secrets management
+secrets:
+  db_password_fr:
+    external: true
+  db_password_de:
+    external: true

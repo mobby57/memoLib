@@ -91,6 +91,7 @@ public class EmailMonitorService : BackgroundService
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<MemoLibDbContext>();
+        var organizer = scope.ServiceProvider.GetRequiredService<IntelligentWorkspaceOrganizerService>();
 
         var from = message.From.Mailboxes.FirstOrDefault()?.Address ?? "unknown@unknown.com";
         var subject = message.Subject ?? "";
@@ -159,17 +160,9 @@ public class EmailMonitorService : BackgroundService
 
         context.Events.Add(evt);
 
-        var caseTitle = !string.IsNullOrWhiteSpace(subject) ? subject : "Email sans sujet";
-        var newCase = new Case
-        {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            Title = caseTitle,
-            CreatedAt = DateTime.UtcNow
-        };
-        context.Cases.Add(newCase);
-
-        context.CaseEvents.Add(new CaseEvent { CaseId = newCase.Id, EventId = evt.Id });
+        // Organisation intelligente des workspaces
+        var workspaceId = await organizer.GetOrCreateWorkspaceAsync(user.Id, from, subject, body);
+        context.CaseEvents.Add(new CaseEvent { CaseId = workspaceId, EventId = evt.Id });
 
         // Extraire et sauvegarder les pièces jointes
         if (message.Attachments.Any())
@@ -207,7 +200,7 @@ public class EmailMonitorService : BackgroundService
 
         await context.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation($"✅ Email ingéré: {from} - {subject}");
+        _logger.LogInformation($"✅ Email organisé intelligemment: {from} → Workspace {workspaceId}");
     }
 
     private static string ComputeSHA256(string input)

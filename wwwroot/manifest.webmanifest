@@ -1,17 +1,36 @@
 {
-  "name": "MemoLib Demo",
+  "name": "MemoLib Pro - Cabinet d'Avocats",
   "short_name": "MemoLib",
-  "description": "Demo locale MemoLib",
-  "start_url": "/",
+  "description": "Gestion intelligente des emails juridiques - Sécurisé et conforme GDPR",
+  "start_url": "/demo.html",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
-  "theme_color": "#0b3d91",
+  "theme_color": "#667eea",
+  "categories": ["business", "productivity", "legal"],
   "icons": [
     {
       "src": "/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "📁 Nouveau dossier",
+      "url": "/demo.html#cases",
+      "icons": [{"src": "/icon.svg", "sizes": "any"}]
+    },
+    {
+      "name": "📧 Scanner emails",
+      "url": "/demo.html#ingest",
+      "icons": [{"src": "/icon.svg", "sizes": "any"}]
+    },
+    {
+      "name": "⚠️ Alertes urgentes",
+      "url": "/demo.html#alerts",
+      "icons": [{"src": "/icon.svg", "sizes": "any"}]
     }
   ]
 }

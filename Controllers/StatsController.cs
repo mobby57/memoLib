@@ -25,6 +25,14 @@ public class StatsController : ControllerBase
             .ToListAsync();
     }
 
+    private async Task<string?> GetUserEmailAsync(Guid userId)
+    {
+        return await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => u.Email)
+            .FirstOrDefaultAsync();
+    }
+
     [HttpGet("events-per-day")]
     public async Task<IActionResult> EventsPerDay()
     {
@@ -32,9 +40,17 @@ public class StatsController : ControllerBase
             return Unauthorized(new { message = "Utilisateur non authentifié" });
 
         var userSourceIds = await GetUserSourceIdsAsync(userId);
+        var userEmail = (await GetUserEmailAsync(userId))?.Trim().ToLower();
 
-        var result = await _context.Events
-            .Where(e => userSourceIds.Contains(e.SourceId))
+        var query = _context.Events
+            .Where(e => userSourceIds.Contains(e.SourceId));
+
+        if (!string.IsNullOrWhiteSpace(userEmail))
+        {
+            query = query.Where(e => e.RawPayload != null && e.RawPayload.ToLower().Contains(userEmail));
+        }
+
+        var result = await query
             .GroupBy(e => e.OccurredAt.Date)
             .Select(g => new
             {
@@ -54,9 +70,17 @@ public class StatsController : ControllerBase
             return Unauthorized(new { message = "Utilisateur non authentifié" });
 
         var userSourceIds = await GetUserSourceIdsAsync(userId);
+        var userEmail = (await GetUserEmailAsync(userId))?.Trim().ToLower();
 
-        var result = await _context.Events
-            .Where(e => userSourceIds.Contains(e.SourceId))
+        var query = _context.Events
+            .Where(e => userSourceIds.Contains(e.SourceId));
+
+        if (!string.IsNullOrWhiteSpace(userEmail))
+        {
+            query = query.Where(e => e.RawPayload != null && e.RawPayload.ToLower().Contains(userEmail));
+        }
+
+        var result = await query
             .GroupBy(e => e.EventType)
             .Select(g => new
             {
@@ -76,9 +100,17 @@ public class StatsController : ControllerBase
             return Unauthorized(new { message = "Utilisateur non authentifié" });
 
         var userSourceIds = await GetUserSourceIdsAsync(userId);
+        var userEmail = (await GetUserEmailAsync(userId))?.Trim().ToLower();
 
-        var avg = await _context.Events
-            .Where(e => userSourceIds.Contains(e.SourceId))
+        var query = _context.Events
+            .Where(e => userSourceIds.Contains(e.SourceId));
+
+        if (!string.IsNullOrWhiteSpace(userEmail))
+        {
+            query = query.Where(e => e.RawPayload != null && e.RawPayload.ToLower().Contains(userEmail));
+        }
+
+        var avg = await query
             .Where(e => e.Severity.HasValue)
             .Select(e => (double?)e.Severity!.Value)
             .AverageAsync() ?? 0d;
@@ -93,9 +125,17 @@ public class StatsController : ControllerBase
             return Unauthorized(new { message = "Utilisateur non authentifié" });
 
         var userSourceIds = await GetUserSourceIdsAsync(userId);
+        var userEmail = (await GetUserEmailAsync(userId))?.Trim().ToLower();
 
-        var result = await _context.Events
-            .Where(e => userSourceIds.Contains(e.SourceId))
+        var query = _context.Events
+            .Where(e => userSourceIds.Contains(e.SourceId));
+
+        if (!string.IsNullOrWhiteSpace(userEmail))
+        {
+            query = query.Where(e => e.RawPayload != null && e.RawPayload.ToLower().Contains(userEmail));
+        }
+
+        var result = await query
             .GroupBy(e => e.SourceId)
             .Select(g => new
             {

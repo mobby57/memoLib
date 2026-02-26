@@ -153,7 +153,18 @@
         <div id="search-tab" class="tab-content hidden">
             <div class="card">
                 <h2>Recherche d'emails</h2>
-                <p>Fonctionnalité disponible après connexion sécurisée.</p>
+                <p>Recherchez facilement un email avec un mot, un nom, un sujet ou une phrase.</p>
+                <div class="input-group">
+                    <label>Recherche textuelle</label>
+                    <input type="text" id="search-text" placeholder="Mots-clés...">
+                </div>
+                <div class="input-group">
+                    <label><input type="checkbox" id="search-show-full-content" checked> Afficher le contenu complet</label>
+                    <label><input type="checkbox" id="search-show-ids"> Afficher les IDs techniques</label>
+                </div>
+                <button class="btn" onclick="searchEvents()">Rechercher</button>
+                <button class="btn" onclick="loadAllReceivedEmails()" style="background:#1f8f3a;">Voir tous les emails reçus</button>
+                <div id="search-result"></div>
             </div>
         </div>
 
@@ -414,6 +425,119 @@
         function showResult(elementId, message, isSuccess = true) {
             const el = document.getElementById(elementId);
             el.innerHTML = `<div class="result ${isSuccess ? 'success' : 'error'}">${message}</div>`;
+        }
+
+        function escapeHtml(text) {
+            const value = text == null ? '' : String(text);
+            const div = document.createElement('div');
+            div.textContent = value;
+            return div.innerHTML;
+        }
+
+        function parseRawPayloadSafe(rawPayload) {
+            if (!rawPayload) return {};
+            try {
+                return typeof rawPayload === 'string' ? JSON.parse(rawPayload) : rawPayload;
+            } catch {
+                return {};
+            }
+        }
+
+        function extractFullBody(payload) {
+            return (payload?.body || payload?.Body || payload?.bodyText || payload?.bodyHtml || '').toString();
+        }
+
+        function renderSearchEventsList(events, titleLabel, options = {}) {
+            const includeFullBody = options.includeFullBody === true;
+            const showIds = document.getElementById('search-show-ids')?.checked === true;
+
+            let html = `<div class="result success">✅ ${events.length} email(s) ${titleLabel}</div>`;
+            if (includeFullBody) {
+                html += '<div class="result" style="margin-top:10px;">Affichage complet activé: chaque carte contient le contenu entier du mail.</div>';
+            }
+
+            html += '<div style="max-height: 520px; overflow-y: auto;">';
+            events.forEach((e, index) => {
+                const payload = parseRawPayloadSafe(e.rawPayload);
+                const from = escapeHtml(payload?.from || payload?.From || 'Expéditeur non identifié');
+                const subject = escapeHtml(payload?.subject || payload?.Subject || 'Sujet non renseigné');
+                const when = e?.occurredAt ? new Date(e.occurredAt).toLocaleString('fr-FR') : '-';
+                const fullBody = extractFullBody(payload);
+                const body = includeFullBody
+                    ? fullBody
+                    : (fullBody.length > 300 ? `${fullBody.substring(0, 300)}...` : fullBody);
+
+                html += `<div class="result" style="text-align:left; margin-top:10px;">`;
+                html += `<strong>#${index + 1}</strong> • ${escapeHtml(when)}<br>`;
+                html += `<strong>De:</strong> ${from}<br>`;
+                html += `<strong>Sujet:</strong> ${subject}<br>`;
+                if (showIds) {
+                    html += `<div style="font-size:12px; color:#666; margin-top:6px;">EventId: ${escapeHtml(e?.id || '')}${e?.externalId ? ` | ExternalId: ${escapeHtml(e.externalId)}` : ''}</div>`;
+                }
+                html += `<strong>Contenu:</strong>`;
+                html += `<div style="white-space:pre-wrap; background:#fff; border:1px solid #ddd; padding:8px; border-radius:4px; margin-top:6px;">${escapeHtml(body || '(vide)')}</div>`;
+                html += `</div>`;
+            });
+            html += '</div>';
+
+            const container = document.getElementById('search-result');
+            if (container) container.innerHTML = html;
+        }
+
+        async function searchEvents() {
+            if (!token) return showResult('search-result', '❌ Connectez-vous d\'abord', false);
+
+            const text = document.getElementById('search-text')?.value || '';
+            const includeFullBody = document.getElementById('search-show-full-content')?.checked !== false;
+
+            try {
+                const res = await secureFetch(`${API_URL}/api/search/events`, {
+                    method: 'POST',
+                    body: JSON.stringify({ text, limit: 500 }),
+                    timeoutMs: 60000
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    return showResult('search-result', `❌ Erreur: ${data?.message || res.status}`, false);
+                }
+
+                if (!Array.isArray(data)) {
+                    return showResult('search-result', '❌ Format de réponse invalide', false);
+                }
+
+                renderSearchEventsList(data, 'trouvé(s)', { includeFullBody });
+            } catch (err) {
+                showResult('search-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function loadAllReceivedEmails() {
+            if (!token) return showResult('search-result', '❌ Connectez-vous d\'abord', false);
+
+            const includeFullBody = document.getElementById('search-show-full-content')?.checked !== false;
+            showResult('search-result', '⏳ Chargement de tous les emails reçus...');
+
+            try {
+                const res = await secureFetch(`${API_URL}/api/search/events`, {
+                    method: 'POST',
+                    body: JSON.stringify({ text: '', returnAll: true }),
+                    timeoutMs: 120000
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    return showResult('search-result', `❌ Erreur: ${data?.message || res.status}`, false);
+                }
+
+                if (!Array.isArray(data)) {
+                    return showResult('search-result', '❌ Format de réponse invalide', false);
+                }
+
+                renderSearchEventsList(data, 'reçu(s) (chargement complet)', { includeFullBody });
+            } catch (err) {
+                showResult('search-result', `❌ Erreur: ${err.message}`, false);
+            }
         }
 
         function updateCurrentUserDisplay(email) {
