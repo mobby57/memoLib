@@ -1,0 +1,81 @@
+# Configuration GitGuardian pour IA Poste Manager
+# https://docs.gitguardian.com/ggshield-docs/reference/configuration
+
+version: 2
+
+# Chemins à exclure du scan
+paths-ignore:
+  - node_modules/**
+  - .next/**
+  - dist/**
+  - build/**
+  - coverage/**
+  - .git/**
+  - logs/**
+  - uploads/**
+  - prisma/migrations/**
+  - public/**
+  - CUsersmorosDesktopiaPostemanage/**
+  - code-connect/**
+  
+# Fichiers spécifiques à ignorer
+exclude:
+  - "*.md"
+  - "*.log"
+  - "*.min.js"
+  - "*.min.css"
+  - "package-lock.json"
+  - "pnpm-lock.yaml"
+  - "yarn.lock"
+
+# Patterns à ignorer (faux positifs connus)
+matches-ignore:
+  # Exemples de tokens dans la documentation
+  - name: Documentation examples
+    match: "re_123456789_abcdefghijklmnop"
+  
+  - name: Example API keys
+    match: "votre-cle-"
+  
+  - name: Example credentials
+    match: "xxxx xxxx xxxx xxxx"
+  
+  - name: GitHub webhook example
+    match: "117545e495b30c6228735edbe127455173f2082a5dc1cabd5408ccba0bf7f889"
+
+  - name: Test data
+    match: "Admin123!"
+  
+  - name: Test data
+    match: "Client123!"
+
+# Détecteurs personnalisés
+custom-detectors:
+  - name: Anthropic API Key
+    regex: 'sk-ant-api03-[A-Za-z0-9\-_]{95}'
+    
+  - name: Resend API Key
+    regex: 're_[A-Za-z0-9]{24,}'
+    
+  - name: Twilio Account SID
+    regex: 'AC[a-z0-9]{32}'
+
+# Paramètres de scan
+secret:
+  # Afficher tous les secrets trouvés
+  show-secrets: false
+  
+  # Ignorer les secrets connus (dans .env.example par exemple)
+  ignore-known-secrets: true
+
+# Sortie
+verbose: false
+output: text
+
+# Exit code
+exit-zero: false
+
+# Bannir certains types de secrets
+ignore-policies:
+  - "Generic Password"
+  - "Generic API Key"
