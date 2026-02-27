@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conformité RGPD - MemoLib</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #667eea; margin-bottom: 10px; }
+        .section { margin-bottom: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea; }
+        .section h3 { color: #333; margin-bottom: 15px; }
+        .btn { background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 14px; margin: 5px; }
+        .btn:hover { background: #5568d3; }
+        .btn.danger { background: #dc3545; }
+        .btn.danger:hover { background: #c82333; }
+        .btn.warning { background: #ffc107; color: #212529; }
+        .btn.warning:hover { background: #e0a800; }
+        .result { padding: 15px; margin-top: 15px; border-radius: 5px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
+        .error { background: #f8d7da; border-left: 4px solid #dc3545; color: #721c24; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; color: #0c5460; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .data-table th, .data-table td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        .data-table th { background: #f8f9fa; font-weight: 600; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .status-compliant { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .checkbox-group { margin: 15px 0; }
+        .checkbox-group label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 Conformité RGPD</h1>
+            <p>Gestion des données personnelles et respect du règlement européen</p>
+        </div>
+
+        <div class="section">
+            <h3>📊 État de Conformité</h3>
+            <div id="compliance-status">
+                <div class="info">⏳ Chargement du rapport de conformité...</div>
+            </div>
+            <button class="btn" onclick="loadComplianceReport()">Actualiser le rapport</button>
+        </div>
+
+        <div class="section">
+            <h3>📊 Anonymisation Intelligente (Recommandée)</h3>
+            <p style="margin-bottom: 15px;">
+                Anonymise vos données tout en <strong>préservant leur utilité</strong>. 
+                Les données restent exploitables pour vos analyses et statistiques.
+            </p>
+            <div class="info">
+                <strong>ℹ️ Avantages:</strong>
+                <ul style="margin-left: 20px; margin-top: 8px;">
+                    <li>Données anonymisées mais exploitables</li>
+                    <li>Analytics et statistiques préservées</li>
+                    <li>Réversible si nécessaire (avec autorisation)</li>
+                    <li>Conforme RGPD avec utilité maximale</li>
+                </ul>
+            </div>
+            <button class="btn" onclick="smartAnonymizeData()">Anonymisation Intelligente</button>
+        </div>
+            <p style="margin-bottom: 15px;">
+                Anonymise automatiquement toutes vos données clients (emails, noms, téléphones, adresses) 
+                tout en préservant l'utilité des dossiers juridiques.
+            </p>
+            <div class="warning">
+                <strong>⚠️ Attention:</strong> Cette action est irréversible. Les données originales seront remplacées par des versions anonymisées.
+            </div>
+            <button class="btn warning" onclick="anonymizeData()">Anonymiser mes données</button>
+        </div>
+
+        <div class="section">
+            <h3>📤 Export des Données (Portabilité)</h3>
+            <p style="margin-bottom: 15px;">
+                Exportez toutes vos données dans un format structuré (JSON) conformément au droit à la portabilité RGPD.
+            </p>
+            <button class="btn" onclick="exportData()">Exporter mes données</button>
+        </div>
+
+        <div class="section">
+            <h3>🗑️ Droit à l'Oubli</h3>
+            <p style="margin-bottom: 15px;">
+                Supprime définitivement toutes vos données personnelles du système. 
+                <strong>Cette action est irréversible et supprimera tous vos dossiers.</strong>
+            </p>
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="confirm-deletion">
+                    Je comprends que cette action supprimera définitivement toutes mes données
+                </label>
+                <label>
+                    <input type="checkbox" id="confirm-irreversible">
+                    Je confirme que cette action est irréversible
+                </label>
+            </div>
+            <button class="btn danger" onclick="deleteAllData()" disabled id="delete-btn">
+                Supprimer toutes mes données
+            </button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('authToken');
+
+        // Activer le bouton de suppression seulement si les deux cases sont cochées
+        document.getElementById('confirm-deletion').addEventListener('change', updateDeleteButton);
+        document.getElementById('confirm-irreversible').addEventListener('change', updateDeleteButton);
+
+        function updateDeleteButton() {
+            const confirm1 = document.getElementById('confirm-deletion').checked;
+            const confirm2 = document.getElementById('confirm-irreversible').checked;
+            const deleteBtn = document.getElementById('delete-btn');
+            
+            deleteBtn.disabled = !(confirm1 && confirm2);
+        }
+
+        async function loadComplianceReport() {
+            if (!token) {
+                showResult('Vous devez être connecté pour accéder aux fonctions RGPD', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/gdpr/compliance-report', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const report = await response.json();
+
+                if (response.ok) {
+                    displayComplianceReport(report);
+                } else {
+                    showResult('Erreur lors du chargement du rapport', 'error');
+                }
+            } catch (error) {
+                showResult(`Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        function displayComplianceReport(report) {
+            const statusDiv = document.getElementById('compliance-status');
+            
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie de Données</th>
+                            <th>Anonymisé</th>
+                            <th>Période de Rétention</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            report.dataCategories.forEach(category => {
+                const statusClass = category.isAnonymized ? 'status-compliant' : 'status-pending';
+                const statusText = category.isAnonymized ? 'Conforme' : 'En attente';
+                
+                html += `
+                    <tr>
+                        <td>${category.name}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${category.retentionPeriod}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+                <div style="margin-top: 15px;">
+                    <strong>Méthodes d'anonymisation:</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        ${report.anonymizationMethods.map(method => `<li>${method}</li>`).join('')}
+                    </ul>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                    Rapport généré le: ${new Date(report.generatedAt).toLocaleString('fr-FR')}
+                </div>
+            `;
+
+            statusDiv.innerHTML = html;
+        }
+
+        async function smartAnonymizeData() {
+            if (!token) {
+                showResult('Vous devez être connecté', 'error');
+                return;
+            }
+
+            if (!confirm('Êtes-vous sûr de vouloir anonymiser intelligemment vos données ? Elles resteront exploitables.')) {
+                return;
+            }
+
+            try {
+                showResult('⏳ Anonymisation intelligente en cours...', 'info');
+
+                const response = await fetch('/api/gdpr/smart-anonymize', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    let analyticsHtml = '';
+                    if (result.analytics) {
+                        analyticsHtml = `<br><strong>Analytics générées:</strong><br>`;
+                        if (result.analytics.emailDomainDistribution) {
+                            analyticsHtml += `Domaines emails: ${Object.entries(result.analytics.emailDomainDistribution).map(([k,v]) => `${k}(${v})`).join(', ')}<br>`;
+                        }
+                        if (result.analytics.caseTypeDistribution) {
+                            analyticsHtml += `Types de dossiers: ${Object.entries(result.analytics.caseTypeDistribution).map(([k,v]) => `${k}(${v})`).join(', ')}`;
+                        }
+                    }
+                    
+                    showResult(`✅ ${result.message}<br>
+                        Événements anonymisés: ${result.anonymizedEvents}<br>
+                        Réversible: ${result.isReversible ? 'Oui' : 'Non'}
+                        ${analyticsHtml}`, 'success');
+                    loadComplianceReport();
+                } else {
+                    showResult(`❌ Erreur: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+            if (!token) {
+                showResult('Vous devez être connecté', 'error');
+                return;
+            }
+
+            if (!confirm('Êtes-vous sûr de vouloir anonymiser toutes vos données ? Cette action est irréversible.')) {
+                return;
+            }
+
+            try {
+                showResult('⏳ Anonymisation en cours...', 'info');
+
+                const response = await fetch('/api/gdpr/anonymize-data', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResult(`✅ ${result.message}<br>
+                        Événements anonymisés: ${result.anonymizedEvents}<br>
+                        Clients anonymisés: ${result.anonymizedClients}`, 'success');
+                    loadComplianceReport();
+                } else {
+                    showResult(`❌ Erreur: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function exportData() {
+            if (!token) {
+                showResult('Vous devez être connecté', 'error');
+                return;
+            }
+
+            try {
+                showResult('⏳ Export en cours...', 'info');
+
+                const response = await fetch('/api/gdpr/data-export', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Créer et télécharger le fichier
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `memolib-export-${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    
+                    showResult(`✅ Export réussi!<br>
+                        Événements: ${data.Events.length}<br>
+                        Dossiers: ${data.Cases.length}<br>
+                        Clients: ${data.Clients.length}`, 'success');
+                } else {
+                    showResult(`❌ Erreur: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteAllData() {
+            if (!token) {
+                showResult('Vous devez être connecté', 'error');
+                return;
+            }
+
+            const finalConfirm = prompt('Tapez "SUPPRIMER" en majuscules pour confirmer la suppression définitive:');
+            if (finalConfirm !== 'SUPPRIMER') {
+                showResult('Suppression annulée', 'warning');
+                return;
+            }
+
+            try {
+                showResult('⏳ Suppression en cours...', 'info');
+
+                const response = await fetch('/api/gdpr/delete-all-data', {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResult(`✅ ${result.message}<br>
+                        Événements supprimés: ${result.deletedEvents}<br>
+                        Dossiers supprimés: ${result.deletedCases}<br>
+                        Clients supprimés: ${result.deletedClients}`, 'success');
+                    
+                    // Déconnecter l'utilisateur après suppression
+                    setTimeout(() => {
+                        localStorage.removeItem('authToken');
+                        window.location.href = '/demo.html';
+                    }, 3000);
+                } else {
+                    showResult(`❌ Erreur: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="result ${type}">${message}</div>`;
+        }
+
+        // Charger le rapport au démarrage
+        if (token) {
+            loadComplianceReport();
+        } else {
+            showResult('⚠️ Vous devez être connecté pour accéder aux fonctions RGPD. <a href="/demo.html">Se connecter</a>', 'warning');
+        }
+    </script>
+</body>
+</html>

@@ -1,13 +1,13 @@
 ﻿{
     "status":  "PASS",
     "scope":  "predeploy-local-before-vercel",
-    "startedAt":  "2026-02-21T03:08:56.1322162+01:00",
-    "finishedAt":  "2026-02-21T03:10:44.6998272+01:00",
+    "startedAt":  "2026-02-22T23:24:27.0988435+01:00",
+    "finishedAt":  "2026-02-22T23:25:46.7481389+01:00",
     "dotnetVersion":  "9.0.305",
     "zip":  "C:\\Users\\moros\\Desktop\\memolib\\MemoLib.Api\\dist\\memolib-local-demo-latest.zip",
-    "zipSha256":  "725FBC4D59C81B7362DDFC4F5C3641042ED8AE60FD311684ABE0071BC68EF359",
+    "zipSha256":  "ED4570954114D1C8827C9396C16F5611C949288D7F8259D286B78447E546285C",
     "shaFile":  "C:\\Users\\moros\\Desktop\\memolib\\MemoLib.Api\\dist\\memolib-local-demo-latest.sha256.txt",
     "demoExe":  "C:\\Users\\moros\\Desktop\\memolib\\MemoLib.Api\\dist\\local-demo\\MemoLib.Api.exe",
     "runScript":  "C:\\Users\\moros\\Desktop\\memolib\\MemoLib.Api\\dist\\local-demo\\run-demo.bat",
-    "migrationsSkipped":  true
+    "migrationsSkipped":  false
 }

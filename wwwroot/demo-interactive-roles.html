@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Démo Interactive par Rôle - MemoLib</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.8em; }
+        
+        .container { display: flex; height: calc(100vh - 80px); }
+        
+        /* Sidebar rôles */
+        .sidebar { width: 250px; background: white; border-right: 2px solid #ddd; overflow-y: auto; }
+        .role-item { padding: 15px; cursor: pointer; border-bottom: 1px solid #eee; transition: all 0.3s; }
+        .role-item:hover { background: #f8f9fa; }
+        .role-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .role-icon { font-size: 1.5em; margin-right: 10px; }
+        
+        /* Zone principale */
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; }
+        
+        /* Actions disponibles */
+        .actions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .action-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s; border-left: 4px solid #667eea; }
+        .action-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .action-card.disabled { opacity: 0.5; cursor: not-allowed; border-left-color: #ccc; }
+        .action-card.disabled:hover { transform: none; }
+        .action-title { font-weight: bold; margin-bottom: 10px; color: #2c3e50; }
+        .action-desc { font-size: 0.9em; color: #666; margin-bottom: 10px; }
+        .action-badge { display: inline-block; padding: 3px 10px; border-radius: 15px; font-size: 0.8em; font-weight: bold; }
+        .badge-allowed { background: #d4edda; color: #155724; }
+        .badge-forbidden { background: #f8d7da; color: #721c24; }
+        
+        /* Zone de résultat */
+        .result-panel { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 20px; }
+        .result-title { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; color: #2c3e50; }
+        .result-content { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; }
+        
+        /* Permissions matrix */
+        .permissions-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        .permissions-table th, .permissions-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .permissions-table th { background: #667eea; color: white; }
+        .permissions-table tr:hover { background: #f8f9fa; }
+        .perm-yes { color: #27ae60; font-weight: bold; }
+        .perm-no { color: #e74c3c; font-weight: bold; }
+        
+        .btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; margin: 5px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 Démo Interactive par Rôle</h1>
+        <div>
+            <span id="currentRole" style="background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px;">Sélectionnez un rôle</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar des rôles -->
+        <div class="sidebar">
+            <div class="role-item" onclick="selectRole('OWNER')">
+                <span class="role-icon">🏛️</span>
+                <strong>Propriétaire</strong>
+            </div>
+            <div class="role-item" onclick="selectRole('ADMIN')">
+                <span class="role-icon">⚖️</span>
+                <strong>Avocat Senior</strong>
+            </div>
+            <div class="role-item" onclick="selectRole('LAWYER')">
+                <span class="role-icon">⚖️</span>
+                <strong>Avocat</strong>
+            </div>
+            <div class="role-item" onclick="selectRole('MANAGER')">
+                <span class="role-icon">👔</span>
+                <strong>Manager</strong>
+            </div>
+            <div class="role-item" onclick="selectRole('SECRETARY')">
+                <span class="role-icon">📋</span>
+                <strong>Assistant(e)</strong>
+            </div>
+            <div class="role-item" onclick="selectRole('FINANCE')">
+                <span class="role-icon">💰</span>
+                <strong>Finance</strong>
+            </div>
+            <div class="role-item" onclick="selectRole('COMPLIANCE')">
+                <span class="role-icon">🛡️</span>
+                <strong>Conformité</strong>
+            </div>
+            <div class="role-item" onclick="selectRole('CLIENT')">
+                <span class="role-icon">👤</span>
+                <strong>Client</strong>
+            </div>
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="main-content">
+            <div id="actionsContainer"></div>
+            <div id="resultPanel" class="result-panel" style="display: none;"></div>
+            <div id="permissionsMatrix"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5078';
+        let currentRole = null;
+
+        // Définition des actions par rôle
+        const roleActions = {
+            OWNER: [
+                { id: 'invite-team', title: 'Inviter un collaborateur', desc: 'Envoyer une invitation par email avec attribution de rôle', allowed: true, us: 'Gestion équipe' },
+                { id: 'view-all-cases', title: 'Voir tous les dossiers', desc: 'Accès complet à tous les dossiers du cabinet', allowed: true, us: 'US5' },
+                { id: 'manage-billing', title: 'Gérer la facturation', desc: 'Configuration tarifs et exports comptables', allowed: true, us: 'US7' },
+                { id: 'configure-rgpd', title: 'Configurer RGPD', desc: 'Définir politiques de rétention et conformité', allowed: true, us: 'US17' },
+                { id: 'view-audit', title: 'Consulter audit complet', desc: 'Journal de toutes les actions du cabinet', allowed: true, us: 'US5' },
+                { id: 'delete-cases', title: 'Supprimer des dossiers', desc: 'Suppression définitive de dossiers', allowed: true, us: 'US5' },
+            ],
+            ADMIN: [
+                { id: 'create-case', title: 'Créer un dossier', desc: 'Ouvrir un nouveau dossier client', allowed: true, us: 'US1' },
+                { id: 'assign-case', title: 'Assigner un dossier', desc: 'Attribuer un dossier à un collaborateur', allowed: true, us: 'US12' },
+                { id: 'view-team-load', title: 'Voir charge équipe', desc: 'Visualiser la charge de travail', allowed: true, us: 'US15' },
+                { id: 'close-case', title: 'Clôturer un dossier', desc: 'Marquer un dossier comme terminé', allowed: true, us: 'US1' },
+                { id: 'manage-billing', title: 'Gérer la facturation', desc: 'Configuration tarifs et exports', allowed: false, us: 'US7' },
+                { id: 'delete-cases', title: 'Supprimer des dossiers', desc: 'Suppression définitive', allowed: false, us: 'US5' },
+            ],
+            LAWYER: [
+                { id: 'view-my-cases', title: 'Voir mes dossiers', desc: 'Accès aux dossiers qui me sont assignés', allowed: true, us: 'US14' },
+                { id: 'add-note', title: 'Ajouter une note', desc: 'Créer une note collaborative sur un dossier', allowed: true, us: 'US2' },
+                { id: 'create-task', title: 'Créer une tâche', desc: 'Ajouter une tâche avec échéance', allowed: true, us: 'US3' },
+                { id: 'upload-document', title: 'Uploader un document', desc: 'Ajouter un document versionné au dossier', allowed: true, us: 'US4' },
+                { id: 'view-timeline', title: 'Voir timeline dossier', desc: 'Historique complet des événements', allowed: true, us: 'US1' },
+                { id: 'delete-cases', title: 'Supprimer des dossiers', desc: 'Suppression définitive', allowed: false, us: 'US5' },
+                { id: 'view-audit', title: 'Consulter audit complet', desc: 'Journal de toutes les actions', allowed: false, us: 'US5' },
+            ],
+            MANAGER: [
+                { id: 'view-team-load', title: 'Voir charge équipe', desc: 'Visualiser la charge par collaborateur', allowed: true, us: 'US15' },
+                { id: 'reassign-case', title: 'Réaffecter un dossier', desc: 'Transférer un dossier entre collaborateurs', allowed: true, us: 'US15' },
+                { id: 'view-kpis', title: 'Voir KPIs équipe', desc: 'Statistiques de performance', allowed: true, us: 'US9' },
+                { id: 'assign-case', title: 'Assigner un dossier', desc: 'Attribuer un dossier à un collaborateur', allowed: true, us: 'US12' },
+                { id: 'delete-cases', title: 'Supprimer des dossiers', desc: 'Suppression définitive', allowed: false, us: 'US5' },
+                { id: 'manage-billing', title: 'Gérer la facturation', desc: 'Configuration tarifs', allowed: false, us: 'US7' },
+            ],
+            SECRETARY: [
+                { id: 'triage-queue', title: 'File de triage', desc: 'Voir les nouveaux dossiers à traiter', allowed: true, us: 'US12' },
+                { id: 'handoff-checklist', title: 'Checklist passation', desc: 'Transférer un dossier avec checklist', allowed: true, us: 'US13' },
+                { id: 'create-client', title: 'Créer un client', desc: 'Ajouter un nouveau client', allowed: true, us: 'US1' },
+                { id: 'view-my-cases', title: 'Voir mes dossiers', desc: 'Dossiers en cours de triage', allowed: true, us: 'US12' },
+                { id: 'close-case', title: 'Clôturer un dossier', desc: 'Marquer comme terminé', allowed: false, us: 'US1' },
+                { id: 'view-audit', title: 'Consulter audit complet', desc: 'Journal complet', allowed: false, us: 'US5' },
+            ],
+            FINANCE: [
+                { id: 'view-billing-pipeline', title: 'Pipeline facturation', desc: 'Voir Dossier → Temps → Facture → Paiement', allowed: true, us: 'US16' },
+                { id: 'validate-invoice', title: 'Valider une facture', desc: 'Passer de brouillon à émise', allowed: true, us: 'US16' },
+                { id: 'export-accounting', title: 'Export comptable', desc: 'Exporter vers Sage/Cegid/Excel', allowed: true, us: 'US16' },
+                { id: 'send-reminder', title: 'Relancer paiement', desc: 'Envoyer rappel facture en retard', allowed: true, us: 'US16' },
+                { id: 'view-my-cases', title: 'Voir les dossiers', desc: 'Accès aux dossiers', allowed: false, us: 'US14' },
+                { id: 'delete-cases', title: 'Supprimer des dossiers', desc: 'Suppression définitive', allowed: false, us: 'US5' },
+            ],
+            COMPLIANCE: [
+                { id: 'configure-retention', title: 'Configurer rétention', desc: 'Définir durées de conservation', allowed: true, us: 'US17' },
+                { id: 'view-access-log', title: 'Journal d\'accès', desc: 'Voir tous les accès par rôle', allowed: true, us: 'US17' },
+                { id: 'handle-rgpd-request', title: 'Traiter demande RGPD', desc: 'Droit d\'accès/oubli/rectification', allowed: true, us: 'US17' },
+                { id: 'export-compliance', title: 'Export conformité', desc: 'Preuve conformité pour audit', allowed: true, us: 'US17' },
+                { id: 'view-audit', title: 'Consulter audit complet', desc: 'Journal de toutes les actions', allowed: true, us: 'US5' },
+                { id: 'delete-cases', title: 'Supprimer des dossiers', desc: 'Suppression définitive', allowed: false, us: 'US5' },
+            ],
+            CLIENT: [
+                { id: 'view-my-case', title: 'Voir mon dossier', desc: 'Suivre l\'avancement de mon dossier', allowed: true, us: 'US10' },
+                { id: 'upload-document-client', title: 'Déposer un document', desc: 'Upload guidé avec checklist', allowed: true, us: 'US11' },
+                { id: 'view-timeline-client', title: 'Voir timeline', desc: 'Historique filtré pour client', allowed: true, us: 'US10' },
+                { id: 'contact-lawyer', title: 'Contacter mon avocat', desc: 'Envoyer un message sécurisé', allowed: true, us: 'US10' },
+                { id: 'view-all-cases', title: 'Voir tous les dossiers', desc: 'Accès à tous les dossiers', allowed: false, us: 'US5' },
+                { id: 'view-audit', title: 'Consulter audit', desc: 'Journal complet', allowed: false, us: 'US5' },
+            ],
+        };
+
+        function selectRole(role) {
+            currentRole = role;
+            
+            // Update UI
+            document.querySelectorAll('.role-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.role-item').classList.add('active');
+            document.getElementById('currentRole').textContent = `Rôle: ${getRoleName(role)}`;
+            
+            // Display actions
+            displayActions(role);
+            displayPermissionsMatrix(role);
+        }
+
+        function getRoleName(role) {
+            const names = {
+                OWNER: '🏛️ Propriétaire',
+                ADMIN: '⚖️ Avocat Senior',
+                LAWYER: '⚖️ Avocat',
+                MANAGER: '👔 Manager',
+                SECRETARY: '📋 Assistant(e)',
+                FINANCE: '💰 Finance',
+                COMPLIANCE: '🛡️ Conformité',
+                CLIENT: '👤 Client'
+            };
+            return names[role] || role;
+        }
+
+        function displayActions(role) {
+            const actions = roleActions[role] || [];
+            const container = document.getElementById('actionsContainer');
+            
+            let html = '<h2 style="margin-bottom: 20px;">Actions Disponibles</h2>';
+            html += '<div class="actions-grid">';
+            
+            actions.forEach(action => {
+                const disabledClass = action.allowed ? '' : 'disabled';
+                const badge = action.allowed 
+                    ? '<span class="action-badge badge-allowed">✓ Autorisé</span>'
+                    : '<span class="action-badge badge-forbidden">✗ Interdit</span>';
+                
+                html += `
+                    <div class="action-card ${disabledClass}" onclick="executeAction('${action.id}', ${action.allowed})">
+                        <div class="action-title">${action.title}</div>
+                        <div class="action-desc">${action.desc}</div>
+                        <div style="margin-top: 10px;">
+                            ${badge}
+                            <span style="font-size: 0.8em; color: #999; margin-left: 10px;">${action.us}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function displayPermissionsMatrix(role) {
+            const container = document.getElementById('permissionsMatrix');
+            
+            const permissions = {
+                'Voir tous les dossiers': { OWNER: true, ADMIN: true, LAWYER: false, MANAGER: true, SECRETARY: false, FINANCE: false, COMPLIANCE: true, CLIENT: false },
+                'Créer un dossier': { OWNER: true, ADMIN: true, LAWYER: true, MANAGER: true, SECRETARY: true, FINANCE: false, COMPLIANCE: false, CLIENT: false },
+                'Supprimer un dossier': { OWNER: true, ADMIN: false, LAWYER: false, MANAGER: false, SECRETARY: false, FINANCE: false, COMPLIANCE: false, CLIENT: false },
+                'Gérer facturation': { OWNER: true, ADMIN: false, LAWYER: false, MANAGER: false, SECRETARY: false, FINANCE: true, COMPLIANCE: false, CLIENT: false },
+                'Voir audit complet': { OWNER: true, ADMIN: false, LAWYER: false, MANAGER: false, SECRETARY: false, FINANCE: false, COMPLIANCE: true, CLIENT: false },
+                'Réaffecter dossiers': { OWNER: true, ADMIN: true, LAWYER: false, MANAGER: true, SECRETARY: false, FINANCE: false, COMPLIANCE: false, CLIENT: false },
+            };
+            
+            let html = '<h2 style="margin-top: 30px; margin-bottom: 20px;">Matrice des Permissions</h2>';
+            html += '<table class="permissions-table">';
+            html += '<tr><th>Action</th><th>Votre accès</th></tr>';
+            
+            for (const [action, roles] of Object.entries(permissions)) {
+                const hasAccess = roles[role];
+                const accessText = hasAccess 
+                    ? '<span class="perm-yes">✓ OUI</span>' 
+                    : '<span class="perm-no">✗ NON</span>';
+                html += `<tr><td>${action}</td><td>${accessText}</td></tr>`;
+            }
+            
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        async function executeAction(actionId, allowed) {
+            const resultPanel = document.getElementById('resultPanel');
+            resultPanel.style.display = 'block';
+            
+            if (!allowed) {
+                resultPanel.innerHTML = `
+                    <div class="result-title">❌ Action Interdite</div>
+                    <div class="result-content" style="border-left-color: #e74c3c;">
+                        <strong>Erreur 403 - Accès Refusé</strong><br><br>
+                        Votre rôle <strong>${getRoleName(currentRole)}</strong> n'a pas les permissions nécessaires pour cette action.<br><br>
+                        Contactez un administrateur pour obtenir les droits appropriés.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Simuler l'action
+            resultPanel.innerHTML = `
+                <div class="result-title">⏳ Exécution en cours...</div>
+                <div class="result-content">
+                    Action: <strong>${actionId}</strong><br>
+                    Rôle: <strong>${getRoleName(currentRole)}</strong>
+                </div>
+            `;
+            
+            // Simuler un délai
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Résultat de l'action
+            const results = {
+                'invite-team': 'Invitation envoyée à collaborateur@cabinet.fr avec rôle LAWYER',
+                'view-all-cases': 'Affichage de 45 dossiers actifs du cabinet',
+                'create-case': 'Dossier #2025-048 créé pour client Sophie Martin',
+                'triage-queue': 'File de triage: 3 dossiers en attente (2 urgents, 1 normal)',
+                'handoff-checklist': 'Checklist complétée (7/7) - Dossier transféré à Maître Dupont',
+                'view-billing-pipeline': 'Pipeline: 8 brouillons, 12 émises, 45 payées, 3 en retard',
+                'configure-retention': 'Politique de rétention configurée: Clients 7 ans, Dossiers 30 ans',
+                'view-my-case': 'Dossier #2025-045: En cours - Dernière mise à jour il y a 2h',
+                'add-note': 'Note ajoutée au dossier avec mention @martin',
+                'view-team-load': 'Charge équipe: Martin 120%, Dupont 105%, Bernard 70%',
+            };
+            
+            resultPanel.innerHTML = `
+                <div class="result-title">✅ Action Réussie</div>
+                <div class="result-content" style="border-left-color: #27ae60;">
+                    <strong>Résultat:</strong><br><br>
+                    ${results[actionId] || 'Action exécutée avec succès'}<br><br>
+                    <small style="color: #666;">Cette action a été enregistrée dans le journal d'audit</small>
+                </div>
+            `;
+            
+            resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Sélectionner le premier rôle par défaut
+        window.onload = () => {
+            document.querySelector('.role-item').click();
+        };
+    </script>
+</body>
+</html>

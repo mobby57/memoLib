@@ -71,6 +71,30 @@ POST /api/templates            # Créer template
 - Notifications navigateur (avec permission)
 - Compteurs temps réel mis à jour automatiquement
 
+### 5. 🧾 Onboarding client intelligent (inscription + pièces + participants)
+
+**Objectif:**
+- Envoyer un formulaire d'inscription personnalisable après contact client
+- Définir les pièces à fournir et les rôles participants (juge, avocat, secrétaire, etc.)
+- Créer automatiquement un dossier et un espace partagé à la soumission
+
+**API Endpoints (nouveaux):**
+```http
+GET  /api/onboarding/templates                         # Lister les templates de formulaire
+POST /api/onboarding/templates                         # Créer un template (besoins + pièces + champs)
+POST /api/onboarding/templates/{templateId}/invite     # Inviter un client et générer le lien
+GET  /api/onboarding/requests                          # Lister les demandes d'onboarding
+
+GET  /api/onboarding/public/{token}                    # Charger le formulaire public par token
+POST /api/onboarding/public/{token}/submit             # Soumettre le formulaire client
+```
+
+**Intégration contact public:**
+```http
+POST /api/public/contact
+```
+- Si `Onboarding:AutoTemplateId` est configuré, un lien d'onboarding est créé et envoyé automatiquement au client.
+
 ## Architecture Technique
 
 ### Services Backend

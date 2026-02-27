@@ -10,6 +10,11 @@ public class Event
     public DateTime IngestedAt { get; set; }
     public string RawPayload { get; set; } = null!;
     public string? EventType { get; set; }
+    public string? Type
+    {
+        get => EventType;
+        set => EventType = value;
+    }
     public int? Severity { get; set; }
     public string? TextForEmbedding { get; set; }
     public string? EmbeddingVector { get; set; }

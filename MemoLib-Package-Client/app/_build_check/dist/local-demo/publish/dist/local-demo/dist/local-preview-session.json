@@ -1,0 +1,7 @@
+﻿{
+    "startedAt":  "2026-02-21T02:20:02.0431959+01:00",
+    "pid":  49588,
+    "port":  8092,
+    "baseUrl":  "http://localhost:8092",
+    "database":  "memolib.local.preview.db"
+}

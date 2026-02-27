@@ -83,6 +83,7 @@ public class JwtTokenService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role ?? "AGENT"),
             new Claim("userId", user.Id.ToString()),
             new Claim("createdAt", user.CreatedAt.ToString("O")),
             new Claim("tokenType", tokenType),

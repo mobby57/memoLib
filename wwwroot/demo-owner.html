@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Démo OWNER (Propriétaire Cabinet)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header .role-badge { background: #e74c3c; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; display: inline-block; margin-top: 10px; }
+        .card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .card h2 { color: #2c3e50; margin-bottom: 15px; }
+        .btn { background: linear-gradient(45deg, #2c3e50, #34495e); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 5px; transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn.danger { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .btn.success { background: linear-gradient(45px, #27ae60, #2ecc71); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-box { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-box .number { font-size: 2.5em; font-weight: bold; }
+        .stat-box .label { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
+        .result { background: #f8f9fa; border-left: 4px solid #2c3e50; padding: 15px; margin-top: 15px; border-radius: 5px; }
+        .success { border-left-color: #27ae60; background: #d4edda; }
+        .error { border-left-color: #e74c3c; background: #f8d7da; }
+        .warning { border-left-color: #f39c12; background: #fff3cd; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
+        .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #ecf0f1; border: none; border-radius: 5px; cursor: pointer; }
+        .tab.active { background: #2c3e50; color: white; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ MemoLib - Cabinet Management</h1>
+            <div class="role-badge">OWNER - Propriétaire Cabinet</div>
+            <p>Tableau de bord exécutif et gestion stratégique</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard Exécutif</button>
+            <button class="tab" onclick="showTab('team')">👥 Gestion Équipe</button>
+            <button class="tab" onclick="showTab('billing')">💰 Facturation</button>
+            <button class="tab" onclick="showTab('analytics')">📈 Analytics</button>
+            <button class="tab" onclick="showTab('settings')">⚙️ Configuration</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content">
+            <div class="card">
+                <h2>Vue d'ensemble Cabinet</h2>
+                <button class="btn" onclick="loadExecutiveDashboard()">Charger Dashboard Exécutif</button>
+                <div id="dashboard-result"></div>
+            </div>
+        </div>
+
+        <!-- Team Tab -->
+        <div id="team-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>Gestion de l'Équipe</h2>
+                <div class="input-group">
+                    <label>Email du collaborateur</label>
+                    <input type="email" id="team-email" placeholder="avocat@cabinet.fr">
+                </div>
+                <div class="input-group">
+                    <label>Rôle</label>
+                    <select id="team-role">
+                        <option value="ADMIN">Avocat Senior</option>
+                        <option value="AGENT">Collaborateur</option>
+                        <option value="USER">Stagiaire</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="inviteTeamMember()">Inviter Membre</button>
+                <button class="btn" onclick="loadTeamMembers()">Voir Équipe</button>
+                <div id="team-result"></div>
+            </div>
+        </div>
+
+        <!-- Billing Tab -->
+        <div id="billing-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>Facturation et Abonnements</h2>
+                <button class="btn" onclick="loadBillingOverview()">Vue Facturation</button>
+                <button class="btn success" onclick="generateInvoice()">Générer Facture</button>
+                <div id="billing-result"></div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>Analytics Avancées</h2>
+                <button class="btn" onclick="loadAdvancedAnalytics()">Charger Analytics</button>
+                <button class="btn" onclick="loadPerformanceMetrics()">Métriques Performance</button>
+                <div id="analytics-result"></div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>Configuration Cabinet</h2>
+                <div class="input-group">
+                    <label>Nom du Cabinet</label>
+                    <input type="text" id="cabinet-name" placeholder="Cabinet Dupont & Associés">
+                </div>
+                <div class="input-group">
+                    <label>Adresse</label>
+                    <input type="text" id="cabinet-address" placeholder="12 rue de la Justice, Paris">
+                </div>
+                <div class="input-group">
+                    <label>Numéro Barreau</label>
+                    <input type="text" id="cabinet-bar" placeholder="B123456">
+                </div>
+                <button class="btn" onclick="saveSettings()">Sauvegarder Configuration</button>
+                <div id="settings-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5078';
+        let token = localStorage.getItem('authToken');
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<div class="result ${isSuccess ? 'success' : 'error'}">${message}</div>`;
+            }
+        }
+
+        async function loadExecutiveDashboard() {
+            if (!token) return showResult('dashboard-result', '❌ Connectez-vous d\'abord', false);
+
+            try {
+                const res = await fetch(`${API_URL}/api/dashboard/executive`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    let html = '<div class="stats">';
+                    html += `<div class="stat-box"><div class="number">${data.totalRevenue || 0}€</div><div class="label">Chiffre d'Affaires</div></div>`;
+                    html += `<div class="stat-box"><div class="number">${data.activeCases || 0}</div><div class="label">Dossiers Actifs</div></div>`;
+                    html += `<div class="stat-box"><div class="number">${data.teamMembers || 0}</div><div class="label">Collaborateurs</div></div>`;
+                    html += `<div class="stat-box"><div class="number">${data.clientSatisfaction || 0}%</div><div class="label">Satisfaction Client</div></div>`;
+                    html += '</div>';
+
+                    html += '<div class="result warning">📈 Indicateurs Clés :<br>';
+                    html += `• Rentabilité moyenne par dossier : ${data.avgProfitability || 0}€<br>`;
+                    html += `• Temps de réponse moyen : ${data.avgResponseTime || 0}h<br>`;
+                    html += `• Délais respectés : ${data.deadlineCompliance || 0}%</div>`;
+
+                    document.getElementById('dashboard-result').innerHTML = html;
+                } else {
+                    showResult('dashboard-result', '❌ Erreur chargement dashboard', false);
+                }
+            } catch (err) {
+                showResult('dashboard-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function inviteTeamMember() {
+            if (!token) return showResult('team-result', '❌ Connectez-vous d\'abord', false);
+
+            const email = document.getElementById('team-email').value;
+            const role = document.getElementById('team-role').value;
+
+            try {
+                const res = await fetch(`${API_URL}/api/team/invite`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ email, role })
+                });
+
+                if (res.ok) {
+                    showResult('team-result', `✅ Invitation envoyée à ${email} (${role})`);
+                } else {
+                    showResult('team-result', '❌ Erreur envoi invitation', false);
+                }
+            } catch (err) {
+                showResult('team-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function loadTeamMembers() {
+            if (!token) return showResult('team-result', '❌ Connectez-vous d\'abord', false);
+
+            try {
+                const res = await fetch(`${API_URL}/api/team/members`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    let html = '<div class="result success">👥 Équipe du Cabinet</div>';
+                    data.forEach(member => {
+                        html += `<div class="result">
+                            <strong>${member.name}</strong> - ${member.role}<br>
+                            📧 ${member.email}<br>
+                            📊 Performance: ${member.performance || 'N/A'}%
+                        </div>`;
+                    });
+                    document.getElementById('team-result').innerHTML = html;
+                } else {
+                    showResult('team-result', '❌ Erreur chargement équipe', false);
+                }
+            } catch (err) {
+                showResult('team-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function loadBillingOverview() {
+            if (!token) return showResult('billing-result', '❌ Connectez-vous d\'abord', false);
+
+            try {
+                const res = await fetch(`${API_URL}/api/billing/overview`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    let html = '<div class="stats">';
+                    html += `<div class="stat-box"><div class="number">${data.monthlyRevenue || 0}€</div><div class="label">CA Mensuel</div></div>`;
+                    html += `<div class="stat-box"><div class="number">${data.pendingInvoices || 0}</div><div class="label">Factures en Attente</div></div>`;
+                    html += `<div class="stat-box"><div class="number">${data.paidInvoices || 0}</div><div class="label">Factures Payées</div></div>`;
+                    html += '</div>';
+
+                    document.getElementById('billing-result').innerHTML = html;
+                } else {
+                    showResult('billing-result', '❌ Erreur chargement facturation', false);
+                }
+            } catch (err) {
+                showResult('billing-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function generateInvoice() {
+            if (!token) return showResult('billing-result', '❌ Connectez-vous d\'abord', false);
+
+            const clientId = prompt('ID du client pour la facture:');
+            if (!clientId) return;
+
+            try {
+                const res = await fetch(`${API_URL}/api/billing/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ clientId, amount: 1500 })
+                });
+
+                if (res.ok) {
+                    showResult('billing-result', `✅ Facture générée pour le client ${clientId}`);
+                } else {
+                    showResult('billing-result', '❌ Erreur génération facture', false);
+                }
+            } catch (err) {
+                showResult('billing-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function loadAdvancedAnalytics() {
+            if (!token) return showResult('analytics-result', '❌ Connectez-vous d\'abord', false);
+
+            try {
+                const res = await fetch(`${API_URL}/api/analytics/advanced`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    let html = '<div class="result success">📊 Analytics Avancées</div>';
+                    html += '<div class="stats">';
+                    html += `<div class="stat-box"><div class="number">${data.casesByType?.divorce || 0}</div><div class="label">Divorces</div></div>`;
+                    html += `<div class="stat-box"><div class="number">${data.casesByType?.commercial || 0}</div><div class="label">Commercial</div></div>`;
+                    html += `<div class="stat-box"><div class="number">${data.casesByType?.penal || 0}</div><div class="label">Pénal</div></div>`;
+                    html += '</div>';
+
+                    document.getElementById('analytics-result').innerHTML = html;
+                } else {
+                    showResult('analytics-result', '❌ Erreur chargement analytics', false);
+                }
+            } catch (err) {
+                showResult('analytics-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function loadPerformanceMetrics() {
+            if (!token) return showResult('analytics-result', '❌ Connectez-vous d\'abord', false);
+
+            showResult('analytics-result', '📈 Métriques de Performance :<br>• Productivité équipe: +25%<br>• Satisfaction client: 4.8/5<br>• Délais respectés: 98%<br>• ROI moyen: +15%');
+        }
+
+        async function saveSettings() {
+            if (!token) return showResult('settings-result', '❌ Connectez-vous d\'abord', false);
+
+            const settings = {
+                cabinetName: document.getElementById('cabinet-name').value,
+                address: document.getElementById('cabinet-address').value,
+                barNumber: document.getElementById('cabinet-bar').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/api/settings/cabinet`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(settings)
+                });
+
+                if (res.ok) {
+                    showResult('settings-result', '✅ Configuration sauvegardée');
+                } else {
+                    showResult('settings-result', '❌ Erreur sauvegarde', false);
+                }
+            } catch (err) {
+                showResult('settings-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        // Auto-load dashboard on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (token) {
+                loadExecutiveDashboard();
+            } else {
+                showResult('dashboard-result', '❌ Connectez-vous d\'abord pour accéder au dashboard exécutif', false);
+            }
+        });
+    </script>
+</body>
+</html>

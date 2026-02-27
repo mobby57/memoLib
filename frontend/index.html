@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib Platform - Gestion Emails Professionnels</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        
+        .hero { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 80px 20px; text-align: center;
+        }
+        .hero h1 { font-size: 3em; margin-bottom: 20px; }
+        .hero p { font-size: 1.3em; margin-bottom: 40px; opacity: 0.9; }
+        .cta-button {
+            background: white; color: #667eea; padding: 15px 40px;
+            border: none; border-radius: 30px; font-size: 1.1em;
+            cursor: pointer; font-weight: bold;
+        }
+        
+        .sectors { padding: 60px 20px; max-width: 1200px; margin: 0 auto; }
+        .sectors h2 { text-align: center; font-size: 2.5em; margin-bottom: 50px; }
+        .sectors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        .sector-card {
+            background: white; border-radius: 15px; padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            cursor: pointer; text-align: center;
+        }
+        .sector-card:hover { transform: translateY(-10px); }
+        .sector-icon { font-size: 4em; margin-bottom: 15px; }
+        .sector-name { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; }
+        .sector-price { font-size: 1.8em; font-weight: bold; color: #667eea; margin: 15px 0; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        .modal-content { background: white; margin: 50px auto; padding: 40px; max-width: 500px; border-radius: 15px; }
+        .close { float: right; font-size: 2em; cursor: pointer; }
+        .form-group { margin-bottom: 20px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .submit-btn { width: 100%; padding: 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>MemoLib Platform</h1>
+        <p>La solution universelle de gestion emails pour tous les professionnels</p>
+        <button class="cta-button" onclick="document.getElementById('sectors').scrollIntoView({behavior:'smooth'})">Choisir mon secteur</button>
+    </div>
+
+    <div class="sectors" id="sectors">
+        <h2>Choisissez votre secteur</h2>
+        <div class="sectors-grid" id="sectorsGrid"></div>
+    </div>
+
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('signupModal').style.display='none'">&times;</span>
+            <h2 id="modalTitle">Inscription</h2>
+            <form id="signupForm">
+                <div class="form-group"><input type="text" placeholder="Nom complet" required></div>
+                <div class="form-group"><input type="email" placeholder="Email" required></div>
+                <div class="form-group"><input type="tel" placeholder="Téléphone" required></div>
+                <button type="submit" class="submit-btn">Démarrer l'essai gratuit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const sectors = [
+            { id: 'legal', name: 'LegalMemo', icon: '⚖️', price: 30 },
+            { id: 'medical', name: 'MediMemo', icon: '⚕️', price: 25 },
+            { id: 'consulting', name: 'ConsultMemo', icon: '💼', price: 35 },
+            { id: 'accounting', name: 'AccountMemo', icon: '📊', price: 30 }
+        ];
+        
+        document.getElementById('sectorsGrid').innerHTML = sectors.map(s => `
+            <div class="sector-card" onclick="document.getElementById('modalTitle').textContent='${s.name}';document.getElementById('signupModal').style.display='block'">
+                <div class="sector-icon">${s.icon}</div>
+                <div class="sector-name">${s.name}</div>
+                <div class="sector-price">${s.price}€/mois</div>
+            </div>
+        `).join('');
+    </script>
+</body>
+</html>

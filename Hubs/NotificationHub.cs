@@ -1,27 +1,21 @@
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Authorization;
 
 namespace MemoLib.Api.Hubs;
 
-[Authorize]
 public class NotificationHub : Hub
 {
-    public async Task JoinUserGroup()
+    public async Task SendUrgentAlert(string message)
     {
-        var userId = Context.UserIdentifier;
-        if (!string.IsNullOrEmpty(userId))
-        {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"user_{userId}");
-        }
+        await Clients.All.SendAsync("UrgentAlert", new { message, timestamp = DateTime.UtcNow });
     }
 
-    public override async Task OnDisconnectedAsync(Exception? exception)
+    public async Task SendDeadlineAlert(string message)
     {
-        var userId = Context.UserIdentifier;
-        if (!string.IsNullOrEmpty(userId))
-        {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user_{userId}");
-        }
-        await base.OnDisconnectedAsync(exception);
+        await Clients.All.SendAsync("DeadlineAlert", new { message, timestamp = DateTime.UtcNow });
+    }
+
+    public async Task SendNewEmailNotification(int count)
+    {
+        await Clients.All.SendAsync("NewEmail", new { count, timestamp = DateTime.UtcNow });
     }
 }
