@@ -7,6 +7,7 @@ public class Case
     public Guid? ClientId { get; set; }
     public string Title { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
     public string Status { get; set; } = "OPEN";
     public Guid? AssignedToUserId { get; set; }
     public string? Tags { get; set; }
