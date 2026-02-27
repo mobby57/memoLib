@@ -92,6 +92,7 @@ public class EmailMonitorService : BackgroundService
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<MemoLibDbContext>();
         var organizer = scope.ServiceProvider.GetRequiredService<IntelligentWorkspaceOrganizerService>();
+        var signalService = scope.ServiceProvider.GetRequiredService<SignalCommandCenterService>();
 
         var from = message.From.Mailboxes.FirstOrDefault()?.Address ?? "unknown@unknown.com";
         var subject = message.Subject ?? "";
@@ -200,7 +201,25 @@ public class EmailMonitorService : BackgroundService
 
         await context.SaveChangesAsync(cancellationToken);
 
+        await signalService.ForwardInboundToConfiguredRecipientAsync(
+            "email",
+            from,
+            BuildSignalRelayEmailText(subject, body));
+
         _logger.LogInformation($"✅ Email organisé intelligemment: {from} → Workspace {workspaceId}");
+    }
+
+    private static string BuildSignalRelayEmailText(string subject, string body)
+    {
+        var safeSubject = string.IsNullOrWhiteSpace(subject) ? "(sans objet)" : subject.Trim();
+        var safeBody = string.IsNullOrWhiteSpace(body) ? "(contenu vide)" : body.Trim();
+
+        if (safeBody.Length > 1200)
+        {
+            safeBody = safeBody[..1200] + "...";
+        }
+
+        return $"Objet: {safeSubject}\n\n{safeBody}";
     }
 
     private static string ComputeSHA256(string input)

@@ -1,50 +1,155 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MemoLib.Api.Services;
+using Microsoft.EntityFrameworkCore;
+using MemoLib.Api.Data;
+using MemoLib.Api.Models;
+using MemoLib.Api.Authorization;
+using System.Security.Claims;
 
 namespace MemoLib.Api.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
 [Authorize]
+[ApiController]
+[Route("api/billing")]
 public class BillingController : ControllerBase
 {
-    private readonly BillingService _billingService;
+    private readonly MemoLibDbContext _context;
 
-    public BillingController(BillingService billingService)
+    public BillingController(MemoLibDbContext context)
     {
-        _billingService = billingService;
+        _context = context;
     }
 
-    [HttpPost("timer/start")]
-    public async Task<IActionResult> StartTimer([FromBody] StartTimerRequest request)
+    private Guid GetUserId() => Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    // Time Entries
+    [HttpPost("time-entries")]
+    public async Task<IActionResult> StartTimeEntry([FromBody] StartTimeRequest request)
     {
-        var userId = Guid.Parse(User.FindFirst("sub")?.Value ?? throw new UnauthorizedAccessException());
-        var entry = await _billingService.StartTimerAsync(request.CaseId, userId, request.Description, request.HourlyRate);
+        var userId = GetUserId();
+
+        var entry = new TimeEntry
+        {
+            Id = Guid.NewGuid(),
+            CaseId = request.CaseId,
+            UserId = userId,
+            StartTime = DateTime.UtcNow,
+            Description = request.Description,
+            HourlyRate = request.HourlyRate,
+            IsBillable = request.IsBillable
+        };
+
+        _context.TimeEntries.Add(entry);
+        await _context.SaveChangesAsync();
+
         return Ok(entry);
     }
 
-    [HttpPost("timer/stop/{entryId}")]
-    public async Task<IActionResult> StopTimer(Guid entryId)
+    [HttpPut("time-entries/{id}/stop")]
+    public async Task<IActionResult> StopTimeEntry(Guid id)
     {
-        var entry = await _billingService.StopTimerAsync(entryId);
-        return Ok(new { entry.Id, entry.Duration, entry.Amount });
+        var userId = GetUserId();
+        var entry = await _context.TimeEntries.FindAsync(id);
+
+        if (entry == null || entry.UserId != userId)
+            return Forbid();
+
+        entry.EndTime = DateTime.UtcNow;
+        entry.DurationMinutes = (int)(entry.EndTime.Value - entry.StartTime).TotalMinutes;
+        entry.Amount = (entry.DurationMinutes / 60m) * entry.HourlyRate;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(entry);
     }
 
-    [HttpPost("invoice/generate")]
-    public async Task<IActionResult> GenerateInvoice([FromBody] GenerateInvoiceRequest request)
+    [HttpGet("time-entries/case/{caseId}")]
+    public async Task<IActionResult> GetTimeEntries(Guid caseId)
     {
-        var invoice = await _billingService.GenerateInvoiceAsync(request.CaseId, request.ClientId);
+        var userId = GetUserId();
+        var entries = await _context.TimeEntries
+            .Where(t => t.CaseId == caseId && t.UserId == userId)
+            .OrderByDescending(t => t.StartTime)
+            .ToListAsync();
+
+        return Ok(entries);
+    }
+
+    // Invoices
+    [HttpPost("invoices")]
+    public async Task<IActionResult> CreateInvoice([FromBody] CreateInvoiceRequest request)
+    {
+        var userId = GetUserId();
+
+        var invoice = new Invoice
+        {
+            Id = Guid.NewGuid(),
+            ClientId = request.ClientId,
+            InvoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString()[..8]}",
+            IssueDate = DateTime.UtcNow,
+            DueDate = DateTime.UtcNow.AddDays(30),
+            Subtotal = request.Items.Sum(i => i.Amount),
+            TaxRate = request.TaxRate,
+            Status = "DRAFT",
+            Notes = request.Notes,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        invoice.Tax = invoice.Subtotal * (invoice.TaxRate / 100);
+        invoice.Total = invoice.Subtotal + invoice.Tax;
+
+        _context.Invoices.Add(invoice);
+
+        foreach (var item in request.Items)
+        {
+            _context.InvoiceItems.Add(new InvoiceItem
+            {
+                Id = Guid.NewGuid(),
+                InvoiceId = invoice.Id,
+                Description = item.Description,
+                Quantity = item.Quantity,
+                UnitPrice = item.UnitPrice,
+                Amount = item.Amount,
+                TimeEntryId = item.TimeEntryId
+            });
+        }
+
+        await _context.SaveChangesAsync();
+
         return Ok(invoice);
     }
 
-    [HttpGet("case/{caseId}/time-entries")]
-    public async Task<IActionResult> GetCaseTimeEntries(Guid caseId)
+    [HttpGet("invoices")]
+    public async Task<IActionResult> GetInvoices()
     {
-        var entries = await _billingService.GetCaseTimeEntriesAsync(caseId);
-        return Ok(entries);
+        var userId = GetUserId();
+        var invoices = await _context.Invoices
+            .OrderByDescending(i => i.IssueDate)
+            .ToListAsync();
+
+        return Ok(invoices);
+    }
+
+    [HttpPut("invoices/{id}/status")]
+    public async Task<IActionResult> UpdateInvoiceStatus(Guid id, [FromBody] UpdateStatusRequest request)
+    {
+        var invoice = await _context.Invoices.FindAsync(id);
+        if (invoice == null)
+            return NotFound();
+
+        invoice.Status = request.Status;
+        if (request.Status == "SENT")
+            invoice.SentAt = DateTime.UtcNow;
+        if (request.Status == "PAID")
+            invoice.PaidAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(invoice);
     }
 }
 
-public record StartTimerRequest(Guid CaseId, string Description, decimal HourlyRate);
-public record GenerateInvoiceRequest(Guid CaseId, Guid ClientId);
+public record StartTimeRequest(Guid CaseId, string Description, decimal HourlyRate, bool IsBillable);
+public record CreateInvoiceRequest(Guid ClientId, decimal TaxRate, string? Notes, List<InvoiceItemRequest> Items);
+public record InvoiceItemRequest(string Description, decimal Quantity, decimal UnitPrice, decimal Amount, Guid? TimeEntryId);
+public record UpdateStatusRequest(string Status);

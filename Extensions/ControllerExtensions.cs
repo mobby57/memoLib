@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MemoLib.Api;
+namespace MemoLib.Api.Extensions;
 
 public static class ControllerExtensions
 {

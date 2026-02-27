@@ -28,11 +28,13 @@ public class GdprController : ControllerBase
     [HttpPost("smart-anonymize")]
     public async Task<IActionResult> SmartAnonymizeData()
     {
-        var userId = Guid.Parse(User.FindFirst("userId")!.Value);
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+
         var reversibleService = new ReversibleAnonymizationService(HttpContext.RequestServices.GetRequiredService<IConfiguration>());
         
         var events = await _dbContext.Events
-            .Where(e => e.Source.UserId == userId)
+            .Where(e => e.Source != null && e.Source.UserId == userId)
             .ToListAsync();
 
         var anonymizedData = new List<UsableAnonymizedData>();
@@ -67,11 +69,13 @@ public class GdprController : ControllerBase
     [HttpPost("deanonymize")]
     public async Task<IActionResult> DeanonymizeData([FromBody] DeanonymizeRequest request)
     {
-        var userId = Guid.Parse(User.FindFirst("userId")!.Value);
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+
         var reversibleService = new ReversibleAnonymizationService(HttpContext.RequestServices.GetRequiredService<IConfiguration>());
         
         var evt = await _dbContext.Events
-            .FirstOrDefaultAsync(e => e.Id == request.EventId && e.Source.UserId == userId);
+            .FirstOrDefaultAsync(e => e.Id == request.EventId && e.Source != null && e.Source.UserId == userId);
             
         if (evt == null)
             return NotFound("Événement non trouvé");
@@ -80,6 +84,9 @@ public class GdprController : ControllerBase
             return BadRequest("Aucune donnée d'anonymisation trouvée");
             
         var mappings = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, AnonymizationMapping>>(evt.ValidationFlags);
+        if (mappings == null)
+            return BadRequest("Mappings d'anonymisation invalides");
+
         var originalText = reversibleService.DeanonymizeForUser(evt.RawPayload, mappings);
         
         return Ok(new { 
@@ -90,11 +97,12 @@ public class GdprController : ControllerBase
     }
     public async Task<IActionResult> AnonymizeUserData()
     {
-        var userId = Guid.Parse(User.FindFirst("userId")!.Value);
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
         
         // Anonymiser les événements
         var events = await _dbContext.Events
-            .Where(e => e.Source.UserId == userId)
+            .Where(e => e.Source != null && e.Source.UserId == userId)
             .ToListAsync();
 
         var anonymizedCount = 0;
@@ -137,7 +145,9 @@ public class GdprController : ControllerBase
     [HttpGet("compliance-report")]
     public IActionResult GetComplianceReport()
     {
-        var userId = Guid.Parse(User.FindFirst("userId")!.Value);
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+
         var report = _anonymizationService.GenerateComplianceReport(userId);
         
         return Ok(report);
@@ -146,10 +156,11 @@ public class GdprController : ControllerBase
     [HttpDelete("delete-all-data")]
     public async Task<IActionResult> DeleteAllUserData()
     {
-        var userId = Guid.Parse(User.FindFirst("userId")!.Value);
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
         
         // Supprimer dans l'ordre des dépendances
-        var events = await _dbContext.Events.Where(e => e.Source.UserId == userId).ToListAsync();
+        var events = await _dbContext.Events.Where(e => e.Source != null && e.Source.UserId == userId).ToListAsync();
         var cases = await _dbContext.Cases.Where(c => c.UserId == userId).ToListAsync();
         var clients = await _dbContext.Clients.Where(c => c.UserId == userId).ToListAsync();
         var sources = await _dbContext.Sources.Where(s => s.UserId == userId).ToListAsync();
@@ -176,12 +187,13 @@ public class GdprController : ControllerBase
     [HttpGet("data-export")]
     public async Task<IActionResult> ExportUserData()
     {
-        var userId = Guid.Parse(User.FindFirst("userId")!.Value);
+        if (!TryGetCurrentUserId(out var userId))
+            return Unauthorized();
         
         var userData = new
         {
             Events = await _dbContext.Events
-                .Where(e => e.Source.UserId == userId)
+                .Where(e => e.Source != null && e.Source.UserId == userId)
                 .Select(e => new { e.Id, e.RawPayload, e.OccurredAt, e.EventType })
                 .ToListAsync(),
             
@@ -200,6 +212,13 @@ public class GdprController : ControllerBase
         };
 
         return Ok(userData);
+    }
+
+    private bool TryGetCurrentUserId(out Guid userId)
+    {
+        userId = Guid.Empty;
+        var rawUserId = User.FindFirst("userId")?.Value;
+        return !string.IsNullOrWhiteSpace(rawUserId) && Guid.TryParse(rawUserId, out userId);
     }
 }
 

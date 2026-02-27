@@ -253,7 +253,7 @@ public class AuthController : ControllerBase
             Email = normalizedEmail,
             Password = hashedPasswordStr,
             Name = request.Name,
-            Role = request.Role ?? "AVOCAT",
+            Role = request.Role ?? "AGENT",
             Phone = request.Phone,
             FirmName = request.FirmName,
             BarNumber = request.BarNumber,
@@ -280,7 +280,7 @@ public class AuthController : ControllerBase
             Id = user.Id,
             Email = user.Email,
             Name = user.Name,
-            Role = user.Role ?? "AVOCAT"
+            Role = request.Role ?? "AGENT"
         });
     }
 }

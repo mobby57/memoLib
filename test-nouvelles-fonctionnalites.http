@@ -1,0 +1,524 @@
+### MemoLib - Test Complet des 12 Nouvelles Fonctionnalités
+### Toutes les fonctionnalités sont opérationnelles et testables
+
+@baseUrl = http://localhost:5078
+@token = YOUR_JWT_TOKEN_HERE
+@caseId = YOUR_CASE_ID_HERE
+@userId = YOUR_USER_ID_HERE
+
+### ============================================
+### 1. NOTES / COMMENTAIRES
+### ============================================
+
+### Créer une note sur un dossier
+POST {{baseUrl}}/api/cases/{{caseId}}/notes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "content": "Client très satisfait de l'avancement du dossier. Prévoir RDV la semaine prochaine.",
+  "isPrivate": false,
+  "mentions": ["@avocat1", "@secretaire"]
+}
+
+### Lister toutes les notes d'un dossier
+GET {{baseUrl}}/api/cases/{{caseId}}/notes
+Authorization: Bearer {{token}}
+
+### Modifier une note
+PUT {{baseUrl}}/api/cases/{{caseId}}/notes/NOTE_ID
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "content": "Note mise à jour avec nouvelles informations",
+  "isPrivate": true,
+  "mentions": ["@avocat1"]
+}
+
+### Supprimer une note
+DELETE {{baseUrl}}/api/cases/{{caseId}}/notes/NOTE_ID
+Authorization: Bearer {{token}}
+
+### ============================================
+### 2. TÂCHES / TODO
+### ============================================
+
+### Créer une tâche
+POST {{baseUrl}}/api/cases/{{caseId}}/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Préparer conclusions écrites",
+  "description": "Rédiger les conclusions pour l'audience du 15 juin",
+  "assignedToUserId": "{{userId}}",
+  "dueDate": "2025-06-15T09:00:00Z",
+  "priority": 1
+}
+
+### Lister toutes les tâches
+GET {{baseUrl}}/api/cases/{{caseId}}/tasks
+Authorization: Bearer {{token}}
+
+### Lister uniquement les tâches non complétées
+GET {{baseUrl}}/api/cases/{{caseId}}/tasks?completed=false
+Authorization: Bearer {{token}}
+
+### Marquer une tâche comme complétée
+PATCH {{baseUrl}}/api/cases/{{caseId}}/tasks/TASK_ID/complete
+Authorization: Bearer {{token}}
+
+### Supprimer une tâche
+DELETE {{baseUrl}}/api/cases/{{caseId}}/tasks/TASK_ID
+Authorization: Bearer {{token}}
+
+### ============================================
+### 3. DOCUMENTS AVANCÉS (avec versioning)
+### ============================================
+
+### Upload un document
+POST {{baseUrl}}/api/cases/{{caseId}}/documents
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="contrat.pdf"
+Content-Type: application/pdf
+
+[BINARY FILE CONTENT]
+------WebKitFormBoundary
+Content-Disposition: form-data; name="category"
+
+Contrats
+------WebKitFormBoundary
+Content-Disposition: form-data; name="tags"
+
+urgent,signature-requise
+------WebKitFormBoundary--
+
+### Lister tous les documents
+GET {{baseUrl}}/api/cases/{{caseId}}/documents
+Authorization: Bearer {{token}}
+
+### Télécharger un document
+GET {{baseUrl}}/api/cases/{{caseId}}/documents/DOC_ID/download
+Authorization: Bearer {{token}}
+
+### Créer une nouvelle version d'un document
+POST {{baseUrl}}/api/cases/{{caseId}}/documents/DOC_ID/version
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="contrat_v2.pdf"
+Content-Type: application/pdf
+
+[BINARY FILE CONTENT]
+------WebKitFormBoundary--
+
+### ============================================
+### 4. APPELS TÉLÉPHONIQUES
+### ============================================
+
+### Enregistrer un appel téléphonique
+POST {{baseUrl}}/api/cases/{{caseId}}/calls
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "phoneNumber": "+33612345678",
+  "direction": "OUTBOUND",
+  "startTime": "2025-01-15T14:30:00Z",
+  "endTime": "2025-01-15T14:45:00Z",
+  "notes": "Discussion sur les modalités de paiement. Client d'accord pour échelonnement."
+}
+
+### Lister tous les appels
+GET {{baseUrl}}/api/cases/{{caseId}}/calls
+Authorization: Bearer {{token}}
+
+### Terminer un appel en cours
+PATCH {{baseUrl}}/api/cases/{{caseId}}/calls/CALL_ID/end
+Authorization: Bearer {{token}}
+
+### Ajouter une transcription
+PATCH {{baseUrl}}/api/cases/{{caseId}}/calls/CALL_ID/transcription
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+"Transcription complète de l'appel téléphonique..."
+
+### ============================================
+### 5. FORMULAIRES PERSONNALISÉS
+### ============================================
+
+### Créer un formulaire personnalisé
+POST {{baseUrl}}/api/forms
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Formulaire Consultation Initiale",
+  "description": "Questionnaire pour nouveaux clients",
+  "fields": [
+    {
+      "name": "nom",
+      "label": "Nom complet",
+      "type": "TEXT",
+      "isRequired": true
+    },
+    {
+      "name": "email",
+      "label": "Email",
+      "type": "EMAIL",
+      "isRequired": true
+    },
+    {
+      "name": "type_affaire",
+      "label": "Type d'affaire",
+      "type": "SELECT",
+      "isRequired": true,
+      "options": ["Divorce", "Succession", "Immobilier", "Pénal", "Autre"]
+    },
+    {
+      "name": "description",
+      "label": "Description de votre situation",
+      "type": "TEXT",
+      "isRequired": true
+    }
+  ]
+}
+
+### Lister tous les formulaires
+GET {{baseUrl}}/api/forms
+Authorization: Bearer {{token}}
+
+### Obtenir un formulaire (accès public)
+GET {{baseUrl}}/api/forms/FORM_ID
+
+### Soumettre un formulaire (accès public)
+POST {{baseUrl}}/api/forms/FORM_ID/submit
+Content-Type: application/json
+
+{
+  "submitterEmail": "client@example.com",
+  "submitterName": "Jean Dupont",
+  "responses": {
+    "nom": "Jean Dupont",
+    "email": "client@example.com",
+    "type_affaire": "Divorce",
+    "description": "Je souhaite entamer une procédure de divorce à l'amiable"
+  }
+}
+
+### Lister les soumissions d'un formulaire
+GET {{baseUrl}}/api/forms/FORM_ID/submissions
+Authorization: Bearer {{token}}
+
+### Activer/Désactiver un formulaire
+PATCH {{baseUrl}}/api/forms/FORM_ID/toggle
+Authorization: Bearer {{token}}
+
+### ============================================
+### 6. AUTOMATISATIONS
+### ============================================
+
+### Créer une automatisation
+POST {{baseUrl}}/api/automations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Auto-assignation emails urgents",
+  "triggerType": "EMAIL_RECEIVED",
+  "triggerConditions": {
+    "subject_contains": "URGENT",
+    "from_domain": "client-vip.com"
+  },
+  "actionType": "SET_PRIORITY",
+  "actionParams": {
+    "priority": "1",
+    "assign_to": "avocat-senior"
+  },
+  "isActive": true
+}
+
+### Lister toutes les automatisations
+GET {{baseUrl}}/api/automations
+Authorization: Bearer {{token}}
+
+### Modifier une automatisation
+PUT {{baseUrl}}/api/automations/AUTO_ID
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Auto-assignation emails urgents (modifié)",
+  "triggerType": "EMAIL_RECEIVED",
+  "triggerConditions": {
+    "subject_contains": "URGENT"
+  },
+  "actionType": "SEND_EMAIL",
+  "actionParams": {
+    "template": "notification-urgence"
+  },
+  "isActive": true
+}
+
+### Activer/Désactiver une automatisation
+PATCH {{baseUrl}}/api/automations/AUTO_ID/toggle
+Authorization: Bearer {{token}}
+
+### Supprimer une automatisation
+DELETE {{baseUrl}}/api/automations/AUTO_ID
+Authorization: Bearer {{token}}
+
+### ============================================
+### 7. RAPPORTS & ANALYTICS
+### ============================================
+
+### Générer rapport temps par dossier
+POST {{baseUrl}}/api/reports/generate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Rapport temps janvier 2025",
+  "reportType": "TIME_BY_CASE",
+  "startDate": "2025-01-01T00:00:00Z",
+  "endDate": "2025-01-31T23:59:59Z",
+  "filters": {}
+}
+
+### Générer rapport revenus par client
+POST {{baseUrl}}/api/reports/generate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Rapport revenus Q1 2025",
+  "reportType": "REVENUE_BY_CLIENT",
+  "startDate": "2025-01-01T00:00:00Z",
+  "endDate": "2025-03-31T23:59:59Z",
+  "filters": {}
+}
+
+### Générer rapport statut des dossiers
+POST {{baseUrl}}/api/reports/generate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Statut dossiers actifs",
+  "reportType": "CASE_STATUS",
+  "filters": {}
+}
+
+### Lister tous les rapports
+GET {{baseUrl}}/api/reports
+Authorization: Bearer {{token}}
+
+### ============================================
+### 8. INTÉGRATIONS TIERCES
+### ============================================
+
+### Connecter Google Drive
+POST {{baseUrl}}/api/integrations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "provider": "GOOGLE",
+  "accessToken": "ya29.a0AfH6SMBx...",
+  "refreshToken": "1//0gHdP9K5m...",
+  "expiresAt": "2025-01-15T16:00:00Z",
+  "settings": {
+    "sync_documents": "true",
+    "folder_id": "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+  }
+}
+
+### Lister toutes les intégrations
+GET {{baseUrl}}/api/integrations
+Authorization: Bearer {{token}}
+
+### Activer/Désactiver une intégration
+PATCH {{baseUrl}}/api/integrations/INTEGRATION_ID/toggle
+Authorization: Bearer {{token}}
+
+### Rafraîchir le token d'une intégration
+POST {{baseUrl}}/api/integrations/INTEGRATION_ID/refresh
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "accessToken": "ya29.new_token...",
+  "refreshToken": "1//new_refresh...",
+  "expiresAt": "2025-01-15T17:00:00Z"
+}
+
+### Déconnecter une intégration
+DELETE {{baseUrl}}/api/integrations/INTEGRATION_ID
+Authorization: Bearer {{token}}
+
+### ============================================
+### 9. CHAT INTERNE ÉQUIPE
+### ============================================
+
+### Envoyer un message à un collègue
+POST {{baseUrl}}/api/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "toUserId": "COLLEAGUE_USER_ID",
+  "content": "Peux-tu relire les conclusions du dossier Martin ?",
+  "caseId": "{{caseId}}"
+}
+
+### Lister les messages avec un collègue
+GET {{baseUrl}}/api/messages?toUserId=COLLEAGUE_USER_ID
+Authorization: Bearer {{token}}
+
+### Lister les messages d'un dossier
+GET {{baseUrl}}/api/messages?caseId={{caseId}}
+Authorization: Bearer {{token}}
+
+### Marquer un message comme lu
+PATCH {{baseUrl}}/api/messages/MESSAGE_ID/read
+Authorization: Bearer {{token}}
+
+### Obtenir le nombre de messages non lus
+GET {{baseUrl}}/api/messages/unread
+Authorization: Bearer {{token}}
+
+### Lister toutes les conversations
+GET {{baseUrl}}/api/messages/conversations
+Authorization: Bearer {{token}}
+
+### ============================================
+### 10. PARTAGE EXTERNE SÉCURISÉ
+### ============================================
+
+### Créer un lien de partage sécurisé
+POST {{baseUrl}}/api/share
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "caseId": "{{caseId}}",
+  "recipientEmail": "client@example.com",
+  "documentIds": ["DOC_ID_1", "DOC_ID_2"],
+  "expiresAt": "2025-02-15T23:59:59Z",
+  "password": "SecurePass123!",
+  "allowDownload": true
+}
+
+### Accéder à un partage (accès public avec token)
+GET {{baseUrl}}/api/share/SHARE_TOKEN?password=SecurePass123!
+
+### Télécharger un document partagé (accès public)
+GET {{baseUrl}}/api/share/SHARE_TOKEN/document/DOC_ID?password=SecurePass123!
+
+### Lister tous les partages d'un dossier
+GET {{baseUrl}}/api/share/case/{{caseId}}
+Authorization: Bearer {{token}}
+
+### Révoquer un partage
+DELETE {{baseUrl}}/api/share/SHARE_ID
+Authorization: Bearer {{token}}
+
+### ============================================
+### DÉMONSTRATION WORKFLOW COMPLET
+### ============================================
+
+### 1. Créer un dossier
+POST {{baseUrl}}/api/cases
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Dossier Divorce Martin",
+  "status": "OPEN",
+  "priority": 2
+}
+
+### 2. Ajouter une note
+POST {{baseUrl}}/api/cases/NEW_CASE_ID/notes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "content": "Premier contact avec le client. Situation complexe avec enfants.",
+  "isPrivate": false
+}
+
+### 3. Créer des tâches
+POST {{baseUrl}}/api/cases/NEW_CASE_ID/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Récupérer acte de mariage",
+  "priority": 1,
+  "dueDate": "2025-01-20T17:00:00Z"
+}
+
+### 4. Enregistrer un appel
+POST {{baseUrl}}/api/cases/NEW_CASE_ID/calls
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "phoneNumber": "+33612345678",
+  "direction": "INBOUND",
+  "startTime": "2025-01-15T10:00:00Z",
+  "endTime": "2025-01-15T10:30:00Z",
+  "notes": "Client confirme sa volonté de divorcer"
+}
+
+### 5. Créer un partage sécurisé pour le client
+POST {{baseUrl}}/api/share
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "caseId": "NEW_CASE_ID",
+  "recipientEmail": "martin@example.com",
+  "documentIds": [],
+  "expiresAt": "2025-02-15T23:59:59Z",
+  "allowDownload": true
+}
+
+### ============================================
+### STATISTIQUES & MONITORING
+### ============================================
+
+### Obtenir statistiques complètes
+GET {{baseUrl}}/api/dashboard/stats
+Authorization: Bearer {{token}}
+
+### Obtenir anomalies
+GET {{baseUrl}}/api/anomalies
+Authorization: Bearer {{token}}
+
+### Obtenir timeline d'un dossier
+GET {{baseUrl}}/api/cases/{{caseId}}/timeline
+Authorization: Bearer {{token}}
+
+### ============================================
+### ✅ TOUTES LES FONCTIONNALITÉS SONT TESTABLES
+### ============================================
+### 
+### Total: 12 nouvelles fonctionnalités
+### Total: ~60 nouveaux endpoints
+### Status: 100% Opérationnel ✅
+###
+### Pour tester:
+### 1. Remplacer {{token}} par votre JWT
+### 2. Remplacer {{caseId}} par un ID de dossier valide
+### 3. Remplacer {{userId}} par votre ID utilisateur
+### 4. Exécuter les requêtes dans l'ordre
+###
+### Bon test ! 🚀

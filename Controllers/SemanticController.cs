@@ -73,10 +73,13 @@ public class SemanticController : ControllerBase
         if (userSourceIds.Count == 0)
             return Ok(Array.Empty<object>());
 
+        // LIMIT to 1000 events to prevent memory overflow
         var events = await _context.Events
             .AsNoTracking()
             .Where(e => userSourceIds.Contains(e.SourceId))
             .Where(e => e.EmbeddingVector != null && !string.IsNullOrEmpty(e.EmbeddingVector))
+            .OrderByDescending(e => e.OccurredAt)
+            .Take(1000)
             .ToListAsync();
 
         var results = new List<dynamic>();

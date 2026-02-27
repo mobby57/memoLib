@@ -1,11 +1,332 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=/demo.html" />
-  <title>MemoLib - Redirection</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Plateforme Omnicanale pour Cabinets d'Avocats</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Hero Section */
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 80px 20px; text-align: center; }
+        .hero h1 { font-size: 3.5em; margin-bottom: 20px; }
+        .hero p { font-size: 1.5em; margin-bottom: 40px; opacity: 0.95; }
+        .hero .cta { display: inline-flex; gap: 20px; }
+        .btn { padding: 15px 40px; border-radius: 8px; font-size: 1.1em; font-weight: bold; text-decoration: none; transition: all 0.3s; cursor: pointer; border: none; }
+        .btn-primary { background: white; color: #667eea; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .btn-secondary { background: transparent; color: white; border: 2px solid white; }
+        .btn-secondary:hover { background: white; color: #667eea; }
+
+        /* Features */
+        .features { padding: 80px 20px; max-width: 1200px; margin: 0 auto; }
+        .features h2 { text-align: center; font-size: 2.5em; color: #333; margin-bottom: 50px; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .feature-card { background: #f8f9fa; padding: 30px; border-radius: 15px; transition: all 0.3s; }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .feature-card .icon { font-size: 3em; margin-bottom: 15px; }
+        .feature-card h3 { color: #667eea; margin-bottom: 15px; font-size: 1.5em; }
+        .feature-card p { color: #666; line-height: 1.6; }
+        .feature-card ul { margin-top: 15px; color: #666; }
+        .feature-card li { margin-bottom: 8px; }
+
+        /* Channels */
+        .channels { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 80px 20px; color: white; }
+        .channels h2 { text-align: center; font-size: 2.5em; margin-bottom: 50px; }
+        .channel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .channel-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 25px; border-radius: 15px; text-align: center; transition: all 0.3s; }
+        .channel-card:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+        .channel-card .icon { font-size: 3em; margin-bottom: 10px; }
+        .channel-card h3 { font-size: 1.2em; margin-bottom: 5px; }
+        .channel-card p { font-size: 0.9em; opacity: 0.9; }
+
+        /* Stats */
+        .stats { padding: 80px 20px; background: #f8f9fa; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+        .stat-card { background: white; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .stat-card .number { font-size: 3em; font-weight: bold; color: #667eea; margin-bottom: 10px; }
+        .stat-card .label { color: #666; font-size: 1.1em; }
+
+        /* Pricing */
+        .pricing { padding: 80px 20px; max-width: 1200px; margin: 0 auto; }
+        .pricing h2 { text-align: center; font-size: 2.5em; color: #333; margin-bottom: 50px; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .pricing-card { background: white; border: 2px solid #e0e0e0; padding: 40px; border-radius: 15px; text-align: center; transition: all 0.3s; }
+        .pricing-card:hover { border-color: #667eea; transform: translateY(-5px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2); }
+        .pricing-card.featured { border-color: #667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .pricing-card h3 { font-size: 2em; margin-bottom: 20px; }
+        .pricing-card .price { font-size: 3em; font-weight: bold; margin-bottom: 10px; }
+        .pricing-card .period { opacity: 0.7; margin-bottom: 30px; }
+        .pricing-card ul { text-align: left; margin-bottom: 30px; }
+        .pricing-card li { margin-bottom: 15px; padding-left: 25px; position: relative; }
+        .pricing-card li:before { content: "✓"; position: absolute; left: 0; color: #667eea; font-weight: bold; }
+        .pricing-card.featured li:before { color: white; }
+
+        /* Footer */
+        .footer { background: #1a1a2e; color: white; padding: 40px 20px; text-align: center; }
+        .footer a { color: #667eea; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    </style>
 </head>
 <body>
-  <p>Redirection vers <a href="/demo.html">demo.html</a>...</p>
+    <!-- Hero -->
+    <section class="hero">
+        <h1>🚀 MemoLib</h1>
+        <p>Plateforme Omnicanale Intelligente pour Cabinets d'Avocats</p>
+        <p style="font-size: 1.2em; margin-bottom: 40px;">Gérez TOUS vos canaux de communication depuis une seule interface sécurisée</p>
+        <div class="cta">
+            <a href="/demo-interactive.html" class="btn btn-primary">🎮 Démo Interactive</a>
+            <a href="/demo.html" class="btn btn-secondary">📊 Interface Complète</a>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number">6</div>
+                <div class="label">Canaux Intégrés</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">0€</div>
+                <div class="label">Coût Mensuel</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">100%</div>
+                <div class="label">Sécurisé E2E</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">70K</div>
+                <div class="label">Avocats en France</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Channels -->
+    <section class="channels">
+        <h2>📡 Tous les Canaux Unifiés</h2>
+        <div class="channel-grid">
+            <div class="channel-card">
+                <div class="icon">📧</div>
+                <h3>Email</h3>
+                <p>Gmail IMAP automatique</p>
+            </div>
+            <div class="channel-card">
+                <div class="icon">📱</div>
+                <h3>SMS</h3>
+                <p>Twilio intégré</p>
+            </div>
+            <div class="channel-card">
+                <div class="icon">💚</div>
+                <h3>WhatsApp</h3>
+                <p>60% des Français</p>
+            </div>
+            <div class="channel-card">
+                <div class="icon">✈️</div>
+                <h3>Telegram</h3>
+                <p>Gratuit & illimité</p>
+            </div>
+            <div class="channel-card">
+                <div class="icon">💬</div>
+                <h3>Messenger</h3>
+                <p>Facebook intégré</p>
+            </div>
+            <div class="channel-card">
+                <div class="icon">🔒</div>
+                <h3>Signal Hub</h3>
+                <p>Sécurité maximale</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <h2>✨ Fonctionnalités Complètes</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon">📨</div>
+                <h3>Inbox Unifiée</h3>
+                <p>Tous vos messages de TOUS les canaux dans une seule interface</p>
+                <ul>
+                    <li>Vue chronologique unifiée</li>
+                    <li>Filtres par canal</li>
+                    <li>Recherche globale</li>
+                    <li>Détection doublons</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">🔒</div>
+                <h3>Signal Command Center</h3>
+                <p>Pilotez TOUT depuis Signal - Sécurité maximale E2E</p>
+                <ul>
+                    <li>/inbox - Voir tous les messages</li>
+                    <li>/stats - Statistiques globales</li>
+                    <li>/cases - Gérer les dossiers</li>
+                    <li>/search - Recherche universelle</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">📁</div>
+                <h3>Gestion Dossiers</h3>
+                <p>Workflow complet pour vos dossiers juridiques</p>
+                <ul>
+                    <li>Création automatique depuis emails</li>
+                    <li>Statuts (OPEN → IN_PROGRESS → CLOSED)</li>
+                    <li>Tags & priorités</li>
+                    <li>Timeline complète</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">👥</div>
+                <h3>Gestion Clients</h3>
+                <p>Base clients intelligente avec extraction automatique</p>
+                <ul>
+                    <li>Création auto depuis messages</li>
+                    <li>Extraction téléphone/adresse</li>
+                    <li>Vue 360° client</li>
+                    <li>Détection doublons</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">🔍</div>
+                <h3>Recherche Intelligente</h3>
+                <p>3 types de recherche pour trouver n'importe quoi</p>
+                <ul>
+                    <li>Recherche textuelle classique</li>
+                    <li>Recherche par embeddings</li>
+                    <li>Recherche sémantique IA</li>
+                    <li>Recherche multi-canal</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h3>Analytics & Monitoring</h3>
+                <p>Tableaux de bord et statistiques en temps réel</p>
+                <ul>
+                    <li>Dashboard intelligent</li>
+                    <li>Centre d'anomalies</li>
+                    <li>Journal d'audit complet</li>
+                    <li>Alertes automatiques</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">📤</div>
+                <h3>Envoi Multi-Canal</h3>
+                <p>Envoyez sur n'importe quel canal depuis une seule API</p>
+                <ul>
+                    <li>Templates réutilisables</li>
+                    <li>Variables dynamiques</li>
+                    <li>Pièces jointes</li>
+                    <li>Routage automatique</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">🌐</div>
+                <h3>Passerelle Universelle</h3>
+                <p>API unifiée pour tous les canaux de communication</p>
+                <ul>
+                    <li>Ingestion universelle</li>
+                    <li>Envoi multi-canal</li>
+                    <li>Webhooks centralisés</li>
+                    <li>Format standardisé</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">🔐</div>
+                <h3>Sécurité Maximale</h3>
+                <p>Conformité RGPD et secret professionnel</p>
+                <ul>
+                    <li>Chiffrement E2E (Signal)</li>
+                    <li>JWT + BCrypt</li>
+                    <li>Isolation multi-tenant</li>
+                    <li>Audit complet</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing">
+        <h2>💰 Tarification Simple</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Local</h3>
+                <div class="price">0€</div>
+                <div class="period">par mois</div>
+                <ul>
+                    <li>Installation locale</li>
+                    <li>Tous les canaux</li>
+                    <li>Données en local</li>
+                    <li>Contrôle total</li>
+                    <li>Performance maximale</li>
+                </ul>
+                <a href="#" class="btn btn-secondary">Télécharger</a>
+            </div>
+
+            <div class="pricing-card featured">
+                <h3>Signal Hub</h3>
+                <div class="price">0€</div>
+                <div class="period">par mois</div>
+                <ul>
+                    <li>Architecture Signal Hub</li>
+                    <li>Sécurité E2E maximale</li>
+                    <li>Aucun webhook externe</li>
+                    <li>Économie 1080€/an</li>
+                    <li>RGPD compliant</li>
+                </ul>
+                <a href="#" class="btn btn-primary">Recommandé</a>
+            </div>
+
+            <div class="pricing-card">
+                <h3>Cloud Azure</h3>
+                <div class="price">50-100€</div>
+                <div class="period">par mois</div>
+                <ul>
+                    <li>Hébergement Azure</li>
+                    <li>Multi-sites distants</li>
+                    <li>Scalabilité 100+ users</li>
+                    <li>Haute disponibilité 99.9%</li>
+                    <li>Support premium</li>
+                </ul>
+                <a href="#" class="btn btn-secondary">Nous contacter</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Final -->
+    <section class="hero" style="padding: 60px 20px;">
+        <h2 style="font-size: 2.5em; margin-bottom: 20px;">Prêt à Unifier Vos Communications ?</h2>
+        <p style="font-size: 1.2em; margin-bottom: 40px;">Testez MemoLib gratuitement dès maintenant</p>
+        <div class="cta">
+            <a href="/demo-interactive.html" class="btn btn-primary">🎮 Essayer la Démo</a>
+            <a href="https://github.com/VOTRE_USERNAME/MemoLib" class="btn btn-secondary">📦 Télécharger</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 MemoLib - Plateforme Omnicanale pour Cabinets d'Avocats</p>
+        <p style="margin-top: 10px;">
+            <a href="/demo-interactive.html">Démo Interactive</a> | 
+            <a href="/demo.html">Interface Complète</a> | 
+            <a href="https://github.com/VOTRE_USERNAME/MemoLib">GitHub</a> | 
+            <a href="mailto:support@memolib.com">Support</a>
+        </p>
+        <p style="margin-top: 20px; opacity: 0.7;">
+            🚀 Développé pour les professionnels du droit | 🔒 Sécurité maximale | 💰 Coût 0€
+        </p>
+    </footer>
 </body>
 </html>

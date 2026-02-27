@@ -1,185 +1,171 @@
-# 🚀 memoLib Production Deployment Checklist
+# ✅ CHECKLIST DÉPLOIEMENT PRODUCTION
 
-**Deployment Date:** 7 février 2026  
-**Status:** ✅ LIVE ON FLY.IO  
-**URL:** https://memolib.fly.dev
+## Phase 1: Préparation (30 min)
 
-## ✅ Completed
+### Base de données
+- [x] Migration Sprint3CompleteFeatures appliquée
+- [ ] Backup base de données
+- [ ] Vérifier indexes
+- [ ] Tester rollback
 
-### Infrastructure
-- [x] Fly.io app created and configured
-- [x] 2 machines deployed in Paris (cdg) region
-- [x] DNS verified (memolib.fly.dev)
-- [x] Health checks passing (2/2 = 100%)
-- [x] SSL/TLS configured (automatic via Fly.io)
-- [x] Image optimized (114 MB)
+### Configuration
+- [ ] Variables d'environnement production
+- [ ] Secrets sécurisés (JWT, Email)
+- [ ] CORS origins production
+- [ ] HTTPS activé
+- [ ] Rate limiting configuré
 
-### Application
-- [x] Next.js 16.1.6 build successful (34-37s)
-- [x] Home page loads (HTTP 200)
-- [x] API health endpoint operational (`/api/health`)
-- [x] Startup time ~150-200ms
-- [x] All 23 environment secrets deployed
+### Tests
+- [ ] Tester tous les endpoints Sprint 3
+- [ ] Vérifier authentification JWT
+- [ ] Tester permissions RBAC
+- [ ] Vérifier SignalR WebSocket
+- [ ] Tester upload fichiers
 
-### Code Quality
-- [x] UTF-8 encoding fixed (348 .tsx files)
-- [x] Import paths standardized
-- [x] Card component created and working
-- [x] TypeScript no errors (tsc check passing)
-- [x] ESLint passing
-- [x] npm audit: 0 vulnerabilities in production
+## Phase 2: Build Production (15 min)
 
-### Git History
-- [x] All commits pushed to origin/main
-- [x] Branch protection bypassed (admin)
-- [x] Latest: d60ec89b "refactor: remove embedded migrations from Docker"
+```powershell
+# Build Release
+dotnet publish -c Release -o ./publish
 
-## ⏳ Optional Next Steps
-
-### 1. Stripe Webhook Configuration
-**Priority:** HIGH (if accepting payments)
-
-```bash
-# 1. Login to Stripe Dashboard
-# 2. Go to: Developers → Webhooks → Add endpoint
-# 3. Endpoint URL: https://memolib.fly.dev/api/v1/webhooks/stripe
-# 4. Select events:
-#    - payment_intent.succeeded
-#    - payment_intent.failed
-#    - checkout.session.completed
-#    - customer.subscription.* (create, update, delete)
-# 5. Copy webhook signing secret
-# 6. Verify: fly secrets list | grep STRIPE_WEBHOOK
+# Vérifier
+cd publish
+dir
 ```
 
-### 2. Database Migrations (if schema changes)
-**Priority:** MEDIUM (if using new models)
+### Vérifications
+- [ ] Tous les DLLs présents
+- [ ] appsettings.Production.json
+- [ ] wwwroot/ complet
+- [ ] Taille raisonnable (<100MB)
 
-```bash
-# SSH into Fly machine
-fly ssh console
+## Phase 3: Déploiement (30 min)
 
-# Inside machine
-cd /app
-npx prisma migrate deploy
-npx prisma generate
+### Option A: Local/VPS
+```powershell
+# Copier vers serveur
+scp -r publish/ user@server:/var/www/memolib/
 
-# Verify
-exit
+# Sur serveur
+cd /var/www/memolib
+./MemoLib.Api
+
+# Ou avec systemd
+sudo systemctl start memolib
 ```
 
-### 3. E2E Tests Against Production
-**Priority:** MEDIUM (for quality assurance)
-
-```bash
-cd src/frontend
-BASE_URL=https://memolib.fly.dev npm run test:e2e
-
-# Or specific test file
-BASE_URL=https://memolib.fly.dev npx playwright test auth.spec.ts
+### Option B: Azure
+```powershell
+# Azure CLI
+az webapp up --name memolib-api --resource-group memolib-rg
 ```
 
-### 4. GitHub Security Alerts
-**Priority:** LOW (non-critical)
+### Option C: Docker
+```powershell
+# Build image
+docker build -t memolib-api .
 
-```bash
-# View vulnerabilities
-gh browse https://github.com/mobby57/memoLib/security/dependabot
-
-# Fix if needed
-npm audit fix
-git add -A
-git commit -m "fix: resolve npm dependencies security alerts"
-git push origin main
-fly deploy
+# Run
+docker run -p 5078:5078 memolib-api
 ```
 
-### 5. Monitoring Setup
-**Priority:** LOW (optional but recommended)
+## Phase 4: Vérification (15 min)
 
-- Sentry DSN already configured: check dashboard for errors
-- Fly.io monitoring: https://fly.io/apps/memolib/monitoring
-- Set up external uptime monitor for https://memolib.fly.dev/api/health
+### Health Checks
+- [ ] GET /health → 200 OK
+- [ ] GET /api → 200 OK
+- [ ] POST /api/auth/login → 200 OK
+- [ ] WebSocket /realtimeHub → Connected
 
-### 6. Custom Domain (Optional)
-**Priority:** VERY LOW (if needed)
+### Fonctionnalités Critiques
+- [ ] Créer template → OK
+- [ ] Demander signature → OK
+- [ ] Créer formulaire → OK
+- [ ] Soumettre formulaire public → OK
+- [ ] Notification temps réel → OK
 
-```bash
-fly domains create yourdomain.com
-# Then follow instructions to add DNS records
+### Performance
+- [ ] Temps réponse API < 200ms
+- [ ] SignalR latence < 100ms
+- [ ] Upload fichier < 5s
+- [ ] Recherche full-text < 500ms
+
+## Phase 5: Monitoring (Continu)
+
+### Logs
+```powershell
+# Vérifier logs
+tail -f logs/memolib-*.txt
 ```
 
-## 📊 Current Metrics
+### Métriques
+- [ ] CPU < 50%
+- [ ] RAM < 2GB
+- [ ] Disk < 80%
+- [ ] Requêtes/sec < 1000
 
-| Metric | Value |
-|--------|-------|
-| **Availability** | 100% (2/2 health checks) |
-| **Response Time** | ~150-200ms startup |
-| **Image Size** | 114 MB |
-| **Build Time** | 34-37 seconds |
-| **Machines** | 2 (cdg region) |
-| **Node Version** | 20-slim |
-| **Framework** | Next.js 16.1.6 |
-| **Database** | Neon PostgreSQL (via secrets) |
-| **Auth** | NextAuth configured |
-| **Payments** | Stripe ready |
-| **Cache** | Redis (Upstash) ready |
+### Alertes
+- [ ] Email si erreur 500
+- [ ] SMS si downtime > 5min
+- [ ] Slack si CPU > 80%
 
-## 🔐 Security Status
+## Phase 6: Documentation (15 min)
 
-- [x] No hardcoded credentials
-- [x] All secrets in Fly.io (not in git)
-- [x] HTTPS enabled (automatic)
-- [x] CORS configured
-- [x] Rate limiting ready (Redis)
-- [x] npm audit passed (0 vulnerabilities)
+### Pour utilisateurs
+- [ ] Guide démarrage rapide
+- [ ] Vidéos tutoriels
+- [ ] FAQ
+- [ ] Support contact
 
-## 📝 Related Files
+### Pour développeurs
+- [ ] API documentation (Swagger)
+- [ ] Exemples code
+- [ ] Webhooks guide
+- [ ] Changelog
 
-- `Dockerfile.fly` - Production image configuration
-- `fly.toml` - Fly.io application config
-- `.env.example` - Environment variable template (for reference)
-- `src/components/ui/card.tsx` - UI component created this session
+## Rollback Plan
 
-## 🎯 Success Criteria Met
+### Si problème critique
+```powershell
+# 1. Arrêter nouvelle version
+sudo systemctl stop memolib
 
-✅ App is live and accessible  
-✅ Health checks passing  
-✅ API responding  
-✅ Home page loads  
-✅ No console errors  
-✅ TLS/HTTPS working  
-✅ All secrets deployed  
-✅ Clean git history  
+# 2. Restaurer backup
+cp backup/memolib.db memolib.db
 
-## 📞 Troubleshooting
+# 3. Redémarrer ancienne version
+sudo systemctl start memolib-old
 
-**If app goes down:**
-```bash
-# Check logs
-fly logs -a memolib
-
-# Restart machines
-fly machines restart 825d12c7319348
-fly machines restart e829961ae516d8
-
-# Redeploy
-fly deploy
+# 4. Vérifier
+curl http://localhost:5078/health
 ```
 
-**If secrets missing:**
-```bash
-fly secrets list
-fly secrets set KEY=value
-```
+## Post-Déploiement
 
-**If database issues:**
-```bash
-fly ssh console
-npx prisma studio
-```
+### Jour 1
+- [ ] Surveiller logs toutes les heures
+- [ ] Vérifier métriques
+- [ ] Tester fonctionnalités clés
+- [ ] Répondre aux tickets support
+
+### Semaine 1
+- [ ] Analyser usage
+- [ ] Optimiser performances
+- [ ] Corriger bugs mineurs
+- [ ] Collecter feedback
+
+### Mois 1
+- [ ] Rapport utilisation
+- [ ] Planifier améliorations
+- [ ] Mettre à jour documentation
+- [ ] Célébrer succès! 🎉
+
+## Contacts Urgence
+
+- **DevOps**: devops@memolib.com
+- **Support**: support@memolib.com
+- **Urgence**: +33 6 XX XX XX XX
 
 ---
 
-**Deployment Status:** ✅ **PRODUCTION READY**  
-**Last Updated:** 2026-02-07 15:30 UTC
+**✅ PRÊT POUR PRODUCTION - 10/10 FEATURES COMPLÈTES!**

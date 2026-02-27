@@ -21,7 +21,7 @@ public class CaseManagementController : ControllerBase
     }
 
     [HttpPatch("{caseId}/status")]
-    public async Task<IActionResult> UpdateStatus(Guid caseId, [FromBody] UpdateStatusRequest req)
+    public async Task<IActionResult> UpdateStatus(Guid caseId, [FromBody] CaseStatusUpdateRequest req)
     {
         if (!this.TryGetCurrentUserId(out var userId)) return Unauthorized();
         var c = await _db.Cases.FirstOrDefaultAsync(x => x.Id == caseId && x.UserId == userId);
@@ -101,7 +101,7 @@ public class CaseManagementController : ControllerBase
     }
 }
 
-public record UpdateStatusRequest(string Status);
+public record CaseStatusUpdateRequest(string Status);
 public record AssignRequest(Guid? AssignedToUserId);
 public record TagsRequest(string[] Tags);
 public record PriorityRequest(int Priority, DateTime? DueDate);

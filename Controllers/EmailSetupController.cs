@@ -122,7 +122,7 @@ public class EmailSetupController : ControllerBase
             
             return new TestResult { Success = true };
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return new TestResult { Success = false, Error = "Impossible de se connecter. Vérifiez vos identifiants." };
         }

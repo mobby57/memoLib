@@ -1,10 +1,20 @@
 using System.Net.Mail;
 using System.Text.RegularExpressions;
+using System.Net;
 
 namespace MemoLib.Api.Services;
 
 public class EmailValidationService
 {
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<EmailValidationService> _logger;
+
+    public EmailValidationService(IConfiguration configuration, ILogger<EmailValidationService> logger)
+    {
+        _configuration = configuration;
+        _logger = logger;
+    }
+
     private static readonly HashSet<string> SuspiciousDomains = new(StringComparer.OrdinalIgnoreCase)
     {
         "tempmail.org", "10minutemail.com", "guerrillamail.com", "mailinator.com",
@@ -92,6 +102,58 @@ public class EmailValidationService
         }
 
         return true;
+    }
+
+    public async Task<bool> SendUrgentEmailAsync(string to, string subject, string body)
+    {
+        if (!IsValidRecipient(to))
+            return false;
+
+        var sanitizedSubject = SanitizeEmailContent(subject);
+        var sanitizedBody = SanitizeEmailContent(body);
+
+        if (string.IsNullOrWhiteSpace(sanitizedSubject) || string.IsNullOrWhiteSpace(sanitizedBody))
+            return false;
+
+        var smtpHost = _configuration["EmailMonitor:SmtpHost"] ?? "smtp.gmail.com";
+        var smtpPortRaw = _configuration["EmailMonitor:SmtpPort"] ?? "587";
+        var username = _configuration["EmailMonitor:Username"];
+        var password = _configuration["EmailMonitor:Password"];
+
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        {
+            _logger.LogWarning("SMTP non configuré pour envoi urgent");
+            return false;
+        }
+
+        if (!int.TryParse(smtpPortRaw, out var smtpPort))
+            smtpPort = 587;
+
+        try
+        {
+            using var client = new SmtpClient(smtpHost, smtpPort)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(username, password)
+            };
+
+            using var mail = new MailMessage
+            {
+                From = new MailAddress(username),
+                Subject = $"[URGENT] {sanitizedSubject}",
+                Body = sanitizedBody,
+                IsBodyHtml = false
+            };
+
+            mail.To.Add(to);
+            await client.SendMailAsync(mail);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Echec envoi email urgent");
+            return false;
+        }
     }
 }
 

@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Contracts;
 using MemoLib.Api.Data;
 using MemoLib.Api.Models;
+using MemoLib.Api.Authorization;
+using System.Security.Claims;
 
 namespace MemoLib.Api.Controllers;
 
@@ -29,14 +31,19 @@ public class CaseController : ControllerBase
         return System.Text.RegularExpressions.Regex.Replace(normalized, "\\s+", " ");
     }
 
+    [Authorize(Policy = Policies.ViewCases)]
     [HttpGet]
     public async Task<IActionResult> ListCases()
     {
         if (!this.TryGetCurrentUserId(out var userId))
             return Unauthorized(new { message = "Utilisateur non authentifié" });
 
-        var cases = await _context.Cases
-            .Where(c => c.UserId == userId)
+        // MANAGER+ voit tous les dossiers
+        var query = User.IsManagerOrAbove()
+            ? _context.Cases
+            : _context.Cases.Where(c => c.UserId == userId);
+
+        var cases = await query
             .OrderByDescending(c => c.CreatedAt)
             .Select(c => new
             {
@@ -57,6 +64,7 @@ public class CaseController : ControllerBase
         return Ok(cases);
     }
 
+    [Authorize(Policy = Policies.ViewCases)]
     [HttpGet("{caseId}")]
     public async Task<IActionResult> GetCase(Guid caseId)
     {
@@ -64,14 +72,19 @@ public class CaseController : ControllerBase
             return Unauthorized(new { message = "Utilisateur non authentifié" });
 
         var c = await _context.Cases
-            .FirstOrDefaultAsync(c => c.Id == caseId && c.UserId == userId);
+            .FirstOrDefaultAsync(c => c.Id == caseId);
 
         if (c == null)
             return NotFound("Case not found.");
+            
+        // Vérifier les permissions d'accès
+        if (!c.UserId.HasValue || !User.CanAccessResource(c.UserId.Value))
+            return Forbid();
 
         return Ok(c);
     }
 
+    [Authorize(Policy = Policies.CreateCases)]
     [HttpPost]
     public async Task<IActionResult> CreateCase([FromBody] CreateCaseRequest request)
     {
@@ -181,6 +194,7 @@ public class CaseController : ControllerBase
         return Ok(events);
     }
 
+    [Authorize(Policy = Policies.DeleteCases)]
     [HttpPost("merge-duplicates")]
     public async Task<IActionResult> MergeDuplicateCases()
     {

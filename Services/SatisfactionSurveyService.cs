@@ -136,7 +136,7 @@ L'équipe MemoLib";
             var perf = new LawyerPerformance
             {
                 LawyerId = lawyer.Id,
-                LawyerName = lawyer.Name,
+                LawyerName = lawyer.Name ?? string.Empty,
                 TotalCasesClosed = closedCases,
                 SurveysReceived = surveys.Count,
                 ResponseRate = closedCases > 0 ? (double)surveys.Count / closedCases * 100 : 0,

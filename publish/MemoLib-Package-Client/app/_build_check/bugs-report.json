@@ -1,0 +1,298 @@
+{
+  "rapport": {
+    "date": "2026-01-03T15:30:00Z",
+    "projet": "iaPostemanage",
+    "version": "1.0.0",
+    "analyste": "GitHub Copilot (Claude Sonnet 4.5)"
+  },
+  "resume": {
+    "total_problemes": 21780,
+    "critiques": 22,
+    "moyens": 80,
+    "faibles": 21667,
+    "build_bloque": true,
+    "production_ready": false
+  },
+  "categories": [
+    {
+      "nom": "Erreurs TypeScript",
+      "severite": "CRITIQUE",
+      "count": 21,
+      "bloquant": true,
+      "fichiers_affectes": [
+        "src/app/dossiers/page-advanced.tsx"
+      ],
+      "lignes_affectees": [460, 461, 462, 463, 465, 468, 469, 470, 472, 473, 474, 477, 478, 479, 480, 481, 482, 485, 486, 487, 488, 489, 490, 491, 494, 495],
+      "description": "Erreurs de syntaxe TypeScript empêchant la compilation",
+      "codes_erreur": ["TS1128", "TS1005", "TS1434"],
+      "fix_prioritaire": true
+    },
+    {
+      "nom": "Configuration ESLint",
+      "severite": "MOYENNE",
+      "count": 1,
+      "bloquant": true,
+      "fichiers_affectes": [
+        ".eslintrc.json",
+        "package.json"
+      ],
+      "description": "ESLint référence un dossier 'lint/' inexistant",
+      "erreur": "Invalid project directory provided, no such directory: C:\\Users\\moros\\Desktop\\iaPostemanage\\lint",
+      "fix_prioritaire": true
+    },
+    {
+      "nom": "Console.log en Production",
+      "severite": "MOYENNE",
+      "count": 80,
+      "bloquant": false,
+      "fichiers_affectes": [
+        "src/lib/services/collaborationService.ts",
+        "src/app/exports/page.tsx",
+        "src/app/workspaces/page.tsx",
+        "src/utils/performance.ts",
+        "scripts/figma-icons.ts",
+        "scripts/figma-sync.ts"
+      ],
+      "description": "Statements de debug console.log/error/warn en production",
+      "risques": [
+        "Exposition de données sensibles",
+        "Dégradation performance",
+        "Console non professionnelle"
+      ],
+      "fix_prioritaire": true
+    },
+    {
+      "nom": "Complexité Cognitive",
+      "severite": "FAIBLE",
+      "count": 1,
+      "bloquant": false,
+      "fichiers_affectes": [
+        "src/app/api/dashboard/recent-activities/route.ts"
+      ],
+      "description": "Fonction GET avec complexité de 24 (max: 15)",
+      "metrique": {
+        "actuelle": 24,
+        "maximum": 15,
+        "depassement": 9
+      },
+      "fix_prioritaire": false
+    },
+    {
+      "nom": "Ternaires Imbriqués",
+      "severite": "FAIBLE",
+      "count": 2,
+      "bloquant": false,
+      "fichiers_affectes": [
+        "src/app/api/dashboard/recent-activities/route.ts"
+      ],
+      "lignes_affectees": [47, 78],
+      "description": "Opérations ternaires imbriquées difficiles à lire",
+      "fix_prioritaire": false
+    },
+    {
+      "nom": "SonarLint Warnings",
+      "severite": "INFO",
+      "count": 21667,
+      "bloquant": false,
+      "description": "Warnings de qualité de code SonarLint",
+      "fix_prioritaire": false
+    }
+  ],
+  "fichiers_problematiques": [
+    {
+      "path": "src/app/dossiers/page-advanced.tsx",
+      "erreurs": 21,
+      "severite": "CRITIQUE",
+      "ligne_debut": 460,
+      "ligne_fin": 495,
+      "type": "TypeScript Syntax",
+      "priorite": 1
+    },
+    {
+      "path": ".eslintrc.json",
+      "erreurs": 1,
+      "severite": "MOYENNE",
+      "type": "Configuration",
+      "priorite": 2
+    },
+    {
+      "path": "src/lib/services/collaborationService.ts",
+      "erreurs": 5,
+      "severite": "MOYENNE",
+      "type": "Production Debug Code",
+      "priorite": 3
+    },
+    {
+      "path": "src/app/exports/page.tsx",
+      "erreurs": 10,
+      "severite": "MOYENNE",
+      "type": "Production Debug Code",
+      "priorite": 3
+    },
+    {
+      "path": "src/app/api/dashboard/recent-activities/route.ts",
+      "erreurs": 3,
+      "severite": "FAIBLE",
+      "type": "Code Quality",
+      "priorite": 4
+    }
+  ],
+  "plan_action": {
+    "phase_1": {
+      "nom": "Débloquer le Build",
+      "priorite": "URGENT",
+      "duree_estimee_heures": 2,
+      "taches": [
+        {
+          "id": 1,
+          "description": "Fixer page-advanced.tsx ligne 460",
+          "fichier": "src/app/dossiers/page-advanced.tsx",
+          "action": "Vérifier accolades et types des colonnes",
+          "status": "TODO"
+        },
+        {
+          "id": 2,
+          "description": "Corriger configuration ESLint",
+          "fichier": ".eslintrc.json",
+          "action": "Supprimer référence au dossier lint/",
+          "status": "TODO"
+        },
+        {
+          "id": 3,
+          "description": "Tester compilation TypeScript",
+          "commande": "npx tsc --noEmit",
+          "status": "TODO"
+        },
+        {
+          "id": 4,
+          "description": "Tester build production",
+          "commande": "npm run build",
+          "status": "TODO"
+        }
+      ]
+    },
+    "phase_2": {
+      "nom": "Nettoyer Production",
+      "priorite": "IMPORTANT",
+      "duree_estimee_heures": 4,
+      "taches": [
+        {
+          "id": 5,
+          "description": "Créer système de logging conditionnel",
+          "fichier": "src/lib/logger.ts",
+          "status": "TODO"
+        },
+        {
+          "id": 6,
+          "description": "Remplacer console.log par logger",
+          "count": 80,
+          "status": "TODO"
+        },
+        {
+          "id": 7,
+          "description": "Vérifier données sensibles",
+          "type": "security_audit",
+          "status": "TODO"
+        },
+        {
+          "id": 8,
+          "description": "Tester en production",
+          "commande": "npm run build && npm start",
+          "status": "TODO"
+        }
+      ]
+    },
+    "phase_3": {
+      "nom": "Améliorer Qualité Code",
+      "priorite": "MOYEN",
+      "duree_estimee_heures": 8,
+      "taches": [
+        {
+          "id": 9,
+          "description": "Refactoriser recent-activities/route.ts",
+          "fichier": "src/app/api/dashboard/recent-activities/route.ts",
+          "action": "Réduire complexité de 24 à 15",
+          "status": "TODO"
+        },
+        {
+          "id": 10,
+          "description": "Remplacer ternaires imbriqués",
+          "count": 2,
+          "status": "TODO"
+        },
+        {
+          "id": 11,
+          "description": "Corriger warnings ESLint critiques",
+          "status": "TODO"
+        }
+      ]
+    },
+    "phase_4": {
+      "nom": "Tests & Validation",
+      "priorite": "VALIDATION",
+      "duree_estimee_heures": 4,
+      "taches": [
+        {
+          "id": 12,
+          "description": "Exécuter suite de tests",
+          "commande": "npm test",
+          "status": "TODO"
+        },
+        {
+          "id": 13,
+          "description": "Vérifier régressions",
+          "status": "TODO"
+        },
+        {
+          "id": 14,
+          "description": "Build production final",
+          "commande": "npm run build",
+          "status": "TODO"
+        },
+        {
+          "id": 15,
+          "description": "Tests de performance",
+          "status": "TODO"
+        }
+      ]
+    }
+  },
+  "metriques": {
+    "avant": {
+      "erreurs_typescript": 21,
+      "console_log_production": 80,
+      "complexite_max": 24,
+      "eslint_fonctionnel": false,
+      "build_reussi": false,
+      "tests_passent": null
+    },
+    "objectifs": {
+      "erreurs_typescript": 0,
+      "console_log_production": 0,
+      "complexite_max": 15,
+      "eslint_fonctionnel": true,
+      "build_reussi": true,
+      "tests_passent": 100
+    }
+  },
+  "commandes_diagnostic": {
+    "typescript_errors": "npx tsc --noEmit",
+    "count_errors": "npx tsc --noEmit 2>&1 | Select-String \"error TS\" | Measure-Object",
+    "find_console": "grep -r \"console\\.(log|error|warn)\" src/ --exclude-dir=node_modules",
+    "build": "npm run build",
+    "test": "npm test",
+    "lint": "npm run lint"
+  },
+  "eta": {
+    "deblocage_build": "2-4 heures",
+    "correction_complete": "18 heures",
+    "production_ready": "24 heures"
+  },
+  "statut_global": {
+    "etat": "BLOQUE",
+    "raison": "21 erreurs TypeScript empêchent la compilation",
+    "build_possible": false,
+    "deploiement_possible": false,
+    "priorite_1": "Fixer page-advanced.tsx"
+  }
+}

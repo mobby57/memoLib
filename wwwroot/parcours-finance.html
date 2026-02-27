@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcours Finance - MemoLib</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); color: white; padding: 30px; text-align: center; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .section { background: white; border-radius: 15px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section h2 { color: #8e44ad; margin-bottom: 20px; }
+        .pipeline { display: flex; gap: 20px; overflow-x: auto; padding: 20px 0; }
+        .pipeline-stage { min-width: 300px; background: #f8f9fa; padding: 20px; border-radius: 10px; }
+        .pipeline-stage h3 { margin-bottom: 15px; color: #8e44ad; }
+        .invoice-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #8e44ad; }
+        .status-badge { padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; color: white; display: inline-block; }
+        .draft { background: #95a5a6; }
+        .sent { background: #3498db; }
+        .paid { background: #27ae60; }
+        .overdue { background: #e74c3c; }
+        .btn { background: linear-gradient(45deg, #8e44ad, #9b59b6); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .kpi-card { background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .kpi-number { font-size: 2.5em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💰 Parcours Finance</h1>
+        <p>Gestion facturation et suivi paiements</p>
+    </div>
+
+    <div class="container">
+        <!-- KPIs Finance -->
+        <div class="section">
+            <h2>📊 Indicateurs Financiers</h2>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-number">125 400€</div>
+                    <div>CA ce mois</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-number">18 200€</div>
+                    <div>En attente paiement</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-number">3 450€</div>
+                    <div>Impayés > 30j</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-number">92%</div>
+                    <div>Taux recouvrement</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pipeline Facturation (US16) -->
+        <div class="section">
+            <h2>🔄 Pipeline Facturation (US16)</h2>
+            <p style="margin-bottom: 20px; color: #666;">Dossier → Temps → Facture → Paiement</p>
+            <div class="pipeline">
+                <div class="pipeline-stage">
+                    <h3>📝 Brouillons (8)</h3>
+                    <div class="invoice-card">
+                        <span class="status-badge draft">BROUILLON</span>
+                        <div style="margin-top: 10px;">
+                            <strong>Dossier Martin</strong><br>
+                            <small>Temps saisi: 12.5h | Montant: 2 500€</small>
+                        </div>
+                        <button class="btn" style="margin-top: 10px; padding: 6px 15px; font-size: 0.9em;" onclick="validateInvoice('inv1')">Valider</button>
+                    </div>
+                    <div class="invoice-card">
+                        <span class="status-badge draft">BROUILLON</span>
+                        <div style="margin-top: 10px;">
+                            <strong>Dossier Dupont</strong><br>
+                            <small>Temps saisi: 8h | Montant: 1 600€</small>
+                        </div>
+                        <button class="btn" style="margin-top: 10px; padding: 6px 15px; font-size: 0.9em;" onclick="validateInvoice('inv2')">Valider</button>
+                    </div>
+                </div>
+
+                <div class="pipeline-stage">
+                    <h3>📤 Émises (12)</h3>
+                    <div class="invoice-card">
+                        <span class="status-badge sent">ÉMISE</span>
+                        <div style="margin-top: 10px;">
+                            <strong>Facture #2025-045</strong><br>
+                            <small>Client: Lefebvre | 3 200€ | Échéance: 15/03</small>
+                        </div>
+                        <button class="btn" style="margin-top: 10px; padding: 6px 15px; font-size: 0.9em;" onclick="markPaid('inv3')">Marquer Payée</button>
+                    </div>
+                    <div class="invoice-card">
+                        <span class="status-badge sent">ÉMISE</span>
+                        <div style="margin-top: 10px;">
+                            <strong>Facture #2025-044</strong><br>
+                            <small>Client: Moreau | 1 800€ | Échéance: 10/03</small>
+                        </div>
+                        <button class="btn" style="margin-top: 10px; padding: 6px 15px; font-size: 0.9em;" onclick="markPaid('inv4')">Marquer Payée</button>
+                    </div>
+                </div>
+
+                <div class="pipeline-stage">
+                    <h3>✅ Payées (45)</h3>
+                    <div class="invoice-card">
+                        <span class="status-badge paid">PAYÉE</span>
+                        <div style="margin-top: 10px;">
+                            <strong>Facture #2025-043</strong><br>
+                            <small>Client: Bernard | 2 400€ | Payée le 25/02</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pipeline-stage">
+                    <h3>⚠️ En retard (3)</h3>
+                    <div class="invoice-card">
+                        <span class="status-badge overdue">RETARD</span>
+                        <div style="margin-top: 10px;">
+                            <strong>Facture #2025-038</strong><br>
+                            <small>Client: Rousseau | 1 200€ | Retard: 15j</small>
+                        </div>
+                        <button class="btn" style="margin-top: 10px; padding: 6px 15px; font-size: 0.9em; background: #e74c3c;" onclick="sendReminder('inv5')">Relancer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertes Finance -->
+        <div class="section">
+            <h2>🚨 Alertes Finance</h2>
+            <div style="background: #fee; border-left: 4px solid #e74c3c; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <strong>3 factures en retard de paiement</strong>
+                <p style="margin-top: 10px;">Total impayés: 3 450€ | Retard moyen: 18 jours</p>
+                <button class="btn" style="margin-top: 10px;">Lancer Relances Automatiques</button>
+            </div>
+            <div style="background: #fff3cd; border-left: 4px solid #f39c12; padding: 15px; border-radius: 8px;">
+                <strong>8 factures brouillon en attente de validation</strong>
+                <p style="margin-top: 10px;">Montant total: 15 800€ | Temps moyen validation: 2.3 jours</p>
+                <button class="btn" style="margin-top: 10px;">Valider en Lot</button>
+            </div>
+        </div>
+
+        <!-- Export Comptable -->
+        <div class="section">
+            <h2>📥 Export Comptable</h2>
+            <p style="margin-bottom: 20px; color: #666;">Exportez vos données pour votre logiciel comptable</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <button class="btn" onclick="exportAccounting('sage')">Export Sage</button>
+                <button class="btn" onclick="exportAccounting('cegid')">Export Cegid</button>
+                <button class="btn" onclick="exportAccounting('excel')">Export Excel</button>
+                <button class="btn" onclick="exportAccounting('csv')">Export CSV</button>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="section">
+            <h2>📈 Statistiques Période</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <h3 style="margin-bottom: 15px;">Ce mois (Février 2025)</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <strong>Factures émises:</strong> 65<br>
+                        <small style="color: #27ae60;">↑ +8 vs janvier</small>
+                    </div>
+                    <div>
+                        <strong>Montant facturé:</strong> 125 400€<br>
+                        <small style="color: #27ae60;">↑ +12%</small>
+                    </div>
+                    <div>
+                        <strong>Délai moyen paiement:</strong> 18.5j<br>
+                        <small style="color: #27ae60;">↓ -2.3j</small>
+                    </div>
+                    <div>
+                        <strong>Taux impayés:</strong> 2.8%<br>
+                        <small style="color: #27ae60;">↓ -0.5%</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="section">
+            <h2>⚡ Actions Rapides</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <button class="btn" onclick="window.open('/demo.html#cases', '_blank')">Voir Dossiers Facturables</button>
+                <button class="btn" onclick="window.open('/demo.html#export', '_blank')">Exporter Données</button>
+                <button class="btn" onclick="window.open('/demo.html#stats', '_blank')">Analytics Détaillés</button>
+                <button class="btn" onclick="window.open('/demo.html#audit', '_blank')">Journal d'Audit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function validateInvoice(id) {
+            alert(`Validation facture ${id} - Passage en statut ÉMISE`);
+        }
+
+        function markPaid(id) {
+            alert(`Facture ${id} marquée comme payée`);
+        }
+
+        function sendReminder(id) {
+            alert(`Relance envoyée pour facture ${id}`);
+        }
+
+        function exportAccounting(format) {
+            alert(`Export comptable ${format.toUpperCase()} en cours...`);
+        }
+    </script>
+</body>
+</html>

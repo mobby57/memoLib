@@ -1,0 +1,48 @@
+{
+  "codeConnectConfig": {
+    "figmaFile": "https://www.figma.com/file/LyclcReoP9C79Egwmva6UB/SaaS-Dashboard-Design",
+    "sourceDirectory": "./src",
+    "outputDirectory": "./figma-exports",
+    "autoGenerate": true,
+    "syncOnBuild": true,
+    "updateStrategy": "merge"
+  },
+  "componentMapping": {
+    "SmartFormBuilder": {
+      "figmaId": "FORM_COMPONENT_ID",
+      "path": "src/components/forms/SmartFormBuilder.tsx",
+      "category": "Forms",
+      "tags": ["intelligent", "adaptive", "forms"]
+    },
+    "DossierCard": {
+      "figmaId": "DOSSIER_CARD_ID",
+      "path": "src/components/dossiers/DossierCard.tsx",
+      "category": "Dossiers",
+      "tags": ["legal", "case", "card"]
+    },
+    "Dashboard": {
+      "figmaId": "DASHBOARD_ID",
+      "path": "src/app/lawyer/dashboard/page.tsx",
+      "category": "Dashboards",
+      "tags": ["analytics", "overview", "metrics"]
+    },
+    "SessionTimeoutManager": {
+      "figmaId": "MODAL_TIMEOUT_ID",
+      "path": "src/components/SessionTimeoutManager.tsx",
+      "category": "Security",
+      "tags": ["security", "session", "modal"]
+    },
+    "WorkspaceReasoning": {
+      "figmaId": "REASONING_WORKFLOW_ID",
+      "path": "src/components/workspace/WorkspaceReasoning.tsx",
+      "category": "Workspace",
+      "tags": ["reasoning", "fsm", "workflow"]
+    }
+  },
+  "documentation": {
+    "generateComponentGuide": true,
+    "includeProps": true,
+    "includeStories": true,
+    "exportFormat": "markdown"
+  }
+}

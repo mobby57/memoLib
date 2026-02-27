@@ -10,9 +10,9 @@ namespace IaPosteManager.Services
     {
         private readonly IDatabase _database;
         private readonly HttpClient _httpClient;
-        private readonly string _prometheusEndpoint;
+        private readonly string? _prometheusEndpoint;
 
-        public RedisCloudService(string connectionString, string prometheusEndpoint = null)
+        public RedisCloudService(string connectionString, string? prometheusEndpoint = null)
         {
             var redis = ConnectionMultiplexer.Connect(connectionString);
             _database = redis.GetDatabase();
@@ -34,16 +34,16 @@ namespace IaPosteManager.Services
             }
         }
 
-        public async Task<T> GetCesedaPredictionAsync<T>(string key)
+        public async Task<T?> GetCesedaPredictionAsync<T>(string key)
         {
             try
             {
                 var value = await _database.StringGetAsync($"ceseda:prediction:{key}");
-                return value.HasValue ? JsonSerializer.Deserialize<T>(value) : default(T);
+                return value.HasValue ? JsonSerializer.Deserialize<T>(value.ToString()) : default;
             }
             catch
             {
-                return default(T);
+                return default;
             }
         }
 
@@ -69,7 +69,7 @@ namespace IaPosteManager.Services
         }
 
         // Recherche vectorielle (simulation)
-        public async Task<object[]> SearchSimilarCasesAsync(string query, double threshold = 0.85)
+        public Task<object[]> SearchSimilarCasesAsync(string query, double threshold = 0.85)
         {
             try
             {
@@ -80,11 +80,11 @@ namespace IaPosteManager.Services
                     new { id = "case_002", similarity = 0.87, analysis = "Jurisprudence similaire - documents complets" }
                 };
 
-                return results;
+                return Task.FromResult<object[]>(results);
             }
             catch
             {
-                return new object[0];
+                return Task.FromResult(Array.Empty<object>());
             }
         }
     }
@@ -95,7 +95,7 @@ namespace IaPosteManager.Services
         public double SuccessProbability { get; set; }
         public double Confidence { get; set; }
         public string Method { get; set; } = "csharp_ai";
-        public string[] Factors { get; set; }
+        public string[] Factors { get; set; } = Array.Empty<string>();
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     }
 }

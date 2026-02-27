@@ -1,0 +1,42 @@
+{
+    "navigation": {
+        "home": "Inicio",
+        "dashboard": "Panel",
+        "documents": "Documentos",
+        "tasks": "Tareas",
+        "settings": "Configuración",
+        "profile": "Perfil",
+        "logout": "Cerrar sesión"
+    },
+    "dashboard": {
+        "welcome": "Bienvenido a MemoLib",
+        "documents_count": "Documentos",
+        "tasks_count": "Tareas activas",
+        "users_count": "Miembros del equipo",
+        "analytics": "Análisis"
+    },
+    "common": {
+        "search": "Buscar",
+        "create": "Crear",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "back": "Atrás",
+        "next": "Siguiente",
+        "language": "Idioma"
+    },
+    "errors": {
+        "not_found": "Página no encontrada",
+        "unauthorized": "No tienes permiso",
+        "server_error": "Algo salió mal",
+        "loading_error": "Error al cargar contenido"
+    },
+    "forms": {
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "confirm_password": "Confirmar contraseña",
+        "name": "Nombre",
+        "required": "Este campo es obligatorio"
+    }
+}
