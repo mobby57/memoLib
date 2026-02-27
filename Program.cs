@@ -6,9 +6,28 @@ using MemoLib.Api.Data;
 using MemoLib.Api.Models;
 using MemoLib.Api.Services;
 using MemoLib.Api.Middleware;
+using MemoLib.Api.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuration Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/memolib-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+Log.Information("🚀 Démarrage MemoLib API...");
+Log.Information("📁 Répertoire de travail: {WorkingDirectory}", Directory.GetCurrentDirectory());
+Log.Information("🌍 Environnement: {Environment}", builder.Environment.EnvironmentName);
 
 // Configurer JWT
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -48,8 +67,55 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddAuthorization(options =>
+{
+    // Dossiers/Cas - Hiérarchie progressive
+    options.AddPolicy(Policies.ViewCases, policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy(Policies.CreateCases, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.EditCases, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.AssignCases, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.CloseCases, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.DeleteCases, policy => policy.RequireRole(Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ExportCases, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    
+    // Contacts/Clients
+    options.AddPolicy(Policies.ViewContacts, policy => policy.RequireRole(Roles.User, Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.CreateContacts, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.EditContacts, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.DeleteContacts, policy => policy.RequireRole(Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ExportContacts, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    
+    // Communication
+    options.AddPolicy(Policies.ViewMessages, policy => policy.RequireRole(Roles.User, Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.SendMessages, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.DeleteMessages, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.UseTemplates, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ManageTemplates, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    
+    // Documents
+    options.AddPolicy(Policies.ViewDocuments, policy => policy.RequireRole(Roles.User, Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.UploadDocuments, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.DeleteDocuments, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ShareDocuments, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
+    
+    // Analytics & Rapports
+    options.AddPolicy(Policies.ViewAnalytics, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ViewReports, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ExportReports, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
+    
+    // Administration
+    options.AddPolicy(Policies.ManageUsers, policy => policy.RequireRole(Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ManageRoles, policy => policy.RequireRole(Roles.Owner));
+    options.AddPolicy(Policies.ManageSettings, policy => policy.RequireRole(Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ViewAuditLogs, policy => policy.RequireRole(Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ManageIntegrations, policy => policy.RequireRole(Roles.Admin, Roles.Owner));
+    options.AddPolicy(Policies.ManageBilling, policy => policy.RequireRole(Roles.Owner));
+});
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddMemoryCache();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -58,7 +124,9 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.SameSite = SameSiteMode.Strict;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
 });
 builder.Services.AddScoped<EmbeddingService>();
 builder.Services.AddScoped<JwtTokenService>();
@@ -84,6 +152,27 @@ builder.Services.AddScoped<TeamManagementService>();
 builder.Services.AddScoped<BillingService>();
 builder.Services.AddScoped<DocumentGenerationService>();
 builder.Services.AddScoped<CalendarService>();
+builder.Services.AddScoped<SectorAdapterService>();
+builder.Services.AddScoped<RoleBasedNotificationService>();
+builder.Services.AddScoped<CaseNotesService>();
+builder.Services.AddScoped<CaseTasksService>();
+builder.Services.AddScoped<CaseDocumentsService>();
+builder.Services.AddScoped<SmsIntegrationService>();
+builder.Services.AddScoped<WhatsAppIntegrationService>();
+builder.Services.AddScoped<TelegramIntegrationService>();
+builder.Services.AddScoped<MessengerIntegrationService>();
+builder.Services.AddScoped<UniversalGatewayService>();
+builder.Services.AddScoped<SignalCommandCenterService>();
+builder.Services.AddScoped<WorkflowAutomationService>();
+builder.Services.AddScoped<AdvancedSearchService>();
+builder.Services.AddScoped<ExportService>();
+builder.Services.AddScoped<RealtimeNotificationService>();
+builder.Services.AddScoped<FullTextSearchService>();
+builder.Services.AddScoped<WebhookService>();
+builder.Services.AddScoped<AdvancedTemplateService>();
+builder.Services.AddScoped<SignatureService>();
+builder.Services.AddScoped<DynamicFormService>();
+builder.Services.AddHttpClient();
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<EmailMonitorService>();
 builder.Services.AddDbContext<MemoLibDbContext>(options =>
@@ -91,6 +180,23 @@ builder.Services.AddDbContext<MemoLibDbContext>(options =>
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? new[] { "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5078" };
+
+if (builder.Environment.IsProduction())
+{
+    corsOrigins = corsOrigins
+        .Where(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri)
+            && uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+            && !uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+            && !uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+
+    if (corsOrigins.Length == 0)
+    {
+        throw new InvalidOperationException(
+            "En production, Cors:AllowedOrigins doit contenir au moins une origine HTTPS explicite.");
+    }
+}
 
 builder.Services.AddCors(options =>
 {
@@ -100,6 +206,16 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
+        | ForwardedHeaders.XForwardedProto
+        | ForwardedHeaders.XForwardedHost;
+
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 var app = builder.Build();
@@ -124,6 +240,7 @@ using (var scope = app.Services.CreateScope())
         {
             Id = Guid.NewGuid(),
             Email = "admin@memolib.local",
+            Role = Roles.Owner,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -148,8 +265,15 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<CacheMiddleware>();
 app.UseMiddleware<RateLimitingMiddleware>();
 
+app.UseForwardedHeaders();
+
 if (!disableHttpsRedirection)
 {
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+    }
+
     app.UseHttpsRedirection();
 }
 
@@ -160,7 +284,24 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Redirection racine vers demo.html
+app.MapGet("/", () => Results.Redirect("/demo.html"));
+
 app.MapGet("/api", () => Results.Ok(new { app = "MemoLib.Api", status = "ok", docs = "Utilisez les endpoints /api/*" }));
+app.MapGet("/api/_routes", (IEnumerable<EndpointDataSource> endpointSources) =>
+{
+    var routes = endpointSources
+        .SelectMany(source => source.Endpoints)
+        .OfType<RouteEndpoint>()
+        .Select(endpoint => endpoint.RoutePattern.RawText)
+        .Where(route => !string.IsNullOrWhiteSpace(route))
+        .Distinct()
+        .OrderBy(route => route)
+        .ToList();
+
+    return Results.Ok(routes);
+});
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapPost("/api/system/stop", (HttpContext http, IHostApplicationLifetime lifetime) =>
 {
@@ -187,6 +328,26 @@ app.MapPost("/api/system/stop", (HttpContext http, IHostApplicationLifetime life
 });
 app.MapControllers();
 app.MapHub<MemoLib.Api.Hubs.NotificationHub>("/notificationHub");
+app.MapHub<MemoLib.Api.Hubs.RealtimeHub>("/realtimeHub");
 
-app.Run();
+Log.Information("✅ MemoLib API démarrée avec succès!");
+Log.Information("🌐 Interface: http://localhost:5078/demo.html");
+Log.Information("🔌 API: http://localhost:5078/api");
+Log.Information("❤️ Santé: http://localhost:5078/health");
+
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+public partial class Program { }
+
 

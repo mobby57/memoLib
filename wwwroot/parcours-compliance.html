@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcours Conformité RGPD - MemoLib</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); color: white; padding: 30px; text-align: center; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .section { background: white; border-radius: 15px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section h2 { color: #c0392b; margin-bottom: 20px; }
+        .compliance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .compliance-card { background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 5px solid #27ae60; }
+        .compliance-card.warning { border-left-color: #f39c12; }
+        .compliance-card.critical { border-left-color: #e74c3c; }
+        .status-indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .status-ok { background: #27ae60; }
+        .status-warning { background: #f39c12; }
+        .status-critical { background: #e74c3c; }
+        .btn { background: linear-gradient(45deg, #c0392b, #e74c3c); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .kpi-card { background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .kpi-number { font-size: 2.5em; font-weight: bold; }
+        .audit-log { max-height: 400px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 8px; }
+        .audit-entry { padding: 10px; border-bottom: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛡️ Parcours Conformité RGPD</h1>
+        <p>Gouvernance des données et conformité réglementaire</p>
+    </div>
+
+    <div class="container">
+        <!-- KPIs Conformité -->
+        <div class="section">
+            <h2>📊 Indicateurs Conformité</h2>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-number">98%</div>
+                    <div>Score conformité</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-number">2 450</div>
+                    <div>Dossiers sous rétention</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-number">12</div>
+                    <div>Demandes RGPD ce mois</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-number">100%</div>
+                    <div>Traçabilité accès</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contrôles RGPD (US17) -->
+        <div class="section">
+            <h2>✅ Contrôles RGPD par Rôle (US17)</h2>
+            <div class="compliance-grid">
+                <div class="compliance-card">
+                    <h3><span class="status-indicator status-ok"></span>Rétention Données</h3>
+                    <p style="margin: 15px 0; color: #666;">Politique de conservation appliquée selon les durées légales</p>
+                    <ul style="margin-left: 20px; color: #666;">
+                        <li>Dossiers clients: 7 ans ✅</li>
+                        <li>Dossiers juridiques: 30 ans ✅</li>
+                        <li>Logs audit: 3 ans ✅</li>
+                    </ul>
+                    <button class="btn" style="margin-top: 15px;" onclick="configureRetention()">Configurer</button>
+                </div>
+
+                <div class="compliance-card">
+                    <h3><span class="status-indicator status-ok"></span>Minimisation Données</h3>
+                    <p style="margin: 15px 0; color: #666;">Collecte limitée aux données strictement nécessaires</p>
+                    <ul style="margin-left: 20px; color: #666;">
+                        <li>Champs obligatoires: 8 ✅</li>
+                        <li>Champs optionnels: 12 ✅</li>
+                        <li>Données sensibles chiffrées ✅</li>
+                    </ul>
+                    <button class="btn" style="margin-top: 15px;" onclick="reviewDataCollection()">Auditer</button>
+                </div>
+
+                <div class="compliance-card warning">
+                    <h3><span class="status-indicator status-warning"></span>Consentements</h3>
+                    <p style="margin: 15px 0; color: #666;">Gestion des consentements clients</p>
+                    <ul style="margin-left: 20px; color: #666;">
+                        <li>Consentements actifs: 2 340 ✅</li>
+                        <li>À renouveler: 45 ⚠️</li>
+                        <li>Expirés: 8 ⚠️</li>
+                    </ul>
+                    <button class="btn" style="margin-top: 15px;" onclick="manageConsents()">Gérer</button>
+                </div>
+
+                <div class="compliance-card">
+                    <h3><span class="status-indicator status-ok"></span>Droits Personnes</h3>
+                    <p style="margin: 15px 0; color: #666;">Traitement des demandes RGPD</p>
+                    <ul style="margin-left: 20px; color: #666;">
+                        <li>Droit d'accès: 8 demandes ✅</li>
+                        <li>Droit à l'oubli: 3 demandes ✅</li>
+                        <li>Droit rectification: 1 demande ✅</li>
+                    </ul>
+                    <button class="btn" style="margin-top: 15px;" onclick="window.open('/demo.html#audit', '_blank')">Voir Demandes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journal d'accès par rôle -->
+        <div class="section">
+            <h2>📜 Journal d'Accès par Rôle</h2>
+            <p style="margin-bottom: 20px; color: #666;">Traçabilité complète des accès aux données sensibles</p>
+            <div class="audit-log">
+                <div class="audit-entry">
+                    <strong>27/02/2025 14:32</strong> - Maître Martin (LAWYER)<br>
+                    <small>Accès dossier #2025-045 (Client: Dupont) | Action: Lecture | IP: 192.168.1.45</small>
+                </div>
+                <div class="audit-entry">
+                    <strong>27/02/2025 14:15</strong> - Sophie Durand (SECRETARY)<br>
+                    <small>Accès dossier #2025-044 (Client: Lefebvre) | Action: Modification note | IP: 192.168.1.32</small>
+                </div>
+                <div class="audit-entry">
+                    <strong>27/02/2025 13:58</strong> - Jean Moreau (ADMIN)<br>
+                    <small>Export données comptables | Action: Export | IP: 192.168.1.10</small>
+                </div>
+                <div class="audit-entry">
+                    <strong>27/02/2025 13:45</strong> - Maître Bernard (LAWYER)<br>
+                    <small>Accès dossier #2025-043 (Client: Martin) | Action: Téléchargement document | IP: 192.168.1.28</small>
+                </div>
+            </div>
+            <button class="btn" style="margin-top: 15px;" onclick="exportAuditLog()">Exporter Journal Complet</button>
+        </div>
+
+        <!-- Demandes RGPD en cours -->
+        <div class="section">
+            <h2>📋 Demandes RGPD en Cours</h2>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 15px;">
+                <h3>Demande #RGPD-2025-012 - Droit d'accès</h3>
+                <p style="margin: 10px 0; color: #666;">
+                    <strong>Demandeur:</strong> Sophie Martin<br>
+                    <strong>Date demande:</strong> 25/02/2025<br>
+                    <strong>Échéance légale:</strong> 27/03/2025 (30 jours)<br>
+                    <strong>Statut:</strong> En cours de traitement
+                </p>
+                <button class="btn">Préparer Réponse</button>
+            </div>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <h3>Demande #RGPD-2025-011 - Droit à l'oubli</h3>
+                <p style="margin: 10px 0; color: #666;">
+                    <strong>Demandeur:</strong> Jean Dupont<br>
+                    <strong>Date demande:</strong> 20/02/2025<br>
+                    <strong>Échéance légale:</strong> 22/03/2025<br>
+                    <strong>Statut:</strong> Analyse légale en cours
+                </p>
+                <button class="btn">Analyser Demande</button>
+            </div>
+        </div>
+
+        <!-- Export preuve conformité -->
+        <div class="section">
+            <h2>📥 Export Preuve Conformité</h2>
+            <p style="margin-bottom: 20px; color: #666;">Générez des rapports de conformité pour audits externes</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <button class="btn" onclick="exportCompliance('registre')">Registre Traitements</button>
+                <button class="btn" onclick="exportCompliance('audit')">Journal Audit Complet</button>
+                <button class="btn" onclick="exportCompliance('retention')">Politique Rétention</button>
+                <button class="btn" onclick="exportCompliance('dpia')">Analyse d'Impact (DPIA)</button>
+            </div>
+        </div>
+
+        <!-- Alertes conformité -->
+        <div class="section">
+            <h2>🚨 Alertes Conformité</h2>
+            <div style="background: #fff3cd; border-left: 4px solid #f39c12; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <strong>45 consentements à renouveler</strong>
+                <p style="margin-top: 10px;">Expiration dans moins de 30 jours</p>
+                <button class="btn" style="margin-top: 10px;">Lancer Campagne Renouvellement</button>
+            </div>
+            <div style="background: #d4edda; border-left: 4px solid #27ae60; padding: 15px; border-radius: 8px;">
+                <strong>Aucune violation détectée</strong>
+                <p style="margin-top: 10px;">Tous les contrôles sont conformes</p>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="section">
+            <h2>⚡ Actions Rapides</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <button class="btn" onclick="window.open('/gdpr-compliance.html', '_blank')">Portail RGPD</button>
+                <button class="btn" onclick="window.open('/demo.html#audit', '_blank')">Journal d'Audit</button>
+                <button class="btn" onclick="window.open('/demo.html#export', '_blank')">Exporter Données</button>
+                <button class="btn" onclick="window.open('/demo.html', '_blank')">Interface Complète</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function configureRetention() {
+            alert('Configuration politique de rétention - Fonctionnalité en développement');
+        }
+
+        function reviewDataCollection() {
+            alert('Audit collecte données - Fonctionnalité en développement');
+        }
+
+        function manageConsents() {
+            alert('Gestion consentements - Fonctionnalité en développement');
+        }
+
+        function exportAuditLog() {
+            alert('Export journal audit complet en cours...');
+        }
+
+        function exportCompliance(type) {
+            alert(`Export ${type} en cours...`);
+        }
+    </script>
+</body>
+</html>

@@ -7,6 +7,11 @@ public class Client
     public string Name { get; set; } = null!;
     public string Email { get; set; } = null!;
     public string? PhoneNumber { get; set; }
+    public string? Phone
+    {
+        get => PhoneNumber;
+        set => PhoneNumber = value;
+    }
     public string? Address { get; set; }
     public DateTime CreatedAt { get; set; }
 }

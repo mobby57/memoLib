@@ -1,0 +1,101 @@
+Summary,Issue Type,Epic Link,Story Points,Priority,Description,Acceptance Criteria,Technical Tasks
+"Epic S1 - Centralisation Dossier",Epic,,34,Highest,"Centraliser toutes les interactions (emails, SMS, Telegram, notes, tâches, documents) dans une timeline unique par dossier avec permissions granulaires et audit complet.","- 100% interactions captées dans timeline
+- 0 perte d'information entre canaux
+- Permissions strictes par rôle
+- Audit trail complet",
+"US1 - Ingestion multi-canaux vers timeline dossier",Story,Epic S1,8,Highest,"En tant qu'avocat, je veux que tous les messages (email/SMS/Telegram) apparaissent automatiquement dans la timeline du dossier afin d'avoir une vue complète sans changer d'onglet.","- 1 message entrant = 1 event horodaté dans timeline
+- Visible dans dossier lié
+- Pas de doublon (déduplication par ID externe)
+- Indicateur canal (📧/📱/💬)
+- Temps réponse <500ms pour 1000 events","- Endpoint unifié POST /api/ingest/unified
+- Mapping canal→event (type, source_id)
+- Déduplication par checksum
+- Tests webhook (email, SMS, Telegram)
+- API GET /api/cases/{id}/timeline avec pagination"
+"US2 - Notes dossier collaboratives",Story,Epic S1,5,Highest,"En tant qu'avocat, je veux ajouter des notes privées/partagées sur un dossier avec mentions @utilisateur afin de documenter mes réflexions et collaborer avec l'équipe.","- Notes triées par date DESC
+- Mentions @user persistées avec notifications
+- Accès limité selon visibilité (privée/équipe/client)
+- Édition/suppression avec audit trail
+- Recherche full-text dans notes","- Table CaseNotes (id, case_id, content, visibility, author_id, created_at)
+- CRUD API /api/cases/{id}/notes
+- Mentions @user avec notifications
+- Filtre privé/public
+- Audit trail (CREATE, UPDATE, DELETE)"
+"US3 - Tâches dossier",Story,Epic S1,5,Highest,"En tant qu'avocat, je veux créer des tâches liées à un dossier avec échéances et assignation afin de ne rien oublier dans le suivi.","- Changement de statut tracé (TODO→IN_PROGRESS→DONE)
+- Filtre ""en retard"" opérationnel (due_date < NOW AND status != DONE)
+- Assignation avec notification
+- Dépendances entre tâches (blocked_by)
+- Vue Kanban + Liste","- Table CaseTasks (id, case_id, title, description, due_date, assignee_id, status, priority, blocked_by)
+- CRUD API /api/cases/{id}/tasks
+- Notifications 24h avant échéance
+- Vue Kanban (drag & drop)
+- Filtre par statut/assignee/priorité"
+"US4 - Documents dossier",Story,Epic S1,8,Highest,"En tant qu'avocat, je veux uploader des documents avec versioning automatique afin de garder l'historique des modifications.","- Version N+1 créée automatiquement à chaque upload
+- Contrôle d'accès strict (permissions par rôle)
+- Fichier téléchargeable avec audit
+- Métadonnées (type, date, auteur, tags)
+- Prévisualisation PDF/images","- Table CaseDocuments (id, case_id, filename, version, path, metadata, uploaded_by)
+- Upload sécurisé POST /api/cases/{id}/documents (multipart)
+- Versioning automatique (v1, v2, v3)
+- Download protégé GET /api/documents/{id}/download
+- Métadonnées/tags"
+"US5 - Permissions + audit",Story,Epic S1,8,Highest,"En tant qu'administrateur, je veux définir des permissions granulaires par rôle afin de contrôler l'accès aux données sensibles et tracer toutes les actions.","- 401/403 corrects selon rôle
+- Aucune fuite inter-dossiers (isolation tenant)
+- Audit complet (qui, quoi, quand, IP)
+- Rétention logs 3 ans minimum
+- Export CSV pour audit externe","- Table Roles (id, name, permissions JSON)
+- Middleware authorization (check permissions)
+- Policy par rôle (OWNER, ADMIN, AGENT, CLIENT)
+- Ownership checks API (case.user_id == current_user.id)
+- Table AuditLogs (user_id, action, resource, ip, timestamp)
+- Journalisation actions critiques (CREATE, UPDATE, DELETE, SHARE)"
+"Epic S2 - Orchestration",Epic,,21,High,"Automatiser la gestion des échéances, rappels, SLA et facturation pour optimiser la productivité et garantir les délais.",,"- >85% échéances tenues
+- Délai clôture→facture <5 jours
+- Taux paiement à échéance >80%",
+"US6 - Calendrier/SLA",Story,Epic S2,8,High,"En tant qu'avocat, je veux voir toutes mes échéances dans un calendrier avec rappels automatiques afin de ne jamais manquer une deadline critique.","- Rappels envoyés (7j, 3j, 1j, 2h avant échéance)
+- Retards visibles en dashboard (tâches overdue)
+- Alertes SLA en risque (>80% temps écoulé)
+- Vue mois/semaine/jour
+- Drag & drop pour reprogrammer","- Table CalendarEvents (id, user_id, title, start, end, type, related_id)
+- API GET /api/calendar (filtres date/type)
+- Job scheduler rappels (Hangfire/Quartz)
+- Vue agenda (react-big-calendar)
+- Alertes retard (email, Telegram, in-app)
+- Configuration SLA par type dossier"
+"US7 - Facturation de base",Story,Epic S2,13,High,"En tant qu'avocat, je veux enregistrer mon temps passé et générer des factures afin de facturer précisément mes prestations.","- Cycle temps→facture reproductible
+- Total cohérent (temps × taux + frais)
+- Numérotation auto (FAC-2025-001)
+- Statuts: brouillon/envoyée/payée/annulée
+- Export PDF conforme","- Table TimeEntries (id, case_id, user_id, start, end, duration, description, category, rate)
+- Timer start/stop avec description
+- Table Invoices (id, case_id, status, items JSON, total, created_at)
+- API POST /api/cases/{id}/invoices/draft (calcul auto)
+- Génération PDF (iTextSharp/PuppeteerSharp)
+- Mentions légales obligatoires
+- Statut paiement (enregistrement date/montant)"
+"Epic S3 - Différenciation",Epic,,21,Medium,"Automatiser les tâches répétitives et fournir des insights business pour optimiser la rentabilité et la qualité de service.",,"- 60% tâches auto-générées
+- Temps admin -25%
+- Marge/dossier +10%
+- CSAT >4.3/5",
+"US8 - Automatisations métier",Story,Epic S3,13,Medium,"En tant qu'administrateur, je veux créer des règles d'automatisation (si/alors) afin de réduire les tâches répétitives et standardiser les processus.","- Règle active déclenche action sans intervention manuelle
+- Déclencheurs: email reçu, tâche créée, échéance proche
+- Actions: créer tâche, assigner, notifier, tagger
+- Logs exécution règles
+- Interface no-code création règles","- Table AutomationRules (id, name, trigger, conditions JSON, actions JSON, enabled)
+- Rules engine (évaluation conditions)
+- Exécution actions (créer tâche, assigner, notifier)
+- Assignation automatique (round-robin, charge, compétences)
+- Relances automatiques (pièces, réponse, paiement)
+- Logs exécution avec succès/échec"
+"US9 - Reporting direction",Story,Epic S3,8,Medium,"En tant que directeur, je veux voir les KPI clés du cabinet (CA, marge, nb dossiers, taux occupation) afin de piloter l'activité et optimiser la rentabilité.","- KPI visibles et cohérents avec données sources
+- Graphiques évolution mensuelle + comparaison N-1
+- Filtres: période, avocat, type dossier
+- Export PDF pour CODIR
+- Actualisation temps réel","- API GET /api/analytics/dashboard
+- Calcul KPI (CA, marge, nb dossiers, taux occupation)
+- Agrégats dossiers/canaux/factures
+- Analyse rentabilité par dossier/avocat
+- Identification dossiers déficitaires
+- Dashboard visuel (recharts)
+- Filtres période/équipe
+- Export PDF/Excel"

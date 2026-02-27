@@ -6,7 +6,7 @@ public class User
     public string Email { get; set; } = null!;
     public string? Name { get; set; }
     public string? Password { get; set; }
-    public string? Role { get; set; } = "AVOCAT";
+    public string? Role { get; set; } = "AGENT";
     public string? Phone { get; set; }
     public string? FirmName { get; set; }
     public string? BarNumber { get; set; }

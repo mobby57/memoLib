@@ -1,0 +1,114 @@
+┌─────────────────────────────────────────────────────────────┐
+│         📊 ÉCHELLE DE PRIORITÉ MEMOLIB                      │
+│                                                             │
+│  1️⃣  CRITIQUE    🔴  →  IMMÉDIAT  (Tout le monde alerté)   │
+│  2️⃣  ÉLEVÉE      🟠  →  URGENT    (Équipe alertée)         │
+│  3️⃣  MOYENNE     🟡  →  BIENTÔT   (Avocat alerté)          │
+│  4️⃣  FAIBLE      ⚪  →  NORMAL    (Avocat informé)         │
+│  5️⃣  TRÈS FAIBLE ⚪  →  POSSIBLE  (Avocat informé)         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+🔔 NOTIFICATIONS PAR PRIORITÉ
+
+┌─────────────────────────────────────────────────────────────┐
+│ PRIORITÉ 1 - CRITIQUE 🔴                                    │
+├─────────────────────────────────────────────────────────────┤
+│ Qui reçoit :                                                │
+│   ✅ Avocat assigné    → CRITICAL                           │
+│   ✅ Tous les associés → CRITICAL                           │
+│   ✅ Propriétaire      → CRITICAL                           │
+│                                                             │
+│ Message :                                                   │
+│   🚨 URGENT - Priorité CRITIQUE (1/5)                       │
+│   Dossier #123 - Jean Dupont                               │
+│   → TRAITER IMMÉDIATEMENT                                  │
+│                                                             │
+│ Exemples :                                                  │
+│   • Tribunal demain                                         │
+│   • Client mécontent urgent                                 │
+│   • Crise juridique                                         │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ PRIORITÉ 2 - ÉLEVÉE 🟠                                      │
+├─────────────────────────────────────────────────────────────┤
+│ Qui reçoit :                                                │
+│   ✅ Avocat assigné    → HIGH                               │
+│   ✅ Associés          → HIGH                               │
+│   ✅ Propriétaire      → HIGH                               │
+│                                                             │
+│ Message :                                                   │
+│   ⚠️ URGENT - Priorité ÉLEVÉE (2/5)                         │
+│   Dossier #123 - Jean Dupont                               │
+│   → Traiter rapidement                                     │
+│                                                             │
+│ Exemples :                                                  │
+│   • Échéance 3 jours                                        │
+│   • Client important                                        │
+│   • Dossier complexe                                        │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ PRIORITÉ 3 - MOYENNE 🟡                                     │
+├─────────────────────────────────────────────────────────────┤
+│ Qui reçoit :                                                │
+│   ✅ Avocat assigné    → MEDIUM                             │
+│   ⚪ Associés          → Information                        │
+│                                                             │
+│ Message :                                                   │
+│   📋 Priorité MOYENNE (3/5)                                 │
+│   Dossier #123 - Jean Dupont                               │
+│   → À traiter cette semaine                                │
+│                                                             │
+│ Exemples :                                                  │
+│   • Dossier standard                                        │
+│   • Échéance 1 semaine                                      │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ PRIORITÉ 4 - FAIBLE ⚪                                       │
+├─────────────────────────────────────────────────────────────┤
+│ Qui reçoit :                                                │
+│   ✅ Avocat assigné    → LOW                                │
+│                                                             │
+│ Message :                                                   │
+│   📄 Priorité FAIBLE (4/5)                                  │
+│   Dossier #123 - Jean Dupont                               │
+│   → Traitement normal                                      │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ PRIORITÉ 5 - TRÈS FAIBLE ⚪                                 │
+├─────────────────────────────────────────────────────────────┤
+│ Qui reçoit :                                                │
+│   ✅ Avocat assigné    → LOW                                │
+│                                                             │
+│ Message :                                                   │
+│   📝 Priorité TRÈS FAIBLE (5/5)                             │
+│   Dossier #123 - Jean Dupont                               │
+│   → Quand vous avez le temps                               │
+└─────────────────────────────────────────────────────────────┘
+
+📈 DISTRIBUTION IDÉALE
+
+  5% │ ████                    │ Priorité 1 (CRITIQUE)
+ 15% │ ████████████            │ Priorité 2 (ÉLEVÉE)
+ 50% │ ████████████████████████████████████████ │ Priorité 3 (MOYENNE)
+ 20% │ ████████████████        │ Priorité 4 (FAIBLE)
+ 10% │ ████████                │ Priorité 5 (TRÈS FAIBLE)
+
+⚠️ ALERTE SI :
+  • Plus de 20% en priorité 1 → Surcharge
+  • Plus de 50% en priorité 1-2 → Problème d'organisation
+  • Tout en priorité 1 → Perte de sens
+
+✅ RÉSUMÉ
+
+1 = CRITIQUE 🔴 → Tout le monde → Immédiat
+2 = ÉLEVÉE  🟠 → Équipe       → Urgent
+3 = MOYENNE 🟡 → Avocat       → Bientôt
+4 = FAIBLE  ⚪ → Avocat       → Normal
+5 = MIN     ⚪ → Avocat       → Possible
+
+🎯 Simple. Clair. Efficace.

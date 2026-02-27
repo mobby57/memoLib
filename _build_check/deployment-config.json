@@ -1,0 +1,90 @@
+{
+  "version": "1.0.0",
+  "production": {
+    "region": "eastus",
+    "frontend": {
+      "platform": "vercel",
+      "domain": "app.memolib.fr",
+      "environment": "production"
+    },
+    "backend": {
+      "platform": "azure",
+      "resourceGroup": "memolib-prod",
+      "appName": "memolib-api-prod",
+      "appServicePlan": "memolib-plan-prod",
+      "sku": "P1V2",
+      "instanceCount": 2,
+      "database": {
+        "server": "memolib-db-prod.postgres.database.azure.com",
+        "name": "memolib_prod"
+      }
+    },
+    "monitoring": {
+      "sentry": true,
+      "appInsights": true,
+      "logAnalytics": true
+    }
+  },
+  "staging": {
+    "region": "eastus",
+    "frontend": {
+      "platform": "vercel",
+      "domain": "staging.memolib.fr",
+      "environment": "staging"
+    },
+    "backend": {
+      "platform": "azure",
+      "resourceGroup": "memolib-staging",
+      "appName": "memolib-api-staging",
+      "appServicePlan": "memolib-plan-staging",
+      "sku": "B2",
+      "instanceCount": 1,
+      "database": {
+        "server": "memolib-db-staging.postgres.database.azure.com",
+        "name": "memolib_staging"
+      }
+    },
+    "monitoring": {
+      "sentry": true,
+      "appInsights": true,
+      "logAnalytics": false
+    }
+  },
+  "environmentVariables": {
+    "common": [
+      "NEXT_PUBLIC_API_URL",
+      "NEXT_PUBLIC_SENTRY_DSN",
+      "GITHUB_APP_ID",
+      "GITHUB_APP_CLIENT_ID",
+      "GITHUB_APP_CLIENT_SECRET",
+      "GITHUB_APP_WEBHOOK_SECRET",
+      "DATABASE_URL",
+      "JWT_SECRET"
+    ],
+    "production": [
+      "NEXTAUTH_SECRET",
+      "NEXTAUTH_URL=https://app.memolib.fr",
+      "OPENAI_API_KEY",
+      "STRIPE_SECRET_KEY",
+      "TWILIO_ACCOUNT_SID",
+      "TWILIO_AUTH_TOKEN"
+    ]
+  },
+  "postDeploymentSteps": [
+    {
+      "name": "Database Migration",
+      "command": "npx prisma migrate deploy",
+      "critical": true
+    },
+    {
+      "name": "Seed Database",
+      "command": "npx prisma db seed",
+      "critical": false
+    },
+    {
+      "name": "Health Check",
+      "command": "curl -f $API_URL/api/health",
+      "critical": true
+    }
+  ]
+}

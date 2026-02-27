@@ -100,12 +100,12 @@ namespace IaPosteManager.Controllers
 
     public class PredictionRequest
     {
-        public string DossierText { get; set; }
+        public string DossierText { get; set; } = string.Empty;
     }
 
     public class SearchRequest
     {
-        public string Query { get; set; }
+        public string Query { get; set; } = string.Empty;
         public double Threshold { get; set; } = 0.85;
     }
 }

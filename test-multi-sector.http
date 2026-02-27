@@ -1,0 +1,168 @@
+### 🌍 TESTS API MULTI-SECTEURS - MemoLib
+
+@baseUrl = http://localhost:5078
+@token = {{login.response.body.token}}
+
+### 1. Login (obtenir le token)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@memolib.local",
+  "password": "Admin123!"
+}
+
+### 2. Lister tous les secteurs disponibles (PUBLIC)
+GET {{baseUrl}}/api/sector/available
+
+### 3. Obtenir la configuration du secteur Legal
+GET {{baseUrl}}/api/sector/legal/config
+Authorization: Bearer {{token}}
+
+### 4. Obtenir la configuration du secteur Medical
+GET {{baseUrl}}/api/sector/medical/config
+Authorization: Bearer {{token}}
+
+### 5. Obtenir la configuration du secteur Consulting
+GET {{baseUrl}}/api/sector/consulting/config
+Authorization: Bearer {{token}}
+
+### 6. Obtenir la terminologie Legal
+GET {{baseUrl}}/api/sector/legal/terminology
+Authorization: Bearer {{token}}
+
+### 7. Obtenir la terminologie Medical
+GET {{baseUrl}}/api/sector/medical/terminology
+Authorization: Bearer {{token}}
+
+### 8. Obtenir les champs personnalisés Legal
+GET {{baseUrl}}/api/sector/legal/fields
+Authorization: Bearer {{token}}
+
+### 9. Obtenir les champs personnalisés Medical
+GET {{baseUrl}}/api/sector/medical/fields
+Authorization: Bearer {{token}}
+
+### 10. Créer un nouveau tenant (Accounting)
+POST {{baseUrl}}/api/sector/create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sectorId": "accounting",
+  "displayName": "AccountMemo",
+  "brandColor": "#F59E0B",
+  "terminology": {
+    "Case": "Dossier Client",
+    "Client": "Client",
+    "Document": "Pièce Comptable",
+    "Event": "Transaction"
+  },
+  "customFields": [
+    {
+      "name": "CompanyId",
+      "type": "string",
+      "label": "N° SIRET"
+    },
+    {
+      "name": "FiscalYear",
+      "type": "string",
+      "label": "Exercice Fiscal"
+    },
+    {
+      "name": "AccountingType",
+      "type": "enum",
+      "label": "Type Comptabilité",
+      "options": ["Générale", "Analytique", "Budgétaire"]
+    }
+  ],
+  "compliance": {
+    "dataRetention": "10 years",
+    "encryption": "AES-256",
+    "auditLog": true,
+    "gdpr": true
+  }
+}
+
+### 11. Vérifier la santé de l'API
+GET {{baseUrl}}/health
+
+### 12. Obtenir les statistiques (si disponible)
+GET {{baseUrl}}/api/stats
+Authorization: Bearer {{token}}
+
+###
+### 🎯 SCÉNARIOS DE TEST
+###
+
+### SCÉNARIO 1: Avocat utilise LegalMemo
+# 1. Login en tant qu'avocat
+# 2. Voir config Legal
+# 3. Créer un dossier avec champs Legal (CourtName, JudgeNumber, LegalArea)
+
+### SCÉNARIO 2: Médecin utilise MediMemo
+# 1. Login en tant que médecin
+# 2. Voir config Medical
+# 3. Créer un dossier patient avec champs Medical (PatientId, Diagnosis, Treatment)
+
+### SCÉNARIO 3: Consultant utilise ConsultMemo
+# 1. Login en tant que consultant
+# 2. Voir config Consulting
+# 3. Créer un projet avec champs Consulting (ProjectType, Budget, Deadline)
+
+###
+### 📊 RÉSULTATS ATTENDUS
+###
+
+### Secteurs disponibles devrait retourner:
+# [
+#   { "id": "legal", "name": "LegalMemo", "icon": "⚖️", "description": "Pour avocats et juristes" },
+#   { "id": "medical", "name": "MediMemo", "icon": "⚕️", "description": "Pour médecins et professionnels santé" },
+#   { "id": "consulting", "name": "ConsultMemo", "icon": "💼", "description": "Pour consultants et experts" },
+#   ...
+# ]
+
+### Config Legal devrait retourner:
+# {
+#   "sectorId": "legal",
+#   "displayName": "LegalMemo",
+#   "brandColor": "#1E40AF",
+#   "terminology": {
+#     "Case": "Dossier",
+#     "Client": "Client",
+#     "Document": "Pièce",
+#     "Event": "Événement"
+#   },
+#   "customFields": [
+#     { "name": "CourtName", "type": "string", "label": "Tribunal" },
+#     { "name": "JudgeNumber", "type": "string", "label": "N° RG" },
+#     { "name": "LegalArea", "type": "enum", "label": "Domaine", "options": [...] }
+#   ],
+#   ...
+# }
+
+###
+### 🚀 PROCHAINES ÉTAPES
+###
+
+# 1. Tester tous les endpoints ci-dessus
+# 2. Vérifier que chaque secteur a sa propre config
+# 3. Créer des dossiers avec champs personnalisés par secteur
+# 4. Valider l'isolation multi-tenant
+
+###
+### 💡 NOTES
+###
+
+# - Tous les endpoints /api/sector/* sont protégés par JWT (sauf /available)
+# - Chaque secteur peut avoir sa propre terminologie
+# - Les champs personnalisés sont stockés en JSON dans Case.CustomFieldsJson
+# - La conformité (HIPAA, GDPR) est configurée par secteur
+
+###
+### 🎯 OBJECTIF
+###
+
+# Valider que la plateforme peut supporter 8 secteurs différents
+# avec le même code backend (80% commun, 20% configuration)

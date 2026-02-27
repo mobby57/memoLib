@@ -1,35 +1,27 @@
-# Script de demarrage MemoLib
-Write-Host "Demarrage de MemoLib..." -ForegroundColor Cyan
+#!/usr/bin/env pwsh
+# Script de démarrage rapide MemoLib
 
-# Arreter les processus existants
-Write-Host "Arret des processus existants..." -ForegroundColor Yellow
-Get-Process | Where-Object {$_.ProcessName -like "*MemoLib*"} | Stop-Process -Force -ErrorAction SilentlyContinue
+Write-Host "🚀 Démarrage MemoLib..." -ForegroundColor Cyan
 
-# Nettoyer et compiler
-Write-Host "Compilation..." -ForegroundColor Yellow
-dotnet build --no-incremental
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Erreur de compilation" -ForegroundColor Red
-    Read-Host "Appuyez sur Entree pour quitter"
-    exit
+# Vérifier si l'API tourne déjà
+$process = Get-Process -Name "MemoLib.Api" -ErrorAction SilentlyContinue
+if ($process) {
+    Write-Host "✅ API déjà en cours d'exécution (PID: $($process.Id))" -ForegroundColor Green
+} else {
+    Write-Host "🔧 Démarrage de l'API..." -ForegroundColor Yellow
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot'; dotnet run"
+    Start-Sleep -Seconds 3
 }
 
-# Lancer le serveur
-Write-Host "Lancement du serveur..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PWD'; dotnet run"
+# Ouvrir les interfaces
+Write-Host "🌐 Ouverture des interfaces..." -ForegroundColor Yellow
+Start-Process "http://localhost:5078/demo-pro.html"
+Start-Sleep -Seconds 1
+Start-Process "http://localhost:5078/app.html"
 
-# Attendre le demarrage
-Write-Host "Attente du demarrage (15 secondes)..." -ForegroundColor Yellow
-Start-Sleep -Seconds 15
-
-# Ouvrir le navigateur
-Write-Host "Ouverture du navigateur..." -ForegroundColor Green
-Start-Process "http://localhost:5078/demo.html"
-
+Write-Host "✅ MemoLib démarré!" -ForegroundColor Green
 Write-Host ""
-Write-Host "MemoLib est pret !" -ForegroundColor Green
-Write-Host "Email: sarraboudjellal57@gmail.com" -ForegroundColor White
-Write-Host "Password: SecurePass123!" -ForegroundColor White
-Write-Host ""
-Write-Host "Cliquez sur DEMO AUTO dans le navigateur" -ForegroundColor Cyan
+Write-Host "📍 Interfaces disponibles:" -ForegroundColor Cyan
+Write-Host "   - Demo Pro: http://localhost:5078/demo-pro.html" -ForegroundColor White
+Write-Host "   - App: http://localhost:5078/app.html" -ForegroundColor White
+Write-Host "   - API: http://localhost:5078" -ForegroundColor White

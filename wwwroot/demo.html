@@ -64,7 +64,19 @@
     <div class="container">
         <div class="header">
             <h1>🚀 MemoLib</h1>
-            <p>Votre assistant simple pour suivre vos emails, clients et dossiers</p>
+            <p>Système de gestion d'emails pour cabinets d'avocats</p>
+            <div style="margin-top: 20px;">
+                <h3>Choisissez votre rôle pour une démo adaptée :</h3>
+                <div style="display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+                    <button class="btn" onclick="openRoleDemo('owner')" style="background: linear-gradient(45deg, #2c3e50, #34495e);">🏛️ OWNER - Propriétaire Cabinet</button>
+                    <button class="btn" onclick="openRoleDemo('admin')" style="background: linear-gradient(45deg, #667eea, #764ba2);">⚖️ ADMIN - Avocat Senior</button>
+                    <button class="btn" onclick="openRoleDemo('agent')" style="background: linear-gradient(45deg, #27ae60, #2ecc71);">📋 AGENT - Collaborateur</button>
+                    <button class="btn" onclick="openRoleDemo('client')" style="background: linear-gradient(45deg, #3498db, #2980b9);">👤 CLIENT - Espace Client</button>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <p><strong>Ou continuez avec la démo complète ci-dessous</strong></p>
+                </div>
+            </div>
         </div>
 
         <div class="guide-box">
@@ -123,6 +135,17 @@
                 <div class="input-group">
                     <label>Nom</label>
                     <input type="text" id="reg-name" placeholder="Jean Dupont" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>Secteur d'activité</label>
+                    <select id="reg-sector">
+                        <option value="AVOCAT" selected>Cabinet d'Avocat</option>
+                        <option value="NOTAIRE">Étude Notariale</option>
+                        <option value="HUISSIER">Étude d'Huissier</option>
+                        <option value="EXPERT_COMPTABLE">Cabinet Comptable</option>
+                        <option value="ARCHITECTE">Agence Architecture</option>
+                        <option value="MEDECIN">Cabinet Médical</option>
+                    </select>
                 </div>
                 <button class="btn" onclick="register()">S'inscrire</button>
                 <div id="reg-result"></div>
@@ -389,9 +412,9 @@
 
     <script src="questionnaires.js"></script>
     <script src="advanced-features.js"></script>
-    <script src="auto-demo.js"></script>
     <script src="team-module.js"></script>
     <script src="https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
+    <script src="auto-demo.js"></script>
     <script>
         const API_URL = (() => {
             const origin = window.location.origin;
@@ -495,18 +518,24 @@
                 updateCurrentUserDisplay(storedEmail);
             }
         }
-                function applyAccessMode() {
-                    const accessModeText = document.getElementById('accessModeText');
-                    if (accessModeText) {
-                        accessModeText.textContent = IS_RESTRICTED
-                            ? 'Mode accès: restreint (Alertes masquées)'
-                            : 'Mode accès: complet';
-                    }
 
-                    if (!IS_RESTRICTED) return;
+        function applyAccessMode() {
+            const accessModeText = document.getElementById('accessModeText');
+            if (accessModeText) {
+                accessModeText.textContent = IS_RESTRICTED
+                    ? 'Mode accès: restreint (Alertes masquées)'
+                    : 'Mode accès: complet';
+            }
 
-                    const alertsTabButton = document.getElementById('alertsTabButton');
-                    // showTab gère directement le chargement de l'onglet équipe (module team-module.js).
+            if (!IS_RESTRICTED) return;
+
+            const alertsTabButton = document.getElementById('alertsTabButton');
+            const alertsTab = document.getElementById('alerts-tab');
+            if (alertsTabButton) alertsTabButton.style.display = 'none';
+            if (alertsTab) alertsTab.classList.add('hidden');
+        }
+
+        async function readResponseDataSafe(response) {
             const text = await response.text();
             if (!text || !text.trim()) return null;
 
@@ -676,12 +705,13 @@
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
             const name = document.getElementById('reg-name').value;
+            const sector = document.getElementById('reg-sector')?.value || 'AVOCAT';
 
             try {
                 const res = await apiFetchWithFallback('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, name, role: 'AVOCAT', plan: 'CABINET' })
+                    body: JSON.stringify({ email, password, name, role: sector, plan: 'CABINET' })
                 });
                 const data = await res.json();
                 if (res.ok) {
@@ -726,10 +756,11 @@
                         const shouldCreate = confirm("Identifiants invalides. Voulez-vous créer automatiquement un compte avec cet email puis vous connecter ?");
                         if (shouldCreate) {
                             const defaultName = email.split('@')[0] || 'Utilisateur';
+                            const sector = document.getElementById('reg-sector')?.value || 'AVOCAT';
                             const regRes = await apiFetchWithFallback('/api/auth/register', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ email, password, name: defaultName, role: 'AVOCAT', plan: 'CABINET' })
+                                body: JSON.stringify({ email, password, name: defaultName, role: sector, plan: 'CABINET' })
                             });
 
                             const regData = await readResponseDataSafe(regRes);
@@ -1993,7 +2024,7 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                const existingClients = listRes.ok ? await listRes.json() : [];
+                const existingClients = listRes.ok ? await readResponseDataSafe(listRes) : [];
                 const existingByEmail = new Map((existingClients || []).map(c => [(c.email || '').toLowerCase(), c]));
 
                 const batchRef = Date.now();
@@ -2023,7 +2054,7 @@
                         });
 
                         if (createRes.ok) {
-                            client = await createRes.json();
+                            client = await readResponseDataSafe(createRes);
                             existingByEmail.set(email.toLowerCase(), client);
                             createdClients += 1;
                         }
@@ -2050,7 +2081,7 @@
                             body: JSON.stringify(payload)
                         });
 
-                        const ingestData = await ingestRes.json();
+                        const ingestData = await readResponseDataSafe(ingestRes);
                         if (ingestRes.ok && ingestData.isDuplicate !== true) storedEvents += 1;
                         if (ingestRes.ok && ingestData.isDuplicate === true) duplicateEvents += 1;
                     }
@@ -3003,6 +3034,227 @@
             }
         });
 
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return text;
+            }
+        }
+        
+        // Make readResponseDataSafe globally available
+        window.readResponseDataSafe = readResponseDataSafe;
+        
+        // Initialize missing functions
+        function prefillDemoFields() {
+            // Pre-fill demo fields with default values
+            const regEmail = document.getElementById('reg-email');
+            const regPassword = document.getElementById('reg-password');
+            const regName = document.getElementById('reg-name');
+            const regSector = document.getElementById('reg-sector');
+            const loginEmail = document.getElementById('login-email');
+            const loginPassword = document.getElementById('login-password');
+            
+            if (regEmail && !regEmail.value) regEmail.value = 'sarraboudjellal57@gmail.com';
+            if (regPassword && !regPassword.value) regPassword.value = 'SecurePass123!';
+            if (regName && !regName.value) regName.value = 'Sarra Boudjellal';
+            if (regSector && !regSector.value) regSector.value = 'AVOCAT';
+            if (loginEmail && !loginEmail.value) loginEmail.value = 'sarraboudjellal57@gmail.com';
+            if (loginPassword && !loginPassword.value) loginPassword.value = 'SecurePass123!';
+        }
+        
+        function autoConnectDefaultUser() {
+            // Auto-connect if no token exists
+            if (!token) {
+                setTimeout(() => {
+                    if (!token) {
+                        console.log('Auto-connecting default user...');
+                        login();
+                    }
+                }, 1000);
+            }
+        }
+        
+        function keepPinnedSessionAlive() {
+            // Keep session alive by refreshing token periodically
+            if (token) {
+                console.log('Session kept alive');
+            }
+        }
+        
+        function refreshServiceStatus() {
+            // Update service status indicator
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('serviceStatusText');
+            const emailCount = document.getElementById('emailCountDisplay');
+            
+            if (statusDot && statusText) {
+                if (token) {
+                    statusDot.className = 'status-dot ok';
+                    statusText.textContent = 'Connecté';
+                } else {
+                    statusDot.className = 'status-dot err';
+                    statusText.textContent = 'Non connecté';
+                }
+            }
+            
+            // Update email count
+            if (emailCount && token) {
+                fetch(`${API_URL}/api/debug/stats`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.events) {
+                            emailCount.textContent = data.events;
+                        }
+                    })
+                    .catch(() => {});
+            }
+        }
+        
+        function updateCurrentUserDisplay(email) {
+            const display = document.getElementById('currentUserDisplay');
+            if (display) {
+                display.textContent = email ? `Connecté: ${email}` : '';
+            }
+        }
+        
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<div class="result ${isSuccess ? 'success' : 'error'}">${message}</div>`;
+            }
+        }
+        
+        function setLoadingState(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<div class="result">${message}</div>`;
+            }
+        }
+        
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            const selectedTab = document.getElementById(`${tabName}-tab`);
+            if (selectedTab) {
+                selectedTab.classList.remove('hidden');
+            }
+            
+            // Add active class to clicked tab button
+            const tabButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+            if (tabButton) {
+                tabButton.classList.add('active');
+            }
+            
+            // Load team data when team tab is shown
+            if (tabName === 'team' && typeof loadTeamData === 'function') {
+                loadTeamData();
+            }
+        }
+        
+        async function apiFetchWithFallback(endpoint, options = {}) {
+            try {
+                return await fetch(`${API_URL}${endpoint}`, options);
+            } catch (err) {
+                console.error('API fetch error:', err);
+                throw err;
+            }
+        }
+        
+        function pickValue(obj, ...keys) {
+            for (const key of keys) {
+                if (obj && obj[key] !== undefined) {
+                    return obj[key];
+                }
+            }
+            return null;
+        }
+        
+        async function installApp() {
+            if (installPromptEvent) {
+                installPromptEvent.prompt();
+                const { outcome } = await installPromptEvent.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('App installed');
+                }
+                installPromptEvent = null;
+            } else {
+                alert('Installation non disponible ou déjà installée');
+            }
+        }
+        
+        async function stopApplication() {
+            if (confirm('Arrêter l\'application ?')) {
+                try {
+                    await fetch(`${API_URL}/api/system/shutdown`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    alert('Application arrêtée');
+                } catch (err) {
+                    alert('Impossible d\'arrêter l\'application');
+                }
+            }
+        }
+        
+        async function showEventQuestionnaires(eventId, caseId) {
+            if (typeof showQuestionnaireModal === 'function') {
+                showQuestionnaireModal(eventId, caseId);
+            } else {
+                alert('Module questionnaires non disponible');
+            }
+        }
+        
+        // Default demo data
+        const DEFAULT_DEMO = {
+            clientRef: 'CLI-DEMO-001',
+            clientEmail: 'client.demo@example.com',
+            clientName: 'Sophie Martin',
+            clientPhone: '+33 6 12 34 56 78',
+            clientAddress: '12 rue de la Paix, Paris'
+        };
+        
+        // Make functions globally available
+        window.showTab = showTab;
+        window.showResult = showResult;
+        window.setLoadingState = setLoadingState;
+        window.updateCurrentUserDisplay = updateCurrentUserDisplay;
+        window.apiFetchWithFallback = apiFetchWithFallback;
+        window.pickValue = pickValue;
+        window.DEFAULT_DEMO = DEFAULT_DEMO;
+        
+        // Role demo navigation
+        function openRoleDemo(role) {
+            const demos = {
+                'owner': 'demo-owner.html',
+                'admin': 'demo-admin.html', 
+                'agent': 'demo-agent.html',
+                'client': 'demo-client.html'
+            };
+            
+            if (demos[role]) {
+                window.open(demos[role], '_blank');
+            }
+        }
+        
+        // PWA install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            installPromptEvent = e;
+        });
+
         prefillDemoFields();
         restoreSession();
         applyAccessMode();
@@ -3103,6 +3355,7 @@
             
             let html = '<div class="event-list">';
             invitations.forEach(inv => {
+                const invitationId = pickValue(inv, 'id', 'Id');
                 const role = pickValue(inv, 'role', 'Role') || 'N/A';
                 const email = pickValue(inv, 'email', 'Email') || 'N/A';
                 const createdAt = pickValue(inv, 'createdAt', 'CreatedAt');
@@ -3117,6 +3370,7 @@
                     <div class="content">Expire le ${expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR') : 'N/A'}</div>
                     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn" onclick="resendPendingInvitation('${encodedEmail}','${encodedRole}')">Renvoyer invitation</button>
+                        <button class="btn" style="background:#c62828;" onclick="cancelPendingInvitation('${invitationId}')">Annuler invitation</button>
                     </div>
                 </div>`;
             });
@@ -3243,6 +3497,34 @@
                 }
 
                 showResult('teamInviteResult', message);
+                await loadTeamData();
+            } catch {
+                showResult('teamInviteResult', '❌ Erreur de connexion', false);
+            }
+        }
+
+        async function cancelPendingInvitation(invitationId) {
+            if (!token) return showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
+            if (!invitationId) return showResult('teamInviteResult', 'Invitation invalide', false);
+
+            const confirmed = confirm('Annuler cette invitation en attente ?');
+            if (!confirmed) return;
+
+            try {
+                const response = await apiFetchWithFallback(`/api/team/invitations/${invitationId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await readResponseDataSafe(response);
+                if (!response.ok) {
+                    const msg = typeof data === 'string' ? data : (data?.message || 'Annulation impossible');
+                    return showResult('teamInviteResult', `❌ ${msg}`, false);
+                }
+
+                showResult('teamInviteResult', '✅ Invitation annulée (action loguée).');
                 await loadTeamData();
             } catch {
                 showResult('teamInviteResult', '❌ Erreur de connexion', false);

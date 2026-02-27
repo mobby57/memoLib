@@ -38,4 +38,23 @@ public class DashboardController : ControllerBase
             status = metrics.OpenAnomalies > 0 ? "attention" : "ok"
         });
     }
+
+    [HttpGet("overview")]
+    public async Task<IActionResult> GetOverview()
+    {
+        var userId = Guid.Parse(User.FindFirst("userId")!.Value);
+        var metrics = await _analyticsService.GetMetricsAsync(userId);
+        
+        return Ok(new
+        {
+            stats = new
+            {
+                totalCases = metrics.TotalCases,
+                totalClients = metrics.TotalClients,
+                emailsToday = metrics.EmailsToday,
+                openAnomalies = metrics.OpenAnomalies
+            },
+            metrics
+        });
+    }
 }

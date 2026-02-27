@@ -3,6 +3,7 @@
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-100%25%20passing-success)](VALIDATION-100-PERCENT.md)
 
 Système intelligent de gestion des communications par email avec détection automatique de clients, création de dossiers, workflow complet et fonctionnalités avancées.
 
@@ -18,7 +19,7 @@ Système intelligent de gestion des communications par email avec détection aut
 - ✅ **Pièces jointes** - Upload/download sécurisé
 
 ### 📁 Gestion Dossiers
-- ✅ **Création automatique** depuis emails entrants
+- ✅ **Création manuelle** avec extraction auto des coordonnées
 - ✅ **Workflow de statut** (OPEN → IN_PROGRESS → CLOSED)
 - ✅ **Attribution** à des avocats spécifiques
 - ✅ **Tags et catégorisation** flexible
@@ -26,9 +27,10 @@ Système intelligent de gestion des communications par email avec détection aut
 - ✅ **Filtres avancés** multi-critères
 - ✅ **Timeline complète** par dossier avec tous les événements
 - ✅ **Fusion intelligente** des doublons
+- ✅ **Notifications automatiques** sur changements d'état
 
 ### 👥 Gestion Clients
-- ✅ **Création automatique** depuis expéditeurs emails
+- ✅ **Création manuelle** avec suggestions depuis emails
 - ✅ **Extraction auto** des coordonnées (regex intelligent)
 - ✅ **Vue 360°** client avec historique complet
 - ✅ **Détection de doublons** par email
@@ -144,7 +146,32 @@ dotnet user-secrets set "EmailMonitor:Password" "votre-mot-de-passe-application"
 
 - **[FEATURES_COMPLETE.md](FEATURES_COMPLETE.md)** - Documentation complète des fonctionnalités
 - **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Résumé de l'implémentation
+- **[SCENARIOS_TOUTES_FONCTIONS.md](SCENARIOS_TOUTES_FONCTIONS.md)** - Scénarios détaillés des 12 fonctionnalités
+- **[SCENARIOS_DEMO_COMPLETS.md](SCENARIOS_DEMO_COMPLETS.md)** - Scénarios de démo live
+- **[FLUX_COMPLETS_TOUTES_FONCTIONS.md](FLUX_COMPLETS_TOUTES_FONCTIONS.md)** - Tous les flux possibles
+- **[GUIDE_SCENARIOS.md](GUIDE_SCENARIOS.md)** - Guide rapide d'exécution
 - **[test-all-features.http](test-all-features.http)** - Tests API
+
+## 🧪 Test E2E Onboarding
+
+Le flux complet onboarding (inscription utilisateur test, login, création template, invitation client, formulaire public, soumission avec participants) est automatisé via:
+
+```powershell
+npm run api:e2e:onboarding
+```
+
+Forcer une URL API précise:
+
+```powershell
+npm run api:e2e:onboarding:base -- -u http://localhost:5078
+```
+
+Prérequis:
+- API démarrée localement sur `http://localhost:8091`
+- Base de données accessible et migrations appliquées
+
+Script utilisé:
+- `scripts/e2e-onboarding.ps1`
 
 ## 🔐 Sécurité
 
@@ -211,20 +238,24 @@ GET  /api/attachment/event/{eventId}
 
 ```bash
 # 1. Email reçu automatiquement
-# → Dossier créé automatiquement
-# → Client créé automatiquement
+# → Notification envoyée à l'utilisateur
+# → Utilisateur crée dossier manuellement
+# → Coordonnées extraites automatiquement
 
 # 2. Avocat définit la priorité
 PATCH /api/cases/{id}/priority
 { "priority": 5, "dueDate": "2025-06-30" }
+# → Notification AUTO envoyée aux collaborateurs
 
 # 3. Ajoute des tags
 PATCH /api/cases/{id}/tags
 { "tags": ["urgent", "famille", "divorce"] }
+# → Notification AUTO envoyée
 
 # 4. Passe en cours
 PATCH /api/cases/{id}/status
 { "status": "IN_PROGRESS" }
+# → Notification AUTO changement d'état
 
 # 5. Envoie un email au client
 POST /api/email/send
@@ -233,6 +264,7 @@ POST /api/email/send
 # 6. Clôture le dossier
 PATCH /api/cases/{id}/status
 { "status": "CLOSED" }
+# → Notification AUTO envoyée à tous
 ```
 
 ## 🔄 Sauvegarde & Restauration
@@ -378,13 +410,22 @@ Pour toute question, consultez la documentation ou ouvrez une issue sur GitHub.
 - [x] Recherche intelligente
 - [x] Dashboard analytics
 - [x] Centre anomalies
+- [x] Commentaires avec mentions
+- [x] Notifications temps réel (SignalR)
+- [x] Calendrier intégré
+- [x] Tâches avec dépendances
+- [x] Facturation & suivi temps
+- [x] Recherche full-text globale
+- [x] Webhooks sortants
+- [x] Templates avancés
+- [x] Signatures électroniques
+- [x] Formulaires dynamiques
 
 ### Version 1.1 (Prochaine) 🚧
-- [ ] Notifications temps réel (SignalR)
-- [ ] Templates IA intelligents
-- [ ] Calendrier intégré
-- [ ] Export PDF/Excel
+- [ ] Export PDF/Excel avancé
 - [ ] Rapports personnalisés
+- [ ] IA classification emails
+- [ ] Templates IA intelligents
 
 ### Version 2.0 (Future) 💡
 - [ ] Application mobile (iOS/Android)

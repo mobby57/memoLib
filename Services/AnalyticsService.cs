@@ -28,6 +28,10 @@ public class AnalyticsService
             .Where(c => c.UserId == userId)
             .CountAsync();
 
+        var totalClients = await _context.Clients
+            .Where(c => c.UserId == userId)
+            .CountAsync();
+
         var openAnomalies = await _context.Events
             .Where(e => e.RequiresAttention && _context.Cases
                 .Any(c => c.UserId == userId && _context.CaseEvents
@@ -40,6 +44,7 @@ public class AnalyticsService
         {
             EmailsToday = emailsToday,
             TotalCases = totalCases,
+            TotalClients = totalClients,
             OpenAnomalies = openAnomalies,
             AverageResponseTimeHours = avgResponseTime,
             WeeklyTrend = await GetWeeklyTrendAsync(userId),
@@ -108,6 +113,7 @@ public class DashboardMetrics
 {
     public int EmailsToday { get; set; }
     public int TotalCases { get; set; }
+    public int TotalClients { get; set; }
     public int OpenAnomalies { get; set; }
     public double AverageResponseTimeHours { get; set; }
     public List<WeeklyTrendItem> WeeklyTrend { get; set; } = new();

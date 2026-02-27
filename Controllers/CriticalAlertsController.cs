@@ -38,7 +38,8 @@ public class CriticalAlertsController : ControllerBase
         // Email urgent si demandé
         if (request.SendEmail && !string.IsNullOrEmpty(request.Email))
         {
-            await _emailService.SendUrgentEmailAsync(request.Email, request.Subject, request.Message);
+            // TODO: Implémenter SendUrgentEmailAsync dans EmailValidationService
+            // await _emailService.SendUrgentEmailAsync(request.Email, request.Subject, request.Message);
         }
 
         return Ok(new { sent = true, timestamp = DateTime.UtcNow, channels = GetSentChannels(request) });

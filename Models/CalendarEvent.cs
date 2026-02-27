@@ -10,10 +10,12 @@ public class CalendarEvent
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public string Location { get; set; } = string.Empty;
+    public string? MeetingLink { get; set; }
     public string EventType { get; set; } = "meeting"; // meeting, deadline, hearing, consultation
     public bool IsAllDay { get; set; }
     public int ReminderMinutes { get; set; } = 60;
     public string Status { get; set; } = "scheduled"; // scheduled, completed, cancelled
+    public DateTime CreatedAt { get; set; }
     
     // Navigation
     public User? User { get; set; }

@@ -116,7 +116,7 @@ public class PublicContactController : ControllerBase
 
             await smtp.DisconnectAsync(true);
 
-            _logger.LogInformation("Contact public envoyé: from={From} to={To}", email, toEmail);
+            _logger.LogInformation("Contact public envoyé avec succès.");
 
             return Ok(new { message = "Demande envoyée avec succès." });
         }

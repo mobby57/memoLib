@@ -1,0 +1,1344 @@
+2026-02-27 06:20:02.983 +01:00 [INF] 🚀 Démarrage MemoLib API...
+2026-02-27 06:20:03.024 +01:00 [INF] 📁 Répertoire de travail: c:\Users\moros\Desktop\memolib\MemoLib.Api
+2026-02-27 06:20:03.028 +01:00 [INF] 🌍 Environnement: Development
+2026-02-27 06:20:03.699 +01:00 [WRN] The property 'AdvancedTemplate.Conditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.711 +01:00 [WRN] The property 'AdvancedTemplate.Variables' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.720 +01:00 [WRN] The property 'Automation.ActionParams' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.720 +01:00 [WRN] The property 'Automation.TriggerConditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.732 +01:00 [WRN] The property 'CustomForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.732 +01:00 [WRN] The property 'DocumentSignature.SignatureRequests' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.732 +01:00 [WRN] The property 'DynamicForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.735 +01:00 [WRN] The property 'ExternalShare.DocumentIds' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.736 +01:00 [WRN] The property 'FormSubmission.Data' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.736 +01:00 [WRN] The property 'FormSubmission.Responses' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.736 +01:00 [WRN] The property 'Integration.Settings' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:03.740 +01:00 [WRN] The property 'Report.Filters' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:04.194 +01:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-02-27 06:20:04.221 +01:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsLock' AND "type" = 'table';
+2026-02-27 06:20:04.228 +01:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2026-02-27 05:20:04.2248876+00:00');
+SELECT changes();
+2026-02-27 06:20:04.281 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
+);
+2026-02-27 06:20:04.286 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-02-27 06:20:04.288 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-02-27 06:20:04.293 +01:00 [INF] No migrations were applied. The database is already up to date.
+2026-02-27 06:20:04.294 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DELETE FROM "__EFMigrationsLock";
+2026-02-27 06:20:04.503 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Sources" AS "s")
+2026-02-27 06:20:04.526 +01:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Questionnaires" AS "q")
+2026-02-27 06:20:04.709 +01:00 [INF] ✅ MemoLib API démarrée avec succès!
+2026-02-27 06:20:04.709 +01:00 [INF] 🌐 Interface: http://localhost:5078/demo.html
+2026-02-27 06:20:04.709 +01:00 [INF] 🔌 API: http://localhost:5078/api
+2026-02-27 06:20:04.709 +01:00 [INF] ❤️ Santé: http://localhost:5078/health
+2026-02-27 06:20:04.729 +01:00 [INF] User profile is available. Using 'C:\Users\moros\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-02-27 06:20:04.765 +01:00 [INF] Email monitor démarré: sarraboudjellal57@gmail.com@imap.gmail.com:993
+2026-02-27 06:20:04.766 +01:00 [WRN] EmailMonitor activé mais configuration IMAP incomplète (host/port/username/password). Nouveau test au prochain cycle.
+2026-02-27 06:20:04.867 +01:00 [ERR] Hosting failed to start
+System.IO.IOException: Failed to bind to address http://127.0.0.1:5078: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Une seule utilisation de chaque adresse de socket (protocole/adresse réseau/port) est habituellement autorisée.
+ ---> System.Net.Sockets.SocketException (10048): Une seule utilisation de chaque adresse de socket (protocole/adresse réseau/port) est habituellement autorisée.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2026-02-27 06:20:04.879 +01:00 [ERR] Erreur monitoring email
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at MemoLib.Api.Services.EmailMonitorService.ExecuteAsync(CancellationToken stoppingToken) in c:\Users\moros\Desktop\memolib\MemoLib.Api\Services\EmailMonitorService.cs:line 51
+2026-02-27 06:20:04.884 +01:00 [FTL] Application terminated unexpectedly
+System.IO.IOException: Failed to bind to address http://127.0.0.1:5078: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Une seule utilisation de chaque adresse de socket (protocole/adresse réseau/port) est habituellement autorisée.
+ ---> System.Net.Sockets.SocketException (10048): Une seule utilisation de chaque adresse de socket (protocole/adresse réseau/port) est habituellement autorisée.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at Program.<Main>$(String[] args) in c:\Users\moros\Desktop\memolib\MemoLib.Api\Program.cs:line 340
+2026-02-27 06:20:04.886 +01:00 [ERR] BackgroundService failed
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at MemoLib.Api.Services.EmailMonitorService.ExecuteAsync(CancellationToken stoppingToken) in c:\Users\moros\Desktop\memolib\MemoLib.Api\Services\EmailMonitorService.cs:line 86
+   at Microsoft.Extensions.Hosting.Internal.Host.TryExecuteBackgroundServiceAsync(BackgroundService backgroundService)
+2026-02-27 06:20:46.058 +01:00 [INF] 🚀 Démarrage MemoLib API...
+2026-02-27 06:20:46.088 +01:00 [INF] 📁 Répertoire de travail: c:\Users\moros\Desktop\memolib\MemoLib.Api
+2026-02-27 06:20:46.089 +01:00 [INF] 🌍 Environnement: Development
+2026-02-27 06:20:46.730 +01:00 [WRN] The property 'AdvancedTemplate.Conditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.738 +01:00 [WRN] The property 'AdvancedTemplate.Variables' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.742 +01:00 [WRN] The property 'Automation.ActionParams' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.742 +01:00 [WRN] The property 'Automation.TriggerConditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.743 +01:00 [WRN] The property 'CustomForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.744 +01:00 [WRN] The property 'DocumentSignature.SignatureRequests' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.744 +01:00 [WRN] The property 'DynamicForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.746 +01:00 [WRN] The property 'ExternalShare.DocumentIds' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.746 +01:00 [WRN] The property 'FormSubmission.Data' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.746 +01:00 [WRN] The property 'FormSubmission.Responses' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.746 +01:00 [WRN] The property 'Integration.Settings' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:46.749 +01:00 [WRN] The property 'Report.Filters' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:20:47.065 +01:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-02-27 06:20:47.095 +01:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsLock' AND "type" = 'table';
+2026-02-27 06:20:47.102 +01:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2026-02-27 05:20:47.0990112+00:00');
+SELECT changes();
+2026-02-27 06:20:47.164 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
+);
+2026-02-27 06:20:47.172 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-02-27 06:20:47.174 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-02-27 06:20:47.180 +01:00 [INF] No migrations were applied. The database is already up to date.
+2026-02-27 06:20:47.182 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DELETE FROM "__EFMigrationsLock";
+2026-02-27 06:20:47.404 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Sources" AS "s")
+2026-02-27 06:20:47.419 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Questionnaires" AS "q")
+2026-02-27 06:20:47.558 +01:00 [INF] ✅ MemoLib API démarrée avec succès!
+2026-02-27 06:20:47.558 +01:00 [INF] 🌐 Interface: http://localhost:5078/demo.html
+2026-02-27 06:20:47.558 +01:00 [INF] 🔌 API: http://localhost:5078/api
+2026-02-27 06:20:47.558 +01:00 [INF] ❤️ Santé: http://localhost:5078/health
+2026-02-27 06:20:47.572 +01:00 [INF] User profile is available. Using 'C:\Users\moros\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-02-27 06:20:47.596 +01:00 [INF] Email monitor démarré: sarraboudjellal57@gmail.com@imap.gmail.com:993
+2026-02-27 06:20:47.596 +01:00 [WRN] EmailMonitor activé mais configuration IMAP incomplète (host/port/username/password). Nouveau test au prochain cycle.
+2026-02-27 06:20:47.658 +01:00 [ERR] Hosting failed to start
+System.IO.IOException: Failed to bind to address http://127.0.0.1:5078: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Une seule utilisation de chaque adresse de socket (protocole/adresse réseau/port) est habituellement autorisée.
+ ---> System.Net.Sockets.SocketException (10048): Une seule utilisation de chaque adresse de socket (protocole/adresse réseau/port) est habituellement autorisée.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2026-02-27 06:20:47.667 +01:00 [ERR] Erreur monitoring email
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at MemoLib.Api.Services.EmailMonitorService.ExecuteAsync(CancellationToken stoppingToken) in c:\Users\moros\Desktop\memolib\MemoLib.Api\Services\EmailMonitorService.cs:line 51
+2026-02-27 06:20:47.672 +01:00 [FTL] Application terminated unexpectedly
+System.IO.IOException: Failed to bind to address http://127.0.0.1:5078: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Une seule utilisation de chaque adresse de socket (protocole/adresse réseau/port) est habituellement autorisée.
+ ---> System.Net.Sockets.SocketException (10048): Une seule utilisation de chaque adresse de socket (protocole/adresse réseau/port) est habituellement autorisée.
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at Program.<Main>$(String[] args) in c:\Users\moros\Desktop\memolib\MemoLib.Api\Program.cs:line 340
+2026-02-27 06:20:47.674 +01:00 [ERR] BackgroundService failed
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at MemoLib.Api.Services.EmailMonitorService.ExecuteAsync(CancellationToken stoppingToken) in c:\Users\moros\Desktop\memolib\MemoLib.Api\Services\EmailMonitorService.cs:line 86
+   at Microsoft.Extensions.Hosting.Internal.Host.TryExecuteBackgroundServiceAsync(BackgroundService backgroundService)
+2026-02-27 06:21:03.995 +01:00 [INF] 🚀 Démarrage MemoLib API...
+2026-02-27 06:21:04.039 +01:00 [INF] 📁 Répertoire de travail: c:\Users\moros\Desktop\memolib\MemoLib.Api
+2026-02-27 06:21:04.043 +01:00 [INF] 🌍 Environnement: Development
+2026-02-27 06:21:04.968 +01:00 [WRN] The property 'AdvancedTemplate.Conditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.978 +01:00 [WRN] The property 'AdvancedTemplate.Variables' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.982 +01:00 [WRN] The property 'Automation.ActionParams' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.982 +01:00 [WRN] The property 'Automation.TriggerConditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.983 +01:00 [WRN] The property 'CustomForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.983 +01:00 [WRN] The property 'DocumentSignature.SignatureRequests' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.983 +01:00 [WRN] The property 'DynamicForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.985 +01:00 [WRN] The property 'ExternalShare.DocumentIds' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.985 +01:00 [WRN] The property 'FormSubmission.Data' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.985 +01:00 [WRN] The property 'FormSubmission.Responses' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.985 +01:00 [WRN] The property 'Integration.Settings' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:04.989 +01:00 [WRN] The property 'Report.Filters' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:05.300 +01:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-02-27 06:21:05.327 +01:00 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsLock' AND "type" = 'table';
+2026-02-27 06:21:05.335 +01:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2026-02-27 05:21:05.3309865+00:00');
+SELECT changes();
+2026-02-27 06:21:05.405 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
+);
+2026-02-27 06:21:05.411 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-02-27 06:21:05.413 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-02-27 06:21:05.419 +01:00 [INF] No migrations were applied. The database is already up to date.
+2026-02-27 06:21:05.421 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DELETE FROM "__EFMigrationsLock";
+2026-02-27 06:21:05.612 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Sources" AS "s")
+2026-02-27 06:21:05.628 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Questionnaires" AS "q")
+2026-02-27 06:21:05.763 +01:00 [INF] ✅ MemoLib API démarrée avec succès!
+2026-02-27 06:21:05.763 +01:00 [INF] 🌐 Interface: http://localhost:5078/demo.html
+2026-02-27 06:21:05.764 +01:00 [INF] 🔌 API: http://localhost:5078/api
+2026-02-27 06:21:05.764 +01:00 [INF] ❤️ Santé: http://localhost:5078/health
+2026-02-27 06:21:05.777 +01:00 [INF] User profile is available. Using 'C:\Users\moros\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-02-27 06:21:05.798 +01:00 [INF] Email monitor démarré: sarraboudjellal57@gmail.com@imap.gmail.com:993
+2026-02-27 06:21:05.865 +01:00 [INF] Now listening on: http://localhost:5078
+2026-02-27 06:21:05.865 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-27 06:21:05.866 +01:00 [INF] Hosting environment: Development
+2026-02-27 06:21:05.866 +01:00 [INF] Content root path: c:\Users\moros\Desktop\memolib\MemoLib.Api
+2026-02-27 06:21:40.657 +01:00 [INF] 🚀 Démarrage MemoLib API...
+2026-02-27 06:21:40.692 +01:00 [INF] 📁 Répertoire de travail: c:\Users\moros\Desktop\memolib\MemoLib.Api
+2026-02-27 06:21:40.695 +01:00 [INF] 🌍 Environnement: Development
+2026-02-27 06:21:41.300 +01:00 [WRN] The property 'AdvancedTemplate.Conditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.309 +01:00 [WRN] The property 'AdvancedTemplate.Variables' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.315 +01:00 [WRN] The property 'Automation.ActionParams' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.317 +01:00 [WRN] The property 'Automation.TriggerConditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.320 +01:00 [WRN] The property 'CustomForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.321 +01:00 [WRN] The property 'DocumentSignature.SignatureRequests' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.323 +01:00 [WRN] The property 'DynamicForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.325 +01:00 [WRN] The property 'ExternalShare.DocumentIds' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.326 +01:00 [WRN] The property 'FormSubmission.Data' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.328 +01:00 [WRN] The property 'FormSubmission.Responses' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.329 +01:00 [WRN] The property 'Integration.Settings' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.333 +01:00 [WRN] The property 'Report.Filters' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:21:41.628 +01:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-02-27 06:21:41.656 +01:00 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsLock' AND "type" = 'table';
+2026-02-27 06:21:41.665 +01:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2026-02-27 05:21:41.6625459+00:00');
+SELECT changes();
+2026-02-27 06:21:41.728 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
+);
+2026-02-27 06:21:41.738 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-02-27 06:21:41.743 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-02-27 06:21:41.753 +01:00 [INF] No migrations were applied. The database is already up to date.
+2026-02-27 06:21:41.756 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DELETE FROM "__EFMigrationsLock";
+2026-02-27 06:21:41.953 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Sources" AS "s")
+2026-02-27 06:21:41.972 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Questionnaires" AS "q")
+2026-02-27 06:21:42.109 +01:00 [INF] ✅ MemoLib API démarrée avec succès!
+2026-02-27 06:21:42.112 +01:00 [INF] 🌐 Interface: http://localhost:5078/demo.html
+2026-02-27 06:21:42.114 +01:00 [INF] 🔌 API: http://localhost:5078/api
+2026-02-27 06:21:42.115 +01:00 [INF] ❤️ Santé: http://localhost:5078/health
+2026-02-27 06:21:42.129 +01:00 [INF] User profile is available. Using 'C:\Users\moros\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-02-27 06:21:42.152 +01:00 [INF] Email monitor démarré: sarraboudjellal57@gmail.com@imap.gmail.com:993
+2026-02-27 06:21:42.219 +01:00 [INF] Now listening on: http://localhost:5078
+2026-02-27 06:21:42.220 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-27 06:21:42.221 +01:00 [INF] Hosting environment: Development
+2026-02-27 06:21:42.222 +01:00 [INF] Content root path: c:\Users\moros\Desktop\memolib\MemoLib.Api
+2026-02-27 06:22:03.747 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/demo.html - null null
+2026-02-27 06:22:03.815 +01:00 [INF] Sending file. Request path: '/demo.html'. Physical path: 'c:\Users\moros\Desktop\memolib\MemoLib.Api\wwwroot\demo.html'
+2026-02-27 06:22:03.823 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/demo.html - 200 188774 text/html 77.2175ms
+2026-02-27 06:22:04.107 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:04.217 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:04.238 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:04.308 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:04.318 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:04.326 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:04.333 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:04.381 +01:00 [INF] Executed DbCommand (2ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:04.394 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:04.427 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 179.2002ms
+2026-02-27 06:22:04.429 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:04.433 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 326.0403ms
+2026-02-27 06:22:07.313 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/demo-owner.html - null null
+2026-02-27 06:22:07.321 +01:00 [INF] Sending file. Request path: '/demo-owner.html'. Physical path: 'c:\Users\moros\Desktop\memolib\MemoLib.Api\wwwroot\demo-owner.html'
+2026-02-27 06:22:07.326 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/demo-owner.html - 200 17354 text/html 12.822ms
+2026-02-27 06:22:07.371 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/dashboard/executive - null null
+2026-02-27 06:22:07.438 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:22:07.453 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:22:07.455 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/dashboard/executive - 404 0 null 83.8038ms
+2026-02-27 06:22:07.460 +01:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5078/api/dashboard/executive, Response status code: 404
+2026-02-27 06:22:09.552 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:09.558 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:09.560 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:09.608 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:09.612 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:09.615 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:09.618 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:09.624 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:09.628 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:09.630 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 67.6492ms
+2026-02-27 06:22:09.632 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:09.634 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 81.512ms
+2026-02-27 06:22:12.557 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:22:12.562 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:22:12.566 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:22:12.574 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:22:12.580 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:22:12.582 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 24.7136ms
+2026-02-27 06:22:14.104 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:14.107 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:14.109 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:14.113 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:14.115 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:14.119 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:14.122 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:14.125 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:14.128 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:14.130 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 18.0501ms
+2026-02-27 06:22:14.132 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:14.133 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 29.3878ms
+2026-02-27 06:22:14.808 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/demo-agent.html - null null
+2026-02-27 06:22:14.814 +01:00 [INF] Sending file. Request path: '/demo-agent.html'. Physical path: 'c:\Users\moros\Desktop\memolib\MemoLib.Api\wwwroot\demo-agent.html'
+2026-02-27 06:22:14.817 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/demo-agent.html - 200 19423 text/html 8.8429ms
+2026-02-27 06:22:19.552 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:19.557 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:19.558 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:19.562 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:19.566 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:19.569 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:19.572 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:19.575 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:19.579 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:19.581 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 20.7455ms
+2026-02-27 06:22:19.583 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:19.585 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 32.6688ms
+2026-02-27 06:22:20.552 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:22:20.557 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:22:20.561 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:22:20.565 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:22:20.567 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:22:20.568 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 15.898ms
+2026-02-27 06:22:24.556 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:24.560 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:24.562 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:24.565 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:24.568 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:24.570 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:24.573 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:24.577 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:24.580 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:24.582 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 17.5457ms
+2026-02-27 06:22:24.583 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:24.585 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 29.672ms
+2026-02-27 06:22:28.564 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:22:28.568 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:22:28.572 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:22:28.576 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:22:28.578 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:22:28.579 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 15.119ms
+2026-02-27 06:22:29.558 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:29.563 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:29.564 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:29.567 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:29.570 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:29.573 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:29.577 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:29.580 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:29.583 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:29.585 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 18.788ms
+2026-02-27 06:22:29.586 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:29.589 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 30.4236ms
+2026-02-27 06:22:34.554 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:34.558 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:34.560 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:34.563 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:34.566 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:34.569 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:34.572 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:34.575 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:34.577 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:34.579 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 17.099ms
+2026-02-27 06:22:34.581 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:34.583 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 28.1866ms
+2026-02-27 06:22:36.554 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:22:36.558 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:22:36.562 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:22:36.563 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:22:36.564 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:22:36.566 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 11.6695ms
+2026-02-27 06:22:39.556 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:39.560 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:39.561 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:39.564 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:39.567 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:39.571 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:39.572 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:39.575 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:39.577 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:39.579 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 16.1175ms
+2026-02-27 06:22:39.582 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:39.583 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 27.0234ms
+2026-02-27 06:22:44.564 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:44.564 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:22:44.569 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:44.572 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:22:44.573 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:44.578 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:22:44.580 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:44.581 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:22:44.582 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:44.583 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:22:44.586 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:44.587 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 22.7458ms
+2026-02-27 06:22:44.589 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:44.596 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:44.599 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:44.600 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 21.4737ms
+2026-02-27 06:22:44.602 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:44.604 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 39.6423ms
+2026-02-27 06:22:49.563 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:49.566 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:49.568 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:49.571 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:49.574 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:49.577 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:49.579 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:49.582 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:49.584 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:49.586 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 16.7043ms
+2026-02-27 06:22:49.589 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:49.591 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 28.2258ms
+2026-02-27 06:22:52.557 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:22:52.562 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:22:52.565 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:22:52.567 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:22:52.568 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:22:52.570 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 13.1465ms
+2026-02-27 06:22:54.565 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:54.570 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:54.572 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:54.575 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:54.579 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:54.582 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:54.585 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:54.588 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:54.591 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:54.593 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 18.6419ms
+2026-02-27 06:22:54.595 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:54.596 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 31.3011ms
+2026-02-27 06:22:59.555 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:22:59.558 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:59.559 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:22:59.562 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:22:59.565 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:22:59.568 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:22:59.570 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:22:59.573 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:22:59.577 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:22:59.578 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 17.2032ms
+2026-02-27 06:22:59.581 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:22:59.583 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 28.2294ms
+2026-02-27 06:23:00.558 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:23:00.562 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:23:00.565 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:23:00.567 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:23:00.569 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:23:00.570 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 12.0535ms
+2026-02-27 06:23:04.552 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:23:04.555 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:23:04.556 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:23:04.559 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:23:04.562 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:23:04.564 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:23:04.567 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:23:04.570 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:23:04.573 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:23:04.575 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 17.706ms
+2026-02-27 06:23:04.577 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:23:04.579 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 27.2608ms
+2026-02-27 06:23:08.560 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:23:08.564 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:23:08.566 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:23:08.567 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:23:08.568 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:23:08.570 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 9.2901ms
+2026-02-27 06:23:09.566 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:23:09.570 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:23:09.572 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:23:09.578 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:23:09.582 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:23:09.586 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:23:09.590 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:23:09.595 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:23:09.599 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:23:09.602 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 25.698ms
+2026-02-27 06:23:09.607 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:23:09.609 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 43.1711ms
+2026-02-27 06:23:14.562 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:23:14.565 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:23:14.567 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:23:14.570 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:23:14.573 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:23:14.576 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:23:14.578 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:23:14.581 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:23:14.585 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:23:14.588 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 18.3214ms
+2026-02-27 06:23:14.589 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:23:14.591 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 29.0056ms
+2026-02-27 06:23:23.571 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:23:23.574 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:23:23.575 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:23:23.578 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:23:23.583 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:23:23.584 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:23:23.586 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:23:23.589 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:23:23.590 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:23:23.593 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:23:23.593 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 22.0323ms
+2026-02-27 06:23:23.597 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:23:23.603 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:23:23.607 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:23:23.611 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:23:23.613 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 25.0418ms
+2026-02-27 06:23:23.616 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:23:23.618 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 43.9865ms
+2026-02-27 06:24:23.561 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:24:23.562 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:24:23.566 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:24:23.569 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:24:23.571 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:24:23.572 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:24:23.574 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:24:23.577 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:24:23.578 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:24:23.579 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 18.4806ms
+2026-02-27 06:24:23.582 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:24:23.588 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:24:23.591 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:24:23.594 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:24:23.597 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:24:23.599 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 23.5046ms
+2026-02-27 06:24:23.601 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:24:23.603 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 40.8872ms
+2026-02-27 06:25:23.574 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:25:23.576 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:25:23.579 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:25:23.583 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:25:23.583 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:25:23.586 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:25:23.589 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:25:23.589 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:25:23.592 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:25:23.593 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:25:23.596 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:25:23.596 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 20.7373ms
+2026-02-27 06:25:23.599 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:25:23.605 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:25:23.608 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:25:23.610 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 21.8195ms
+2026-02-27 06:25:23.612 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:25:23.613 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 39.521ms
+2026-02-27 06:26:23.571 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:26:23.572 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:26:23.576 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:26:23.579 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:26:23.581 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:26:23.582 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:26:23.583 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:26:23.585 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:26:23.586 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:26:23.588 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:26:23.590 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 18.3396ms
+2026-02-27 06:26:23.592 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:26:23.597 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:26:23.601 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:26:23.603 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:26:23.605 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 20.1942ms
+2026-02-27 06:26:23.607 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:26:23.608 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 36.1387ms
+2026-02-27 06:27:23.572 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:27:23.574 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:27:23.577 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:27:23.580 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:27:23.580 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:27:23.583 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:27:23.586 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:27:23.587 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:27:23.589 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:27:23.590 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:27:23.593 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:27:23.594 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 20.7372ms
+2026-02-27 06:27:23.597 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:27:23.603 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:27:23.605 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:27:23.607 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 21.586ms
+2026-02-27 06:27:23.609 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:27:23.610 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 38.552ms
+2026-02-27 06:28:23.561 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:28:23.563 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:28:23.566 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:28:23.570 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:28:23.570 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:28:23.573 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:28:23.575 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:28:23.576 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:28:23.579 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:28:23.580 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:28:23.582 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:28:23.583 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 20.419ms
+2026-02-27 06:28:23.586 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:28:23.592 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:28:23.595 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:28:23.597 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 22.3267ms
+2026-02-27 06:28:23.599 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:28:23.601 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 39.7732ms
+2026-02-27 06:29:23.566 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:29:23.566 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:29:23.570 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:29:23.573 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:29:23.576 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:29:23.577 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:29:23.578 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:29:23.580 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:29:23.580 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:29:23.581 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 15.496ms
+2026-02-27 06:29:23.584 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:29:23.588 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:29:23.590 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:29:23.592 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:29:23.595 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:29:23.597 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 17.8199ms
+2026-02-27 06:29:23.599 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:29:23.600 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 33.9823ms
+2026-02-27 06:30:23.572 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:30:23.573 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:30:23.576 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:30:23.579 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:30:23.580 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:30:23.584 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:30:23.586 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:30:23.587 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:30:23.590 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:30:23.590 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:30:23.593 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:30:23.594 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 21.0484ms
+2026-02-27 06:30:23.597 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:30:23.603 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:30:23.605 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:30:23.607 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 21.7266ms
+2026-02-27 06:30:23.609 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:30:23.610 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 38.6419ms
+2026-02-27 06:31:23.564 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/debug/stats - null null
+2026-02-27 06:31:23.567 +01:00 [INF] Request starting HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - null null
+2026-02-27 06:31:23.569 +01:00 [INF] Executing endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:31:23.572 +01:00 [INF] Failed to validate the token.
+Microsoft.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignature(JsonWebToken jwtToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateSignatureAndIssuerSecurityKey(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+   at Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.ValidateJWSAsync(JsonWebToken jsonWebToken, TokenValidationParameters validationParameters, BaseConfiguration configuration)
+2026-02-27 06:31:23.572 +01:00 [INF] Route matched with {action = "GetStats", controller = "Debug"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetStats() on controller MemoLib.Api.Controllers.DebugController (MemoLib.Api).
+2026-02-27 06:31:23.576 +01:00 [INF] Bearer was not authenticated. Failure message: IDX10517: Signature validation failed. The token's kid is missing. Keys tried: 'Microsoft.IdentityModel.Tokens.SymmetricSecurityKey, KeyId: '', InternalId: 'Q2hQDk7S4KfiZeCcuUSoz8jrDNPZydSLn0zNDw9MhSE'. , KeyId: 
+'. Number of keys in TokenValidationParameters: '1'. 
+Number of keys in Configuration: '0'. 
+Exceptions caught:
+ '[PII of type 'System.String' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'.
+token: '[PII of type 'Microsoft.IdentityModel.JsonWebTokens.JsonWebToken' is hidden. For more details, see https://aka.ms/IdentityModel/PII.]'. See https://aka.ms/IDX10503 for details.
+2026-02-27 06:31:23.579 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Users" AS "u"
+2026-02-27 06:31:23.579 +01:00 [INF] Authorization failed. These requirements were not met:
+DenyAnonymousAuthorizationRequirement: Requires an authenticated user.
+2026-02-27 06:31:23.582 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Cases" AS "c"
+2026-02-27 06:31:23.583 +01:00 [INF] AuthenticationScheme: Bearer was challenged.
+2026-02-27 06:31:23.586 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Events" AS "e"
+2026-02-27 06:31:23.588 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/alerts/center?limit=5 - 401 0 null 20.9564ms
+2026-02-27 06:31:23.589 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*)
+FROM "Sources" AS "s"
+2026-02-27 06:31:23.598 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT "c"."Id", "c"."Title", "c"."CreatedAt", "c"."UserId"
+FROM "Cases" AS "c"
+ORDER BY "c"."CreatedAt" DESC
+LIMIT @__p_0
+2026-02-27 06:31:23.602 +01:00 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType44`5[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[<>f__AnonymousType43`4[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.DateTime, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Nullable`1[[System.Guid, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], MemoLib.Api, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-02-27 06:31:23.604 +01:00 [INF] Executed action MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api) in 26.1672ms
+2026-02-27 06:31:23.606 +01:00 [INF] Executed endpoint 'MemoLib.Api.Controllers.DebugController.GetStats (MemoLib.Api)'
+2026-02-27 06:31:23.608 +01:00 [INF] Request finished HTTP/1.1 GET http://localhost:5078/api/debug/stats - 200 null application/json; charset=utf-8 43.6746ms
+2026-02-27 06:39:30.816 +01:00 [INF] 🚀 Démarrage MemoLib API...
+2026-02-27 06:39:30.854 +01:00 [INF] 📁 Répertoire de travail: c:\Users\moros\Desktop\memolib\MemoLib.Api
+2026-02-27 06:39:30.857 +01:00 [INF] 🌍 Environnement: Development
+2026-02-27 06:39:31.521 +01:00 [WRN] The property 'AdvancedTemplate.Conditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.533 +01:00 [WRN] The property 'AdvancedTemplate.Variables' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.538 +01:00 [WRN] The property 'Automation.ActionParams' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.540 +01:00 [WRN] The property 'Automation.TriggerConditions' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.543 +01:00 [WRN] The property 'CustomForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.545 +01:00 [WRN] The property 'DocumentSignature.SignatureRequests' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.546 +01:00 [WRN] The property 'DynamicForm.Fields' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.548 +01:00 [WRN] The property 'ExternalShare.DocumentIds' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.550 +01:00 [WRN] The property 'FormSubmission.Data' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.550 +01:00 [WRN] The property 'FormSubmission.Responses' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.551 +01:00 [WRN] The property 'Integration.Settings' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.554 +01:00 [WRN] The property 'Report.Filters' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2026-02-27 06:39:31.858 +01:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-02-27 06:39:31.886 +01:00 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsLock' AND "type" = 'table';
+2026-02-27 06:39:31.893 +01:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+INSERT OR IGNORE INTO "__EFMigrationsLock"("Id", "Timestamp") VALUES(1, '2026-02-27 05:39:31.8916761+00:00');
+SELECT changes();
+2026-02-27 06:39:31.948 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
+    "ProductVersion" TEXT NOT NULL
+);
+2026-02-27 06:39:31.958 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = '__EFMigrationsHistory' AND "type" = 'table';
+2026-02-27 06:39:31.963 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
+2026-02-27 06:39:31.974 +01:00 [INF] No migrations were applied. The database is already up to date.
+2026-02-27 06:39:31.977 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DELETE FROM "__EFMigrationsLock";
+2026-02-27 06:39:32.168 +01:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Sources" AS "s")
+2026-02-27 06:39:32.187 +01:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Questionnaires" AS "q")
+2026-02-27 06:39:32.316 +01:00 [INF] ✅ MemoLib API démarrée avec succès!
+2026-02-27 06:39:32.317 +01:00 [INF] 🌐 Interface: http://localhost:5078/demo.html
+2026-02-27 06:39:32.319 +01:00 [INF] 🔌 API: http://localhost:5078/api
+2026-02-27 06:39:32.320 +01:00 [INF] ❤️ Santé: http://localhost:5078/health
+2026-02-27 06:39:32.335 +01:00 [INF] User profile is available. Using 'C:\Users\moros\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-02-27 06:39:32.359 +01:00 [INF] Email monitor démarré: sarraboudjellal57@gmail.com@imap.gmail.com:993
+2026-02-27 06:39:32.432 +01:00 [INF] Now listening on: http://localhost:5078
+2026-02-27 06:39:32.433 +01:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-27 06:39:32.434 +01:00 [INF] Hosting environment: Development
+2026-02-27 06:39:32.436 +01:00 [INF] Content root path: c:\Users\moros\Desktop\memolib\MemoLib.Api

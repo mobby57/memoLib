@@ -13,4 +13,6 @@ public class Case
     public int Priority { get; set; } = 0;
     public DateTime? DueDate { get; set; }
     public DateTime? ClosedAt { get; set; }
+    public Client? Client { get; set; }
+    public ICollection<CaseEvent> CaseEvents { get; set; } = new List<CaseEvent>();
 }
