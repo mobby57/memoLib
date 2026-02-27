@@ -41,7 +41,10 @@
             <input type="text" id="searchInput" placeholder="Rechercher un email (sujet, expéditeur...)">
             <button onclick="searchEmails()">Rechercher</button>
             <button onclick="showAllEmails()" style="background: #6c757d;">Tous les emails</button>
+            <button onclick="openLoginPage()" style="background: #28a745;">Se connecter</button>
         </div>
+
+        <div id="authHint" class="loading" style="display: none;"></div>
 
         <div id="errorMsg" class="error" style="display: none;"></div>
         <div id="loadingMsg" class="loading" style="display: none;">Chargement...</div>
@@ -56,13 +59,140 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:5078/api';
+        const API_BASE = (() => {
+            const origin = window.location.origin;
+            if (origin && origin.startsWith('http')) return `${origin}/api`;
+            return 'http://localhost:5078/api';
+        })();
+        const LOGIN_PAGE = (() => {
+            const origin = window.location.origin;
+            if (origin && origin.startsWith('http')) return `${origin}/demo-secure.html`;
+            return 'http://localhost:5078/demo-secure.html';
+        })();
+        const DEFAULT_MONITOR_EMAIL = 'sarraboudjellal57@gmail.com';
+        const DEFAULT_MONITOR_PASSWORD = localStorage.getItem('memolibMonitorPassword') || 'SecurePass123!';
         let currentEmails = [];
-        let authToken = localStorage.getItem('authToken');
 
-        async function apiCall(url, options = {}) {
+        localStorage.setItem('memolibMonitorEmail', DEFAULT_MONITOR_EMAIL);
+
+        function getStoredToken() {
+            return localStorage.getItem('authToken')
+                || localStorage.getItem('memolibAuthToken')
+                || localStorage.getItem('token')
+                || sessionStorage.getItem('authToken')
+                || sessionStorage.getItem('memolibAuthToken')
+                || sessionStorage.getItem('token');
+        }
+
+        function clearStoredTokens() {
+            ['authToken', 'memolibAuthToken', 'token'].forEach((k) => {
+                localStorage.removeItem(k);
+                sessionStorage.removeItem(k);
+            });
+        }
+
+        let authToken = getStoredToken();
+
+        function openLoginPage() {
+            const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `${LOGIN_PAGE}?returnTo=${returnTo}`;
+        }
+
+        function refreshAuthHint() {
+            const authHint = document.getElementById('authHint');
+            if (!authHint) return;
+
+            const userEmail = localStorage.getItem('memolibUserEmail') || '';
+            authToken = getStoredToken();
+
+            if (authToken) {
+                authHint.textContent = userEmail
+                    ? `Session active: ${userEmail}`
+                    : 'Session active';
+                authHint.style.display = 'block';
+                return;
+            }
+
+            authHint.textContent = 'Non authentifié. Cliquez sur "Se connecter".';
+            authHint.style.display = 'block';
+        }
+
+        async function tryAutoLoginMonitoredAccount() {
+            const loginPayload = {
+                email: DEFAULT_MONITOR_EMAIL,
+                password: DEFAULT_MONITOR_PASSWORD
+            };
+
+            const loginRes = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginPayload)
+            });
+
+            if (loginRes.ok) {
+                const loginData = await loginRes.json();
+                if (loginData?.token) {
+                    authToken = loginData.token;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('memolibAuthToken', authToken);
+                    localStorage.setItem('memolibUserEmail', DEFAULT_MONITOR_EMAIL);
+                    localStorage.setItem('memolibMonitorEmail', DEFAULT_MONITOR_EMAIL);
+                    localStorage.setItem('memolibMonitorPassword', DEFAULT_MONITOR_PASSWORD);
+                    refreshAuthHint();
+                    return true;
+                }
+            }
+
+            if (loginRes.status !== 401) {
+                return false;
+            }
+
+            const regRes = await fetch(`${API_BASE}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: DEFAULT_MONITOR_EMAIL,
+                    password: DEFAULT_MONITOR_PASSWORD,
+                    name: 'Compte Monitoré',
+                    role: 'AVOCAT',
+                    plan: 'CABINET'
+                })
+            });
+
+            if (!regRes.ok && regRes.status !== 409) {
+                return false;
+            }
+
+            const retryRes = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginPayload)
+            });
+
+            if (!retryRes.ok) {
+                return false;
+            }
+
+            const retryData = await retryRes.json();
+            if (!retryData?.token) {
+                return false;
+            }
+
+            authToken = retryData.token;
+            localStorage.setItem('authToken', authToken);
+            localStorage.setItem('memolibAuthToken', authToken);
+            localStorage.setItem('memolibUserEmail', DEFAULT_MONITOR_EMAIL);
+            localStorage.setItem('memolibMonitorEmail', DEFAULT_MONITOR_EMAIL);
+            localStorage.setItem('memolibMonitorPassword', DEFAULT_MONITOR_PASSWORD);
+            refreshAuthHint();
+            return true;
+        }
+
+        async function apiCall(url, options = {}, retryOnAuth = true) {
+            authToken = getStoredToken();
+
             if (!authToken) {
-                showError('Non authentifié. Connectez-vous d\'abord sur demo.html');
+                showError('Non authentifié. Connectez-vous d\'abord sur demo.html ou demo-secure.html');
                 throw new Error('Non authentifié');
             }
             
@@ -75,9 +205,17 @@
             const response = await fetch(url, { ...options, headers });
             
             if (response.status === 401) {
-                localStorage.removeItem('authToken');
+                if (retryOnAuth) {
+                    const relogged = await tryAutoLoginMonitoredAccount();
+                    if (relogged) {
+                        return apiCall(url, options, false);
+                    }
+                }
+
+                clearStoredTokens();
                 authToken = null;
                 showError('Session expirée. Reconnectez-vous sur demo.html');
+                refreshAuthHint();
                 throw new Error('Non authentifié');
             }
             
@@ -249,7 +387,17 @@
             if (e.key === 'Enter') searchEmails();
         });
 
-        showAllEmails();
+        async function initAttachmentsPage() {
+            refreshAuthHint();
+
+            if (!getStoredToken()) {
+                await tryAutoLoginMonitoredAccount();
+            }
+
+            await showAllEmails();
+        }
+
+        initAttachmentsPage();
     </script>
 </body>
 </html>

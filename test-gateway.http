@@ -1,0 +1,136 @@
+### Test Universal Gateway - MemoLib
+@baseUrl = http://localhost:5078
+@apiKey = memolib-gateway-2025-secure-key
+
+### 1. Register test user
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@memolib.com",
+  "password": "Test123!",
+  "name": "Test User"
+}
+
+### 2. Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@memolib.com",
+  "password": "Test123!"
+}
+
+### Save token from response
+@token = YOUR_TOKEN_HERE
+
+### 3. Ingest Email (webhook - no auth)
+POST {{baseUrl}}/api/gateway/ingest
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "channel": "email",
+  "from": "client@example.com",
+  "fromName": "Jean Dupont",
+  "text": "Bonjour, j'ai besoin d'aide pour mon dossier",
+  "externalId": "email-001",
+  "metadata": {
+    "subject": "Demande d'assistance"
+  }
+}
+
+### 4. Ingest SMS (webhook - no auth)
+POST {{baseUrl}}/api/gateway/ingest
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "channel": "sms",
+  "from": "+33612345678",
+  "fromName": "Marie Martin",
+  "text": "RDV confirmé pour demain 14h",
+  "externalId": "sms-001",
+  "metadata": {}
+}
+
+### 5. Ingest WhatsApp (webhook - no auth)
+POST {{baseUrl}}/api/gateway/ingest
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "channel": "whatsapp",
+  "from": "+33698765432",
+  "fromName": "Pierre Durand",
+  "text": "Merci pour votre réponse rapide",
+  "externalId": "wa-001",
+  "metadata": {}
+}
+
+### 6. Ingest Telegram (webhook - no auth)
+POST {{baseUrl}}/api/gateway/ingest
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "channel": "telegram",
+  "from": "123456789",
+  "fromName": "Sophie Bernard",
+  "text": "Question urgente sur mon contrat",
+  "externalId": "tg-001",
+  "metadata": {}
+}
+
+### 7. Get Unified Inbox (requires auth)
+GET {{baseUrl}}/api/gateway/inbox?limit=20
+Authorization: Bearer {{token}}
+
+### 8. Send Message via Telegram (requires auth)
+POST {{baseUrl}}/api/gateway/send
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "channel": "telegram",
+  "to": "123456789",
+  "text": "Votre dossier a été traité avec succès"
+}
+
+### 9. Send Message via SMS (requires auth)
+POST {{baseUrl}}/api/gateway/send
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "channel": "sms",
+  "to": "+33612345678",
+  "text": "Confirmation de votre rendez-vous"
+}
+
+### 10. Test Invalid Channel (should fail validation)
+POST {{baseUrl}}/api/gateway/ingest
+Content-Type: application/json
+X-API-Key: {{apiKey}}
+
+{
+  "channel": "invalid",
+  "from": "test@test.com",
+  "fromName": "Test",
+  "text": "This should fail",
+  "externalId": "fail-001",
+  "metadata": {}
+}
+
+### 11. Test Missing API Key (should fail auth)
+POST {{baseUrl}}/api/gateway/ingest
+Content-Type: application/json
+
+{
+  "channel": "email",
+  "from": "test@test.com",
+  "fromName": "Test",
+  "text": "This should fail",
+  "externalId": "fail-002",
+  "metadata": {}
+}

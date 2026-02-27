@@ -1,0 +1,275 @@
+### Sprint 3 - Tests API
+### Templates Avancés, Signatures Électroniques, Formulaires Dynamiques
+
+@baseUrl = http://localhost:5078
+@token = YOUR_JWT_TOKEN_HERE
+
+### ============================================
+### 8. TEMPLATES AVANCÉS
+### ============================================
+
+### Créer template avancé
+POST {{baseUrl}}/api/templates/advanced
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Lettre de mise en demeure",
+  "description": "Template pour mise en demeure client",
+  "type": "LETTER",
+  "content": "Madame, Monsieur {{clientName}},\n\nNous vous informons que votre dossier {{caseTitle}} nécessite votre attention.\n\n{{IF casePriority equals 5}}URGENT: Ce dossier est prioritaire.{{/IF}}\n\nCordialement,\nDate: {{currentDate}}",
+  "variables": [
+    {
+      "name": "clientName",
+      "type": "text",
+      "isRequired": true
+    },
+    {
+      "name": "caseTitle",
+      "type": "text",
+      "isRequired": true
+    },
+    {
+      "name": "casePriority",
+      "type": "number",
+      "defaultValue": "3"
+    }
+  ],
+  "conditions": [
+    {
+      "variable": "casePriority",
+      "operator": "equals",
+      "value": "5",
+      "contentIfTrue": "URGENT: Ce dossier est prioritaire.",
+      "contentIfFalse": "Ce dossier est en cours de traitement."
+    }
+  ]
+}
+
+### Liste templates
+GET {{baseUrl}}/api/templates/advanced
+Authorization: Bearer {{token}}
+
+### Obtenir template
+GET {{baseUrl}}/api/templates/advanced/{templateId}
+Authorization: Bearer {{token}}
+
+### Rendu manuel
+POST {{baseUrl}}/api/templates/advanced/{templateId}/render
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "clientName": "Marie Dubois",
+  "caseTitle": "Divorce contentieux",
+  "casePriority": 5
+}
+
+### Rendu automatique depuis dossier
+POST {{baseUrl}}/api/templates/advanced/{templateId}/render-for-case/{caseId}
+Authorization: Bearer {{token}}
+
+### Modifier template
+PUT {{baseUrl}}/api/templates/advanced/{templateId}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Lettre de mise en demeure (modifié)",
+  "description": "Template mis à jour",
+  "content": "Nouveau contenu...",
+  "variables": [],
+  "conditions": []
+}
+
+### Supprimer template
+DELETE {{baseUrl}}/api/templates/advanced/{templateId}
+Authorization: Bearer {{token}}
+
+### ============================================
+### 9. SIGNATURES ÉLECTRONIQUES
+### ============================================
+
+### Créer demande de signature
+POST {{baseUrl}}/api/signatures
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "documentId": "00000000-0000-0000-0000-000000000001",
+  "caseId": "00000000-0000-0000-0000-000000000002",
+  "documentName": "Contrat de prestation.pdf",
+  "documentUrl": "https://storage.example.com/docs/contrat.pdf",
+  "signers": [
+    {
+      "signerName": "Marie Dubois",
+      "signerEmail": "marie@example.com",
+      "signerPhone": "+33612345678"
+    },
+    {
+      "signerName": "Jean Martin",
+      "signerEmail": "jean@example.com"
+    }
+  ]
+}
+
+### Obtenir signature
+GET {{baseUrl}}/api/signatures/{signatureId}
+Authorization: Bearer {{token}}
+
+### Liste signatures par dossier
+GET {{baseUrl}}/api/signatures/case/{caseId}
+Authorization: Bearer {{token}}
+
+### Vérifier token (PUBLIC - pas d'auth)
+GET {{baseUrl}}/api/signatures/verify/{token}
+
+### Signer document (PUBLIC - pas d'auth)
+POST {{baseUrl}}/api/signatures/sign/{token}
+Content-Type: application/json
+
+{
+  "signatureData": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+}
+
+### ============================================
+### 10. FORMULAIRES DYNAMIQUES
+### ============================================
+
+### Créer formulaire
+POST {{baseUrl}}/api/forms
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Demande de consultation",
+  "description": "Formulaire pour nouveaux clients",
+  "isPublic": true,
+  "fields": [
+    {
+      "name": "fullName",
+      "label": "Nom complet",
+      "type": "TEXT",
+      "isRequired": true,
+      "order": 1,
+      "validation": {
+        "minLength": 3,
+        "maxLength": 100
+      }
+    },
+    {
+      "name": "email",
+      "label": "Email",
+      "type": "EMAIL",
+      "isRequired": true,
+      "order": 2
+    },
+    {
+      "name": "phone",
+      "label": "Téléphone",
+      "type": "PHONE",
+      "isRequired": false,
+      "order": 3
+    },
+    {
+      "name": "caseType",
+      "label": "Type de dossier",
+      "type": "SELECT",
+      "isRequired": true,
+      "order": 4,
+      "options": ["Divorce", "Succession", "Immobilier", "Autre"]
+    },
+    {
+      "name": "urgency",
+      "label": "Urgence",
+      "type": "RADIO",
+      "isRequired": true,
+      "order": 5,
+      "options": ["Normal", "Urgent", "Très urgent"]
+    },
+    {
+      "name": "description",
+      "label": "Description de votre situation",
+      "type": "TEXTAREA",
+      "isRequired": true,
+      "order": 6,
+      "validation": {
+        "minLength": 50,
+        "maxLength": 2000
+      }
+    }
+  ]
+}
+
+### Liste formulaires
+GET {{baseUrl}}/api/forms
+Authorization: Bearer {{token}}
+
+### Obtenir formulaire
+GET {{baseUrl}}/api/forms/{formId}
+Authorization: Bearer {{token}}
+
+### Obtenir formulaire public (PUBLIC - pas d'auth)
+GET {{baseUrl}}/api/forms/public/{publicUrl}
+
+### Soumettre formulaire (PUBLIC - pas d'auth)
+POST {{baseUrl}}/api/forms/{formId}/submit
+Content-Type: application/json
+
+{
+  "data": {
+    "fullName": "Marie Dubois",
+    "email": "marie@example.com",
+    "phone": "+33612345678",
+    "caseType": "Divorce",
+    "urgency": "Urgent",
+    "description": "Je souhaite entamer une procédure de divorce amiable. Mon conjoint et moi sommes d'accord sur les termes."
+  },
+  "email": "marie@example.com",
+  "name": "Marie Dubois"
+}
+
+### Liste soumissions
+GET {{baseUrl}}/api/forms/{formId}/submissions
+Authorization: Bearer {{token}}
+
+### Modifier formulaire
+PUT {{baseUrl}}/api/forms/{formId}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Demande de consultation (modifié)",
+  "description": "Formulaire mis à jour",
+  "fields": [],
+  "isPublic": true
+}
+
+### Supprimer formulaire
+DELETE {{baseUrl}}/api/forms/{formId}
+Authorization: Bearer {{token}}
+
+### ============================================
+### SCÉNARIO COMPLET
+### ============================================
+
+### 1. Créer template
+# POST /api/templates/advanced
+
+### 2. Créer formulaire public
+# POST /api/forms (isPublic: true)
+
+### 3. Client remplit formulaire
+# POST /api/forms/{id}/submit (PUBLIC)
+
+### 4. Générer document depuis template
+# POST /api/templates/advanced/{id}/render-for-case/{caseId}
+
+### 5. Demander signature
+# POST /api/signatures
+
+### 6. Client signe
+# POST /api/signatures/sign/{token} (PUBLIC)
+
+### 7. Vérifier statut
+# GET /api/signatures/{id}

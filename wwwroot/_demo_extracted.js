@@ -15,6 +15,66 @@
         let selectedClientRaw = null;
         let realtimeDashboard = null;
         let templateManager = null;
+        let criticalAlerts = null;
+
+        // SystÃ¨me d'alertes critiques
+        class CriticalAlertSystem {
+            constructor(apiUrl, token) {
+                this.apiUrl = apiUrl;
+                this.token = token;
+                this.connection = null;
+                this.soundEnabled = true;
+            }
+
+            async initialize() {
+                this.connection = new signalR.HubConnectionBuilder()
+                    .withUrl(`${this.apiUrl}/notificationHub`)
+                    .build();
+
+                this.connection.on('UrgentAlert', (data) => {
+                    this.showCriticalAlert(data);
+                    if (this.soundEnabled) this.playUrgentSound();
+                });
+
+                this.connection.on('DeadlineAlert', (data) => {
+                    this.showDeadlineAlert(data);
+                });
+
+                this.connection.on('NewEmail', (data) => {
+                    this.updateEmailCounter(data.count);
+                    this.showEmailNotification(data);
+                });
+
+                await this.connection.start();
+            }
+
+            showCriticalAlert(data) {
+                const alertHtml = `
+                    <div class="critical-alert" style="position:fixed;top:20px;right:20px;z-index:9999;background:#dc3545;color:white;padding:20px;border-radius:10px;box-shadow:0 5px 20px rgba(220,53,69,0.5);max-width:400px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="font-size:24px;">ðŸš¨</span>
+                            <div>
+                                <strong>ALERTE CRITIQUE</strong><br>
+                                <span>${data.message}</span><br>
+                                <small>${new Date(data.timestamp).toLocaleString('fr-FR')}</small>
+                            </div>
+                            <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;">Ã—</button>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', alertHtml);
+                setTimeout(() => {
+                    const alert = document.querySelector('.critical-alert');
+                    if (alert) alert.remove();
+                }, 10000);
+            }
+
+            playUrgentSound() {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+                audio.volume = 0.3;
+                audio.play().catch(() => {});
+            }
+        }
 
         function persistSession(email, jwtToken) {
             if (!jwtToken) return;
@@ -41,18 +101,24 @@
                 updateCurrentUserDisplay(storedEmail);
             }
         }
-                function applyAccessMode() {
-                    const accessModeText = document.getElementById('accessModeText');
-                    if (accessModeText) {
-                        accessModeText.textContent = IS_RESTRICTED
-                            ? 'Mode accÃ¨s: restreint (Alertes masquÃ©es)'
-                            : 'Mode accÃ¨s: complet';
-                    }
 
-                    if (!IS_RESTRICTED) return;
+        function applyAccessMode() {
+            const accessModeText = document.getElementById('accessModeText');
+            if (accessModeText) {
+                accessModeText.textContent = IS_RESTRICTED
+                    ? 'Mode accÃ¨s: restreint (Alertes masquÃ©es)'
+                    : 'Mode accÃ¨s: complet';
+            }
 
-                    const alertsTabButton = document.getElementById('alertsTabButton');
-                    // showTab gÃ¨re directement le chargement de l'onglet Ã©quipe (module team-module.js).
+            if (!IS_RESTRICTED) return;
+
+            const alertsTabButton = document.getElementById('alertsTabButton');
+            const alertsTab = document.getElementById('alerts-tab');
+            if (alertsTabButton) alertsTabButton.style.display = 'none';
+            if (alertsTab) alertsTab.classList.add('hidden');
+        }
+
+        async function readResponseDataSafe(response) {
             const text = await response.text();
             if (!text || !text.trim()) return null;
 
@@ -262,6 +328,8 @@
                     // Initialiser les fonctionnalitÃ©s avancÃ©es
                     realtimeDashboard = new RealtimeDashboard(API_URL, token);
                     templateManager = new TemplateManager(API_URL, token);
+                    criticalAlerts = new CriticalAlertSystem(API_URL, token);
+                    await criticalAlerts.initialize();
                 } else {
                     const message = (data?.message || '').toString().toLowerCase();
                     const canAutoCreate = message.includes('identifiants invalides');
@@ -2559,6 +2627,18 @@
         }, 8000);
         setInterval(keepPinnedSessionAlive, 180000);
 
+        async function testCriticalAlert() {
+            if (criticalAlerts) {
+                await criticalAlerts.sendUrgentAlert('Test d\'alerte critique - Nouveau dossier urgent reÃ§u!');
+                criticalAlerts.showCriticalAlert({
+                    message: 'Test rÃ©ussi! SystÃ¨me d\'alertes opÃ©rationnel.',
+                    timestamp: new Date().toISOString()
+                });
+            } else {
+                alert('Connectez-vous d\'abord pour tester les alertes');
+            }
+        }
+
         // Team management functions
         async function loadTeamData() {
             if (!token) {
@@ -2635,6 +2715,7 @@
             
             let html = '<div class="event-list">';
             invitations.forEach(inv => {
+                const invitationId = pickValue(inv, 'id', 'Id');
                 const role = pickValue(inv, 'role', 'Role') || 'N/A';
                 const email = pickValue(inv, 'email', 'Email') || 'N/A';
                 const createdAt = pickValue(inv, 'createdAt', 'CreatedAt');
@@ -2649,6 +2730,7 @@
                     <div class="content">Expire le ${expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR') : 'N/A'}</div>
                     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn" onclick="resendPendingInvitation('${encodedEmail}','${encodedRole}')">Renvoyer invitation</button>
+                        <button class="btn" style="background:#c62828;" onclick="cancelPendingInvitation('${invitationId}')">Annuler invitation</button>
                     </div>
                 </div>`;
             });
@@ -2775,6 +2857,34 @@
                 }
 
                 showResult('teamInviteResult', message);
+                await loadTeamData();
+            } catch {
+                showResult('teamInviteResult', 'âŒ Erreur de connexion', false);
+            }
+        }
+
+        async function cancelPendingInvitation(invitationId) {
+            if (!token) return showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
+            if (!invitationId) return showResult('teamInviteResult', 'Invitation invalide', false);
+
+            const confirmed = confirm('Annuler cette invitation en attente ?');
+            if (!confirmed) return;
+
+            try {
+                const response = await apiFetchWithFallback(`/api/team/invitations/${invitationId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await readResponseDataSafe(response);
+                if (!response.ok) {
+                    const msg = typeof data === 'string' ? data : (data?.message || 'Annulation impossible');
+                    return showResult('teamInviteResult', `âŒ ${msg}`, false);
+                }
+
+                showResult('teamInviteResult', 'âœ… Invitation annulÃ©e (action loguÃ©e).');
                 await loadTeamData();
             } catch {
                 showResult('teamInviteResult', 'âŒ Erreur de connexion', false);

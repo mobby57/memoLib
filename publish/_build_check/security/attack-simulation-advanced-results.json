@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-01-27T13:59:18.303119",
+  "version": "2.0",
+  "categories": {
+    "sql_injection": {
+      "tested": 15,
+      "blocked": 15
+    },
+    "xss": {
+      "tested": 12,
+      "blocked": 12
+    },
+    "nosql_injection": {
+      "tested": 8,
+      "blocked": 8
+    },
+    "command_injection": {
+      "tested": 10,
+      "blocked": 10
+    },
+    "path_traversal": {
+      "tested": 10,
+      "blocked": 10
+    },
+    "ssrf": {
+      "tested": 8,
+      "blocked": 8
+    },
+    "xxe": {
+      "tested": 6,
+      "blocked": 6
+    },
+    "ldap_injection": {
+      "tested": 6,
+      "blocked": 6
+    },
+    "header_injection": {
+      "tested": 8,
+      "blocked": 8
+    },
+    "jwt_attacks": {
+      "tested": 6,
+      "blocked": 6
+    },
+    "template_injection": {
+      "tested": 6,
+      "blocked": 6
+    },
+    "password_strength": {
+      "tested": 10,
+      "blocked": 10
+    },
+    "file_upload": {
+      "tested": 8,
+      "blocked": 8
+    },
+    "csrf_bypass": {
+      "tested": 5,
+      "blocked": 5
+    },
+    "open_redirect": {
+      "tested": 6,
+      "blocked": 6
+    }
+  },
+  "total_tests": 124,
+  "total_blocked": 124,
+  "protection_rate": 100.0
+}

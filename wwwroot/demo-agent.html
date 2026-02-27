@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Démo AGENT (Collaborateur)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header .role-badge { background: #16a085; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; display: inline-block; margin-top: 10px; }
+        .card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        .card h2 { color: #27ae60; margin-bottom: 15px; }
+        .btn { background: linear-gradient(45deg, #27ae60, #2ecc71); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 5px; transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn.disabled { background: #bdc3c7; cursor: not-allowed; }
+        .btn.info { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .btn.warning { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-box { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-box .number { font-size: 2em; font-weight: bold; }
+        .stat-box .label { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
+        .result { background: #f8f9fa; border-left: 4px solid #27ae60; padding: 15px; margin-top: 15px; border-radius: 5px; }
+        .success { border-left-color: #27ae60; background: #d4edda; }
+        .error { border-left-color: #e74c3c; background: #f8d7da; }
+        .warning { border-left-color: #f39c12; background: #fff3cd; }
+        .info { border-left-color: #3498db; background: #d1ecf1; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; background: #ecf0f1; border: none; border-radius: 5px; cursor: pointer; }
+        .tab.active { background: #27ae60; color: white; }
+        .hidden { display: none; }
+        .task-item { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #27ae60; }
+        .task-item.pending { border-left-color: #f39c12; }
+        .task-item.completed { border-left-color: #27ae60; opacity: 0.7; }
+        .permission-note { background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 MemoLib - Espace Collaborateur</h1>
+            <div class="role-badge">AGENT - Collaborateur</div>
+            <p>Traitement des emails, suivi des tâches et communication</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('tasks')">📋 Mes Tâches</button>
+            <button class="tab" onclick="showTab('emails')">📧 Emails à Traiter</button>
+            <button class="tab" onclick="showTab('documents')">📄 Documents</button>
+            <button class="tab" onclick="showTab('communication')">💬 Communication</button>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div id="tasks-tab" class="tab-content">
+            <div class="card">
+                <h2>Mes Tâches Assignées</h2>
+                <button class="btn" onclick="loadMyTasks()">Charger Mes Tâches</button>
+                <button class="btn info" onclick="loadPendingTasks()">Tâches en Attente</button>
+                <div id="tasks-result"></div>
+            </div>
+        </div>
+
+        <!-- Emails Tab -->
+        <div id="emails-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>Emails à Traiter</h2>
+                <div class="permission-note">
+                    ℹ️ <strong>Permissions :</strong> Vous pouvez traiter les emails assignés, ajouter des événements et classer les documents. La création de dossiers nécessite une validation d'un avocat.
+                </div>
+                <button class="btn" onclick="loadAssignedEmails()">Emails Assignés</button>
+                <button class="btn warning" onclick="loadUnprocessedEmails()">Emails Non Traités</button>
+                <div class="input-group">
+                    <label>Ajouter un événement</label>
+                    <textarea id="event-description" rows="3" placeholder="Description de l'événement ou résumé de l'email traité..."></textarea>
+                </div>
+                <button class="btn" onclick="addEvent()">Ajouter Événement</button>
+                <div id="emails-result"></div>
+            </div>
+        </div>
+
+        <!-- Documents Tab -->
+        <div id="documents-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>Gestion Documents</h2>
+                <div class="input-group">
+                    <label>Sélectionner un fichier</label>
+                    <input type="file" id="document-file" accept=".pdf,.doc,.docx,.jpg,.png">
+                </div>
+                <div class="input-group">
+                    <label>Type de document</label>
+                    <select id="document-type">
+                        <option value="piece_identite">Pièce d'identité</option>
+                        <option value="contrat">Contrat</option>
+                        <option value="courrier">Courrier</option>
+                        <option value="facture">Facture</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Dossier associé (ID)</label>
+                    <input type="text" id="document-case" placeholder="ID du dossier">
+                </div>
+                <button class="btn" onclick="uploadDocument()">Télécharger Document</button>
+                <button class="btn info" onclick="loadMyDocuments()">Mes Documents</button>
+                <div id="documents-result"></div>
+            </div>
+        </div>
+
+        <!-- Communication Tab -->
+        <div id="communication-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>Communication</h2>
+                <div class="permission-note">
+                    ℹ️ <strong>Templates approuvés :</strong> Utilisez uniquement les templates pré-approuvés pour la communication client. Pour des situations particulières, demandez validation à votre superviseur.
+                </div>
+                <div class="input-group">
+                    <label>Destinataire</label>
+                    <input type="email" id="comm-to" placeholder="client@example.com">
+                </div>
+                <div class="input-group">
+                    <label>Template</label>
+                    <select id="comm-template">
+                        <option value="confirmation_rdv">Confirmation de rendez-vous</option>
+                        <option value="demande_documents">Demande de documents</option>
+                        <option value="accuse_reception">Accusé de réception</option>
+                        <option value="relance_douce">Relance douce</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Message personnalisé (optionnel)</label>
+                    <textarea id="comm-message" rows="4" placeholder="Ajout personnel au template..."></textarea>
+                </div>
+                <button class="btn" onclick="sendTemplateEmail()">Envoyer Email Template</button>
+                <button class="btn info" onclick="loadCommunicationHistory()">Historique</button>
+                <div id="communication-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5078';
+        let token = localStorage.getItem('authToken');
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                const className = isSuccess ? 'success' : 'error';
+                element.innerHTML = `<div class="result ${className}">${message}</div>`;
+            }
+        }
+
+        async function loadMyTasks() {
+            if (!token) return showResult('tasks-result', '❌ Connectez-vous d\'abord', false);
+
+            // Simulation des tâches assignées
+            let html = '<div class="result success">📋 Mes Tâches du Jour</div>';
+            html += '<div class="stats">';
+            html += '<div class="stat-box"><div class="number">8</div><div class="label">Tâches Total</div></div>';
+            html += '<div class="stat-box"><div class="number">3</div><div class="label">En Cours</div></div>';
+            html += '<div class="stat-box"><div class="number">5</div><div class="label">Terminées</div></div>';
+            html += '</div>';
+
+            html += '<div class="task-item pending">📧 <strong>Traiter emails Mme Martin</strong><br>Assigné par: Me Dupont | Priorité: Normale<br><button class="btn" onclick="completeTask(1)">Marquer Terminé</button></div>';
+            html += '<div class="task-item pending">📄 <strong>Classer documents dossier #123</strong><br>Assigné par: Me Dupont | Priorité: Normale<br><button class="btn" onclick="completeTask(2)">Marquer Terminé</button></div>';
+            html += '<div class="task-item completed">✅ <strong>Saisie événements matinée</strong><br>Terminé à 14:30</div>';
+            html += '<div class="task-item completed">✅ <strong>Préparation dossier audience</strong><br>Terminé à 11:15</div>';
+
+            document.getElementById('tasks-result').innerHTML = html;
+        }
+
+        async function loadPendingTasks() {
+            if (!token) return showResult('tasks-result', '❌ Connectez-vous d\'abord', false);
+
+            let html = '<div class="result warning">⏳ Tâches en Attente de Validation</div>';
+            html += '<div class="task-item pending">📋 <strong>Création dossier M. Dubois</strong><br>En attente validation Me Dupont<br>Soumis il y a 2h</div>';
+            html += '<div class="task-item pending">📧 <strong>Réponse email complexe Mme Lefebvre</strong><br>En attente validation Me Martin<br>Soumis il y a 30min</div>';
+
+            document.getElementById('tasks-result').innerHTML = html;
+        }
+
+        async function loadAssignedEmails() {
+            if (!token) return showResult('emails-result', '❌ Connectez-vous d\'abord', false);
+
+            let html = '<div class="result success">📧 Emails Assignés à Traiter</div>';
+            html += '<div class="result">📧 <strong>De: sophie.martin@example.com</strong><br>Sujet: Demande de documents complémentaires<br>Reçu: Il y a 1h | Assigné par: Me Dupont<br><button class="btn" onclick="processEmail(1)">Traiter</button></div>';
+            html += '<div class="result">📧 <strong>De: pierre.dubois@example.com</strong><br>Sujet: Question sur procédure<br>Reçu: Il y a 3h | Assigné par: Me Martin<br><button class="btn" onclick="processEmail(2)">Traiter</button></div>';
+
+            document.getElementById('emails-result').innerHTML = html;
+        }
+
+        async function loadUnprocessedEmails() {
+            if (!token) return showResult('emails-result', '❌ Connectez-vous d\'abord', false);
+
+            let html = '<div class="result warning">⚠️ Emails Non Traités (Nécessitent Classification)</div>';
+            html += '<div class="result">📧 <strong>De: nouveau.client@example.com</strong><br>Sujet: Première consultation<br>Reçu: Il y a 30min<br><button class="btn warning" onclick="classifyEmail(1)">Classer</button></div>';
+            html += '<div class="result">📧 <strong>De: marie.lefebvre@example.com</strong><br>Sujet: Suivi dossier<br>Reçu: Il y a 1h<br><button class="btn warning" onclick="classifyEmail(2)">Classer</button></div>';
+
+            document.getElementById('emails-result').innerHTML = html;
+        }
+
+        async function addEvent() {
+            if (!token) return showResult('emails-result', '❌ Connectez-vous d\'abord', false);
+
+            const description = document.getElementById('event-description').value;
+            if (!description) return showResult('emails-result', '❌ Veuillez saisir une description', false);
+
+            try {
+                // Simulation d'ajout d'événement
+                showResult('emails-result', `✅ Événement ajouté avec succès<br>📝 Description: ${description}<br>🕒 Horodatage: ${new Date().toLocaleString('fr-FR')}<br>👤 Créé par: Collaborateur`);
+                document.getElementById('event-description').value = '';
+            } catch (err) {
+                showResult('emails-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function uploadDocument() {
+            if (!token) return showResult('documents-result', '❌ Connectez-vous d\'abord', false);
+
+            const file = document.getElementById('document-file').files[0];
+            const type = document.getElementById('document-type').value;
+            const caseId = document.getElementById('document-case').value;
+
+            if (!file) return showResult('documents-result', '❌ Veuillez sélectionner un fichier', false);
+
+            try {
+                // Simulation d'upload
+                showResult('documents-result', `✅ Document téléchargé avec succès<br>📄 Fichier: ${file.name}<br>📋 Type: ${type}<br>🆔 Dossier: ${caseId || 'Non spécifié'}<br>🔒 Hash SHA-256: abc123...`);
+                
+                // Reset form
+                document.getElementById('document-file').value = '';
+                document.getElementById('document-case').value = '';
+            } catch (err) {
+                showResult('documents-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function loadMyDocuments() {
+            if (!token) return showResult('documents-result', '❌ Connectez-vous d\'abord', false);
+
+            let html = '<div class="result success">📄 Documents Traités Aujourd\'hui</div>';
+            html += '<div class="result">📄 <strong>contrat_martin.pdf</strong><br>Type: Contrat | Dossier: #123 | Téléchargé: 14:30</div>';
+            html += '<div class="result">📄 <strong>piece_identite_dubois.jpg</strong><br>Type: Pièce d\'identité | Dossier: #124 | Téléchargé: 11:15</div>';
+            html += '<div class="result">📄 <strong>courrier_prefecture.pdf</strong><br>Type: Courrier | Dossier: #125 | Téléchargé: 09:45</div>';
+
+            document.getElementById('documents-result').innerHTML = html;
+        }
+
+        async function sendTemplateEmail() {
+            if (!token) return showResult('communication-result', '❌ Connectez-vous d\'abord', false);
+
+            const to = document.getElementById('comm-to').value;
+            const template = document.getElementById('comm-template').value;
+            const message = document.getElementById('comm-message').value;
+
+            if (!to) return showResult('communication-result', '❌ Veuillez saisir un destinataire', false);
+
+            try {
+                // Simulation d'envoi d'email template
+                const templateNames = {
+                    'confirmation_rdv': 'Confirmation de rendez-vous',
+                    'demande_documents': 'Demande de documents',
+                    'accuse_reception': 'Accusé de réception',
+                    'relance_douce': 'Relance douce'
+                };
+
+                showResult('communication-result', `✅ Email envoyé avec succès<br>📧 À: ${to}<br>📝 Template: ${templateNames[template]}<br>💬 Message personnalisé: ${message || 'Aucun'}<br>🕒 Envoyé: ${new Date().toLocaleString('fr-FR')}`);
+                
+                // Reset form
+                document.getElementById('comm-to').value = '';
+                document.getElementById('comm-message').value = '';
+            } catch (err) {
+                showResult('communication-result', `❌ Erreur: ${err.message}`, false);
+            }
+        }
+
+        async function loadCommunicationHistory() {
+            if (!token) return showResult('communication-result', '❌ Connectez-vous d\'abord', false);
+
+            let html = '<div class="result success">💬 Historique Communication (Aujourd\'hui)</div>';
+            html += '<div class="result">📧 <strong>À: sophie.martin@example.com</strong><br>Template: Confirmation RDV | Envoyé: 15:30<br>✅ Accusé de réception reçu</div>';
+            html += '<div class="result">📧 <strong>À: pierre.dubois@example.com</strong><br>Template: Demande documents | Envoyé: 11:45<br>⏳ En attente de réponse</div>';
+            html += '<div class="result">📧 <strong>À: marie.lefebvre@example.com</strong><br>Template: Accusé réception | Envoyé: 09:15<br>✅ Traité</div>';
+
+            document.getElementById('communication-result').innerHTML = html;
+        }
+
+        function completeTask(taskId) {
+            showResult('tasks-result', `✅ Tâche ${taskId} marquée comme terminée<br>🕒 Complétée à: ${new Date().toLocaleString('fr-FR')}<br>📊 Notification envoyée au superviseur`);
+        }
+
+        function processEmail(emailId) {
+            alert(`📧 Traitement Email ${emailId}\n\nActions disponibles:\n• Classer dans un dossier existant\n• Ajouter un événement\n• Demander validation pour nouveau dossier\n• Utiliser template de réponse`);
+        }
+
+        function classifyEmail(emailId) {
+            alert(`📋 Classification Email ${emailId}\n\nÉtapes:\n1. Identifier le type de demande\n2. Rechercher client existant\n3. Proposer rattachement dossier\n4. Escalader si nécessaire`);
+        }
+
+        // Auto-load tasks on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (token) {
+                loadMyTasks();
+            } else {
+                showResult('tasks-result', '❌ Connectez-vous d\'abord pour accéder à vos tâches', false);
+            }
+        });
+    </script>
+</body>
+</html>

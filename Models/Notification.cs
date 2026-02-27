@@ -8,6 +8,7 @@ public class Notification
     public string Type { get; set; } = null!; // WARNING, ERROR, INFO
     public string Title { get; set; } = null!;
     public string Message { get; set; } = null!;
+    public string? RelatedEntityId { get; set; }
     public string? ActionRequired { get; set; }
     public bool IsRead { get; set; }
     public bool IsResolved { get; set; }

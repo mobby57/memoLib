@@ -15,7 +15,53 @@ namespace MemoLib.Api.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
+
+            modelBuilder.Entity("MemoLib.Api.Models.AdvancedTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Conditions")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Variables")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AdvancedTemplates");
+                });
 
             modelBuilder.Entity("MemoLib.Api.Models.Answer", b =>
                 {
@@ -105,6 +151,107 @@ namespace MemoLib.Api.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.Automation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActionParams")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TriggerConditions")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TriggerType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "IsActive");
+
+                    b.ToTable("Automations");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CalendarEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsAllDay")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MeetingLink")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReminderMinutes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseId");
+
+                    b.HasIndex("UserId", "StartTime");
+
+                    b.ToTable("CalendarEvents");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Case", b =>
                 {
                     b.Property<Guid>("Id")
@@ -147,11 +294,188 @@ namespace MemoLib.Api.Migrations
 
                     b.HasIndex("AssignedToUserId");
 
+                    b.HasIndex("ClientId");
+
                     b.HasIndex("Status");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Cases");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseActivity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActivityType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CaseActivities");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseCollaborator", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AddedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("CanComment")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("CanEdit")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("CanInviteOthers")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("CanUploadDocuments")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("CanViewDocuments")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("ReceiveNotifications")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CaseCollaborators");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("EditedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Mentions")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ParentCommentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CaseComments");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("ParentDocumentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UploadedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseId", "Version");
+
+                    b.ToTable("CaseDocuments");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.CaseEvent", b =>
@@ -165,6 +489,42 @@ namespace MemoLib.Api.Migrations
                     b.HasKey("CaseId", "EventId");
 
                     b.ToTable("CaseEvents");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Mentions")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseId", "CreatedAt");
+
+                    b.ToTable("CaseNotes");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.CaseShare", b =>
@@ -203,6 +563,50 @@ namespace MemoLib.Api.Migrations
                     b.ToTable("CaseShares");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.CaseTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AssignedToUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CompletedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseId", "IsCompleted", "DueDate");
+
+                    b.ToTable("CaseTasks");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Client", b =>
                 {
                     b.Property<Guid>("Id")
@@ -221,6 +625,9 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PhoneNumber")
@@ -349,6 +756,128 @@ namespace MemoLib.Api.Migrations
                     b.ToTable("ClientOnboardingTemplates");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.CustomForm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Fields")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "IsActive");
+
+                    b.ToTable("CustomForms");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.DocumentSignature", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AuditTrail")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentUrl")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SignatureRequests")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DocumentSignatures");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.DynamicForm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Fields")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PublicUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DynamicForms");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.EmailTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -420,6 +949,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<string>("TextForEmbedding")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Type")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ValidationFlags")
                         .HasColumnType("TEXT");
 
@@ -433,6 +965,229 @@ namespace MemoLib.Api.Migrations
                     b.HasIndex("SourceId", "OccurredAt");
 
                     b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.ExternalShare", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("AccessedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("AllowDownload")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentIds")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RecipientEmail")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ShareToken")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SharedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShareToken")
+                        .IsUnique();
+
+                    b.ToTable("ExternalShares");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.FormSubmission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("FormId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Responses")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SignatureUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmitterEmail")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SubmitterName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FormId", "SubmittedAt");
+
+                    b.ToTable("FormSubmissions");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Integration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AccessToken")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ConnectedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Settings")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "Provider", "IsActive");
+
+                    b.ToTable("Integrations");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Invoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InvoiceNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("IssueDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Tax")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TaxRate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseId");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.InvoiceItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("TimeEntryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InvoiceItems");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Notification", b =>
@@ -458,6 +1213,9 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<string>("Message")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RelatedEntityId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Resolution")
@@ -509,6 +1267,166 @@ namespace MemoLib.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PasswordResetTokens");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.PendingAction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("From")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FromName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Preview")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("SuggestCreateCase")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("SuggestCreateClient")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("SuggestLinkToExistingCase")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SuggestLinkToExistingClient")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SuggestedCaseTitle")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SuggestedClientEmail")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SuggestedClientName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SuggestedClientPhone")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("UserArchive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("UserAssignToUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserCaseTitle")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserClientName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("UserCreateCase")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("UserCreateClient")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("UserIgnore")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("UserLinkToCaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UserLinkToClientId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("UserMarkAsSpam")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserNotes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("UserPriority")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UserTags")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PendingActions");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.PhoneCall", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Direction")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("HandledByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RecordingUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Transcription")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseId", "StartTime");
+
+                    b.ToTable("PhoneCalls");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Question", b =>
@@ -603,6 +1521,90 @@ namespace MemoLib.Api.Migrations
                     b.ToTable("QuestionnaireResponses");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.Report", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExportUrl")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Filters")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("GeneratedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReportType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "GeneratedAt");
+
+                    b.ToTable("Reports");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.RoleNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("CaseId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "IsRead", "CreatedAt");
+
+                    b.ToTable("RoleNotifications");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.SatisfactionSurvey", b =>
                 {
                     b.Property<Guid>("Id")
@@ -663,6 +1665,54 @@ namespace MemoLib.Api.Migrations
                     b.ToTable("SatisfactionSurveys");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.SignatureRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("DocumentSignatureId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SignatureData")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("SignedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SignerEmail")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SignerName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SignerPhone")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("TokenExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentSignatureId");
+
+                    b.ToTable("SignatureRequests");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Source", b =>
                 {
                     b.Property<Guid>("Id")
@@ -679,6 +1729,173 @@ namespace MemoLib.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Sources");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.TaskChecklistItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TaskChecklistItems");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.TaskDependency", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("DependsOnTaskId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TaskDependencies");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.TeamMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("FromUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ToUserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ToUserId", "IsRead", "SentAt");
+
+                    b.ToTable("TeamMessages");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Tenant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConfigJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SectorId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("SectorId")
+                        .IsUnique();
+
+                    b.HasIndex("SectorId", "IsActive");
+
+                    b.ToTable("Tenants");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.TimeEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ActivityType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("HourlyRate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("InvoiceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsBillable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsInvoiced")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("CaseId", "UserId", "StartTime");
+
+                    b.ToTable("TimeEntries");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.User", b =>
@@ -730,6 +1947,104 @@ namespace MemoLib.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.UserAutomationSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("AutoAddTags")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoAssignCases")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoCreateCaseFromEmail")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoCreateClientFromEmail")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoExtractClientInfo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoForwardToSignal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoMergeDuplicateCases")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoMergeDuplicateClients")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoMonitorEmails")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoReplyEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AutoReplyMessage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("AutoSetPriority")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DefaultAssignedUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DefaultPriority")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("DefaultTags")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EmailCheckIntervalSeconds")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("EnableEmbeddings")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("EnableNotifications")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("EnableSemanticSearch")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("NotifyCaseAssigned")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("NotifyDeadlineApproaching")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("NotifyHighPriority")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("NotifyNewEmail")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("RequireApprovalForDelete")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("RequireApprovalForExport")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SignalPhoneNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserAutomationSettings");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.UserEmailConfig", b =>
@@ -848,6 +2163,78 @@ namespace MemoLib.Api.Migrations
                     b.ToTable("UserTeamMemberships");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.Webhook", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Event")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("LastTriggeredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TriggerCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Webhooks");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.WebhookLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Event")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Response")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("TriggeredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("WebhookId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WebhookLogs");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Answer", b =>
                 {
                     b.HasOne("MemoLib.Api.Models.QuestionnaireResponse", null)
@@ -866,6 +2253,41 @@ namespace MemoLib.Api.Migrations
                     b.Navigation("Event");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.CalendarEvent", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Case", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId");
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseEvent", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", null)
+                        .WithMany("CaseEvents")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Event", b =>
                 {
                     b.HasOne("MemoLib.Api.Models.Source", "Source")
@@ -877,6 +2299,25 @@ namespace MemoLib.Api.Migrations
                     b.Navigation("Source");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.Invoice", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Question", b =>
                 {
                     b.HasOne("MemoLib.Api.Models.Questionnaire", null)
@@ -884,6 +2325,40 @@ namespace MemoLib.Api.Migrations
                         .HasForeignKey("QuestionnaireId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.SignatureRequest", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.DocumentSignature", "DocumentSignature")
+                        .WithMany()
+                        .HasForeignKey("DocumentSignatureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DocumentSignature");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.TimeEntry", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.Invoice", null)
+                        .WithMany("TimeEntries")
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.UserEmailConfig", b =>
@@ -923,6 +2398,16 @@ namespace MemoLib.Api.Migrations
                     b.Navigation("TeamOwner");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Case", b =>
+                {
+                    b.Navigation("CaseEvents");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Invoice", b =>
+                {
+                    b.Navigation("TimeEntries");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Questionnaire", b =>
