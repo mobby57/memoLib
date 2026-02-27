@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MemoLib.Api.Services;
+using Microsoft.EntityFrameworkCore;
+using MemoLib.Api.Data;
+using MemoLib.Api.Models;
+using System.Security.Claims;
 
 namespace MemoLib.Api.Controllers;
 
@@ -9,95 +12,138 @@ namespace MemoLib.Api.Controllers;
 [Route("api/cases/{caseId}/notes")]
 public class CaseNotesController : ControllerBase
 {
-    private readonly CaseNotesService _notesService;
+    private readonly MemoLibDbContext _context;
+    private readonly ILogger<CaseNotesController> _logger;
 
-    public CaseNotesController(CaseNotesService notesService)
+    public CaseNotesController(MemoLibDbContext context, ILogger<CaseNotesController> logger)
     {
-        _notesService = notesService;
+        _context = context;
+        _logger = logger;
     }
 
+    private Guid GetCurrentUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    // GET /api/cases/{caseId}/notes
     [HttpGet]
-    public async Task<IActionResult> GetNotes(Guid caseId)
+    public async Task<ActionResult<List<CaseNote>>> GetNotes(Guid caseId)
     {
-        if (!this.TryGetCurrentUserId(out var userId))
-        {
-            return Unauthorized();
-        }
+        var userId = GetCurrentUserId();
 
-        try
-        {
-            var notes = await _notesService.GetNotesAsync(caseId, userId);
-            return Ok(notes);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound(new { message = "Dossier introuvable" });
-        }
+        // Vérifier accès au dossier
+        var caseExists = await _context.Cases.AnyAsync(c => c.Id == caseId && c.UserId == userId);
+        if (!caseExists)
+            return NotFound("Dossier non trouvé");
+
+        var notes = await _context.CaseNotes
+            .Where(n => n.CaseId == caseId)
+            .OrderByDescending(n => n.CreatedAt)
+            .ToListAsync();
+
+        return Ok(notes);
     }
 
+    // POST /api/cases/{caseId}/notes
     [HttpPost]
-    public async Task<IActionResult> CreateNote(Guid caseId, [FromBody] CreateCaseNoteRequest request)
+    public async Task<ActionResult<CaseNote>> CreateNote(Guid caseId, [FromBody] CreateNoteRequest request)
     {
-        if (!this.TryGetCurrentUserId(out var userId))
-        {
-            return Unauthorized();
-        }
+        var userId = GetCurrentUserId();
 
-        if (string.IsNullOrWhiteSpace(request.Content))
-        {
-            return BadRequest(new { message = "Le contenu de la note est obligatoire" });
-        }
+        // Vérifier accès au dossier
+        var caseExists = await _context.Cases.AnyAsync(c => c.Id == caseId && c.UserId == userId);
+        if (!caseExists)
+            return NotFound("Dossier non trouvé");
 
-        try
+        var note = new CaseNote
         {
-            var note = await _notesService.CreateNoteAsync(caseId, userId, request.Content.Trim(), request.IsPrivate, request.Mentions);
-            return Ok(note);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound(new { message = "Dossier introuvable" });
-        }
+            Id = Guid.NewGuid(),
+            CaseId = caseId,
+            Content = request.Content,
+            Visibility = request.Visibility ?? "private",
+            AuthorId = userId,
+            Mentions = request.Mentions,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.CaseNotes.Add(note);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Note créée: {NoteId} sur dossier {CaseId}", note.Id, caseId);
+
+        return CreatedAtAction(nameof(GetNote), new { caseId, noteId = note.Id }, note);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateNote(Guid caseId, Guid id, [FromBody] UpdateCaseNoteRequest request)
+    // GET /api/cases/{caseId}/notes/{noteId}
+    [HttpGet("{noteId}")]
+    public async Task<ActionResult<CaseNote>> GetNote(Guid caseId, Guid noteId)
     {
-        if (!this.TryGetCurrentUserId(out var userId))
-        {
-            return Unauthorized();
-        }
+        var userId = GetCurrentUserId();
 
-        if (string.IsNullOrWhiteSpace(request.Content))
-        {
-            return BadRequest(new { message = "Le contenu de la note est obligatoire" });
-        }
+        var note = await _context.CaseNotes
+            .FirstOrDefaultAsync(n => n.Id == noteId && n.CaseId == caseId);
 
-        var note = await _notesService.UpdateNoteAsync(caseId, id, userId, request.Content.Trim(), request.IsPrivate, request.Mentions);
         if (note == null)
-        {
-            return NotFound(new { message = "Note introuvable" });
-        }
+            return NotFound();
+
+        // Vérifier accès au dossier
+        var caseExists = await _context.Cases.AnyAsync(c => c.Id == caseId && c.UserId == userId);
+        if (!caseExists)
+            return Forbid();
 
         return Ok(note);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteNote(Guid caseId, Guid id)
+    // PUT /api/cases/{caseId}/notes/{noteId}
+    [HttpPut("{noteId}")]
+    public async Task<IActionResult> UpdateNote(Guid caseId, Guid noteId, [FromBody] UpdateNoteRequest request)
     {
-        if (!this.TryGetCurrentUserId(out var userId))
-        {
-            return Unauthorized();
-        }
+        var userId = GetCurrentUserId();
 
-        var deleted = await _notesService.DeleteNoteAsync(caseId, id, userId);
-        if (!deleted)
-        {
-            return NotFound(new { message = "Note introuvable" });
-        }
+        var note = await _context.CaseNotes
+            .FirstOrDefaultAsync(n => n.Id == noteId && n.CaseId == caseId);
+
+        if (note == null)
+            return NotFound();
+
+        // Seul l'auteur peut modifier
+        if (note.AuthorId != userId)
+            return Forbid();
+
+        note.Content = request.Content ?? note.Content;
+        note.Visibility = request.Visibility ?? note.Visibility;
+        note.Mentions = request.Mentions ?? note.Mentions;
+        note.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Note mise à jour: {NoteId}", noteId);
+
+        return NoContent();
+    }
+
+    // DELETE /api/cases/{caseId}/notes/{noteId}
+    [HttpDelete("{noteId}")]
+    public async Task<IActionResult> DeleteNote(Guid caseId, Guid noteId)
+    {
+        var userId = GetCurrentUserId();
+
+        var note = await _context.CaseNotes
+            .FirstOrDefaultAsync(n => n.Id == noteId && n.CaseId == caseId);
+
+        if (note == null)
+            return NotFound();
+
+        // Seul l'auteur peut supprimer
+        if (note.AuthorId != userId)
+            return Forbid();
+
+        _context.CaseNotes.Remove(note);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Note supprimée: {NoteId}", noteId);
 
         return NoContent();
     }
 }
 
-public sealed record CreateCaseNoteRequest(string Content, bool IsPrivate = false, List<string>? Mentions = null);
-public sealed record UpdateCaseNoteRequest(string Content, bool IsPrivate = false, List<string>? Mentions = null);
+public record CreateNoteRequest(string Content, string? Visibility, string? Mentions);
+public record UpdateNoteRequest(string? Content, string? Visibility, string? Mentions);
