@@ -199,7 +199,7 @@
     "react-is": "^19.2.3",
     "recharts": "^3.6.0",
     "regression": "^2.0.1",
-    "resend": "^6.9.1",
+    "resend": "^6.9.3",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "stripe": "^20.2.0",
