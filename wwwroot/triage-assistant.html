@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triage Assistant Priorisé - MemoLib</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+    header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+    header h1 { font-size: 1.4rem; font-weight: 700; }
+    header .badge { background: #e94560; color: #fff; font-size: 0.7rem; padding: 3px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    /* --- Form panel --- */
+    .panel { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,.07); }
+    .panel h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; color: #1a1a2e; border-bottom: 2px solid #e94560; padding-bottom: 8px; }
+
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #444; }
+    input[type="text"], textarea, input[type="datetime-local"] {
+      width: 100%; border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 12px;
+      font-size: 0.9rem; transition: border-color .2s; font-family: inherit;
+    }
+    input:focus, textarea:focus { outline: none; border-color: #e94560; }
+    textarea { resize: vertical; min-height: 130px; }
+
+    .field { margin-bottom: 16px; }
+    .field-row { display: flex; gap: 12px; align-items: flex-start; }
+    .field-row .field { flex: 1; }
+
+    .checkbox-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .checkbox-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #e94560; cursor: pointer; }
+    .checkbox-row label { margin: 0; cursor: pointer; font-size: 0.88rem; }
+
+    .btn-analyze { width: 100%; background: #e94560; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s; }
+    .btn-analyze:hover { background: #c73451; }
+    .btn-analyze:disabled { background: #bbb; cursor: not-allowed; }
+
+    /* --- Result panel --- */
+    #result-panel { display: none; }
+    #result-panel.visible { display: block; }
+
+    .priority-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-weight: 700; font-size: 0.9rem; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.3px;
+    }
+    .priority-critical { background: #fde8e8; color: #c0392b; }
+    .priority-high     { background: #fef3cd; color: #d68910; }
+    .priority-normal   { background: #d5f5e3; color: #1e8449; }
+    .priority-low      { background: #eaf4fb; color: #1a5276; }
+
+    .result-section { margin-bottom: 18px; }
+    .result-section h3 { font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 8px; }
+
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .info-cell { background: #f8f9fa; border-radius: 8px; padding: 10px 14px; }
+    .info-cell .label { font-size: 0.75rem; color: #888; margin-bottom: 3px; }
+    .info-cell .value { font-weight: 700; font-size: 0.95rem; color: #1a1a2e; }
+
+    .confidence-bar { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+    .confidence-fill { height: 100%; background: linear-gradient(90deg, #e94560, #ff8c00); border-radius: 4px; transition: width .5s ease; }
+
+    .jurist-card { display: flex; align-items: center; gap: 12px; background: #f8f9fa; border-radius: 10px; padding: 14px; border-left: 4px solid #e94560; }
+    .jurist-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e94560; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+    .jurist-name { font-weight: 700; font-size: 0.95rem; }
+    .jurist-reason { font-size: 0.8rem; color: #666; }
+
+    .actions-list { list-style: none; }
+    .actions-list li { padding: 7px 10px 7px 28px; position: relative; font-size: 0.88rem; border-bottom: 1px solid #f0f0f0; }
+    .actions-list li:last-child { border-bottom: none; }
+    .actions-list li::before { content: "→"; position: absolute; left: 8px; color: #e94560; font-weight: 700; }
+
+    .justif-list { list-style: none; }
+    .justif-list li { font-size: 0.82rem; color: #555; padding: 4px 0 4px 18px; position: relative; }
+    .justif-list li::before { content: "•"; position: absolute; left: 6px; color: #e94560; }
+
+    .categories-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .categories-table th { text-align: left; color: #888; font-weight: 600; padding: 5px 8px; border-bottom: 2px solid #eee; }
+    .categories-table td { padding: 5px 8px; border-bottom: 1px solid #f5f5f5; }
+    .categories-table tr.top td { background: #fff8f0; font-weight: 600; }
+
+    .error-msg { background: #fde8e8; color: #c0392b; border-radius: 8px; padding: 12px 16px; font-size: 0.88rem; margin-top: 12px; display: none; }
+    .error-msg.visible { display: block; }
+
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 760px) {
+      .container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Triage Assistant Priorisé</h1>
+  </div>
+  <span class="badge">US12</span>
+  <div style="margin-left:auto;font-size:0.8rem;opacity:.7;">MemoLib — Espace Juriste</div>
+</header>
+
+<div class="container">
+
+  <!-- Formulaire de saisie -->
+  <div class="panel">
+    <h2>Analyser un dossier entrant</h2>
+
+    <div class="field">
+      <label for="f-title">Titre du dossier *</label>
+      <input type="text" id="f-title" placeholder="Ex: Contestation licenciement abusif" maxlength="255" />
+    </div>
+
+    <div class="field">
+      <label for="f-desc">Description du problème *</label>
+      <textarea id="f-desc" placeholder="Décrivez la situation du client en quelques phrases…"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="f-deadline">Echéance connue (optionnel)</label>
+      <input type="datetime-local" id="f-deadline" />
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="f-urgent" />
+      <label for="f-urgent">Le client a indiqué une urgence explicite</label>
+    </div>
+
+    <button class="btn-analyze" id="btn-analyze" onclick="analyzeCase()">Analyser & Prioriser</button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <!-- Résultat -->
+  <div class="panel" id="result-panel">
+    <h2>Résultat du triage</h2>
+
+    <div class="result-section">
+      <h3>Priorité & Catégorie</h3>
+      <div class="info-grid">
+        <div class="info-cell">
+          <div class="label">Priorité</div>
+          <div class="value" id="r-priority">—</div>
+        </div>
+        <div class="info-cell">
+          <div class="label">Catégorie détectée</div>
+          <div class="value" id="r-category">—</div>
+        </div>
+        <div class="info-cell" style="grid-column:1/-1">
+          <div class="label">Niveau de confiance</div>
+          <div class="value" id="r-confidence">—</div>
+          <div class="confidence-bar"><div class="confidence-fill" id="r-confidence-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-section">
+      <h3>Délai estimé</h3>
+      <div class="info-cell">
+        <div class="value" id="r-delay">—</div>
+      </div>
+    </div>
+
+    <div class="result-section" id="jurist-section">
+      <h3>Juriste assigné</h3>
+      <div class="jurist-card">
+        <div class="jurist-avatar" id="r-jurist-avatar">?</div>
+        <div>
+          <div class="jurist-name" id="r-jurist-name">—</div>
+          <div class="jurist-reason" id="r-jurist-reason">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-section">
+      <h3>Actions recommandées</h3>
+      <ul class="actions-list" id="r-actions"></ul>
+    </div>
+
+    <div class="result-section">
+      <h3>Justification</h3>
+      <ul class="justif-list" id="r-justif"></ul>
+    </div>
+
+    <details style="margin-top:10px">
+      <summary style="cursor:pointer;font-size:0.82rem;color:#888">Toutes les catégories scorées</summary>
+      <table class="categories-table" style="margin-top:10px">
+        <thead><tr><th>Catégorie</th><th>Score</th><th>Mots clés</th></tr></thead>
+        <tbody id="r-categories"></tbody>
+      </table>
+    </details>
+  </div>
+
+</div>
+
+<script>
+  const API_BASE = '/api/triage';
+  const PRIORITY_LABELS = { critical: '🔴 Critique', high: '🟠 Haute', normal: '🟢 Normale', low: '🔵 Basse' };
+  const PRIORITY_CLASSES = { critical: 'priority-critical', high: 'priority-high', normal: 'priority-normal', low: 'priority-low' };
+
+  async function analyzeCase() {
+    const title = document.getElementById('f-title').value.trim();
+    const description = document.getElementById('f-desc').value.trim();
+    const deadlineVal = document.getElementById('f-deadline').value;
+    const urgency = document.getElementById('f-urgent').checked;
+
+    const errorEl = document.getElementById('error-msg');
+    errorEl.classList.remove('visible');
+
+    if (!title || title.length < 3) {
+      showError('Le titre doit comporter au moins 3 caractères.'); return;
+    }
+    if (!description || description.length < 10) {
+      showError('La description doit comporter au moins 10 caractères.'); return;
+    }
+
+    const btn = document.getElementById('btn-analyze');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Analyse en cours…';
+
+    try {
+      const payload = { title, description, client_urgency_claim: urgency };
+      if (deadlineVal) payload.deadline = new Date(deadlineVal).toISOString();
+
+      const resp = await fetch(`${API_BASE}/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `Erreur ${resp.status}`);
+      }
+
+      const data = await resp.json();
+      renderResult(data);
+    } catch (e) {
+      showError(e.message || 'Erreur réseau — backend indisponible ?');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Analyser & Prioriser';
+    }
+  }
+
+  function renderResult(data) {
+    const panel = document.getElementById('result-panel');
+    panel.classList.add('visible');
+
+    // Priorité
+    const prioEl = document.getElementById('r-priority');
+    const cls = PRIORITY_CLASSES[data.priority] || '';
+    prioEl.innerHTML = `<span class="priority-badge ${cls}">${PRIORITY_LABELS[data.priority] || data.priority}</span>`;
+
+    // Catégorie
+    document.getElementById('r-category').textContent = data.detected_category.replace(/_/g, ' ');
+
+    // Confiance
+    const confPct = Math.round(data.confidence * 100);
+    document.getElementById('r-confidence').textContent = `${confPct}%`;
+    document.getElementById('r-confidence-bar').style.width = `${confPct}%`;
+
+    // Délai
+    document.getElementById('r-delay').textContent =
+      data.estimated_delay_days != null
+        ? `${data.estimated_delay_days} jour(s) ouvré(s)`
+        : 'Non estimé';
+
+    // Juriste
+    if (data.assigned_jurist) {
+      const n = data.assigned_jurist.jurist_name;
+      const initials = n.replace('Me. ', '').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('r-jurist-avatar').textContent = initials;
+      document.getElementById('r-jurist-name').textContent = n;
+      document.getElementById('r-jurist-reason').textContent = data.assigned_jurist.reason;
+      document.getElementById('jurist-section').style.display = '';
+    } else {
+      document.getElementById('jurist-section').style.display = 'none';
+    }
+
+    // Actions
+    const actEl = document.getElementById('r-actions');
+    actEl.innerHTML = data.recommended_actions.map(a => `<li>${escHtml(a)}</li>`).join('');
+
+    // Justification
+    const justEl = document.getElementById('r-justif');
+    justEl.innerHTML = data.justification.map(j => `<li>${escHtml(j)}</li>`).join('');
+
+    // Toutes catégories
+    const catTbody = document.getElementById('r-categories');
+    catTbody.innerHTML = data.all_categories.map((c, idx) => `
+      <tr class="${idx === 0 ? 'top' : ''}">
+        <td>${c.category.replace(/_/g, ' ')}</td>
+        <td>${c.score}</td>
+        <td style="font-size:.78rem;color:#666">${c.matched_keywords.slice(0, 4).join(', ') || '—'}</td>
+      </tr>`).join('');
+
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.classList.add('visible');
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // Raccourci clavier Ctrl+Enter sur le formulaire
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.key === 'Enter') analyzeCase();
+  });
+</script>
+
+</body>
+</html>
