@@ -153,3 +153,21 @@ class Notification(Base):
     is_read = Column(Boolean, default=False)
     read_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PaymentEvent(Base):
+    """Evenement de paiement persistant pour audit et idempotence webhook."""
+    __tablename__ = "payment_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    case_id = Column(Integer, ForeignKey("cases.id"), nullable=False, index=True)
+    provider = Column(String(30), nullable=False, index=True)  # stripe, mock, etc.
+    provider_event_id = Column(String(255), unique=True, index=True, nullable=True)
+    provider_session_id = Column(String(255), index=True, nullable=True)
+    payment_status = Column(String(30), nullable=False, index=True)
+    source = Column(String(50), nullable=False)  # stripe_webhook, manual_confirm
+    payload_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    # Relations
+    case = relationship("Case", backref="payment_events")
