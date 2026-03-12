@@ -20,6 +20,7 @@ from voice_service import VoiceService
 # Import routers
 from routes.client_portal import router as client_portal_router
 from routes.triage import router as triage_router
+from routes.payments import router as payments_router
 
 # Initialize FastAPI
 app = FastAPI(
@@ -47,6 +48,7 @@ app.add_middleware(
 # Register routers
 app.include_router(client_portal_router)
 app.include_router(triage_router)
+app.include_router(payments_router)
 
 # Security
 security = HTTPBearer()
