@@ -13,6 +13,7 @@ export default function PrivacyPage() {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleteReason, setDeleteReason] = useState('');
     const [loading, setLoading] = useState(false);
+    const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
     const handleExportData = async () => {
         try {
@@ -25,14 +26,17 @@ export default function PrivacyPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                alert(`✅ ${data.message}\n\nRequest ID: ${data.requestId}\nEstimated time: ${data.estimatedTime}`);
+                setFeedback({
+                    type: 'success',
+                    message: `${data.message} (Request ID: ${data.requestId}, délai estimé: ${data.estimatedTime})`
+                });
             } else {
                 const error = await response.json();
-                alert(`❌ Error: ${error.error}`);
+                setFeedback({ type: 'error', message: error.error || 'Export request failed' });
             }
         } catch (error) {
             console.error('Export failed:', error);
-            alert('❌ Export request failed');
+            setFeedback({ type: 'error', message: 'Export request failed' });
         } finally {
             setLoading(false);
         }
@@ -49,15 +53,18 @@ export default function PrivacyPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                alert(`✅ ${data.message}\n\nScheduled for: ${new Date(data.scheduledFor).toLocaleDateString()}\nGrace period: ${data.gracePeriod}`);
+                setFeedback({
+                    type: 'success',
+                    message: `${data.message} (prévu le ${new Date(data.scheduledFor).toLocaleDateString()}, grâce: ${data.gracePeriod})`
+                });
                 setShowDeleteConfirm(false);
             } else {
                 const error = await response.json();
-                alert(`❌ Error: ${error.error}`);
+                setFeedback({ type: 'error', message: error.error || 'Deletion request failed' });
             }
         } catch (error) {
             console.error('Deletion failed:', error);
-            alert('❌ Deletion request failed');
+            setFeedback({ type: 'error', message: 'Deletion request failed' });
         } finally {
             setLoading(false);
         }
@@ -74,6 +81,18 @@ export default function PrivacyPage() {
                         Your data, your rights. Manage your privacy settings and data protection options.
                     </p>
                 </div>
+
+                {feedback && (
+                    <div
+                        className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+                            feedback.type === 'success'
+                                ? 'border-green-200 bg-green-50 text-green-700'
+                                : 'border-red-200 bg-red-50 text-red-700'
+                        }`}
+                    >
+                        {feedback.message}
+                    </div>
+                )}
 
                 {/* GDPR Rights Info */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">

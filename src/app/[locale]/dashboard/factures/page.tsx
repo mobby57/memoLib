@@ -267,6 +267,7 @@ function NewFactureModal({
   const [clientId, setClientId] = useState('');
   const [lignes, setLignes] = useState([{ description: '', quantite: 1, prixUnitaire: 0 }]);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const addLigne = () => {
     setLignes([...lignes, { description: '', quantite: 1, prixUnitaire: 0 }]);
@@ -288,10 +289,11 @@ function NewFactureModal({
 
   const handleSubmit = async () => {
     if (!clientId || lignes.length === 0) {
-      alert('Veuillez selectionner un client et ajouter au moins une ligne');
+      setErrorMessage('Veuillez selectionner un client et ajouter au moins une ligne');
       return;
     }
 
+    setErrorMessage(null);
     setLoading(true);
     try {
       const res = await fetch('/api/factures', {
@@ -308,11 +310,11 @@ function NewFactureModal({
         onCreated();
       } else {
         const data = await res.json();
-        alert(data.error || 'Erreur creation facture');
+        setErrorMessage(data.error || 'Erreur creation facture');
       }
     } catch (error) {
       console.error('Erreur:', error);
-      alert('Erreur creation facture');
+      setErrorMessage('Erreur creation facture');
     } finally {
       setLoading(false);
     }
@@ -326,6 +328,12 @@ function NewFactureModal({
         </div>
 
         <div className="p-6 space-y-4">
+          {errorMessage && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
+
           {/* Client */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Client</label>

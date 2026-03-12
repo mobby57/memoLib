@@ -73,7 +73,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           },
         });
       },
-      TTL_TIERS.WARM
+      'WARM'
     );
 
     if (!client) {

@@ -10,10 +10,6 @@ Sentry.init({
   // Performance & Tracing (Request-mode sessions)
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 
-  // Session & Release Health tracking (Server-mode)
-  autoSessionTracking: true,
-  sessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-
   // Error handling
   attachStacktrace: true,
   maxBreadcrumbs: 50,

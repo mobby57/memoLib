@@ -4,41 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parcours Avocat - MemoLib</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
-        
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        
-        .workflow { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .workflow-step { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-left: 5px solid #667eea; }
-        .workflow-step h3 { color: #667eea; margin-bottom: 15px; font-size: 1.5em; }
-        .workflow-step .time { background: #667eea; color: white; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-bottom: 15px; font-size: 0.9em; }
-        
-        .section { background: white; border-radius: 15px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .section h2 { color: #667eea; margin-bottom: 20px; }
-        
-        .task-list { list-style: none; }
-        .task-item { background: #f8f9fa; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .task-item.urgent { border-left: 4px solid #e74c3c; }
-        .task-item.normal { border-left: 4px solid #f39c12; }
-        .task-item.low { border-left: 4px solid #27ae60; }
-        
-        .btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; transition: all 0.3s; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
-        .btn-small { padding: 6px 15px; font-size: 0.9em; }
-        
-        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .quick-action { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s; }
-        .quick-action:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3); }
-        .quick-action .icon { font-size: 2.5em; margin-bottom: 10px; }
-        
-        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .alert-urgent { background: #fee; border-left: 4px solid #e74c3c; color: #c0392b; }
-    </style>
+    <link rel="stylesheet" href="css/memolib-theme.css">
 </head>
 <body>
     <div class="header">
@@ -53,33 +19,33 @@
         <!-- Workflow journalier -->
         <div class="section">
             <h2>📅 Votre Journée Type</h2>
-            <div class="workflow">
-                <div class="workflow-step">
-                    <span class="time">9h00 - 9h30</span>
+            <div class="parcours-workflow">
+                <div class="parcours-workflow-step">
+                    <span class="parcours-time">9h00 - 9h30</span>
                     <h3>1. Revue Matinale</h3>
                     <p>Consultez vos nouveaux emails, dossiers urgents et échéances du jour.</p>
-                    <button class="btn btn-small" onclick="window.open('/demo.html#alerts', '_blank')">Voir Alertes</button>
+                    <button class="btn btn-sm" onclick="window.open('/demo.html#alerts', '_blank')">Voir Alertes</button>
                 </div>
 
-                <div class="workflow-step">
-                    <span class="time">9h30 - 12h00</span>
+                <div class="parcours-workflow-step">
+                    <span class="parcours-time">9h30 - 12h00</span>
                     <h3>2. Traitement Dossiers</h3>
                     <p>Travaillez sur vos dossiers prioritaires avec tous les documents centralisés.</p>
-                    <button class="btn btn-small" onclick="window.open('/demo.html#cases', '_blank')">Mes Dossiers</button>
+                    <button class="btn btn-sm" onclick="window.open('/demo.html#cases', '_blank')">Mes Dossiers</button>
                 </div>
 
-                <div class="workflow-step">
-                    <span class="time">14h00 - 16h00</span>
+                <div class="parcours-workflow-step">
+                    <span class="parcours-time">14h00 - 16h00</span>
                     <h3>3. Rendez-vous Clients</h3>
                     <p>Accédez rapidement à l'historique complet de chaque client avant les RDV.</p>
-                    <button class="btn btn-small" onclick="window.open('/demo.html#client-detail', '_blank')">Fiches Clients</button>
+                    <button class="btn btn-sm" onclick="window.open('/demo.html#client-detail', '_blank')">Fiches Clients</button>
                 </div>
 
-                <div class="workflow-step">
-                    <span class="time">16h00 - 18h00</span>
+                <div class="parcours-workflow-step">
+                    <span class="parcours-time">16h00 - 18h00</span>
                     <h3>4. Réponses & Suivi</h3>
                     <p>Répondez aux emails clients avec templates intelligents et IA.</p>
-                    <button class="btn btn-small" onclick="window.open('/demo.html#search', '_blank')">Recherche Rapide</button>
+                    <button class="btn btn-sm" onclick="window.open('/demo.html#search', '_blank')">Recherche Rapide</button>
                 </div>
             </div>
         </div>
@@ -87,27 +53,27 @@
         <!-- Tâches du jour -->
         <div class="section">
             <h2>✅ Tâches du Jour</h2>
-            <ul class="task-list" id="taskList">
-                <li class="task-item urgent">
+            <ul class="parcours-task-list" id="taskList">
+                <li class="parcours-task-item urgent">
                     <div>
                         <strong>🔴 URGENT:</strong> Réponse mémoire Tribunal - Dossier Martin
                         <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Échéance: Aujourd'hui 17h00</div>
                     </div>
-                    <button class="btn btn-small" onclick="openCase('martin')">Ouvrir</button>
+                    <button class="btn btn-sm" onclick="openCase('martin')">Ouvrir</button>
                 </li>
-                <li class="task-item normal">
+                <li class="parcours-task-item normal">
                     <div>
                         <strong>🟠 Important:</strong> Rendez-vous client Dubois
                         <div style="font-size: 0.9em; color: #666; margin-top: 5px;">15h00 - Divorce contentieux</div>
                     </div>
-                    <button class="btn btn-small" onclick="openClient('dubois')">Préparer</button>
+                    <button class="btn btn-sm" onclick="openClient('dubois')">Préparer</button>
                 </li>
-                <li class="task-item low">
+                <li class="parcours-task-item low">
                     <div>
                         <strong>🟢 Normal:</strong> Relecture contrat Société Lefebvre
                         <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Échéance: Demain</div>
                     </div>
-                    <button class="btn btn-small" onclick="openCase('lefebvre')">Voir</button>
+                    <button class="btn btn-sm" onclick="openCase('lefebvre')">Voir</button>
                 </li>
             </ul>
         </div>
@@ -115,20 +81,20 @@
         <!-- Actions rapides -->
         <div class="section">
             <h2>⚡ Actions Rapides</h2>
-            <div class="quick-actions">
-                <div class="quick-action" onclick="window.open('/demo.html#ingest', '_blank')">
+            <div class="parcours-quick-actions">
+                <div class="parcours-quick-action" onclick="window.open('/demo.html#ingest', '_blank')">
                     <div class="icon">📧</div>
                     <div>Nouveau Email</div>
                 </div>
-                <div class="quick-action" onclick="window.open('/demo.html#cases', '_blank')">
+                <div class="parcours-quick-action" onclick="window.open('/demo.html#cases', '_blank')">
                     <div class="icon">📁</div>
                     <div>Créer Dossier</div>
                 </div>
-                <div class="quick-action" onclick="window.open('/demo.html#search', '_blank')">
+                <div class="parcours-quick-action" onclick="window.open('/demo.html#search', '_blank')">
                     <div class="icon">🔍</div>
                     <div>Rechercher</div>
                 </div>
-                <div class="quick-action" onclick="window.open('/demo.html#client', '_blank')">
+                <div class="parcours-quick-action" onclick="window.open('/demo.html#client', '_blank')">
                     <div class="icon">👤</div>
                     <div>Nouveau Client</div>
                 </div>
@@ -144,7 +110,7 @@
         <!-- Conseils du jour -->
         <div class="section">
             <h2>💡 Conseil du Jour</h2>
-            <div style="background: #ecf0f1; padding: 20px; border-radius: 10px; border-left: 4px solid #667eea;">
+            <div class="parcours-tip">
                 <strong>Utilisez la recherche sémantique IA</strong> pour retrouver rapidement des dossiers similaires et gagner du temps sur vos recherches juridiques.
                 <br><br>
                 <button class="btn" onclick="window.open('/demo.html#search', '_blank')">Essayer Maintenant</button>
@@ -156,6 +122,12 @@
         const API_URL = 'http://localhost:5078';
         const token = localStorage.getItem('authToken');
 
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+            try { return JSON.parse(text); } catch { return null; }
+        }
+
         async function loadUrgentAlerts() {
             if (!token) return;
             try {
@@ -163,12 +135,12 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
-                    const data = await response.json();
-                    if (data.count > 0) {
+                    const data = await readResponseDataSafe(response);
+                    if ((data?.count || 0) > 0) {
                         document.getElementById('urgentAlerts').innerHTML = `
-                            <div class="alert alert-urgent">
-                                <strong>⚠️ ${data.count} email(s) nécessitent votre attention immédiate</strong>
-                                <button class="btn btn-small" style="margin-left: 15px;" onclick="window.open('/demo.html#alerts', '_blank')">Traiter Maintenant</button>
+                            <div class="parcours-alert parcours-alert-urgent">
+                                <strong>⚠️ ${data?.count || 0} email(s) nécessitent votre attention immédiate</strong>
+                                <button class="btn btn-sm" style="margin-left: 15px;" onclick="window.open('/demo.html#alerts', '_blank')">Traiter Maintenant</button>
                             </div>
                         `;
                     }
@@ -188,17 +160,18 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
-                    const cases = await response.json();
-                    const recent = cases.slice(0, 5);
+                    const cases = await readResponseDataSafe(response);
+                    const casesList = Array.isArray(cases) ? cases : [];
+                    const recent = casesList.slice(0, 5);
                     document.getElementById('recentCases').innerHTML = recent.map(c => `
-                        <div class="task-item" style="cursor: pointer;" onclick="window.open('/demo.html#cases', '_blank')">
+                        <div class="parcours-case-item" onclick="window.open('/demo.html#cases', '_blank')">
                             <div>
                                 <strong>${c.title || 'Sans titre'}</strong>
                                 <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
                                     Client: ${c.clientId || 'Non renseigné'} | Créé: ${new Date(c.createdAt).toLocaleDateString('fr-FR')}
                                 </div>
                             </div>
-                            <button class="btn btn-small">Ouvrir</button>
+                            <button class="btn btn-sm">Ouvrir</button>
                         </div>
                     `).join('');
                 }

@@ -25,7 +25,10 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        // TODO: Add admin role check
+        const userRole = String((session.user as any).role || '');
+        if (!['ADMIN', 'SUPER_ADMIN'].includes(userRole)) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
 
         const requests = await prisma.deletionRequest.findMany({
             include: {

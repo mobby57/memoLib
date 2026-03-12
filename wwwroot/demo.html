@@ -4,60 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
-    <title>MemoLib - Démonstration Client</title>
+    <title>MemoLib - Système de Gestion Professionnel</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest">
+    
+    <!-- Meta tags PWA essentiels -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MemoLib">
+    <meta name="application-name" content="MemoLib">
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-navbutton-color" content="#667eea">
+    
+    <!-- Icônes -->
+    <link rel="apple-touch-icon" href="/icon.svg">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icon-16.png">
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- Service Worker -->
+    <script src="/pwa-register.js" defer></script>
+    
+    <link rel="stylesheet" href="css/memolib-theme.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
-        .header p { font-size: 1.2em; opacity: 0.9; }
-        .card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); backdrop-filter: blur(10px); transition: all 0.3s ease; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
-        .card h2 { color: #667eea; margin-bottom: 15px; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 5px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); background: linear-gradient(45deg, #5568d3, #6a4c93); }
-        .btn:active { transform: translateY(0); }
-        .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
-        .input-group input, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
-        .result { background: #f8f9fa; border-left: 4px solid #667eea; padding: 15px; margin-top: 15px; border-radius: 5px; }
-        .success { border-left-color: #28a745; background: #d4edda; }
-        .error { border-left-color: #dc3545; background: #f8d7da; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-        .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-box .number { font-size: 2.5em; font-weight: bold; }
-        .stat-box .label { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
-        .event-list { max-height: 400px; overflow-y: auto; }
-        .event-item { background: #f8f9fa; padding: 15px; margin-bottom: 10px; border-radius: 5px; border-left: 3px solid #667eea; }
-        .event-item .date { color: #666; font-size: 0.9em; }
-        .event-item .content { margin-top: 5px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { padding: 10px 20px; background: #e9ecef; border: none; border-radius: 5px; cursor: pointer; }
-        .tab.active { background: #667eea; color: white; }
-        .hidden { display: none; }
-        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        .quickbar { background: white; border-radius: 10px; padding: 14px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #888; display: inline-block; }
-        .status-dot.ok { background: #1f8f3a; }
-        .status-dot.err { background: #c62828; }
-        .search-options { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
-        .search-options label { display: inline-flex; align-items: center; gap: 6px; color: #555; font-size: 13px; }
-        .search-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #3b4cca; font-size: 12px; margin-left: 8px; }
-        .search-ids { font-size: 12px; color: #666; margin-top: 6px; word-break: break-all; }
-        .case-item { cursor: pointer; transition: background 0.2s; }
-        .case-item:hover { background: #f0f0f0; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 10px; max-width: 800px; max-height: 80vh; overflow-y: auto; }
-        .modal-close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; }
-        .modal-close:hover { color: #000; }
-        .meta-chip { display:inline-block; padding:3px 8px; border-radius:999px; background:#eef2ff; color:#3744a0; font-size:12px; margin:4px 6px 0 0; }
-        .annex-list { margin-top:8px; padding-left:18px; color:#444; }
-        .guide-box { background:#eef7ff; border-left:4px solid #4a6ee0; padding:10px; border-radius:6px; margin:10px 0 14px 0; font-size:13px; color:#244; }
-        .api-banner { margin: 10px 0 14px 0; padding: 10px 12px; border-radius: 6px; border-left: 4px solid #999; background: #f3f4f6; color: #333; font-size: 13px; }
-        .api-banner.ok { border-left-color: #1f8f3a; background: #e8f7ed; color: #14532d; }
-        .api-banner.err { border-left-color: #c62828; background: #fdecec; color: #7f1d1d; }
+        /* Styles spécifiques à la page démo */
+        /* Les styles de base sont dans modern-ui.css */
+        /* Styles additionnels pour compatibilité */
+        .hidden { display: none !important; }
+        /* Stats définis dans modern-ui.css */
+        /* Éléments de liste définis dans modern-ui.css */
+        pre { background: var(--gray-50); padding: 1rem; border-radius: var(--radius); overflow-x: auto; }
+        /* Quickbar défini dans modern-ui.css */
+        .search-options { display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap; }
+        .search-options label { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--gray-600); font-size: 0.875rem; }
+        .search-ids { font-size: 0.75rem; color: var(--gray-500); margin-top: 0.5rem; word-break: break-all; }
+        .case-item { cursor: pointer; }
+        /* Modal défini dans modern-ui.css */
+        /* Chips et badges définis dans modern-ui.css */
+        .annex-list { margin-top: 0.5rem; padding-left: 1.25rem; color: var(--gray-700); }
+        .api-banner { margin: 0.75rem 0; padding: 0.75rem 1rem; border-radius: var(--radius); border-left: 4px solid var(--gray-400); background: var(--gray-100); color: var(--gray-700); font-size: 0.875rem; }
+        .api-banner.ok { border-left-color: var(--success); background: #d1fae5; color: #065f46; }
+        .api-banner.err { border-left-color: var(--danger); background: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body>
@@ -372,7 +365,7 @@
         <div class="card">
             <h2>⚖️ Gestion d'Équipe</h2>
             <p>Gérez les membres de votre cabinet et leurs permissions</p>
-            
+
             <!-- Inviter un membre -->
             <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h3>➕ Inviter un Membre</h3>
@@ -395,13 +388,13 @@
                 </form>
                 <div id="teamInviteResult"></div>
             </div>
-            
+
             <!-- Membres actuels -->
             <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h3>👥 Membres de l'Équipe</h3>
                 <div id="teamMembersList">Chargement...</div>
             </div>
-            
+
             <!-- Invitations en attente -->
             <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h3>⏳ Invitations en Attente</h3>
@@ -410,10 +403,12 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.min.js">
+    const API_BASE = window.location.origin;
+</script>
     <script src="questionnaires.js"></script>
     <script src="advanced-features.js"></script>
     <script src="team-module.js"></script>
-    <script src="https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
     <script src="auto-demo.js"></script>
     <script>
         const API_URL = (() => {
@@ -444,6 +439,11 @@
             }
 
             async initialize() {
+                if (typeof signalR === 'undefined') {
+                    console.warn('SignalR non disponible');
+                    return;
+                }
+                
                 this.connection = new signalR.HubConnectionBuilder()
                     .withUrl(`${this.apiUrl}/notificationHub`)
                     .build();
@@ -518,6 +518,36 @@
                 updateCurrentUserDisplay(storedEmail);
             }
         }
+
+        (function patchResponseJsonForDemo() {
+            if (typeof window === 'undefined' || typeof Response === 'undefined') return;
+            if (window.__memolibSafeJsonPatched) return;
+
+            const originalJson = Response.prototype.json;
+            Response.prototype.json = async function (...args) {
+                try {
+                    const cloned = this.clone();
+                    const text = await cloned.text();
+                    if (!text || !text.trim()) {
+                        return null;
+                    }
+
+                    try {
+                        return JSON.parse(text);
+                    } catch {
+                        return null;
+                    }
+                } catch {
+                    try {
+                        return await originalJson.apply(this, args);
+                    } catch {
+                        return null;
+                    }
+                }
+            };
+
+            window.__memolibSafeJsonPatched = true;
+        })();
 
         function applyAccessMode() {
             const accessModeText = document.getElementById('accessModeText');
@@ -742,12 +772,20 @@
                     updateCurrentUserDisplay(email);
                     showResult('login-result', `✅ Connecté avec succès! Token reçu.`);
                     await refreshAnomalyBadge();
-                    
+
                     // Initialiser les fonctionnalités avancées
                     realtimeDashboard = new RealtimeDashboard(API_URL, token);
                     templateManager = new TemplateManager(API_URL, token);
-                    criticalAlerts = new CriticalAlertSystem(API_URL, token);
-                    await criticalAlerts.initialize();
+                    
+                    // Initialiser SignalR seulement si disponible
+                    if (typeof signalR !== 'undefined') {
+                        try {
+                            criticalAlerts = new CriticalAlertSystem(API_URL, token);
+                            await criticalAlerts.initialize();
+                        } catch (err) {
+                            console.warn('SignalR non disponible:', err);
+                        }
+                    }
                 } else {
                     const message = (data?.message || '').toString().toLowerCase();
                     const canAutoCreate = message.includes('identifiants invalides');
@@ -1352,7 +1390,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/ingest/email`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
@@ -1361,7 +1399,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     const eventId = data.eventId || data.existingEventId || 'N/A';
-                    
+
                     if (data.isDuplicate) {
                         let msg = `<div style="background: #fff3cd; border-left: 4px solid orange; padding: 15px; border-radius: 5px;">`;
                         msg += `⚠️ <strong>Doublon détecté</strong><br>`;
@@ -1382,7 +1420,7 @@
                         }
                         showResult('ingest-result', msg);
                     }
-                    
+
                     lastEventId = eventId !== 'N/A' ? eventId : null;
                     lastCaseId = data.caseId;
                 } else {
@@ -1603,7 +1641,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/semantic/search`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
@@ -1757,9 +1795,9 @@
 
                 const summaryHtml = `<div class="result" style="margin-top:12px;">
                     <strong>Vue synthèse</strong><br>
-                    Dossiers liés: ${summary.relatedCasesCount || 0} | 
-                    Événements récents: ${summary.recentEventsCount || 0} | 
-                    Anomalies ouvertes: ${summary.openAnomaliesCount || 0} | 
+                    Dossiers liés: ${summary.relatedCasesCount || 0} |
+                    Événements récents: ${summary.recentEventsCount || 0} |
+                    Anomalies ouvertes: ${summary.openAnomaliesCount || 0} |
                     Annexes: ${summary.totalAnnexesCount || 0}<br>
                     Dernier contact: ${summary.lastContactAt ? new Date(summary.lastContactAt).toLocaleString('fr-FR') : 'N/A'}
                 </div>`;
@@ -2432,16 +2470,16 @@
                 const res = await fetch(`${API_URL}/api/events/${eventId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (!res.ok) {
                     alert('Impossible de charger l\'événement');
                     return;
                 }
-                
+
                 const event = await res.json();
                 const payload = parseRawPayloadSafe(event.rawPayload);
                 const digest = buildReadableEventDigest(payload, event.occurredAt, { includeFullBody: true });
-                
+
                 let html = `<div class="modal" id="eventModal" onclick="if(event.target.id==='eventModal')closeEventModal()">
                     <div class="modal-content">
                         <span class="modal-close" onclick="closeEventModal()">&times;</span>
@@ -2452,16 +2490,16 @@
                         <div style="margin-bottom: 15px;"><strong>Sujet:</strong> ${payload.subject || 'N/A'}</div>
                         <div style="margin-bottom: 15px;"><strong>Contenu:</strong></div>
                         <div style="white-space: pre-wrap; background: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto;">${digest.what}</div>`;
-                
+
                 if (event.validationFlags) {
                     html += `<div style="margin-top: 15px; color: orange;"><strong>⚠️ Anomalies:</strong> ${event.validationFlags}</div>`;
                 }
-                
+
                 html += `</div></div>`;
-                
+
                 const existing = document.getElementById('eventModal');
                 if (existing) existing.remove();
-                
+
                 document.body.insertAdjacentHTML('beforeend', html);
                 document.getElementById('eventModal').style.display = 'block';
             } catch (err) {
@@ -2511,7 +2549,7 @@
                     const percent = totalEmails > 0 ? ((dominantType.count / totalEmails) * 100).toFixed(1) : '0.0';
                     html += `<div class="result" style="margin-top: 8px;"><strong>Point clé:</strong> le type principal est <strong>${dominantType.type}</strong> avec <strong>${dominantType.count}</strong> email(s), soit <strong>${percent}%</strong> du total.</div>`;
                 }
-                
+
                 document.getElementById('stats-result').innerHTML = html;
             } catch (err) {
                 showResult('stats-result', `❌ Erreur: ${err.message}`, false);
@@ -2557,7 +2595,7 @@
 
         async function exportEventsText() {
             if (!token) return showResult('export-result', '❌ Connectez-vous d\'abord', false);
-            
+
             try {
                 const res = await fetch(`${API_URL}/api/export/events-text`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -3001,7 +3039,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/notifications/${notificationId}/dismiss`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
@@ -3044,10 +3082,10 @@
                 return text;
             }
         }
-        
+
         // Make readResponseDataSafe globally available
         window.readResponseDataSafe = readResponseDataSafe;
-        
+
         // Initialize missing functions
         function prefillDemoFields() {
             // Pre-fill demo fields with default values
@@ -3057,7 +3095,7 @@
             const regSector = document.getElementById('reg-sector');
             const loginEmail = document.getElementById('login-email');
             const loginPassword = document.getElementById('login-password');
-            
+
             if (regEmail && !regEmail.value) regEmail.value = 'sarraboudjellal57@gmail.com';
             if (regPassword && !regPassword.value) regPassword.value = 'SecurePass123!';
             if (regName && !regName.value) regName.value = 'Sarra Boudjellal';
@@ -3065,7 +3103,7 @@
             if (loginEmail && !loginEmail.value) loginEmail.value = 'sarraboudjellal57@gmail.com';
             if (loginPassword && !loginPassword.value) loginPassword.value = 'SecurePass123!';
         }
-        
+
         function autoConnectDefaultUser() {
             // Auto-connect if no token exists
             if (!token) {
@@ -3077,20 +3115,20 @@
                 }, 1000);
             }
         }
-        
+
         function keepPinnedSessionAlive() {
             // Keep session alive by refreshing token periodically
             if (token) {
                 console.log('Session kept alive');
             }
         }
-        
+
         function refreshServiceStatus() {
             // Update service status indicator
             const statusDot = document.getElementById('statusDot');
             const statusText = document.getElementById('serviceStatusText');
             const emailCount = document.getElementById('emailCountDisplay');
-            
+
             if (statusDot && statusText) {
                 if (token) {
                     statusDot.className = 'status-dot ok';
@@ -3100,7 +3138,7 @@
                     statusText.textContent = 'Non connecté';
                 }
             }
-            
+
             // Update email count
             if (emailCount && token) {
                 fetch(`${API_URL}/api/debug/stats`)
@@ -3113,57 +3151,57 @@
                     .catch(() => {});
             }
         }
-        
+
         function updateCurrentUserDisplay(email) {
             const display = document.getElementById('currentUserDisplay');
             if (display) {
                 display.textContent = email ? `Connecté: ${email}` : '';
             }
         }
-        
+
         function showResult(elementId, message, isSuccess = true) {
             const element = document.getElementById(elementId);
             if (element) {
                 element.innerHTML = `<div class="result ${isSuccess ? 'success' : 'error'}">${message}</div>`;
             }
         }
-        
+
         function setLoadingState(elementId, message) {
             const element = document.getElementById(elementId);
             if (element) {
                 element.innerHTML = `<div class="result">${message}</div>`;
             }
         }
-        
+
         function showTab(tabName) {
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
             });
-            
+
             // Remove active class from all tab buttons
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             // Show selected tab
             const selectedTab = document.getElementById(`${tabName}-tab`);
             if (selectedTab) {
                 selectedTab.classList.remove('hidden');
             }
-            
+
             // Add active class to clicked tab button
             const tabButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
             if (tabButton) {
                 tabButton.classList.add('active');
             }
-            
+
             // Load team data when team tab is shown
             if (tabName === 'team' && typeof loadTeamData === 'function') {
                 loadTeamData();
             }
         }
-        
+
         async function apiFetchWithFallback(endpoint, options = {}) {
             try {
                 return await fetch(`${API_URL}${endpoint}`, options);
@@ -3172,7 +3210,7 @@
                 throw err;
             }
         }
-        
+
         function pickValue(obj, ...keys) {
             for (const key of keys) {
                 if (obj && obj[key] !== undefined) {
@@ -3181,7 +3219,7 @@
             }
             return null;
         }
-        
+
         async function installApp() {
             if (installPromptEvent) {
                 installPromptEvent.prompt();
@@ -3194,7 +3232,7 @@
                 alert('Installation non disponible ou déjà installée');
             }
         }
-        
+
         async function stopApplication() {
             if (confirm('Arrêter l\'application ?')) {
                 try {
@@ -3208,7 +3246,7 @@
                 }
             }
         }
-        
+
         async function showEventQuestionnaires(eventId, caseId) {
             if (typeof showQuestionnaireModal === 'function') {
                 showQuestionnaireModal(eventId, caseId);
@@ -3216,7 +3254,7 @@
                 alert('Module questionnaires non disponible');
             }
         }
-        
+
         // Default demo data
         const DEFAULT_DEMO = {
             clientRef: 'CLI-DEMO-001',
@@ -3225,7 +3263,7 @@
             clientPhone: '+33 6 12 34 56 78',
             clientAddress: '12 rue de la Paix, Paris'
         };
-        
+
         // Make functions globally available
         window.showTab = showTab;
         window.showResult = showResult;
@@ -3234,21 +3272,21 @@
         window.apiFetchWithFallback = apiFetchWithFallback;
         window.pickValue = pickValue;
         window.DEFAULT_DEMO = DEFAULT_DEMO;
-        
+
         // Role demo navigation
         function openRoleDemo(role) {
             const demos = {
                 'owner': 'demo-owner.html',
-                'admin': 'demo-admin.html', 
+                'admin': 'demo-admin.html',
                 'agent': 'demo-agent.html',
                 'client': 'demo-client.html'
             };
-            
+
             if (demos[role]) {
                 window.open(demos[role], '_blank');
             }
         }
-        
+
         // PWA install prompt
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -3266,6 +3304,66 @@
             if (token) refreshAnomalyBadge();
         }, 8000);
         setInterval(keepPinnedSessionAlive, 180000);
+
+        async function showAdvancedDashboard() {
+            if (!token) {
+                alert('Connectez-vous d\'abord');
+                return;
+            }
+
+            try {
+                const res = await apiFetchWithFallback('/api/dashboard/overview', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await readResponseDataSafe(res);
+
+                if (!res.ok) {
+                    alert(`Erreur dashboard: ${data?.message || 'Impossible de charger'}`);
+                    return;
+                }
+
+                const modalHtml = `
+                    <div class="modal" id="dashboardModal" style="display:block;" onclick="if(event.target.id==='dashboardModal') closeDashboardModal()">
+                        <div class="modal-content">
+                            <span class="modal-close" onclick="closeDashboardModal()">&times;</span>
+                            <h2 style="color:#667eea; margin-bottom:20px;">📊 Dashboard Exécutif</h2>
+                            
+                            <div class="stats">
+                                <div class="stat-box"><div class="number">${data.stats?.totalCases || 0}</div><div class="label">Dossiers</div></div>
+                                <div class="stat-box"><div class="number">${data.stats?.totalClients || 0}</div><div class="label">Clients</div></div>
+                                <div class="stat-box"><div class="number">${data.stats?.emailsToday || 0}</div><div class="label">Emails aujourd'hui</div></div>
+                                <div class="stat-box" style="background:#ff9800;"><div class="number">${data.stats?.openAnomalies || 0}</div><div class="label">Anomalies</div></div>
+                            </div>
+                            
+                            <div class="guide-box" style="margin-top:15px;">
+                                <strong>Vue d'ensemble Cabinet</strong><br>
+                                Tableau de bord exécutif et gestion stratégique<br>
+                                Temps de réponse moyen: ${data.metrics?.averageResponseTimeHours || 0}h
+                            </div>
+                            
+                            <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                                <button class="btn" onclick="showTab('cases')">📁 Gestion Dossiers</button>
+                                <button class="btn" onclick="showTab('client')">👥 Gestion Clients</button>
+                                <button class="btn" onclick="showTab('stats')">📈 Analytics</button>
+                                <button class="btn" onclick="showTab('team')">⚖️ Équipe</button>
+                                <button class="btn" onclick="openAnomalyCenter()">🚨 Alertes Critiques</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const existing = document.getElementById('dashboardModal');
+                if (existing) existing.remove();
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            } catch (err) {
+                alert(`Erreur: ${err.message}`);
+            }
+        }
+
+        function closeDashboardModal() {
+            const modal = document.getElementById('dashboardModal');
+            if (modal) modal.remove();
+        }
 
         async function testCriticalAlert() {
             if (criticalAlerts) {
@@ -3289,13 +3387,13 @@
 
             setLoadingState('teamMembersList', '⏳ Chargement des membres...');
             setLoadingState('teamPendingList', '⏳ Chargement des invitations...');
-            
+
             try {
                 const response = await apiFetchWithFallback('/api/team/members', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await readResponseDataSafe(response);
-                
+
                 if (response.ok) {
                     displayTeamMembers(data.members || []);
                     displayPendingInvitations(data.pendingInvitations || []);
@@ -3309,14 +3407,14 @@
                 document.getElementById('teamPendingList').innerHTML = 'Erreur de connexion';
             }
         }
-        
+
         function displayTeamMembers(members) {
             const container = document.getElementById('teamMembersList');
             if (!members || members.length === 0) {
                 container.innerHTML = 'Aucun membre dans l\'équipe. Invitez des collaborateurs ci-dessus.';
                 return;
             }
-            
+
             let html = '<div class="event-list">';
             members.forEach(member => {
                 const memberId = pickValue(member, 'id', 'Id');
@@ -3345,14 +3443,14 @@
             html += '</div>';
             container.innerHTML = html;
         }
-        
+
         function displayPendingInvitations(invitations) {
             const container = document.getElementById('teamPendingList');
             if (!invitations || invitations.length === 0) {
                 container.innerHTML = 'Aucune invitation en attente.';
                 return;
             }
-            
+
             let html = '<div class="event-list">';
             invitations.forEach(inv => {
                 const invitationId = pickValue(inv, 'id', 'Id');
@@ -3377,7 +3475,7 @@
             html += '</div>';
             container.innerHTML = html;
         }
-        
+
         function getRoleLabel(role) {
             const labels = {
                 'OWNER': 'Propriétaire',
@@ -3530,22 +3628,22 @@
                 showResult('teamInviteResult', '❌ Erreur de connexion', false);
             }
         }
-        
+
         // Team invite form handler
         document.addEventListener('DOMContentLoaded', function() {
             const teamForm = document.getElementById('teamInviteForm');
             if (teamForm) {
                 teamForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    
+
                     if (!token) {
                         showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
                         return;
                     }
-                    
+
                     const email = document.getElementById('teamInviteEmail').value;
                     const role = document.getElementById('teamInviteRole').value;
-                    
+
                     try {
                         const response = await fetch(`${API_URL}/api/team/invite`, {
                             method: 'POST',
@@ -3555,7 +3653,7 @@
                             },
                             body: JSON.stringify({ email, role })
                         });
-                        
+
                         if (response.ok) {
                             const data = await response.json();
                             const inviteUrl = (data?.inviteUrl || '').toString();
@@ -3580,7 +3678,7 @@
                 });
             }
         });
-        
+
         // showTab gère directement le chargement de l'onglet équipe.
     </script>
 </body>

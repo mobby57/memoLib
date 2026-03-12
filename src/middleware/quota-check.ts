@@ -5,7 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getAuthToken } from '@/lib/auth/nextauth-token';
 import { checkQuota, ResourceType } from '@/lib/billing/quota-service';
 
 /**
@@ -17,6 +17,8 @@ const QUOTA_ROUTES: Record<string, ResourceType> = {
   '/api/clients': 'clients',
   '/api/users': 'users',
 };
+
+const QUOTA_ROUTE_ENTRIES = Object.entries(QUOTA_ROUTES) as [string, ResourceType][];
 
 /**
  * Middleware de verification quota
@@ -30,19 +32,16 @@ export async function quotaCheckMiddleware(request: NextRequest) {
   }
 
   // Verifier si la route necessite un controle quota
-  const resourceType = Object.keys(QUOTA_ROUTES).find(route => 
-    pathname.startsWith(route)
-  );
+  const quotaRoute = QUOTA_ROUTE_ENTRIES.find(([route]) => pathname.startsWith(route));
 
-  if (!resourceType) {
+  if (!quotaRoute) {
     return NextResponse.next();
   }
 
+  const [, resourceType] = quotaRoute;
+
   // Recuperer le token
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET || '',
-  });
+  const token = await getAuthToken(request);
 
   if (!token || !token.tenantId) {
     return NextResponse.json(
@@ -55,14 +54,14 @@ export async function quotaCheckMiddleware(request: NextRequest) {
     // Verifier le quota
     const quota = await checkQuota(
       token.tenantId as string,
-      QUOTA_ROUTES[resourceType]
+      resourceType
     );
 
     if (!quota.allowed) {
       return NextResponse.json(
         {
           error: 'Quota depasse',
-          message: `Vous avez atteint la limite de votre plan (${quota.current}/${quota.limit} ${QUOTA_ROUTES[resourceType]}).`,
+          message: `Vous avez atteint la limite de votre plan (${quota.current}/${quota.limit} ${resourceType}).`,
           quotaInfo: {
             current: quota.current,
             limit: quota.limit,
@@ -70,11 +69,11 @@ export async function quotaCheckMiddleware(request: NextRequest) {
           },
           upgradeRequired: true,
         },
-        { 
+        {
           status: 402, // Payment Required
           headers: {
             'X-Quota-Exceeded': 'true',
-            'X-Quota-Type': QUOTA_ROUTES[resourceType],
+            'X-Quota-Type': resourceType,
             'X-Quota-Limit': quota.limit.toString(),
             'X-Quota-Current': quota.current.toString(),
           }

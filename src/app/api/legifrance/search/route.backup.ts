@@ -18,7 +18,7 @@ import { logger } from '@/lib/logger';
 export async function POST(req: NextRequest) {
   try {
     // Authentification
-    const session = await getServerSession(authOptions as any);
+    const session: any = await getServerSession(authOptions as any);
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Non authentifie' },
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
  */
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions as any);
+    const session: any = await getServerSession(authOptions as any);
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Non authentifie' },

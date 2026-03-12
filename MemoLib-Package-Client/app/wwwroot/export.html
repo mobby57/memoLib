@@ -29,19 +29,30 @@
         const API_URL = 'http://localhost:5078';
         let token = localStorage.getItem('memolib_token') || 'demo-token';
 
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return null;
+            }
+        }
+
         async function loadCases() {
             try {
                 const response = await fetch(`${API_URL}/api/cases`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (!response.ok) {
                     document.getElementById('caseList').innerHTML = '<p>Erreur de chargement</p>';
                     return;
                 }
-                
-                const cases = await response.json();
-                displayCases(cases);
+
+                const cases = await readResponseDataSafe(response);
+                displayCases(Array.isArray(cases) ? cases : []);
             } catch (error) {
                 document.getElementById('caseList').innerHTML = '<p>Erreur de connexion</p>';
             }
@@ -49,7 +60,7 @@
 
         function displayCases(cases) {
             const list = document.getElementById('caseList');
-            
+
             if (cases.length === 0) {
                 list.innerHTML = '<p>Aucun dossier trouvé</p>';
                 return;
@@ -71,14 +82,14 @@
                 const response = await fetch(`${API_URL}/api/cases/${caseId}/timeline`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (!response.ok) {
                     alert('Erreur lors de l\'export');
                     return;
                 }
-                
-                const timeline = await response.json();
-                generateHtmlExport(caseId, timeline);
+
+                const timeline = await readResponseDataSafe(response);
+                generateHtmlExport(caseId, Array.isArray(timeline) ? timeline : []);
             } catch (error) {
                 alert('Erreur lors de l\'export');
             }
@@ -103,7 +114,7 @@
         <div class="title">Dossier ${caseId}</div>
         <div>Exporté le: ${new Date().toLocaleDateString()}</div>
     </div>
-    
+
     <h3>Timeline (${timeline.length} événements)</h3>
     ${timeline.map(e => `
         <div class="event">
@@ -121,7 +132,7 @@
             a.download = `dossier-${caseId}.html`;
             a.click();
             window.URL.revokeObjectURL(url);
-            
+
             alert('Export réussi!');
         }
 

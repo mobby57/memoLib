@@ -1,37 +1,31 @@
-# 🚀 MemoLib - Quick Start
+﻿# DEMARRAGE RAPIDE MEMOLIB
 
-## Installation (3 commandes)
-
+## 1. Lancer l'API (30 secondes)
 ```powershell
-git clone https://github.com/VOTRE_USERNAME/MemoLib.git
-cd MemoLib/MemoLib.Api
-.\scripts\start-all.ps1
+.\START.bat
 ```
 
-## Accès Rapide
-
-- **Interface**: http://localhost:5078/demo.html
-- **API**: http://localhost:5078/api
-- **Health**: http://localhost:5078/health
-
-## Compte Demo
-
-- **Email**: sarraboudjellal57@gmail.com
-- **Password**: SecurePass123!
-
-## Tests
-
-```powershell
-# Demo complète (10 tests)
-.\scripts\demo-complete.ps1
-
-# Tests unitaires (12 tests)
-cd ..\MemoLib.Tests
-dotnet test
+## 2. Ouvrir l'interface
+```
+http://localhost:5078/demo.html
 ```
 
-## Status: ✅ 100% Validé
+## 3. Creer un compte
+Cliquez sur "S'inscrire" dans l'interface
 
-- 10/10 tests demo
-- 12/12 tests unitaires
-- Tous endpoints fonctionnels
+## 4. Configurer Gmail (optionnel)
+```powershell
+# 1. Creer mot de passe app: https://myaccount.google.com/apppasswords
+# 2. Configurer:
+dotnet user-secrets set "EmailMonitor:Password" "votre-mdp-app"
+# 3. Redemarrer
+.\START.bat
+```
+
+## 5. Deployer en cloud (optionnel)
+```powershell
+.\DEPLOY-FLY.ps1 -Init
+.\DEPLOY-FLY.ps1
+```
+
+C'est tout! Votre systeme est operationnel.

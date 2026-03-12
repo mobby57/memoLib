@@ -87,8 +87,17 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'id et userId requis' }, { status: 400 });
     }
 
-    await prisma.notification.deleteMany({
+    const existing = await prisma.notification.findFirst({
       where: { id: notificationId, userId },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Notification introuvable' }, { status: 404 });
+    }
+
+    await prisma.notification.delete({
+      where: { id: notificationId },
     });
 
     return NextResponse.json({ success: true });

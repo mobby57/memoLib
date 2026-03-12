@@ -11,7 +11,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ActorTypeEnum(str, Enum):
@@ -60,8 +60,7 @@ class InformationUnitSchema(BaseModel):
     source_metadata: Optional[Dict[str, Any]] = None
     linked_workspace_id: Optional[str] = None
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class RuleApplicationSchema(BaseModel):
@@ -75,8 +74,7 @@ class RuleApplicationSchema(BaseModel):
     legal_basis: Optional[str] = None
     confidence_score: float = 1.0  # 0.0 à 1.0
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ClassificationResultSchema(BaseModel):
@@ -94,8 +92,7 @@ class ClassificationResultSchema(BaseModel):
     classification_timestamp: datetime
     requires_human_validation: bool = False
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class DuplicateDetectionSchema(BaseModel):
@@ -137,8 +134,7 @@ class EventLogSchema(BaseModel):
     checksum: str  # SHA-256
     previous_event_id: Optional[str] = None
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class JustificationSchema(BaseModel):
@@ -189,5 +185,4 @@ class PipelineResultSchema(BaseModel):
     processing_time_seconds: float
     errors: List[Dict[str, str]] = []
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)

@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calcul du hash si fichier fourni
-    let fileHash = null;
+    let fileHash: string | null = null;
     if (fileBuffer) {
       fileHash = crypto
         .createHash('sha256')

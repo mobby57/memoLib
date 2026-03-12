@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Démo Professionnelle</title>
+    
+    <!-- CSS Moderne -->
+    <link rel="stylesheet" href="css/demo-modern.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Moderne -->
+        <div class="header">
+            <h1>🚀 MemoLib</h1>
+            <p>Système intelligent de gestion d'emails pour cabinets d'avocats</p>
+        </div>
+
+        <!-- Quickbar -->
+        <div class="quickbar">
+            <span class="status-dot ok"></span>
+            <strong>Connecté</strong>
+            <button class="btn" onclick="window.location.href='demo.html'">🔙 Interface Complète</button>
+            <button class="btn btn-success" onclick="testToast()">🧪 Test Notifications</button>
+            <button class="btn btn-warning" onclick="testLoading()">⏳ Test Loading</button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats">
+            <div class="stat-box">
+                <div class="number">127</div>
+                <div class="label">Emails Reçus</div>
+            </div>
+            <div class="stat-box" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <div class="number">45</div>
+                <div class="label">Dossiers Actifs</div>
+            </div>
+            <div class="stat-box" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <div class="number">8</div>
+                <div class="label">Anomalies</div>
+            </div>
+            <div class="stat-box" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                <div class="number">23</div>
+                <div class="label">Clients</div>
+            </div>
+        </div>
+
+        <!-- Guide Box -->
+        <div class="guide-box">
+            <strong>🎯 Interface Moderne Activée !</strong><br>
+            Cette page démontre les améliorations visuelles appliquées à MemoLib :
+            <ul style="margin:10px 0 0 20px;">
+                <li>Design moderne avec animations fluides</li>
+                <li>Notifications toast en temps réel</li>
+                <li>Compteurs animés</li>
+                <li>Loading overlay élégant</li>
+                <li>Cards avec effets hover</li>
+            </ul>
+        </div>
+
+        <!-- Card Exemple -->
+        <div class="card">
+            <h2>📧 Derniers Emails</h2>
+            <div class="event-list">
+                <div class="event-item">
+                    <div class="date">Il y a 5 minutes</div>
+                    <strong>Marie Dubois - Divorce urgent</strong>
+                    <div class="content">
+                        Demande de consultation pour divorce avec garde d'enfants.
+                        Situation urgente nécessitant une intervention rapide.
+                    </div>
+                    <button class="btn" style="margin-top:10px;">Voir le dossier</button>
+                </div>
+                
+                <div class="event-item">
+                    <div class="date">Il y a 2 heures</div>
+                    <strong>Jean Martin - Litige commercial</strong>
+                    <div class="content">
+                        Rupture de contrat avec fournisseur. Préjudice estimé à 150 000€.
+                    </div>
+                    <button class="btn" style="margin-top:10px;">Voir le dossier</button>
+                </div>
+                
+                <div class="event-item">
+                    <div class="date">Hier à 16:30</div>
+                    <strong>Sophie Bernard - Droit du travail</strong>
+                    <div class="content">
+                        Contestation de licenciement économique. Demande d'analyse du dossier.
+                    </div>
+                    <button class="btn" style="margin-top:10px;">Voir le dossier</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Actions -->
+        <div class="card">
+            <h2>🎨 Démonstration des Fonctionnalités</h2>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <button class="btn" onclick="testToast()">✅ Notification Succès</button>
+                <button class="btn btn-danger" onclick="window.toast.show('Erreur de connexion', 'error')">❌ Notification Erreur</button>
+                <button class="btn btn-warning" onclick="window.toast.show('Attention requise', 'warning')">⚠️ Notification Warning</button>
+                <button class="btn" style="background:#3b82f6;" onclick="window.toast.show('Information importante', 'info')">ℹ️ Notification Info</button>
+                <button class="btn btn-success" onclick="testLoading()">⏳ Test Loading</button>
+                <button class="btn" onclick="animateAllCounters()">🔢 Animer Compteurs</button>
+            </div>
+        </div>
+
+        <!-- Result Examples -->
+        <div class="card">
+            <h2>📊 Exemples de Messages</h2>
+            <div class="result success">
+                ✅ Email ingéré avec succès ! Dossier créé automatiquement.
+            </div>
+            <div class="result error">
+                ❌ Erreur de connexion IMAP. Vérifiez vos identifiants.
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/demo-enhancements.js"></script>
+    <script>
+        // Fonctions de test
+        function testToast() {
+            window.toast.show('Email reçu et traité automatiquement !', 'success');
+        }
+
+        function testLoading() {
+            window.loading.show('Scan des emails en cours...');
+            setTimeout(() => {
+                window.loading.hide();
+                window.toast.show('Scan terminé : 15 nouveaux emails', 'success');
+            }, 2000);
+        }
+
+        function animateAllCounters() {
+            document.querySelectorAll('.stat-box .number').forEach(el => {
+                const target = parseInt(el.getAttribute('data-target') || el.textContent);
+                el.setAttribute('data-target', target);
+                el.textContent = '0';
+                window.animateCounter(el, target);
+            });
+        }
+
+        // Message de bienvenue
+        setTimeout(() => {
+            window.toast.show('Interface moderne chargée avec succès !', 'success');
+        }, 500);
+    </script>
+</body>
+</html>

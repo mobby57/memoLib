@@ -7,11 +7,11 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import AdminNavigation from '@/components/AdminNavigation';
-import { 
-  Mail, 
-  AlertTriangle, 
-  Trash2, 
-  Filter, 
+import {
+  Mail,
+  AlertTriangle,
+  Trash2,
+  Filter,
   RefreshCw,
   TrendingUp,
   Users,
@@ -53,6 +53,7 @@ export default function EmailMonitoringPage() {
   const [filter, setFilter] = useState({ type: '', priority: '' });
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
   const [creatingDossier, setCreatingDossier] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -72,10 +73,10 @@ export default function EmailMonitoringPage() {
       const params = new URLSearchParams();
       if (filter.type) params.append('type', filter.type);
       if (filter.priority) params.append('priority', filter.priority);
-      
+
       const response = await fetch(`/api/admin/email-monitor?${params}`);
       const data = await response.json();
-      
+
       setEmails(data.emails || []);
       setStats(data.stats || null);
     } catch (error) {
@@ -101,6 +102,7 @@ export default function EmailMonitoringPage() {
   const createDossier = async (emailId: string) => {
     try {
       setCreatingDossier(emailId);
+      setFeedback(null);
       const response = await fetch('/api/admin/create-dossier-from-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -108,16 +110,19 @@ export default function EmailMonitoringPage() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
-        alert(`[OK] Dossier cree avec succes!\n\nClient: ${data.client.nom} ${data.client.prenom}\nType: ${data.clientInfo.typeDemande}\nDossier ID: ${data.dossier.id}`);
+        setFeedback({
+          type: 'success',
+          message: `Dossier créé avec succès — Client: ${data.client.nom} ${data.client.prenom}, Type: ${data.clientInfo.typeDemande}, Dossier ID: ${data.dossier.id}`,
+        });
         fetchEmails();
       } else {
-        alert('[ERROR] Erreur lors de la creation du dossier');
+        setFeedback({ type: 'error', message: 'Erreur lors de la création du dossier' });
       }
     } catch (error) {
       console.error('Erreur:', error);
-      alert('[ERROR] Erreur serveur');
+      setFeedback({ type: 'error', message: 'Erreur serveur' });
     } finally {
       setCreatingDossier(null);
     }
@@ -158,7 +163,7 @@ export default function EmailMonitoringPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <AdminNavigation />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -170,6 +175,18 @@ export default function EmailMonitoringPage() {
             Surveillance en temps reel de votre boite mail professionnelle
           </p>
         </div>
+
+        {feedback && (
+          <div
+            className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
 
         {/* Stats Cards */}
         {stats && (
@@ -228,7 +245,7 @@ export default function EmailMonitoringPage() {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
           <div className="flex items-center gap-4 flex-wrap">
             <Filter className="h-5 w-5 text-gray-400" />
-            
+
             <select
               value={filter.type}
               onChange={(e) => setFilter({ ...filter, type: e.target.value })}
@@ -295,11 +312,11 @@ export default function EmailMonitoringPage() {
                           {email.priority}
                         </span>
                       </div>
-                      
+
                       <p className="text-gray-900 dark:text-white font-medium mb-1">
                         {email.subject}
                       </p>
-                      
+
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                         {email.snippet}
                       </p>

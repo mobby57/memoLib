@@ -171,7 +171,7 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
       {} as Record<string, number>
     );
 
-    const frequentActions = Object.entries(actionsByType)
+    const frequentActions = (Object.entries(actionsByType) as Array<[string, number]>)
       .filter(([_, count]) => count >= 20)
       .sort(([_, a], [__, b]) => b - a);
 
@@ -194,7 +194,7 @@ export async function GET(request: NextRequest, { params }: SuggestionsParams) {
     }
 
     // 5. Anomalies détectées
-    const anomalies = [];
+    const anomalies: string[] = [];
 
     // Dossiers très anciens (> 90 jours)
     const anciensDossiers = await prisma.dossier.count({

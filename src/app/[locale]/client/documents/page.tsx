@@ -31,6 +31,7 @@ export default function DocumentsClient() {
   const [uploading, setUploading] = useState(false);
   const [filter, setFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -73,12 +74,12 @@ export default function DocumentsClient() {
 
       if (res.ok) {
         await fetchDocuments();
-        alert('Document televerse avec succes !');
+        setFeedback({ type: 'success', message: 'Document téléversé avec succès' });
       } else {
-        alert('Erreur lors du televersement');
+        setFeedback({ type: 'error', message: 'Erreur lors du téléversement' });
       }
     } catch (err) {
-      alert('Erreur de connexion');
+      setFeedback({ type: 'error', message: 'Erreur de connexion' });
     } finally {
       setUploading(false);
     }
@@ -101,9 +102,9 @@ export default function DocumentsClient() {
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.originalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           doc.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     if (filter === 'all') return matchesSearch;
-    
+
     return matchesSearch && doc.mimeType.includes(filter);
   });
 
@@ -147,6 +148,18 @@ export default function DocumentsClient() {
       </header>
 
       <main className="max-w-7xl mx-auto px-8 py-8">
+        {feedback && (
+          <div
+            className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
         {/* Upload Zone */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Ajouter un document</h2>
@@ -264,17 +277,17 @@ export default function DocumentsClient() {
                       ?
                     </a>
                   </div>
-                  
+
                   <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
                     {doc.originalName}
                   </h3>
-                  
+
                   {doc.description && (
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                       {doc.description}
                     </p>
                   )}
-                  
+
                   {doc.dossier && (
                     <div className="mb-3 pb-3 border-b border-gray-200">
                       <Link
@@ -285,7 +298,7 @@ export default function DocumentsClient() {
                       </Link>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span>{formatBytes(doc.sizeBytes)}</span>
                     <span>{new Date(doc.uploadedAt).toLocaleDateString('fr-FR')}</span>

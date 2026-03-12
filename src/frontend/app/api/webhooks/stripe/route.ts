@@ -1,12 +1,11 @@
-import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { prisma } from '@/lib/prisma';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia",
+  apiVersion: "2026-01-28.clover",
 });
 
-const prisma = new PrismaClient();
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: NextRequest) {
@@ -75,7 +74,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   if (!userId) return;
 
   // Get subscription details from Stripe
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = (await stripe.subscriptions.retrieve(subscriptionId)) as any;
 
   // Determine plan based on price
   const priceId = subscription.items.data[0].price.id;
@@ -162,6 +161,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
+  const sub = subscription as any;
   const userId = subscription.metadata?.userId;
   if (!userId) return;
 
@@ -179,8 +179,8 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     where: { userId },
     data: {
       status: statusMap[subscription.status] || "ACTIVE",
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date(sub.current_period_start * 1000),
+      currentPeriodEnd: new Date(sub.current_period_end * 1000),
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
     },
   });
@@ -200,7 +200,8 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
 }
 
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
+  const inv = invoice as any;
+  const subscriptionId = inv.subscription as string;
   if (!subscriptionId) return;
 
   // Find subscription by Stripe subscription ID
@@ -214,7 +215,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
   await prisma.billingPayment.create({
     data: {
       subscriptionId: billingSubscription.id,
-      stripePaymentIntentId: invoice.payment_intent as string,
+      stripePaymentIntentId: inv.payment_intent as string,
       stripeInvoiceId: invoice.id,
       amount: invoice.amount_paid,
       currency: invoice.currency,
@@ -230,7 +231,8 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
 }
 
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
+  const inv = invoice as any;
+  const subscriptionId = inv.subscription as string;
   if (!subscriptionId) return;
 
   const billingSubscription = await prisma.billingSubscription.findFirst({
@@ -243,7 +245,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   await prisma.billingPayment.create({
     data: {
       subscriptionId: billingSubscription.id,
-      stripePaymentIntentId: invoice.payment_intent as string,
+      stripePaymentIntentId: inv.payment_intent as string,
       stripeInvoiceId: invoice.id,
       amount: invoice.amount_due,
       currency: invoice.currency,

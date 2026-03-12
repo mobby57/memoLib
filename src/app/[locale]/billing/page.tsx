@@ -49,6 +49,7 @@ export default function BillingPage() {
     const [showUpgrade, setShowUpgrade] = useState(false);
     const [selectedTier, setSelectedTier] = useState<ProductTier | null>(null);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+    const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -107,14 +108,14 @@ export default function BillingPage() {
 
             if (res.ok) {
                 await fetchBillingData();
-                alert('Subscription cancelled successfully');
+                setFeedback({ type: 'success', message: 'Abonnement annulé avec succès' });
             } else {
                 const error = await res.json();
-                alert(`Error: ${error.message}`);
+                setFeedback({ type: 'error', message: error.message || 'Erreur lors de l\'annulation' });
             }
         } catch (error) {
             console.error('Error cancelling subscription:', error);
-            alert('Failed to cancel subscription');
+            setFeedback({ type: 'error', message: 'Échec de l\'annulation de l\'abonnement' });
         }
     };
 
@@ -136,6 +137,18 @@ export default function BillingPage() {
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">Billing & Subscription</h1>
                     <p className="text-lg text-gray-600">Manage your subscription and payment methods</p>
                 </div>
+
+                {feedback && (
+                    <div
+                        className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+                            feedback.type === 'success'
+                                ? 'border-green-200 bg-green-50 text-green-700'
+                                : 'border-red-200 bg-red-50 text-red-700'
+                        }`}
+                    >
+                        {feedback.message}
+                    </div>
+                )}
 
                 {/* Current Subscription */}
                 <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -309,10 +322,11 @@ export default function BillingPage() {
                                     onSuccess={() => {
                                         setShowUpgrade(false);
                                         fetchBillingData();
+                                        setFeedback({ type: 'success', message: 'Paiement confirmé' });
                                     }}
                                     onError={(error) => {
                                         console.error('Payment error:', error);
-                                        alert('Payment failed. Please try again.');
+                                        setFeedback({ type: 'error', message: 'Échec du paiement, veuillez réessayer.' });
                                     }}
                                 />
                             </Elements>

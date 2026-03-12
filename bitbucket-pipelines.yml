@@ -1,0 +1,88 @@
+image: atlassian/default-image:4
+
+options:
+  max-time: 20
+
+definitions:
+  caches:
+    pip: ~/.cache/pip
+    npm: ~/.npm
+
+  steps:
+    - step: &python_checks
+        name: Backend Python checks
+        caches:
+          - pip
+        script:
+          - python --version
+          - |
+            if [ -f requirements-python.txt ]; then
+              python -m pip install --upgrade pip
+              python -m pip install -r requirements-python.txt
+            elif [ -f requirements.txt ]; then
+              python -m pip install --upgrade pip
+              python -m pip install -r requirements.txt
+            elif [ -f backend-python/requirements.txt ]; then
+              python -m pip install --upgrade pip
+              python -m pip install -r backend-python/requirements.txt
+            else
+              echo "Aucun fichier requirements détecté - étape backend ignorée."
+            fi
+          - |
+            if [ -d tests ] || [ -d backend-python/tests ] || [ -d __tests__ ]; then
+              python -m pytest -v --tb=short || true
+            else
+              echo "Aucun dossier de tests Python détecté - pytest ignoré."
+            fi
+
+    - step: &node_checks
+        name: Frontend/Node checks
+        caches:
+          - npm
+        script:
+          - node --version
+          - npm --version
+          - |
+            if [ -f package.json ]; then
+              npm ci || npm install
+              npm run lint --if-present
+              npm run type-check --if-present
+              npm run build --if-present
+            elif [ -f src/frontend/package.json ]; then
+              cd src/frontend
+              npm ci || npm install
+              npm run lint --if-present
+              npm run type-check --if-present
+              npm run build --if-present
+            elif [ -f frontend-node/package.json ]; then
+              cd frontend-node
+              npm ci || npm install
+              npm run lint --if-present
+              npm run test --if-present
+              npm run build --if-present
+            else
+              echo "Aucun package.json détecté pour l'app principale - étape Node ignorée."
+            fi
+
+    - step: &audit_score_gate
+        name: Audit CI score gate
+        script:
+          - chmod +x scripts/ci/audit-score.sh
+          - ./scripts/ci/audit-score.sh
+        artifacts:
+          - audit-ci-report.md
+
+pipelines:
+  pull-requests:
+    '**':
+      - parallel:
+          - step: *python_checks
+          - step: *node_checks
+      - step: *audit_score_gate
+
+  branches:
+    main:
+      - parallel:
+          - step: *python_checks
+          - step: *node_checks
+      - step: *audit_score_gate

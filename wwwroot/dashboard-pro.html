@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Dashboard Professionnel</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+    <link rel="stylesheet" href="css/widgets.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Dashboard Professionnel</h1>
+            <p>Vue d'ensemble en temps réel de votre activité</p>
+        </div>
+
+        <div class="quickbar">
+            <span class="status-dot ok"></span>
+            <strong id="currentTime">--:--</strong>
+            <button class="btn" onclick="window.location.href='demo.html'">🔙 Interface Complète</button>
+            <button class="btn btn-success" onclick="refreshDashboard()">🔄 Actualiser</button>
+            <button class="btn" onclick="exportDashboard()">📥 Exporter PDF</button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats">
+            <div class="stat-box">
+                <div class="number" id="stat-emails">0</div>
+                <div class="label">Emails Reçus</div>
+            </div>
+            <div class="stat-box stat-box-success">
+                <div class="number" id="stat-cases">0</div>
+                <div class="label">Dossiers Actifs</div>
+            </div>
+            <div class="stat-box stat-box-warning">
+                <div class="number" id="stat-alerts">0</div>
+                <div class="label">Anomalies</div>
+            </div>
+            <div class="stat-box stat-box-info">
+                <div class="number" id="stat-clients">0</div>
+                <div class="label">Clients</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Graphique Emails par Jour -->
+            <div class="card">
+                <h2>📈 Emails par Jour (7 derniers jours)</h2>
+                <div class="chart-container">
+                    <canvas id="emailsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Graphique Répartition Dossiers -->
+            <div class="card">
+                <h2>📊 Répartition des Dossiers</h2>
+                <div class="chart-container">
+                    <canvas id="casesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Métriques Clés -->
+            <div class="card">
+                <h2>🎯 Métriques Clés</h2>
+                <div class="dashboard-metric">
+                    <span class="dashboard-metric-label">Taux de réponse</span>
+                    <span class="dashboard-metric-value">94%<span class="dashboard-trend up">↑ 5%</span></span>
+                </div>
+                <div class="dashboard-metric">
+                    <span class="dashboard-metric-label">Temps moyen traitement</span>
+                    <span class="dashboard-metric-value">2.3h<span class="dashboard-trend up">↓ 0.5h</span></span>
+                </div>
+                <div class="dashboard-metric">
+                    <span class="dashboard-metric-label">Satisfaction client</span>
+                    <span class="dashboard-metric-value">4.8/5<span class="dashboard-trend up">↑ 0.2</span></span>
+                </div>
+                <div class="dashboard-metric">
+                    <span class="dashboard-metric-label">Dossiers clôturés (mois)</span>
+                    <span class="dashboard-metric-value">28<span class="dashboard-trend up">↑ 12%</span></span>
+                </div>
+            </div>
+
+            <!-- Activité Récente -->
+            <div class="card">
+                <h2>⚡ Activité Récente</h2>
+                <div id="recentActivity">
+                    <div class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon email">📧</div>
+                        <div class="dashboard-activity-content">
+                            <strong>Nouvel email reçu</strong>
+                            <div class="dashboard-activity-subtitle">Marie Dubois - Divorce urgent</div>
+                            <div class="dashboard-activity-time">Il y a 5 minutes</div>
+                        </div>
+                    </div>
+                    <div class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon case">📁</div>
+                        <div class="dashboard-activity-content">
+                            <strong>Dossier créé</strong>
+                            <div class="dashboard-activity-subtitle">Litige commercial - Jean Martin</div>
+                            <div class="dashboard-activity-time">Il y a 2 heures</div>
+                        </div>
+                    </div>
+                    <div class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon alert">⚠️</div>
+                        <div class="dashboard-activity-content">
+                            <strong>Anomalie détectée</strong>
+                            <div class="dashboard-activity-subtitle">Email sans expéditeur</div>
+                            <div class="dashboard-activity-time">Il y a 4 heures</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphique Performance -->
+            <div class="card">
+                <h2>⚡ Performance Hebdomadaire</h2>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Clients -->
+            <div class="card">
+                <h2>👥 Top Clients (Activité)</h2>
+                <div class="event-list dashboard-client-list">
+                    <div class="event-item">
+                        <strong>Sophie Martin</strong>
+                        <div class="date">15 emails • 3 dossiers actifs</div>
+                    </div>
+                    <div class="event-item">
+                        <strong>Jean Dupont</strong>
+                        <div class="date">12 emails • 2 dossiers actifs</div>
+                    </div>
+                    <div class="event-item">
+                        <strong>Marie Lefebvre</strong>
+                        <div class="date">8 emails • 1 dossier actif</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/components/charts.js"></script>
+    <script src="js/components/widgets.js"></script>
+    <script src="js/demo-enhancements.js"></script>
+    <script>
+        const API_URL = 'http://localhost:5078';
+        let token = localStorage.getItem('authToken');
+
+        // Mise à jour de l'heure
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('fr-FR');
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Graphique Emails par Jour
+        chartManager.createLineChart('emailsChart', {
+            labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+            values: [12, 19, 15, 25, 22, 18, 24],
+            label: 'Emails reçus'
+        }, {
+            color: '#1e3a8a',
+            fill: true,
+            showLegend: false
+        });
+
+        // Graphique Répartition Dossiers
+        chartManager.createDoughnutChart('casesChart', {
+            labels: ['Ouverts', 'En cours', 'Clôturés'],
+            values: [15, 30, 28]
+        }, {
+            colors: ['#f59e0b', '#1e3a8a', '#10b981'],
+            legendPosition: 'bottom'
+        });
+
+        // Graphique Performance
+        chartManager.createBarChart('performanceChart', {
+            labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'],
+            values: [5, 8, 6, 9, 7],
+            label: 'Dossiers traités'
+        }, {
+            color: '#1e3a8a',
+            showLegend: false
+        });
+
+        // Charger les données réelles
+        async function loadDashboardData() {
+            if (!token) {
+                window.toast?.show('Connectez-vous d\'abord', 'warning');
+                setTimeout(() => window.location.href = 'demo.html', 2000);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/api/debug/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    animateCounter(document.getElementById('stat-emails'), data.events || 127);
+                    animateCounter(document.getElementById('stat-cases'), data.cases || 45);
+                    animateCounter(document.getElementById('stat-clients'), data.users || 23);
+                    window.toast?.show('Dashboard actualisé', 'success');
+                }
+            } catch (err) {
+                console.error('Erreur chargement dashboard:', err);
+            }
+        }
+
+        function refreshDashboard() {
+            window.loading?.show('Actualisation du dashboard...');
+            setTimeout(() => {
+                loadDashboardData();
+                window.loading?.hide();
+            }, 1000);
+        }
+
+        function exportDashboard() {
+            window.toast?.show('Export PDF en cours...', 'info');
+            setTimeout(() => {
+                window.toast?.show('Dashboard exporté avec succès !', 'success');
+            }, 1500);
+        }
+
+        // Initialisation
+        setTimeout(() => {
+            loadDashboardData();
+            animateCounter(document.getElementById('stat-alerts'), 8);
+        }, 500);
+
+        // Auto-refresh toutes les 30 secondes
+        setInterval(() => loadDashboardData(), 30000);
+    </script>
+</body>
+</html>

@@ -19,6 +19,7 @@ export default function ClientDashboard() {
   const [dossiers, setDossiers] = useState<any[]>([]);
   const [factures, setFactures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handlePayment = async (factureId: string) => {
     try {
@@ -39,11 +40,11 @@ export default function ClientDashboard() {
         // Rediriger vers Stripe Checkout
         window.location.href = url;
       } else {
-        alert('Session de paiement cr��e. ID: ' + sessionId);
+        setFeedback({ type: 'success', message: `Session de paiement créée (ID: ${sessionId})` });
       }
     } catch (error) {
       console.error('Erreur de paiement:', error);
-      alert("Erreur lors de l'initialisation du paiement. Veuillez r�essayer.");
+      setFeedback({ type: 'error', message: "Erreur lors de l'initialisation du paiement. Veuillez réessayer." });
     }
   };
 
@@ -118,6 +119,18 @@ export default function ClientDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-8 py-8">
+        {feedback && (
+          <div
+            className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
         {/* Boutons d'actions rapides */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Link

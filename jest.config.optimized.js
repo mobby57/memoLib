@@ -1,14 +1,19 @@
 // Jest configuration optimisée pour 80% coverage
-module.exports = {
-  preset: 'next/jest',
+const nextJest = require('next/jest');
+
+const createJestConfig = nextJest({
+  dir: './',
+});
+
+const customJestConfig = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  
+
   // Coverage configuration
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
-  
+
   // Coverage thresholds (80% target)
   coverageThreshold: {
     global: {
@@ -31,31 +36,31 @@ module.exports = {
       statements: 95
     }
   },
-  
+
   // Test patterns
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',
     '<rootDir>/__tests__/**/*.{js,jsx,ts,tsx}'
   ],
-  
+
   // Module name mapping
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/components/(.*)$': '<rootDir>/src/components/$1',
     '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
     '^@/hooks/(.*)$': '<rootDir>/src/hooks/$1',
     '^@/types/(.*)$': '<rootDir>/src/types/$1'
   },
-  
+
   // Transform configuration
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }]
   },
-  
+
   // Mock configuration
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  
+
   // Ignore patterns
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
@@ -63,7 +68,7 @@ module.exports = {
     '<rootDir>/out/',
     '<rootDir>/build/'
   ],
-  
+
   // Coverage ignore patterns
   coveragePathIgnorePatterns: [
     '/node_modules/',
@@ -76,18 +81,18 @@ module.exports = {
     '/test-results/',
     '.d.ts$'
   ],
-  
+
   // Performance optimization
   maxWorkers: '50%',
   cache: true,
   cacheDirectory: '<rootDir>/.jest-cache',
-  
+
   // Test timeout
   testTimeout: 10000,
-  
+
   // Verbose output for debugging
   verbose: false,
-  
+
   // Collect coverage from these files
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
@@ -98,3 +103,5 @@ module.exports = {
     '!src/**/*.spec.{js,jsx,ts,tsx}'
   ]
 };
+
+module.exports = createJestConfig(customJestConfig);

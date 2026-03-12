@@ -763,4 +763,6 @@ if __name__ == "__main__":
     print("  - POST /api/legal/conformite/dossier")
     print("  - POST /api/legal/templates/generate")
 
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    # Mode production: debug=False, use_reloader=False
+    # Pour développement avec auto-reload: debug=True, use_reloader=True
+    app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False)

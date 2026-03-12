@@ -9,6 +9,7 @@ import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 import { 
   getCostDashboard, 
   checkTenantProfitability,
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
     const dashboard = await getCostDashboard(tenantId);
     
     // Vérifier la rentabilité (admin seulement)
-    let profitability = null;
+    let profitability: Awaited<ReturnType<typeof checkTenantProfitability>> | null = null;
     const userRole = (session.user as { role?: string }).role;
     if (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') {
       profitability = await checkTenantProfitability(tenantId);

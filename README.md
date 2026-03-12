@@ -5,7 +5,85 @@
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen)]()
 [![Tests](https://img.shields.io/badge/tests-100%25%20passing-success)](VALIDATION-100-PERCENT.md)
 
-Système intelligent de gestion des communications par email avec détection automatique de clients, création de dossiers, workflow complet et fonctionnalités avancées.
+## 🎯 Qu'est-ce que MemoLib ?
+
+**MemoLib** est un système intelligent de gestion des communications par email spécialement conçu pour les **cabinets d'avocats** et professionnels du droit.
+
+### 💡 Le Problème
+
+Les cabinets d'avocats reçoivent des dizaines d'emails clients par jour. Gérer manuellement ces communications est:
+- ⏰ **Chronophage** - Tri, classement, extraction d'infos
+- 🔍 **Risqué** - Emails perdus, oubliés ou mal classés
+- 📊 **Inefficace** - Pas de vue d'ensemble, pas de statistiques
+- 👥 **Isolé** - Difficile de collaborer en équipe
+
+### ✨ La Solution MemoLib
+
+MemoLib automatise **tout le workflow** de gestion des emails clients:
+
+1. **📧 Réception Automatique**
+   - Connecté à votre Gmail via IMAP
+   - Scan automatique toutes les 60 secondes
+   - Détection des nouveaux emails clients
+
+2. **🤖 Extraction Intelligente**
+   - Détecte automatiquement le nom du client
+   - Extrait téléphone, adresse, email
+   - Identifie les doublons
+
+3. **📁 Création de Dossiers**
+   - Créez un dossier en 1 clic depuis l'email
+   - Infos client pré-remplies automatiquement
+   - Historique complet des échanges
+
+4. **⚙️ Workflow Complet**
+   - Statuts: OUVERT → EN COURS → FERMÉ
+   - Tags personnalisables (urgent, famille, divorce...)
+   - Priorités et échéances
+   - Attribution à des avocats
+
+5. **🔔 Notifications Automatiques**
+   - Nouvel email reçu
+   - Changement de statut
+   - Échéance approchant
+   - Commentaires d'équipe
+
+6. **📊 Analytics & Reporting**
+   - Dashboard avec statistiques
+   - Emails par jour/semaine/mois
+   - Temps de réponse moyen
+   - Dossiers par statut
+
+### 🎯 Pour Qui ?
+
+- ⚖️ **Cabinets d'avocats** (1-50 avocats)
+- 📜 **Notaires**
+- 🏛️ **Huissiers de justice**
+- 💼 **Experts juridiques**
+- 🏢 **PME juridiques**
+
+### 💰 Coût
+
+- **Gratuit** en local (0€/mois)
+- **~50-100€/mois** sur Azure (optionnel, pour multi-sites)
+
+### 🚀 Démarrage Rapide
+
+```powershell
+# 1. Cloner
+git clone https://github.com/VOTRE_USERNAME/MemoLib.git
+cd MemoLib/MemoLib.Api
+
+# 2. Restaurer
+.\restore-project.ps1
+
+# 3. Lancer
+dotnet run
+```
+
+**Accès:** http://localhost:5078/demo.html
+
+---
 
 ## ✨ Fonctionnalités Principales
 
@@ -144,12 +222,28 @@ dotnet user-secrets set "EmailMonitor:Password" "votre-mot-de-passe-application"
 
 ## 📚 Documentation
 
+### 🏗️ Architecture & Standards
+- **[ARCHITECTURE_HARMONISEE.md](ARCHITECTURE_HARMONISEE.md)** - Architecture complète harmonisée
+- **[QUICK_START.md](QUICK_START.md)** - Guide rapide de démarrage
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Guide de contribution
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guide de déploiement
+- **[CHANGELOG.md](CHANGELOG.md)** - Historique des versions
+
+### 📊 Diagrammes Architecture ⭐
+- **[DIAGRAMMES_ARCHITECTURE.md](DIAGRAMMES_ARCHITECTURE.md)** - 10 diagrammes techniques complets
+- **[DIAGRAMMES_VISUELS.md](DIAGRAMMES_VISUELS.md)** - 12 diagrammes métier avec emojis
+- **[MAPPING_DIAGRAMMES_CODE.md](MAPPING_DIAGRAMMES_CODE.md)** - Mapping diagrammes → code source
+- **[GUIDE_DIAGRAMMES.md](GUIDE_DIAGRAMMES.md)** - Guide d'utilisation des diagrammes
+- **[wwwroot/diagrammes.html](http://localhost:5078/diagrammes.html)** - Visualisation interactive
+
+### 📋 Fonctionnalités
+- **[FORMULAIRES_INTELLIGENTS.md](FORMULAIRES_INTELLIGENTS.md)** - Formulaires d'inscription & espaces partagés
 - **[FEATURES_COMPLETE.md](FEATURES_COMPLETE.md)** - Documentation complète des fonctionnalités
 - **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Résumé de l'implémentation
-- **[SCENARIOS_TOUTES_FONCTIONS.md](SCENARIOS_TOUTES_FONCTIONS.md)** - Scénarios détaillés des 12 fonctionnalités
+
+### 🧪 Tests & Scénarios
+- **[SCENARIOS_TOUTES_FONCTIONS.md](SCENARIOS_TOUTES_FONCTIONS.md)** - Scénarios détaillés
 - **[SCENARIOS_DEMO_COMPLETS.md](SCENARIOS_DEMO_COMPLETS.md)** - Scénarios de démo live
-- **[FLUX_COMPLETS_TOUTES_FONCTIONS.md](FLUX_COMPLETS_TOUTES_FONCTIONS.md)** - Tous les flux possibles
-- **[GUIDE_SCENARIOS.md](GUIDE_SCENARIOS.md)** - Guide rapide d'exécution
 - **[test-all-features.http](test-all-features.http)** - Tests API
 
 ## 🧪 Test E2E Onboarding
@@ -401,7 +495,7 @@ Pour toute question, consultez la documentation ou ouvrez une issue sur GitHub.
 
 ## 📈 Roadmap
 
-### Version 1.0 (Actuelle) ✅
+### Version 2.0 (Actuelle) ✅
 - [x] Monitoring automatique Gmail
 - [x] Gestion complète dossiers
 - [x] Workflow statut/tags/priorités
@@ -419,20 +513,23 @@ Pour toute question, consultez la documentation ou ouvrez une issue sur GitHub.
 - [x] Webhooks sortants
 - [x] Templates avancés
 - [x] Signatures électroniques
-- [x] Formulaires dynamiques
+- [x] **Formulaires d'inscription intelligents**
+- [x] **Espaces partagés multi-participants**
+- [x] **Design System unifié**
+- [x] **CI/CD Pipeline (GitHub Actions)**
 
-### Version 1.1 (Prochaine) 🚧
+### Version 2.1 (Prochaine) 🚧
 - [ ] Export PDF/Excel avancé
 - [ ] Rapports personnalisés
 - [ ] IA classification emails
-- [ ] Templates IA intelligents
+- [ ] Tests E2E automatisés
 
-### Version 2.0 (Future) 💡
+### Version 3.0 (Future) 💡
 - [ ] Application mobile (iOS/Android)
-- [ ] Facturation automatique
-- [ ] Intégration tribunaux
-- [ ] IA classification emails
-- [ ] Reconnaissance vocale
+- [ ] Architecture microservices
+- [ ] Kubernetes orchestration
+- [ ] Redis cache distribué
+- [ ] Elasticsearch recherche avancée
 
 ## 🤝 Contribution
 

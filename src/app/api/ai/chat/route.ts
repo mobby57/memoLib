@@ -10,10 +10,10 @@ export async function POST(request: NextRequest) {
     
     // Vérifier la limite de coûts IA
     if (tenantId) {
-      const costCheck = await checkAICostLimit(tenantId, 'gpt-4-turbo');
+      const costCheck = await checkAICostLimit(tenantId);
       if (!costCheck.allowed) {
         return NextResponse.json(
-          { success: false, error: 'AI budget limit reached', budgetRemaining: costCheck.budgetRemaining },
+          { success: false, error: 'AI budget limit reached', currentCost: costCheck.currentCost, limit: costCheck.limit },
           { status: 429 }
         );
       }
@@ -27,7 +27,14 @@ export async function POST(request: NextRequest) {
     
     // Enregistrer l'utilisation (coût approximatif)
     if (tenantId) {
-      await recordAIUsage(tenantId, 'local-llm', message.length, response.content.length);
+      await recordAIUsage({
+        tenantId,
+        provider: 'ollama',
+        tokensUsed: (message?.length || 0) + (response.content?.length || 0),
+        costEur: 0,
+        operation: 'chat',
+        timestamp: new Date(),
+      });
     }
     
     // Collecter la métrique de performance

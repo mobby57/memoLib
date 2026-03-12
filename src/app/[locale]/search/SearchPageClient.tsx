@@ -15,7 +15,7 @@ interface AdvancedFilters {
 
 export default function SearchPageClient() {
   const searchParams = useSearchParams();
-  const currentQuery = searchParams.get('q') ?? '';
+  const currentQuery = searchParams?.get('q') ?? '';
 
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [filters, setFilters] = useState<AdvancedFilters>({});

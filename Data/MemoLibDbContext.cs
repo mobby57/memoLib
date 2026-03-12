@@ -63,6 +63,12 @@ public class MemoLibDbContext : DbContext
     public DbSet<DocumentSignature> DocumentSignatures => Set<DocumentSignature>();
     public DbSet<SignatureRequest> SignatureRequests => Set<SignatureRequest>();
     public DbSet<DynamicForm> DynamicForms => Set<DynamicForm>();
+    public DbSet<ClientIntakeForm> ClientIntakeForms => Set<ClientIntakeForm>();
+    public DbSet<ClientIntakeSubmission> ClientIntakeSubmissions => Set<ClientIntakeSubmission>();
+    public DbSet<SharedWorkspace> SharedWorkspaces => Set<SharedWorkspace>();
+    public DbSet<WorkspaceDocument> WorkspaceDocuments => Set<WorkspaceDocument>();
+    public DbSet<WorkspaceActivity> WorkspaceActivities => Set<WorkspaceActivity>();
+    public DbSet<SecretVault> SecretVaults => Set<SecretVault>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -267,6 +273,53 @@ public class MemoLibDbContext : DbContext
             .HasConversion(
                 v => JsonSerializer.Serialize(v, jsonSerializerOptions),
                 v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<ClientIntakeForm>()
+            .HasIndex(f => new { f.UserId, f.IsActive });
+        modelBuilder.Entity<ClientIntakeForm>()
+            .Property(f => f.Fields)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<IntakeFormField>>(v, jsonSerializerOptions) ?? new());
+        modelBuilder.Entity<ClientIntakeForm>()
+            .Property(f => f.RequiredDocuments)
+            .HasConversion(stringListConverter)
+            .Metadata.SetValueComparer(stringListComparer);
+
+        modelBuilder.Entity<ClientIntakeSubmission>()
+            .HasIndex(s => new { s.FormId, s.Status, s.SubmittedAt });
+        modelBuilder.Entity<ClientIntakeSubmission>()
+            .Property(s => s.FormData)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, jsonSerializerOptions) ?? new());
+        modelBuilder.Entity<ClientIntakeSubmission>()
+            .Property(s => s.UploadedDocumentIds)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<Guid>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<SharedWorkspace>()
+            .HasIndex(w => new { w.CaseId, w.IsActive });
+        modelBuilder.Entity<SharedWorkspace>()
+            .Property(w => w.Participants)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<WorkspaceParticipant>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<WorkspaceDocument>()
+            .HasIndex(d => new { d.WorkspaceId, d.UploadedAt });
+        modelBuilder.Entity<WorkspaceDocument>()
+            .Property(d => d.VisibleToRoles)
+            .HasConversion(stringListConverter)
+            .Metadata.SetValueComparer(stringListComparer);
+
+        modelBuilder.Entity<WorkspaceActivity>()
+            .HasIndex(a => new { a.WorkspaceId, a.OccurredAt });
+
+        modelBuilder.Entity<SecretVault>()
+            .HasIndex(s => new { s.UserId, s.Key })
+            .IsUnique();
 
         base.OnModelCreating(modelBuilder);
     }

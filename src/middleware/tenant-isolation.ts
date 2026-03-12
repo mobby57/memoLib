@@ -1,12 +1,12 @@
 ﻿/**
  * Tenant Isolation Middleware
- * 
+ *
  * Enforces multi-tenant data isolation at the middleware level.
  * CRITICAL: Every API request must be scoped to the authenticated user's tenant.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getAuthToken } from '@/lib/auth/nextauth-token';
 import { logger } from '@/lib/logger';
 
 interface TenantContext {
@@ -20,10 +20,7 @@ interface TenantContext {
  */
 export async function getTenantContext(req: NextRequest): Promise<TenantContext | null> {
   try {
-    const token = await getToken({ 
-      req, 
-      secret: process.env.NEXTAUTH_SECRET 
-    });
+    const token = await getAuthToken(req);
 
     if (!token) {
       return null;
@@ -82,7 +79,7 @@ export function withTenantIsolation(
       logger.warn('Unauthenticated request blocked', {
         path: req.nextUrl.pathname,
       });
-      
+
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -93,14 +90,14 @@ export function withTenantIsolation(
     if (context.role === 'CLIENT') {
       const pathParts = req.nextUrl.pathname.split('/');
       const clientIdInPath = pathParts.find(part => part.match(/^[0-9a-f-]{36}$/i));
-      
+
       // For client routes, validate they're accessing their own data
       if (clientIdInPath && clientIdInPath !== (context as any).clientId) {
         logger.warn('Client attempted cross-client access', {
           userId: context.userId,
           attemptedClientId: clientIdInPath,
         });
-        
+
         return NextResponse.json(
           { error: 'Access denied' },
           { status: 403 }

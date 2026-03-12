@@ -10,10 +10,6 @@ Sentry.init({
   // Performance & Tracing
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 
-  // Session & Release Health tracking
-  autoSessionTracking: true,
-  sessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-
   // Session Replay
   replaysOnErrorSampleRate: 1.0,
   replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.05 : 0.1,
@@ -27,7 +23,7 @@ Sentry.init({
     Sentry.replayIntegration({
       maskAllText: true,
       blockAllMedia: true,
-    }),
+    }) as any,
   ],
 
   beforeSend(event, hint) {

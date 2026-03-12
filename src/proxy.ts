@@ -1,18 +1,18 @@
 ﻿import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-import { 
-  addSecurityHeaders, 
-  addApiSecurityHeaders, 
-  checkRateLimit, 
-  isSecureRoute, 
-  validateCSRF 
+import { getAuthToken } from './lib/auth/nextauth-token';
+import {
+  addSecurityHeaders,
+  addApiSecurityHeaders,
+  checkRateLimit,
+  isSecureRoute,
+  validateCSRF
 } from './middleware/security';
 
 /**
  * Proxy/Middleware - Verifications hierarchiques et isolation tenant
  * + Securite OWASP ZAP compliant
- * 
+ *
  * Hierarchie des roles :
  * - SUPER_ADMIN : Acces a tous les tenants (routes /super-admin/*)
  * - ADMIN : Acces a son tenant uniquement (routes /admin/*, /api/admin/*, /dashboard, etc.)
@@ -28,8 +28,8 @@ type UserContext = {
  * Verifie si la route est publique
  */
 function isPublicRoute(pathname: string): boolean {
-  return pathname === '/' || 
-         pathname.startsWith('/auth') || 
+  return pathname === '/' ||
+         pathname.startsWith('/auth') ||
          pathname.startsWith('/api/auth');
 }
 
@@ -40,7 +40,7 @@ function handleUnauthenticated(pathname: string, request: NextRequest): NextResp
   if (pathname.startsWith('/api/')) {
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }
-  
+
   const url = new URL('/auth/login', request.url);
   url.searchParams.set('callbackUrl', pathname);
   return NextResponse.redirect(url);
@@ -188,7 +188,7 @@ export default async function proxy(request: NextRequest) {
   // 1. SeCURITe : Rate limiting
   if (!checkRateLimit(request)) {
     return NextResponse.json(
-      { error: 'Trop de requetes' }, 
+      { error: 'Trop de requetes' },
       { status: 429 }
     );
   }
@@ -196,7 +196,7 @@ export default async function proxy(request: NextRequest) {
   // 2. SeCURITe : Validation CSRF pour routes sensibles
   if (isSecureRoute(pathname) && !validateCSRF(request)) {
     return NextResponse.json(
-      { error: 'CSRF validation failed' }, 
+      { error: 'CSRF validation failed' },
       { status: 403 }
     );
   }
@@ -208,10 +208,7 @@ export default async function proxy(request: NextRequest) {
   }
 
   // 4. Recuperer le token JWT
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET || '',
-  });
+  const token = await getAuthToken(request);
 
   // 5. Non authentifie : rediriger vers login
   if (!token) {
@@ -247,11 +244,11 @@ export default async function proxy(request: NextRequest) {
   // 7. Reponse par defaut avec headers securises
   const response = NextResponse.next();
   const secureResponse = addSecurityHeaders(response);
-  
+
   if (pathname.startsWith('/api/')) {
     return addApiSecurityHeaders(secureResponse);
   }
-  
+
   return secureResponse;
 }
 

@@ -66,6 +66,13 @@
 - [ ] Résoudre les 20+ TODOs
 - [ ] Supprimer code mort
 
+### 9.b Améliorations (peut attendre) 🔄
+- [x] Compléter la documentation middleware sécurité/auth (flux + responsabilités)
+- [x] Uniformiser l’accès NextAuth via helper partagé (`getAuthToken`)
+- [ ] Remplacer logs `console.*` restants par logger structuré
+- [x] Micro-optimisations middleware (éviter allocations et recherches répétées)
+- [x] Ajouter mini guide “quand refactorer / quand reporter” pour l’équipe
+
 ---
 
 ## 🟢 PRIORITÉ BASSE (Backlog)

@@ -7,8 +7,8 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { eventLogService } from '@/lib/services/event-log.service';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
+import { filterRuleService } from '@/frontend/lib/services/filter-rule.service';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
-import { ActorType, EventType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Analyser l'email avec l'IA
-    let aiAnalysis = null;
+    let aiAnalysis: string | null = null;
     let category = 'general-inquiry';
     let urgency = 'medium';
     let sentiment = 'neutral';
@@ -94,10 +94,10 @@ export async function POST(request: NextRequest) {
 
     // RULE-005: Tracer réception flux email
     await eventLogService.createEventLog({
-      eventType: EventType.FLOW_RECEIVED,
+      eventType: 'FLOW_RECEIVED',
       entityType: 'email',
       entityId: email.id,
-      actorType: ActorType.SYSTEM,
+      actorType: 'SYSTEM',
       tenantId: tenant.id,
       metadata: {
         source: 'incoming-webhook',
@@ -114,10 +114,10 @@ export async function POST(request: NextRequest) {
     // RULE-005: Tracer classification IA si analyse réussie
     if (aiAnalysis) {
       await eventLogService.createEventLog({
-        eventType: EventType.FLOW_CLASSIFIED,
+        eventType: 'FLOW_CLASSIFIED',
         entityType: 'email',
         entityId: email.id,
-        actorType: ActorType.AI,
+        actorType: 'AI',
         tenantId: tenant.id,
         metadata: {
           category,

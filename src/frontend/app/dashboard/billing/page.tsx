@@ -26,6 +26,25 @@ type Payment = {
   brand?: string;
 };
 
+async function safeReadJson<T = any>(response: Response): Promise<T | null> {
+  const contentType = response.headers.get("content-type") || "";
+  const rawBody = await response.text();
+
+  if (!rawBody.trim()) {
+    return null;
+  }
+
+  if (!contentType.includes("application/json")) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawBody) as T;
+  } catch {
+    return null;
+  }
+}
+
 export default function BillingDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,7 +54,7 @@ export default function BillingDashboard() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (searchParams.get("success") === "true") {
+    if (searchParams?.get("success") === "true") {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 5000);
     }
@@ -45,7 +64,12 @@ export default function BillingDashboard() {
   const fetchBillingData = async () => {
     try {
       const res = await fetch("/api/billing/subscription");
-      const data = await res.json();
+      const data = await safeReadJson<{ subscription?: Subscription; payments?: Payment[] }>(res);
+
+      if (!res.ok || !data) {
+        console.error("Invalid billing API response", { status: res.status });
+        return;
+      }
 
       if (data.subscription) {
         setSubscription(data.subscription);
@@ -86,7 +110,12 @@ export default function BillingDashboard() {
         method: "POST",
       });
 
-      const data = await res.json();
+      const data = await safeReadJson<{ url?: string }>(res);
+
+      if (!res.ok || !data) {
+        console.error("Invalid billing portal response", { status: res.status });
+        return;
+      }
 
       if (data.url) {
         window.location.href = data.url;

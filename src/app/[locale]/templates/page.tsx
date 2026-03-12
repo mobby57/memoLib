@@ -38,6 +38,7 @@ export default function TemplatesPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [previewValues, setPreviewValues] = useState<Record<string, any>>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handlePreview = (template: DocumentTemplate) => {
     setSelectedTemplate(template);
@@ -133,6 +134,18 @@ export default function TemplatesPage() {
       </Alert>
 
       {/* Barre d'actions */}
+      {feedback && (
+        <div
+          className={`mb-4 rounded-lg border px-4 py-3 text-sm ${
+            feedback.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-700'
+              : 'border-red-200 bg-red-50 text-red-700'
+          }`}
+        >
+          {feedback.message}
+        </div>
+      )}
+
       <div className="flex items-center gap-4 mb-6">
         <Input
           type="text"
@@ -259,9 +272,10 @@ export default function TemplatesPage() {
                 Fermer
               </Button>
               <Button onClick={() => {
-                // Ici on pourrait copier dans le presse-papier ou telecharger
-                navigator.clipboard.writeText(renderTemplate(selectedTemplate.contenu, previewValues));
-                alert('Document copie dans le presse-papier !');
+                navigator.clipboard
+                  .writeText(renderTemplate(selectedTemplate.contenu, previewValues))
+                  .then(() => setFeedback({ type: 'success', message: 'Document copie dans le presse-papier !' }))
+                  .catch(() => setFeedback({ type: 'error', message: 'Impossible de copier le document' }));
               }}>
                 Copier le document
               </Button>

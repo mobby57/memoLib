@@ -6,10 +6,10 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import SearchBar from '@/components/SearchBar';
-import { 
-  Filter, 
-  Calendar, 
-  Tag, 
+import {
+  Filter,
+  Calendar,
+  Tag,
   SlidersHorizontal,
   Download,
   Share2,
@@ -26,8 +26,8 @@ interface AdvancedFilters {
 
 function SearchContent() {
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get('q') || '';
-  
+  const initialQuery = searchParams?.get('q') || '';
+
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [filters, setFilters] = useState<AdvancedFilters>({});
   const [searchStats, setSearchStats] = useState({
@@ -54,7 +54,7 @@ function SearchContent() {
 
         {/* Barre de recherche principale */}
         <div className="mb-6">
-          <SearchBar 
+          <SearchBar
             placeholder="Rechercher dans toute l'application..."
             showFilters={true}
           />
@@ -100,7 +100,7 @@ function SearchContent() {
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
               Filtres avances
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Plage de dates */}
               <div>

@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
@@ -19,13 +19,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculer les donnees des 6 derniers mois
-    const monthlyData = [];
+    const monthlyData: Array<{ month: string; dossiers: number; factures: number; revenus: number }> = [];
     const now = new Date();
-    
+
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const nextMonth = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-      
+
       const monthName = date.toLocaleDateString('fr-FR', { month: 'short' });
 
       // Compter les dossiers crees ce mois

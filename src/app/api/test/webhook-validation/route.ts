@@ -21,6 +21,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!result.data) {
+      return NextResponse.json(
+        {
+          valid: false,
+          error: 'Payload validé mais données absentes',
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json({
       valid: true,
       channel: result.data.channel,

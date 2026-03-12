@@ -1,4 +1,4 @@
-﻿import 'next-auth';
+﻿import { DefaultSession } from 'next-auth';
 
 declare module 'next-auth' {
   interface User {
@@ -7,18 +7,19 @@ declare module 'next-auth' {
     tenantName?: string;
     tenantPlan?: string;
     role?: string;
+    groups?: string[];
+    rbacPermissions?: string[];
   }
 
   interface Session {
-    user: {
+    user: DefaultSession['user'] & {
       id?: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
       tenantId?: string;
       tenantName?: string;
       tenantPlan?: string;
       role?: string;
+      groups?: string[];
+      rbacPermissions?: string[];
     };
   }
 }
@@ -29,5 +30,7 @@ declare module 'next-auth/jwt' {
     tenantName?: string;
     tenantPlan?: string;
     role?: string;
+    groups?: string[];
+    rbacPermissions?: string[];
   }
 }

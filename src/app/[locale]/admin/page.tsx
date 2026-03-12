@@ -12,10 +12,19 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import AdminNavigation from '@/components/AdminNavigation';
+import AdminNavigation from '../../../components/AdminNavigation';
+
+type DashboardUser = {
+  name?: string | null;
+  role?: string;
+  tenantId?: string;
+  tenantPlan?: string;
+  tenantName?: string;
+};
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
+  const user = session?.user as DashboardUser | undefined;
   const router = useRouter();
   const [stats, setStats] = useState({
     clients: 0,
@@ -34,14 +43,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/login');
-    } else if (session?.user && session.user.role === 'SUPER_ADMIN') {
+    } else if (user?.role === 'SUPER_ADMIN') {
       router.push('/super-admin');
-    } else if (session?.user && session.user.role === 'CLIENT') {
+    } else if (user?.role === 'CLIENT') {
       router.push('/client');
-    } else if (session?.user?.role === 'ADMIN') {
+    } else if (user?.role === 'ADMIN') {
       fetchData();
     }
-  }, [session, status, router]);
+  }, [status, router, user?.role]);
 
   const fetchData = async () => {
     try {
@@ -61,7 +70,7 @@ export default function AdminDashboard() {
       }
 
       // Calculer les stats
-      if (session?.user?.tenantId) {
+      if (user?.tenantId) {
         setStats({
           clients: 0,
           dossiers: 0,
@@ -69,7 +78,7 @@ export default function AdminDashboard() {
           revenueTotal: 0,
           clientsLimit: 50,
           dossiersLimit: 100,
-          planName: session.user.tenantPlan || 'Basic',
+          planName: user.tenantPlan || 'Basic',
           aiLevel: 1,
         });
       }
@@ -95,7 +104,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <AdminNavigation />
-      
+
       {/* Header */}
       <header className="bg-white shadow-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-8 py-4">
@@ -108,13 +117,13 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">Cabinet {session?.user?.tenantName || 'Mon Cabinet'}</p>
+                <p className="text-sm text-gray-500">Cabinet {user?.tenantName || 'Mon Cabinet'}</p>
                 <p className="font-semibold text-gray-900">
                   Plan {stats.planName} - IA Niveau {stats.aiLevel}
                 </p>
               </div>
               <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                {session?.user?.name?.charAt(0).toUpperCase()}
+                {user?.name?.charAt(0).toUpperCase()}
               </div>
             </div>
           </div>

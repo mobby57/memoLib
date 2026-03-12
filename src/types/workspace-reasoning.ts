@@ -112,6 +112,8 @@ export interface Fact {
   createdAt: Date;
 }
 
+export type FactSource = Fact['source'];
+
 // ============================================
 // CONTEXT HYPOTHESIS
 // ============================================
@@ -178,6 +180,12 @@ export interface MissingElement {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type ActionType = ProposedAction['type'];
+export type ActionTarget = ProposedAction['target'];
+export type ActionPriority = ProposedAction['priority'];
+export type ContextType = ContextHypothesis['type'];
+export type MissingType = MissingElement['type'];
 
 // ============================================
 // RISK

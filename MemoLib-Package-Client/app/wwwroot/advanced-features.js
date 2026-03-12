@@ -1,4 +1,15 @@
 // Dashboard temps réel et notifications
+async function readResponseDataSafe(response) {
+    const text = await response.text();
+    if (!text || !text.trim()) return null;
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+}
+
 class RealtimeDashboard {
     constructor(apiBase, token) {
         this.apiBase = apiBase;
@@ -58,7 +69,7 @@ class RealtimeDashboard {
                 <button onclick="this.parentElement.parentElement.remove()">×</button>
             </div>
         `;
-        
+
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 5000);
     }
@@ -79,7 +90,7 @@ class RealtimeDashboard {
             }
 
             const data = JSON.parse(text);
-            
+
             const counter = document.getElementById('emails-today-counter');
             if (counter) counter.textContent = data.emailsToday;
         } catch (err) {
@@ -119,7 +130,7 @@ class RealtimeDashboard {
             }
 
             const metrics = JSON.parse(text);
-            
+
             this.renderMetrics(metrics);
         } catch (err) {
             console.error('Erreur chargement métriques:', err);
@@ -152,7 +163,7 @@ class RealtimeDashboard {
                     <div class="metric-label">Temps de réponse moyen</div>
                 </div>
             </div>
-            
+
             <div class="charts-section">
                 <div class="chart-container">
                     <h3>Tendance hebdomadaire</h3>
@@ -164,7 +175,7 @@ class RealtimeDashboard {
                         `).join('')}
                     </div>
                 </div>
-                
+
                 <div class="top-clients">
                     <h3>Top clients</h3>
                     ${metrics.topClients.map(client => `
@@ -176,7 +187,7 @@ class RealtimeDashboard {
                 </div>
             </div>
         `;
-        
+
         container.innerHTML = html;
     }
 }
@@ -197,16 +208,17 @@ class TemplateManager {
             },
             body: JSON.stringify({ clientContext, subject, caseType })
         });
-        
-        const data = await response.json();
-        return data.generatedResponse;
+
+        const data = await readResponseDataSafe(response);
+        return data?.generatedResponse;
     }
 
     async getTemplates() {
         const response = await fetch(`${this.apiBase}/api/templates`, {
             headers: { 'Authorization': `Bearer ${this.token}` }
         });
-        return await response.json();
+        const data = await readResponseDataSafe(response);
+        return Array.isArray(data) ? data : [];
     }
 
     async createTemplate(name, category, subject, body) {
@@ -218,7 +230,8 @@ class TemplateManager {
             },
             body: JSON.stringify({ name, category, subject, body })
         });
-        return await response.json();
+        const data = await readResponseDataSafe(response);
+        return data || {};
     }
 
     showTemplateModal(eventId, clientContext, subject) {
@@ -254,7 +267,7 @@ class TemplateManager {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
     }
 }
@@ -264,12 +277,12 @@ async function generateTemplateResponse(eventId) {
     const caseType = document.getElementById('template-case-type').value;
     const context = document.getElementById('template-context').value;
     const subject = document.getElementById('template-subject').value;
-    
+
     const tm = new TemplateManager(resolveApiBase(), resolveAuthToken());
-    
+
     try {
         const response = await tm.generateResponse(context, subject, caseType);
-        
+
         document.getElementById('template-result').innerHTML = `
             <div class="result success">
                 <h3>Réponse proposée :</h3>
@@ -312,7 +325,7 @@ function showAdvancedDashboard() {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
 
     const apiBase = resolveApiBase();
