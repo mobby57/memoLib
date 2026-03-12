@@ -13,7 +13,7 @@ import time
 import uuid
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -86,6 +86,29 @@ class CasePaymentEventsResponse(BaseModel):
     case_reference: str
     total_events: int
     payment_events: list[Dict[str, Any]]
+
+
+class PaymentEventItemResponse(BaseModel):
+    """Item unitaire d'evenement paiement pour endpoint admin."""
+
+    id: int
+    case_id: int
+    case_reference: str
+    provider: str
+    source: str
+    provider_event_id: Optional[str] = None
+    provider_session_id: Optional[str] = None
+    payment_status: str
+    created_at: Optional[str] = None
+
+
+class PaymentEventsListResponse(BaseModel):
+    """Reponse paginee du listing admin des evenements paiements."""
+
+    total: int
+    limit: int
+    offset: int
+    events: list[PaymentEventItemResponse]
 
 
 def _stripe_secret_key() -> str:
@@ -473,6 +496,61 @@ async def get_case_payment_events(case_reference: str, db: Session = Depends(get
         total_events=len(payment_entries),
         payment_events=payment_entries,
     )
+
+
+@router.get("/events", response_model=PaymentEventsListResponse, status_code=status.HTTP_200_OK)
+async def list_payment_events(
+    db: Session = Depends(get_db),
+    case_reference: Optional[str] = Query(default=None, min_length=2, max_length=100),
+    provider: Optional[str] = Query(default=None, min_length=2, max_length=30),
+    payment_status: Optional[str] = Query(default=None, min_length=2, max_length=30),
+    source: Optional[str] = Query(default=None, min_length=2, max_length=50),
+    created_from: Optional[datetime] = Query(default=None),
+    created_to: Optional[datetime] = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+) -> PaymentEventsListResponse:
+    """Listing admin des evenements paiements avec filtres et pagination."""
+
+    base_query = db.query(PaymentEvent, Case.reference).join(Case, PaymentEvent.case_id == Case.id)
+
+    if case_reference:
+        base_query = base_query.filter(Case.reference == case_reference)
+    if provider:
+        base_query = base_query.filter(PaymentEvent.provider == provider)
+    if payment_status:
+        base_query = base_query.filter(PaymentEvent.payment_status == payment_status)
+    if source:
+        base_query = base_query.filter(PaymentEvent.source == source)
+    if created_from:
+        base_query = base_query.filter(PaymentEvent.created_at >= created_from)
+    if created_to:
+        base_query = base_query.filter(PaymentEvent.created_at <= created_to)
+
+    total = base_query.count()
+    rows = (
+        base_query.order_by(PaymentEvent.created_at.desc(), PaymentEvent.id.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+
+    items = [
+        PaymentEventItemResponse(
+            id=row[0].id,
+            case_id=row[0].case_id,
+            case_reference=row[1],
+            provider=row[0].provider,
+            source=row[0].source,
+            provider_event_id=row[0].provider_event_id,
+            provider_session_id=row[0].provider_session_id,
+            payment_status=row[0].payment_status,
+            created_at=row[0].created_at.isoformat() if row[0].created_at else None,
+        )
+        for row in rows
+    ]
+
+    return PaymentEventsListResponse(total=total, limit=limit, offset=offset, events=items)
 
 
 @router.post("/confirm", response_model=PaymentConfirmResponse, status_code=status.HTTP_200_OK)

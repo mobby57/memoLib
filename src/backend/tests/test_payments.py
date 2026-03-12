@@ -413,3 +413,80 @@ def test_confirm_creates_payment_event_row(monkeypatch):
     assert evt.provider_session_id == "cs_manual_event_row_01"
     assert evt.payment_status == "paid"
     db.close()
+
+
+def test_list_payment_events_filters_by_provider_and_status(monkeypatch):
+    monkeypatch.delenv("STRIPE_WEBHOOK_SECRET", raising=False)
+    client, SessionLocal = _build_test_client_with_memory_db()
+
+    db = SessionLocal()
+    c1 = Case(user_id=10, reference="CASE-2026-LIST-01", title="A", status="open", priority="normal")
+    c2 = Case(user_id=11, reference="CASE-2026-LIST-02", title="B", status="open", priority="normal")
+    db.add(c1)
+    db.add(c2)
+    db.commit()
+
+    e1 = PaymentEvent(
+        case_id=c1.id,
+        provider="stripe",
+        source="manual_confirm",
+        provider_event_id=None,
+        provider_session_id="cs_1",
+        payment_status="paid",
+        payload_json='{"k":"v"}',
+    )
+    e2 = PaymentEvent(
+        case_id=c2.id,
+        provider="mock",
+        source="manual_confirm",
+        provider_event_id=None,
+        provider_session_id="cs_2",
+        payment_status="unpaid",
+        payload_json='{"k":"v2"}',
+    )
+    db.add(e1)
+    db.add(e2)
+    db.commit()
+    db.close()
+
+    response = client.get("/api/payments/events?provider=stripe&payment_status=paid")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 1
+    assert len(payload["events"]) == 1
+    assert payload["events"][0]["provider"] == "stripe"
+    assert payload["events"][0]["payment_status"] == "paid"
+    assert payload["events"][0]["case_reference"] == "CASE-2026-LIST-01"
+
+
+def test_list_payment_events_supports_pagination(monkeypatch):
+    monkeypatch.delenv("STRIPE_WEBHOOK_SECRET", raising=False)
+    client, SessionLocal = _build_test_client_with_memory_db()
+
+    db = SessionLocal()
+    case = Case(user_id=12, reference="CASE-2026-LIST-PAG", title="Pag", status="open", priority="normal")
+    db.add(case)
+    db.commit()
+
+    for idx in range(5):
+        db.add(
+            PaymentEvent(
+                case_id=case.id,
+                provider="stripe",
+                source="manual_confirm",
+                provider_event_id=None,
+                provider_session_id=f"cs_pag_{idx}",
+                payment_status="paid",
+                payload_json='{}',
+            )
+        )
+    db.commit()
+    db.close()
+
+    response = client.get("/api/payments/events?case_reference=CASE-2026-LIST-PAG&limit=2&offset=1")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 5
+    assert payload["limit"] == 2
+    assert payload["offset"] == 1
+    assert len(payload["events"]) == 2
