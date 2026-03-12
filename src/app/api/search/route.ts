@@ -33,6 +33,11 @@ export async function GET(request: NextRequest) {
       includeArchived,
     });
 
+    const userId = session.user.id;
+    if (!userId) {
+      return NextResponse.json({ error: 'Utilisateur invalide' }, { status: 401 });
+    }
+
     const executionTime = performance.now() - startTime;
 
     // Logger la recherche de maniere asynchrone (ne bloque pas la reponse)
@@ -41,7 +46,7 @@ export async function GET(request: NextRequest) {
       resultCount: results.length,
       executionTime,
       types,
-      userId: session.user.id,
+      userId,
       tenantId: session.user.tenantId || undefined,
     }).catch(err =>
       logger.error('Erreur logging recherche', err instanceof Error ? err : undefined, {

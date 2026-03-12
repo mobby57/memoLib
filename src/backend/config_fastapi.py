@@ -4,6 +4,7 @@ Architecture unique avec Ollama
 """
 import os
 from pydantic_settings import BaseSettings
+from pydantic_settings import SettingsConfigDict
 from functools import lru_cache
 
 
@@ -42,11 +43,11 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = os.getenv("UPLOAD_FOLDER", "uploads")
     MAX_UPLOAD_SIZE: int = int(os.getenv("MAX_UPLOAD_SIZE_MB", "10")) * 1024 * 1024
     
-    class Config:
-        """Configuration Pydantic"""
-        env_file = ".env"
-        case_sensitive = True
-        extra = "ignore"  # Ignorer les champs extra du .env
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore",  # Ignorer les champs extra du .env
+    )
 
 
 @lru_cache()

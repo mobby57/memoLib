@@ -12,7 +12,7 @@ Base = declarative_base()
 class User(Base):
     """Modèle utilisateur"""
     __tablename__ = "users"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     name = Column(String(255), nullable=True)
@@ -21,7 +21,7 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relations
     contacts = relationship("Contact", back_populates="user", cascade="all, delete-orphan")
     emails = relationship("Email", back_populates="user", cascade="all, delete-orphan")
@@ -31,7 +31,7 @@ class User(Base):
 class Contact(Base):
     """Modèle contact"""
     __tablename__ = "contacts"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     name = Column(String(255), nullable=False)
@@ -41,7 +41,7 @@ class Contact(Base):
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relations
     user = relationship("User", back_populates="contacts")
 
@@ -49,7 +49,7 @@ class Contact(Base):
 class Email(Base):
     """Modèle email (historique)"""
     __tablename__ = "emails"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     to_email = Column(String(255), nullable=False, index=True)
@@ -60,7 +60,7 @@ class Email(Base):
     status = Column(String(50), default="sent")  # sent, failed, draft
     sent_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     # Relations
     user = relationship("User", back_populates="emails")
 
@@ -68,7 +68,7 @@ class Email(Base):
 class Template(Base):
     """Modèle template email"""
     __tablename__ = "templates"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     name = Column(String(255), nullable=False)
@@ -78,7 +78,7 @@ class Template(Base):
     is_default = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relations
     user = relationship("User", back_populates="templates")
 
@@ -86,7 +86,7 @@ class Template(Base):
 class Document(Base):
     """Modèle document analysé"""
     __tablename__ = "documents"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     filename = Column(String(255), nullable=False)
@@ -102,10 +102,31 @@ class Document(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class Case(Base):
+    """Modèle dossier juridique client - US10 Portail client suivi"""
+    __tablename__ = "cases"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Client propriétaire
+    reference = Column(String(50), unique=True, index=True, nullable=False)  # EX: CASE-2024-001
+    title = Column(String(255), nullable=False)  # Titre du dossier
+    description = Column(Text, nullable=True)  # Description détaillée
+    status = Column(String(50), default="open")  # open, in_progress, pending, closed, archived
+    priority = Column(String(20), default="normal")  # low, normal, high, critical
+    amount = Column(Float, nullable=True)  # Montant du dossier
+    deadline = Column(DateTime, nullable=True)  # Deadline importante
+    notes = Column(Text, nullable=True)  # Notes privées
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
+
+    # Relations
+    user = relationship("User", backref="cases")
+
+
 class Todo(Base):
     """Modèle TODO généré automatiquement"""
     __tablename__ = "todos"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     document_id = Column(Integer, ForeignKey("documents.id"), nullable=True)
@@ -122,7 +143,7 @@ class Todo(Base):
 class Notification(Base):
     """Modèle notification"""
     __tablename__ = "notifications"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     todo_id = Column(Integer, ForeignKey("todos.id"), nullable=True)

@@ -79,7 +79,7 @@ export function ActionProposedView({
             </div>
             
             <h4 className="text-lg font-semibold text-gray-900 mb-3">
-              {action.description}
+              {action.content}
             </h4>
             
             {/* Cible de l'action */}

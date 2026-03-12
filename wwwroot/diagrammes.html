@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Diagrammes Architecture</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 { font-size: 3rem; margin-bottom: 10px; }
+        .header p { font-size: 1.2rem; opacity: 0.9; }
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { background: rgba(255,255,255,0.3); }
+        .tab-btn.active {
+            background: white;
+            color: #1e3c72;
+            border-color: white;
+        }
+        .diagram-section {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        .diagram-section.active { display: block; }
+        .diagram-section h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .diagram-section p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        .mermaid {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .back-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover { opacity: 0.9; }
+        .legend {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .legend h3 { color: #1e3c72; margin-bottom: 15px; }
+        .legend ul { list-style: none; }
+        .legend li {
+            padding: 8px 0;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .legend li::before {
+            content: "→";
+            color: #667eea;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 MemoLib - Architecture</h1>
+            <p>Diagrammes Techniques & Flux de Données</p>
+        </div>
+
+        <a href="index.html" class="back-btn">← Retour à l'accueil</a>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="showTab('global')">🏗️ Architecture Globale</button>
+            <button class="tab-btn" onclick="showTab('flux')">🔄 Flux de Données</button>
+            <button class="tab-btn" onclick="showTab('controllers')">🗂️ Controllers</button>
+            <button class="tab-btn" onclick="showTab('security')">🔐 Sécurité</button>
+            <button class="tab-btn" onclick="showTab('data')">📦 Modèle de Données</button>
+            <button class="tab-btn" onclick="showTab('email')">📧 Workflow Email</button>
+            <button class="tab-btn" onclick="showTab('deploy')">🚀 Déploiement</button>
+            <button class="tab-btn" onclick="showTab('scale')">📊 Scalabilité</button>
+        </div>
+
+        <!-- Architecture Globale -->
+        <div id="global" class="diagram-section active">
+            <h2>🏗️ Architecture Globale</h2>
+            <p>Vue d'ensemble de l'architecture MemoLib avec les couches Frontend (Next.js), Backend (ASP.NET Core), Data Layer et Services Externes.</p>
+            <div class="mermaid">
+graph TB
+    subgraph "CLIENT LAYER"
+        Browser[🌐 Browser]
+        Mobile[📱 Mobile App]
+    end
+
+    subgraph "FRONTEND - Next.js 16"
+        NextJS[Next.js App Router]
+        Pages[Pages/Routes]
+        Components[React Components]
+        APIRoutes[API Routes]
+        NextAuth[NextAuth.js]
+    end
+
+    subgraph "BACKEND - ASP.NET Core 9.0"
+        API[API Gateway]
+        Controllers[65 Controllers]
+        Services[40 Services]
+        Middleware[Middleware Stack]
+        SignalR[SignalR Hubs]
+        Background[Background Jobs]
+    end
+
+    subgraph "DATA LAYER"
+        SQLite[(SQLite Dev)]
+        PostgreSQL[(PostgreSQL Prod)]
+        Redis[(Redis Cache)]
+    end
+
+    subgraph "EXTERNAL SERVICES"
+        Gmail[📧 Gmail IMAP/SMTP]
+        Twilio[📱 Twilio SMS]
+        OpenAI[🤖 OpenAI API]
+        Sentry[📊 Sentry]
+        Azure[☁️ Azure Services]
+    end
+
+    Browser --> NextJS
+    Mobile --> NextJS
+    NextJS --> Pages
+    NextJS --> Components
+    NextJS --> APIRoutes
+    NextJS --> NextAuth
+    
+    APIRoutes --> API
+    NextAuth --> API
+    
+    API --> Controllers
+    Controllers --> Services
+    Controllers --> Middleware
+    Services --> SignalR
+    Services --> Background
+    
+    Services --> SQLite
+    Services --> PostgreSQL
+    Services --> Redis
+    
+    Services --> Gmail
+    Services --> Twilio
+    Services --> OpenAI
+    Services --> Sentry
+    Services --> Azure
+            </div>
+        </div>
+
+        <!-- Flux de Données -->
+        <div id="flux" class="diagram-section">
+            <h2>🔄 Flux de Données Principal</h2>
+            <p>Séquence complète d'une requête utilisateur depuis le frontend jusqu'à la base de données et les services externes.</p>
+            <div class="mermaid">
+sequenceDiagram
+    participant U as 👤 User
+    participant F as Frontend
+    participant A as API Gateway
+    participant C as Controller
+    participant S as Service
+    participant D as Database
+    participant E as External API
+
+    U->>F: 1. Action (Create Case)
+    F->>F: 2. Validate Input
+    F->>A: 3. POST /api/v1/cases
+    A->>A: 4. JWT Validation
+    A->>A: 5. RBAC Check
+    A->>C: 6. Route to Controller
+    C->>C: 7. FluentValidation
+    C->>S: 8. Call Service
+    S->>D: 9. Save to DB
+    D-->>S: 10. Return Entity
+    S->>E: 11. Send Notification
+    E-->>S: 12. Confirmation
+    S-->>C: 13. Return Result
+    C-->>A: 14. HTTP 201 Created
+    A-->>F: 15. JSON Response
+    F->>F: 16. Update UI
+    F-->>U: 17. Show Success
+            </div>
+        </div>
+
+        <!-- Controllers -->
+        <div id="controllers" class="diagram-section">
+            <h2>🗂️ Structure des Controllers</h2>
+            <p>Organisation des 65 controllers par domaine fonctionnel : Auth, Business, Advanced, Integrations, Documents et Admin.</p>
+            <div class="mermaid">
+graph LR
+    subgraph "AUTH & SECURITY (5)"
+        Auth[AuthController]
+        SecAuth[SecureAuthController]
+        Security[SecurityController]
+    end
+
+    subgraph "CORE BUSINESS (15)"
+        Case[CaseController]
+        Client[ClientController]
+        Email[EmailController]
+        Dashboard[DashboardController]
+    end
+
+    subgraph "ADVANCED (20)"
+        Billing[BillingController]
+        Calendar[CalendarController]
+        Webhooks[WebhooksController]
+        Signatures[SignaturesController]
+    end
+
+    subgraph "INTEGRATIONS (10)"
+        Telegram[TelegramController]
+        Messenger[MessengerController]
+        Universal[UniversalGatewayController]
+    end
+
+    subgraph "DOCUMENTS (8)"
+        Attachment[AttachmentController]
+        CaseDoc[CaseDocumentsController]
+        Forms[DynamicFormsController]
+    end
+
+    subgraph "ADMIN (7)"
+        Stats[StatsController]
+        Audit[AuditController]
+        Alerts[AlertsController]
+    end
+
+    Auth --> Services
+    Case --> Services
+    Billing --> Services
+    Telegram --> Services
+    Attachment --> Services
+    Stats --> Services
+
+    Services[Service Layer]
+    Services --> Database[(Database)]
+            </div>
+        </div>
+
+        <!-- Sécurité -->
+        <div id="security" class="diagram-section">
+            <h2>🔐 Sécurité & Authentification</h2>
+            <p>Architecture de sécurité multi-couches avec authentification JWT, RBAC (6 rôles), 30+ policies et audit complet.</p>
+            <div class="mermaid">
+graph TB
+    subgraph "AUTHENTICATION"
+        Login[Login Request]
+        JWT[JWT Token Service]
+        Refresh[Refresh Token]
+        BCrypt[BCrypt Hashing]
+    end
+
+    subgraph "AUTHORIZATION - RBAC"
+        Owner[👑 Owner]
+        Admin[🔧 Admin]
+        Manager[📊 Manager]
+        Agent[👨💼 Agent]
+        User[👤 User]
+        Client[🙋 Client]
+    end
+
+    subgraph "POLICIES (30+)"
+        ViewCases[View Cases]
+        CreateCases[Create Cases]
+        EditCases[Edit Cases]
+        DeleteCases[Delete Cases]
+        ManageUsers[Manage Users]
+        ViewAudit[View Audit]
+    end
+
+    subgraph "SECURITY LAYERS"
+        HTTPS[HTTPS/TLS]
+        CORS[CORS Policy]
+        RateLimit[Rate Limiting]
+        Headers[Security Headers]
+        Audit[Audit Logging]
+    end
+
+    Login --> JWT
+    JWT --> BCrypt
+    JWT --> Refresh
+
+    Owner --> ManageUsers
+    Owner --> ViewAudit
+    Admin --> ManageUsers
+    Manager --> EditCases
+    Agent --> CreateCases
+    User --> ViewCases
+    Client --> ViewCases
+
+    ViewCases --> HTTPS
+    CreateCases --> HTTPS
+    HTTPS --> CORS
+    CORS --> RateLimit
+    RateLimit --> Headers
+    Headers --> Audit
+            </div>
+            <div class="legend">
+                <h3>🎯 Rôles & Permissions</h3>
+                <ul>
+                    <li><strong>Owner:</strong> Accès total, gestion utilisateurs, audit</li>
+                    <li><strong>Admin:</strong> Gestion cabinet, utilisateurs, configuration</li>
+                    <li><strong>Manager:</strong> Supervision dossiers, équipe, analytics</li>
+                    <li><strong>Agent:</strong> Création/édition dossiers assignés</li>
+                    <li><strong>User:</strong> Consultation dossiers, documents</li>
+                    <li><strong>Client:</strong> Accès portail client uniquement</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Modèle de Données -->
+        <div id="data" class="diagram-section">
+            <h2>📦 Modèle de Données</h2>
+            <p>Schéma relationnel complet avec 15+ entités principales : Users, Cases, Clients, Events, Documents, Invoices, Tasks.</p>
+            <div class="mermaid">
+erDiagram
+    USER ||--o{ CASE : owns
+    USER ||--o{ CLIENT : manages
+    USER ||--o{ NOTIFICATION : receives
+    USER ||--o{ AUDIT_LOG : generates
+    
+    CASE ||--o{ CASE_EVENT : contains
+    CASE ||--o{ CASE_NOTE : has
+    CASE ||--o{ CASE_TASK : includes
+    CASE ||--o{ CASE_DOCUMENT : stores
+    CASE ||--o{ CASE_COMMENT : has
+    CASE }o--|| CLIENT : belongs_to
+    
+    EVENT ||--o{ CASE_EVENT : links
+    EVENT }o--|| SOURCE : from
+    EVENT ||--o{ ATTACHMENT : has
+    
+    CASE_TASK ||--o{ TASK_DEPENDENCY : depends_on
+    CASE_TASK ||--o{ TASK_CHECKLIST : contains
+    
+    CASE ||--o{ TIME_ENTRY : tracks
+    TIME_ENTRY ||--o{ INVOICE_ITEM : bills
+    INVOICE_ITEM }o--|| INVOICE : belongs_to
+    
+    USER ||--o{ WEBHOOK : configures
+    WEBHOOK ||--o{ WEBHOOK_LOG : logs
+    
+    USER {
+        guid Id PK
+        string Email UK
+        string Role
+        string PasswordHash
+        datetime CreatedAt
+    }
+    
+    CASE {
+        guid Id PK
+        guid UserId FK
+        guid ClientId FK
+        string Title
+        string Status
+        int Priority
+        datetime CreatedAt
+    }
+    
+    CLIENT {
+        guid Id PK
+        guid UserId FK
+        string Name
+        string Email
+        string Phone
+        string Address
+    }
+            </div>
+        </div>
+
+        <!-- Workflow Email -->
+        <div id="email" class="diagram-section">
+            <h2>📧 Workflow Email Monitoring</h2>
+            <p>Machine à états du monitoring automatique Gmail : connexion IMAP, récupération, parsing, détection doublons et notifications.</p>
+            <div class="mermaid">
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Connecting: Timer (60s)
+    Connecting --> Connected: IMAP Success
+    Connecting --> Error: Connection Failed
+    Error --> Idle: Retry After 5min
+    
+    Connected --> Fetching: Get Unread Emails
+    Fetching --> Processing: Emails Found
+    Fetching --> Idle: No New Emails
+    
+    Processing --> Validating: Parse Email
+    Validating --> Extracting: Valid Format
+    Validating --> Rejected: Invalid Format
+    
+    Extracting --> CheckDuplicate: Extract Client Info
+    CheckDuplicate --> CreateEvent: New Email
+    CheckDuplicate --> Skip: Duplicate Found
+    
+    CreateEvent --> NotifyUser: Event Saved
+    NotifyUser --> Idle: Notification Sent
+    
+    Skip --> Idle
+    Rejected --> Idle
+            </div>
+        </div>
+
+        <!-- Déploiement -->
+        <div id="deploy" class="diagram-section">
+            <h2>🚀 Déploiement Production</h2>
+            <p>Pipeline CI/CD complet avec GitHub Actions, déploiement Vercel (Frontend) et Fly.io (Backend), monitoring Sentry.</p>
+            <div class="mermaid">
+graph TB
+    subgraph "GITHUB"
+        Repo[Repository]
+        Actions[GitHub Actions]
+    end
+
+    subgraph "CI/CD PIPELINE"
+        Build[Build & Test]
+        Security[Security Scan]
+        Docker[Docker Build]
+    end
+
+    subgraph "VERCEL (Frontend)"
+        Edge[Edge Network]
+        SSR[SSR Functions]
+        Static[Static Assets]
+    end
+
+    subgraph "FLY.IO (Backend)"
+        API1[API Instance 1]
+        API2[API Instance 2]
+        LB[Load Balancer]
+    end
+
+    subgraph "DATABASE"
+        Neon[(Neon PostgreSQL)]
+        Backup[(Daily Backup)]
+    end
+
+    subgraph "CACHE & STORAGE"
+        Upstash[(Upstash Redis)]
+        Blob[Vercel Blob]
+    end
+
+    subgraph "MONITORING"
+        Sentry[Sentry Errors]
+        Logs[Application Logs]
+        Metrics[Performance Metrics]
+    end
+
+    Repo --> Actions
+    Actions --> Build
+    Build --> Security
+    Security --> Docker
+    
+    Docker --> Vercel
+    Docker --> FLY.IO
+    
+    Vercel --> Edge
+    Edge --> SSR
+    Edge --> Static
+    
+    FLY.IO --> LB
+    LB --> API1
+    LB --> API2
+    
+    API1 --> Neon
+    API2 --> Neon
+    Neon --> Backup
+    
+    API1 --> Upstash
+    API2 --> Upstash
+    SSR --> Blob
+    
+    API1 --> Sentry
+    API2 --> Sentry
+            </div>
+        </div>
+
+        <!-- Scalabilité -->
+        <div id="scale" class="diagram-section">
+            <h2>📊 Scalabilité (3 Phases)</h2>
+            <p>Stratégie d'évolution de l'architecture : Phase 1 (0-1K users) vertical, Phase 2 (1K-10K) horizontal, Phase 3 (10K+) microservices.</p>
+            <div class="mermaid">
+graph LR
+    subgraph "PHASE 1: Vertical (0-1K users)"
+        V1[1 Instance<br/>2 CPU, 2GB RAM]
+        V1DB[(SQLite/PostgreSQL)]
+        V1Cache[In-Memory Cache]
+    end
+
+    subgraph "PHASE 2: Horizontal (1K-10K users)"
+        H1[Instance 1]
+        H2[Instance 2]
+        H3[Instance 3]
+        HLB[Load Balancer]
+        H2DB[(PostgreSQL Cluster<br/>Primary + 2 Replicas)]
+        H2Cache[(Redis Cluster)]
+    end
+
+    subgraph "PHASE 3: Microservices (10K+ users)"
+        M1[Auth Service]
+        M2[Case Service]
+        M3[Email Service]
+        M4[Notification Service]
+        MGW[API Gateway]
+        MBus[Event Bus<br/>RabbitMQ]
+        M3DB[(PostgreSQL Sharded)]
+        M3Cache[(Redis Cluster)]
+        M3CDN[CDN<br/>Cloudflare]
+    end
+
+    V1 --> V1DB
+    V1 --> V1Cache
+
+    HLB --> H1
+    HLB --> H2
+    HLB --> H3
+    H1 --> H2DB
+    H2 --> H2DB
+    H3 --> H2DB
+
+    MGW --> M1
+    MGW --> M2
+    MGW --> M3
+    MGW --> M4
+    M1 --> MBus
+    M2 --> MBus
+            </div>
+            <div class="legend">
+                <h3>📈 Capacités par Phase</h3>
+                <ul>
+                    <li><strong>Phase 1:</strong> 0-1,000 utilisateurs • 1 serveur • SQLite/PostgreSQL</li>
+                    <li><strong>Phase 2:</strong> 1,000-10,000 utilisateurs • 3+ serveurs • PostgreSQL Cluster • Redis</li>
+                    <li><strong>Phase 3:</strong> 10,000+ utilisateurs • Microservices • Sharding • Event Bus • CDN</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 60px; padding: 40px; background: rgba(255,255,255,0.1); border-radius: 16px; color: white;">
+            <p style="font-size: 1.2rem; margin-bottom: 10px;">📚 Documentation complète dans DIAGRAMMES_ARCHITECTURE.md</p>
+            <p style="opacity: 0.8;">Version 2.1.0 • ASP.NET Core 9.0 • 70 tests ✅</p>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#764ba2',
+                lineColor: '#667eea',
+                secondaryColor: '#764ba2',
+                tertiaryColor: '#f0f4ff'
+            }
+        });
+
+        function showTab(tabId) {
+            document.querySelectorAll('.diagram-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

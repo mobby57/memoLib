@@ -30,6 +30,13 @@ export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'all' | 'emails' | 'dossiers' | 'deadlines' | 'system'>('all')
 
+  const getNotificationTimestamp = (notification: any) => {
+    if (notification.timestamp) return new Date(notification.timestamp).getTime()
+    if (notification.createdAt) return new Date(notification.createdAt).getTime()
+    if (notification.deadlineDate) return new Date(notification.deadlineDate).getTime()
+    return 0
+  }
+
   // Connection status badge
   const statusBadge = connecting ? (
     <span className="absolute -top-1 -right-1 flex h-3 w-3">
@@ -59,7 +66,7 @@ export default function NotificationCenter() {
           ...notifications.dossiers.map(n => ({ ...n, category: 'dossier' as const })),
           ...notifications.deadlines.map(n => ({ ...n, category: 'deadline' as const })),
           ...notifications.system.map(n => ({ ...n, category: 'system' as const })),
-        ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        ].sort((a, b) => getNotificationTimestamp(b) - getNotificationTimestamp(a))
     }
   }
 

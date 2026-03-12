@@ -4,10 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { CollaborationService } from '@/lib/services/collaboration.service';
 
-const prisma = new PrismaClient();
 const collaborationService = new CollaborationService(prisma);
 
 export async function GET(req: NextRequest) {

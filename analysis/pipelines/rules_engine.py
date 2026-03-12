@@ -23,6 +23,32 @@ from ..schemas.models import (
 )
 
 
+class RuleApplicationsList(list):
+    """Liste compatible des règles appliquées.
+
+    - Conserve des objets RuleApplicationSchema pour le pipeline.
+    - Permet les assertions legacy du type "DEADLINE_SEMANTIC" in rules.
+    """
+
+    @staticmethod
+    def _normalize_rule_name(rule_id: str) -> str:
+        if rule_id.startswith("RULE-"):
+            return rule_id[5:].replace("-", "_")
+        return rule_id.replace("-", "_")
+
+    def __contains__(self, item):
+        if isinstance(item, str):
+            normalized_item = item.upper().replace("-", "_")
+            for rule in self:
+                if not isinstance(rule, RuleApplicationSchema):
+                    continue
+                normalized_rule = self._normalize_rule_name(rule.rule_id).upper()
+                if normalized_item == normalized_rule:
+                    return True
+            return False
+        return super().__contains__(item)
+
+
 class RuleEngine:
     """Legal rules application engine"""
 
@@ -97,7 +123,9 @@ class RuleEngine:
         Returns:
             (final_priority, applied_rules, priority_score)
         """
-        applied_rules = []
+        metadata = self._build_metadata(unit, metadata)
+
+        applied_rules = RuleApplicationsList()
         priority_score = 1  # MEDIUM = 1
 
         # Execute each rule
@@ -118,6 +146,51 @@ class RuleEngine:
         final_priority = priority_map[priority_score]
 
         return final_priority, applied_rules, priority_score
+
+    def _build_metadata(
+        self,
+        unit: InformationUnitSchema,
+        metadata: Optional[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Construit les métadonnées utilisées par les règles.
+
+        Priorité des sources:
+        - metadata explicite passé à apply_all_rules
+        - fallback sur unit.source_metadata
+        - enrichissement automatique (deadline depuis le texte)
+        """
+        source_metadata = unit.source_metadata or {}
+        merged: Dict[str, Any] = {**source_metadata}
+
+        if metadata:
+            merged.update(metadata)
+
+        if "deadline" not in merged:
+            extracted_deadline = self._extract_deadline_from_content(unit.content)
+            if extracted_deadline:
+                merged["deadline"] = extracted_deadline
+
+        return merged
+
+    def _extract_deadline_from_content(self, content: str) -> Optional[Dict[str, Any]]:
+        """Extraction simple de délai relatif dans le texte (ex: '3 jours')."""
+        if not content:
+            return None
+
+        day_match = re.search(r"\b(\d{1,3})\s*jours?\b", content, re.IGNORECASE)
+        if not day_match:
+            return None
+
+        days = int(day_match.group(1))
+        if days <= 0:
+            return None
+
+        return {
+            "due_date": (datetime.now() + timedelta(days=days)).isoformat(),
+            "reference_date": datetime.now().isoformat(),
+            "days_detected": days,
+            "source": "content_regex",
+        }
 
     # =============================
     # RULE 1: CRITICAL DEADLINE (3 days)

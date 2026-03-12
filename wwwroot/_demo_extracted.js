@@ -17,6 +17,34 @@
         let templateManager = null;
         let criticalAlerts = null;
 
+        (function patchResponseJsonForDemo() {
+            if (typeof window === 'undefined' || typeof Response === 'undefined') return;
+            if (window.__memolibSafeJsonPatched) return;
+
+            const originalJson = Response.prototype.json;
+            Response.prototype.json = async function (...args) {
+                try {
+                    const cloned = this.clone();
+                    const text = await cloned.text();
+                    if (!text || !text.trim()) return null;
+
+                    try {
+                        return JSON.parse(text);
+                    } catch {
+                        return null;
+                    }
+                } catch {
+                    try {
+                        return await originalJson.apply(this, args);
+                    } catch {
+                        return null;
+                    }
+                }
+            };
+
+            window.__memolibSafeJsonPatched = true;
+        })();
+
         // SystÃ¨me d'alertes critiques
         class CriticalAlertSystem {
             constructor(apiUrl, token) {
@@ -324,7 +352,7 @@
                     updateCurrentUserDisplay(email);
                     showResult('login-result', `âœ… ConnectÃ© avec succÃ¨s! Token reÃ§u.`);
                     await refreshAnomalyBadge();
-                    
+
                     // Initialiser les fonctionnalitÃ©s avancÃ©es
                     realtimeDashboard = new RealtimeDashboard(API_URL, token);
                     templateManager = new TemplateManager(API_URL, token);
@@ -933,7 +961,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/ingest/email`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
@@ -942,7 +970,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     const eventId = data.eventId || data.existingEventId || 'N/A';
-                    
+
                     if (data.isDuplicate) {
                         let msg = `<div style="background: #fff3cd; border-left: 4px solid orange; padding: 15px; border-radius: 5px;">`;
                         msg += `âš ï¸ <strong>Doublon dÃ©tectÃ©</strong><br>`;
@@ -963,7 +991,7 @@
                         }
                         showResult('ingest-result', msg);
                     }
-                    
+
                     lastEventId = eventId !== 'N/A' ? eventId : null;
                     lastCaseId = data.caseId;
                 } else {
@@ -1184,7 +1212,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/semantic/search`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
@@ -1338,9 +1366,9 @@
 
                 const summaryHtml = `<div class="result" style="margin-top:12px;">
                     <strong>Vue synthÃ¨se</strong><br>
-                    Dossiers liÃ©s: ${summary.relatedCasesCount || 0} | 
-                    Ã‰vÃ©nements rÃ©cents: ${summary.recentEventsCount || 0} | 
-                    Anomalies ouvertes: ${summary.openAnomaliesCount || 0} | 
+                    Dossiers liÃ©s: ${summary.relatedCasesCount || 0} |
+                    Ã‰vÃ©nements rÃ©cents: ${summary.recentEventsCount || 0} |
+                    Anomalies ouvertes: ${summary.openAnomaliesCount || 0} |
                     Annexes: ${summary.totalAnnexesCount || 0}<br>
                     Dernier contact: ${summary.lastContactAt ? new Date(summary.lastContactAt).toLocaleString('fr-FR') : 'N/A'}
                 </div>`;
@@ -2013,16 +2041,16 @@
                 const res = await fetch(`${API_URL}/api/events/${eventId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (!res.ok) {
                     alert('Impossible de charger l\'Ã©vÃ©nement');
                     return;
                 }
-                
+
                 const event = await res.json();
                 const payload = parseRawPayloadSafe(event.rawPayload);
                 const digest = buildReadableEventDigest(payload, event.occurredAt, { includeFullBody: true });
-                
+
                 let html = `<div class="modal" id="eventModal" onclick="if(event.target.id==='eventModal')closeEventModal()">
                     <div class="modal-content">
                         <span class="modal-close" onclick="closeEventModal()">&times;</span>
@@ -2033,16 +2061,16 @@
                         <div style="margin-bottom: 15px;"><strong>Sujet:</strong> ${payload.subject || 'N/A'}</div>
                         <div style="margin-bottom: 15px;"><strong>Contenu:</strong></div>
                         <div style="white-space: pre-wrap; background: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto;">${digest.what}</div>`;
-                
+
                 if (event.validationFlags) {
                     html += `<div style="margin-top: 15px; color: orange;"><strong>âš ï¸ Anomalies:</strong> ${event.validationFlags}</div>`;
                 }
-                
+
                 html += `</div></div>`;
-                
+
                 const existing = document.getElementById('eventModal');
                 if (existing) existing.remove();
-                
+
                 document.body.insertAdjacentHTML('beforeend', html);
                 document.getElementById('eventModal').style.display = 'block';
             } catch (err) {
@@ -2092,7 +2120,7 @@
                     const percent = totalEmails > 0 ? ((dominantType.count / totalEmails) * 100).toFixed(1) : '0.0';
                     html += `<div class="result" style="margin-top: 8px;"><strong>Point clÃ©:</strong> le type principal est <strong>${dominantType.type}</strong> avec <strong>${dominantType.count}</strong> email(s), soit <strong>${percent}%</strong> du total.</div>`;
                 }
-                
+
                 document.getElementById('stats-result').innerHTML = html;
             } catch (err) {
                 showResult('stats-result', `âŒ Erreur: ${err.message}`, false);
@@ -2138,7 +2166,7 @@
 
         async function exportEventsText() {
             if (!token) return showResult('export-result', 'âŒ Connectez-vous d\'abord', false);
-            
+
             try {
                 const res = await fetch(`${API_URL}/api/export/events-text`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -2582,7 +2610,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/notifications/${notificationId}/dismiss`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
@@ -2649,13 +2677,13 @@
 
             setLoadingState('teamMembersList', 'â³ Chargement des membres...');
             setLoadingState('teamPendingList', 'â³ Chargement des invitations...');
-            
+
             try {
                 const response = await apiFetchWithFallback('/api/team/members', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await readResponseDataSafe(response);
-                
+
                 if (response.ok) {
                     displayTeamMembers(data.members || []);
                     displayPendingInvitations(data.pendingInvitations || []);
@@ -2669,14 +2697,14 @@
                 document.getElementById('teamPendingList').innerHTML = 'Erreur de connexion';
             }
         }
-        
+
         function displayTeamMembers(members) {
             const container = document.getElementById('teamMembersList');
             if (!members || members.length === 0) {
                 container.innerHTML = 'Aucun membre dans l\'Ã©quipe. Invitez des collaborateurs ci-dessus.';
                 return;
             }
-            
+
             let html = '<div class="event-list">';
             members.forEach(member => {
                 const memberId = pickValue(member, 'id', 'Id');
@@ -2705,14 +2733,14 @@
             html += '</div>';
             container.innerHTML = html;
         }
-        
+
         function displayPendingInvitations(invitations) {
             const container = document.getElementById('teamPendingList');
             if (!invitations || invitations.length === 0) {
                 container.innerHTML = 'Aucune invitation en attente.';
                 return;
             }
-            
+
             let html = '<div class="event-list">';
             invitations.forEach(inv => {
                 const invitationId = pickValue(inv, 'id', 'Id');
@@ -2737,7 +2765,7 @@
             html += '</div>';
             container.innerHTML = html;
         }
-        
+
         function getRoleLabel(role) {
             const labels = {
                 'OWNER': 'PropriÃ©taire',
@@ -2890,22 +2918,22 @@
                 showResult('teamInviteResult', 'âŒ Erreur de connexion', false);
             }
         }
-        
+
         // Team invite form handler
         document.addEventListener('DOMContentLoaded', function() {
             const teamForm = document.getElementById('teamInviteForm');
             if (teamForm) {
                 teamForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    
+
                     if (!token) {
                         showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
                         return;
                     }
-                    
+
                     const email = document.getElementById('teamInviteEmail').value;
                     const role = document.getElementById('teamInviteRole').value;
-                    
+
                     try {
                         const response = await fetch(`${API_URL}/api/team/invite`, {
                             method: 'POST',
@@ -2915,7 +2943,7 @@
                             },
                             body: JSON.stringify({ email, role })
                         });
-                        
+
                         if (response.ok) {
                             const data = await response.json();
                             const inviteUrl = (data?.inviteUrl || '').toString();
@@ -2940,6 +2968,6 @@
                 });
             }
         });
-        
+
         // showTab gÃ¨re directement le chargement de l'onglet Ã©quipe.
-    
+

@@ -2,6 +2,7 @@ import { checkDuplicate, computeChecksum, storeChannelMessage } from '@/lib/dedu
 import { captureWebhookHealth, trackMetric } from '@/lib/sentry-release-health';
 import * as Sentry from '@sentry/nextjs';
 import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
 
 const checkPayloadSize = (data: any, channel: string) => ({ valid: true, size: 0, limit: 1000000, message: '' });
 const validateWebhookPayloadSafe = (data: any) => ({ success: true, data, errors: { errors: [] } });
@@ -96,7 +97,7 @@ export async function POST(req: NextRequest) {
     // Step 3: Validate payload against Zod schema
     const validation = validateWebhookPayloadSafe(rawPayload);
     if (!validation.success) {
-      const zodErrors = validation.errors.errors
+      const zodErrors = (validation.errors.errors as Array<{ path: Array<string | number>; message: string }>)
         .map((err) => `${err.path.join('.')}: ${err.message}`)
         .join('; ');
 

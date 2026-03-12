@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - AWS Design</title>
+    <link href="https://unpkg.com/@cloudscape-design/global-styles/index.css" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; background: #f9fafb; font-family: 'Amazon Ember', Arial, sans-serif; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { background: #232f3e; color: white; padding: 20px; margin-bottom: 20px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .btn { background: #ec7211; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn:hover { background: #d66a0f; }
+        .btn-secondary { background: #545b64; }
+        .btn-secondary:hover { background: #414750; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #d5dbdb; border-radius: 4px; margin: 8px 0; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 32px; font-weight: bold; }
+        .stat-label { font-size: 14px; opacity: 0.9; margin-top: 5px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eaeded; }
+        th { background: #fafafa; font-weight: 600; color: #16191f; }
+        tr:hover { background: #f9fafb; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eaeded; }
+        .tab { padding: 12px 20px; cursor: pointer; border: none; background: none; font-weight: 600; color: #545b64; }
+        .tab.active { color: #ec7211; border-bottom: 3px solid #ec7211; margin-bottom: -2px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-box input { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1 style="margin:0;">🚀 MemoLib</h1>
+            <p style="margin:5px 0 0 0; opacity:0.9;">Système de gestion d'emails pour cabinets d'avocats</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('auth')">🔐 Connexion</button>
+            <button class="tab" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="showTab('cases')">📁 Dossiers</button>
+            <button class="tab" onclick="showTab('clients')">👥 Clients</button>
+            <button class="tab" onclick="showTab('search')">🔍 Recherche</button>
+        </div>
+
+        <div id="auth-tab" class="tab-content active">
+            <div class="card">
+                <h2>Connexion</h2>
+                <input type="email" id="login-email" placeholder="avocat@cabinet.fr" value="sarraboudjellal57@gmail.com">
+                <input type="password" id="login-password" placeholder="Mot de passe" value="SecurePass123!">
+                <button class="btn" onclick="login()">Se connecter</button>
+                <div id="login-result" style="margin-top:15px;"></div>
+            </div>
+        </div>
+
+        <div id="dashboard-tab" class="tab-content">
+            <div class="stats" id="stats-grid"></div>
+            <div class="card">
+                <h2>Activité récente</h2>
+                <div id="recent-activity"></div>
+            </div>
+        </div>
+
+        <div id="cases-tab" class="tab-content">
+            <div class="card">
+                <h2>Mes Dossiers</h2>
+                <button class="btn" onclick="loadCases()">Actualiser</button>
+                <div id="cases-table" style="margin-top:20px;"></div>
+            </div>
+        </div>
+
+        <div id="clients-tab" class="tab-content">
+            <div class="card">
+                <h2>Clients</h2>
+                <button class="btn" onclick="loadClients()">Charger</button>
+                <div id="clients-list" style="margin-top:20px;"></div>
+            </div>
+        </div>
+
+        <div id="search-tab" class="tab-content">
+            <div class="card">
+                <h2>Recherche d'emails</h2>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Rechercher...">
+                    <button class="btn" onclick="searchEmails()">Rechercher</button>
+                </div>
+                <div id="search-results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const API_BASE = window.location.origin;
+
+        const API_URL = window.location.origin;
+        let token = localStorage.getItem('authToken');
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'dashboard' && token) loadDashboard();
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const res = await fetch(`${API_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                token = data.token;
+                localStorage.setItem('authToken', token);
+                document.getElementById('login-result').innerHTML = '<div class="badge badge-success">✅ Connecté avec succès!</div>';
+                setTimeout(() => showTab('dashboard'), 1000);
+            } else {
+                document.getElementById('login-result').innerHTML = '<div class="badge badge-warning">❌ Erreur de connexion</div>';
+            }
+        }
+
+        async function loadDashboard() {
+            const res = await fetch(`${API_URL}/api/debug/stats`);
+            const data = await res.json();
+            
+            document.getElementById('stats-grid').innerHTML = `
+                <div class="stat-box"><div class="stat-number">${data.users || 0}</div><div class="stat-label">Utilisateurs</div></div>
+                <div class="stat-box"><div class="stat-number">${data.cases || 0}</div><div class="stat-label">Dossiers</div></div>
+                <div class="stat-box"><div class="stat-number">${data.events || 0}</div><div class="stat-label">Emails</div></div>
+                <div class="stat-box"><div class="stat-number">${data.sources || 0}</div><div class="stat-label">Sources</div></div>
+            `;
+        }
+
+        async function loadCases() {
+            if (!token) return alert('Connectez-vous d\'abord');
+            
+            const res = await fetch(`${API_URL}/api/cases`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            let html = '<table><thead><tr><th>Titre</th><th>Client</th><th>Date</th></tr></thead><tbody>';
+            data.forEach(c => {
+                html += `<tr><td>${c.title}</td><td>${c.clientId || 'N/A'}</td><td>${new Date(c.createdAt).toLocaleDateString('fr-FR')}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('cases-table').innerHTML = html;
+        }
+
+        async function loadClients() {
+            if (!token) return alert('Connectez-vous d\'abord');
+            
+            const res = await fetch(`${API_URL}/api/client`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            let html = '<table><thead><tr><th>Nom</th><th>Email</th><th>Téléphone</th></tr></thead><tbody>';
+            data.forEach(c => {
+                html += `<tr><td>${c.name}</td><td>${c.email}</td><td>${c.phoneNumber || 'N/A'}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('clients-list').innerHTML = html;
+        }
+
+        async function searchEmails() {
+            if (!token) return alert('Connectez-vous d\'abord');
+            
+            const query = document.getElementById('search-input').value;
+            const res = await fetch(`${API_URL}/api/search/events`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ text: query })
+            });
+            const data = await res.json();
+            
+            let html = `<p>${data.length} résultat(s)</p><table><thead><tr><th>Date</th><th>Sujet</th></tr></thead><tbody>`;
+            data.forEach(e => {
+                const payload = JSON.parse(e.rawPayload || '{}');
+                html += `<tr><td>${new Date(e.occurredAt).toLocaleDateString('fr-FR')}</td><td>${payload.subject || 'N/A'}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('search-results').innerHTML = html;
+        }
+
+        if (token) loadDashboard();
+    </script>
+</body>
+</html>

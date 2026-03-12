@@ -9,14 +9,14 @@
         // Validation des URLs pour prÃ©venir le phishing
         function isUrlSafe(url) {
             if (!url) return false;
-            
+
             // URLs relatives sont sÃ»res
             if (url.startsWith('/') && !url.startsWith('//')) return true;
-            
+
             try {
                 const urlObj = new URL(url);
                 const domain = urlObj.hostname.toLowerCase();
-                
+
                 return SECURITY_CONFIG.allowedDomains.includes(domain) ||
                        domain.endsWith('.memolib.local') ||
                        domain === 'localhost' ||
@@ -39,7 +39,7 @@
                 console.warn('URL bloquÃ©e pour sÃ©curitÃ©:', url);
                 return false;
             }
-            
+
             const link = document.createElement('a');
             link.href = url;
             link.rel = 'noopener noreferrer';
@@ -67,6 +67,34 @@
         const LOGIN_EMAIL_KEY = 'memolibMonitorEmail';
         const LOGIN_PASSWORD_KEY = 'memolibMonitorPassword';
         const LOGIN_NAME_KEY = 'memolibMonitorName';
+
+        (function patchResponseJsonForDemo() {
+            if (typeof window === 'undefined' || typeof Response === 'undefined') return;
+            if (window.__memolibSafeJsonPatched) return;
+
+            const originalJson = Response.prototype.json;
+            Response.prototype.json = async function (...args) {
+                try {
+                    const cloned = this.clone();
+                    const text = await cloned.text();
+                    if (!text || !text.trim()) return null;
+
+                    try {
+                        return JSON.parse(text);
+                    } catch {
+                        return null;
+                    }
+                } catch {
+                    try {
+                        return await originalJson.apply(this, args);
+                    } catch {
+                        return null;
+                    }
+                }
+            };
+
+            window.__memolibSafeJsonPatched = true;
+        })();
 
         let token = null;
         let csrfToken = generateCSRFToken();
@@ -199,7 +227,7 @@
                     method: 'POST',
                     body: JSON.stringify({ email, password, name, role: 'AVOCAT', plan: 'CABINET' })
                 });
-                
+
                 const data = await res.json();
                 if (res.ok) {
                     showResult('reg-result', `âœ… Compte crÃ©Ã© avec succÃ¨s! ID: ${data.id}`);
@@ -231,7 +259,7 @@
                     method: 'POST',
                     body: JSON.stringify({ email, password })
                 });
-                
+
                 const data = await res.json();
                 if (res.ok) {
                     persistSession(email, data.token);
@@ -426,7 +454,7 @@
                     method: 'POST',
                     timeoutMs: 240000
                 });
-                
+
                 const data = await res.json();
                 if (res.ok) {
                     data.linesPreview = await enrichScanRowsWithBodies(Array.isArray(data?.linesPreview) ? data.linesPreview : []);
@@ -643,7 +671,7 @@
         updateCSRFTokens();
         restoreSession();
         keepPinnedSessionAlive();
-        
+
         // VÃ©rification pÃ©riodique de la sÃ©curitÃ©
         setInterval(() => {
             if (document.querySelectorAll('a[href^="http"]:not([rel*="noopener"])').length > 0) {
@@ -654,4 +682,4 @@
         setInterval(keepPinnedSessionAlive, 180000);
 
         console.log('ðŸ”’ MemoLib chargÃ© avec protections de sÃ©curitÃ© activÃ©es');
-    
+

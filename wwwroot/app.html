@@ -7,29 +7,29 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
-        
+
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .header h1 { font-size: 24px; margin-bottom: 5px; }
         .header p { opacity: 0.9; font-size: 14px; }
-        
+
         .tabs { background: white; display: flex; border-bottom: 2px solid #e0e0e0; overflow-x: auto; }
         .tab { padding: 15px 25px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; white-space: nowrap; }
         .tab:hover { background: #f5f5f5; }
         .tab.active { border-bottom-color: #667eea; color: #667eea; font-weight: 600; }
-        
+
         .content { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
         .panel { display: none; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .panel.active { display: block; }
-        
+
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
         .form-group textarea { min-height: 100px; resize: vertical; }
-        
+
         .btn { padding: 12px 30px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 600; }
         .btn:hover { background: #5568d3; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
-        
+
         .message-list { max-height: 500px; overflow-y: auto; }
         .message-item { padding: 15px; border-bottom: 1px solid #eee; }
         .message-item:hover { background: #f9f9f9; }
@@ -37,16 +37,16 @@
         .message-from { font-weight: 600; color: #667eea; }
         .message-date { font-size: 12px; color: #999; }
         .message-text { color: #666; }
-        
+
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; }
         .stat-value { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
         .stat-label { opacity: 0.9; font-size: 14px; }
-        
+
         .alert { padding: 15px; border-radius: 5px; margin-bottom: 20px; }
         .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        
+
         .help-box { background: #f0f7ff; border-left: 4px solid #667eea; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
         .help-box h3 { color: #667eea; margin-bottom: 10px; font-size: 16px; }
         .help-box ul { margin-left: 20px; }
@@ -218,8 +218,21 @@
     </div>
 
     <script>
+    const API_BASE = window.location.origin;
+
         const API_URL = 'http://localhost:5078';
         let token = localStorage.getItem('token');
+
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return null;
+            }
+        }
 
         function showTab(tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -233,9 +246,10 @@
                 const response = await fetch(`${API_URL}/api/gateway/inbox?limit=50`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const messages = await response.json();
-                
-                const html = messages.map(m => `
+                const messages = await readResponseDataSafe(response);
+                const messageList = Array.isArray(messages) ? messages : [];
+
+                const html = messageList.map(m => `
                     <div class="message-item">
                         <div class="message-header">
                             <span class="message-from">${m.from || 'Inconnu'}</span>
@@ -244,7 +258,7 @@
                         <div class="message-text">${m.text || m.subject}</div>
                     </div>
                 `).join('');
-                
+
                 document.getElementById('messageList').innerHTML = html || '<p>Aucun message</p>';
             } catch (error) {
                 document.getElementById('messageList').innerHTML = '<p>Erreur de chargement</p>';
@@ -256,7 +270,7 @@
             const channel = document.getElementById('sendChannel').value;
             const to = document.getElementById('sendTo').value;
             const text = document.getElementById('sendText').value;
-            
+
             try {
                 const response = await fetch(`${API_URL}/api/gateway/send`, {
                     method: 'POST',
@@ -266,7 +280,7 @@
                     },
                     body: JSON.stringify({ channel, to, text })
                 });
-                
+
                 if (response.ok) {
                     document.getElementById('sendAlert').innerHTML = '<div class="alert alert-success">✅ Message envoyé !</div>';
                     document.getElementById('sendText').value = '';
@@ -283,9 +297,10 @@
                 const response = await fetch(`${API_URL}/api/cases`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const cases = await response.json();
-                
-                const html = cases.map(c => `
+                const cases = await readResponseDataSafe(response);
+                const casesList = Array.isArray(cases) ? cases : [];
+
+                const html = casesList.map(c => `
                     <div class="message-item">
                         <div class="message-header">
                             <span class="message-from">${c.title}</span>
@@ -293,7 +308,7 @@
                         </div>
                     </div>
                 `).join('');
-                
+
                 document.getElementById('casesList').innerHTML = html || '<p>Aucun dossier</p>';
             } catch (error) {
                 document.getElementById('casesList').innerHTML = '<p>Erreur de chargement</p>';
@@ -305,9 +320,10 @@
                 const response = await fetch(`${API_URL}/api/client`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                const clients = await response.json();
-                
-                const html = clients.map(c => `
+                const clients = await readResponseDataSafe(response);
+                const clientsList = Array.isArray(clients) ? clients : [];
+
+                const html = clientsList.map(c => `
                     <div class="message-item">
                         <div class="message-header">
                             <span class="message-from">${c.name || c.email}</span>
@@ -315,7 +331,7 @@
                         </div>
                     </div>
                 `).join('');
-                
+
                 document.getElementById('clientsList').innerHTML = html || '<p>Aucun client</p>';
             } catch (error) {
                 document.getElementById('clientsList').innerHTML = '<p>Erreur de chargement</p>';

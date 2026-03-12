@@ -3,13 +3,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const guard = requireApiPermission(session, RBAC_PERMISSIONS.USERS_READ);
+    if (!guard.ok) {
+      return guard.response;
     }
 
     const users = await prisma.user.findMany({

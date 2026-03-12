@@ -1,3 +1,4 @@
+using System.Security;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -46,6 +47,13 @@ if (string.IsNullOrWhiteSpace(secretKey) || secretKey.Length < 32)
         "JwtSettings:SecretKey doit être défini avec une valeur forte (>= 32 caractères).");
 }
 
+// SECURITY: Bloquer secrets par défaut en production
+if (builder.Environment.IsProduction() && 
+    (secretKey.Contains("VotreCle") || secretKey.Contains("default") || secretKey.Contains("Secret")))
+{
+    throw new SecurityException("CRITICAL: Default JWT secret detected in production! Use Azure KeyVault or User Secrets.");
+}
+
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
 
 builder.Services.AddAuthentication(options =>
@@ -64,6 +72,21 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = audience,
         ClockSkew = TimeSpan.Zero
+    };
+    
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Log.Error("JWT Authentication failed: {Error}", context.Exception.Message);
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            var claims = string.Join(", ", context.Principal.Claims.Select(c => $"{c.Type}={c.Value}"));
+            Log.Information("JWT Token validated. Claims: {Claims}", claims);
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -172,11 +195,47 @@ builder.Services.AddScoped<WebhookService>();
 builder.Services.AddScoped<AdvancedTemplateService>();
 builder.Services.AddScoped<SignatureService>();
 builder.Services.AddScoped<DynamicFormService>();
+builder.Services.AddScoped<ClientIntakeService>();
+builder.Services.AddScoped<SharedWorkspaceService>();
+builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<VaultService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<EmailMonitorService>();
+builder.Services.AddHostedService<ConnectionMonitorService>();
+
+// Configuration base de données (SQLite dev / PostgreSQL prod)
+var connectionString = builder.Configuration.GetConnectionString("Default");
+var usePostgres = builder.Configuration.GetValue<bool>("UsePostgreSQL");
+
 builder.Services.AddDbContext<MemoLibDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+{
+    if (usePostgres)
+    {
+        options.UseNpgsql(connectionString, npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorCodesToAdd: null);
+            npgsqlOptions.CommandTimeout(30);
+            npgsqlOptions.MigrationsAssembly("MemoLib.Api");
+        });
+        Log.Information("✅ Base de données: PostgreSQL");
+    }
+    else
+    {
+        options.UseSqlite(connectionString, sqliteOptions =>
+        {
+            sqliteOptions.CommandTimeout(30);
+        });
+        Log.Information("✅ Base de données: SQLite");
+    }
+
+    // Enhanced logging in development
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.EnableDetailedErrors();
+    }
+}, ServiceLifetime.Scoped);
 
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? new[] { "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5078" };
@@ -208,6 +267,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Health checks
+builder.Services.AddHealthChecks();
+
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
@@ -236,6 +298,8 @@ using (var scope = app.Services.CreateScope())
 
     if (app.Environment.IsDevelopment() && !db.Sources.Any())
     {
+        var passwordService = scope.ServiceProvider.GetRequiredService<PasswordService>();
+        
         var user = new User
         {
             Id = Guid.NewGuid(),
@@ -252,8 +316,31 @@ using (var scope = app.Services.CreateScope())
             Type = "email",
             UserId = user.Id
         });
+        
+        // Créer utilisateur avec mot de passe
+        var userWithPassword = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = "admin@freetime.com",
+            Password = passwordService.HashPassword("Admin123!"),
+            Role = Roles.Owner,
+            Name = "Admin",
+            CreatedAt = DateTime.UtcNow
+        };
+        db.Users.Add(userWithPassword);
+        
+        db.Sources.Add(new Source
+        {
+            Id = Guid.NewGuid(),
+            Type = "email",
+            UserId = userWithPassword.Id
+        });
 
         db.SaveChanges();
+        
+        Log.Information("✅ Utilisateurs créés:");
+        Log.Information("   - admin@memolib.local (sans mot de passe)");
+        Log.Information("   - admin@freetime.com (mot de passe: Admin123!)");
     }
 
     // Seed questionnaires par défaut
@@ -262,6 +349,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<ConnectionValidationMiddleware>();
 app.UseMiddleware<CacheMiddleware>();
 app.UseMiddleware<RateLimitingMiddleware>();
 
@@ -302,7 +390,15 @@ app.MapGet("/api/_routes", (IEnumerable<EndpointDataSource> endpointSources) =>
 
     return Results.Ok(routes);
 });
-app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => false // Always healthy if app is running
+});
 app.MapPost("/api/system/stop", (HttpContext http, IHostApplicationLifetime lifetime) =>
 {
     if (!app.Environment.IsDevelopment())

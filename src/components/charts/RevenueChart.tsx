@@ -31,7 +31,10 @@ export default function RevenueChart({ data = SAMPLE_DATA }: { data?: RevenuePoi
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="month" stroke="#94a3b8" />
                     <YAxis stroke="#94a3b8" tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
-                    <Tooltip formatter={(value: number | undefined) => value ? `$${value.toLocaleString()}` : '$0'} />
+                    <Tooltip formatter={(value) => {
+                        const numericValue = typeof value === 'number' ? value : Number(value);
+                        return Number.isFinite(numericValue) ? `$${numericValue.toLocaleString()}` : '$0';
+                    }} />
                     <Area type="monotone" dataKey="revenue" stroke="#2563eb" fillOpacity={1} fill="url(#revenueGradient)" />
                 </AreaChart>
             </ResponsiveContainer>

@@ -7,7 +7,6 @@
 
 'use client';
 
-import { EventType } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import {
   AlertCircle,
@@ -27,7 +26,7 @@ import {
 interface TimelineEvent {
   id: string;
   timestamp: Date | string;
-  eventType: EventType;
+  eventType: string;
   entityType: string;
   entityId: string;
   actorType: 'USER' | 'SYSTEM' | 'AI';

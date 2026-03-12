@@ -134,6 +134,43 @@ memoLib/
 
 ## 🔐 SÉCURITÉ - CONFORMITÉ INSTITUTIONNELLE
 
+### Flux middleware sécurité/auth (vue simplifiée)
+
+```
+Request HTTP
+  |
+  v
+proxy.ts
+  - headers sécurité
+  - CSRF / rate-limit global
+  - routage RBAC high-level
+  |
+  +--> middleware/zero-trust.ts
+  |      - authentification
+  |      - autorisation contextuelle
+  |      - audit trail
+  |
+  +--> middleware/tenant-isolation.ts
+  |      - isolement multi-tenant
+  |
+  +--> middleware/quota-check.ts
+       - contrôle quotas plan
+  |
+  v
+Route API (app/api/*)
+  |
+  v
+Services (lib/*) + Prisma
+```
+
+### Responsabilités clés
+
+- `src/proxy.ts` : point d’entrée middleware global, règles hiérarchiques et headers sécurité.
+- `src/middleware/zero-trust.ts` : garde-fou authz/authn + journalisation des actions sensibles.
+- `src/middleware/tenant-isolation.ts` : empêche l’accès cross-tenant hors rôle autorisé.
+- `src/middleware/quota-check.ts` : bloque les créations quand le quota est dépassé.
+- `src/lib/auth/nextauth-token.ts` : helper unique `getAuthToken` pour homogénéiser la récupération du token NextAuth.
+
 ### Principes Clés
 
 | Aspect               | Implémentation                           |
@@ -273,6 +310,10 @@ PostgreSQL      Key Vault         Blob Storage
 4. [ ] Implémenter Microsoft Graph
 5. [ ] Déployer sur Azure Static Web Apps
 6. [ ] Configurer monitoring Application Insights
+
+### Guides d'équipe
+
+- [Guide: quand refactorer / quand reporter](./REFRACTORING_DECISION_GUIDE.md)
 
 ---
 

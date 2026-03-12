@@ -7,7 +7,13 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = (await request.json()) as Record<string, unknown>;
+    } catch {
+      return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+    }
+
     const { nom, email, telephone, cabinet, sujet, message, type } = body;
 
     // Validation
@@ -18,6 +24,10 @@ export async function POST(request: Request) {
       );
     }
 
+    if (typeof email !== 'string') {
+      return NextResponse.json({ error: 'Email invalide' }, { status: 400 });
+    }
+
     // Validation email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -25,16 +35,16 @@ export async function POST(request: Request) {
     }
 
     // Stocker la demande en base (optionnel - on peut aussi envoyer un email)
-    // Pour l'instant, on log la demande
+    // Ne pas logger de donnees personnelles (RGPD)
     logger.info('=== NOUVELLE DEMANDE DE CONTACT ===');
-    logger.info('Type:', { type });
-    logger.info('Nom:', { nom });
-    logger.info('Email:', { email });
-    logger.info('Telephone:', { telephone: telephone || 'Non renseigne' });
-    logger.info('Cabinet:', { cabinet: cabinet || 'Non renseigne' });
-    logger.info('Sujet:', { sujet });
-    logger.info('Message:', { message });
-    logger.info('Date:', { date: new Date().toISOString() });
+    logger.info('Meta:', {
+      type: type || 'non-renseigne',
+      hasTelephone: Boolean(telephone),
+      hasCabinet: Boolean(cabinet),
+      hasSubject: Boolean(sujet),
+      messageLength: typeof message === 'string' ? message.length : 0,
+      receivedAt: new Date().toISOString(),
+    });
     logger.info('===================================');
 
     // Optionnel: Créer une entrée dans une table ContactRequest
@@ -48,7 +58,9 @@ export async function POST(request: Request) {
       message: 'Votre demande a ete envoyee avec succes',
     });
   } catch (error) {
-    logger.error('Erreur API contact:', { error });
+    logger.error('Erreur API contact', error instanceof Error ? error : undefined, {
+      route: '/api/contact',
+    });
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

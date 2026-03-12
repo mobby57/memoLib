@@ -4,10 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { DeadlineMonitorService } from '@/lib/services/deadline-monitor.service';
 
-const prisma = new PrismaClient();
 const deadlineMonitor = new DeadlineMonitorService(prisma);
 
 // POST /api/deadlines/check - Vérifier toutes deadlines

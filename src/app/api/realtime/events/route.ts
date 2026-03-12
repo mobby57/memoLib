@@ -9,6 +9,7 @@ import { NextRequest } from 'next/server';
 
 // Store des connexions SSE actives par utilisateur
 const clients = new Map<string, Set<ReadableStreamDefaultController>>();
+const userTenantMap = new Map<string, string>();
 
 // Types d'événements supportés
 export type EventType =
@@ -81,8 +82,11 @@ export function publishToTenant(
   event: EventType,
   data: Record<string, unknown>
 ): void {
-  // TODO: Filtrer les utilisateurs par tenant
-  publishEvent(event, { ...data, tenantId });
+  const targetUserIds = Array.from(userTenantMap.entries())
+    .filter(([, mappedTenantId]) => mappedTenantId === tenantId)
+    .map(([userId]) => userId);
+
+  publishEvent(event, { ...data, tenantId }, targetUserIds);
 }
 
 /**
@@ -97,6 +101,11 @@ export async function GET(req: NextRequest) {
   }
 
   const userId = session.user.id;
+  const tenantId = String((session.user as any).tenantId || '');
+
+  if (tenantId) {
+    userTenantMap.set(userId, tenantId);
+  }
 
   // Créer le stream SSE
   const stream = new ReadableStream({
@@ -133,6 +142,7 @@ export async function GET(req: NextRequest) {
           userClients.delete(controller);
           if (userClients.size === 0) {
             clients.delete(userId);
+            userTenantMap.delete(userId);
           }
         }
       });
@@ -151,6 +161,7 @@ export async function GET(req: NextRequest) {
         }
         clients.delete(userId);
       }
+      userTenantMap.delete(userId);
     },
   });
 

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Refactored</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 MemoLib - Version Refactorisée</h1>
+            <p>Architecture modulaire ES6</p>
+        </div>
+
+        <div id="app">
+            <div class="loading">⏳ Chargement...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { AuthService } from './js/services/auth.js';
+        import { CaseService } from './js/services/cases.js';
+        import { ClientService } from './js/services/clients.js';
+        import { SearchService } from './js/services/search.js';
+        import { EmailService } from './js/services/email.js';
+        import { debounce, paginate, formatDate } from './js/utils/helpers.js';
+        import { enhanceAccessibility } from './js/utils/accessibility.js';
+
+        const API_URL = 'http://localhost:5078';
+        
+        // Initialize services
+        const authService = new AuthService(API_URL);
+        const caseService = new CaseService(API_URL, authService);
+        const clientService = new ClientService(API_URL, authService);
+        const searchService = new SearchService(API_URL, authService);
+        const emailService = new EmailService(API_URL, authService);
+
+        // State
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 20;
+
+        // Initialize app
+        async function init() {
+            enhanceAccessibility();
+            
+            if (authService.isAuthenticated()) {
+                await renderDashboard();
+            } else {
+                renderLoginForm();
+            }
+        }
+
+        function renderLoginForm() {
+            document.getElementById('app').innerHTML = `
+                <div class="card">
+                    <h2>Connexion</h2>
+                    <form id="loginForm">
+                        <div class="input-group">
+                            <label>Email</label>
+                            <input type="email" id="email" required 
+                                   value="sarraboudjellal57@gmail.com">
+                        </div>
+                        <div class="input-group">
+                            <label>Mot de passe</label>
+                            <input type="password" id="password" required
+                                   value="SecurePass123!">
+                        </div>
+                        <button type="submit" class="btn">Se connecter</button>
+                        <div id="loginResult"></div>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const result = await authService.login(email, password);
+                
+                if (result.success) {
+                    await renderDashboard();
+                } else {
+                    // Tenter de créer le compte si login échoue
+                    const registerResult = await authService.register(email, password, 'Utilisateur Test');
+                    if (registerResult.success) {
+                        const retryLogin = await authService.login(email, password);
+                        if (retryLogin.success) {
+                            await renderDashboard();
+                        } else {
+                            document.getElementById('loginResult').innerHTML = 
+                                `<div class="result error">❌ ${retryLogin.error}</div>`;
+                        }
+                    } else {
+                        document.getElementById('loginResult').innerHTML = 
+                            `<div class="result error">❌ ${result.error}</div>`;
+                    }
+                }
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = 
+                    `<div class="result error">❌ Erreur: ${error.message}</div>`;
+            }
+        }
+
+        async function renderDashboard() {
+            document.getElementById('app').innerHTML = `
+                <div class="quickbar">
+                    <button class="btn" onclick="window.location.reload()">🔄 Actualiser</button>
+                    <button class="btn" id="logoutBtn">🚪 Déconnexion</button>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" data-tab="cases">📁 Dossiers</button>
+                    <button class="tab" data-tab="clients">👥 Clients</button>
+                    <button class="tab" data-tab="search">🔍 Recherche</button>
+                </div>
+
+                <div id="tabContent"></div>
+            `;
+
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                authService.logout();
+                renderLoginForm();
+            });
+
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderTab(e.target.dataset.tab);
+                });
+            });
+
+            await renderTab('cases');
+        }
+
+        async function renderTab(tabName) {
+            const content = document.getElementById('tabContent');
+            content.innerHTML = '<div class="loading">⏳ Chargement...</div>';
+
+            try {
+                switch(tabName) {
+                    case 'cases':
+                        await renderCases();
+                        break;
+                    case 'clients':
+                        await renderClients();
+                        break;
+                    case 'search':
+                        await renderSearch();
+                        break;
+                }
+            } catch (error) {
+                if (error.message.includes('401')) {
+                    authService.logout();
+                    renderLoginForm();
+                } else {
+                    content.innerHTML = `<div class="result error">❌ Erreur: ${error.message}</div>`;
+                }
+            }
+        }
+
+        async function renderCases() {
+            const cases = await caseService.getCases();
+            if (!cases || !Array.isArray(cases)) {
+                document.getElementById('tabContent').innerHTML = 
+                    '<div class="result">Aucun dossier trouvé</div>';
+                return;
+            }
+            const paginatedCases = paginate(cases, currentPage, ITEMS_PER_PAGE);
+
+            const html = `
+                <div class="card">
+                    <h2>📁 Mes Dossiers (${paginatedCases.total})</h2>
+                    <div class="event-list">
+                        ${paginatedCases.items.map(c => `
+                            <div class="event-item case-item" data-id="${c.id}">
+                                <strong>${c.title}</strong>
+                                <div class="date">Créé le ${formatDate(c.createdAt)}</div>
+                                <div class="content">Client: ${c.clientId || 'Non renseigné'}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${renderPagination(paginatedCases)}
+                </div>
+            `;
+
+            document.getElementById('tabContent').innerHTML = html;
+
+            document.querySelectorAll('.case-item').forEach(item => {
+                item.addEventListener('click', () => showCaseDetail(item.dataset.id));
+            });
+        }
+
+        async function renderClients() {
+            const clients = await clientService.getClients();
+            if (!clients || !Array.isArray(clients)) {
+                document.getElementById('tabContent').innerHTML = 
+                    '<div class="result">Aucun client trouvé</div>';
+                return;
+            }
+            const paginatedClients = paginate(clients, currentPage, ITEMS_PER_PAGE);
+
+            const html = `
+                <div class="card">
+                    <h2>👥 Mes Clients (${paginatedClients.total})</h2>
+                    <div class="event-list">
+                        ${paginatedClients.items.map(c => `
+                            <div class="event-item">
+                                <strong>${c.name}</strong>
+                                <div class="date">${c.email}</div>
+                                <div class="content">${c.phoneNumber || ''} ${c.address || ''}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${renderPagination(paginatedClients)}
+                </div>
+            `;
+
+            document.getElementById('tabContent').innerHTML = html;
+        }
+
+        async function renderSearch() {
+            const html = `
+                <div class="card">
+                    <h2>🔍 Recherche Intelligente</h2>
+                    <div class="input-group">
+                        <input type="text" id="searchInput" placeholder="Rechercher...">
+                    </div>
+                    <div id="searchResults"></div>
+                </div>
+            `;
+
+            document.getElementById('tabContent').innerHTML = html;
+
+            const debouncedSearch = debounce(async (query) => {
+                if (!query) return;
+                const results = await searchService.searchEvents(query);
+                displaySearchResults(results);
+            }, 300);
+
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                debouncedSearch(e.target.value);
+            });
+        }
+
+        function displaySearchResults(results) {
+            const html = `
+                <div class="result success">✅ ${results.length} résultat(s)</div>
+                <div class="event-list">
+                    ${results.slice(0, 10).map(r => `
+                        <div class="event-item">
+                            <div class="date">${formatDate(r.occurredAt)}</div>
+                            <div class="content">${JSON.stringify(r).substring(0, 200)}...</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('searchResults').innerHTML = html;
+        }
+
+        async function showCaseDetail(caseId) {
+            const [caseData, timeline] = await Promise.all([
+                caseService.getCaseById(caseId),
+                caseService.getTimeline(caseId)
+            ]);
+
+            alert(`Dossier: ${caseData.title}\nÉvénements: ${timeline.length}`);
+        }
+
+        function renderPagination(data) {
+            if (data.pages <= 1) return '';
+
+            return `
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="btn" ${!data.hasPrev ? 'disabled' : ''} 
+                            onclick="changePage(${data.page - 1})">← Précédent</button>
+                    <span style="margin: 0 15px;">Page ${data.page} / ${data.pages}</span>
+                    <button class="btn" ${!data.hasNext ? 'disabled' : ''} 
+                            onclick="changePage(${data.page + 1})">Suivant →</button>
+                </div>
+            `;
+        }
+
+        window.changePage = (page) => {
+            currentPage = page;
+            const activeTab = document.querySelector('.tab.active').dataset.tab;
+            renderTab(activeTab);
+        };
+
+        // Start app
+        init();
+    </script>
+</body>
+</html>

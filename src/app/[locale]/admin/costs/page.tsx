@@ -53,6 +53,7 @@ export default function AdminCostsPage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     loadCosts();
@@ -76,22 +77,24 @@ export default function AdminCostsPage() {
 
   const handleAction = async (action: string, tenantId: string, data?: object) => {
     setActionLoading(tenantId);
+    setFeedback(null);
     try {
       const res = await fetch('/api/admin/costs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, tenantId, data }),
       });
-      
+
       if (res.ok) {
         const result = await res.json();
-        alert(result.message || 'Action effectu�e');
+        setFeedback({ type: 'success', message: result.message || 'Action effectuée' });
         loadCosts();
       } else {
-        alert('Erreur lors de l\'action');
+        setFeedback({ type: 'error', message: 'Erreur lors de l\'action' });
       }
     } catch (error) {
       console.error('Erreur action:', error);
+      setFeedback({ type: 'error', message: 'Erreur lors de l\'action' });
     } finally {
       setActionLoading(null);
     }
@@ -99,7 +102,7 @@ export default function AdminCostsPage() {
 
   const createOverageInvoice = async (tenant: TenantCost) => {
     if (!tenant.billableOverage) return;
-    
+
     if (!confirm(`Cr�er une facture de ${tenant.billableOverage.amount}� TTC pour ${tenant.name}?`)) {
       return;
     }
@@ -135,11 +138,23 @@ export default function AdminCostsPage() {
           </p>
         </div>
 
+        {feedback && (
+          <div
+            className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
         {/* Filtres p�riode */}
         <div className="bg-white rounded-lg shadow p-4 mb-6 flex gap-4 items-center">
           <label className="text-sm font-medium text-gray-700">P�riode:</label>
-          <select 
-            value={selectedMonth} 
+          <select
+            value={selectedMonth}
             onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
             className="border rounded px-3 py-2"
           >
@@ -149,15 +164,15 @@ export default function AdminCostsPage() {
               </option>
             ))}
           </select>
-          <select 
-            value={selectedYear} 
+          <select
+            value={selectedYear}
             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
             className="border rounded px-3 py-2"
           >
             <option value={2025}>2025</option>
             <option value={2026}>2026</option>
           </select>
-          <button 
+          <button
             onClick={loadCosts}
             className="ml-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
@@ -246,7 +261,7 @@ export default function AdminCostsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
-                        <div 
+                        <div
                           className={`h-2 rounded-full ${
                             tenant.aiCosts.percentage >= 100 ? 'bg-red-600' :
                             tenant.aiCosts.percentage >= 80 ? 'bg-yellow-500' : 'bg-green-500'

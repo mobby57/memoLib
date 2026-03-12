@@ -1,6 +1,6 @@
 /**
  * Next.js Image Optimization Configuration
- * 
+ *
  * Features:
  * - WebP/AVIF automatic conversion
  * - Responsive image sizes
@@ -10,7 +10,15 @@
  * - Cache optimization
  */
 
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const nextConfig = {
+    turbopack: {
+        root: __dirname,
+    },
     typescript: {
         // Build errors are checked separately in CI
         ignoreBuildErrors: false,

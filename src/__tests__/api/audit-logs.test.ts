@@ -2,7 +2,17 @@
 import { GET, POST, PATCH, DELETE } from '@/app/api/audit-logs/route';
 import prisma from '@/lib/prisma';
 
-jest.mock('@/lib/prisma');
+jest.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  default: {
+    auditLog: {
+      findMany: jest.fn(),
+      count: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+    },
+  },
+}));
 
 describe('/api/audit-logs', () => {
   const mockTenantId = 'tenant-123';

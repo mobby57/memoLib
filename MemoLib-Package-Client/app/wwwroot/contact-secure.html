@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MemoLib - Contact schéma de données</title>
-  
+
   <!-- Protection contre le phishing et tabnabbing -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-  
+
   <style>
     :root {
       --bg: #f5f7fb;
@@ -240,10 +240,10 @@
     // Validation sécurisée des emails
     function isEmailSafe(email) {
       if (!email || email.length > 255) return false;
-      
+
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(email)) return false;
-      
+
       // Vérifier les domaines suspects
       const suspiciousDomains = ['tempmail', 'guerrillamail', '10minutemail'];
       const domain = email.split('@')[1]?.toLowerCase();
@@ -253,7 +253,7 @@
     // Sanitisation des entrées
     function sanitizeInput(input, maxLength = 1000) {
       if (!input) return '';
-      
+
       return input
         .toString()
         .trim()
@@ -266,27 +266,27 @@
     // Validation du formulaire
     function validateForm(payload) {
       const errors = [];
-      
+
       if (!payload.name || payload.name.length < 2) {
         errors.push('Le nom doit contenir au moins 2 caractères');
       }
-      
+
       if (!isEmailSafe(payload.email)) {
         errors.push('Adresse email invalide');
       }
-      
+
       if (!payload.needType) {
         errors.push('Veuillez sélectionner un type de besoin');
       }
-      
+
       if (!payload.details || payload.details.length < 10) {
         errors.push('Veuillez décrire votre contexte (minimum 10 caractères)');
       }
-      
+
       if (payload.details.length > SECURITY_CONFIG.maxMessageLength) {
         errors.push(`Le contexte ne peut pas dépasser ${SECURITY_CONFIG.maxMessageLength} caractères`);
       }
-      
+
       return errors;
     }
 
@@ -333,8 +333,19 @@
       if (!isEmailSafe(CONTACT_EMAIL)) {
         throw new Error('Email de contact invalide');
       }
-      
+
       return `mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    async function readResponseDataSafe(response) {
+      const text = await response.text();
+      if (!text || !text.trim()) return null;
+
+      try {
+        return JSON.parse(text);
+      } catch {
+        return null;
+      }
     }
 
     async function sendViaBackend(payload) {
@@ -344,7 +355,7 @@
       try {
         const response = await fetch('/api/public/contact', {
           method: 'POST',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
             'X-CSRF-Token': payload.csrf_token
           },
@@ -354,12 +365,7 @@
 
         clearTimeout(timeoutId);
 
-        let data = null;
-        try {
-          data = await response.json();
-        } catch {
-          // Réponse non-JSON acceptable
-        }
+        const data = await readResponseDataSafe(response);
 
         if (!response.ok) {
           throw new Error(data?.message || 'Envoi serveur impossible');
@@ -378,7 +384,7 @@
       if (submitBtn) submitBtn.disabled = true;
 
       const payload = buildPayload();
-      
+
       // Validation côté client
       const errors = validateForm(payload);
       if (errors.length > 0) {
@@ -409,7 +415,7 @@
 
     copyBtn.addEventListener('click', async () => {
       const payload = buildPayload();
-      
+
       // Validation avant copie
       const errors = validateForm(payload);
       if (errors.length > 0) {
@@ -419,7 +425,7 @@
 
       const { subject, body } = buildMessage();
       const full = `Objet: ${subject}\n\n${body}`;
-      
+
       try {
         await navigator.clipboard.writeText(full);
         hint.textContent = 'Message copié. Collez-le dans votre client email et envoyez-le à ' + CONTACT_EMAIL + '.';
