@@ -267,3 +267,99 @@ def test_webhook_paid_updates_case_when_reference_present(monkeypatch):
     assert updated.notes is not None
     assert "stripe_webhook" in updated.notes
     db.close()
+
+
+def test_webhook_duplicate_event_id_is_ignored(monkeypatch):
+    secret = "whsec_duplicate_test"
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", secret)
+    client, SessionLocal = _build_test_client_with_memory_db()
+
+    db = SessionLocal()
+    db_case = Case(
+        user_id=3,
+        reference="CASE-2026-WEBHOOK-DUP",
+        title="Dossier duplicate webhook",
+        status="pending",
+        priority="high",
+    )
+    db.add(db_case)
+    db.commit()
+    db.close()
+
+    event = {
+        "id": "evt_duplicate_001",
+        "type": "checkout.session.completed",
+        "data": {
+            "object": {
+                "id": "cs_webhook_dup_123",
+                "payment_status": "paid",
+                "metadata": {"case_reference": "CASE-2026-WEBHOOK-DUP"},
+            }
+        },
+    }
+    payload_str = json.dumps(event, separators=(",", ":"))
+    payload_bytes = payload_str.encode("utf-8")
+    timestamp = int(time.time())
+    signed_payload = f"{timestamp}.".encode("utf-8") + payload_bytes
+    signature = hmac.new(secret.encode("utf-8"), signed_payload, hashlib.sha256).hexdigest()
+    signature_header = f"t={timestamp},v1={signature}"
+
+    first = client.post(
+        "/api/payments/webhook",
+        data=payload_bytes,
+        headers={"Content-Type": "application/json", "Stripe-Signature": signature_header},
+    )
+    second = client.post(
+        "/api/payments/webhook",
+        data=payload_bytes,
+        headers={"Content-Type": "application/json", "Stripe-Signature": signature_header},
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert first.json()["duplicate_event"] is False
+    assert second.json()["duplicate_event"] is True
+    assert second.json()["case_updated"] is False
+
+    db = SessionLocal()
+    updated = db.query(Case).filter(Case.reference == "CASE-2026-WEBHOOK-DUP").first()
+    assert updated is not None
+    notes = json.loads(updated.notes)
+    webhook_entries = [entry for entry in notes if entry.get("source") == "stripe_webhook"]
+    assert len(webhook_entries) == 1
+    db.close()
+
+
+def test_get_case_payment_events_returns_entries(monkeypatch):
+    monkeypatch.delenv("STRIPE_WEBHOOK_SECRET", raising=False)
+    client, SessionLocal = _build_test_client_with_memory_db()
+
+    db = SessionLocal()
+    db_case = Case(
+        user_id=4,
+        reference="CASE-2026-EVENTS-01",
+        title="Dossier events",
+        status="open",
+        priority="normal",
+    )
+    db.add(db_case)
+    db.commit()
+    db.close()
+
+    confirm = client.post(
+        "/api/payments/confirm",
+        json={
+            "case_reference": "CASE-2026-EVENTS-01",
+            "session_id": "cs_manual_events_01",
+            "payment_status": "paid",
+            "provider": "stripe",
+        },
+    )
+    assert confirm.status_code == 200
+
+    response = client.get("/api/payments/case/CASE-2026-EVENTS-01/events")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["case_reference"] == "CASE-2026-EVENTS-01"
+    assert payload["total_events"] >= 1
+    assert any(entry.get("source") == "manual_confirm" for entry in payload["payment_events"])
