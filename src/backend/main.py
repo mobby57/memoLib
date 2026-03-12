@@ -312,6 +312,12 @@ async def update_voice_settings(
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+
+@app.get("/payment-checkout", include_in_schema=False)
+async def payment_checkout_page():
+    """Page statique de test checkout Stripe (US19)."""
+    return FileResponse("wwwroot/payment-checkout.html")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5000, reload=True)
