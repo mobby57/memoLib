@@ -123,6 +123,21 @@ def _stripe_webhook_secret() -> str:
     return os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()
 
 
+def _admin_api_key() -> str:
+    return os.getenv("ADMIN_API_KEY", "").strip()
+
+
+def verify_admin_access(request: Request) -> None:
+    """Protection admin par header X-Admin-Key quand ADMIN_API_KEY est configuree."""
+    expected_key = _admin_api_key()
+    if not expected_key:
+        return
+
+    provided_key = request.headers.get("x-admin-key", "")
+    if not provided_key or not hmac.compare_digest(provided_key, expected_key):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access denied")
+
+
 def _build_mock_checkout_url(success_url: str, session_id: str) -> str:
     separator = "&" if "?" in success_url else "?"
     return f"{success_url}{separator}mock_session_id={session_id}"
@@ -500,6 +515,7 @@ async def get_case_payment_events(case_reference: str, db: Session = Depends(get
 
 @router.get("/events", response_model=PaymentEventsListResponse, status_code=status.HTTP_200_OK)
 async def list_payment_events(
+    request: Request,
     db: Session = Depends(get_db),
     case_reference: Optional[str] = Query(default=None, min_length=2, max_length=100),
     provider: Optional[str] = Query(default=None, min_length=2, max_length=30),
@@ -511,6 +527,8 @@ async def list_payment_events(
     offset: int = Query(default=0, ge=0),
 ) -> PaymentEventsListResponse:
     """Listing admin des evenements paiements avec filtres et pagination."""
+
+    verify_admin_access(request)
 
     base_query = db.query(PaymentEvent, Case.reference).join(Case, PaymentEvent.case_id == Case.id)
 
