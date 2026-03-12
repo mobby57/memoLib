@@ -318,6 +318,12 @@ async def payment_checkout_page():
     """Page statique de test checkout Stripe (US19)."""
     return FileResponse("wwwroot/payment-checkout.html")
 
+
+@app.get("/payment-events-admin", include_in_schema=False)
+async def payment_events_admin_page():
+    """Page admin de consultation des events paiement."""
+    return FileResponse("wwwroot/payment-events-admin.html")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5000, reload=True)
