@@ -15,10 +15,11 @@ import uuid
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import Case
+from models import Case, PaymentEvent
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 
@@ -236,6 +237,45 @@ def _case_contains_event(case: Case, event_id: str) -> bool:
     return False
 
 
+def _has_payment_event_id(db: Session, provider_event_id: str) -> bool:
+    existing = (
+        db.query(PaymentEvent)
+        .filter(PaymentEvent.provider_event_id == provider_event_id)
+        .first()
+    )
+    return existing is not None
+
+
+def _record_payment_event(
+    db: Session,
+    case_id: int,
+    provider: str,
+    source: str,
+    payment_status: str,
+    provider_event_id: Optional[str],
+    provider_session_id: Optional[str],
+    payload: Optional[Dict[str, Any]],
+) -> bool:
+    payload_json = json.dumps(payload, ensure_ascii=True) if payload is not None else None
+    event_row = PaymentEvent(
+        case_id=case_id,
+        provider=provider,
+        provider_event_id=provider_event_id,
+        provider_session_id=provider_session_id,
+        payment_status=payment_status,
+        source=source,
+        payload_json=payload_json,
+    )
+
+    db.add(event_row)
+    try:
+        db.commit()
+        return True
+    except IntegrityError:
+        db.rollback()
+        return False
+
+
 def _apply_payment_on_case(
     db: Session,
     case_reference: str,
@@ -352,9 +392,9 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)) -> Web
     duplicate_event = False
     if event_type == "checkout.session.completed" and payment_status == "paid" and case_reference:
         case = db.query(Case).filter(Case.reference == case_reference).first()
-        if case and event_id and _case_contains_event(case, event_id):
+        if case and event_id and _has_payment_event_id(db, event_id):
             duplicate_event = True
-        else:
+        elif case:
             case_updated, _, _ = _apply_payment_on_case(
                 db=db,
                 case_reference=case_reference,
@@ -364,6 +404,19 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)) -> Web
                 source="stripe_webhook",
                 event_id=event_id,
             )
+            created = _record_payment_event(
+                db=db,
+                case_id=case.id,
+                provider="stripe",
+                source="stripe_webhook",
+                payment_status=payment_status,
+                provider_event_id=event_id,
+                provider_session_id=session_id,
+                payload=event_payload,
+            )
+            if not created and event_id:
+                duplicate_event = True
+                case_updated = False
 
     return WebhookProcessResponse(
         received=True,
@@ -380,16 +433,39 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)) -> Web
 
 @router.get("/case/{case_reference}/events", response_model=CasePaymentEventsResponse, status_code=status.HTTP_200_OK)
 async def get_case_payment_events(case_reference: str, db: Session = Depends(get_db)) -> CasePaymentEventsResponse:
-    """Retourne les evenements paiement historises dans notes pour un dossier."""
+    """Retourne les evenements paiement persistes pour un dossier."""
 
     case = db.query(Case).filter(Case.reference == case_reference).first()
     if not case:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found")
 
-    all_entries = _parse_payment_notes(case.notes)
-    payment_entries = [
-        entry for entry in all_entries if entry.get("source") in {"stripe_webhook", "manual_confirm"}
-    ]
+    rows = (
+        db.query(PaymentEvent)
+        .filter(PaymentEvent.case_id == case.id)
+        .order_by(PaymentEvent.created_at.desc(), PaymentEvent.id.desc())
+        .all()
+    )
+
+    payment_entries = []
+    for row in rows:
+        parsed_payload = None
+        if row.payload_json:
+            try:
+                parsed_payload = json.loads(row.payload_json)
+            except Exception:
+                parsed_payload = None
+        payment_entries.append(
+            {
+                "id": row.id,
+                "provider": row.provider,
+                "source": row.source,
+                "provider_event_id": row.provider_event_id,
+                "provider_session_id": row.provider_session_id,
+                "payment_status": row.payment_status,
+                "created_at": row.created_at.isoformat() if row.created_at else None,
+                "payload": parsed_payload,
+            }
+        )
 
     return CasePaymentEventsResponse(
         case_id=case.id,
@@ -415,6 +491,21 @@ async def confirm_payment(request: PaymentConfirmRequest, db: Session = Depends(
 
     if not updated or not case:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found")
+
+    _record_payment_event(
+        db=db,
+        case_id=case.id,
+        provider=request.provider,
+        source="manual_confirm",
+        payment_status=request.payment_status,
+        provider_event_id=None,
+        provider_session_id=request.session_id,
+        payload={
+            "case_reference": request.case_reference,
+            "payment_status": request.payment_status,
+            "provider": request.provider,
+        },
+    )
 
     return PaymentConfirmResponse(
         confirmed=True,

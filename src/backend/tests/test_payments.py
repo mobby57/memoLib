@@ -13,7 +13,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from models import Base, Case
+from models import Base, Case, PaymentEvent
 from routes import payments as payments_module
 from routes.payments import router as payments_router
 
@@ -324,9 +324,16 @@ def test_webhook_duplicate_event_id_is_ignored(monkeypatch):
     db = SessionLocal()
     updated = db.query(Case).filter(Case.reference == "CASE-2026-WEBHOOK-DUP").first()
     assert updated is not None
-    notes = json.loads(updated.notes)
-    webhook_entries = [entry for entry in notes if entry.get("source") == "stripe_webhook"]
-    assert len(webhook_entries) == 1
+    webhook_events = (
+        db.query(PaymentEvent)
+        .filter(
+            PaymentEvent.case_id == updated.id,
+            PaymentEvent.source == "stripe_webhook",
+            PaymentEvent.provider_event_id == "evt_duplicate_001",
+        )
+        .all()
+    )
+    assert len(webhook_events) == 1
     db.close()
 
 
@@ -363,3 +370,46 @@ def test_get_case_payment_events_returns_entries(monkeypatch):
     assert payload["case_reference"] == "CASE-2026-EVENTS-01"
     assert payload["total_events"] >= 1
     assert any(entry.get("source") == "manual_confirm" for entry in payload["payment_events"])
+    assert any(entry.get("provider_session_id") == "cs_manual_events_01" for entry in payload["payment_events"])
+
+
+def test_confirm_creates_payment_event_row(monkeypatch):
+    monkeypatch.delenv("STRIPE_WEBHOOK_SECRET", raising=False)
+    client, SessionLocal = _build_test_client_with_memory_db()
+
+    db = SessionLocal()
+    db_case = Case(
+        user_id=5,
+        reference="CASE-2026-EVENT-ROW-01",
+        title="Dossier row",
+        status="open",
+        priority="normal",
+    )
+    db.add(db_case)
+    db.commit()
+    db.close()
+
+    response = client.post(
+        "/api/payments/confirm",
+        json={
+            "case_reference": "CASE-2026-EVENT-ROW-01",
+            "session_id": "cs_manual_event_row_01",
+            "payment_status": "paid",
+            "provider": "stripe",
+        },
+    )
+    assert response.status_code == 200
+
+    db = SessionLocal()
+    case = db.query(Case).filter(Case.reference == "CASE-2026-EVENT-ROW-01").first()
+    assert case is not None
+    evt = (
+        db.query(PaymentEvent)
+        .filter(PaymentEvent.case_id == case.id, PaymentEvent.source == "manual_confirm")
+        .order_by(PaymentEvent.id.desc())
+        .first()
+    )
+    assert evt is not None
+    assert evt.provider_session_id == "cs_manual_event_row_01"
+    assert evt.payment_status == "paid"
+    db.close()
