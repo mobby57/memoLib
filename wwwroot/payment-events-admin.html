@@ -123,6 +123,16 @@
       border: 1px solid #dbe5f5;
     }
 
+    .btn-export {
+      background: linear-gradient(130deg, #166534, #15803d);
+      color: #fff;
+    }
+
+    .btn-export:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
     .meta {
       padding: 10px 14px;
       border-top: 1px solid var(--line);
@@ -277,6 +287,7 @@
         <div class="actions">
           <button class="btn-primary" onclick="loadEvents(true)">Rechercher</button>
           <button class="btn-muted" onclick="resetFilters()">Reset</button>
+          <button id="btnExport" class="btn-export" onclick="downloadCsv()">&#8659; Export CSV</button>
         </div>
       </div>
       <div class="meta">
@@ -441,6 +452,57 @@
       const limit = Number(value('fLimit') || '50');
       currentOffset = Math.max(0, currentOffset - limit);
       loadEvents(false);
+    }
+
+    async function downloadCsv() {
+      const btn = document.getElementById('btnExport');
+      btn.disabled = true;
+      btn.textContent = 'Export en cours...';
+      try {
+        const params = new URLSearchParams();
+        params.set('limit', '5000');
+        params.set('offset', '0');
+
+        const caseRef = value('fCase');
+        const provider = value('fProvider');
+        const paymentStatus = value('fStatus');
+        const source = value('fSource');
+        const createdFrom = dateToIsoLocal(value('fFrom'));
+        const createdTo = dateToIsoLocal(value('fTo'));
+
+        if (caseRef) params.set('case_reference', caseRef);
+        if (provider) params.set('provider', provider);
+        if (paymentStatus) params.set('payment_status', paymentStatus);
+        if (source) params.set('source', source);
+        if (createdFrom) params.set('created_from', createdFrom);
+        if (createdTo) params.set('created_to', createdTo);
+
+        const headers = {};
+        const adminKey = value('fAdminKey');
+        if (adminKey) headers['X-Admin-Key'] = adminKey;
+
+        const response = await fetch(`/api/payments/events/export.csv?${params.toString()}`, { headers });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.detail || `HTTP ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'payment_events.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        setStatus('Export CSV telecharge', false);
+      } catch (err) {
+        setStatus(err.message || 'Erreur export CSV', true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '&#8659; Export CSV';
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
