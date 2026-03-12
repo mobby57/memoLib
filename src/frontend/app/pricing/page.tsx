@@ -92,6 +92,20 @@ const plans: PricingPlan[] = [
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
+  const safeReadJson = async <T,>(response: Response): Promise<T | null> => {
+    const contentType = response.headers.get("content-type") || "";
+    const rawBody = await response.text();
+
+    if (!rawBody.trim()) return null;
+    if (!contentType.includes("application/json")) return null;
+
+    try {
+      return JSON.parse(rawBody) as T;
+    } catch {
+      return null;
+    }
+  };
+
   const getPrice = (plan: PricingPlan) => {
     const price = billingCycle === "yearly" ? plan.price * 10 : plan.price;
     return price;
@@ -115,12 +129,17 @@ export default function PricingPage() {
         }),
       });
 
-      const data = await response.json();
+      const data = await safeReadJson<{ url?: string; error?: string }>(response);
+
+      if (!response.ok || !data) {
+        alert("Erreur de connexion API. Réponse invalide du serveur.");
+        return;
+      }
 
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert("Erreur lors de la création de la session de paiement");
+        alert(data.error || "Erreur lors de la création de la session de paiement");
       }
     } catch (error) {
       console.error("Checkout error:", error);

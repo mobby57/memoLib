@@ -4,32 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion d'Équipe - MemoLib</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-secondary { background: #6c757d; color: white; }
-        .form-group { margin-bottom: 15px; }
-        .form-control { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .table { width: 100%; border-collapse: collapse; }
-        .table th, .table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        .table th { background: #f8f9fa; font-weight: 600; }
-        .role-badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-        .role-owner { background: #28a745; color: white; }
-        .role-partner { background: #17a2b8; color: white; }
-        .role-lawyer { background: #007bff; color: white; }
-        .role-paralegal { background: #6f42c1; color: white; }
-        .role-secretary { background: #fd7e14; color: white; }
-        .role-intern { background: #6c757d; color: white; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .modal-content { background: white; margin: 10% auto; padding: 20px; border-radius: 8px; max-width: 500px; }
-        .close { float: right; font-size: 24px; cursor: pointer; }
-    </style>
+    <link rel="stylesheet" href="css/memolib-theme.css">
 </head>
 <body>
     <div class="container">
@@ -39,16 +14,16 @@
         </div>
 
         <!-- Inviter un membre -->
-        <div class="section">
+        <div class="team-section">
             <h2>➕ Inviter un Membre</h2>
             <form id="inviteForm">
-                <div class="form-group">
+                <div class="team-form-group">
                     <label>Email:</label>
-                    <input type="email" id="inviteEmail" class="form-control" required>
+                    <input type="email" id="inviteEmail" class="team-form-control" required>
                 </div>
-                <div class="form-group">
+                <div class="team-form-group">
                     <label>Rôle:</label>
-                    <select id="inviteRole" class="form-control">
+                    <select id="inviteRole" class="team-form-control">
                         <option value="PARTNER">Associé</option>
                         <option value="LAWYER">Avocat</option>
                         <option value="PARALEGAL">Juriste</option>
@@ -61,9 +36,9 @@
         </div>
 
         <!-- Membres actuels -->
-        <div class="section">
+        <div class="team-section">
             <h2>👥 Membres de l'Équipe</h2>
-            <table class="table" id="membersTable">
+            <table class="team-table" id="membersTable">
                 <thead>
                     <tr>
                         <th>Nom</th>
@@ -78,9 +53,9 @@
         </div>
 
         <!-- Invitations en attente -->
-        <div class="section">
+        <div class="team-section">
             <h2>⏳ Invitations en Attente</h2>
-            <table class="table" id="pendingTable">
+            <table class="team-table" id="pendingTable">
                 <thead>
                     <tr>
                         <th>Email</th>
@@ -96,14 +71,16 @@
     </div>
 
     <!-- Modal changement de rôle -->
-    <div id="roleModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Changer le Rôle</h3>
+    <div id="roleModal" class="team-modal">
+        <div class="team-modal-content">
+            <div class="team-modal-header">
+                <span class="team-modal-title">Changer le Rôle</span>
+                <span class="team-modal-close" onclick="closeModal()">&times;</span>
+            </div>
             <form id="roleForm">
-                <div class="form-group">
+                <div class="team-form-group">
                     <label>Nouveau rôle:</label>
-                    <select id="newRole" class="form-control">
+                    <select id="newRole" class="team-form-control">
                         <option value="PARTNER">Associé</option>
                         <option value="LAWYER">Avocat</option>
                         <option value="PARALEGAL">Juriste</option>
@@ -121,7 +98,12 @@
         const API_BASE = '/api';
         let currentMemberId = null;
 
-        // Charger les données
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+            try { return JSON.parse(text); } catch { return null; }
+        }
+
         async function loadTeamData() {
             try {
                 const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('memolibAuthToken');
@@ -130,18 +112,17 @@
                     document.querySelector('#pendingTable tbody').innerHTML = '<tr><td colspan="5">Connectez-vous d\'abord dans l\'onglet principal</td></tr>';
                     return;
                 }
-                
+
                 const response = await fetch(`${API_BASE}/team/members`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const data = await response.json();
-                displayMembers(data.members || []);
-                displayPendingInvitations(data.pendingInvitations || []);
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await readResponseDataSafe(response);
+                const payload = data || {};
+                displayMembers(payload.members || []);
+                displayPendingInvitations(payload.pendingInvitations || []);
             } catch (error) {
                 console.error('Erreur:', error);
                 document.querySelector('#membersTable tbody').innerHTML = '<tr><td colspan="5">Erreur de connexion à l\'API</td></tr>';
@@ -149,7 +130,6 @@
             }
         }
 
-        // Afficher les membres
         function displayMembers(members) {
             const tbody = document.querySelector('#membersTable tbody');
             if (!members || members.length === 0) {
@@ -160,17 +140,16 @@
                 <tr>
                     <td>${member.User?.Name || 'N/A'}</td>
                     <td>${member.User?.Email || 'N/A'}</td>
-                    <td><span class="role-badge role-${(member.Role || '').toLowerCase()}">${getRoleLabel(member.Role)}</span></td>
+                    <td><span class="team-role-badge team-role-${(member.Role || '').toLowerCase()}">${getRoleLabel(member.Role)}</span></td>
                     <td>${member.JoinedAt ? new Date(member.JoinedAt).toLocaleDateString() : 'N/A'}</td>
                     <td>
-                        <button class="btn btn-secondary" onclick="changeRole('${member.Id}', '${member.Role}')">Changer Rôle</button>
-                        <button class="btn btn-danger" onclick="removeMember('${member.Id}')">Retirer</button>
+                        <button class="btn btn-secondary btn-sm" onclick="changeRole('${member.Id}', '${member.Role}')">Changer Rôle</button>
+                        <button class="btn btn-danger btn-sm" onclick="removeMember('${member.Id}')">Retirer</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        // Afficher invitations en attente
         function displayPendingInvitations(invitations) {
             const tbody = document.querySelector('#pendingTable tbody');
             if (!invitations || invitations.length === 0) {
@@ -180,17 +159,16 @@
             tbody.innerHTML = invitations.map(inv => `
                 <tr>
                     <td>${inv.Email || 'N/A'}</td>
-                    <td><span class="role-badge role-${(inv.Role || '').toLowerCase()}">${getRoleLabel(inv.Role)}</span></td>
+                    <td><span class="team-role-badge team-role-${(inv.Role || '').toLowerCase()}">${getRoleLabel(inv.Role)}</span></td>
                     <td>${inv.CreatedAt ? new Date(inv.CreatedAt).toLocaleDateString() : 'N/A'}</td>
                     <td>${inv.ExpiresAt ? new Date(inv.ExpiresAt).toLocaleDateString() : 'N/A'}</td>
                     <td>
-                        <button class="btn btn-danger" onclick="cancelInvitation('${inv.Id}')">Annuler</button>
+                        <button class="btn btn-danger btn-sm" onclick="cancelInvitation('${inv.Id}')">Annuler</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        // Inviter un membre
         document.getElementById('inviteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('inviteEmail').value;
@@ -202,7 +180,7 @@
                     alert('Connectez-vous d\'abord dans l\'onglet principal');
                     return;
                 }
-                
+
                 const response = await fetch(`${API_BASE}/team/invite`, {
                     method: 'POST',
                     headers: {
@@ -213,12 +191,13 @@
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    alert(`Invitation envoyée à ${email}\nLien: ${data.inviteUrl}`);
+                    const data = await readResponseDataSafe(response);
+                    const payload = data || {};
+                    alert(`Invitation envoyée à ${email}\nLien: ${payload.inviteUrl || 'N/A'}`);
                     document.getElementById('inviteForm').reset();
                     loadTeamData();
                 } else {
-                    const errorData = await response.json().catch(() => ({}));
+                    const errorData = (await readResponseDataSafe(response)) || {};
                     alert(`Erreur: ${errorData.message || 'Impossible d\'envoyer l\'invitation'}`);
                 }
             } catch (error) {
@@ -227,14 +206,12 @@
             }
         });
 
-        // Changer le rôle
         function changeRole(memberId, currentRole) {
             currentMemberId = memberId;
             document.getElementById('newRole').value = currentRole;
-            document.getElementById('roleModal').style.display = 'block';
+            document.getElementById('roleModal').classList.add('active');
         }
 
-        // Confirmer changement de rôle
         document.getElementById('roleForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const newRole = document.getElementById('newRole').value;
@@ -262,7 +239,6 @@
             }
         });
 
-        // Retirer un membre
         async function removeMember(memberId) {
             if (!confirm('Êtes-vous sûr de vouloir retirer ce membre ?')) return;
 
@@ -284,7 +260,6 @@
             }
         }
 
-        // Utilitaires
         function getRoleLabel(role) {
             const labels = {
                 'OWNER': 'Propriétaire',
@@ -298,13 +273,9 @@
         }
 
         function closeModal() {
-            document.getElementById('roleModal').style.display = 'none';
+            document.getElementById('roleModal').classList.remove('active');
         }
 
-        // Fermer modal en cliquant sur X
-        document.querySelector('.close').onclick = closeModal;
-
-        // Charger au démarrage
         loadTeamData();
     </script>
 </body>

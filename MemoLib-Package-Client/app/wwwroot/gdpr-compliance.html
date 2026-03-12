@@ -51,7 +51,7 @@
         <div class="section">
             <h3>📊 Anonymisation Intelligente (Recommandée)</h3>
             <p style="margin-bottom: 15px;">
-                Anonymise vos données tout en <strong>préservant leur utilité</strong>. 
+                Anonymise vos données tout en <strong>préservant leur utilité</strong>.
                 Les données restent exploitables pour vos analyses et statistiques.
             </p>
             <div class="info">
@@ -66,7 +66,7 @@
             <button class="btn" onclick="smartAnonymizeData()">Anonymisation Intelligente</button>
         </div>
             <p style="margin-bottom: 15px;">
-                Anonymise automatiquement toutes vos données clients (emails, noms, téléphones, adresses) 
+                Anonymise automatiquement toutes vos données clients (emails, noms, téléphones, adresses)
                 tout en préservant l'utilité des dossiers juridiques.
             </p>
             <div class="warning">
@@ -86,7 +86,7 @@
         <div class="section">
             <h3>🗑️ Droit à l'Oubli</h3>
             <p style="margin-bottom: 15px;">
-                Supprime définitivement toutes vos données personnelles du système. 
+                Supprime définitivement toutes vos données personnelles du système.
                 <strong>Cette action est irréversible et supprimera tous vos dossiers.</strong>
             </p>
             <div class="checkbox-group">
@@ -110,6 +110,17 @@
     <script>
         let token = localStorage.getItem('authToken');
 
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return null;
+            }
+        }
+
         // Activer le bouton de suppression seulement si les deux cases sont cochées
         document.getElementById('confirm-deletion').addEventListener('change', updateDeleteButton);
         document.getElementById('confirm-irreversible').addEventListener('change', updateDeleteButton);
@@ -118,7 +129,7 @@
             const confirm1 = document.getElementById('confirm-deletion').checked;
             const confirm2 = document.getElementById('confirm-irreversible').checked;
             const deleteBtn = document.getElementById('delete-btn');
-            
+
             deleteBtn.disabled = !(confirm1 && confirm2);
         }
 
@@ -133,10 +144,10 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                const report = await response.json();
+                const report = await readResponseDataSafe(response);
 
                 if (response.ok) {
-                    displayComplianceReport(report);
+                    displayComplianceReport(report || { dataCategories: [], anonymizationMethods: [], generatedAt: new Date().toISOString() });
                 } else {
                     showResult('Erreur lors du chargement du rapport', 'error');
                 }
@@ -147,7 +158,7 @@
 
         function displayComplianceReport(report) {
             const statusDiv = document.getElementById('compliance-status');
-            
+
             let html = `
                 <table class="data-table">
                     <thead>
@@ -160,10 +171,10 @@
                     <tbody>
             `;
 
-            report.dataCategories.forEach(category => {
+            (report.dataCategories || []).forEach(category => {
                 const statusClass = category.isAnonymized ? 'status-compliant' : 'status-pending';
                 const statusText = category.isAnonymized ? 'Conforme' : 'En attente';
-                
+
                 html += `
                     <tr>
                         <td>${category.name}</td>
@@ -183,7 +194,7 @@
                     </ul>
                 </div>
                 <div style="margin-top: 10px; font-size: 12px; color: #666;">
-                    Rapport généré le: ${new Date(report.generatedAt).toLocaleString('fr-FR')}
+                    Rapport généré le: ${new Date(report.generatedAt || Date.now()).toLocaleString('fr-FR')}
                 </div>
             `;
 
@@ -208,27 +219,28 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                const result = await response.json();
+                const result = await readResponseDataSafe(response);
+                const payload = result || {};
 
                 if (response.ok) {
                     let analyticsHtml = '';
-                    if (result.analytics) {
+                    if (payload.analytics) {
                         analyticsHtml = `<br><strong>Analytics générées:</strong><br>`;
-                        if (result.analytics.emailDomainDistribution) {
-                            analyticsHtml += `Domaines emails: ${Object.entries(result.analytics.emailDomainDistribution).map(([k,v]) => `${k}(${v})`).join(', ')}<br>`;
+                        if (payload.analytics.emailDomainDistribution) {
+                            analyticsHtml += `Domaines emails: ${Object.entries(payload.analytics.emailDomainDistribution).map(([k,v]) => `${k}(${v})`).join(', ')}<br>`;
                         }
-                        if (result.analytics.caseTypeDistribution) {
-                            analyticsHtml += `Types de dossiers: ${Object.entries(result.analytics.caseTypeDistribution).map(([k,v]) => `${k}(${v})`).join(', ')}`;
+                        if (payload.analytics.caseTypeDistribution) {
+                            analyticsHtml += `Types de dossiers: ${Object.entries(payload.analytics.caseTypeDistribution).map(([k,v]) => `${k}(${v})`).join(', ')}`;
                         }
                     }
-                    
-                    showResult(`✅ ${result.message}<br>
-                        Événements anonymisés: ${result.anonymizedEvents}<br>
-                        Réversible: ${result.isReversible ? 'Oui' : 'Non'}
+
+                    showResult(`✅ ${payload.message || 'Traitement effectué'}<br>
+                        Événements anonymisés: ${payload.anonymizedEvents || 0}<br>
+                        Réversible: ${payload.isReversible ? 'Oui' : 'Non'}
                         ${analyticsHtml}`, 'success');
                     loadComplianceReport();
                 } else {
-                    showResult(`❌ Erreur: ${result.message}`, 'error');
+                    showResult(`❌ Erreur: ${payload.message || 'Erreur inconnue'}`, 'error');
                 }
             } catch (error) {
                 showResult(`❌ Erreur: ${error.message}`, 'error');
@@ -251,15 +263,16 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                const result = await response.json();
+                const result = await readResponseDataSafe(response);
+                const payload = result || {};
 
                 if (response.ok) {
-                    showResult(`✅ ${result.message}<br>
-                        Événements anonymisés: ${result.anonymizedEvents}<br>
-                        Clients anonymisés: ${result.anonymizedClients}`, 'success');
+                    showResult(`✅ ${payload.message || 'Anonymisation effectuée'}<br>
+                        Événements anonymisés: ${payload.anonymizedEvents || 0}<br>
+                        Clients anonymisés: ${payload.anonymizedClients || 0}`, 'success');
                     loadComplianceReport();
                 } else {
-                    showResult(`❌ Erreur: ${result.message}`, 'error');
+                    showResult(`❌ Erreur: ${payload.message || 'Erreur inconnue'}`, 'error');
                 }
             } catch (error) {
                 showResult(`❌ Erreur: ${error.message}`, 'error');
@@ -279,23 +292,24 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                const data = await response.json();
+                const data = await readResponseDataSafe(response);
+                const payload = data || {};
 
                 if (response.ok) {
                     // Créer et télécharger le fichier
-                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = `memolib-export-${new Date().toISOString().split('T')[0]}.json`;
                     a.click();
-                    
+
                     showResult(`✅ Export réussi!<br>
-                        Événements: ${data.Events.length}<br>
-                        Dossiers: ${data.Cases.length}<br>
-                        Clients: ${data.Clients.length}`, 'success');
+                        Événements: ${Array.isArray(payload.Events) ? payload.Events.length : 0}<br>
+                        Dossiers: ${Array.isArray(payload.Cases) ? payload.Cases.length : 0}<br>
+                        Clients: ${Array.isArray(payload.Clients) ? payload.Clients.length : 0}`, 'success');
                 } else {
-                    showResult(`❌ Erreur: ${data.message}`, 'error');
+                    showResult(`❌ Erreur: ${payload.message || 'Erreur inconnue'}`, 'error');
                 }
             } catch (error) {
                 showResult(`❌ Erreur: ${error.message}`, 'error');
@@ -322,21 +336,22 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                const result = await response.json();
+                const result = await readResponseDataSafe(response);
+                const payload = result || {};
 
                 if (response.ok) {
-                    showResult(`✅ ${result.message}<br>
-                        Événements supprimés: ${result.deletedEvents}<br>
-                        Dossiers supprimés: ${result.deletedCases}<br>
-                        Clients supprimés: ${result.deletedClients}`, 'success');
-                    
+                    showResult(`✅ ${payload.message || 'Suppression effectuée'}<br>
+                        Événements supprimés: ${payload.deletedEvents || 0}<br>
+                        Dossiers supprimés: ${payload.deletedCases || 0}<br>
+                        Clients supprimés: ${payload.deletedClients || 0}`, 'success');
+
                     // Déconnecter l'utilisateur après suppression
                     setTimeout(() => {
                         localStorage.removeItem('authToken');
                         window.location.href = '/demo.html';
                     }, 3000);
                 } else {
-                    showResult(`❌ Erreur: ${result.message}`, 'error');
+                    showResult(`❌ Erreur: ${payload.message || 'Erreur inconnue'}`, 'error');
                 }
             } catch (error) {
                 showResult(`❌ Erreur: ${error.message}`, 'error');

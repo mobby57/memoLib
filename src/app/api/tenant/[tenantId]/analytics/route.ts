@@ -6,6 +6,7 @@ import { logger } from '@/lib/logger';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 interface AnalyticsParams {
   params: { tenantId: string };
@@ -141,7 +142,12 @@ export async function GET(
     }));
 
     // Tendances de validation (7 derniers jours)
-    const validationTrends = [];
+    const validationTrends: Array<{
+      date: string;
+      approved: number;
+      rejected: number;
+      modified: number;
+    }> = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
       date.setDate(now.getDate() - i);

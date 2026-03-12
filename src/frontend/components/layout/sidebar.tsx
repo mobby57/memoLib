@@ -29,6 +29,7 @@ const sidebarItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const currentPath = pathname ?? '';
 
   return (
     <aside className="w-64 bg-slate-900 text-white h-screen flex flex-col">
@@ -42,7 +43,7 @@ export function Sidebar() {
       <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname.startsWith(item.href);
+          const isActive = currentPath.startsWith(item.href);
 
           return (
             <Link

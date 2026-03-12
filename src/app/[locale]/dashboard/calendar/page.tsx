@@ -20,6 +20,11 @@ interface CalendarEvent {
   client?: { firstName: string; lastName: string };
 }
 
+interface CalendarDay {
+  date: Date;
+  isCurrentMonth: boolean;
+}
+
 export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +89,7 @@ export default function CalendarPage() {
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
 
-    const days = [];
+    const days: CalendarDay[] = [];
 
     // Jours du mois precedent
     const prevMonth = new Date(year, month, 0);
@@ -359,6 +364,7 @@ function NewEventModal({
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [type, setType] = useState('rdv');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [startDate, setStartDate] = useState(
     defaultDate.toISOString().slice(0, 16)
   );
@@ -369,10 +375,11 @@ function NewEventModal({
 
   const handleSubmit = async () => {
     if (!title) {
-      alert('Le titre est requis');
+      setErrorMessage('Le titre est requis');
       return;
     }
 
+    setErrorMessage(null);
     setLoading(true);
     try {
       const res = await fetch('/api/calendar', {
@@ -394,10 +401,11 @@ function NewEventModal({
         onCreated();
       } else {
         const data = await res.json();
-        alert(data.error || 'Erreur creation evenement');
+        setErrorMessage(data.error || 'Erreur creation evenement');
       }
     } catch (error) {
       console.error('Erreur:', error);
+      setErrorMessage('Erreur creation evenement');
     } finally {
       setLoading(false);
     }
@@ -411,6 +419,12 @@ function NewEventModal({
         </div>
 
         <div className="p-6 space-y-4">
+          {errorMessage && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
             <input

@@ -21,6 +21,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'stats';
     const tenantId = session.user.tenantId || undefined;
+    const userId = session.user.id;
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Utilisateur invalide' }, { status: 401 });
+    }
 
     switch (type) {
       case 'stats': {
@@ -36,7 +41,7 @@ export async function GET(request: NextRequest) {
 
       case 'recent': {
         const limit = parseInt(searchParams.get('limit') || '10');
-        const recent = await getUserRecentSearches(session.user.id, limit);
+        const recent = await getUserRecentSearches(userId, limit);
         return NextResponse.json({ searches: recent });
       }
 

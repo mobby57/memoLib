@@ -3,19 +3,14 @@ import { getServerSession } from 'next-auth';
 import { logger } from '@/lib/logger';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
-    }
-
-    const user = session.user as any;
-
-    if (user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+    const guard = requireApiPermission(session, RBAC_PERMISSIONS.TENANTS_READ);
+    if (!guard.ok) {
+      return guard.response;
     }
 
     // Parse query params
@@ -65,15 +60,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
-    }
-
-    const user = session.user as any;
-
-    if (user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+    const guard = requireApiPermission(session, RBAC_PERMISSIONS.TENANTS_CREATE);
+    if (!guard.ok) {
+      return guard.response;
     }
 
     const body = await request.json();

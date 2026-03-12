@@ -1,69 +1,196 @@
-# 🎬 QUICK START - MemoLib Services (4 février 2026)
+# 🚀 GUIDE RAPIDE - Architecture Harmonisée
 
-## ✅ État Actuel
-
-```
-Backend Flask:  ✅ EN COURS D'EXÉCUTION (port 5000)
-Frontend Next:  ⏳ PRÊT À DÉMARRER (port 3000)
-Pipeline:       ✅ IMPORTABLE (30K+ units/sec)
-```
-
-## 🚀 DÉMARRER MAINTENANT
-
-### Fenêtre 1: Backend (DÉJÀ EN COURS)
+## 📁 Structure Projet
 
 ```
-✅ Flask backend écoute sur http://localhost:5000
-✅ Endpoints: /health, /execute, /test-rules, /stats
+MemoLib.Api/
+├── Controllers/        # API REST endpoints
+├── Services/          # Business logic
+├── Models/            # Entités de données
+├── Data/              # DbContext + Migrations
+├── Middleware/        # Middleware ASP.NET
+├── wwwroot/           # Frontend (HTML/CSS/JS)
+│   ├── css/           # Design System
+│   ├── demo.html      # Interface principale
+│   └── intake-forms.html
+├── .github/workflows/ # CI/CD
+├── appsettings.json   # Configuration
+└── Program.cs         # Point d'entrée
 ```
 
-### Fenêtre 2: Frontend (À DÉMARRER)
+## 🎨 Design System
 
-```powershell
-cd C:\Users\moros\Desktop\memolib\src\frontend
-npm run dev
+### Utilisation
+```html
+<link rel="stylesheet" href="/css/design-system.css">
+
+<button class="btn btn-primary">Bouton</button>
+<div class="card">Carte</div>
+<input class="form-control" type="text">
+<span class="badge badge-success">Succès</span>
 ```
 
-Puis accédez à: **http://localhost:3000**
+### Variables CSS
+```css
+var(--primary)      /* #667eea */
+var(--success)      /* #28a745 */
+var(--spacing-4)    /* 16px */
+var(--border-radius-md) /* 8px */
+```
+
+## 🌿 Git Workflow
+
+```bash
+# Feature
+git checkout develop
+git checkout -b feature/ma-feature
+git commit -m "feat: description"
+git push origin feature/ma-feature
+
+# Bugfix
+git checkout -b bugfix/mon-fix
+git commit -m "fix: description"
+
+# Hotfix
+git checkout main
+git checkout -b hotfix/urgent
+git commit -m "hotfix: description"
+```
+
+## 🔄 CI/CD
+
+### Branches
+- `main` → Production (auto-deploy)
+- `develop` → Development (auto-deploy)
+- `feature/*` → Features (PR vers develop)
+
+### Pipeline
+1. Push code
+2. GitHub Actions build + test
+3. Deploy automatique si main/develop
+
+## 🧪 Tests
+
+```bash
+# Tous les tests
+dotnet test
+
+# Tests spécifiques
+dotnet test --filter "FullyQualifiedName~ServiceTests"
+
+# Avec couverture
+dotnet test /p:CollectCoverage=true
+```
+
+## 📝 Conventions
+
+### Commits
+```
+feat:     Nouvelle fonctionnalité
+fix:      Correction bug
+docs:     Documentation
+refactor: Refactoring
+test:     Tests
+```
+
+### Code C#
+```csharp
+public class MyService { }           // PascalCase
+private readonly string _field;      // _camelCase
+public string Property { get; }      // PascalCase
+```
+
+### Code JavaScript
+```javascript
+const myVariable = 'value';          // camelCase
+class MyClass { }                    // PascalCase
+const API_URL = 'http://...';        // UPPER_CASE
+```
+
+## 🚀 Déploiement
+
+### Local
+```bash
+dotnet run
+# → http://localhost:5078
+```
+
+### Production
+```bash
+dotnet publish -c Release
+# Déployer sur Azure/Docker
+```
+
+## 📊 Monitoring
+
+### Logs
+```csharp
+_logger.LogInformation("Message {Param}", value);
+_logger.LogWarning("Attention {Param}", value);
+_logger.LogError(ex, "Erreur {Param}", value);
+```
+
+### Métriques
+- Logs: `logs/memolib-*.txt`
+- Serilog console output
+- Azure App Insights (production)
+
+## 🔒 Sécurité
+
+### Secrets
+```bash
+# Development
+dotnet user-secrets set "Key" "Value"
+
+# Production
+# Azure Key Vault ou variables d'environnement
+```
+
+### Checklist
+- [x] JWT authentication
+- [x] HTTPS en production
+- [x] Rate limiting
+- [x] CORS configuré
+- [x] Secrets hors du code
+
+## 📚 Documentation
+
+- `README.md` - Vue d'ensemble
+- `ARCHITECTURE_HARMONISEE.md` - Architecture complète
+- `CONTRIBUTING.md` - Guide contribution
+- `DEPLOYMENT.md` - Guide déploiement
+- `CHANGELOG.md` - Historique versions
+- `FORMULAIRES_INTELLIGENTS.md` - Feature formulaires
+
+## 🆘 Commandes Utiles
+
+```bash
+# Build
+dotnet build
+
+# Run
+dotnet run
+
+# Tests
+dotnet test
+
+# Migration
+dotnet ef migrations add NomMigration
+dotnet ef database update
+
+# Publish
+dotnet publish -c Release
+
+# Clean
+dotnet clean
+```
+
+## 📞 Support
+
+- GitHub Issues: https://github.com/VOTRE_USERNAME/MemoLib/issues
+- Documentation: Voir fichiers `.md`
+- Email: support@memolib.com
 
 ---
 
-## 🧪 Tests Rapides
-
-```powershell
-# 1. Vérifier le backend
-$response = Invoke-WebRequest http://localhost:5000/analysis/health
-$response.StatusCode  # Doit afficher: 200
-
-# 2. Tester une analyse
-python -m analysis.load_test
-
-# 3. Tests unitaires
-pytest analysis/tests/test_rules_engine.py -v
-```
-
----
-
-## 📚 Documents Principaux
-
-| Document                    | But                      |
-| --------------------------- | ------------------------ |
-| `SERVICES_STARTUP_GUIDE.md` | 📖 Guide complet         |
-| `TROUBLESHOOTING_GUIDE.md`  | 🔧 Dépannage             |
-| `start-pipeline.ps1`        | 🚀 Démarrage automatique |
-
----
-
-## 📞 Aide Rapide
-
-**Problème**: Port déjà utilisé
-**Solution**: Voir `TROUBLESHOOTING_GUIDE.md` → "Port Déjà Utilisé"
-
-**Problème**: Module Python non trouvé
-**Solution**: Voir `TROUBLESHOOTING_GUIDE.md` → "Module 'analysis' Non Importable"
-
----
-
-**Status**: ✅ READY
-**Temps d'Exécution**: ~30 secondes pour démarrer
-**Version**: 2.0 (Services optimisés et stabilisés)
+**✅ Architecture harmonisée et prête pour la production !**

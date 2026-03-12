@@ -2,7 +2,19 @@
 import { GET, POST, PATCH } from '@/app/api/proofs/route';
 import prisma from '@/lib/prisma';
 
-jest.mock('@/lib/prisma');
+jest.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  default: {
+    proof: {
+      findMany: jest.fn(),
+      count: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+  },
+}));
 
 describe('/api/proofs', () => {
   const mockTenantId = 'tenant-123';

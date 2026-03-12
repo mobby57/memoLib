@@ -143,7 +143,7 @@ export function MissingPanel({ missingElements, onResolve, onAddMissing }: Missi
                 key={element.id}
                 element={element}
                 onResolve={undefined}
-                blocking={element.blocking}
+                blocking={element.blocking ?? false}
                 resolved={true}
               />
             ))}

@@ -131,31 +131,42 @@
 
         function selectProvider(provider) {
             selectedProvider = provider;
-            
+
             // Update UI
             document.querySelectorAll('.provider-btn').forEach(btn => btn.classList.remove('active'));
             event.target.closest('.provider-btn').classList.add('active');
-            
+
             // Update guide
             const guide = guides[provider];
             const guideContent = document.getElementById('guide-content');
-            
+
             let html = `<div class="guide">
                 <h4>${guide.title}</h4>
                 <ol>`;
-            
+
             guide.steps.forEach(step => {
                 html += `<li>${step}</li>`;
             });
-            
+
             html += `</ol>`;
-            
+
             if (guide.link) {
                 html += `<p style="margin-top: 10px;"><strong>🎥 Aide vidéo:</strong> <a href="${guide.link}" target="_blank">Guide officiel</a></p>`;
             }
-            
+
             html += `</div>`;
             guideContent.innerHTML = html;
+        }
+
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return null;
+            }
         }
 
         async function testConnection() {
@@ -186,12 +197,12 @@
                     })
                 });
 
-                const data = await response.json();
+                const data = await readResponseDataSafe(response);
 
                 if (response.ok) {
                     showResult(`✅ Configuration réussie! Votre boîte ${email} est maintenant surveillée automatiquement.`, true);
                 } else {
-                    showResult(`❌ ${data.message}`, false);
+                    showResult(`❌ ${data?.message || 'Erreur de configuration'}`, false);
                 }
             } catch (error) {
                 showResult(`❌ Erreur de connexion: ${error.message}`, false);

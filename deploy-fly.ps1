@@ -1,33 +1,69 @@
-# Déploiement MemoLib sur Fly.io
-Write-Host "🚀 Déploiement MemoLib sur Fly.io" -ForegroundColor Green
+# MemoLib - Deploiement Fly.io
+param(
+    [switch]$Init
+)
 
-# Vérifier flyctl
-if (!(Get-Command flyctl -ErrorAction SilentlyContinue)) {
-    Write-Host "❌ flyctl non installé. Téléchargez depuis https://fly.io/docs/hands-on/install-flyctl/" -ForegroundColor Red
+Write-Host ""
+Write-Host "MEMOLIB - DEPLOIEMENT FLY.IO" -ForegroundColor Cyan
+Write-Host "=============================" -ForegroundColor Cyan
+Write-Host ""
+
+# Verification flyctl
+Write-Host "Verification flyctl..." -NoNewline
+try {
+    $flyVersion = flyctl version 2>&1
+    Write-Host " OK" -ForegroundColor Green
+} catch {
+    Write-Host " ERREUR" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Installation de flyctl:" -ForegroundColor Yellow
+    Write-Host "  powershell -Command ""iwr https://fly.io/install.ps1 -useb | iex"""
     exit 1
 }
 
-# Login
-Write-Host "🔐 Authentification..." -ForegroundColor Yellow
-flyctl auth whoami
-if ($LASTEXITCODE -ne 0) { flyctl auth login }
+if ($Init) {
+    Write-Host ""
+    Write-Host "INITIALISATION..." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "1. Connectez-vous a Fly.io:"
+    Write-Host "   flyctl auth login"
+    Write-Host ""
+    Write-Host "2. Creez l'application:"
+    Write-Host "   flyctl apps create memolib-api --org personal"
+    Write-Host ""
+    Write-Host "3. Configurez les secrets:"
+    Write-Host "   flyctl secrets set JWT_SECRET=votre-secret-32-chars"
+    Write-Host "   flyctl secrets set EmailMonitor__Password=votre-mot-de-passe"
+    Write-Host ""
+    Write-Host "4. Deployez:"
+    Write-Host "   .\DEPLOY-FLY.ps1"
+    exit 0
+}
 
-# Créer l'app
-Write-Host "📦 Configuration..." -ForegroundColor Yellow
-flyctl apps create memolib 2>$null
+Write-Host "DEPLOIEMENT..." -ForegroundColor Yellow
+Write-Host ""
 
-# Base de données
-Write-Host "🗄️ Base de données..." -ForegroundColor Yellow
-flyctl postgres create --name memolib-db --region cdg --vm-size shared-cpu-1x --volume-size 3
-flyctl postgres attach memolib-db --app memolib
+# Build et deploy
+flyctl deploy --remote-only
 
-# Secrets
-Write-Host "🔑 Variables..." -ForegroundColor Yellow
-$secret = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((New-Guid).ToString()))
-flyctl secrets set NEXTAUTH_SECRET=$secret NEXTAUTH_URL="https://memolib.fly.dev"
-
-# Déployer
-Write-Host "🚢 Déploiement..." -ForegroundColor Yellow
-flyctl deploy
-
-Write-Host "✅ Terminé! 🌐 https://memolib.fly.dev" -ForegroundColor Green
+if ($LASTEXITCODE -eq 0) {
+    Write-Host ""
+    Write-Host "DEPLOIEMENT REUSSI!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "URLs:" -ForegroundColor Cyan
+    Write-Host "  API: https://memolib-api.fly.dev"
+    Write-Host "  Health: https://memolib-api.fly.dev/health"
+    Write-Host ""
+    Write-Host "Commandes utiles:" -ForegroundColor Yellow
+    Write-Host "  flyctl logs"
+    Write-Host "  flyctl status"
+    Write-Host "  flyctl ssh console"
+} else {
+    Write-Host ""
+    Write-Host "ERREUR DE DEPLOIEMENT" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Verifiez:"
+    Write-Host "  1. Vous etes connecte: flyctl auth whoami"
+    Write-Host "  2. L'app existe: flyctl apps list"
+    Write-Host "  3. Les secrets sont configures: flyctl secrets list"
+}

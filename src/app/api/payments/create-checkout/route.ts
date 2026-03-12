@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 
 // Demo-safe: n'initialise Stripe que si la clé est définie
 const stripe = process.env.STRIPE_SECRET_KEY
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2026-01-28.clover' })
   : null;
 
 export async function POST(request: NextRequest) {

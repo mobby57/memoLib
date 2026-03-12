@@ -15,7 +15,8 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
-    const signature = headers().get('stripe-signature');
+    const requestHeaders = await headers();
+    const signature = requestHeaders.get('stripe-signature');
 
     if (!signature) {
       return NextResponse.json({ error: 'Pas de signature' }, { status: 400 });
@@ -75,7 +76,8 @@ export async function POST(request: NextRequest) {
  * Facture payee - Mettre a jour dans la base
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
+  const inv = invoice as any;
+  const subscriptionId = inv.subscription as string;
   if (!subscriptionId) return;
 
   // Recuperer la subscription Stripe
@@ -112,7 +114,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       subscriptionId: stripeSubscription.id,
       invoiceNumber: `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
       subtotal: invoice.subtotal / 100, // Stripe en centimes
-      tax: (invoice.tax || 0) / 100,
+      tax: ((inv.tax as number) || 0) / 100,
       total: invoice.total / 100,
       status: 'paid',
       issueDate: new Date(invoice.created * 1000),
@@ -123,13 +125,13 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
         invoice.lines.data.map(line => ({
           description: line.description,
           quantity: line.quantity,
-          unitPrice: line.price?.unit_amount ? line.price.unit_amount / 100 : 0,
+          unitPrice: (line as any).price?.unit_amount ? (line as any).price.unit_amount / 100 : 0,
           total: line.amount / 100,
         }))
       ),
       metadata: JSON.stringify({
         stripe_invoice_id: invoice.id,
-        stripe_payment_intent: invoice.payment_intent,
+        stripe_payment_intent: inv.payment_intent,
       }),
     },
   });
@@ -144,7 +146,8 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
  * echec de paiement - Marquer comme past_due
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
+  const inv = invoice as any;
+  const subscriptionId = inv.subscription as string;
   if (!subscriptionId) return;
 
   const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);

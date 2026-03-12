@@ -1,10 +1,10 @@
 ﻿/**
-import { logger } from '@/lib/logger';
  * API Checkout Stripe
  * Cree une session de paiement pour s'abonner a un plan
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { createCheckoutSession } from '@/lib/billing/stripe-client';
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Creer la session Stripe Checkout
     // NOTE: Vous devez creer les prix dans Stripe Dashboard et stocker les IDs
-    const priceId = billingCycle === 'yearly' 
+    const priceId = billingCycle === 'yearly'
       ? `price_${planName.toLowerCase()}_yearly` // a remplacer par vrai ID Stripe
       : `price_${planName.toLowerCase()}_monthly`; // a remplacer par vrai ID Stripe
 

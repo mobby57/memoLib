@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Index des Modules</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+    <style>
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-xl);
+        }
+        .module-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+            cursor: pointer;
+        }
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .module-card.harmonized {
+            border-left-color: var(--success);
+        }
+        .module-card.pending {
+            border-left-color: var(--warning);
+        }
+        .module-card.deprecated {
+            border-left-color: var(--danger);
+            opacity: 0.6;
+        }
+        .module-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: var(--space-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        .module-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: var(--space-md);
+            line-height: 1.6;
+        }
+        .module-status {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+        }
+        .module-status.harmonized {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .module-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .module-status.deprecated {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .module-actions {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+        .category-section {
+            margin-bottom: var(--space-2xl);
+        }
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 MemoLib - Index des Modules</h1>
+        <p>Navigation centralisée • Statut d'harmonisation • Documentation</p>
+    </div>
+
+    <div class="container">
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Modules Harmonisés</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, var(--warning), var(--secondary));">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">En Attente</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, var(--success), var(--accent));">
+                <div class="stat-number">15+</div>
+                <div class="stat-label">Composants Standardisés</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, var(--info), var(--primary));">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Cohérence Visuelle</div>
+            </div>
+        </div>
+
+        <!-- Documentation -->
+        <div class="category-section">
+            <h2 class="category-title">📚 Documentation</h2>
+            <div class="module-grid">
+                <div class="module-card harmonized" onclick="window.open('COHERENCE_GRAPHIQUE.md', '_blank')">
+                    <div class="module-title">📖 Guide de Cohérence</div>
+                    <span class="module-status harmonized">✅ Complet</span>
+                    <div class="module-description">
+                        Guide complet de la charte graphique avec tous les composants standardisés, 
+                        exemples de code et checklist d'intégration.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-sm" onclick="event.stopPropagation(); window.open('COHERENCE_GRAPHIQUE.md', '_blank')">Lire</button>
+                    </div>
+                </div>
+
+                <div class="module-card harmonized" onclick="window.open('HARMONISATION_COMPLETE.md', '_blank')">
+                    <div class="module-title">📊 Récapitulatif Harmonisation</div>
+                    <span class="module-status harmonized">✅ Complet</span>
+                    <div class="module-description">
+                        Récapitulatif détaillé de toutes les actions d'harmonisation, métriques 
+                        d'amélioration et prochaines étapes.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-sm" onclick="event.stopPropagation(); window.open('HARMONISATION_COMPLETE.md', '_blank')">Lire</button>
+                    </div>
+                </div>
+
+                <div class="module-card harmonized" onclick="window.location.href='test-coherence.html'">
+                    <div class="module-title">🧪 Page de Test</div>
+                    <span class="module-status harmonized">✅ Fonctionnel</span>
+                    <div class="module-description">
+                        Page de test interactive pour valider tous les composants standardisés 
+                        et vérifier la cohérence visuelle.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-sm" onclick="event.stopPropagation(); window.location.href='test-coherence.html'">Tester</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modules Harmonisés -->
+        <div class="category-section">
+            <h2 class="category-title">✅ Modules Harmonisés</h2>
+            <div class="module-grid">
+                <div class="module-card harmonized" onclick="window.location.href='demo.html'">
+                    <div class="module-title">🏠 Demo Principal</div>
+                    <span class="module-status harmonized">✅ Harmonisé</span>
+                    <div class="module-description">
+                        Interface principale de démonstration avec authentification, gestion des dossiers, 
+                        clients, recherche intelligente et analytics.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-sm" onclick="event.stopPropagation(); window.location.href='demo.html'">Ouvrir</button>
+                    </div>
+                </div>
+
+                <div class="module-card harmonized" onclick="window.location.href='integrations-dashboard.html'">
+                    <div class="module-title">🔌 Dashboard Intégrations</div>
+                    <span class="module-status harmonized">✅ Harmonisé</span>
+                    <div class="module-description">
+                        Dashboard temps réel pour le monitoring des intégrations (Gmail, Outlook, DocuSign, OpenAI) 
+                        avec Machine Learning et backup.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-sm" onclick="event.stopPropagation(); window.location.href='integrations-dashboard.html'">Ouvrir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modules en Attente -->
+        <div class="category-section">
+            <h2 class="category-title">⏳ Modules en Attente d'Harmonisation</h2>
+            <div class="module-grid">
+                <div class="module-card pending">
+                    <div class="module-title">📊 Dashboard Pro</div>
+                    <span class="module-status pending">⏳ En attente</span>
+                    <div class="module-description">
+                        Dashboard professionnel avec statistiques avancées et visualisations.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="window.location.href='dashboard-pro.html'">Voir</button>
+                    </div>
+                </div>
+
+                <div class="module-card pending">
+                    <div class="module-title">👥 Gestion d'Équipe</div>
+                    <span class="module-status pending">⏳ En attente</span>
+                    <div class="module-description">
+                        Module de gestion des membres de l'équipe et des permissions.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="window.location.href='team-management.html'">Voir</button>
+                    </div>
+                </div>
+
+                <div class="module-card pending">
+                    <div class="module-title">🎯 Parcours Owner</div>
+                    <span class="module-status pending">⏳ En attente</span>
+                    <div class="module-description">
+                        Interface dédiée au propriétaire du cabinet avec vue d'ensemble stratégique.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="window.location.href='parcours-owner.html'">Voir</button>
+                    </div>
+                </div>
+
+                <div class="module-card pending">
+                    <div class="module-title">⚖️ Parcours Avocat</div>
+                    <span class="module-status pending">⏳ En attente</span>
+                    <div class="module-description">
+                        Interface pour les avocats avec gestion des dossiers et clients.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="window.location.href='parcours-lawyer.html'">Voir</button>
+                    </div>
+                </div>
+
+                <div class="module-card pending">
+                    <div class="module-title">👤 Parcours Client</div>
+                    <span class="module-status pending">⏳ En attente</span>
+                    <div class="module-description">
+                        Espace client avec suivi de dossier et communication.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="window.location.href='parcours-client.html'">Voir</button>
+                    </div>
+                </div>
+
+                <div class="module-card pending">
+                    <div class="module-title">📋 Formulaires d'Inscription</div>
+                    <span class="module-status pending">⏳ En attente</span>
+                    <div class="module-description">
+                        Formulaires intelligents pour l'inscription et l'onboarding.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="window.location.href='intake-forms.html'">Voir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Outils & Utilitaires -->
+        <div class="category-section">
+            <h2 class="category-title">🛠️ Outils & Utilitaires</h2>
+            <div class="module-grid">
+                <div class="module-card harmonized" onclick="window.location.href='diagrammes.html'">
+                    <div class="module-title">📊 Diagrammes Architecture</div>
+                    <span class="module-status harmonized">✅ Disponible</span>
+                    <div class="module-description">
+                        Visualisation interactive de l'architecture système avec 82 diagrammes Mermaid.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-sm" onclick="event.stopPropagation(); window.location.href='diagrammes.html'">Ouvrir</button>
+                    </div>
+                </div>
+
+                <div class="module-card pending">
+                    <div class="module-title">📱 Application Mobile</div>
+                    <span class="module-status pending">⏳ En attente</span>
+                    <div class="module-description">
+                        Version mobile responsive de l'application.
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="window.location.href='mobile.html'">Voir</button>
+                    </div>
+                </div>
+
+                <div class="module-card pending">
+                    <div class="module-title">📧 Configuration Email</div>
+                    <span class="module-status pending">⏳ En attente</span>
+                    <div class="module-description">
+                        Assistant de configuration pour la connexion email (IMAP/SMTP).
+                    </div>
+                    <div class="module-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="window.location.href='email-setup.html'">Voir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Rapides -->
+        <div class="card" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white);">
+            <h2 style="color: var(--white); margin-bottom: var(--space-lg);">🚀 Actions Rapides</h2>
+            <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+                <button class="btn" style="background: var(--white); color: var(--primary);" onclick="window.location.href='demo.html'">
+                    Démarrer Demo
+                </button>
+                <button class="btn" style="background: var(--white); color: var(--primary);" onclick="window.location.href='test-coherence.html'">
+                    Tester Composants
+                </button>
+                <button class="btn" style="background: var(--white); color: var(--primary);" onclick="window.open('COHERENCE_GRAPHIQUE.md', '_blank')">
+                    Lire Documentation
+                </button>
+                <button class="btn" style="background: var(--white); color: var(--primary);" onclick="window.location.href='integrations-dashboard.html'">
+                    Monitoring Intégrations
+                </button>
+            </div>
+        </div>
+
+        <!-- Guide d'Utilisation -->
+        <div class="guide-box">
+            <strong>💡 Guide d'Utilisation:</strong><br>
+            1. <strong>Modules Harmonisés</strong> (✅) utilisent la charte graphique standardisée<br>
+            2. <strong>Modules en Attente</strong> (⏳) seront harmonisés prochainement<br>
+            3. Consultez <strong>COHERENCE_GRAPHIQUE.md</strong> pour les standards de développement<br>
+            4. Testez vos modifications sur <strong>test-coherence.html</strong>
+        </div>
+    </div>
+
+    <script>
+        console.log('✅ Index des modules MemoLib chargé');
+        console.log('📊 Modules harmonisés: 2');
+        console.log('⏳ Modules en attente: 10+');
+        console.log('📚 Documentation: 3 fichiers');
+    </script>
+</body>
+</html>

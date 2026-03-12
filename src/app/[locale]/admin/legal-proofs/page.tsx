@@ -30,6 +30,7 @@ export default function LegalProofsAdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('ALL');
   const [filterValid, setFilterValid] = useState<string>('ALL');
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     loadProofs();
@@ -114,6 +115,7 @@ export default function LegalProofsAdminPage() {
 
   async function handleDownload(proofId: string, format: 'JSON' | 'PDF' | 'XML') {
     try {
+      setFeedback(null);
       const response = await fetch('/api/legal/proof/export', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -137,8 +139,9 @@ export default function LegalProofsAdminPage() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      setFeedback({ type: 'success', message: 'Export téléchargé avec succès' });
     } catch (err: any) {
-      alert('Erreur: ' + err.message);
+      setFeedback({ type: 'error', message: 'Erreur: ' + err.message });
     }
   }
 
@@ -167,6 +170,18 @@ export default function LegalProofsAdminPage() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {feedback && (
+          <div
+            className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <StatCard label="Total preuves" value={proofs.length} icon={<FileText />} />

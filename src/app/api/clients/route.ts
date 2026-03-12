@@ -3,6 +3,22 @@ import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
+function mapPrismaErrorToHttp(error: unknown): { status: number; message: string } | null {
+  const code =
+    typeof error === 'object' && error !== null && 'code' in error
+      ? (error as { code?: unknown }).code
+      : null;
+
+  if (code === 'P2002') {
+      return { status: 409, message: 'Conflit de donnees' };
+  }
+  if (code === 'P2025') {
+      return { status: 404, message: 'Ressource non trouvee' };
+  }
+
+  return null;
+}
+
 // GET - Liste des clients d'un tenant
 export async function GET(request: NextRequest) {
   try {
@@ -33,7 +49,7 @@ export async function GET(request: NextRequest) {
             },
           });
         },
-        TTL_TIERS.WARM // 5 min cache
+        'WARM'
       );
 
       if (!client) {
@@ -83,7 +99,7 @@ export async function GET(request: NextRequest) {
     };
 
     const result = cacheKey
-      ? await cacheThrough(cacheKey, fetchClients, TTL_TIERS.HOT)
+      ? await cacheThrough(cacheKey, fetchClients, 'HOT')
       : await fetchClients();
 
     return NextResponse.json(result);
@@ -98,7 +114,13 @@ export async function GET(request: NextRequest) {
 // POST - Creer un nouveau client
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = (await request.json()) as Record<string, unknown>;
+    } catch {
+      return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+    }
+
     const {
       tenantId,
       firstName,
@@ -129,7 +151,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Un client avec cet email existe deja' }, { status: 409 });
     }
 
-    const parsedDate = dateOfBirth ? new Date(dateOfBirth) : null;
+    const parsedDate =
+      typeof dateOfBirth === 'string' && dateOfBirth.trim().length > 0
+        ? new Date(dateOfBirth)
+        : null;
     if (parsedDate && isNaN(parsedDate.getTime())) {
       return NextResponse.json({ error: 'Format dateOfBirth invalide' }, { status: 400 });
     }
@@ -161,6 +186,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, client });
   } catch (error) {
+    const mapped = mapPrismaErrorToHttp(error);
+    if (mapped) {
+      return NextResponse.json({ error: mapped.message }, { status: mapped.status });
+    }
+
     logger.error('Erreur POST client', error instanceof Error ? error : undefined, {
       route: '/api/clients',
     });
@@ -171,7 +201,13 @@ export async function POST(request: NextRequest) {
 // PATCH - Mettre a jour un client
 export async function PATCH(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = (await request.json()) as Record<string, unknown>;
+    } catch {
+      return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+    }
+
     const {
       clientId,
       firstName,
@@ -207,7 +243,10 @@ export async function PATCH(request: NextRequest) {
     if (status !== undefined) updateData.status = status;
 
     if (dateOfBirth !== undefined) {
-      const parsedDate = dateOfBirth ? new Date(dateOfBirth) : null;
+      const parsedDate =
+        typeof dateOfBirth === 'string' && dateOfBirth.trim().length > 0
+          ? new Date(dateOfBirth)
+          : null;
       if (parsedDate && isNaN(parsedDate.getTime())) {
         return NextResponse.json({ error: 'Format dateOfBirth invalide' }, { status: 400 });
       }
@@ -227,6 +266,11 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, client });
   } catch (error) {
+    const mapped = mapPrismaErrorToHttp(error);
+    if (mapped) {
+      return NextResponse.json({ error: mapped.message }, { status: mapped.status });
+    }
+
     logger.error('Erreur PATCH client', error instanceof Error ? error : undefined, {
       route: '/api/clients',
     });
@@ -269,6 +313,11 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    const mapped = mapPrismaErrorToHttp(error);
+    if (mapped) {
+      return NextResponse.json({ error: mapped.message }, { status: mapped.status });
+    }
+
     logger.error('Erreur DELETE client', error instanceof Error ? error : undefined, {
       route: '/api/clients',
     });

@@ -167,10 +167,10 @@ export default function DevDashboard() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <Badge variant={log.level === 'ERROR' ? 'destructive' : 'default'}>
+                          <Badge variant={log.level === 'ERROR' ? 'danger' : 'default'}>
                             {log.level}
                           </Badge>
-                          <Badge variant="outline">{log.category}</Badge>
+                          <Badge variant="info">{log.category}</Badge>
                           <span className="text-xs text-gray-500">
                             {new Date(log.timestamp).toLocaleTimeString()}
                           </span>
@@ -219,7 +219,7 @@ export default function DevDashboard() {
                     {aiStats?.slowest?.map((item: any, idx: number) => (
                       <div key={idx} className="p-3 bg-gray-50 rounded flex justify-between">
                         <span className="font-mono text-sm">{item.operation}</span>
-                        <Badge variant={item.duration > 5000 ? 'destructive' : 'default'}>
+                        <Badge variant={item.duration > 5000 ? 'danger' : 'default'}>
                           {item.duration.toFixed(0)}ms
                         </Badge>
                       </div>
@@ -283,7 +283,7 @@ export default function DevDashboard() {
                       >
                         <span>{type.name}</span>
                         <div className="flex gap-2">
-                          <Badge variant="outline">{type.count} executions</Badge>
+                          <Badge variant="info">{type.count} executions</Badge>
                           <Badge>{type.successRate?.toFixed(1)}% succes</Badge>
                         </div>
                       </div>
@@ -310,12 +310,12 @@ export default function DevDashboard() {
                       <div key={idx} className="p-3 bg-gray-50 rounded">
                         <div className="flex justify-between items-center mb-1">
                           <span className="font-mono text-sm">{op.operation}</span>
-                          <Badge variant={op.duration > 1000 ? 'destructive' : 'default'}>
+                          <Badge variant={op.duration > 1000 ? 'danger' : 'default'}>
                             {op.duration.toFixed(0)}ms
                           </Badge>
                         </div>
                         <div className="flex gap-2">
-                          <Badge variant="outline">{op.category}</Badge>
+                          <Badge variant="info">{op.category}</Badge>
                           <span className="text-xs text-gray-500">
                             {new Date(op.timestamp).toLocaleString()}
                           </span>

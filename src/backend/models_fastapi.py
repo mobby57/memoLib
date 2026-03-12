@@ -4,7 +4,7 @@ Architecture Ollama locale
 """
 from datetime import datetime
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from enum import Enum
 
 
@@ -63,8 +63,7 @@ class User(UserBase):
     created_at: datetime
     is_active: bool = True
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ==================== DOCUMENT ====================
@@ -85,8 +84,7 @@ class Document(DocumentBase):
     texte_extrait: Optional[str] = None
     date_upload: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ==================== ANALYSE ====================
@@ -173,8 +171,7 @@ class Dossier(DossierBase):
     documents: List[Document] = []
     emails: List[EmailEnvoye] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ==================== TRANSCRIPTION ====================

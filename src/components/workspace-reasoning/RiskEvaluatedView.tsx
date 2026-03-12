@@ -123,7 +123,7 @@ export function RiskEvaluatedView({ workspace, onContinue, loading }: RiskEvalua
                 <div className="font-semibold text-gray-700 mb-2">
                    Consequences si ce risque se realise:
                 </div>
-                <p className="text-gray-600 whitespace-pre-wrap">{risk.consequence}</p>
+                <p className="text-gray-600 whitespace-pre-wrap">{risk.description}</p>
               </div>
             </div>
             

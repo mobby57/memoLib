@@ -5,10 +5,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { DocumentOCRService } from '@/lib/services/document-ocr.service';
 
-const prisma = new PrismaClient();
 const documentOCRService = new DocumentOCRService(prisma);
 
 // POST /api/documents/upload - Upload document + trigger OCR

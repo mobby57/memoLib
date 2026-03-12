@@ -2,7 +2,18 @@
 import { GET, POST, PATCH } from '@/app/api/legal-deadlines/route';
 import prisma from '@/lib/prisma';
 
-jest.mock('@/lib/prisma');
+jest.mock('@/lib/prisma', () => ({
+  __esModule: true,
+  default: {
+    legalDeadline: {
+      findMany: jest.fn(),
+      count: jest.fn(),
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+  },
+}));
 
 describe('/api/legal-deadlines', () => {
   const mockTenantId = 'tenant-123';

@@ -1,4 +1,5 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,6 +14,11 @@ export async function GET(req: NextRequest) {
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const guard = requireApiPermission(session, RBAC_PERMISSIONS.TASKS_READ);
+    if (!guard.ok) {
+      return guard.response;
     }
 
     const user = await prisma.user.findUnique({
@@ -57,6 +63,11 @@ export async function POST(req: NextRequest) {
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const guard = requireApiPermission(session, RBAC_PERMISSIONS.TASKS_MANAGE);
+    if (!guard.ok) {
+      return guard.response;
     }
 
     const user = await prisma.user.findUnique({

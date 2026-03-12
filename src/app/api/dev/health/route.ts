@@ -1,4 +1,5 @@
 ﻿import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 const startTime = Date.now();
 const DEMO_MODE = process.env.DEMO_MODE === '1' || process.env.DEMO_MODE === 'true';
@@ -42,10 +43,7 @@ export async function GET() {
 async function checkDatabase(): Promise<{ healthy: boolean; message: string }> {
   try {
     // Vérifier connexion Prisma avec une requête simple
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
     await prisma.$queryRaw`SELECT 1`;
-    await prisma.$disconnect();
     return { healthy: true, message: 'Database OK' };
   } catch (error) {
     return { healthy: false, message: `Database connection failed: ${error}` };

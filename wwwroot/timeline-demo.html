@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Timeline Visuelle</title>
+    <link rel="stylesheet" href="css/demo-modern.css">
+    <link rel="stylesheet" href="css/timeline.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Timeline Visuelle</h1>
+            <p>Historique complet du dossier avec tous les événements</p>
+        </div>
+
+        <div class="quickbar">
+            <button class="btn" onclick="window.location.href='demo.html'">🔙 Retour</button>
+            <button class="btn btn-success" onclick="exportTimeline()">📥 Exporter PDF</button>
+            <button class="btn" onclick="printTimeline()">🖨️ Imprimer</button>
+        </div>
+
+        <div class="card">
+            <h2>📁 Dossier: Divorce et Garde d'Enfants - Marie Dubois</h2>
+            <div style="display:flex;gap:12px;margin-top:15px;">
+                <span class="timeline-tag priority-high">Priorité Haute</span>
+                <span class="timeline-tag" style="background:#dbeafe;color:#1e40af;">En cours</span>
+                <span class="timeline-tag" style="background:#f3f4f6;color:#374151;">3 documents</span>
+            </div>
+        </div>
+
+        <!-- Filtres Timeline -->
+        <div class="card">
+            <div class="timeline-filter">
+                <button class="timeline-filter-btn active" onclick="filterTimeline('all')">Tout</button>
+                <button class="timeline-filter-btn" onclick="filterTimeline('email')">📧 Emails</button>
+                <button class="timeline-filter-btn" onclick="filterTimeline('comment')">💬 Commentaires</button>
+                <button class="timeline-filter-btn" onclick="filterTimeline('document')">📎 Documents</button>
+                <button class="timeline-filter-btn" onclick="filterTimeline('status')">🔄 Statuts</button>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card">
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+
+                <!-- Email Initial -->
+                <div class="timeline-item" data-type="email">
+                    <div class="timeline-icon email">📧</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Email reçu - Demande initiale</span>
+                            <span class="timeline-date">Aujourd'hui, 09:15</span>
+                        </div>
+                        <div class="timeline-body">
+                            <strong>De:</strong> marie.dubois@gmail.com<br>
+                            <strong>Objet:</strong> URGENT - Divorce et garde d'enfants<br><br>
+                            Je souhaite divorcer de mon mari. Nous avons 2 enfants (5 et 8 ans).
+                            Situation urgente car violence conjugale...
+                        </div>
+                        <div class="timeline-meta">
+                            <span class="timeline-tag priority-high">Urgent</span>
+                            <span class="timeline-tag" style="background:#f3f4f6;color:#374151;">Coordonnées extraites</span>
+                        </div>
+                        <div class="timeline-actions">
+                            <button class="timeline-btn timeline-btn-primary">Voir email complet</button>
+                            <button class="timeline-btn timeline-btn-secondary">Répondre</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Création Dossier -->
+                <div class="timeline-item" data-type="status">
+                    <div class="timeline-icon status">📁</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Dossier créé automatiquement</span>
+                            <span class="timeline-date">Aujourd'hui, 09:16</span>
+                        </div>
+                        <div class="timeline-body">
+                            Dossier #2026-045 créé avec extraction automatique des coordonnées client.
+                            Priorité définie à "Haute" en raison du mot-clé "URGENT".
+                        </div>
+                        <div class="timeline-meta">
+                            <span class="timeline-tag" style="background:#d1fae5;color:#065f46;">Automatique</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Commentaire Avocat -->
+                <div class="timeline-item" data-type="comment">
+                    <div class="timeline-icon comment">💬</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Commentaire - Maître Sophie Martin</span>
+                            <span class="timeline-date">Aujourd'hui, 10:30</span>
+                        </div>
+                        <div class="timeline-body">
+                            RDV fixé demain 10h. Préparer dossier violence conjugale + certificat médical.
+                            Contacter assistante sociale pour évaluation situation enfants.
+                        </div>
+                        <div class="timeline-meta">
+                            <span class="timeline-tag" style="background:#eef2ff;color:#4f46e5;">@secretaire</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Document -->
+                <div class="timeline-item" data-type="document">
+                    <div class="timeline-icon document">📎</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Documents ajoutés</span>
+                            <span class="timeline-date">Aujourd'hui, 14:20</span>
+                        </div>
+                        <div class="timeline-body">
+                            3 documents ont été ajoutés au dossier par la secrétaire.
+                        </div>
+                        <div class="timeline-attachments">
+                            <div class="timeline-attachment">
+                                📄 certificat-medical.pdf
+                            </div>
+                            <div class="timeline-attachment">
+                                📄 bulletin-salaire.pdf
+                            </div>
+                            <div class="timeline-attachment">
+                                📄 livret-famille.pdf
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Changement Statut -->
+                <div class="timeline-item" data-type="status">
+                    <div class="timeline-icon status">🔄</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Statut modifié: En cours</span>
+                            <span class="timeline-date">Aujourd'hui, 15:45</span>
+                        </div>
+                        <div class="timeline-body">
+                            Le dossier est passé de "Ouvert" à "En cours" par Maître Sophie Martin.
+                            Notification automatique envoyée à l'équipe.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Envoyé -->
+                <div class="timeline-item" data-type="email">
+                    <div class="timeline-icon email">📧</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Email envoyé au client</span>
+                            <span class="timeline-date">Aujourd'hui, 16:00</span>
+                        </div>
+                        <div class="timeline-body">
+                            <strong>À:</strong> marie.dubois@gmail.com<br>
+                            <strong>Objet:</strong> Confirmation RDV et documents à fournir<br><br>
+                            Chère Madame Dubois, suite à notre échange, je confirme notre RDV demain à 10h...
+                        </div>
+                        <div class="timeline-actions">
+                            <button class="timeline-btn timeline-btn-primary">Voir email complet</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerte -->
+                <div class="timeline-item" data-type="alert">
+                    <div class="timeline-icon alert">⚠️</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Rappel: Échéance dans 3 jours</span>
+                            <span class="timeline-date">Aujourd'hui, 17:00</span>
+                        </div>
+                        <div class="timeline-body">
+                            Rappel automatique: Le dépôt de la requête doit être effectué avant le 15/03/2026.
+                        </div>
+                        <div class="timeline-meta">
+                            <span class="timeline-tag priority-high">Action requise</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/demo-enhancements.js"></script>
+    <script>
+        function filterTimeline(type) {
+            const items = document.querySelectorAll('.timeline-item');
+            const buttons = document.querySelectorAll('.timeline-filter-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            items.forEach(item => {
+                if (type === 'all' || item.dataset.type === type) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function exportTimeline() {
+            window.toast.show('Export PDF en cours...', 'info');
+            setTimeout(() => {
+                window.toast.show('Timeline exportée avec succès !', 'success');
+            }, 1500);
+        }
+
+        function printTimeline() {
+            window.print();
+        }
+
+        // Animation d'entrée progressive
+        document.addEventListener('DOMContentLoaded', () => {
+            const items = document.querySelectorAll('.timeline-item');
+            items.forEach((item, index) => {
+                item.style.opacity = '0';
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

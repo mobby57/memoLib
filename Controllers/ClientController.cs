@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Models;
 using MemoLib.Api.Data;
+using MemoLib.Api.Extensions;
 using System.Text.RegularExpressions;
 
 namespace MemoLib.Api.Controllers;

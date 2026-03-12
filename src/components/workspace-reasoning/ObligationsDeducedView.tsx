@@ -20,7 +20,7 @@ export function ObligationsDeducedView({
   loading 
 }: ObligationsDeducedViewProps) {
   const obligations = workspace.obligations || [];
-  const contexts = workspace.contextHypotheses || [];
+  const contexts = workspace.contexts || [];
   
   // Grouper par contexte
   const obligationsByContext = obligations.reduce((acc, obligation) => {

@@ -121,6 +121,19 @@
         const API_BASE = '/api';
         let currentMemberId = null;
 
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) {
+                return null;
+            }
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return null;
+            }
+        }
+
         // Charger les données
         async function loadTeamData() {
             try {
@@ -130,18 +143,19 @@
                     document.querySelector('#pendingTable tbody').innerHTML = '<tr><td colspan="5">Connectez-vous d\'abord dans l\'onglet principal</td></tr>';
                     return;
                 }
-                
+
                 const response = await fetch(`${API_BASE}/team/members`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
-                
-                const data = await response.json();
-                displayMembers(data.members || []);
-                displayPendingInvitations(data.pendingInvitations || []);
+
+                const data = await readResponseDataSafe(response);
+                const payload = data || {};
+                displayMembers(payload.members || []);
+                displayPendingInvitations(payload.pendingInvitations || []);
             } catch (error) {
                 console.error('Erreur:', error);
                 document.querySelector('#membersTable tbody').innerHTML = '<tr><td colspan="5">Erreur de connexion à l\'API</td></tr>';
@@ -202,7 +216,7 @@
                     alert('Connectez-vous d\'abord dans l\'onglet principal');
                     return;
                 }
-                
+
                 const response = await fetch(`${API_BASE}/team/invite`, {
                     method: 'POST',
                     headers: {
@@ -213,12 +227,13 @@
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    alert(`Invitation envoyée à ${email}\nLien: ${data.inviteUrl}`);
+                    const data = await readResponseDataSafe(response);
+                    const payload = data || {};
+                    alert(`Invitation envoyée à ${email}\nLien: ${payload.inviteUrl || 'N/A'}`);
                     document.getElementById('inviteForm').reset();
                     loadTeamData();
                 } else {
-                    const errorData = await response.json().catch(() => ({}));
+                    const errorData = (await readResponseDataSafe(response)) || {};
                     alert(`Erreur: ${errorData.message || 'Impossible d\'envoyer l\'invitation'}`);
                 }
             } catch (error) {

@@ -1,7 +1,7 @@
 ﻿/**
 import { logger } from '@/lib/logger';
  * API Métriques de Performance
- * 
+ *
  * Endpoint pour récupérer les métriques de performance du système
  * Utilisé par le dashboard monitoring et les alertes
  */
@@ -9,11 +9,12 @@ import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { getPerformanceStats, collectMetric } from '@/lib/monitoring';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
     // Auth check - admin only
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
     if (!token || !['ADMIN', 'SUPER_ADMIN', 'AVOCAT'].includes(token.role as string)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

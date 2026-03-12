@@ -36,7 +36,7 @@
 <body>
     <div class="container">
         <h1>📎 Pièces Jointes des Emails</h1>
-        
+
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="Rechercher un email (sujet, expéditeur...)">
             <button onclick="searchEmails()">Rechercher</button>
@@ -48,9 +48,9 @@
 
         <div id="errorMsg" class="error" style="display: none;"></div>
         <div id="loadingMsg" class="loading" style="display: none;">Chargement...</div>
-        
+
         <div class="email-list" id="emailList"></div>
-        
+
         <div class="attachments-section" id="attachmentsSection" style="display: none;">
             <h2>Pièces jointes de l'email sélectionné</h2>
             <div id="emailDetails" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ddd;"></div>
@@ -195,15 +195,15 @@
                 showError('Non authentifié. Connectez-vous d\'abord sur demo.html ou demo-secure.html');
                 throw new Error('Non authentifié');
             }
-            
+
             const headers = {
                 'Authorization': `Bearer ${authToken}`,
                 'Content-Type': 'application/json',
                 ...options.headers
             };
-            
+
             const response = await fetch(url, { ...options, headers });
-            
+
             if (response.status === 401) {
                 if (retryOnAuth) {
                     const relogged = await tryAutoLoginMonitoredAccount();
@@ -218,8 +218,19 @@
                 refreshAuthHint();
                 throw new Error('Non authentifié');
             }
-            
+
             return response;
+        }
+
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return null;
+            }
         }
 
         async function showAllEmails() {
@@ -227,17 +238,18 @@
             document.getElementById('errorMsg').style.display = 'none';
             document.getElementById('loadingMsg').style.display = 'block';
             document.getElementById('emailList').innerHTML = '';
-            
+
             try {
                 const response = await apiCall(`${API_BASE}/search/events`, {
                     method: 'POST',
                     body: JSON.stringify({ text: '' })
                 });
-                
+
                 if (!response.ok) throw new Error('Erreur lors du chargement des emails');
-                
-                const events = await response.json();
-                currentEmails = events.filter(e => e.eventType === 'Email');
+
+                const events = await readResponseDataSafe(response);
+                const eventList = Array.isArray(events) ? events : [];
+                currentEmails = eventList.filter(e => e.eventType === 'Email');
                 displayEmails(currentEmails);
             } catch (error) {
                 showError('Erreur: ' + error.message);
@@ -256,17 +268,18 @@
             document.getElementById('errorMsg').style.display = 'none';
             document.getElementById('loadingMsg').style.display = 'block';
             document.getElementById('emailList').innerHTML = '';
-            
+
             try {
                 const response = await apiCall(`${API_BASE}/search/events`, {
                     method: 'POST',
                     body: JSON.stringify({ text: query })
                 });
-                
+
                 if (!response.ok) throw new Error('Erreur lors de la recherche');
-                
-                const events = await response.json();
-                currentEmails = events.filter(e => e.eventType === 'Email');
+
+                const events = await readResponseDataSafe(response);
+                const eventList = Array.isArray(events) ? events : [];
+                currentEmails = eventList.filter(e => e.eventType === 'Email');
                 displayEmails(currentEmails);
             } catch (error) {
                 showError('Erreur: ' + error.message);
@@ -277,7 +290,7 @@
 
         function displayEmails(emails) {
             const emailList = document.getElementById('emailList');
-            
+
             if (emails.length === 0) {
                 emailList.innerHTML = '<p class="no-attachments">Aucun email trouvé</p>';
                 return;
@@ -293,7 +306,7 @@
                 const subject = metadata.Subject || 'Sans sujet';
                 const from = metadata.From || 'Expéditeur inconnu';
                 const date = new Date(email.occurredAt).toLocaleString('fr-FR');
-                
+
                 return `
                     <div class="email-item" onclick="loadAttachments('${email.id}')">
                         <div class="email-subject">${escapeHtml(subject)}</div>
@@ -307,7 +320,7 @@
             document.getElementById('errorMsg').style.display = 'none';
             document.getElementById('attachmentsSection').style.display = 'block';
             document.getElementById('attachmentList').innerHTML = '<li class="loading">Chargement des pièces jointes...</li>';
-            
+
             const email = currentEmails.find(e => e.id === eventId);
             if (email) {
                 let metadata = {};
@@ -322,13 +335,13 @@
                     <strong>Date:</strong> ${new Date(email.occurredAt).toLocaleString('fr-FR')}
                 `;
             }
-            
+
             try {
                 const response = await apiCall(`${API_BASE}/attachment/event/${eventId}`);
                 if (!response.ok) throw new Error('Erreur lors du chargement des pièces jointes');
-                
-                const attachments = await response.json();
-                displayAttachments(attachments);
+
+                const attachments = await readResponseDataSafe(response);
+                displayAttachments(Array.isArray(attachments) ? attachments : []);
             } catch (error) {
                 document.getElementById('attachmentList').innerHTML = `<li class="error">Erreur: ${error.message}</li>`;
             }
@@ -336,7 +349,7 @@
 
         function displayAttachments(attachments) {
             const attachmentList = document.getElementById('attachmentList');
-            
+
             if (attachments.length === 0) {
                 attachmentList.innerHTML = '<li class="no-attachments">Aucune pièce jointe pour cet email</li>';
                 return;

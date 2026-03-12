@@ -199,9 +199,9 @@ export async function PATCH(
     });
 
     // Invalider le cache
-    await invalidateByPrefix(`facture:${id}`);
-    await invalidateByPrefix('factures:');
-    await invalidateByPrefix('dashboard:');
+    await cacheInvalidatePattern(`facture:${id}`);
+    await cacheInvalidatePattern('factures:*');
+    await cacheInvalidatePattern('dashboard:*');
 
     // Log l'action
     logger.info(`Facture ${id} mise à jour par ${session.user.id}`, {
@@ -277,9 +277,9 @@ export async function DELETE(
     }
 
     // Invalider le cache
-    await invalidateByPrefix(`facture:${id}`);
-    await invalidateByPrefix('factures:');
-    await invalidateByPrefix('dashboard:');
+    await cacheInvalidatePattern(`facture:${id}`);
+    await cacheInvalidatePattern('factures:*');
+    await cacheInvalidatePattern('dashboard:*');
 
     return NextResponse.json({
       success: true,

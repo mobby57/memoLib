@@ -89,20 +89,31 @@
         const API_URL = 'http://localhost:5078';
         let token = localStorage.getItem('memolib_token') || 'demo-token';
 
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return null;
+            }
+        }
+
         function showSection(sectionName) {
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
-            
+
             // Remove active from nav items
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
-            
+
             // Show selected section
             document.getElementById(sectionName).classList.add('active');
-            
+
             // Add active to clicked nav item
             event.target.classList.add('active');
         }
@@ -112,12 +123,12 @@
                 const response = await fetch(`${API_URL}/api/dashboard/overview`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (!response.ok) return;
-                
-                const data = await response.json();
-                updateStatsGrid(data.stats);
-                
+
+                const data = await readResponseDataSafe(response);
+                updateStatsGrid(data?.stats || {});
+
                 document.getElementById('realtime').style.background = '#28a745';
                 document.getElementById('realtime').textContent = '🟢 En ligne';
             } catch (error) {

@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MemoLib - Démonstration Client</title>
-    
+
     <!-- Protection contre le tabnabbing et phishing -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-    
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
@@ -224,14 +224,14 @@
         // Validation des URLs pour prévenir le phishing
         function isUrlSafe(url) {
             if (!url) return false;
-            
+
             // URLs relatives sont sûres
             if (url.startsWith('/') && !url.startsWith('//')) return true;
-            
+
             try {
                 const urlObj = new URL(url);
                 const domain = urlObj.hostname.toLowerCase();
-                
+
                 return SECURITY_CONFIG.allowedDomains.includes(domain) ||
                        domain.endsWith('.memolib.local') ||
                        domain === 'localhost' ||
@@ -254,7 +254,7 @@
                 console.warn('URL bloquée pour sécurité:', url);
                 return false;
             }
-            
+
             const link = document.createElement('a');
             link.href = url;
             link.rel = 'noopener noreferrer';
@@ -311,6 +311,36 @@
                 updateCurrentUserDisplay(storedEmail);
             }
         }
+
+        (function patchResponseJsonForDemo() {
+            if (typeof window === 'undefined' || typeof Response === 'undefined') return;
+            if (window.__memolibSafeJsonPatched) return;
+
+            const originalJson = Response.prototype.json;
+            Response.prototype.json = async function (...args) {
+                try {
+                    const cloned = this.clone();
+                    const text = await cloned.text();
+                    if (!text || !text.trim()) {
+                        return null;
+                    }
+
+                    try {
+                        return JSON.parse(text);
+                    } catch {
+                        return null;
+                    }
+                } catch {
+                    try {
+                        return await originalJson.apply(this, args);
+                    } catch {
+                        return null;
+                    }
+                }
+            };
+
+            window.__memolibSafeJsonPatched = true;
+        })();
 
         function prefillCredentials() {
             const email = localStorage.getItem(LOGIN_EMAIL_KEY) || PINNED_MONITOR_EMAIL;
@@ -414,7 +444,7 @@
                     method: 'POST',
                     body: JSON.stringify({ email, password, name, role: 'AVOCAT', plan: 'CABINET' })
                 });
-                
+
                 const data = await res.json();
                 if (res.ok) {
                     showResult('reg-result', `✅ Compte créé avec succès! ID: ${data.id}`);
@@ -446,7 +476,7 @@
                     method: 'POST',
                     body: JSON.stringify({ email, password })
                 });
-                
+
                 const data = await res.json();
                 if (res.ok) {
                     persistSession(email, data.token);
@@ -641,7 +671,7 @@
                     method: 'POST',
                     timeoutMs: 240000
                 });
-                
+
                 const data = await res.json();
                 if (res.ok) {
                     data.linesPreview = await enrichScanRowsWithBodies(Array.isArray(data?.linesPreview) ? data.linesPreview : []);
@@ -858,7 +888,7 @@
         updateCSRFTokens();
         restoreSession();
         keepPinnedSessionAlive();
-        
+
         // Vérification périodique de la sécurité
         setInterval(() => {
             if (document.querySelectorAll('a[href^="http"]:not([rel*="noopener"])').length > 0) {

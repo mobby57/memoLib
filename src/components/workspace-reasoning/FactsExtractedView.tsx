@@ -124,14 +124,13 @@ export function FactsExtractedView({
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);
                   const newFact = {
-                    id: `manual-${Date.now()}`,
                     label: formData.get('label') as string,
                     value: formData.get('value') as string,
-                    source: 'Manuel',
+                    source: 'USER_PROVIDED' as const,
                     confidence: 1.0,
-                    verified: false,
+                    extractedBy: 'USER',
                   };
-                  onFactUpdate?.(newFact.id, newFact);
+                  onAddFact?.(newFact);
                   setShowAddForm(false);
                   e.currentTarget.reset();
                 }}

@@ -2,32 +2,12 @@
 
 import { useState } from 'react';
 import {
-  CheckCircle,
   Users,
   FileText,
   Zap,
-  BarChart3,
-  Shield,
-  Clock,
-  MessageSquare,
   Brain,
-  AlertCircle,
   Download,
   Loader,
-  Eye,
-  Mail,
-  Phone,
-  Webhook,
-  CreditCard,
-  Globe,
-  Database,
-  Lock,
-  Bell,
-  TrendingUp,
-  FileCheck,
-  Folder,
-  Upload,
-  Send,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -35,9 +15,10 @@ interface Client {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  category: string;
-  status: 'active' | 'pending' | 'archived';
+  phone?: string;
+  category?: string;
+  origin?: string;
+  status: 'active' | 'pending' | 'archived' | 'appealing' | 'resolved';
   createdAt: string;
 }
 
@@ -47,6 +28,7 @@ interface Dossier {
   type: string;
   status: string;
   description: string;
+  faits?: string;
   analysis?: string;
   createdAt: string;
   documents: number;
@@ -68,6 +50,7 @@ const DEMO_CLIENTS: Client[] = [
     email: 'marie.d@email.com',
     phone: '+33 6 12 34 56 78',
     category: '🏢 Entreprise - Startup',
+    origin: '🇫🇷 France',
     status: 'active',
     createdAt: '2026-01-15',
   },
@@ -77,6 +60,7 @@ const DEMO_CLIENTS: Client[] = [
     email: 'jean.m@email.com',
     phone: '+33 6 98 76 54 32',
     category: '👤 Particulier - Contentieux',
+    origin: '🇫🇷 France',
     status: 'active',
     createdAt: '2026-01-10',
   },
@@ -86,6 +70,7 @@ const DEMO_CLIENTS: Client[] = [
     email: 'sophie.c@email.com',
     phone: '+33 7 11 22 33 44',
     category: '🌍 International - Immigration',
+    origin: '🇨🇳 Chine',
     status: 'pending',
     createdAt: '2026-02-01',
   },
@@ -177,7 +162,6 @@ const AI_ANALYSIS = `
 `;
 
 export default function CompleteDemoPage() {
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [activeFeature, setActiveFeature] = useState<string>('clients');
   const [clients, setClients] = useState<Client[]>(DEMO_CLIENTS);
   const [dossiers, setDossiers] = useState<Dossier[]>(DEMO_DOSSIERS);
@@ -185,7 +169,7 @@ export default function CompleteDemoPage() {
   const [selectedDossier, setSelectedDossier] = useState<Dossier | null>(DEMO_DOSSIERS[0]);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [generatingDoc, setGeneratingDoc] = useState(false);
-  const [newClientForm, setNewClientForm] = useState({ name: '', email: '', phone: '', category: '' });
+  const [newClientForm, setNewClientForm] = useState({ name: '', email: '', origin: '' });
   const [generatedDocUrl, setGeneratedDocUrl] = useState<string | null>(null);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<'email' | 'whatsapp' | 'sms'>('email');
@@ -434,6 +418,7 @@ Cabinet MemoLib - Assisté d'IA.
                     <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                       <p className="text-sm text-gray-700 font-semibold">📄 Détails Dossier Sélectionné:</p>
                       <p className="text-sm text-gray-600 mt-2">{selectedDossier.faits}</p>
+                      <p className="text-sm text-gray-600 mt-2">{selectedDossier.description}</p>
                     </div>
                   )}
                 </div>
@@ -451,7 +436,7 @@ Cabinet MemoLib - Assisté d'IA.
                         <p className="text-gray-700 mt-1">
                           <strong>{dossierClient.name}</strong> - {dossierClient.origin}
                         </p>
-                        <p className="text-gray-600 text-sm mt-2">{selectedDossier.faits}</p>
+                        <p className="text-gray-600 text-sm mt-2">{selectedDossier.description}</p>
                       </div>
 
                       {!showAnalysis ? (
@@ -464,7 +449,7 @@ Cabinet MemoLib - Assisté d'IA.
                         </button>
                       ) : (
                         <div className="bg-white p-4 rounded-lg border border-purple-300">
-                          <p className="text-sm text-gray-700 whitespace-pre-wrap font-mono text-xs leading-relaxed">
+                          <p className="text-gray-700 whitespace-pre-wrap font-mono text-xs leading-relaxed">
                             {selectedDossier.analysis}
                           </p>
                         </div>
@@ -573,10 +558,11 @@ Cabinet MemoLib - Assisté d'IA.
                     </p>
                     <p className="text-xs text-gray-700">
                       🔄 Appel: <span className="font-bold">{clients.filter((c) => c.status === 'appealing').length}</span>
+                      🔄 En attente: <span className="font-bold">{clients.filter((c) => c.status === 'pending').length}</span>
                     </p>
                     <p className="text-xs text-gray-700">
                       ✓ Résolu:{' '}
-                      <span className="font-bold">{clients.filter((c) => c.status === 'resolved').length}</span>
+                      <span className="font-bold">{clients.filter((c) => c.status === 'archived').length}</span>
                     </p>
                   </div>
                 </div>

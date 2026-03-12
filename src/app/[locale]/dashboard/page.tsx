@@ -26,6 +26,7 @@ import {
   TrendingUp,
   Users,
   Zap,
+  type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -77,6 +78,13 @@ interface RecentActivity {
   title: string;
   date: string;
   status: 'success' | 'warning' | 'info';
+}
+
+interface QuickAction {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  color: string;
 }
 
 export default function DashboardPage() {
@@ -166,6 +174,7 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
+      const baseUrl = `/api/tenant/${user?.tenantId}`;
 
       // D�MO MODE: Utiliser les donn�es mock�es directement pour rapidit�
       const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || !user?.tenantId;
@@ -184,7 +193,6 @@ export default function DashboardPage() {
         };
       } else {
         // API specifique au tenant pour les admins
-        const baseUrl = `/api/tenant/${user?.tenantId}`;
         const statsResponse = await fetch(`${baseUrl}/dashboard/stats`);
         if (statsResponse.ok) {
           statsData = await statsResponse.json();
@@ -248,7 +256,7 @@ export default function DashboardPage() {
 
   // Actions rapides selon les permissions
   const getQuickActions = () => {
-    const actions = [];
+    const actions: QuickAction[] = [];
 
     if (hasPermission('canManageDossiers')) {
       actions.push({

@@ -30,9 +30,11 @@ export async function GET(req: NextRequest) {
 
     // Échanger le code contre un access token
     const app = getGitHubApp();
-    const { token } = await app.oauth.createToken({
+    const tokenResponse = await app.oauth.createToken({
       code,
     });
+    const token =
+      (tokenResponse as any).token || (tokenResponse as any).authentication?.token || null;
 
     console.log('[GitHub OAuth] Token obtained successfully');
 

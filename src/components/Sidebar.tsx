@@ -46,9 +46,10 @@ interface MenuItem {
 export default function Sidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const currentPath = pathname ?? '';
   const [expandedItems, setExpandedItems] = useState<string[]>(['Dossiers']);
 
-  if (!session || pathname.startsWith('/auth')) {
+  if (!session || currentPath.startsWith('/auth')) {
     return null;
   }
 
@@ -192,15 +193,15 @@ export default function Sidebar() {
   ];
 
   const isActive = (item: MenuItem) => {
-    if (pathname === item.href) return true;
+    if (currentPath === item.href) return true;
     if (item.subItems) {
-      return item.subItems.some(sub => pathname === sub.href || pathname.startsWith(sub.href + '/'));
+      return item.subItems.some(sub => currentPath === sub.href || currentPath.startsWith(sub.href + '/'));
     }
     return false;
   };
 
   const isSubItemActive = (href: string) => {
-    return pathname === href || pathname.startsWith(href + '/');
+    return currentPath === href || currentPath.startsWith(href + '/');
   };
 
   return (

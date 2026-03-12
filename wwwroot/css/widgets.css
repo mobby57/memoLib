@@ -1,0 +1,415 @@
+/**
+ * MemoLib Widgets & Charts Styles
+ * Styles modernes pour les composants de dashboard
+ */
+
+/* ===== STAT WIDGET ===== */
+.stat-widget {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-widget:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.stat-widget-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.stat-widget-content {
+    flex: 1;
+}
+
+.stat-widget-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-widget-label {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.stat-widget-trend {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.stat-widget-trend.up {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.stat-widget-trend.down {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ===== PROGRESS WIDGET ===== */
+.progress-widget {
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.progress-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.progress-widget-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.progress-widget-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.progress-widget-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-widget-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-widget-subtitle {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* ===== ACTIVITY WIDGET ===== */
+.activity-widget {
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.activity-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.activity-widget-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.activity-view-all {
+    font-size: 13px;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.activity-view-all:hover {
+    text-decoration: underline;
+}
+
+.activity-widget-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.activity-item:hover {
+    background: #f3f4f6;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.activity-description {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.activity-time {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.activity-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+/* ===== SPARKLINE WIDGET ===== */
+.sparkline-widget {
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sparkline-widget-header {
+    margin-bottom: 12px;
+}
+
+.sparkline-widget-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1;
+}
+
+.sparkline-widget-label {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.sparkline-widget canvas {
+    width: 100%;
+    display: block;
+}
+
+/* ===== COMPACT DASHBOARD WIDGET ===== */
+.compact-dashboard-widget {
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.compact-dashboard-header {
+    margin-bottom: 16px;
+}
+
+.compact-dashboard-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.compact-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+.compact-metric {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.compact-metric-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.compact-metric-data {
+    flex: 1;
+}
+
+.compact-metric-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1;
+}
+
+.compact-metric-label {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ===== CHART CONTAINER ===== */
+.chart-container {
+    position: relative;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.chart-container canvas {
+    max-height: 300px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.chart-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.chart-action-btn {
+    padding: 6px 12px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.chart-action-btn:hover {
+    background: #e5e7eb;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .stat-widget {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .stat-widget-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+    }
+
+    .stat-widget-value {
+        font-size: 24px;
+    }
+
+    .compact-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-item {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-widget,
+.progress-widget,
+.activity-widget,
+.sparkline-widget,
+.compact-dashboard-widget,
+.chart-container {
+    animation: slideInUp 0.4s ease-out;
+}
+
+/* ===== SCROLLBAR CUSTOM ===== */
+.activity-widget-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.activity-widget-list::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+}
+
+.activity-widget-list::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.activity-widget-list::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}

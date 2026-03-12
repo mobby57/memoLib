@@ -38,52 +38,83 @@ public class EmailMonitorService : BackgroundService
         var password = _configuration["EmailMonitor:Password"];
         var intervalSeconds = _configuration.GetValue<int>("EmailMonitor:IntervalSeconds", 60);
         var batchSize = _configuration.GetValue<int>("EmailMonitor:BatchSize", 50);
+        var connectTimeout = _configuration.GetValue<int>("EmailMonitor:ConnectTimeoutSeconds", 10);
+        var maxRetries = _configuration.GetValue<int>("EmailMonitor:MaxRetries", 3);
 
         _logger.LogInformation($"Email monitor démarré: {username}@{host}:{port}");
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            try
+            var retryCount = 0;
+            var success = false;
+
+            while (retryCount < maxRetries && !success && !stoppingToken.IsCancellationRequested)
             {
-                if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || port <= 0)
+                try
                 {
-                    _logger.LogWarning("EmailMonitor activé mais configuration IMAP incomplète (host/port/username/password). Nouveau test au prochain cycle.");
-                    await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken);
-                    continue;
-                }
-
-                using var client = new ImapClient();
-                await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.SslOnConnect, stoppingToken);
-                await client.AuthenticateAsync(username, password, stoppingToken);
-
-                var inbox = client.Inbox;
-                await inbox.OpenAsync(FolderAccess.ReadWrite, stoppingToken);
-
-                // Optimisation: traiter seulement les emails récents non lus
-                var query = SearchQuery.And(SearchQuery.NotSeen, SearchQuery.DeliveredAfter(DateTime.UtcNow.AddDays(-7)));
-                var uids = await inbox.SearchAsync(query, stoppingToken);
-
-                // Traitement par batch pour éviter la surcharge
-                var batches = uids.Take(batchSize).Chunk(10);
-                foreach (var batch in batches)
-                {
-                    var tasks = batch.Select(async uid =>
+                    if (string.IsNullOrWhiteSpace(password))
                     {
-                        var message = await inbox.GetMessageAsync(uid, stoppingToken);
-                        await ProcessEmailAsync(message, stoppingToken);
-                        await inbox.AddFlagsAsync(uid, MessageFlags.Seen, true, stoppingToken);
-                    });
-                    await Task.WhenAll(tasks);
+                        _logger.LogWarning("EmailMonitor: Mot de passe IMAP manquant. Configurez-le avec: dotnet user-secrets set \"EmailMonitor:Password\" \"votre-mot-de-passe\"");
+                        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                        break;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(username) || port <= 0)
+                    {
+                        _logger.LogWarning("EmailMonitor: Configuration IMAP incomplète (host/port/username).");
+                        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                        break;
+                    }
+
+                    using var client = new ImapClient();
+                    client.Timeout = connectTimeout * 1000;
+                    await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.SslOnConnect, stoppingToken);
+                    await client.AuthenticateAsync(username, password, stoppingToken);
+
+                    var inbox = client.Inbox;
+                    await inbox.OpenAsync(FolderAccess.ReadWrite, stoppingToken);
+
+                    var query = SearchQuery.And(SearchQuery.NotSeen, SearchQuery.DeliveredAfter(DateTime.UtcNow.AddDays(-7)));
+                    var uids = await inbox.SearchAsync(query, stoppingToken);
+
+                    var batches = uids.Take(batchSize).Chunk(10);
+                    foreach (var batch in batches)
+                    {
+                        var tasks = batch.Select(async uid =>
+                        {
+                            var message = await inbox.GetMessageAsync(uid, stoppingToken);
+                            await ProcessEmailAsync(message, stoppingToken);
+                            await inbox.AddFlagsAsync(uid, MessageFlags.Seen, true, stoppingToken);
+                        });
+                        await Task.WhenAll(tasks);
+                    }
+
+                    await client.DisconnectAsync(true, stoppingToken);
+                    success = true;
                 }
-
-                await client.DisconnectAsync(true, stoppingToken);
+                catch (Exception ex)
+                {
+                    retryCount++;
+                    _logger.LogError(ex, $"Erreur monitoring email (tentative {retryCount}/{maxRetries})");
+                    
+                    if (retryCount < maxRetries)
+                    {
+                        var delay = TimeSpan.FromSeconds(Math.Pow(2, retryCount));
+                        _logger.LogInformation($"Retry dans {delay.TotalSeconds}s...");
+                        await Task.Delay(delay, stoppingToken);
+                    }
+                }
             }
-            catch (Exception ex)
+
+            if (!success)
             {
-                _logger.LogError(ex, "Erreur monitoring email");
+                _logger.LogWarning("EmailMonitor: Échec après {MaxRetries} tentatives, pause 5min", maxRetries);
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
-
-            await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken);
+            else
+            {
+                await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken);
+            }
         }
     }
 

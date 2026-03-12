@@ -7,13 +7,13 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  Calendar, 
-  Clock, 
-  MapPin, 
-  User, 
-  Folder, 
-  Plus, 
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  User,
+  Folder,
+  Plus,
   Search,
   Filter,
   ChevronLeft,
@@ -58,7 +58,7 @@ interface Dossier {
 export default function RendezVousPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  
+
   const [rendezVous, setRendezVous] = useState<RendezVous[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [dossiers, setDossiers] = useState<Dossier[]>([]);
@@ -66,9 +66,10 @@ export default function RendezVousPage() {
   const [view, setView] = useState<'list' | 'calendar'>('list');
   const [filter, setFilter] = useState<'all' | 'today' | 'week' | 'month'>('week');
   const [searchTerm, setSearchTerm] = useState('');
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRdv, setSelectedRdv] = useState<RendezVous | null>(null);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     title: '',
@@ -93,14 +94,14 @@ export default function RendezVousPage() {
 
   const loadData = async () => {
     if (!session?.user?.tenantId) return;
-    
+
     setLoading(true);
     try {
       // Calculer les dates selon le filtre
       const now = new Date();
       let startDate = new Date();
       let endDate = new Date();
-      
+
       switch (filter) {
         case 'today':
           startDate.setHours(0, 0, 0, 0);
@@ -129,12 +130,12 @@ export default function RendezVousPage() {
         const data = await eventsRes.json();
         setRendezVous(data.events || []);
       }
-      
+
       if (clientsRes.ok) {
         const data = await clientsRes.json();
         setClients(data.clients || []);
       }
-      
+
       if (dossiersRes.ok) {
         const data = await dossiersRes.json();
         setDossiers(data.dossiers || []);
@@ -148,7 +149,7 @@ export default function RendezVousPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!session?.user?.tenantId || !session?.user?.id) return;
 
     try {
@@ -178,17 +179,19 @@ export default function RendezVousPage() {
         setIsModalOpen(false);
         resetForm();
         loadData();
+        setFeedback({ type: 'success', message: 'Rendez-vous créé avec succès' });
       } else {
-        alert('Erreur lors de la création');
+        setFeedback({ type: 'error', message: 'Erreur lors de la création' });
       }
     } catch (error) {
       console.error('Erreur création RDV:', error);
+      setFeedback({ type: 'error', message: 'Erreur lors de la création' });
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Supprimer ce rendez-vous ?')) return;
-    
+
     try {
       const res = await fetch(`/api/calendar?eventId=${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -217,17 +220,17 @@ export default function RendezVousPage() {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('fr-FR', { 
-      weekday: 'short', 
-      day: 'numeric', 
-      month: 'short' 
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short'
     });
   };
 
   const formatTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString('fr-FR', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(dateStr).toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -276,10 +279,10 @@ export default function RendezVousPage() {
   const getDateLabel = (dateStr: string) => {
     if (dateStr === today) return "Aujourd'hui";
     if (dateStr === tomorrow) return 'Demain';
-    return new Date(dateStr).toLocaleDateString('fr-FR', { 
-      weekday: 'long', 
-      day: 'numeric', 
-      month: 'long' 
+    return new Date(dateStr).toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
     });
   };
 
@@ -322,6 +325,20 @@ export default function RendezVousPage() {
           </div>
         </div>
       </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        {feedback && (
+          <div
+            className={`rounded-lg border px-4 py-3 text-sm ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+      </div>
 
       {/* Filtres */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -475,7 +492,7 @@ export default function RendezVousPage() {
             <div className="text-center py-12">
               <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">
-                Vue calendrier - 
+                Vue calendrier -
                 <Link href="/calendrier" className="text-blue-600 hover:underline ml-1">
                   Voir le calendrier complet
                 </Link>
@@ -501,7 +518,7 @@ export default function RendezVousPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-yellow-100 rounded-lg">
@@ -515,7 +532,7 @@ export default function RendezVousPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg">
@@ -529,7 +546,7 @@ export default function RendezVousPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg">

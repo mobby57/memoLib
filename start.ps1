@@ -1,27 +1,79 @@
-#!/usr/bin/env pwsh
-# Script de démarrage rapide MemoLib
+# 🚀 START - API + Tunnel HTTPS
+param(
+    [string]$Method = "ngrok"
+)
 
-Write-Host "🚀 Démarrage MemoLib..." -ForegroundColor Cyan
+Write-Host "🚀 Démarrage MemoLib + Tunnel HTTPS" -ForegroundColor Cyan
+Write-Host ""
 
-# Vérifier si l'API tourne déjà
-$process = Get-Process -Name "MemoLib.Api" -ErrorAction SilentlyContinue
-if ($process) {
-    Write-Host "✅ API déjà en cours d'exécution (PID: $($process.Id))" -ForegroundColor Green
-} else {
-    Write-Host "🔧 Démarrage de l'API..." -ForegroundColor Yellow
-    Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot'; dotnet run"
-    Start-Sleep -Seconds 3
+# Démarrer l'API en arrière-plan
+Write-Host "📡 Démarrage de l'API..." -ForegroundColor Yellow
+$apiJob = Start-Job -ScriptBlock {
+    Set-Location "c:\Users\moros\Desktop\memolib\MemoLib.Api"
+    dotnet run
 }
 
-# Ouvrir les interfaces
-Write-Host "🌐 Ouverture des interfaces..." -ForegroundColor Yellow
-Start-Process "http://localhost:5078/demo-pro.html"
-Start-Sleep -Seconds 1
-Start-Process "http://localhost:5078/app.html"
+# Attendre que l'API démarre
+Write-Host "⏳ Attente du démarrage de l'API..." -ForegroundColor Yellow
+Start-Sleep -Seconds 5
 
-Write-Host "✅ MemoLib démarré!" -ForegroundColor Green
+$apiReady = $false
+for ($i = 0; $i -lt 10; $i++) {
+    try {
+        $response = Invoke-WebRequest -Uri "http://localhost:5078/health" -Method GET -TimeoutSec 2 -ErrorAction SilentlyContinue
+        if ($response.StatusCode -eq 200) {
+            $apiReady = $true
+            break
+        }
+    } catch {
+        Start-Sleep -Seconds 2
+    }
+}
+
+if (-not $apiReady) {
+    Write-Host "❌ L'API n'a pas démarré" -ForegroundColor Red
+    Stop-Job $apiJob
+    Remove-Job $apiJob
+    exit
+}
+
+Write-Host "✅ API démarrée sur http://localhost:5078" -ForegroundColor Green
 Write-Host ""
-Write-Host "📍 Interfaces disponibles:" -ForegroundColor Cyan
-Write-Host "   - Demo Pro: http://localhost:5078/demo-pro.html" -ForegroundColor White
-Write-Host "   - App: http://localhost:5078/app.html" -ForegroundColor White
-Write-Host "   - API: http://localhost:5078" -ForegroundColor White
+
+# Démarrer le tunnel
+Write-Host "🌐 Démarrage du tunnel $Method..." -ForegroundColor Yellow
+Write-Host ""
+
+switch ($Method) {
+    "ngrok" {
+        if (-not (Get-Command ngrok -ErrorAction SilentlyContinue)) {
+            Write-Host "❌ ngrok non installé: choco install ngrok" -ForegroundColor Red
+            Stop-Job $apiJob
+            Remove-Job $apiJob
+            exit
+        }
+        ngrok http 5078
+    }
+    "cloudflared" {
+        if (-not (Get-Command cloudflared -ErrorAction SilentlyContinue)) {
+            Write-Host "❌ cloudflared non installé: choco install cloudflared" -ForegroundColor Red
+            Stop-Job $apiJob
+            Remove-Job $apiJob
+            exit
+        }
+        cloudflared tunnel --url http://localhost:5078
+    }
+    default {
+        Write-Host "❌ Méthode invalide. Utilisez: ngrok ou cloudflared" -ForegroundColor Red
+        Stop-Job $apiJob
+        Remove-Job $apiJob
+        exit
+    }
+}
+
+# Nettoyage à l'arrêt
+Write-Host ""
+Write-Host "🛑 Arrêt de l'API..." -ForegroundColor Yellow
+Stop-Job $apiJob
+Remove-Job $apiJob
+Write-Host "✅ Arrêté" -ForegroundColor Green

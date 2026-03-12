@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire d'Inscription Client - MemoLib</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .header h1 { color: #667eea; margin-bottom: 10px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 12px 24px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all 0.3s; }
+        .tab.active { background: #667eea; color: white; }
+        .tab:hover { transform: translateY(-2px); }
+        .panel { display: none; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .panel.active { display: block; }
+        .form-builder { display: grid; gap: 20px; }
+        .field-item { background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #667eea; }
+        .field-controls { display: flex; gap: 10px; margin-top: 10px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; margin-top: 5px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
+        .workspace-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 20px; }
+        .participant { background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        .activity-item { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #28a745; }
+        .document-item { background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .badge-success { background: #28a745; color: white; }
+        .badge-warning { background: #ffc107; color: black; }
+        .badge-info { background: #17a2b8; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Système de Formulaires Intelligents</h1>
+            <p>Créez des formulaires personnalisés et gérez les espaces partagés avec tous les participants</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('builder')">🛠️ Créer Formulaire</button>
+            <button class="tab" onclick="showTab('submissions')">📥 Soumissions</button>
+            <button class="tab" onclick="showTab('workspace')">👥 Espace Partagé</button>
+        </div>
+
+        <!-- PANEL 1: Form Builder -->
+        <div id="builder" class="panel active">
+            <h2>Créer un Formulaire d'Inscription Client</h2>
+            <div style="margin: 20px 0;">
+                <label><strong>Nom du formulaire:</strong></label>
+                <input type="text" id="formName" placeholder="Ex: Formulaire Divorce, Formulaire Succession...">
+
+                <label style="margin-top: 15px; display: block;"><strong>Description:</strong></label>
+                <textarea id="formDescription" rows="3" placeholder="Description du formulaire..."></textarea>
+            </div>
+
+            <h3>Champs du Formulaire</h3>
+            <div id="formFields" class="form-builder"></div>
+
+            <button class="btn btn-primary" onclick="addField()">➕ Ajouter un Champ</button>
+
+            <h3 style="margin-top: 30px;">Documents Requis</h3>
+            <div id="requiredDocs"></div>
+            <button class="btn btn-primary" onclick="addDocument()">📎 Ajouter Document Requis</button>
+
+            <div style="margin-top: 30px;">
+                <button class="btn btn-success" onclick="saveForm()">💾 Enregistrer le Formulaire</button>
+            </div>
+        </div>
+
+        <!-- PANEL 2: Submissions -->
+        <div id="submissions" class="panel">
+            <h2>Soumissions en Attente</h2>
+            <div id="submissionsList"></div>
+        </div>
+
+        <!-- PANEL 3: Shared Workspace -->
+        <div id="workspace" class="panel">
+            <h2>Créer un Espace Partagé</h2>
+            <div style="margin: 20px 0;">
+                <label><strong>ID du Dossier:</strong></label>
+                <input type="text" id="workspaceCaseId" placeholder="GUID du dossier">
+
+                <label style="margin-top: 15px; display: block;"><strong>Nom de l'espace:</strong></label>
+                <input type="text" id="workspaceName" placeholder="Ex: Dossier Dupont - Divorce">
+            </div>
+
+            <h3>Participants</h3>
+            <div id="participants"></div>
+            <button class="btn btn-primary" onclick="addParticipant()">👤 Ajouter Participant</button>
+
+            <div style="margin-top: 30px;">
+                <button class="btn btn-success" onclick="createWorkspace()">🚀 Créer l'Espace Partagé</button>
+            </div>
+
+            <div id="workspaceDetails" style="margin-top: 40px;"></div>
+        </div>
+    </div>
+
+    <script>
+    const API_BASE = window.location.origin;
+
+        const API_URL = 'http://localhost:5078/api';
+        let token = localStorage.getItem('token');
+        let fields = [];
+        let documents = [];
+        let participants = [];
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            if (tabName === 'submissions') loadSubmissions();
+        }
+
+        function addField() {
+            const field = {
+                id: Date.now().toString(),
+                label: '',
+                type: 'text',
+                required: false,
+                order: fields.length
+            };
+            fields.push(field);
+            renderFields();
+        }
+
+        function removeField(id) {
+            fields = fields.filter(f => f.id !== id);
+            renderFields();
+        }
+
+        function renderFields() {
+            const container = document.getElementById('formFields');
+            container.innerHTML = fields.map(field => `
+                <div class="field-item">
+                    <input type="text" placeholder="Label du champ" value="${field.label}"
+                           onchange="updateField('${field.id}', 'label', this.value)">
+                    <select onchange="updateField('${field.id}', 'type', this.value)">
+                        <option value="text" ${field.type === 'text' ? 'selected' : ''}>Texte</option>
+                        <option value="email" ${field.type === 'email' ? 'selected' : ''}>Email</option>
+                        <option value="phone" ${field.type === 'phone' ? 'selected' : ''}>Téléphone</option>
+                        <option value="file" ${field.type === 'file' ? 'selected' : ''}>Fichier</option>
+                        <option value="select" ${field.type === 'select' ? 'selected' : ''}>Liste déroulante</option>
+                    </select>
+                    <label style="margin-top: 10px;">
+                        <input type="checkbox" ${field.required ? 'checked' : ''}
+                               onchange="updateField('${field.id}', 'required', this.checked)">
+                        Champ obligatoire
+                    </label>
+                    <div class="field-controls">
+                        <button class="btn btn-danger" onclick="removeField('${field.id}')">🗑️ Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateField(id, prop, value) {
+            const field = fields.find(f => f.id === id);
+            if (field) field[prop] = value;
+        }
+
+        function addDocument() {
+            const doc = prompt('Nom du document requis (ex: Pièce d\'identité, Justificatif de domicile):');
+            if (doc) {
+                documents.push(doc);
+                renderDocuments();
+            }
+        }
+
+        function renderDocuments() {
+            const container = document.getElementById('requiredDocs');
+            container.innerHTML = documents.map((doc, i) => `
+                <div class="document-item">
+                    <span>📄 ${doc}</span>
+                    <button class="btn btn-danger" onclick="removeDocument(${i})">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function removeDocument(index) {
+            documents.splice(index, 1);
+            renderDocuments();
+        }
+
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) {
+                return null;
+            }
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return null;
+            }
+        }
+
+        async function saveForm() {
+            const formData = {
+                name: document.getElementById('formName').value,
+                description: document.getElementById('formDescription').value,
+                fields: fields.map(f => ({
+                    label: f.label,
+                    type: f.type,
+                    required: f.required,
+                    order: f.order
+                })),
+                requiredDocuments: documents
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/intake/forms`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    const result = await readResponseDataSafe(response);
+                    const payload = result || {};
+                    alert(`✅ Formulaire créé avec succès!\n\nID: ${payload.id || 'N/A'}\nLien public: ${window.location.origin}/form/${payload.id || ''}`);
+                    fields = [];
+                    documents = [];
+                    renderFields();
+                    renderDocuments();
+                } else {
+                    alert('❌ Erreur lors de la création du formulaire');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        async function loadSubmissions() {
+            try {
+                const response = await fetch(`${API_URL}/intake/submissions/pending`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const submissions = await readResponseDataSafe(response);
+                    const submissionsList = Array.isArray(submissions) ? submissions : [];
+                    const container = document.getElementById('submissionsList');
+                    container.innerHTML = submissionsList.length === 0
+                        ? '<p>Aucune soumission en attente</p>'
+                        : submissionsList.map(s => `
+                            <div class="activity-item">
+                                <h3>${s.clientName} (${s.clientEmail})</h3>
+                                <p><strong>Soumis le:</strong> ${new Date(s.submittedAt).toLocaleString('fr-FR')}</p>
+                                <span class="badge badge-warning">${s.status}</span>
+                                <button class="btn btn-primary" style="margin-top: 10px;">📋 Voir Détails</button>
+                            </div>
+                        `).join('');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function addParticipant() {
+            const email = prompt('Email du participant:');
+            if (!email) return;
+
+            const name = prompt('Nom du participant:');
+            const type = prompt('Type (CLIENT, LAWYER, JUDGE, SECRETARY, EXPERT):');
+            const role = prompt('Rôle (OWNER, EDITOR, VIEWER):');
+
+            participants.push({ email, name, participantType: type || 'CLIENT', role: role || 'VIEWER' });
+            renderParticipants();
+        }
+
+        function renderParticipants() {
+            const container = document.getElementById('participants');
+            container.innerHTML = participants.map((p, i) => `
+                <div class="participant">
+                    <strong>${p.name}</strong> (${p.email})<br>
+                    <span class="badge badge-info">${p.participantType}</span>
+                    <span class="badge badge-success">${p.role}</span>
+                    <button class="btn btn-danger" style="margin-top: 10px;" onclick="removeParticipant(${i})">🗑️</button>
+                </div>
+            `).join('');
+        }
+
+        function removeParticipant(index) {
+            participants.splice(index, 1);
+            renderParticipants();
+        }
+
+        async function createWorkspace() {
+            const caseId = document.getElementById('workspaceCaseId').value;
+            const name = document.getElementById('workspaceName').value;
+
+            if (!caseId || !name || participants.length === 0) {
+                alert('⚠️ Veuillez remplir tous les champs et ajouter au moins un participant');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/workspace/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ caseId, name, participants })
+                });
+
+                if (response.ok) {
+                    const workspace = await readResponseDataSafe(response);
+                    const payload = workspace || { participants: [] };
+                    alert('✅ Espace partagé créé avec succès!');
+                    displayWorkspace(payload);
+                    participants = [];
+                    renderParticipants();
+                } else {
+                    alert('❌ Erreur lors de la création de l\'espace');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        function displayWorkspace(workspace) {
+            const container = document.getElementById('workspaceDetails');
+            container.innerHTML = `
+                <div class="workspace-card">
+                    <h2>🎉 Espace Créé: ${workspace.name}</h2>
+                    <p><strong>ID:</strong> ${workspace.id}</p>
+                    <p><strong>Participants:</strong> ${workspace.participants.length}</p>
+                    <div style="margin-top: 20px;">
+                        ${workspace.participants.map(p => `
+                            <div class="participant">
+                                <strong>${p.name}</strong> - ${p.email}<br>
+                                <span class="badge badge-info">${p.participantType}</span>
+                                <span class="badge badge-success">${p.role}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Auto-login for demo
+        if (!token) {
+            fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'admin@memolib.local', password: 'demo' })
+            }).then(r => r.json()).then(data => {
+                if (data.token) {
+                    token = data.token;
+                    localStorage.setItem('token', token);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

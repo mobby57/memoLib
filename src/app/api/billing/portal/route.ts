@@ -1,10 +1,10 @@
 ﻿/**
-import { logger } from '@/lib/logger';
  * API Portail Client Stripe
  * Redirige vers le portail de gestion d'abonnement
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { createCustomerPortalSession } from '@/lib/billing/stripe-client';
@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Extraire le Stripe Customer ID du metadata
-    const metadata = typeof subscription.metadata === 'string' 
-      ? JSON.parse(subscription.metadata) 
+    const metadata = typeof subscription.metadata === 'string'
+      ? JSON.parse(subscription.metadata)
       : subscription.metadata;
-    
+
     const customerId = metadata.stripe_customer_id;
 
     if (!customerId) {

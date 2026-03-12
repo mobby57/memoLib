@@ -9,6 +9,7 @@ import { Download, Upload, FileText, Database } from 'lucide-react'
 export default function ExportsPage() {
   const [importing, setImporting] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   const handleExportDossiers = async () => {
     setExporting(true)
@@ -28,12 +29,13 @@ export default function ExportsPage() {
     if (!file) return
 
     setImporting(true)
+    setFeedback(null)
     try {
       const data = await ZeroRiskExport.importFromCSV(file)
       console.log('Donnees importees:', data)
-      alert(`${data.length} lignes importees avec succes`)
+      setFeedback({ type: 'success', message: `${data.length} lignes importees avec succes` })
     } catch (error) {
-      alert('Erreur import: ' + (error as Error).message)
+      setFeedback({ type: 'error', message: 'Erreur import: ' + (error as Error).message })
     } finally {
       setImporting(false)
     }
@@ -42,7 +44,19 @@ export default function ExportsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Exports & Imports ZeRO RISQUE</h1>
-      
+
+      {feedback && (
+        <div
+          className={`rounded-lg border px-4 py-3 text-sm ${
+            feedback.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-700'
+              : 'border-red-200 bg-red-50 text-red-700'
+          }`}
+        >
+          {feedback.message}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -52,7 +66,7 @@ export default function ExportsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button 
+            <Button
               onClick={handleExportDossiers}
               disabled={exporting}
               className="w-full"
@@ -60,8 +74,8 @@ export default function ExportsPage() {
               <FileText className="w-4 h-4 mr-2" />
               {exporting ? 'Export...' : 'Exporter Dossiers (CSV)'}
             </Button>
-            
-            <Button 
+
+            <Button
               onClick={() => ZeroRiskExport.exportToJSON([], 'backup')}
               variant="outline"
               className="w-full"
@@ -93,7 +107,7 @@ export default function ExportsPage() {
                   className="w-full p-2 border rounded"
                 />
               </div>
-              
+
               {importing && (
                 <div className="text-sm text-blue-600">
                   Import en cours...
@@ -103,7 +117,7 @@ export default function ExportsPage() {
           </CardContent>
         </Card>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>? Securite ZeRO RISQUE</CardTitle>

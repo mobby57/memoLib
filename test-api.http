@@ -1,0 +1,501 @@
+### 🧪 Tests API MemoLib - Collection Complète
+### Base URL
+@baseUrl = http://localhost:5078
+@token = {{login.response.body.token}}
+
+### ============================================
+### 🔐 AUTHENTICATION
+### ============================================
+
+### 1. Register - Inscription nouvel utilisateur
+# @name register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@memolib.com",
+  "password": "Test123!@#",
+  "name": "Maître Test",
+  "role": "AGENT",
+  "phone": "+33612345678",
+  "firmName": "Cabinet Test",
+  "barNumber": "P12345",
+  "address": "123 Rue Test",
+  "city": "Paris",
+  "postalCode": "75001",
+  "plan": "CABINET"
+}
+
+### 2. Login - Connexion
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@memolib.com",
+  "password": "Test123!@#"
+}
+
+### 3. Validate Token
+POST {{baseUrl}}/api/auth/validate
+Content-Type: application/json
+
+"{{token}}"
+
+### 4. Get Current User
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### 5. Change Password
+POST {{baseUrl}}/api/auth/change-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "currentPassword": "Test123!@#",
+  "newPassword": "NewTest123!@#"
+}
+
+### ============================================
+### 📁 CASE MANAGEMENT
+### ============================================
+
+### 6. Create Case - Création dossier
+# @name createCase
+POST {{baseUrl}}/api/cases
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Dossier OQTF - Sophie Dubois",
+  "description": "OQTF notifiée le 15/01/2026 avec délai de 30 jours",
+  "clientEmail": "sophie.dubois@email.com",
+  "clientName": "Sophie Dubois",
+  "clientPhone": "+33612345678",
+  "status": "OPEN",
+  "priority": 5,
+  "tags": ["OQTF", "urgent", "famille"],
+  "dueDate": "2026-02-14T23:59:59Z"
+}
+
+### 7. Get All Cases
+GET {{baseUrl}}/api/cases
+Authorization: Bearer {{token}}
+
+### 8. Get Case by ID
+@caseId = {{createCase.response.body.id}}
+GET {{baseUrl}}/api/cases/{{caseId}}
+Authorization: Bearer {{token}}
+
+### 9. Get Case Timeline
+GET {{baseUrl}}/api/cases/{{caseId}}/timeline
+Authorization: Bearer {{token}}
+
+### 10. Update Case Status
+PATCH {{baseUrl}}/api/cases/{{caseId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS",
+  "comment": "Début du traitement du dossier"
+}
+
+### 11. Assign Case
+PATCH {{baseUrl}}/api/cases/{{caseId}}/assign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "assignedTo": "jean.dupont@cabinet-dupont.fr",
+  "comment": "Attribution à Maître Dupont"
+}
+
+### 12. Update Case Tags
+PATCH {{baseUrl}}/api/cases/{{caseId}}/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tags": ["OQTF", "urgent", "famille", "recours"],
+  "comment": "Ajout tag recours"
+}
+
+### 13. Update Case Priority
+PATCH {{baseUrl}}/api/cases/{{caseId}}/priority
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "priority": 5,
+  "dueDate": "2026-02-14T23:59:59Z",
+  "comment": "Priorité maximale - délai légal"
+}
+
+### 14. Filter Cases
+GET {{baseUrl}}/api/cases/filter?status=OPEN&priority=5&tag=urgent
+Authorization: Bearer {{token}}
+
+### ============================================
+### 👥 CLIENT MANAGEMENT
+### ============================================
+
+### 15. Create Client
+# @name createClient
+POST {{baseUrl}}/api/client
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "mehdi.benamar@email.com",
+  "name": "Mehdi Benamar",
+  "phone": "+33698765432",
+  "address": "45 Avenue de la République",
+  "city": "Lyon",
+  "postalCode": "69003",
+  "notes": "Client régulier - renouvellement titre de séjour"
+}
+
+### 16. Get All Clients
+GET {{baseUrl}}/api/client
+Authorization: Bearer {{token}}
+
+### 17. Get Client Detail
+@clientId = {{createClient.response.body.id}}
+GET {{baseUrl}}/api/client/{{clientId}}/detail
+Authorization: Bearer {{token}}
+
+### 18. Update Client
+PUT {{baseUrl}}/api/client/{{clientId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "mehdi.benamar@email.com",
+  "name": "Mehdi Benamar",
+  "phone": "+33698765432",
+  "address": "45 Avenue de la République",
+  "city": "Lyon",
+  "postalCode": "69003",
+  "notes": "Client VIP - renouvellement titre de séjour"
+}
+
+### ============================================
+### 📧 EMAIL MANAGEMENT
+### ============================================
+
+### 19. Ingest Email
+# @name ingestEmail
+POST {{baseUrl}}/api/ingest/email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "from": "sophie.dubois@email.com",
+  "to": "jean.dupont@cabinet-dupont.fr",
+  "subject": "URGENT - OQTF notifiée le 15/01/2026",
+  "body": "Bonjour Maître,\n\nJ'ai reçu une OQTF le 15/01/2026 avec un délai de départ volontaire de 30 jours.\n\nJe suis en France depuis 5 ans avec mes deux enfants scolarisés.\n\nMerci pour votre aide.",
+  "messageId": "test-{{$timestamp}}@simulator.local",
+  "receivedAt": "{{$datetime iso8601}}"
+}
+
+### 20. Send Email
+POST {{baseUrl}}/api/email/send
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "to": "sophie.dubois@email.com",
+  "subject": "Re: OQTF notifiée",
+  "body": "Bonjour Madame Dubois,\n\nJ'ai bien reçu votre demande. Je vous propose un rendez-vous cette semaine.\n\nCordialement,\nMaître Dupont",
+  "caseId": "{{caseId}}"
+}
+
+### 21. Create Email Template
+# @name createTemplate
+POST {{baseUrl}}/api/email/templates
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Confirmation RDV",
+  "subject": "Confirmation de rendez-vous - {{clientName}}",
+  "body": "Bonjour {{clientName}},\n\nVotre rendez-vous est confirmé pour le {{date}} à {{time}}.\n\nCordialement,\n{{lawyerName}}",
+  "variables": ["clientName", "date", "time", "lawyerName"]
+}
+
+### 22. Get All Templates
+GET {{baseUrl}}/api/email/templates
+Authorization: Bearer {{token}}
+
+### 23. Manual Email Scan
+POST {{baseUrl}}/api/email-scan/manual
+Authorization: Bearer {{token}}
+
+### 24. Get Email Scan Status
+GET {{baseUrl}}/api/email-scan/status
+Authorization: Bearer {{token}}
+
+### ============================================
+### 🔍 SEARCH
+### ============================================
+
+### 25. Text Search
+POST {{baseUrl}}/api/search/events
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "query": "OQTF",
+  "limit": 10
+}
+
+### 26. Embeddings Search
+POST {{baseUrl}}/api/embeddings/search
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "query": "recours contentieux OQTF",
+  "limit": 5
+}
+
+### 27. Semantic Search
+POST {{baseUrl}}/api/semantic/search
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "query": "dossiers urgents avec délai légal",
+  "limit": 10
+}
+
+### ============================================
+### 📎 ATTACHMENTS
+### ============================================
+
+### 28. Upload Attachment
+@eventId = {{ingestEmail.response.body.eventId}}
+POST {{baseUrl}}/api/attachment/upload/{{eventId}}
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="test.pdf"
+Content-Type: application/pdf
+
+<@test-document.pdf
+------WebKitFormBoundary--
+
+### 29. Get Attachments by Event
+GET {{baseUrl}}/api/attachment/event/{{eventId}}
+Authorization: Bearer {{token}}
+
+### ============================================
+### 📊 DASHBOARD & ANALYTICS
+### ============================================
+
+### 30. Get Dashboard Stats
+GET {{baseUrl}}/api/dashboard/stats
+Authorization: Bearer {{token}}
+
+### 31. Get Recent Activity
+GET {{baseUrl}}/api/dashboard/recent-activity
+Authorization: Bearer {{token}}
+
+### 32. Get Alerts
+GET {{baseUrl}}/api/dashboard/alerts
+Authorization: Bearer {{token}}
+
+### ============================================
+### 🔔 NOTIFICATIONS
+### ============================================
+
+### 33. Get Notifications
+GET {{baseUrl}}/api/notifications
+Authorization: Bearer {{token}}
+
+### 34. Mark Notification as Read
+POST {{baseUrl}}/api/notifications/mark-read/{{notificationId}}
+Authorization: Bearer {{token}}
+
+### 35. Mark All Notifications as Read
+POST {{baseUrl}}/api/notifications/mark-all-read
+Authorization: Bearer {{token}}
+
+### ============================================
+### 👨💼 TEAM MANAGEMENT
+### ============================================
+
+### 36. Get Team Members
+GET {{baseUrl}}/api/team/members
+Authorization: Bearer {{token}}
+
+### 37. Invite Team Member
+POST {{baseUrl}}/api/team/invite
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "collaborateur@cabinet-dupont.fr",
+  "name": "Jean Collaborateur",
+  "role": "COLLABORATOR"
+}
+
+### ============================================
+### 💰 BILLING
+### ============================================
+
+### 38. Get Invoices
+GET {{baseUrl}}/api/billing/invoices
+Authorization: Bearer {{token}}
+
+### 39. Create Invoice
+POST {{baseUrl}}/api/billing/invoices
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "clientId": "{{clientId}}",
+  "caseId": "{{caseId}}",
+  "amount": 1500.00,
+  "description": "Recours contentieux OQTF",
+  "dueDate": "2026-03-15T23:59:59Z"
+}
+
+### 40. Get Time Entries
+GET {{baseUrl}}/api/billing/time-entries
+Authorization: Bearer {{token}}
+
+### 41. Add Time Entry
+POST {{baseUrl}}/api/billing/time-entries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "caseId": "{{caseId}}",
+  "duration": 120,
+  "description": "Préparation recours contentieux",
+  "date": "{{$datetime iso8601}}"
+}
+
+### ============================================
+### 📅 CALENDAR
+### ============================================
+
+### 42. Get Calendar Events
+GET {{baseUrl}}/api/calendar/events
+Authorization: Bearer {{token}}
+
+### 43. Create Calendar Event
+POST {{baseUrl}}/api/calendar/events
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "RDV Sophie Dubois",
+  "description": "Consultation dossier OQTF",
+  "startDate": "2026-01-25T10:00:00Z",
+  "endDate": "2026-01-25T11:00:00Z",
+  "caseId": "{{caseId}}",
+  "location": "Cabinet"
+}
+
+### ============================================
+### 🔒 SECURITY & AUDIT
+### ============================================
+
+### 44. Get Audit Log
+GET {{baseUrl}}/api/audit?limit=50
+Authorization: Bearer {{token}}
+
+### 45. Get Active Sessions
+GET {{baseUrl}}/api/security/sessions
+Authorization: Bearer {{token}}
+
+### ============================================
+### 🌐 SHARED WORKSPACE
+### ============================================
+
+### 46. Create Shared Workspace
+# @name createWorkspace
+POST {{baseUrl}}/api/shared-workspace/create
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Espace Client - Sophie Dubois",
+  "description": "Espace de partage pour le dossier OQTF",
+  "caseId": "{{caseId}}",
+  "expiresAt": "2026-12-31T23:59:59Z",
+  "allowedEmails": ["sophie.dubois@email.com"]
+}
+
+### 47. Access Shared Workspace (Public)
+@workspaceToken = {{createWorkspace.response.body.token}}
+GET {{baseUrl}}/api/shared-workspace/{{workspaceToken}}
+
+### ============================================
+### 🤖 AUTOMATIONS
+### ============================================
+
+### 48. Get Automations
+GET {{baseUrl}}/api/automations
+Authorization: Bearer {{token}}
+
+### 49. Create Automation
+POST {{baseUrl}}/api/automations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Auto-notification OQTF",
+  "trigger": "EMAIL_RECEIVED",
+  "conditions": [
+    {
+      "field": "subject",
+      "operator": "contains",
+      "value": "OQTF"
+    }
+  ],
+  "actions": [
+    {
+      "type": "CREATE_CASE",
+      "priority": 5
+    },
+    {
+      "type": "SEND_NOTIFICATION",
+      "message": "Nouveau dossier OQTF urgent"
+    }
+  ]
+}
+
+### ============================================
+### 📊 REPORTS & EXPORT
+### ============================================
+
+### 50. Generate Report
+POST {{baseUrl}}/api/reports/generate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "MONTHLY_ACTIVITY",
+  "startDate": "2026-01-01T00:00:00Z",
+  "endDate": "2026-01-31T23:59:59Z",
+  "format": "PDF"
+}
+
+### 51. Export Cases
+GET {{baseUrl}}/api/export/cases?format=csv&status=OPEN
+Authorization: Bearer {{token}}
+
+### ============================================
+### 🧪 HEALTH CHECK
+### ============================================
+
+### 52. Health Check
+GET {{baseUrl}}/health
+
+### 53. API Status
+GET {{baseUrl}}/api/status

@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    
+
     const {
       prenom,
       nom,
@@ -55,9 +55,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Récupérer le plan choisi
-    const plan = await prisma.plan.findUnique({
-      where: { name: planName || 'SOLO' },
+    const requestedPlan = String(planName || 'SOLO').toUpperCase();
+    const planAliases: Record<string, string[]> = {
+      SOLO: ['SOLO', 'STARTER'],
+      CABINET: ['CABINET', 'PRO'],
+      ENTERPRISE: ['ENTERPRISE'],
+    };
+
+    const candidatePlanNames = planAliases[requestedPlan] || [requestedPlan];
+
+    const plan = await prisma.plan.findFirst({
+      where: {
+        name: {
+          in: candidatePlanNames,
+          mode: 'insensitive',
+        },
+      },
     });
 
     if (!plan) {
@@ -72,29 +85,31 @@ export async function POST(request: NextRequest) {
 
     // Créer le tenant (cabinet) et l'utilisateur en transaction
     const result = await prisma.$transaction(async (tx) => {
+      const baseSubdomain = (cabinetNom || nom || 'cabinet')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 30) || 'cabinet';
+
+      const uniqueSuffix = Date.now().toString().slice(-6);
+      const subdomain = `${baseSubdomain}-${uniqueSuffix}`;
+
       // 1. Créer le tenant (cabinet)
       const tenant = await tx.tenant.create({
         data: {
           id: randomUUID(),
           name: cabinetNom || `Cabinet ${nom}`,
-          slug: `${nom.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+          subdomain,
           planId: plan.id,
-          
+
           // Compteurs initiaux
           currentWorkspaces: 0,
           currentDossiers: 0,
           currentClients: 0,
           currentUsers: 1,
           currentStorageGb: 0,
-          
-          // Métadonnées
-          settings: {
-            numeroBarreau,
-            adresse,
-            ville,
-            codePostal,
-            telephone,
-          },
         },
       });
 
@@ -106,9 +121,10 @@ export async function POST(request: NextRequest) {
           name: `${prenom} ${nom}`,
           password: hashedPassword,
           role: 'AVOCAT',
-          tenantId: tenant.id,
-          isActive: true,
-          emailVerified: null, // À vérifier par email
+          status: 'active',
+          tenant: {
+            connect: { id: tenant.id },
+          },
         },
       });
 
@@ -133,7 +149,18 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    logger.error('[REGISTER] Erreur:', { error });
+    const message = error instanceof Error ? error.message : String(error);
+    const isDatabaseUnavailable = message.includes("Can't reach database server");
+
+    logger.error('[REGISTER] Erreur inscription', error);
+
+    if (isDatabaseUnavailable) {
+      return NextResponse.json(
+        { error: 'Service d’inscription temporairement indisponible (base de données).' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { error: 'Erreur lors de l\'inscription' },
       { status: 500 }

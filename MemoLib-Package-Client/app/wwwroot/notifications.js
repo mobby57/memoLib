@@ -1,16 +1,28 @@
 // 🔔 SYSTÈME DE NOTIFICATIONS PAR RÔLE
 // À ajouter dans demo.html
 
+async function readResponseDataSafe(response) {
+    const text = await response.text();
+    if (!text || !text.trim()) return null;
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+}
+
 // Charger les notifications au démarrage
 async function loadNotifications() {
     try {
         const response = await fetch('/api/notifications/unread', {
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        const data = await response.json();
-        
-        displayNotifications(data.notifications);
-        updateNotificationBadge(data.count);
+        const data = await readResponseDataSafe(response);
+        const payload = data || {};
+
+        displayNotifications(Array.isArray(payload.notifications) ? payload.notifications : []);
+        updateNotificationBadge(payload.count || 0);
     } catch (error) {
         console.error('Erreur chargement notifications:', error);
     }
@@ -20,12 +32,12 @@ async function loadNotifications() {
 function displayNotifications(notifications) {
     const container = document.getElementById('notifications-container');
     if (!container) return;
-    
+
     if (notifications.length === 0) {
         container.innerHTML = '<p class="text-muted">Aucune notification</p>';
         return;
     }
-    
+
     container.innerHTML = notifications.map(n => `
         <div class="notification-item ${getSeverityClass(n.severity)}" data-id="${n.id}">
             <div class="notification-header">
@@ -43,7 +55,7 @@ function displayNotifications(notifications) {
 function updateNotificationBadge(count) {
     const badge = document.getElementById('notification-badge');
     if (!badge) return;
-    
+
     if (count > 0) {
         badge.textContent = count > 99 ? '99+' : count;
         badge.style.display = 'inline-block';
@@ -59,7 +71,7 @@ async function markAsRead(notificationId) {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        
+
         // Recharger les notifications
         await loadNotifications();
     } catch (error) {
@@ -74,7 +86,7 @@ async function markAllAsRead() {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        
+
         await loadNotifications();
     } catch (error) {
         console.error('Erreur marquage toutes notifications:', error);
@@ -97,7 +109,7 @@ function formatTime(dateString) {
     const date = new Date(dateString);
     const now = new Date();
     const diff = Math.floor((now - date) / 1000); // secondes
-    
+
     if (diff < 60) return 'À l\'instant';
     if (diff < 3600) return `Il y a ${Math.floor(diff / 60)} min`;
     if (diff < 86400) return `Il y a ${Math.floor(diff / 3600)} h`;

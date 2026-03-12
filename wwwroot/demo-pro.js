@@ -3,6 +3,34 @@ let token = localStorage.getItem('token') || '';
 let currentCaseId = localStorage.getItem('caseId') || '';
 let userId = localStorage.getItem('userId') || '';
 
+(function patchResponseJsonForDemo() {
+    if (typeof window === 'undefined' || typeof Response === 'undefined') return;
+    if (window.__memolibSafeJsonPatched) return;
+
+    const originalJson = Response.prototype.json;
+    Response.prototype.json = async function (...args) {
+        try {
+            const cloned = this.clone();
+            const text = await cloned.text();
+            if (!text || !text.trim()) return null;
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return null;
+            }
+        } catch {
+            try {
+                return await originalJson.apply(this, args);
+            } catch {
+                return null;
+            }
+        }
+    };
+
+    window.__memolibSafeJsonPatched = true;
+})();
+
 function showTab(tabName) {
     document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -24,9 +52,9 @@ async function apiCall(endpoint, method = 'GET', body = null) {
             'Authorization': `Bearer ${token}`
         }
     };
-    
+
     if (body) options.body = JSON.stringify(body);
-    
+
     try {
         const response = await fetch(`${API_URL}${endpoint}`, options);
         const data = await response.json();
@@ -40,16 +68,16 @@ async function apiCall(endpoint, method = 'GET', body = null) {
 async function login() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    
+
     const result = await apiCall('/auth/login', 'POST', { email, password });
-    
+
     if (result.success) {
         token = result.data.token;
         userId = result.data.userId;
         localStorage.setItem('token', token);
         localStorage.setItem('userId', userId);
         showResult('authResult', `✅ Connexion réussie !<br>Token: ${token.substring(0, 20)}...<br>User ID: ${userId}`, 'success');
-        
+
         // Créer un dossier de test
         await createTestCase();
     } else {
@@ -63,7 +91,7 @@ async function createTestCase() {
         status: 'OPEN',
         priority: 3
     });
-    
+
     if (result.success) {
         currentCaseId = result.data.id;
         localStorage.setItem('caseId', currentCaseId);
@@ -76,9 +104,9 @@ async function sendEmail() {
     const to = document.getElementById('emailTo').value;
     const subject = document.getElementById('emailSubject').value;
     const body = document.getElementById('emailBody').value;
-    
+
     const result = await apiCall('/email/send', 'POST', { to, subject, body });
-    
+
     if (result.success) {
         showResult('emailResult', `✅ Email envoyé avec succès !<br>À: ${to}<br>Sujet: ${subject}`, 'success');
     } else {
@@ -92,16 +120,16 @@ async function createNote() {
         showResult('notesResult', '❌ Veuillez vous connecter d\'abord', 'error');
         return;
     }
-    
+
     const content = document.getElementById('noteContent').value;
     const isPrivate = document.getElementById('notePrivate').checked;
-    
+
     const result = await apiCall(`/cases/${currentCaseId}/notes`, 'POST', {
         content,
         isPrivate,
         mentions: []
     });
-    
+
     if (result.success) {
         showResult('notesResult', `✅ Note créée !<br>ID: ${result.data.id}<br>Contenu: ${content}`, 'success');
         loadNotes();
@@ -112,9 +140,9 @@ async function createNote() {
 
 async function loadNotes() {
     if (!currentCaseId) return;
-    
+
     const result = await apiCall(`/cases/${currentCaseId}/notes`);
-    
+
     if (result.success) {
         const list = document.getElementById('notesList');
         list.innerHTML = result.data.map(note => `
@@ -133,19 +161,19 @@ async function createTask() {
         showResult('tasksResult', '❌ Veuillez vous connecter d\'abord', 'error');
         return;
     }
-    
+
     const title = document.getElementById('taskTitle').value;
     const description = document.getElementById('taskDesc').value;
     const priority = parseInt(document.getElementById('taskPriority').value);
     const dueDate = document.getElementById('taskDue').value;
-    
+
     const result = await apiCall(`/cases/${currentCaseId}/tasks`, 'POST', {
         title,
         description,
         priority,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null
     });
-    
+
     if (result.success) {
         showResult('tasksResult', `✅ Tâche créée !<br>Titre: ${title}<br>Priorité: ${priority}`, 'success');
         loadTasks();
@@ -156,9 +184,9 @@ async function createTask() {
 
 async function loadTasks() {
     if (!currentCaseId) return;
-    
+
     const result = await apiCall(`/cases/${currentCaseId}/tasks`);
-    
+
     if (result.success) {
         const list = document.getElementById('tasksList');
         list.innerHTML = result.data.map(task => `
@@ -178,28 +206,28 @@ async function uploadDocument() {
         showResult('docsResult', '❌ Veuillez vous connecter d\'abord', 'error');
         return;
     }
-    
+
     const file = document.getElementById('docFile').files[0];
     const category = document.getElementById('docCategory').value;
     const tags = document.getElementById('docTags').value;
-    
+
     if (!file) {
         showResult('docsResult', '❌ Veuillez sélectionner un fichier', 'error');
         return;
     }
-    
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('category', category);
     formData.append('tags', tags);
-    
+
     try {
         const response = await fetch(`${API_URL}/cases/${currentCaseId}/documents`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             showResult('docsResult', `✅ Document uploadé !<br>Nom: ${file.name}<br>Taille: ${(file.size / 1024).toFixed(2)} KB`, 'success');
@@ -214,9 +242,9 @@ async function uploadDocument() {
 
 async function loadDocuments() {
     if (!currentCaseId) return;
-    
+
     const result = await apiCall(`/cases/${currentCaseId}/documents`);
-    
+
     if (result.success) {
         const list = document.getElementById('docsList');
         list.innerHTML = result.data.map(doc => `
@@ -236,11 +264,11 @@ async function logCall() {
         showResult('callsResult', '❌ Veuillez vous connecter d\'abord', 'error');
         return;
     }
-    
+
     const phoneNumber = document.getElementById('callPhone').value;
     const direction = document.getElementById('callDirection').value;
     const notes = document.getElementById('callNotes').value;
-    
+
     const result = await apiCall(`/cases/${currentCaseId}/calls`, 'POST', {
         phoneNumber,
         direction,
@@ -248,7 +276,7 @@ async function logCall() {
         endTime: new Date(Date.now() + 600000).toISOString(),
         notes
     });
-    
+
     if (result.success) {
         showResult('callsResult', `✅ Appel enregistré !<br>Numéro: ${phoneNumber}<br>Direction: ${direction}`, 'success');
         loadCalls();
@@ -259,9 +287,9 @@ async function logCall() {
 
 async function loadCalls() {
     if (!currentCaseId) return;
-    
+
     const result = await apiCall(`/cases/${currentCaseId}/calls`);
-    
+
     if (result.success) {
         const list = document.getElementById('callsList');
         list.innerHTML = result.data.map(call => `
@@ -279,7 +307,7 @@ async function loadCalls() {
 async function createForm() {
     const name = document.getElementById('formName').value;
     const description = document.getElementById('formDesc').value;
-    
+
     const result = await apiCall('/forms', 'POST', {
         name,
         description,
@@ -289,7 +317,7 @@ async function createForm() {
             { name: 'message', label: 'Message', type: 'TEXT', isRequired: true }
         ]
     });
-    
+
     if (result.success) {
         showResult('formsResult', `✅ Formulaire créé !<br>Nom: ${name}<br>ID: ${result.data.id}`, 'success');
         loadForms();
@@ -300,7 +328,7 @@ async function createForm() {
 
 async function loadForms() {
     const result = await apiCall('/forms');
-    
+
     if (result.success) {
         const list = document.getElementById('formsList');
         list.innerHTML = result.data.map(form => `
@@ -318,7 +346,7 @@ async function createAutomation() {
     const name = document.getElementById('autoName').value;
     const triggerType = document.getElementById('autoTrigger').value;
     const actionType = document.getElementById('autoAction').value;
-    
+
     const result = await apiCall('/automations', 'POST', {
         name,
         triggerType,
@@ -327,7 +355,7 @@ async function createAutomation() {
         actionParams: { priority: '1' },
         isActive: true
     });
-    
+
     if (result.success) {
         showResult('autosResult', `✅ Automatisation créée !<br>Nom: ${name}<br>Déclencheur: ${triggerType}`, 'success');
         loadAutomations();
@@ -338,7 +366,7 @@ async function createAutomation() {
 
 async function loadAutomations() {
     const result = await apiCall('/automations');
-    
+
     if (result.success) {
         const list = document.getElementById('autosList');
         list.innerHTML = result.data.map(auto => `
@@ -357,7 +385,7 @@ async function generateReport() {
     const reportType = document.getElementById('reportType').value;
     const startDate = document.getElementById('reportStart').value;
     const endDate = document.getElementById('reportEnd').value;
-    
+
     const result = await apiCall('/reports/generate', 'POST', {
         name: `Rapport ${reportType}`,
         reportType,
@@ -365,7 +393,7 @@ async function generateReport() {
         endDate: endDate ? new Date(endDate).toISOString() : null,
         filters: {}
     });
-    
+
     if (result.success) {
         showResult('reportsResult', `✅ Rapport généré !<br>Type: ${reportType}<br>Données: ${JSON.stringify(result.data.data)}`, 'success');
         loadReports();
@@ -376,7 +404,7 @@ async function generateReport() {
 
 async function loadReports() {
     const result = await apiCall('/reports');
-    
+
     if (result.success) {
         const list = document.getElementById('reportsList');
         list.innerHTML = result.data.map(report => `
@@ -393,14 +421,14 @@ async function loadReports() {
 async function createIntegration() {
     const provider = document.getElementById('integProvider').value;
     const accessToken = document.getElementById('integToken').value;
-    
+
     const result = await apiCall('/integrations', 'POST', {
         provider,
         accessToken,
         settings: { sync_enabled: 'true' },
         isActive: true
     });
-    
+
     if (result.success) {
         showResult('integsResult', `✅ Intégration connectée !<br>Provider: ${provider}`, 'success');
         loadIntegrations();
@@ -411,7 +439,7 @@ async function createIntegration() {
 
 async function loadIntegrations() {
     const result = await apiCall('/integrations');
-    
+
     if (result.success) {
         const list = document.getElementById('integsList');
         list.innerHTML = result.data.map(integ => `
@@ -427,13 +455,13 @@ async function loadIntegrations() {
 async function sendMessage() {
     const toUserId = document.getElementById('chatTo').value;
     const content = document.getElementById('chatContent').value;
-    
+
     const result = await apiCall('/messages', 'POST', {
         toUserId,
         content,
         caseId: currentCaseId
     });
-    
+
     if (result.success) {
         showResult('chatResult', `✅ Message envoyé !<br>À: ${toUserId}`, 'success');
         loadMessages();
@@ -444,7 +472,7 @@ async function sendMessage() {
 
 async function loadMessages() {
     const result = await apiCall('/messages');
-    
+
     if (result.success) {
         const list = document.getElementById('chatList');
         list.innerHTML = result.data.map(msg => `
@@ -463,12 +491,12 @@ async function createShare() {
         showResult('shareResult', '❌ Veuillez vous connecter d\'abord', 'error');
         return;
     }
-    
+
     const recipientEmail = document.getElementById('shareEmail').value;
     const password = document.getElementById('sharePassword').value;
     const expiresAt = document.getElementById('shareExpiry').value;
     const allowDownload = document.getElementById('shareDownload').checked;
-    
+
     const result = await apiCall('/share', 'POST', {
         caseId: currentCaseId,
         recipientEmail,
@@ -477,7 +505,7 @@ async function createShare() {
         documentIds: [],
         allowDownload
     });
-    
+
     if (result.success) {
         showResult('shareResult', `✅ Partage créé !<br>Email: ${recipientEmail}<br>Lien: ${result.data.shareUrl}`, 'success');
         loadShares();
@@ -488,9 +516,9 @@ async function createShare() {
 
 async function loadShares() {
     if (!currentCaseId) return;
-    
+
     const result = await apiCall(`/share/case/${currentCaseId}`);
-    
+
     if (result.success) {
         const list = document.getElementById('sharesList');
         list.innerHTML = result.data.map(share => `

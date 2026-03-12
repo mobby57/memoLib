@@ -1,390 +1,179 @@
-﻿'use client';
+'use client';
 
-export const dynamic = 'force-dynamic';
-
-/**
- * Page Demande de Demo - Planifier une demonstration personnalisee
- */
-
-import { useState, FormEvent } from 'react';
 import Link from 'next/link';
-import { 
-  Calendar, ArrowLeft, CheckCircle, Play, Users, 
-  Clock, Video, MessageSquare, Building, Mail
-} from 'lucide-react';
+import { Mail, Brain, Scale, ArrowRight, Play, Zap } from 'lucide-react';
 
-interface DemoForm {
-  nom: string;
-  email: string;
-  telephone: string;
-  cabinet: string;
-  tailleEquipe: string;
-  dateSouhaitee: string;
-  heureSouhaitee: string;
-  besoinPrincipal: string;
-  commentaire: string;
-}
-
-const BESOINS = [
-  'Gestion des dossiers clients',
-  'Automatisation des emails',
-  'Facturation et comptabilite',
-  'Intelligence Artificielle juridique',
-  'Collaboration d\'equipe',
-  'Conformite RGPD',
-  'Autre',
+const DEMO_FEATURES = [
+  {
+    id: 1,
+    title: 'Email entrant',
+    description: 'Simulez des emails clients réalistes avec templates juridiques pré-définis',
+    icon: Mail,
+    href: '/demo/email-simulator',
+    color: 'blue',
+    duration: '2 min',
+  },
+  {
+    id: 2,
+    title: 'Raisonnement dossier',
+    description: 'IA analyse le contenu et organise automatiquement le workflow juridique',
+    icon: Brain,
+    href: '/demo/workspace-reasoning',
+    color: 'purple',
+    duration: '3 min',
+  },
+  {
+    id: 3,
+    title: 'Preuve légale',
+    description: 'Génération automatique de documents avec vérification de conformité',
+    icon: Scale,
+    href: '/demo/legal-proof',
+    color: 'green',
+    duration: '2 min',
+  },
 ];
 
-const TAILLES = [
-  '1 avocat (solo)',
-  '2-5 avocats',
-  '6-10 avocats',
-  '11-20 avocats',
-  'Plus de 20 avocats',
+const STATS = [
+  { label: 'Temps économisé', value: '75%', description: 'par dossier traité' },
+  { label: 'Précision juridique', value: '98%', description: 'conformité légale' },
+  { label: 'Satisfaction client', value: '94%', description: 'délais respectés' },
 ];
 
-export default function DemoPage() {
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-
-  const [form, setForm] = useState<DemoForm>({
-    nom: '',
-    email: '',
-    telephone: '',
-    cabinet: '',
-    tailleEquipe: '',
-    dateSouhaitee: '',
-    heureSouhaitee: '',
-    besoinPrincipal: '',
-    commentaire: '',
-  });
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/demo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-
-      if (response.ok) {
-        setSuccess(true);
-      } else {
-        const data = await response.json();
-        setError(data.error || 'Erreur lors de l\'envoi');
-      }
-    } catch (err) {
-      setError('Erreur de connexion');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20">
-          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-400" />
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-4">Demande enregistree !</h1>
-          <p className="text-gray-300 mb-4">
-            Merci pour votre interet ! Notre equipe vous contactera dans les 24h pour confirmer votre creneau de demonstration.
-          </p>
-          <div className="bg-blue-500/10 border border-blue-400/30 rounded-lg p-4 mb-6 text-left">
-            <p className="text-blue-200 text-sm">
-              <strong>Prochaines etapes :</strong>
-            </p>
-            <ul className="text-blue-300 text-sm mt-2 space-y-1">
-              <li>1. Confirmation par email</li>
-              <li>2. Lien visio envoye</li>
-              <li>3. Demo personnalisee de 30 min</li>
-            </ul>
-          </div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Retour a l'accueil
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
+export default function DemoHomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-      {/* Header */}
-      <div className="bg-white/5 backdrop-blur-sm border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-            Retour
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/pricing" className="text-blue-300 hover:text-white transition-colors">
-              Tarifs
-            </Link>
-            <Link href="/auth/register" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              S'inscrire
-            </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Zap className="w-4 h-4" />
+              Démo Interactive MemoLib
+            </div>
+            
+            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
+              Intelligence Artificielle
+              <br />
+              <span className="text-blue-600">pour Cabinets d'Avocats</span>
+            </h1>
+            
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+              Découvrez comment MemoLib transforme la gestion des emails clients en workflow juridique intelligent, 
+              de la réception à la génération de documents légaux.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/demo/email-simulator"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg"
+              >
+                <Play className="w-5 h-5" />
+                Commencer la démo
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg border border-gray-200"
+              >
+                Interface complète
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Left side - Benefits */}
-          <div className="text-white">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center">
-                <Play className="w-7 h-7" />
+      {/* Stats Section */}
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {STATS.map((stat, index) => (
+            <div key={index} className="text-center">
+              <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                {stat.value}
               </div>
-              <div>
-                <h1 className="text-3xl font-bold">Demandez une demo</h1>
-                <p className="text-blue-200">Gratuite et sans engagement</p>
+              <div className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                {stat.label}
               </div>
-            </div>
-
-            <p className="text-xl text-gray-300 mb-8">
-              Decouvrez comment memoLib peut transformer la gestion de votre cabinet 
-              lors d'une demonstration personnalisee de 30 minutes.
-            </p>
-
-            <div className="space-y-6 mb-12">
-              <div className="flex items-start gap-4 bg-white/5 rounded-xl p-4">
-                <Video className="w-8 h-8 text-blue-400 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold mb-1">Visioconference privee</h3>
-                  <p className="text-gray-400 text-sm">Demo en direct adaptee a vos besoins specifiques</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 bg-white/5 rounded-xl p-4">
-                <MessageSquare className="w-8 h-8 text-green-400 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold mb-1">Questions / Reponses</h3>
-                  <p className="text-gray-400 text-sm">Posez toutes vos questions a notre expert</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 bg-white/5 rounded-xl p-4">
-                <Clock className="w-8 h-8 text-yellow-400 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold mb-1">30 minutes maximum</h3>
-                  <p className="text-gray-400 text-sm">Efficace et concentre sur l'essentiel</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 bg-white/5 rounded-xl p-4">
-                <Users className="w-8 h-8 text-purple-400 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold mb-1">Invitez vos collaborateurs</h3>
-                  <p className="text-gray-400 text-sm">Partagez la demo avec votre equipe</p>
-                </div>
+              <div className="text-gray-600 dark:text-gray-300">
+                {stat.description}
               </div>
             </div>
+          ))}
+        </div>
+      </div>
 
-            {/* Testimonial */}
-            <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-              <p className="text-gray-300 italic mb-4">
-                "La demo m'a convaincu en 5 minutes. L'IA a immediatement compris 
-                mes besoins en droit des etrangers."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                  MD
-                </div>
-                <div>
-                  <p className="font-medium">Me. Marie Dupont</p>
-                  <p className="text-sm text-gray-400">Cabinet Dupont, Paris</p>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Demo Steps */}
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            Parcours de Démonstration
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-300">
+            Suivez le processus complet en 3 étapes interactives
+          </p>
+        </div>
 
-          {/* Right side - Form */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-blue-400" />
-              Reservez votre creneau
-            </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {DEMO_FEATURES.map((feature, index) => {
+            const Icon = feature.icon;
+            const colorClasses = {
+              blue: 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
+              purple: 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
+              green: 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700',
+            };
 
-            {error && (
-              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Nom complet *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={form.nom}
-                    onChange={(e) => setForm({ ...form, nom: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
-                    placeholder="Me. Jean Dupont"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Email professionnel *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
-                    placeholder="avocat@cabinet.fr"
-                  />
-                </div>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Telephone
-                  </label>
-                  <input
-                    type="tel"
-                    value={form.telephone}
-                    onChange={(e) => setForm({ ...form, telephone: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
-                    placeholder="01 23 45 67 89"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Nom du cabinet
-                  </label>
-                  <input
-                    type="text"
-                    value={form.cabinet}
-                    onChange={(e) => setForm({ ...form, cabinet: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
-                    placeholder="Cabinet Dupont"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Taille de l'equipe *
-                </label>
-                <select
-                  required
-                  value={form.tailleEquipe}
-                  onChange={(e) => setForm({ ...form, tailleEquipe: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="" className="bg-gray-800">Selectionnez...</option>
-                  {TAILLES.map((t) => (
-                    <option key={t} value={t} className="bg-gray-800">{t}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Date souhaitee *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={form.dateSouhaitee}
-                    onChange={(e) => setForm({ ...form, dateSouhaitee: e.target.value })}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Heure preferee *
-                  </label>
-                  <select
-                    required
-                    value={form.heureSouhaitee}
-                    onChange={(e) => setForm({ ...form, heureSouhaitee: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="" className="bg-gray-800">Selectionnez...</option>
-                    <option value="09:00" className="bg-gray-800">09:00</option>
-                    <option value="10:00" className="bg-gray-800">10:00</option>
-                    <option value="11:00" className="bg-gray-800">11:00</option>
-                    <option value="14:00" className="bg-gray-800">14:00</option>
-                    <option value="15:00" className="bg-gray-800">15:00</option>
-                    <option value="16:00" className="bg-gray-800">16:00</option>
-                    <option value="17:00" className="bg-gray-800">17:00</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Besoin principal *
-                </label>
-                <select
-                  required
-                  value={form.besoinPrincipal}
-                  onChange={(e) => setForm({ ...form, besoinPrincipal: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="" className="bg-gray-800">Selectionnez...</option>
-                  {BESOINS.map((b) => (
-                    <option key={b} value={b} className="bg-gray-800">{b}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Commentaire (optionnel)
-                </label>
-                <textarea
-                  rows={3}
-                  value={form.commentaire}
-                  onChange={(e) => setForm({ ...form, commentaire: e.target.value })}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 resize-none"
-                  placeholder="Precisions sur vos attentes..."
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-lg"
+            return (
+              <Link
+                key={feature.id}
+                href={feature.href}
+                className="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
               >
-                {loading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Envoi en cours...
-                  </>
-                ) : (
-                  <>
-                    <Calendar className="w-5 h-5" />
-                    Reserver ma demo gratuite
-                  </>
-                )}
-              </button>
+                <div className={`absolute inset-0 bg-gradient-to-br ${colorClasses[feature.color as keyof typeof colorClasses]} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                
+                <div className="p-8">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${colorClasses[feature.color as keyof typeof colorClasses]} text-white mb-6`}>
+                    <Icon className="w-8 h-8" />
+                  </div>
+                  
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                      {feature.title}
+                    </h3>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                      {feature.duration}
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-600 dark:text-gray-300 mb-6">
+                    {feature.description}
+                  </p>
+                  
+                  <div className="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform">
+                    Essayer maintenant
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
 
-              <p className="text-center text-gray-400 text-sm">
-                En soumettant ce formulaire, vous acceptez d'etre contacte par notre equipe.
-              </p>
-            </form>
-          </div>
+      {/* CTA Section */}
+      <div className="bg-gray-900 dark:bg-gray-800">
+        <div className="max-w-7xl mx-auto px-6 py-16 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Prêt à transformer votre cabinet ?
+          </h2>
+          <p className="text-xl text-gray-300 mb-8">
+            Découvrez toutes les fonctionnalités de MemoLib dans l'interface complète
+          </p>
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg"
+          >
+            Accéder à l'interface complète
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </div>
     </div>

@@ -29,6 +29,7 @@ interface Email {
 
 interface EmailsTabProps {
   emails: Email[];
+  workspaceId?: string;
   onRefresh: () => void;
 }
 
