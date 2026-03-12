@@ -24,7 +24,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * 3. Reçoit les résultats
  * 4. Persiste les EventLog via Prisma
  */
-export async function POST(req: NextRequest) {
+async function postLegacyRoutes(req: NextRequest) {
   try {
     const { tenantId, unitStatus = 'RECEIVED', limit = 100 } = await req.json();
 
@@ -231,7 +231,12 @@ export async function POST(req: NextRequest) {
       }
 
       // Cherche les doublons exacts par hash
-      let candidates = [];
+      let candidates: Array<{
+        id: string;
+        contentHash: string;
+        sourceMetadata: unknown;
+        receivedAt: Date;
+      }> = [];
 
       if (contentHash) {
         candidates = await prisma.informationUnit.findMany({

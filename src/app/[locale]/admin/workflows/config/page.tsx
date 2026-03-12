@@ -34,6 +34,7 @@ export default function WorkflowConfigPage() {
   const [preset, setPreset] = useState<string>('default');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     loadConfig();
@@ -53,15 +54,16 @@ export default function WorkflowConfigPage() {
 
   const saveConfig = async () => {
     setSaving(true);
+    setFeedback(null);
     try {
       await fetch('/api/workflows/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
       });
-      alert(' Configuration sauvegardee!');
+      setFeedback({ type: 'success', message: 'Configuration sauvegardée' });
     } catch (error) {
-      alert(' Erreur sauvegarde');
+      setFeedback({ type: 'error', message: 'Erreur lors de la sauvegarde' });
     }
     setSaving(false);
   };
@@ -98,6 +100,18 @@ export default function WorkflowConfigPage() {
           </Button>
         </div>
       </div>
+
+      {feedback && (
+        <div
+          className={`rounded-lg border px-4 py-3 text-sm ${
+            feedback.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-700'
+              : 'border-red-200 bg-red-50 text-red-700'
+          }`}
+        >
+          {feedback.message}
+        </div>
+      )}
 
       {/* Presets */}
       <Card>
@@ -303,7 +317,15 @@ export default function WorkflowConfigPage() {
                 <input
                   type="checkbox"
                   checked={config.notifications.enabled}
-                  onChange={(e) => setConfig({...config, ...e.target.value})} 
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      notifications: {
+                        ...config.notifications,
+                        enabled: e.target.checked,
+                      },
+                    })
+                  }
                   className="w-4 h-4"
                   />
                 <Label>Activer les notifications</Label>
@@ -317,7 +339,17 @@ export default function WorkflowConfigPage() {
                       <input
                         type="checkbox"
                         checked={config.notifications.channels.includes(channel)}
-                        onChange={(e) => setConfig({...config, ...e.target.value})} 
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            notifications: {
+                              ...config.notifications,
+                              channels: e.target.checked
+                                ? [...config.notifications.channels, channel]
+                                : config.notifications.channels.filter(c => c !== channel),
+                            },
+                          })
+                        }
                         className="w-4 h-4"
                         />
                       <Label className="capitalize">{channel}</Label>
@@ -338,7 +370,21 @@ export default function WorkflowConfigPage() {
                         <input
                           type="checkbox"
                           checked={config.notifications.priority[priority].sound}
-                          onChange={(e) => setConfig({...config, ...e.target.value})} 
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              notifications: {
+                                ...config.notifications,
+                                priority: {
+                                  ...config.notifications.priority,
+                                  [priority]: {
+                                    ...config.notifications.priority[priority],
+                                    sound: e.target.checked,
+                                  },
+                                },
+                              },
+                            })
+                          }
                           className="w-4 h-4"
                           />
                         <Label> Son</Label>
@@ -348,7 +394,21 @@ export default function WorkflowConfigPage() {
                         <input
                           type="checkbox"
                           checked={config.notifications.priority[priority].dismissible}
-                          onChange={(e) => setConfig({...config, ...e.target.value})} 
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              notifications: {
+                                ...config.notifications,
+                                priority: {
+                                  ...config.notifications.priority,
+                                  [priority]: {
+                                    ...config.notifications.priority[priority],
+                                    dismissible: e.target.checked,
+                                  },
+                                },
+                              },
+                            })
+                          }
                           className="w-4 h-4"
                           />
                         <Label>? Dismissible</Label>
@@ -414,7 +474,18 @@ export default function WorkflowConfigPage() {
                     <input
                       type="checkbox"
                       checked={config.notifications.quietHours.enabled}
-                      onChange={(e) => setConfig({...config, ...e.target.value})} 
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          notifications: {
+                            ...config.notifications,
+                            quietHours: {
+                              ...config.notifications.quietHours,
+                              enabled: e.target.checked,
+                            },
+                          },
+                        })
+                      }
                       className="w-4 h-4"
                       />
                     <Label>Activer</Label>

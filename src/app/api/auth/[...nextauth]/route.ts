@@ -6,6 +6,7 @@ import AzureADProvider from 'next-auth/providers/azure-ad';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import EmailProvider from 'next-auth/providers/email';
 import GitHubProvider from 'next-auth/providers/github';
+import { buildRbacContext, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -260,17 +261,9 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async redirect({ url, baseUrl, user }) {
+    async redirect({ url, baseUrl }) {
       // Redirection intelligente selon le rôle
       if (url.startsWith('/auth/')) {
-        // Depuis la page de login, rediriger selon le rôle
-        if ((user as any)?.role === 'SUPER_ADMIN') {
-          return `${baseUrl}/super-admin/dashboard`;
-        } else if ((user as any)?.role === 'LAWYER' || (user as any)?.role === 'ADMIN') {
-          return `${baseUrl}/dashboard`;
-        } else if ((user as any)?.role === 'CLIENT') {
-          return `${baseUrl}/client-dashboard`;
-        }
         return `${baseUrl}/dashboard`;
       }
 
@@ -300,6 +293,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
+        const rbac = buildRbacContext({
+          role: token.role as string | undefined,
+          groups: token.groups as string[] | undefined,
+        });
+
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
         (session.user as any).tenantId = token.tenantId;
@@ -307,6 +305,8 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).tenantPlan = token.tenantPlan;
         (session.user as any).clientId = token.clientId;
         (session.user as any).provider = token.provider;
+        (session.user as any).groups = rbac.groups;
+        (session.user as any).rbacPermissions = rbac.permissions;
 
         // Tokens GitHub pour user-to-server auth
         (session as any).githubAccessToken = token.githubAccessToken;
@@ -322,6 +322,12 @@ export const authOptions: NextAuthOptions = {
           canViewOwnFactures: token.role === 'CLIENT',
           canAccessAnalytics: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
           canManageUsers: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
+          canAccessRbacDossiers:
+            rbac.permissions.includes('*') ||
+            rbac.permissions.includes(RBAC_PERMISSIONS.DOSSIERS_READ),
+          canAccessRbacFactures:
+            rbac.permissions.includes('*') ||
+            rbac.permissions.includes(RBAC_PERMISSIONS.FACTURES_READ),
         };
       }
       return session;

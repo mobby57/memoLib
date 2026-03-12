@@ -1,0 +1,45 @@
+### US10 - Portail Client - Tests API
+
+@baseUrl = http://localhost:5078
+@token = YOUR_JWT_TOKEN_HERE
+
+### 1. Test - Obtenir tous les dossiers du client
+GET {{baseUrl}}/api/client/portal/my-cases
+Authorization: Bearer {{token}}
+
+### 2. Test - Obtenir le détail d'un dossier
+@caseId = CASE_ID_HERE
+GET {{baseUrl}}/api/client/portal/case/{{caseId}}
+Authorization: Bearer {{token}}
+
+### 3. Test - Obtenir les prochaines actions d'un dossier
+GET {{baseUrl}}/api/client/portal/case/{{caseId}}/next-actions
+Authorization: Bearer {{token}}
+
+### 4. Test - Login pour obtenir un token (si nécessaire)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "client@example.com",
+  "password": "password123"
+}
+
+### 5. Test - Créer un utilisateur test CLIENT (si nécessaire)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "client-test@example.com",
+  "password": "Test123!",
+  "name": "Client Test",
+  "role": "CLIENT"
+}
+
+###
+# NOTES:
+# - Remplacer YOUR_JWT_TOKEN_HERE par le token obtenu via /api/auth/login
+# - Remplacer CASE_ID_HERE par un ID de dossier valide
+# - Les endpoints nécessitent une authentification JWT
+# - Le rôle CLIENT ne peut voir que ses propres dossiers
+###

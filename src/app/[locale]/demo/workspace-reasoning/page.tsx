@@ -1,231 +1,202 @@
-﻿/**
- * Page de demonstration du Workspace Reasoning Engine
- * Test interactif du systeme MVP avec API reelle
- */
-
 'use client';
 
-// Force dynamic to prevent prerendering errors with React hooks
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect } from 'react';
-import { WorkspaceReasoning, WorkspaceState } from '@/types/workspace-reasoning';
-import { WorkspaceReasoningOrchestrator } from '@/components/workspace-reasoning/WorkspaceReasoningOrchestrator';
-import { useWorkspaceReasoning, createWorkspace } from '@/hooks/useWorkspaceReasoning';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { ToastProvider } from '@/components/ui/Toast';
+import Link from 'next/link';
+import { Brain, FileText, Clock, AlertTriangle, CheckCircle, ArrowRight } from 'lucide-react';
 
-export default function WorkspaceReasoningDemoPage() {
-  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  
-  // Hook pour gerer le workspace
-  const { workspace, loading, error, transitionState, refetch } = useWorkspaceReasoning(workspaceId || '');
-  
-  // Creer le workspace de demonstration au chargement
+const DEMO_STEPS = [
+  { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
+  { id: 2, label: 'Raisonnement dossier', href: '/demo/workspace-reasoning' },
+  { id: 3, label: 'Preuve légale', href: '/demo/legal-proof' },
+];
+
+const REASONING_STEPS = [
+  { id: 1, title: 'Analyse du contenu', description: 'Extraction des mots-clés juridiques', status: 'completed' },
+  { id: 2, title: 'Classification urgence', description: 'Évaluation du niveau de priorité', status: 'completed' },
+  { id: 3, title: 'Identification client', description: 'Recherche dans la base existante', status: 'completed' },
+  { id: 4, title: 'Création dossier', description: 'Génération automatique du workflow', status: 'in-progress' },
+  { id: 5, title: 'Attribution avocat', description: 'Sélection selon spécialisation', status: 'pending' },
+];
+
+const EXTRACTED_DATA = {
+  keywords: ['OQTF', 'recours', 'urgent', 'délai', 'enfants scolarisés'],
+  urgency: 'CRITIQUE',
+  deadline: '30 jours',
+  clientType: 'Existant',
+  legalArea: 'Droit des étrangers',
+  estimatedHours: '15-20h',
+};
+
+export default function WorkspaceReasoningPage() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(true);
+
   useEffect(() => {
-    const initDemo = async () => {
-      if (workspaceId) return; // Deja cree
-      
-      setIsCreating(true);
-      setCreateError(null);
-      
-      try {
-        const newWorkspace = await createWorkspace({
-          sourceType: 'EMAIL',
-          sourceId: 'demo-email-123',
-          sourceRaw: `Objet: OQTF - Madame DUBOIS Sophie
+    const timer = setInterval(() => {
+      setCurrentStep(prev => {
+        if (prev < 5) return prev + 1;
+        setIsProcessing(false);
+        return prev;
+      });
+    }, 2000);
 
-Madame, Monsieur,
+    return () => clearInterval(timer);
+  }, []);
 
-Je viens de recevoir une Obligation de Quitter le Territoire Francais (OQTF) datee du 15 janvier 2026. 
-
-La notification indique que je dois quitter le territoire sous 30 jours. Je suis en France depuis 5 ans avec mes deux enfants scolarises.
-
-Mon titre de sejour a expire il y a 3 mois et je n'ai pas pu le renouveler a temps pour des raisons medicales.
-
-Pouvez-vous m'aider ?
-
-Cordialement,
-Sophie DUBOIS
-06 12 34 56 78`,
-          sourceMetadata: {
-            from: 'sophie.dubois@email.com',
-            subject: 'OQTF - Madame DUBOIS Sophie',
-            receivedAt: '2026-01-20T10:30:00Z',
-            channel: 'email'
-          },
-          procedureType: 'OQTF',
-        });
-        
-        setWorkspaceId(newWorkspace.id);
-      } catch (err) {
-        setCreateError(err instanceof Error ? err.message : 'Erreur de creation');
-        console.error('Failed to create demo workspace:', err);
-      } finally {
-        setIsCreating(false);
-      }
-    };
-    
-    initDemo();
-  }, [workspaceId]);
-  
-  // Workspace de demonstration initial (fallback)
-  const fallbackWorkspace: WorkspaceReasoning = {
-    id: 'loading',
-    tenantId: 'demo-tenant',
-    currentState: 'RECEIVED' as WorkspaceState,
-    stateChangedAt: new Date(),
-    stateChangedBy: 'SYSTEM',
-    
-    sourceType: 'EMAIL',
-    sourceId: 'loading',
-    sourceRaw: 'Loading...',
-    sourceMetadata: '{}',
-    
-    procedureType: undefined,
-    ownerUserId: 'demo-user',
-    clientId: undefined,
-    dossierId: undefined,
-    emailId: undefined,
-    
-    reasoningQuality: 0.0,
-    uncertaintyLevel: 1.0,
-    confidenceScore: 0.0,
-    
-    locked: false,
-    validatedBy: undefined,
-    validatedAt: undefined,
-    validationNote: undefined,
-    
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    completedAt: undefined,
-    
-    facts: [],
-    contextHypotheses: [],
-    obligations: [],
-    missingElements: [],
-    risks: [],
-    proposedActions: [],
-    reasoningTraces: [],
-    transitions: [],
-  };
-  
-  const handleStateChange = async (newState: WorkspaceState) => {
-    if (!workspaceId) return;
-    
-    try {
-      await transitionState(newState, `Transition vers ${newState}`);
-    } catch (err) {
-      alert(`Erreur de transition: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
-    }
-  };
-  
-  const handleUpdate = async () => {
-    if (!workspaceId) return;
-    await refetch();
-  };
-  
-  // Loading initial
-  if (isCreating) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-          <div className="flex items-center space-x-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Creation du workspace...</h2>
-              <p className="text-gray-600 mt-1">Initialisation de la demonstration OQTF</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  // Erreur de creation
-  if (createError) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-              <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Erreur de creation</h2>
-            <p className="text-red-600 mb-4">{createError}</p>
-            <button
-              onClick={() => {
-                setCreateError(null);
-                setWorkspaceId(null);
-              }}
-              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Reessayer
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  // Erreur de chargement
-  if (error && !loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-              <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Erreur de chargement</h2>
-            <p className="text-red-600 mb-4">{error.message}</p>
-            <button
-              onClick={() => refetch()}
-              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Recharger
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
   return (
-    <ToastProvider>
-      <ErrorBoundary
-        resetKeys={[workspaceId]}
-        onError={(error, errorInfo) => {
-          console.error('Workspace reasoning error:', error, errorInfo);
-        }}
-      >
-        <div className="min-h-screen bg-gray-100">
-          {loading && !workspace && (
-            <div className="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg p-6 flex items-center space-x-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                <span className="text-gray-700 font-medium">Chargement...</span>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-6 rounded-lg border border-slate-200 bg-white/90 p-3 shadow-sm">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Parcours de démonstration</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {DEMO_STEPS.map((step) => {
+              const isActive = step.id === 2;
+              return (
+                <Link
+                  key={step.id}
+                  href={step.href}
+                  className={`rounded-md border px-3 py-2 text-sm transition-colors ${
+                    isActive
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
+                    {step.id}
+                  </span>
+                  {step.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-3">
+            <Brain className="w-8 h-8 text-purple-600" />
+            Raisonnement Intelligent du Dossier
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            L'IA analyse l'email et organise automatiquement le workflow juridique
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Processus de Raisonnement
+            </h2>
+
+            <div className="space-y-4">
+              {REASONING_STEPS.map((step, index) => {
+                const isCompleted = currentStep > step.id;
+                const isCurrent = currentStep === step.id;
+                const isPending = currentStep < step.id;
+
+                return (
+                  <div key={step.id} className="flex items-start gap-4">
+                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                      isCompleted ? 'bg-green-100 text-green-600' :
+                      isCurrent ? 'bg-purple-100 text-purple-600 animate-pulse' :
+                      'bg-gray-100 text-gray-400'
+                    }`}>
+                      {isCompleted ? (
+                        <CheckCircle className="w-5 h-5" />
+                      ) : (
+                        <span className="text-sm font-semibold">{step.id}</span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className={`font-medium ${
+                        isCompleted ? 'text-green-700 dark:text-green-400' :
+                        isCurrent ? 'text-purple-700 dark:text-purple-400' :
+                        'text-gray-500 dark:text-gray-400'
+                      }`}>
+                        {step.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Données Extraites
+            </h2>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-red-600" />
+                  <span className="font-semibold text-red-700 dark:text-red-400">Urgence Détectée</span>
+                </div>
+                <p className="text-sm text-red-600 dark:text-red-300">
+                  Niveau: <strong>{EXTRACTED_DATA.urgency}</strong> - Délai: {EXTRACTED_DATA.deadline}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <h4 className="font-medium text-blue-700 dark:text-blue-400 text-sm">Domaine Juridique</h4>
+                  <p className="text-blue-600 dark:text-blue-300">{EXTRACTED_DATA.legalArea}</p>
+                </div>
+                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <h4 className="font-medium text-green-700 dark:text-green-400 text-sm">Client</h4>
+                  <p className="text-green-600 dark:text-green-300">{EXTRACTED_DATA.clientType}</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Mots-clés Juridiques</h4>
+                <div className="flex flex-wrap gap-2">
+                  {EXTRACTED_DATA.keywords.map((keyword, index) => (
+                    <span key={index} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-sm">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <h4 className="font-medium text-yellow-700 dark:text-yellow-400 mb-1">Estimation Temps</h4>
+                <p className="text-yellow-600 dark:text-yellow-300 text-sm">
+                  {EXTRACTED_DATA.estimatedHours} de travail juridique
+                </p>
               </div>
             </div>
-          )}
-          
-          <WorkspaceReasoningOrchestrator
-            workspace={workspace || fallbackWorkspace}
-            onStateChange={handleStateChange}
-            onUpdate={handleUpdate}
-            loading={typeof loading === 'object' ? loading : { workspace: !!loading }}
-            onRefresh={refetch}
-          />
+          </div>
         </div>
-      </ErrorBoundary>
-    </ToastProvider>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/demo/legal-proof"
+            className={`inline-flex items-center gap-2 font-semibold py-3 px-6 rounded-lg transition-colors ${
+              isProcessing 
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-purple-600 hover:bg-purple-700 text-white'
+            }`}
+          >
+            {isProcessing ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Traitement en cours...
+              </>
+            ) : (
+              <>
+                Étape suivante: Preuve légale
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
-

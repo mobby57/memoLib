@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
           from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
           to: recipient,
           subject: subject || 'Message de memoLib',
-          html: `<p>${content}</p>`,
+          html: `<p>${messageBody}</p>`,
         });
 
         sendResult = { sent: true, channel: 'email' };

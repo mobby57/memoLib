@@ -10,6 +10,7 @@ import { ProcedureType, PROCEDURE_COLORS } from "@/types/cesda"
 export default function NewWorkspacePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     procedureType: "" as ProcedureType | "",
     title: "",
@@ -22,10 +23,11 @@ export default function NewWorkspacePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.procedureType) {
-      alert("Veuillez selectionner un type de procedure")
+      setErrorMessage("Veuillez selectionner un type de procedure")
       return
     }
 
+    setErrorMessage(null)
     setLoading(true)
     try {
       const response = await fetch("/api/workspaces", {
@@ -40,7 +42,7 @@ export default function NewWorkspacePage() {
       router.push(`/workspaces/${workspace.id}`)
     } catch (error) {
       console.error("Error creating workspace:", error)
-      alert("Erreur lors de la creation du dossier")
+      setErrorMessage("Erreur lors de la creation du dossier")
     } finally {
       setLoading(false)
     }
@@ -211,6 +213,12 @@ export default function NewWorkspacePage() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-8 space-y-6">
+          {errorMessage && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
+
           {/* Type de procedure */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

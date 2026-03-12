@@ -6,6 +6,7 @@ import { logger } from '@/lib/logger';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 interface SemanticSearchParams {
   params: { tenantId: string };
@@ -190,7 +191,7 @@ export async function GET(
     .slice(0, limit);
 
     // Analyser les patterns si on a des résultats
-    let patterns = null;
+    let patterns: ReturnType<typeof analyzePatterns> | null = null;
     if (results.length > 0) {
       const similarDossiers = allDossiers.filter(d => 
         results.some(r => r.dossier.id === d.id)

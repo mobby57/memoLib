@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Axios Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🚀 MemoLib - Axios Example</h1>
+    
+    <h2>1. Authentification</h2>
+    <button onclick="register()">Register</button>
+    <button onclick="login()">Login</button>
+    
+    <h2>2. Vault Operations</h2>
+    <button onclick="storeSecret()">Store Secret</button>
+    <button onclick="getSecret()">Get Secret</button>
+    <button onclick="listSecrets()">List Secrets</button>
+    
+    <h2>3. Cases Operations</h2>
+    <button onclick="getCases()">Get Cases</button>
+    <button onclick="createCase()">Create Case</button>
+    
+    <h2>📋 Response</h2>
+    <pre id="output">Waiting for action...</pre>
+
+    <script>
+        const API_BASE = 'http://localhost:5078/api';
+        let token = null;
+
+        // Configure Axios
+        axios.defaults.baseURL = API_BASE;
+        axios.interceptors.request.use(config => {
+            if (token) config.headers.Authorization = `Bearer ${token}`;
+            return config;
+        });
+
+        function log(data, isError = false) {
+            const output = document.getElementById('output');
+            output.className = isError ? 'error' : 'success';
+            output.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Auth
+        async function register() {
+            try {
+                const { data } = await axios.post('/auth/register', {
+                    email: 'demo@memolib.com',
+                    password: 'Demo123!',
+                    name: 'Demo User'
+                });
+                log(data);
+            } catch (error) {
+                log(error.response?.data || error.message, true);
+            }
+        }
+
+        async function login() {
+            try {
+                const { data } = await axios.post('/auth/login', {
+                    email: 'demo@memolib.com',
+                    password: 'Demo123!'
+                });
+                token = data.token;
+                log({ message: 'Login successful', token: data.token });
+            } catch (error) {
+                log(error.response?.data || error.message, true);
+            }
+        }
+
+        // Vault
+        async function storeSecret() {
+            try {
+                const { data } = await axios.post('/vault/store', {
+                    key: 'TestKey',
+                    value: 'TestValue123',
+                    category: 'Demo'
+                });
+                log(data);
+            } catch (error) {
+                log(error.response?.data || error.message, true);
+            }
+        }
+
+        async function getSecret() {
+            try {
+                const { data } = await axios.get('/vault/get/TestKey');
+                log(data);
+            } catch (error) {
+                log(error.response?.data || error.message, true);
+            }
+        }
+
+        async function listSecrets() {
+            try {
+                const { data } = await axios.get('/vault/list');
+                log(data);
+            } catch (error) {
+                log(error.response?.data || error.message, true);
+            }
+        }
+
+        // Cases
+        async function getCases() {
+            try {
+                const { data } = await axios.get('/cases');
+                log(data);
+            } catch (error) {
+                log(error.response?.data || error.message, true);
+            }
+        }
+
+        async function createCase() {
+            try {
+                const { data } = await axios.post('/cases', {
+                    title: 'Test Case',
+                    description: 'Created via Axios',
+                    clientEmail: 'client@example.com',
+                    clientPhone: '+33612345678'
+                });
+                log(data);
+            } catch (error) {
+                log(error.response?.data || error.message, true);
+            }
+        }
+    </script>
+</body>
+</html>

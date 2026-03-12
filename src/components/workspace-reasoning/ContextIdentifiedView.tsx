@@ -21,31 +21,31 @@ export function ContextIdentifiedView({
   onContinue,
   loading
 }: ContextIdentifiedViewProps) {
-  const contexts = workspace.contextHypotheses || [];
+  const contexts = workspace.contexts || [];
   const confirmed = contexts.filter(c => c.certaintyLevel === 'CONFIRMED');
   const probable = contexts.filter(c => c.certaintyLevel === 'PROBABLE');
   const possible = contexts.filter(c => c.certaintyLevel === 'POSSIBLE');
   
   const getTypeIcon = (type: ContextHypothesis['type']) => {
-    const icons = {
+    const icons: Record<string, string> = {
       LEGAL: '?',
       ADMINISTRATIVE: '???',
-      PROCEDURAL: '',
+      CONTRACTUAL: '',
       TEMPORAL: '',
-      RELATIONAL: '',
+      ORGANIZATIONAL: '',
     };
-    return icons[type];
+    return icons[type] || '';
   };
   
   const getTypeBadge = (type: ContextHypothesis['type']) => {
-    const badges = {
+    const badges: Record<string, { label: string; color: string }> = {
       LEGAL: { label: 'Juridique', color: 'bg-blue-100 text-blue-800' },
       ADMINISTRATIVE: { label: 'Administratif', color: 'bg-purple-100 text-purple-800' },
-      PROCEDURAL: { label: 'Procedural', color: 'bg-green-100 text-green-800' },
+      CONTRACTUAL: { label: 'Contractuel', color: 'bg-green-100 text-green-800' },
       TEMPORAL: { label: 'Temporel', color: 'bg-orange-100 text-orange-800' },
-      RELATIONAL: { label: 'Relationnel', color: 'bg-pink-100 text-pink-800' },
+      ORGANIZATIONAL: { label: 'Organisationnel', color: 'bg-pink-100 text-pink-800' },
     };
-    return badges[type];
+    return badges[type] || { label: type, color: 'bg-gray-100 text-gray-800' };
   };
   
   const getCertaintyBadge = (level: ContextHypothesis['certaintyLevel']) => {

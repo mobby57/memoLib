@@ -1,11 +1,12 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16',
+  apiVersion: '2026-01-28.clover',
 });
 
 /**
@@ -23,6 +24,20 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const guard = requireApiPermission(session, RBAC_PERMISSIONS.PAYMENTS_CREATE_INTENT);
+    if (!guard.ok) {
+      return guard.response;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true, tenantId: true },
+    });
+
+    if (!user?.tenantId) {
+      return NextResponse.json({ error: 'No tenant found' }, { status: 400 });
+    }
+
     const facture = await prisma.facture.findUnique({
       where: { id: params.factureId },
       include: { client: true },
@@ -30,6 +45,10 @@ export async function GET(
 
     if (!facture) {
       return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+    }
+
+    if (facture.tenantId !== user.tenantId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Create Stripe payment intent

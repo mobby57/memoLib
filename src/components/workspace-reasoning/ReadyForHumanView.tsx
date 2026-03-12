@@ -20,7 +20,7 @@ export function ReadyForHumanView({
   loading 
 }: ReadyForHumanViewProps) {
   const facts = workspace.facts || [];
-  const contexts = workspace.contextHypotheses?.filter(c => c.certaintyLevel === 'CONFIRMED') || [];
+  const contexts = workspace.contexts?.filter(c => c.certaintyLevel === 'CONFIRMED') || [];
   const obligations = workspace.obligations || [];
   const criticalObligations = obligations.filter(o => o.critical);
   const missingElements = workspace.missingElements || [];
@@ -31,7 +31,7 @@ export function ReadyForHumanView({
   const pendingActions = actions.filter(a => !a.executed);
   
   const uncertaintyLevel = workspace.uncertaintyLevel;
-  const reasoningQuality = workspace.reasoningQuality;
+  const reasoningQuality = workspace.reasoningQuality ?? 0;
   
   const getUncertaintyColor = (level: number) => {
     if (level >= 0.8) return 'bg-red-600 text-white';
@@ -243,7 +243,7 @@ export function ReadyForHumanView({
           </div>
           <ul className="list-disc list-inside text-sm text-blue-800 space-y-1">
             {pendingActions.map(a => (
-              <li key={a.id}>{a.description}</li>
+              <li key={a.id}>{a.content}</li>
             ))}
           </ul>
         </div>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MemoLib Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+        button { padding: 12px 24px; margin: 5px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #45a049; }
+        #output { background: #000; color: #0f0; padding: 20px; border-radius: 4px; font-family: monospace; margin-top: 20px; min-height: 200px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MemoLib API Test</h1>
+        
+        <h3>1. Auth</h3>
+        <button onclick="testRegister()">Register</button>
+        <button onclick="testLogin()">Login</button>
+        
+        <h3>2. Vault</h3>
+        <button onclick="testVault()">Test Vault</button>
+        
+        <h3>3. Cases</h3>
+        <button onclick="testCases()">Test Cases</button>
+        
+        <div id="output">Waiting...</div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:5078/api';
+        let token = null;
+        const email = 'test' + Date.now() + '@test.com';
+        const password = 'Test123!';
+
+        function log(msg) {
+            document.getElementById('output').innerHTML = JSON.stringify(msg, null, 2);
+        }
+
+        async function testRegister() {
+            try {
+                const res = await fetch(`${API}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, name: 'Test User' })
+                });
+                const data = await res.json();
+                log({ status: res.status, data });
+            } catch (e) {
+                log({ error: e.message });
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const res = await fetch(`${API}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                token = data.token;
+                log({ status: res.status, token: token?.substring(0, 30) + '...' });
+            } catch (e) {
+                log({ error: e.message });
+            }
+        }
+
+        async function testVault() {
+            if (!token) return log({ error: 'Login first' });
+            try {
+                const res = await fetch(`${API}/vault/store`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ key: 'test', value: 'value123', category: 'demo' })
+                });
+                const data = await res.json();
+                log({ status: res.status, data });
+            } catch (e) {
+                log({ error: e.message });
+            }
+        }
+
+        async function testCases() {
+            if (!token) return log({ error: 'Login first' });
+            try {
+                const res = await fetch(`${API}/cases`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                log({ status: res.status, count: data.length });
+            } catch (e) {
+                log({ error: e.message });
+            }
+        }
+    </script>
+</body>
+</html>

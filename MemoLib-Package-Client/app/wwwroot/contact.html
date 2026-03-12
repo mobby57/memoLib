@@ -237,6 +237,17 @@
       return `mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
+    async function readResponseDataSafe(response) {
+      const text = await response.text();
+      if (!text || !text.trim()) return null;
+
+      try {
+        return JSON.parse(text);
+      } catch {
+        return null;
+      }
+    }
+
     async function sendViaBackend(payload) {
       const response = await fetch('/api/public/contact', {
         method: 'POST',
@@ -244,11 +255,7 @@
         body: JSON.stringify(payload)
       });
 
-      let data = null;
-      try {
-        data = await response.json();
-      } catch {
-      }
+      const data = await readResponseDataSafe(response);
 
       if (!response.ok)
         throw new Error(data?.message || 'Envoi serveur impossible');

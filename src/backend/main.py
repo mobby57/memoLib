@@ -17,6 +17,9 @@ from email_service import EmailService
 from ai_service import AIService
 from voice_service import VoiceService
 
+# Import routers
+from routes.client_portal import router as client_portal_router
+
 # Initialize FastAPI
 app = FastAPI(
     title="IAPosteManager API",
@@ -39,6 +42,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register routers
+app.include_router(client_portal_router)
 
 # Security
 security = HTTPBearer()

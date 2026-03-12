@@ -1,4 +1,15 @@
 // Questionnaires dynamiques - Interface JavaScript
+async function readResponseDataSafe(response) {
+    const text = await response.text();
+    if (!text || !text.trim()) return null;
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+}
+
 class QuestionnaireManager {
     constructor(apiBase, token) {
         this.apiBase = apiBase;
@@ -13,7 +24,8 @@ class QuestionnaireManager {
             const errorText = await response.text();
             throw new Error(`Chargement questionnaires impossible (${response.status}) ${errorText}`);
         }
-        return await response.json();
+        const data = await readResponseDataSafe(response);
+        return Array.isArray(data) ? data : [];
     }
 
     async submitResponse(questionnaireId, caseId, eventId, answers) {
@@ -26,7 +38,7 @@ class QuestionnaireManager {
             body: JSON.stringify({ questionnaireId, caseId, eventId, answers })
         });
 
-        const payload = await response.json().catch(() => ({}));
+        const payload = (await readResponseDataSafe(response)) || {};
         if (!response.ok) {
             const msg = payload?.message || payload?.title || `Soumission refusée (${response.status})`;
             throw new Error(msg);
@@ -44,7 +56,7 @@ class QuestionnaireManager {
                 <h3>${questionnaire.name}</h3>
                 <p>${questionnaire.description || ''}</p>
                 ${questionnaire.isCompleted ? '<span class="badge-success">✓ Complété</span>' : '<span class="badge-warning">À compléter</span>'}
-                
+
                 <form class="questionnaire-form" data-questionnaire-id="${questionnaire.id}">
                     ${questionnaire.questions.map(q => this.renderQuestion(q)).join('')}
                     <button type="submit" ${questionnaire.isCompleted ? 'disabled' : ''}>
@@ -53,7 +65,7 @@ class QuestionnaireManager {
                 </form>
             </div>
         `;
-        
+
         container.innerHTML += html;
         this.attachFormHandler(questionnaire.id);
     }
@@ -120,10 +132,10 @@ class QuestionnaireManager {
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const formData = new FormData(form);
             const answers = {};
-            
+
             for (const [key, value] of formData.entries()) {
                 answers[key] = value;
             }
@@ -152,16 +164,16 @@ class QuestionnaireManager {
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Envoi...';
                 }
-                
+
                 await this.submitResponse(questionnaireId, caseId, eventId, answers);
-                
+
                 // Marquer comme complété
                 const card = form.closest('.questionnaire-card');
                 card.querySelector('.badge-warning')?.classList.replace('badge-warning', 'badge-success');
                 card.querySelector('.badge-success').textContent = '✓ Complété';
                 form.querySelector('button').disabled = true;
                 form.querySelector('button').textContent = 'Déjà complété';
-                
+
                 notifyQuestionnaire('Questionnaire complété avec succès', 'success');
             } catch (error) {
                 notifyQuestionnaire(`Erreur lors de la soumission: ${error.message || 'inconnue'}`, 'error');
@@ -220,7 +232,7 @@ function showEventQuestionnaires(eventId, caseId) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
 
     const apiBase = (typeof API_URL === 'string' && API_URL.startsWith('http'))

@@ -14,7 +14,6 @@ describe('API REST', () => {
       FORBIDDEN: 403,
       NOT_FOUND: 404,
       CONFLICT: 409,
-      UNPROCESSABLE_ENTITY: 422,
       INTERNAL_ERROR: 500,
     };
 
@@ -144,7 +143,6 @@ describe('API REST', () => {
       403: 'Accès refusé',
       404: 'Ressource non trouvée',
       409: 'Conflit',
-      422: 'Données invalides',
       500: 'Erreur serveur',
     };
 

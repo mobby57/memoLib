@@ -60,9 +60,9 @@ function checkPasswordStrength(password: string): PasswordStrength {
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  const token = searchParams.get('token');
-  const email = searchParams.get('email');
+
+  const token = searchParams?.get('token') ?? null;
+  const email = searchParams?.get('email') ?? null;
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -282,7 +282,7 @@ export default function ResetPasswordPage() {
                     </div>
                     <span className="text-xs text-gray-400">{passwordStrength.label}</span>
                   </div>
-                  
+
                   {/* Requirements */}
                   <div className="grid grid-cols-2 gap-1 text-xs">
                     <div className={`flex items-center gap-1 ${passwordStrength.requirements.length ? 'text-green-400' : 'text-gray-500'}`}>
@@ -334,7 +334,7 @@ export default function ResetPasswordPage() {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              
+
               {/* Indicateur de correspondance */}
               {confirmPassword && (
                 <div className={`flex items-center gap-1 mt-2 text-xs ${passwordsMatch ? 'text-green-400' : 'text-red-400'}`}>

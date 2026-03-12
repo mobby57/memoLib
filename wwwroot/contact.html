@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -188,6 +188,8 @@
   </main>
 
   <script>
+    const API_BASE = window.location.origin;
+
     const CONTACT_EMAIL = 'sarraboudjellal57@gmail.com';
 
     const form = document.getElementById('contactForm');
@@ -237,18 +239,25 @@
       return `mailto:${encodeURIComponent(CONTACT_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
+    async function readResponseDataSafe(response) {
+      const text = await response.text();
+      if (!text || !text.trim()) return null;
+
+      try {
+        return JSON.parse(text);
+      } catch {
+        return null;
+      }
+    }
+
     async function sendViaBackend(payload) {
-      const response = await fetch('/api/public/contact', {
+      const response = await fetch(`${API_BASE}/api/public/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      let data = null;
-      try {
-        data = await response.json();
-      } catch {
-      }
+      const data = await readResponseDataSafe(response);
 
       if (!response.ok)
         throw new Error(data?.message || 'Envoi serveur impossible');

@@ -1,13 +1,16 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/useAuth';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Alert } from '@/components/ui/Alert';
+import QuestionnaireModal from '@/components/forms/QuestionnaireModal';
+import { AlertTriangle, Bell, ShieldAlert } from 'lucide-react';
 
 /**
  *  Page de Notifications Contextuelles Interactives
@@ -33,23 +36,59 @@ interface Action {
   primary: boolean;
 }
 
+interface PendingActionApiItem {
+  id: string;
+  eventType: string;
+  from: string;
+  subject: string;
+  preview?: string;
+  urgency?: string;
+  createdAt: string;
+}
+
 export default function NotificationsPage() {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedQuestionnaireEventId, setSelectedQuestionnaireEventId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!user?.tenantId) return;
     loadNotifications();
-    
+
     // Polling pour nouvelles notifications
     const interval = setInterval(loadNotifications, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [user?.tenantId]);
 
   const loadNotifications = async () => {
+    if (!user?.tenantId) return;
+
     try {
-      const response = await fetch('/api/notifications/active');
+      const response = await fetch(`/api/pending-actions?tenantId=${user.tenantId}&limit=100`);
       const data = await response.json();
-      setNotifications(data);
+
+      const mappedNotifications: Notification[] = (data.actions || []).map(
+        (action: PendingActionApiItem) => ({
+          id: action.id,
+          type: action.eventType,
+          severity: action.urgency === 'high' || action.urgency === 'critical' ? 'critical' : 'warning',
+          title: action.subject,
+          message: action.preview || `Message reçu de ${action.from}`,
+          requiresAction: true,
+          dismissible: true,
+          createdAt: action.createdAt,
+          actions: [
+            { id: 'open-form', label: 'Questionnaire', type: 'open-form', primary: false },
+            { id: 'reply', label: 'Approuver', type: 'reply', primary: true },
+            { id: 'archive', label: 'Rejeter', type: 'archive', primary: false },
+          ],
+        })
+      );
+
+      setNotifications(mappedNotifications);
+      setSelectedIds([]);
       setLoading(false);
     } catch (error) {
       console.error('Erreur chargement notifications:', error);
@@ -58,15 +97,102 @@ export default function NotificationsPage() {
   };
 
   const handleAction = async (notifId: string, action: Action) => {
-    console.log('Action:', action.type, 'pour notification:', notifId);
-    
+    if (!user?.tenantId) return;
+
     if (action.type === 'open-form') {
-      // Rediriger vers le formulaire dynamique
-      window.location.href = `/lawyer/workflows/form/${notifId}`;
-    } else if (action.type === 'schedule') {
-      window.location.href = `/lawyer/workflows/calendar/${notifId}`;
+      setSelectedQuestionnaireEventId(notifId);
     } else if (action.type === 'reply') {
-      window.location.href = `/lawyer/workflows/email/${notifId}`;
+      await fetch(`/api/pending-actions/${notifId}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantId: user.tenantId,
+          createCase: true,
+          createClient: true,
+          priority: 3,
+        }),
+      });
+      await loadNotifications();
+    } else if (action.type === 'archive') {
+      await fetch(`/api/pending-actions/${notifId}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenantId: user.tenantId,
+          reason: 'notification-reject',
+          markAsSpam: false,
+          archive: true,
+        }),
+      });
+      await loadNotifications();
+    }
+  };
+
+  const handleDismiss = async (notifId: string) => {
+    if (!user?.tenantId) return;
+
+    await fetch(`/api/pending-actions/${notifId}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tenantId: user.tenantId,
+        reason: 'notification-dismiss',
+        markAsSpam: false,
+        archive: true,
+      }),
+    });
+
+    await loadNotifications();
+  };
+
+  const toggleSelection = (notifId: string) => {
+    setSelectedIds(prev =>
+      prev.includes(notifId) ? prev.filter(id => id !== notifId) : [...prev, notifId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === notifications.length) {
+      setSelectedIds([]);
+      return;
+    }
+    setSelectedIds(notifications.map(notif => notif.id));
+  };
+
+  const bulkApprove = async () => {
+    if (!user?.tenantId || selectedIds.length === 0) return;
+
+    const response = await fetch('/api/pending-actions/bulk-approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tenantId: user.tenantId,
+        actionIds: selectedIds,
+      }),
+    });
+
+    if (response.ok) {
+      await loadNotifications();
+    }
+  };
+
+  const bulkReject = async () => {
+    if (!user?.tenantId || selectedIds.length === 0) return;
+
+    const response = await fetch('/api/pending-actions/bulk-reject', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tenantId: user.tenantId,
+        actionIds: selectedIds,
+        reason: 'notification-bulk-reject',
+        markAsSpam: false,
+        archive: true,
+      }),
+    });
+
+    if (response.ok) {
+      await loadNotifications();
     }
   };
 
@@ -77,9 +203,9 @@ export default function NotificationsPage() {
   };
 
   const getSeverityIcon = (severity: string) => {
-    if (severity === 'critical') return '';
-    if (severity === 'warning') return '?';
-    return '??';
+    if (severity === 'critical') return <ShieldAlert className="w-5 h-5 text-red-600" />;
+    if (severity === 'warning') return <AlertTriangle className="w-5 h-5 text-orange-600" />;
+    return <Bell className="w-5 h-5 text-blue-600" />;
   };
 
   if (loading) {
@@ -132,6 +258,40 @@ export default function NotificationsPage() {
         </Card>
       </div>
 
+      {notifications.length > 0 && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.length > 0 && selectedIds.length === notifications.length}
+                  onChange={toggleSelectAll}
+                />
+                Tout sélectionner ({notifications.length})
+              </label>
+
+              <span className="text-sm text-gray-500">Sélectionnés: {selectedIds.length}</span>
+
+              <Button size="sm" onClick={bulkApprove} disabled={selectedIds.length === 0}>
+                Approuver en lot
+              </Button>
+              <Button size="sm" variant="outline" onClick={bulkReject} disabled={selectedIds.length === 0}>
+                Rejeter en lot
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => selectedIds[0] && setSelectedQuestionnaireEventId(selectedIds[0])}
+                disabled={selectedIds.length === 0}
+              >
+                Questionnaire (1er)
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Notifications Critiques */}
       {criticalNotifications.length > 0 && (
         <div className="space-y-4">
@@ -143,13 +303,19 @@ export default function NotificationsPage() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <AlertTitle className="flex items-center gap-2 text-lg font-bold">
-                    <span className="text-2xl">{getSeverityIcon(notif.severity)}</span>
+                  <h3 className="flex items-center gap-2 text-lg font-bold">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(notif.id)}
+                      onChange={() => toggleSelection(notif.id)}
+                      aria-label={`Sélectionner la notification ${notif.title}`}
+                    />
+                    {getSeverityIcon(notif.severity)}
                     {notif.title}
-                  </AlertTitle>
-                  <AlertDescription className="mt-2">
+                  </h3>
+                  <p className="mt-2">
                     {notif.message}
-                  </AlertDescription>
+                  </p>
                   {notif.expiresAt && (
                     <p className="text-sm text-red-600 mt-2">
                        Expire: {new Date(notif.expiresAt).toLocaleString('fr-FR')}
@@ -185,14 +351,20 @@ export default function NotificationsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle className="flex items-center gap-2">
-                      <span>{getSeverityIcon(notif.severity)}</span>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(notif.id)}
+                        onChange={() => toggleSelection(notif.id)}
+                        aria-label={`Sélectionner la notification ${notif.title}`}
+                      />
+                      {getSeverityIcon(notif.severity)}
                       {notif.title}
                     </CardTitle>
                     <CardDescription className="mt-2">
                       {notif.message}
                     </CardDescription>
                   </div>
-                  <Badge variant={notif.requiresAction ? 'default' : 'secondary'}>
+                  <Badge variant={notif.requiresAction ? 'default' : 'info'}>
                     {notif.requiresAction ? 'Action Requise' : 'Information'}
                   </Badge>
                 </div>
@@ -210,7 +382,7 @@ export default function NotificationsPage() {
                     </Button>
                   ))}
                   {notif.dismissible && (
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={() => handleDismiss(notif.id)}>
                       Ignorer
                     </Button>
                   )}
@@ -229,6 +401,16 @@ export default function NotificationsPage() {
             <p className="text-gray-600">Aucune notification en attente</p>
           </CardContent>
         </Card>
+      )}
+
+      {user?.tenantId && (
+        <QuestionnaireModal
+          isOpen={Boolean(selectedQuestionnaireEventId)}
+          onClose={() => setSelectedQuestionnaireEventId(null)}
+          tenantId={user.tenantId}
+          eventId={selectedQuestionnaireEventId}
+          onSubmitted={loadNotifications}
+        />
       )}
     </div>
   );
