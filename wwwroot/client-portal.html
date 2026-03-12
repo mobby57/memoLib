@@ -432,6 +432,52 @@
             border-radius: 0.5rem;
             margin-bottom: 1rem;
         }
+
+        .upload-guided {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .upload-guided h2 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 0.75rem;
+            align-items: end;
+        }
+
+        .upload-grid input,
+        .upload-grid select {
+            padding: 0.6rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.375rem;
+        }
+
+        .upload-result {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--gray-800);
+        }
+
+        .checklist {
+            margin-top: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -489,6 +535,24 @@
 
             <button onclick="loadCases()">Appliquer les filtres</button>
             <button onclick="resetFilters()" style="background-color: var(--gray-400);">Réinitialiser</button>
+        </div>
+
+        <!-- US11 Guided Upload -->
+        <div class="upload-guided">
+            <h2>Upload Client Guidé (US11)</h2>
+            <div class="upload-grid">
+                <div>
+                    <label for="upload-file">Document</label>
+                    <input id="upload-file" type="file" />
+                </div>
+                <div>
+                    <label for="document-type">Type de document</label>
+                    <select id="document-type"></select>
+                </div>
+                <button onclick="uploadGuidedDocument()">Envoyer</button>
+            </div>
+            <div id="upload-checklist" class="checklist"></div>
+            <div id="upload-result" class="upload-result"></div>
         </div>
 
         <!-- Cases Table -->
@@ -719,6 +783,64 @@
             }
         }
 
+        async function loadUploadChecklist() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/upload-checklist`);
+                if (!response.ok) throw new Error('Checklist indisponible');
+                const data = await response.json();
+
+                const typeSelect = document.getElementById('document-type');
+                typeSelect.innerHTML = '';
+                data.required_documents.forEach((doc) => {
+                    const opt = document.createElement('option');
+                    opt.value = doc;
+                    opt.textContent = doc;
+                    typeSelect.appendChild(opt);
+                });
+
+                const checklist = document.getElementById('upload-checklist');
+                checklist.innerHTML = '';
+                data.required_documents.forEach((doc) => {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge priority-normal';
+                    badge.textContent = doc;
+                    checklist.appendChild(badge);
+                });
+            } catch (error) {
+                document.getElementById('upload-result').textContent = `Erreur checklist: ${error.message}`;
+            }
+        }
+
+        async function uploadGuidedDocument() {
+            const fileInput = document.getElementById('upload-file');
+            const docType = document.getElementById('document-type').value;
+            const result = document.getElementById('upload-result');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                result.textContent = 'Veuillez sélectionner un fichier.';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('document_type', docType);
+
+            try {
+                result.textContent = 'Upload en cours...';
+                const response = await fetch(`${API_BASE_URL}/upload-guided`, {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Upload échoué');
+                }
+                result.textContent = `Upload OK: ${data.filename} (${data.size_bytes} bytes) - manquants: ${data.checklist_missing.join(', ') || 'aucun'}`;
+            } catch (error) {
+                result.textContent = `Erreur upload: ${error.message}`;
+            }
+        }
+
         // Reset filters
         function resetFilters() {
             document.getElementById('status-filter').value = '';
@@ -726,8 +848,11 @@
             loadCases();
         }
 
-        // Load cases on page load
-        document.addEventListener('DOMContentLoaded', loadCases);
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCases();
+            loadUploadChecklist();
+        });
 
         // Auto-refresh every 30 seconds
         setInterval(loadCases, 30000);
