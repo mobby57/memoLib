@@ -1,12 +1,14 @@
 """
-Routes pour le Portail Client - US10
-Client Portal endpoints for case tracking and management
+Routes pour le Portail Client - US10/US11
+Client Portal endpoints for case tracking and guided upload management
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
+from pathlib import Path
 from pydantic import BaseModel, Field
+import uuid
 
 # Import models
 import sys
@@ -41,6 +43,34 @@ class CaseDetailResponse(CaseResponse):
     """Detailed case response with client info"""
     client_name: Optional[str] = None
     client_email: Optional[str] = None
+
+
+class UploadGuidedResponse(BaseModel):
+    """US11 upload guided response payload"""
+    upload_id: str
+    filename: str
+    content_type: str
+    size_bytes: int
+    status: str
+    checklist_completed: List[str]
+    checklist_missing: List[str]
+
+
+# US11 upload constraints
+MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png"}
+ALLOWED_MIME_TYPES = {
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "image/jpeg",
+    "image/png",
+}
+GUIDED_CHECKLIST = [
+    "piece_identite",
+    "justificatif_domicile",
+    "document_principal_dossier",
+]
 
 
 # Routes
@@ -145,6 +175,72 @@ async def get_case_status(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error retrieving case status: {str(e)}"
+        )
+
+
+@router.get("/upload-checklist")
+async def get_upload_checklist():
+    """US11: Return guided checklist required by client upload flow"""
+    return {
+        "required_documents": GUIDED_CHECKLIST,
+        "accepted_extensions": sorted(list(ALLOWED_EXTENSIONS)),
+        "max_size_mb": int(MAX_UPLOAD_SIZE_BYTES / (1024 * 1024)),
+    }
+
+
+@router.post("/upload-guided", response_model=UploadGuidedResponse)
+async def upload_guided_document(
+    file: UploadFile = File(...),
+    document_type: str = Form(...)
+):
+    """US11: Guided client upload with strict format/size validation"""
+    try:
+        extension = Path(file.filename or "").suffix.lower()
+        if extension not in ALLOWED_EXTENSIONS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unsupported file extension: {extension}"
+            )
+
+        if file.content_type not in ALLOWED_MIME_TYPES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unsupported content type: {file.content_type}"
+            )
+
+        content = await file.read()
+        size_bytes = len(content)
+        if size_bytes > MAX_UPLOAD_SIZE_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=f"File too large. Max: {MAX_UPLOAD_SIZE_BYTES} bytes"
+            )
+
+        upload_id = str(uuid.uuid4())
+        upload_dir = Path("uploads/client-portal")
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        safe_name = f"{upload_id}_{Path(file.filename or 'document').name}"
+        target = upload_dir / safe_name
+        target.write_bytes(content)
+
+        checklist_completed = [document_type] if document_type in GUIDED_CHECKLIST else []
+        checklist_missing = [x for x in GUIDED_CHECKLIST if x not in checklist_completed]
+
+        return UploadGuidedResponse(
+            upload_id=upload_id,
+            filename=file.filename or safe_name,
+            content_type=file.content_type or "application/octet-stream",
+            size_bytes=size_bytes,
+            status="uploaded",
+            checklist_completed=checklist_completed,
+            checklist_missing=checklist_missing,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error during guided upload: {str(e)}"
         )
 
 
