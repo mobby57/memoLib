@@ -5,8 +5,10 @@ Routes Paiement Stripe - US19
 """
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
+import csv
 import hashlib
 import hmac
+import io
 import json
 import os
 import time
@@ -14,6 +16,7 @@ import uuid
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import Response
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -354,6 +357,33 @@ def _apply_payment_on_case(
     return True, case, previous_status
 
 
+def _build_payment_events_query(
+    db: Session,
+    case_reference: Optional[str],
+    provider: Optional[str],
+    payment_status: Optional[str],
+    source: Optional[str],
+    created_from: Optional[datetime],
+    created_to: Optional[datetime],
+):
+    query = db.query(PaymentEvent, Case.reference).join(Case, PaymentEvent.case_id == Case.id)
+
+    if case_reference:
+        query = query.filter(Case.reference == case_reference)
+    if provider:
+        query = query.filter(PaymentEvent.provider == provider)
+    if payment_status:
+        query = query.filter(PaymentEvent.payment_status == payment_status)
+    if source:
+        query = query.filter(PaymentEvent.source == source)
+    if created_from:
+        query = query.filter(PaymentEvent.created_at >= created_from)
+    if created_to:
+        query = query.filter(PaymentEvent.created_at <= created_to)
+
+    return query
+
+
 @router.get("/config", status_code=status.HTTP_200_OK)
 async def get_payment_config() -> Dict[str, Any]:
     """Expose uniquement les infos publiques necessaires au frontend."""
@@ -530,20 +560,15 @@ async def list_payment_events(
 
     verify_admin_access(request)
 
-    base_query = db.query(PaymentEvent, Case.reference).join(Case, PaymentEvent.case_id == Case.id)
-
-    if case_reference:
-        base_query = base_query.filter(Case.reference == case_reference)
-    if provider:
-        base_query = base_query.filter(PaymentEvent.provider == provider)
-    if payment_status:
-        base_query = base_query.filter(PaymentEvent.payment_status == payment_status)
-    if source:
-        base_query = base_query.filter(PaymentEvent.source == source)
-    if created_from:
-        base_query = base_query.filter(PaymentEvent.created_at >= created_from)
-    if created_to:
-        base_query = base_query.filter(PaymentEvent.created_at <= created_to)
+    base_query = _build_payment_events_query(
+        db=db,
+        case_reference=case_reference,
+        provider=provider,
+        payment_status=payment_status,
+        source=source,
+        created_from=created_from,
+        created_to=created_to,
+    )
 
     total = base_query.count()
     rows = (
@@ -569,6 +594,80 @@ async def list_payment_events(
     ]
 
     return PaymentEventsListResponse(total=total, limit=limit, offset=offset, events=items)
+
+
+@router.get("/events/export.csv", status_code=status.HTTP_200_OK)
+async def export_payment_events_csv(
+    request: Request,
+    db: Session = Depends(get_db),
+    case_reference: Optional[str] = Query(default=None, min_length=2, max_length=100),
+    provider: Optional[str] = Query(default=None, min_length=2, max_length=30),
+    payment_status: Optional[str] = Query(default=None, min_length=2, max_length=30),
+    source: Optional[str] = Query(default=None, min_length=2, max_length=50),
+    created_from: Optional[datetime] = Query(default=None),
+    created_to: Optional[datetime] = Query(default=None),
+    limit: int = Query(default=1000, ge=1, le=5000),
+    offset: int = Query(default=0, ge=0),
+):
+    """Export CSV admin des evenements paiements avec filtres."""
+
+    verify_admin_access(request)
+
+    query = _build_payment_events_query(
+        db=db,
+        case_reference=case_reference,
+        provider=provider,
+        payment_status=payment_status,
+        source=source,
+        created_from=created_from,
+        created_to=created_to,
+    )
+
+    rows = (
+        query.order_by(PaymentEvent.created_at.desc(), PaymentEvent.id.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(
+        [
+            "id",
+            "case_id",
+            "case_reference",
+            "provider",
+            "source",
+            "provider_event_id",
+            "provider_session_id",
+            "payment_status",
+            "created_at",
+        ]
+    )
+
+    for row in rows:
+        event, case_ref = row
+        writer.writerow(
+            [
+                event.id,
+                event.case_id,
+                case_ref,
+                event.provider,
+                event.source,
+                event.provider_event_id or "",
+                event.provider_session_id or "",
+                event.payment_status,
+                event.created_at.isoformat() if event.created_at else "",
+            ]
+        )
+
+    csv_content = buffer.getvalue()
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=payment_events.csv"},
+    )
 
 
 @router.post("/confirm", response_model=PaymentConfirmResponse, status_code=status.HTTP_200_OK)
