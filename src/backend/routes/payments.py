@@ -7,13 +7,18 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 import hashlib
 import hmac
+import json
 import os
 import time
 import uuid
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy.orm import Session
+
+from database import get_db
+from models import Case
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 
@@ -48,6 +53,27 @@ class WebhookProcessResponse(BaseModel):
     event_type: Optional[str] = None
     payment_status: Optional[str] = None
     session_id: Optional[str] = None
+    case_reference: Optional[str] = None
+    case_updated: bool = False
+
+
+class PaymentConfirmRequest(BaseModel):
+    """Confirmation de paiement metier (retour success page)."""
+
+    case_reference: str = Field(..., min_length=3, max_length=100)
+    session_id: Optional[str] = Field(default=None, max_length=255)
+    payment_status: str = Field(default="paid", min_length=2, max_length=30)
+    provider: str = Field(default="stripe", min_length=2, max_length=30)
+
+
+class PaymentConfirmResponse(BaseModel):
+    """Resultat d'ecriture metier paiement."""
+
+    confirmed: bool
+    case_reference: str
+    case_id: int
+    previous_status: str
+    new_status: str
 
 
 def _stripe_secret_key() -> str:
@@ -163,6 +189,61 @@ async def _create_real_stripe_session(request: CheckoutSessionRequest, secret_ke
     )
 
 
+def _append_payment_note(existing_note: Optional[str], payload: Dict[str, Any]) -> str:
+    entries: list[Dict[str, Any]] = []
+
+    if existing_note:
+        try:
+            parsed = json.loads(existing_note)
+            if isinstance(parsed, list):
+                entries = parsed
+        except Exception:
+            entries = [{"legacy_note": existing_note}]
+
+    entries.append(payload)
+    # Evite une croissance infinie dans le champ notes.
+    entries = entries[-20:]
+    return json.dumps(entries, ensure_ascii=True)
+
+
+def _apply_payment_on_case(
+    db: Session,
+    case_reference: str,
+    provider: str,
+    session_id: Optional[str],
+    payment_status: str,
+    source: str,
+) -> tuple[bool, Optional[Case], Optional[str]]:
+    case = db.query(Case).filter(Case.reference == case_reference).first()
+    if not case:
+        return False, None, None
+
+    previous_status = case.status
+
+    if payment_status == "paid":
+        if case.status in {"open", "pending"}:
+            case.status = "in_progress"
+    elif payment_status in {"unpaid", "no_payment_required"}:
+        pass
+
+    note_payload = {
+        "ts_utc": datetime.now(timezone.utc).isoformat(),
+        "source": source,
+        "provider": provider,
+        "payment_status": payment_status,
+        "session_id": session_id,
+        "previous_status": previous_status,
+        "new_status": case.status,
+    }
+    case.notes = _append_payment_note(case.notes, note_payload)
+    case.updated_at = datetime.utcnow()
+
+    db.add(case)
+    db.commit()
+    db.refresh(case)
+    return True, case, previous_status
+
+
 @router.get("/config", status_code=status.HTTP_200_OK)
 async def get_payment_config() -> Dict[str, Any]:
     """Expose uniquement les infos publiques necessaires au frontend."""
@@ -203,7 +284,7 @@ async def create_checkout_session(request: CheckoutSessionRequest) -> CheckoutSe
 
 
 @router.post("/webhook", response_model=WebhookProcessResponse, status_code=status.HTTP_200_OK)
-async def stripe_webhook(request: Request) -> WebhookProcessResponse:
+async def stripe_webhook(request: Request, db: Session = Depends(get_db)) -> WebhookProcessResponse:
     """Traite les webhooks Stripe et verifie la signature si secret configure."""
 
     payload = await request.body()
@@ -231,12 +312,51 @@ async def stripe_webhook(request: Request) -> WebhookProcessResponse:
 
     session_id = event_data.get("id")
     payment_status = event_data.get("payment_status") or event_data.get("status")
+    metadata = event_data.get("metadata", {}) if isinstance(event_data, dict) else {}
+    case_reference = metadata.get("case_reference") if isinstance(metadata, dict) else None
 
-    # Ici on ferait la persistence en base + idempotence event_id + audit log.
+    case_updated = False
+    if event_type == "checkout.session.completed" and payment_status == "paid" and case_reference:
+        case_updated, _, _ = _apply_payment_on_case(
+            db=db,
+            case_reference=case_reference,
+            provider="stripe",
+            session_id=session_id,
+            payment_status=payment_status,
+            source="stripe_webhook",
+        )
+
     return WebhookProcessResponse(
         received=True,
         verified=verified,
         event_type=event_type,
         payment_status=payment_status,
         session_id=session_id,
+        case_reference=case_reference,
+        case_updated=case_updated,
+    )
+
+
+@router.post("/confirm", response_model=PaymentConfirmResponse, status_code=status.HTTP_200_OK)
+async def confirm_payment(request: PaymentConfirmRequest, db: Session = Depends(get_db)) -> PaymentConfirmResponse:
+    """Confirme un paiement cote metier (fallback en cas de webhook non recu)."""
+
+    updated, case, previous_status = _apply_payment_on_case(
+        db=db,
+        case_reference=request.case_reference,
+        provider=request.provider,
+        session_id=request.session_id,
+        payment_status=request.payment_status,
+        source="manual_confirm",
+    )
+
+    if not updated or not case:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found")
+
+    return PaymentConfirmResponse(
+        confirmed=True,
+        case_reference=case.reference,
+        case_id=case.id,
+        previous_status=previous_status or case.status,
+        new_status=case.status,
     )
