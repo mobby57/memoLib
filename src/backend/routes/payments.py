@@ -18,6 +18,7 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import Response
 from pydantic import BaseModel, EmailStr, Field
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -112,6 +113,15 @@ class PaymentEventsListResponse(BaseModel):
     limit: int
     offset: int
     events: list[PaymentEventItemResponse]
+
+
+class PaymentEventsStatsResponse(BaseModel):
+    """Agregats des evenements paiements pour le tableau de bord admin."""
+
+    total: int
+    by_status: Dict[str, int]
+    by_provider: Dict[str, int]
+    by_source: Dict[str, int]
 
 
 def _stripe_secret_key() -> str:
@@ -594,6 +604,48 @@ async def list_payment_events(
     ]
 
     return PaymentEventsListResponse(total=total, limit=limit, offset=offset, events=items)
+
+
+@router.get("/events/stats", response_model=PaymentEventsStatsResponse, status_code=status.HTTP_200_OK)
+async def get_payment_events_stats(
+    request: Request,
+    db: Session = Depends(get_db),
+    created_from: Optional[datetime] = Query(default=None),
+    created_to: Optional[datetime] = Query(default=None),
+) -> PaymentEventsStatsResponse:
+    """Agregats admin : total, repartition par status / provider / source."""
+
+    verify_admin_access(request)
+
+    base_q = db.query(PaymentEvent)
+    if created_from:
+        base_q = base_q.filter(PaymentEvent.created_at >= created_from)
+    if created_to:
+        base_q = base_q.filter(PaymentEvent.created_at <= created_to)
+
+    total = base_q.count()
+
+    by_status: Dict[str, int] = {
+        row[0]: row[1]
+        for row in base_q.with_entities(PaymentEvent.payment_status, func.count(PaymentEvent.id)).group_by(PaymentEvent.payment_status).all()
+    }
+
+    by_provider: Dict[str, int] = {
+        row[0]: row[1]
+        for row in base_q.with_entities(PaymentEvent.provider, func.count(PaymentEvent.id)).group_by(PaymentEvent.provider).all()
+    }
+
+    by_source: Dict[str, int] = {
+        row[0]: row[1]
+        for row in base_q.with_entities(PaymentEvent.source, func.count(PaymentEvent.id)).group_by(PaymentEvent.source).all()
+    }
+
+    return PaymentEventsStatsResponse(
+        total=total,
+        by_status=by_status,
+        by_provider=by_provider,
+        by_source=by_source,
+    )
 
 
 @router.get("/events/export.csv", status_code=status.HTTP_200_OK)

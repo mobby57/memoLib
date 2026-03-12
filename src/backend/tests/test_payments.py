@@ -586,3 +586,53 @@ def test_export_payment_events_csv_returns_csv_content(monkeypatch):
     assert "case_reference" in content
     assert "CASE-2026-CSV-02" in content
     assert "evt_csv_01" in content
+
+
+def test_stats_payment_events_requires_admin_key_when_configured(monkeypatch):
+    monkeypatch.setenv("ADMIN_API_KEY", "stats-key-secret")
+    client, _ = _build_test_client_with_memory_db()
+
+    response = client.get("/api/payments/events/stats")
+    assert response.status_code == 403
+
+    response_ok = client.get("/api/payments/events/stats", headers={"X-Admin-Key": "stats-key-secret"})
+    assert response_ok.status_code == 200
+
+
+def test_stats_payment_events_returns_aggregates(monkeypatch):
+    monkeypatch.delenv("ADMIN_API_KEY", raising=False)
+    client, SessionLocal = _build_test_client_with_memory_db()
+
+    db = SessionLocal()
+    case = Case(user_id=42, reference="CASE-2026-STATS-01", title="Stats", status="open", priority="normal")
+    db.add(case)
+    db.commit()
+
+    for evt_id, status_val, provider_val, source_val in [
+        ("evt_s1", "paid", "stripe", "stripe_webhook"),
+        ("evt_s2", "paid", "stripe", "manual_confirm"),
+        ("evt_s3", "unpaid", "mock", "manual_confirm"),
+    ]:
+        db.add(
+            PaymentEvent(
+                case_id=case.id,
+                provider=provider_val,
+                source=source_val,
+                provider_event_id=evt_id,
+                payment_status=status_val,
+                payload_json='{}',
+            )
+        )
+    db.commit()
+    db.close()
+
+    response = client.get("/api/payments/events/stats")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 3
+    assert data["by_status"]["paid"] == 2
+    assert data["by_status"]["unpaid"] == 1
+    assert data["by_provider"]["stripe"] == 2
+    assert data["by_provider"]["mock"] == 1
+    assert data["by_source"]["stripe_webhook"] == 1
+    assert data["by_source"]["manual_confirm"] == 2

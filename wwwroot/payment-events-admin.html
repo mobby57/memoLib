@@ -221,6 +221,42 @@
       .filters { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
       .actions { grid-column: span 2; }
     }
+
+    .stats-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px;
+    }
+
+    .stat-item {
+      flex: 1 1 140px;
+      background: #f4f8ff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.73rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -232,6 +268,10 @@
   </header>
 
   <main>
+    <section class="card" id="statsCard" style="display:none">
+      <div class="stats-bar" id="statsBar"></div>
+    </section>
+
     <section class="card">
       <div class="filters">
         <div>
@@ -505,11 +545,50 @@
       }
     }
 
+    async function loadStats() {
+      const headers = {};
+      const adminKey = value('fAdminKey');
+      if (adminKey) headers['X-Admin-Key'] = adminKey;
+      try {
+        const resp = await fetch('/api/payments/events/stats', { headers });
+        if (!resp.ok) return;
+        const s = await resp.json();
+
+        const byStatusHtml = Object.entries(s.by_status || {})
+          .map(([k, v]) => `<span class="pill ${pillClass(k)}">${safe(k)}: ${v}</span>`)
+          .join(' ');
+
+        const byProviderHtml = Object.entries(s.by_provider || {})
+          .map(([k, v]) => `${safe(k)}: ${v}`).join(' · ');
+
+        const bySourceHtml = Object.entries(s.by_source || {})
+          .map(([k, v]) => `${safe(k)}: ${v}`).join(' · ');
+
+        document.getElementById('statsBar').innerHTML = `
+          <div class="stat-item">
+            <span class="stat-label">Total evenements</span>
+            <span class="stat-value">${s.total}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Par statut</span>
+            <span class="stat-value mono" style="font-size:0.9rem">${byStatusHtml || '—'}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Par provider</span>
+            <span class="stat-value mono" style="font-size:0.9rem">${byProviderHtml || '—'}</span>
+            <span class="stat-sub">Par source: ${bySourceHtml || '—'}</span>
+          </div>
+        `;
+        document.getElementById('statsCard').style.display = '';
+      } catch (_) { /* silencieux */ }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       const savedAdminKey = localStorage.getItem('payment_admin_key') || '';
       if (savedAdminKey) {
         document.getElementById('fAdminKey').value = savedAdminKey;
       }
+      loadStats();
       loadEvents(true);
     });
   </script>
