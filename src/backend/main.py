@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File
+from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
@@ -20,7 +20,7 @@ from voice_service import VoiceService
 # Import routers
 from routes.client_portal import router as client_portal_router
 from routes.triage import router as triage_router
-from routes.payments import router as payments_router
+from routes.payments import router as payments_router, verify_admin_access
 
 # Initialize FastAPI
 app = FastAPI(
@@ -320,8 +320,9 @@ async def payment_checkout_page():
 
 
 @app.get("/payment-events-admin", include_in_schema=False)
-async def payment_events_admin_page():
+async def payment_events_admin_page(request: Request):
     """Page admin de consultation des events paiement."""
+    verify_admin_access(request)
     return FileResponse("wwwroot/payment-events-admin.html")
 
 if __name__ == "__main__":

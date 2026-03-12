@@ -490,3 +490,47 @@ def test_list_payment_events_supports_pagination(monkeypatch):
     assert payload["limit"] == 2
     assert payload["offset"] == 1
     assert len(payload["events"]) == 2
+
+
+def test_list_payment_events_requires_admin_key_when_configured(monkeypatch):
+    monkeypatch.setenv("ADMIN_API_KEY", "admin-secret-key")
+    client, SessionLocal = _build_test_client_with_memory_db()
+
+    db = SessionLocal()
+    case = Case(user_id=20, reference="CASE-2026-SEC-01", title="Sec", status="open", priority="normal")
+    db.add(case)
+    db.commit()
+    db.close()
+
+    response = client.get("/api/payments/events")
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin access denied"
+
+
+def test_list_payment_events_accepts_admin_key_header(monkeypatch):
+    monkeypatch.setenv("ADMIN_API_KEY", "admin-secret-key")
+    client, SessionLocal = _build_test_client_with_memory_db()
+
+    db = SessionLocal()
+    case = Case(user_id=21, reference="CASE-2026-SEC-02", title="Sec2", status="open", priority="normal")
+    db.add(case)
+    db.commit()
+
+    db.add(
+        PaymentEvent(
+            case_id=case.id,
+            provider="stripe",
+            source="manual_confirm",
+            provider_event_id=None,
+            provider_session_id="cs_sec_01",
+            payment_status="paid",
+            payload_json='{}',
+        )
+    )
+    db.commit()
+    db.close()
+
+    response = client.get("/api/payments/events", headers={"X-Admin-Key": "admin-secret-key"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] >= 1
