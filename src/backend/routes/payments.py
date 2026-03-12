@@ -53,8 +53,10 @@ class WebhookProcessResponse(BaseModel):
     event_type: Optional[str] = None
     payment_status: Optional[str] = None
     session_id: Optional[str] = None
+    event_id: Optional[str] = None
     case_reference: Optional[str] = None
     case_updated: bool = False
+    duplicate_event: bool = False
 
 
 class PaymentConfirmRequest(BaseModel):
@@ -74,6 +76,15 @@ class PaymentConfirmResponse(BaseModel):
     case_id: int
     previous_status: str
     new_status: str
+
+
+class CasePaymentEventsResponse(BaseModel):
+    """Historique des evenements paiement d'un dossier."""
+
+    case_id: int
+    case_reference: str
+    total_events: int
+    payment_events: list[Dict[str, Any]]
 
 
 def _stripe_secret_key() -> str:
@@ -206,6 +217,25 @@ def _append_payment_note(existing_note: Optional[str], payload: Dict[str, Any]) 
     return json.dumps(entries, ensure_ascii=True)
 
 
+def _parse_payment_notes(notes: Optional[str]) -> list[Dict[str, Any]]:
+    if not notes:
+        return []
+    try:
+        parsed = json.loads(notes)
+    except Exception:
+        return []
+    if isinstance(parsed, list):
+        return [entry for entry in parsed if isinstance(entry, dict)]
+    return []
+
+
+def _case_contains_event(case: Case, event_id: str) -> bool:
+    for entry in _parse_payment_notes(case.notes):
+        if entry.get("event_id") == event_id:
+            return True
+    return False
+
+
 def _apply_payment_on_case(
     db: Session,
     case_reference: str,
@@ -213,6 +243,7 @@ def _apply_payment_on_case(
     session_id: Optional[str],
     payment_status: str,
     source: str,
+    event_id: Optional[str] = None,
 ) -> tuple[bool, Optional[Case], Optional[str]]:
     case = db.query(Case).filter(Case.reference == case_reference).first()
     if not case:
@@ -232,6 +263,7 @@ def _apply_payment_on_case(
         "provider": provider,
         "payment_status": payment_status,
         "session_id": session_id,
+        "event_id": event_id,
         "previous_status": previous_status,
         "new_status": case.status,
     }
@@ -308,6 +340,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)) -> Web
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid JSON payload")
 
     event_type = event_payload.get("type")
+    event_id = event_payload.get("id")
     event_data = event_payload.get("data", {}).get("object", {})
 
     session_id = event_data.get("id")
@@ -316,15 +349,21 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)) -> Web
     case_reference = metadata.get("case_reference") if isinstance(metadata, dict) else None
 
     case_updated = False
+    duplicate_event = False
     if event_type == "checkout.session.completed" and payment_status == "paid" and case_reference:
-        case_updated, _, _ = _apply_payment_on_case(
-            db=db,
-            case_reference=case_reference,
-            provider="stripe",
-            session_id=session_id,
-            payment_status=payment_status,
-            source="stripe_webhook",
-        )
+        case = db.query(Case).filter(Case.reference == case_reference).first()
+        if case and event_id and _case_contains_event(case, event_id):
+            duplicate_event = True
+        else:
+            case_updated, _, _ = _apply_payment_on_case(
+                db=db,
+                case_reference=case_reference,
+                provider="stripe",
+                session_id=session_id,
+                payment_status=payment_status,
+                source="stripe_webhook",
+                event_id=event_id,
+            )
 
     return WebhookProcessResponse(
         received=True,
@@ -332,8 +371,31 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)) -> Web
         event_type=event_type,
         payment_status=payment_status,
         session_id=session_id,
+        event_id=event_id,
         case_reference=case_reference,
         case_updated=case_updated,
+        duplicate_event=duplicate_event,
+    )
+
+
+@router.get("/case/{case_reference}/events", response_model=CasePaymentEventsResponse, status_code=status.HTTP_200_OK)
+async def get_case_payment_events(case_reference: str, db: Session = Depends(get_db)) -> CasePaymentEventsResponse:
+    """Retourne les evenements paiement historises dans notes pour un dossier."""
+
+    case = db.query(Case).filter(Case.reference == case_reference).first()
+    if not case:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Case not found")
+
+    all_entries = _parse_payment_notes(case.notes)
+    payment_entries = [
+        entry for entry in all_entries if entry.get("source") in {"stripe_webhook", "manual_confirm"}
+    ]
+
+    return CasePaymentEventsResponse(
+        case_id=case.id,
+        case_reference=case.reference,
+        total_events=len(payment_entries),
+        payment_events=payment_entries,
     )
 
 
@@ -348,6 +410,7 @@ async def confirm_payment(request: PaymentConfirmRequest, db: Session = Depends(
         session_id=request.session_id,
         payment_status=request.payment_status,
         source="manual_confirm",
+        event_id=None,
     )
 
     if not updated or not case:
