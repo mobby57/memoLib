@@ -270,6 +270,10 @@
             <option>200</option>
           </select>
         </div>
+        <div>
+          <label for="fAdminKey">Admin Key (X-Admin-Key)</label>
+          <input id="fAdminKey" type="password" placeholder="********" />
+        </div>
         <div class="actions">
           <button class="btn-primary" onclick="loadEvents(true)">Rechercher</button>
           <button class="btn-muted" onclick="resetFilters()">Reset</button>
@@ -392,7 +396,14 @@
     async function loadEvents(resetOffset) {
       try {
         const query = buildQuery(resetOffset);
-        const response = await fetch(`/api/payments/events?${query.toString()}`);
+        const headers = {};
+        const adminKey = value('fAdminKey');
+        if (adminKey) {
+          headers['X-Admin-Key'] = adminKey;
+          localStorage.setItem('payment_admin_key', adminKey);
+        }
+
+        const response = await fetch(`/api/payments/events?${query.toString()}`, { headers });
         if (!response.ok) {
           const err = await response.json().catch(() => ({}));
           throw new Error(err.detail || `HTTP ${response.status}`);
@@ -433,6 +444,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      const savedAdminKey = localStorage.getItem('payment_admin_key') || '';
+      if (savedAdminKey) {
+        document.getElementById('fAdminKey').value = savedAdminKey;
+      }
       loadEvents(true);
     });
   </script>
