@@ -610,6 +610,10 @@ async def list_payment_events(
 async def get_payment_events_stats(
     request: Request,
     db: Session = Depends(get_db),
+    case_reference: Optional[str] = Query(default=None, min_length=2, max_length=100),
+    provider: Optional[str] = Query(default=None, min_length=2, max_length=30),
+    payment_status: Optional[str] = Query(default=None, min_length=2, max_length=30),
+    source: Optional[str] = Query(default=None, min_length=2, max_length=50),
     created_from: Optional[datetime] = Query(default=None),
     created_to: Optional[datetime] = Query(default=None),
 ) -> PaymentEventsStatsResponse:
@@ -617,27 +621,43 @@ async def get_payment_events_stats(
 
     verify_admin_access(request)
 
-    base_q = db.query(PaymentEvent)
-    if created_from:
-        base_q = base_q.filter(PaymentEvent.created_at >= created_from)
-    if created_to:
-        base_q = base_q.filter(PaymentEvent.created_at <= created_to)
+    filtered_query = _build_payment_events_query(
+        db=db,
+        case_reference=case_reference,
+        provider=provider,
+        payment_status=payment_status,
+        source=source,
+        created_from=created_from,
+        created_to=created_to,
+    )
+    filtered_events = filtered_query.with_entities(
+        PaymentEvent.id.label("id"),
+        PaymentEvent.payment_status.label("payment_status"),
+        PaymentEvent.provider.label("provider"),
+        PaymentEvent.source.label("source"),
+    ).subquery()
 
-    total = base_q.count()
+    total = db.query(func.count(filtered_events.c.id)).scalar() or 0
 
     by_status: Dict[str, int] = {
         row[0]: row[1]
-        for row in base_q.with_entities(PaymentEvent.payment_status, func.count(PaymentEvent.id)).group_by(PaymentEvent.payment_status).all()
+        for row in db.query(filtered_events.c.payment_status, func.count(filtered_events.c.id))
+        .group_by(filtered_events.c.payment_status)
+        .all()
     }
 
     by_provider: Dict[str, int] = {
         row[0]: row[1]
-        for row in base_q.with_entities(PaymentEvent.provider, func.count(PaymentEvent.id)).group_by(PaymentEvent.provider).all()
+        for row in db.query(filtered_events.c.provider, func.count(filtered_events.c.id))
+        .group_by(filtered_events.c.provider)
+        .all()
     }
 
     by_source: Dict[str, int] = {
         row[0]: row[1]
-        for row in base_q.with_entities(PaymentEvent.source, func.count(PaymentEvent.id)).group_by(PaymentEvent.source).all()
+        for row in db.query(filtered_events.c.source, func.count(filtered_events.c.id))
+        .group_by(filtered_events.c.source)
+        .all()
     }
 
     return PaymentEventsStatsResponse(
