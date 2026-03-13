@@ -508,6 +508,24 @@
       return err.detail || fallback;
     }
 
+    function getRetryMessageFromState() {
+      if (!rateLimitState) return 'Rate limit atteint. Reessayez dans quelques instants.';
+      const resetEpoch = rateLimitState.resetEpoch;
+      if (Number.isFinite(resetEpoch) && resetEpoch > 0) {
+        const nowEpoch = Math.floor(Date.now() / 1000);
+        const secs = Math.max(0, resetEpoch - nowEpoch);
+        return `Rate limit atteint. Reessayez dans ~${secs}s.`;
+      }
+      return 'Rate limit atteint. Reessayez dans quelques instants.';
+    }
+
+    function isRateBlockedNow() {
+      if (!rateLimitState) return false;
+      const { remainingNum, resetEpoch } = rateLimitState;
+      const nowEpoch = Math.floor(Date.now() / 1000);
+      return remainingNum <= 0 && !(Number.isFinite(resetEpoch) && nowEpoch >= resetEpoch);
+    }
+
     function handleRateLimitTransition(isBlocked) {
       if (!wasRateBlocked && isBlocked) {
         setStatus('Quota API epuise: actions admin temporairement verrouillees.', true);
@@ -657,6 +675,11 @@
 
     async function loadEvents(resetOffset) {
       try {
+        if (isRateBlockedNow()) {
+          setStatus(getRetryMessageFromState(), true);
+          return;
+        }
+
         const query = buildQuery(resetOffset);
         const headers = {};
         const adminKey = value('fAdminKey');
@@ -712,6 +735,10 @@
       btn.disabled = true;
       btn.textContent = 'Export en cours...';
       try {
+        if (isRateBlockedNow()) {
+          throw new Error(getRetryMessageFromState());
+        }
+
         const params = new URLSearchParams();
         params.set('limit', '5000');
         params.set('offset', '0');
@@ -765,6 +792,10 @@
       const adminKey = value('fAdminKey');
       if (adminKey) headers['X-Admin-Key'] = adminKey;
       try {
+        if (isRateBlockedNow()) {
+          return;
+        }
+
         const statsQuery = buildStatsQuery();
         const resp = await fetch(`/api/payments/events/stats?${statsQuery.toString()}`, { headers });
         updateRateLimitMetaFromResponse(resp);
