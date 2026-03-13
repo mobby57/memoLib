@@ -397,6 +397,8 @@
     let currentOffset = 0;
     let currentTotal = 0;
     let statsRefreshTimer = null;
+    let rateTicker = null;
+    let rateLimitState = null;
 
     function value(id) {
       return document.getElementById(id).value.trim();
@@ -452,25 +454,20 @@
       box.className = `status-box show ${isError ? 'status-err' : 'status-ok'}`;
     }
 
-    function updateRateLimitMetaFromResponse(resp) {
-      if (!resp || !resp.headers) return;
-      const limit = resp.headers.get('x-ratelimit-limit');
-      const remaining = resp.headers.get('x-ratelimit-remaining');
-      const reset = resp.headers.get('x-ratelimit-reset');
-      if (!limit || remaining === null) return;
+    function renderRateLimitMeta() {
+      if (!rateLimitState) return;
+
       const rateMeta = document.getElementById('rateMeta');
-      const limitNum = Number(limit);
-      const remainingNum = Number(remaining);
+      const { limitNum, remainingNum, resetEpoch } = rateLimitState;
 
       let suffix = '';
-      const resetEpoch = Number(reset);
       if (Number.isFinite(resetEpoch) && resetEpoch > 0) {
         const nowEpoch = Math.floor(Date.now() / 1000);
         const secs = Math.max(0, resetEpoch - nowEpoch);
         suffix = ` | reset ~${secs}s`;
       }
 
-      rateMeta.textContent = `Rate limit: ${remaining}/${limit}${suffix}`;
+      rateMeta.textContent = `Rate limit: ${remainingNum}/${limitNum}${suffix}`;
       rateMeta.className = 'mono rate-chip';
 
       if (!Number.isFinite(limitNum) || limitNum <= 0 || !Number.isFinite(remainingNum)) {
@@ -485,6 +482,29 @@
       } else {
         rateMeta.classList.add('rate-ok');
       }
+    }
+
+    function updateRateLimitMetaFromResponse(resp) {
+      if (!resp || !resp.headers) return;
+      const limit = resp.headers.get('x-ratelimit-limit');
+      const remaining = resp.headers.get('x-ratelimit-remaining');
+      const reset = resp.headers.get('x-ratelimit-reset');
+      if (!limit || remaining === null) return;
+
+      const limitNum = Number(limit);
+      const remainingNum = Number(remaining);
+      const resetEpoch = Number(reset);
+
+      if (!Number.isFinite(limitNum) || limitNum <= 0 || !Number.isFinite(remainingNum)) {
+        return;
+      }
+
+      rateLimitState = {
+        limitNum,
+        remainingNum,
+        resetEpoch: Number.isFinite(resetEpoch) ? resetEpoch : NaN,
+      };
+      renderRateLimitMeta();
     }
 
     function renderRows(events) {
@@ -701,6 +721,12 @@
         }
         scheduleStatsRefresh();
       });
+
+      if (!rateTicker) {
+        rateTicker = setInterval(() => {
+          renderRateLimitMeta();
+        }, 1000);
+      }
 
       loadEvents(true);
     });
