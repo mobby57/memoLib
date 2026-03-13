@@ -14,10 +14,12 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
+        id: setup-node
         with:
           node-version: '22'
 
       - name: Run npm audit
+        id: npm-audit
         run: |
           cd src/frontend
           npm audit --audit-level=high || echo "Vulnerabilities found but continuing"
