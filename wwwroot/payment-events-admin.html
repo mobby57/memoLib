@@ -399,6 +399,7 @@
     let statsRefreshTimer = null;
     let rateTicker = null;
     let rateLimitState = null;
+    let isExportingCsv = false;
 
     function value(id) {
       return document.getElementById(id).value.trim();
@@ -458,11 +459,12 @@
       if (!rateLimitState) return;
 
       const rateMeta = document.getElementById('rateMeta');
+      const exportBtn = document.getElementById('btnExport');
       const { limitNum, remainingNum, resetEpoch } = rateLimitState;
+      const nowEpoch = Math.floor(Date.now() / 1000);
 
       let suffix = '';
       if (Number.isFinite(resetEpoch) && resetEpoch > 0) {
-        const nowEpoch = Math.floor(Date.now() / 1000);
         const secs = Math.max(0, resetEpoch - nowEpoch);
         suffix = ` | reset ~${secs}s`;
       }
@@ -481,6 +483,12 @@
         rateMeta.classList.add('rate-warn');
       } else {
         rateMeta.classList.add('rate-ok');
+      }
+
+      const isBlocked = remainingNum <= 0 && !(Number.isFinite(resetEpoch) && nowEpoch >= resetEpoch);
+      if (exportBtn && !isExportingCsv) {
+        exportBtn.disabled = isBlocked;
+        exportBtn.title = isBlocked ? 'Quota API atteint, attendre le reset' : '';
       }
     }
 
@@ -609,6 +617,7 @@
 
     async function downloadCsv() {
       const btn = document.getElementById('btnExport');
+      isExportingCsv = true;
       btn.disabled = true;
       btn.textContent = 'Export en cours...';
       try {
@@ -654,8 +663,10 @@
       } catch (err) {
         setStatus(err.message || 'Erreur export CSV', true);
       } finally {
+        isExportingCsv = false;
         btn.disabled = false;
         btn.innerHTML = '&#8659; Export CSV';
+        renderRateLimitMeta();
       }
     }
 
