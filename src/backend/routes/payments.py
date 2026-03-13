@@ -5,12 +5,14 @@ Routes Paiement Stripe - US19
 """
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
+from collections import defaultdict, deque
 import csv
 import hashlib
 import hmac
 import io
 import json
 import os
+from threading import Lock
 import time
 import uuid
 
@@ -26,6 +28,9 @@ from database import get_db
 from models import Case, PaymentEvent
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
+
+_ADMIN_RATE_BUCKETS: dict[str, deque[float]] = defaultdict(deque)
+_ADMIN_RATE_LOCK = Lock()
 
 
 class CheckoutSessionRequest(BaseModel):
@@ -140,8 +145,65 @@ def _admin_api_key() -> str:
     return os.getenv("ADMIN_API_KEY", "").strip()
 
 
+def _admin_rate_limit_max() -> int:
+    raw = os.getenv("ADMIN_RATE_LIMIT_MAX", "60").strip()
+    try:
+        value = int(raw)
+    except ValueError:
+        value = 60
+    return max(1, value)
+
+
+def _admin_rate_limit_window_seconds() -> int:
+    raw = os.getenv("ADMIN_RATE_LIMIT_WINDOW_SECONDS", "60").strip()
+    try:
+        value = int(raw)
+    except ValueError:
+        value = 60
+    return max(1, value)
+
+
+def _admin_request_client_id(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for", "").strip()
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip() or "unknown"
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+def _enforce_admin_rate_limit(request: Request) -> None:
+    max_requests = _admin_rate_limit_max()
+    window_seconds = _admin_rate_limit_window_seconds()
+    now = time.time()
+    client_id = _admin_request_client_id(request)
+
+    with _ADMIN_RATE_LOCK:
+        bucket = _ADMIN_RATE_BUCKETS[client_id]
+        while bucket and (now - bucket[0]) > window_seconds:
+            bucket.popleft()
+
+        if len(bucket) >= max_requests:
+            retry_after = max(1, int(window_seconds - (now - bucket[0])))
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Too many requests",
+                headers={"Retry-After": str(retry_after)},
+            )
+
+        bucket.append(now)
+
+
+def _reset_admin_rate_limit_state() -> None:
+    """Test hook: reset in-memory admin rate limit buckets."""
+    with _ADMIN_RATE_LOCK:
+        _ADMIN_RATE_BUCKETS.clear()
+
+
 def verify_admin_access(request: Request) -> None:
     """Protection admin par header X-Admin-Key quand ADMIN_API_KEY est configuree."""
+    _enforce_admin_rate_limit(request)
+
     expected_key = _admin_api_key()
     if not expected_key:
         return

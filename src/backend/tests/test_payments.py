@@ -6,6 +6,7 @@ import hashlib
 import hmac
 import json
 import time
+import pytest
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -16,6 +17,15 @@ from sqlalchemy.pool import StaticPool
 from models import Base, Case, PaymentEvent
 from routes import payments as payments_module
 from routes.payments import router as payments_router
+
+
+@pytest.fixture(autouse=True)
+def _reset_admin_rate_limit_state(monkeypatch):
+    monkeypatch.delenv("ADMIN_RATE_LIMIT_MAX", raising=False)
+    monkeypatch.delenv("ADMIN_RATE_LIMIT_WINDOW_SECONDS", raising=False)
+    payments_module._reset_admin_rate_limit_state()
+    yield
+    payments_module._reset_admin_rate_limit_state()
 
 
 def _build_test_client() -> TestClient:
@@ -690,3 +700,20 @@ def test_stats_payment_events_applies_same_filters_as_listing(monkeypatch):
     assert data["by_provider"] == {"stripe": 2}
     assert data["by_source"]["manual_confirm"] == 1
     assert data["by_source"]["stripe_webhook"] == 1
+
+
+def test_admin_payment_endpoints_are_rate_limited(monkeypatch):
+    monkeypatch.setenv("ADMIN_API_KEY", "admin-rate-key")
+    monkeypatch.setenv("ADMIN_RATE_LIMIT_MAX", "2")
+    monkeypatch.setenv("ADMIN_RATE_LIMIT_WINDOW_SECONDS", "60")
+    client, _ = _build_test_client_with_memory_db()
+
+    r1 = client.get("/api/payments/events/stats", headers={"X-Admin-Key": "admin-rate-key"})
+    r2 = client.get("/api/payments/events/stats", headers={"X-Admin-Key": "admin-rate-key"})
+    r3 = client.get("/api/payments/events/stats", headers={"X-Admin-Key": "admin-rate-key"})
+
+    assert r1.status_code == 200
+    assert r2.status_code == 200
+    assert r3.status_code == 429
+    assert r3.json()["detail"] == "Too many requests"
+    assert r3.headers.get("retry-after") is not None
