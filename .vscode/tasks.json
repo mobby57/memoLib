@@ -68,7 +68,7 @@
     {
       "label": "Backend: Flask Dev",
       "type": "shell",
-      "command": "python -m flask run --debug --port 5000",
+      "command": "python -m flask run --debug --port 5000 --exclude-patterns \"*site-packages*;*WindowsApps*;*AppData*;*.venv*;*__pycache__*\"",
       "options": {
         "cwd": "${workspaceFolder}",
         "env": {
