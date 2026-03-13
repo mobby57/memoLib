@@ -544,6 +544,7 @@ def test_list_payment_events_accepts_admin_key_header(monkeypatch):
     assert response.status_code == 200
     assert response.headers.get("x-ratelimit-limit") is not None
     assert response.headers.get("x-ratelimit-remaining") is not None
+    assert response.headers.get("x-ratelimit-reset") is not None
     payload = response.json()
     assert payload["total"] >= 1
 
@@ -596,6 +597,7 @@ def test_export_payment_events_csv_returns_csv_content(monkeypatch):
     assert "attachment; filename=payment_events.csv" == response.headers.get("content-disposition")
     assert response.headers.get("x-ratelimit-limit") is not None
     assert response.headers.get("x-ratelimit-remaining") is not None
+    assert response.headers.get("x-ratelimit-reset") is not None
     content = response.text
     assert "case_reference" in content
     assert "CASE-2026-CSV-02" in content
@@ -613,6 +615,7 @@ def test_stats_payment_events_requires_admin_key_when_configured(monkeypatch):
     assert response_ok.status_code == 200
     assert response_ok.headers.get("x-ratelimit-limit") is not None
     assert response_ok.headers.get("x-ratelimit-remaining") is not None
+    assert response_ok.headers.get("x-ratelimit-reset") is not None
 
 
 def test_stats_payment_events_returns_aggregates(monkeypatch):
@@ -722,10 +725,13 @@ def test_admin_payment_endpoints_are_rate_limited(monkeypatch):
     assert r2.status_code == 200
     assert r1.headers.get("x-ratelimit-limit") == "2"
     assert r1.headers.get("x-ratelimit-remaining") == "1"
+    assert r1.headers.get("x-ratelimit-reset") is not None
     assert r2.headers.get("x-ratelimit-limit") == "2"
     assert r2.headers.get("x-ratelimit-remaining") == "0"
+    assert r2.headers.get("x-ratelimit-reset") is not None
     assert r3.status_code == 429
     assert r3.json()["detail"] == "Too many requests"
     assert r3.headers.get("x-ratelimit-limit") == "2"
     assert r3.headers.get("x-ratelimit-remaining") == "0"
+    assert r3.headers.get("x-ratelimit-reset") is not None
     assert r3.headers.get("retry-after") is not None

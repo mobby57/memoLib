@@ -184,6 +184,7 @@ def _enforce_admin_rate_limit(request: Request) -> Dict[str, str]:
             bucket.popleft()
 
         if len(bucket) >= max_requests:
+            reset_at_epoch = int(bucket[0] + window_seconds)
             retry_after = max(1, int(window_seconds - (now - bucket[0])))
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -192,15 +193,18 @@ def _enforce_admin_rate_limit(request: Request) -> Dict[str, str]:
                     "Retry-After": str(retry_after),
                     "X-RateLimit-Limit": str(max_requests),
                     "X-RateLimit-Remaining": "0",
+                    "X-RateLimit-Reset": str(reset_at_epoch),
                 },
             )
 
         bucket.append(now)
         remaining = max(0, max_requests - len(bucket))
+        reset_at_epoch = int(bucket[0] + window_seconds)
 
     return {
         "X-RateLimit-Limit": str(max_requests),
         "X-RateLimit-Remaining": str(remaining),
+        "X-RateLimit-Reset": str(reset_at_epoch),
     }
 
 
