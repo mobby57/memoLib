@@ -444,6 +444,26 @@
       `).join('');
     }
 
+    function buildStatsQuery() {
+      const params = new URLSearchParams();
+
+      const caseRef = value('fCase');
+      const provider = value('fProvider');
+      const paymentStatus = value('fStatus');
+      const source = value('fSource');
+      const createdFrom = dateToIsoLocal(value('fFrom'));
+      const createdTo = dateToIsoLocal(value('fTo'));
+
+      if (caseRef) params.set('case_reference', caseRef);
+      if (provider) params.set('provider', provider);
+      if (paymentStatus) params.set('payment_status', paymentStatus);
+      if (source) params.set('source', source);
+      if (createdFrom) params.set('created_from', createdFrom);
+      if (createdTo) params.set('created_to', createdTo);
+
+      return params;
+    }
+
     async function loadEvents(resetOffset) {
       try {
         const query = buildQuery(resetOffset);
@@ -466,6 +486,7 @@
         renderRows(data.events || []);
         document.getElementById('resultMeta').textContent = `Total: ${data.total} | Affiches: ${(data.events || []).length}`;
         document.getElementById('pageMeta').textContent = `Offset: ${data.offset} | Limit: ${data.limit}`;
+        await loadStats();
         setStatus('Chargement termine', false);
       } catch (err) {
         setStatus(err.message || 'Erreur de chargement', true);
@@ -550,7 +571,8 @@
       const adminKey = value('fAdminKey');
       if (adminKey) headers['X-Admin-Key'] = adminKey;
       try {
-        const resp = await fetch('/api/payments/events/stats', { headers });
+        const statsQuery = buildStatsQuery();
+        const resp = await fetch(`/api/payments/events/stats?${statsQuery.toString()}`, { headers });
         if (!resp.ok) return;
         const s = await resp.json();
 
@@ -588,7 +610,6 @@
       if (savedAdminKey) {
         document.getElementById('fAdminKey').value = savedAdminKey;
       }
-      loadStats();
       loadEvents(true);
     });
   </script>
