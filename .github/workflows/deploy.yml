@@ -25,26 +25,32 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
+        id: setup-node-quality
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
+        id: install-deps-quality
         run: npm ci
 
       - name: Type checking
+        id: type-check
         run: npm run type-check
         continue-on-error: true
 
       - name: Run tests
+        id: run-tests-quality
         run: npm test -- --coverage --passWithNoTests
 
       - name: Security audit
+        id: security-audit
         run: npm audit --production
         continue-on-error: true
 
       - name: Build
+        id: build-quality
         run: npm run build
 
   deploy-staging:
@@ -57,18 +63,22 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
+        id: setup-node-staging
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
+        id: install-deps-staging
         run: npm ci
 
       - name: Build application
+        id: build-staging
         run: npm run build
 
       - name: Deploy to Vercel (Staging)
+        id: deploy-vercel-staging
         run: |
           npm install -g vercel
           vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --env staging
@@ -77,6 +87,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy backend to Azure (Staging)
+        id: deploy-azure-staging
         if: secrets.AZURE_CLIENT_ID != ''
         run: |
           az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
@@ -105,21 +116,26 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
+        id: setup-node-production
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
+        id: install-deps-production
         run: npm ci
 
       - name: Build application
+        id: build-production
         run: npm run build
 
       - name: Run production tests
+        id: run-tests-production
         run: npm test -- --passWithNoTests
 
       - name: Deploy to Vercel (Production)
+        id: deploy-vercel-production
         run: |
           npm install -g vercel
           vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
@@ -128,6 +144,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy backend to Azure (Production)
+        id: deploy-azure-production
         if: secrets.AZURE_CLIENT_ID != ''
         run: |
           az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} \
@@ -146,17 +163,20 @@ jobs:
             --src backend-prod.zip
 
       - name: Database migrations
+        id: db-migrations
         if: secrets.PROD_DATABASE_URL != ''
         run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
 
       - name: Health check
+        id: health-check
         run: |
           sleep 30
           curl -f https://api.memolib.fr/api/health || exit 1
 
       - name: Notify Slack
+        id: notify-slack
         if: always() && secrets.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1
         with:
