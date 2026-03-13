@@ -379,6 +379,9 @@
         <div id="resultMeta">Pret</div>
         <div>Endpoint: <span class="mono">GET /api/payments/events</span></div>
         <div id="rateMeta" class="mono rate-chip">Rate limit: --/--</div>
+        <div>
+          <button id="btnRetryNow" class="btn-muted" onclick="retryNow()">Reessayer maintenant</button>
+        </div>
       </div>
     </section>
 
@@ -545,6 +548,7 @@
       const searchBtn = document.getElementById('btnSearch');
       const prevBtn = document.getElementById('btnPrev');
       const nextBtn = document.getElementById('btnNext');
+      const retryBtn = document.getElementById('btnRetryNow');
         const lockBanner = document.getElementById('rateLockBanner');
       const { limitNum, remainingNum, resetEpoch } = rateLimitState;
       const nowEpoch = Math.floor(Date.now() / 1000);
@@ -585,6 +589,10 @@
       }
       if (nextBtn) {
         nextBtn.disabled = isBlocked;
+      }
+      if (retryBtn) {
+        retryBtn.disabled = isBlocked;
+        retryBtn.title = isBlocked ? 'Attendre la fin du cooldown' : '';
       }
 
       handleRateLimitTransition(isBlocked);
@@ -720,6 +728,14 @@
       const limit = Number(value('fLimit') || '50');
       if (currentOffset + limit >= currentTotal) return;
       currentOffset += limit;
+      loadEvents(false);
+    }
+
+    function retryNow() {
+      if (isRateBlockedNow()) {
+        setStatus(getRetryMessageFromState(), true);
+        return;
+      }
       loadEvents(false);
     }
 
