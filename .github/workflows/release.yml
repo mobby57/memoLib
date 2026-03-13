@@ -38,11 +38,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup .NET 9
+        id: setup-dotnet
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
       - name: Cache NuGet
+        id: cache-nuget
         uses: actions/cache@v4
         with:
           path: |
@@ -53,14 +55,17 @@ jobs:
             nuget-${{ runner.os }}-
 
       - name: Install dotnet-ef
+        id: install-dotnet-ef
         run: dotnet tool install --global dotnet-ef --version 9.*
 
       - name: Add dotnet tools to PATH
+        id: add-dotnet-path
         shell: pwsh
         run: |
           "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Build + smoke + package (no publish)
+        id: build-smoke-package
         shell: pwsh
         env:
           JwtSettings__SecretKey: MEMOLIB_RELEASE_SECRET_2026_32_CHARS_MINIMUM
@@ -69,6 +74,7 @@ jobs:
           powershell -ExecutionPolicy Bypass -File .\scripts\go-all.ps1 -SkipPublish
 
       - name: Publish release
+        id: publish-release
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

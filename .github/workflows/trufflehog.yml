@@ -12,10 +12,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
+        id: checkout
         with:
           fetch-depth: 0 # Full history for secret scanning
 
       - name: TruffleHog Secret Scan
+        id: trufflehog-scan
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
