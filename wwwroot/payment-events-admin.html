@@ -368,6 +368,7 @@
   <script>
     let currentOffset = 0;
     let currentTotal = 0;
+    let statsRefreshTimer = null;
 
     function value(id) {
       return document.getElementById(id).value.trim();
@@ -462,6 +463,13 @@
       if (createdTo) params.set('created_to', createdTo);
 
       return params;
+    }
+
+    function scheduleStatsRefresh() {
+      if (statsRefreshTimer) clearTimeout(statsRefreshTimer);
+      statsRefreshTimer = setTimeout(() => {
+        loadStats();
+      }, 250);
     }
 
     async function loadEvents(resetOffset) {
@@ -610,6 +618,24 @@
       if (savedAdminKey) {
         document.getElementById('fAdminKey').value = savedAdminKey;
       }
+
+      ['fCase', 'fProvider', 'fStatus', 'fSource', 'fFrom', 'fTo'].forEach(id => {
+        const el = document.getElementById(id);
+        el.addEventListener('change', scheduleStatsRefresh);
+        el.addEventListener('input', scheduleStatsRefresh);
+      });
+
+      const adminKeyInput = document.getElementById('fAdminKey');
+      adminKeyInput.addEventListener('input', () => {
+        const key = value('fAdminKey');
+        if (key) {
+          localStorage.setItem('payment_admin_key', key);
+        } else {
+          localStorage.removeItem('payment_admin_key');
+        }
+        scheduleStatsRefresh();
+      });
+
       loadEvents(true);
     });
   </script>
