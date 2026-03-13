@@ -456,12 +456,21 @@
       if (!resp || !resp.headers) return;
       const limit = resp.headers.get('x-ratelimit-limit');
       const remaining = resp.headers.get('x-ratelimit-remaining');
+      const reset = resp.headers.get('x-ratelimit-reset');
       if (!limit || remaining === null) return;
       const rateMeta = document.getElementById('rateMeta');
       const limitNum = Number(limit);
       const remainingNum = Number(remaining);
 
-      rateMeta.textContent = `Rate limit: ${remaining}/${limit}`;
+      let suffix = '';
+      const resetEpoch = Number(reset);
+      if (Number.isFinite(resetEpoch) && resetEpoch > 0) {
+        const nowEpoch = Math.floor(Date.now() / 1000);
+        const secs = Math.max(0, resetEpoch - nowEpoch);
+        suffix = ` | reset ~${secs}s`;
+      }
+
+      rateMeta.textContent = `Rate limit: ${remaining}/${limit}${suffix}`;
       rateMeta.className = 'mono rate-chip';
 
       if (!Number.isFinite(limitNum) || limitNum <= 0 || !Number.isFinite(remainingNum)) {
