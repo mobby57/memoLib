@@ -636,3 +636,57 @@ def test_stats_payment_events_returns_aggregates(monkeypatch):
     assert data["by_provider"]["mock"] == 1
     assert data["by_source"]["stripe_webhook"] == 1
     assert data["by_source"]["manual_confirm"] == 2
+
+
+def test_stats_payment_events_applies_same_filters_as_listing(monkeypatch):
+    monkeypatch.delenv("ADMIN_API_KEY", raising=False)
+    client, SessionLocal = _build_test_client_with_memory_db()
+
+    db = SessionLocal()
+    case_a = Case(user_id=51, reference="CASE-2026-STATS-F1", title="Stats F1", status="open", priority="normal")
+    case_b = Case(user_id=52, reference="CASE-2026-STATS-F2", title="Stats F2", status="open", priority="normal")
+    db.add_all([case_a, case_b])
+    db.commit()
+
+    db.add_all(
+        [
+            PaymentEvent(
+                case_id=case_a.id,
+                provider="stripe",
+                source="manual_confirm",
+                provider_event_id="evt_stats_filter_1",
+                payment_status="paid",
+                payload_json='{}',
+            ),
+            PaymentEvent(
+                case_id=case_a.id,
+                provider="stripe",
+                source="stripe_webhook",
+                provider_event_id="evt_stats_filter_2",
+                payment_status="paid",
+                payload_json='{}',
+            ),
+            PaymentEvent(
+                case_id=case_b.id,
+                provider="mock",
+                source="manual_confirm",
+                provider_event_id="evt_stats_filter_3",
+                payment_status="unpaid",
+                payload_json='{}',
+            ),
+        ]
+    )
+    db.commit()
+    db.close()
+
+    response = client.get(
+        "/api/payments/events/stats?case_reference=CASE-2026-STATS-F1&provider=stripe&payment_status=paid"
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total"] == 2
+    assert data["by_status"] == {"paid": 2}
+    assert data["by_provider"] == {"stripe": 2}
+    assert data["by_source"]["manual_confirm"] == 1
+    assert data["by_source"]["stripe_webhook"] == 1
