@@ -418,6 +418,7 @@
     let rateTicker = null;
     let rateLimitState = null;
     let isExportingCsv = false;
+    let wasRateBlocked = false;
 
     function value(id) {
       return document.getElementById(id).value.trim();
@@ -507,6 +508,17 @@
       return err.detail || fallback;
     }
 
+    function handleRateLimitTransition(isBlocked) {
+      if (!wasRateBlocked && isBlocked) {
+        setStatus('Quota API epuise: actions admin temporairement verrouillees.', true);
+      }
+      if (wasRateBlocked && !isBlocked) {
+        setStatus('Quota API retabli: reprise des actions admin.', false);
+        loadStats();
+      }
+      wasRateBlocked = isBlocked;
+    }
+
     function renderRateLimitMeta() {
       if (!rateLimitState) return;
 
@@ -556,6 +568,8 @@
       if (nextBtn) {
         nextBtn.disabled = isBlocked;
       }
+
+      handleRateLimitTransition(isBlocked);
 
         if (lockBanner) {
           if (isBlocked && Number.isFinite(resetEpoch) && resetEpoch > 0) {
