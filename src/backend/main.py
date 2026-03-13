@@ -20,7 +20,11 @@ from voice_service import VoiceService
 # Import routers
 from routes.client_portal import router as client_portal_router
 from routes.triage import router as triage_router
-from routes.payments import router as payments_router, verify_admin_access
+from routes.payments import (
+    router as payments_router,
+    verify_admin_access,
+    _admin_rate_limit_headers_from_request,
+)
 
 # Initialize FastAPI
 app = FastAPI(
@@ -323,7 +327,7 @@ async def payment_checkout_page():
 async def payment_events_admin_page(request: Request):
     """Page admin de consultation des events paiement."""
     verify_admin_access(request)
-    return FileResponse("wwwroot/payment-events-admin.html")
+    return FileResponse("wwwroot/payment-events-admin.html", headers=_admin_rate_limit_headers_from_request(request))
 
 if __name__ == "__main__":
     import uvicorn
