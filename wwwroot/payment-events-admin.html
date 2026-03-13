@@ -257,6 +257,33 @@
       font-size: 0.75rem;
       color: var(--muted);
     }
+
+    .rate-chip {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .rate-ok {
+      background: #ecfdf3;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+
+    .rate-warn {
+      background: #fff7ed;
+      color: #9a3412;
+      border-color: #fdba74;
+    }
+
+    .rate-crit {
+      background: #fff1f2;
+      color: #be123c;
+      border-color: #fda4af;
+    }
   </style>
 </head>
 <body>
@@ -333,7 +360,7 @@
       <div class="meta">
         <div id="resultMeta">Pret</div>
         <div>Endpoint: <span class="mono">GET /api/payments/events</span></div>
-        <div id="rateMeta" class="mono">Rate limit: --/--</div>
+        <div id="rateMeta" class="mono rate-chip">Rate limit: --/--</div>
       </div>
     </section>
 
@@ -431,7 +458,24 @@
       const remaining = resp.headers.get('x-ratelimit-remaining');
       if (!limit || remaining === null) return;
       const rateMeta = document.getElementById('rateMeta');
+      const limitNum = Number(limit);
+      const remainingNum = Number(remaining);
+
       rateMeta.textContent = `Rate limit: ${remaining}/${limit}`;
+      rateMeta.className = 'mono rate-chip';
+
+      if (!Number.isFinite(limitNum) || limitNum <= 0 || !Number.isFinite(remainingNum)) {
+        return;
+      }
+
+      const ratio = remainingNum / limitNum;
+      if (ratio <= 0.2) {
+        rateMeta.classList.add('rate-crit');
+      } else if (ratio <= 0.5) {
+        rateMeta.classList.add('rate-warn');
+      } else {
+        rateMeta.classList.add('rate-ok');
+      }
     }
 
     function renderRows(events) {
