@@ -352,7 +352,7 @@
           <input id="fAdminKey" type="password" placeholder="********" />
         </div>
         <div class="actions">
-          <button class="btn-primary" onclick="loadEvents(true)">Rechercher</button>
+          <button id="btnSearch" class="btn-primary" onclick="loadEvents(true)">Rechercher</button>
           <button class="btn-muted" onclick="resetFilters()">Reset</button>
           <button id="btnExport" class="btn-export" onclick="downloadCsv()">&#8659; Export CSV</button>
         </div>
@@ -384,8 +384,8 @@
       </div>
       <div class="pager">
         <div class="btn-group">
-          <button class="btn-muted" onclick="prevPage()">Precedent</button>
-          <button class="btn-muted" onclick="nextPage()">Suivant</button>
+          <button id="btnPrev" class="btn-muted" onclick="prevPage()">Precedent</button>
+          <button id="btnNext" class="btn-muted" onclick="nextPage()">Suivant</button>
         </div>
         <div id="pageMeta" class="sub">Offset: 0</div>
       </div>
@@ -455,11 +455,40 @@
       box.className = `status-box show ${isError ? 'status-err' : 'status-ok'}`;
     }
 
+    function getRetryMessageFromResponse(resp) {
+      if (!resp || !resp.headers) return null;
+      const retryAfter = Number(resp.headers.get('retry-after'));
+      if (Number.isFinite(retryAfter) && retryAfter > 0) {
+        return `Rate limit atteint. Reessayez dans ~${retryAfter}s.`;
+      }
+
+      const resetEpoch = Number(resp.headers.get('x-ratelimit-reset'));
+      if (Number.isFinite(resetEpoch) && resetEpoch > 0) {
+        const nowEpoch = Math.floor(Date.now() / 1000);
+        const secs = Math.max(0, resetEpoch - nowEpoch);
+        return `Rate limit atteint. Reessayez dans ~${secs}s.`;
+      }
+
+      return 'Rate limit atteint. Reessayez dans quelques instants.';
+    }
+
+    async function getApiErrorMessage(response, fallback) {
+      if (!response) return fallback;
+      if (response.status === 429) {
+        return getRetryMessageFromResponse(response);
+      }
+      const err = await response.json().catch(() => ({}));
+      return err.detail || fallback;
+    }
+
     function renderRateLimitMeta() {
       if (!rateLimitState) return;
 
       const rateMeta = document.getElementById('rateMeta');
       const exportBtn = document.getElementById('btnExport');
+      const searchBtn = document.getElementById('btnSearch');
+      const prevBtn = document.getElementById('btnPrev');
+      const nextBtn = document.getElementById('btnNext');
       const { limitNum, remainingNum, resetEpoch } = rateLimitState;
       const nowEpoch = Math.floor(Date.now() / 1000);
 
@@ -489,6 +518,16 @@
       if (exportBtn && !isExportingCsv) {
         exportBtn.disabled = isBlocked;
         exportBtn.title = isBlocked ? 'Quota API atteint, attendre le reset' : '';
+      }
+      if (searchBtn) {
+        searchBtn.disabled = isBlocked;
+        searchBtn.title = isBlocked ? 'Quota API atteint, attendre le reset' : '';
+      }
+      if (prevBtn) {
+        prevBtn.disabled = isBlocked;
+      }
+      if (nextBtn) {
+        nextBtn.disabled = isBlocked;
       }
     }
 
@@ -576,8 +615,7 @@
         const response = await fetch(`/api/payments/events?${query.toString()}`, { headers });
         updateRateLimitMetaFromResponse(response);
         if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.detail || `HTTP ${response.status}`);
+          throw new Error(await getApiErrorMessage(response, `HTTP ${response.status}`));
         }
 
         const data = await response.json();
@@ -646,8 +684,7 @@
         const response = await fetch(`/api/payments/events/export.csv?${params.toString()}`, { headers });
         updateRateLimitMetaFromResponse(response);
         if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.detail || `HTTP ${response.status}`);
+          throw new Error(await getApiErrorMessage(response, `HTTP ${response.status}`));
         }
 
         const blob = await response.blob();
@@ -678,7 +715,12 @@
         const statsQuery = buildStatsQuery();
         const resp = await fetch(`/api/payments/events/stats?${statsQuery.toString()}`, { headers });
         updateRateLimitMetaFromResponse(resp);
-        if (!resp.ok) return;
+        if (!resp.ok) {
+          if (resp.status === 429) {
+            setStatus(getRetryMessageFromResponse(resp), true);
+          }
+          return;
+        }
         const s = await resp.json();
 
         const byStatusHtml = Object.entries(s.by_status || {})
