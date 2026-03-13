@@ -172,7 +172,7 @@ def _admin_request_client_id(request: Request) -> str:
     return "unknown"
 
 
-def _enforce_admin_rate_limit(request: Request) -> None:
+def _enforce_admin_rate_limit(request: Request) -> Dict[str, str]:
     max_requests = _admin_rate_limit_max()
     window_seconds = _admin_rate_limit_window_seconds()
     now = time.time()
@@ -188,10 +188,20 @@ def _enforce_admin_rate_limit(request: Request) -> None:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Too many requests",
-                headers={"Retry-After": str(retry_after)},
+                headers={
+                    "Retry-After": str(retry_after),
+                    "X-RateLimit-Limit": str(max_requests),
+                    "X-RateLimit-Remaining": "0",
+                },
             )
 
         bucket.append(now)
+        remaining = max(0, max_requests - len(bucket))
+
+    return {
+        "X-RateLimit-Limit": str(max_requests),
+        "X-RateLimit-Remaining": str(remaining),
+    }
 
 
 def _reset_admin_rate_limit_state() -> None:
@@ -202,7 +212,7 @@ def _reset_admin_rate_limit_state() -> None:
 
 def verify_admin_access(request: Request) -> None:
     """Protection admin par header X-Admin-Key quand ADMIN_API_KEY est configuree."""
-    _enforce_admin_rate_limit(request)
+    request.state.admin_rate_limit_headers = _enforce_admin_rate_limit(request)
 
     expected_key = _admin_api_key()
     if not expected_key:
@@ -211,6 +221,13 @@ def verify_admin_access(request: Request) -> None:
     provided_key = request.headers.get("x-admin-key", "")
     if not provided_key or not hmac.compare_digest(provided_key, expected_key):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access denied")
+
+
+def _admin_rate_limit_headers_from_request(request: Request) -> Dict[str, str]:
+    headers = getattr(request.state, "admin_rate_limit_headers", None)
+    if isinstance(headers, dict):
+        return headers
+    return {}
 
 
 def _build_mock_checkout_url(success_url: str, session_id: str) -> str:
@@ -618,6 +635,7 @@ async def get_case_payment_events(case_reference: str, db: Session = Depends(get
 @router.get("/events", response_model=PaymentEventsListResponse, status_code=status.HTTP_200_OK)
 async def list_payment_events(
     request: Request,
+    response: Response,
     db: Session = Depends(get_db),
     case_reference: Optional[str] = Query(default=None, min_length=2, max_length=100),
     provider: Optional[str] = Query(default=None, min_length=2, max_length=30),
@@ -631,6 +649,7 @@ async def list_payment_events(
     """Listing admin des evenements paiements avec filtres et pagination."""
 
     verify_admin_access(request)
+    response.headers.update(_admin_rate_limit_headers_from_request(request))
 
     base_query = _build_payment_events_query(
         db=db,
@@ -671,6 +690,7 @@ async def list_payment_events(
 @router.get("/events/stats", response_model=PaymentEventsStatsResponse, status_code=status.HTTP_200_OK)
 async def get_payment_events_stats(
     request: Request,
+    response: Response,
     db: Session = Depends(get_db),
     case_reference: Optional[str] = Query(default=None, min_length=2, max_length=100),
     provider: Optional[str] = Query(default=None, min_length=2, max_length=30),
@@ -682,6 +702,7 @@ async def get_payment_events_stats(
     """Agregats admin : total, repartition par status / provider / source."""
 
     verify_admin_access(request)
+    response.headers.update(_admin_rate_limit_headers_from_request(request))
 
     filtered_query = _build_payment_events_query(
         db=db,
@@ -746,6 +767,7 @@ async def export_payment_events_csv(
     """Export CSV admin des evenements paiements avec filtres."""
 
     verify_admin_access(request)
+    rate_limit_headers = _admin_rate_limit_headers_from_request(request)
 
     query = _build_payment_events_query(
         db=db,
@@ -800,7 +822,10 @@ async def export_payment_events_csv(
     return Response(
         content=csv_content,
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=payment_events.csv"},
+        headers={
+            "Content-Disposition": "attachment; filename=payment_events.csv",
+            **rate_limit_headers,
+        },
     )
 
 
