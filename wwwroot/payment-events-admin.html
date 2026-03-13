@@ -333,6 +333,7 @@
       <div class="meta">
         <div id="resultMeta">Pret</div>
         <div>Endpoint: <span class="mono">GET /api/payments/events</span></div>
+        <div id="rateMeta" class="mono">Rate limit: --/--</div>
       </div>
     </section>
 
@@ -424,6 +425,15 @@
       box.className = `status-box show ${isError ? 'status-err' : 'status-ok'}`;
     }
 
+    function updateRateLimitMetaFromResponse(resp) {
+      if (!resp || !resp.headers) return;
+      const limit = resp.headers.get('x-ratelimit-limit');
+      const remaining = resp.headers.get('x-ratelimit-remaining');
+      if (!limit || remaining === null) return;
+      const rateMeta = document.getElementById('rateMeta');
+      rateMeta.textContent = `Rate limit: ${remaining}/${limit}`;
+    }
+
     function renderRows(events) {
       const tbody = document.getElementById('tbodyEvents');
       if (!events.length) {
@@ -483,6 +493,7 @@
         }
 
         const response = await fetch(`/api/payments/events?${query.toString()}`, { headers });
+        updateRateLimitMetaFromResponse(response);
         if (!response.ok) {
           const err = await response.json().catch(() => ({}));
           throw new Error(err.detail || `HTTP ${response.status}`);
@@ -551,6 +562,7 @@
         if (adminKey) headers['X-Admin-Key'] = adminKey;
 
         const response = await fetch(`/api/payments/events/export.csv?${params.toString()}`, { headers });
+        updateRateLimitMetaFromResponse(response);
         if (!response.ok) {
           const err = await response.json().catch(() => ({}));
           throw new Error(err.detail || `HTTP ${response.status}`);
@@ -581,6 +593,7 @@
       try {
         const statsQuery = buildStatsQuery();
         const resp = await fetch(`/api/payments/events/stats?${statsQuery.toString()}`, { headers });
+        updateRateLimitMetaFromResponse(resp);
         if (!resp.ok) return;
         const s = await resp.json();
 
