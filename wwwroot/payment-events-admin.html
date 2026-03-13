@@ -204,6 +204,22 @@
       margin-top: 10px;
       padding: 9px 11px;
       border-radius: 8px;
+      .lock-banner {
+        max-width: 1200px;
+        margin: 10px auto 0;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid #fda4af;
+        background: #fff1f2;
+        color: #9f1239;
+        font-size: 0.86rem;
+        font-weight: 700;
+        display: none;
+      }
+
+      .lock-banner.show {
+        display: block;
+      }
       font-size: 0.85rem;
       display: none;
     }
@@ -212,6 +228,7 @@
     .status-ok { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
     .status-err { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
 
+      <div id="rateLockBanner" class="lock-banner"></div>
     @media (max-width: 1080px) {
       .filters { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
       .actions { grid-column: span 3; }
@@ -455,6 +472,14 @@
       box.className = `status-box show ${isError ? 'status-err' : 'status-ok'}`;
     }
 
+      function formatTimeHHMMSS(epochSeconds) {
+        const d = new Date(epochSeconds * 1000);
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        const ss = String(d.getSeconds()).padStart(2, '0');
+        return `${hh}:${mm}:${ss}`;
+      }
+
     function getRetryMessageFromResponse(resp) {
       if (!resp || !resp.headers) return null;
       const retryAfter = Number(resp.headers.get('retry-after'));
@@ -489,6 +514,7 @@
       const searchBtn = document.getElementById('btnSearch');
       const prevBtn = document.getElementById('btnPrev');
       const nextBtn = document.getElementById('btnNext');
+        const lockBanner = document.getElementById('rateLockBanner');
       const { limitNum, remainingNum, resetEpoch } = rateLimitState;
       const nowEpoch = Math.floor(Date.now() / 1000);
 
@@ -529,6 +555,18 @@
       if (nextBtn) {
         nextBtn.disabled = isBlocked;
       }
+
+        if (lockBanner) {
+          if (isBlocked && Number.isFinite(resetEpoch) && resetEpoch > 0) {
+            const resetAt = formatTimeHHMMSS(resetEpoch);
+            const secs = Math.max(0, resetEpoch - nowEpoch);
+            lockBanner.textContent = `API verrouillee jusqu'a ${resetAt} (~${secs}s)`;
+            lockBanner.className = 'lock-banner show';
+          } else {
+            lockBanner.textContent = '';
+            lockBanner.className = 'lock-banner';
+          }
+        }
     }
 
     function updateRateLimitMetaFromResponse(resp) {
