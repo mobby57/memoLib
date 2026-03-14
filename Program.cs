@@ -201,6 +201,13 @@ builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<VaultService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSignalR();
+
+// Avertissement si EmailMonitor n'est pas configuré
+var emailUsername = builder.Configuration["EmailMonitor:Username"];
+if (string.IsNullOrWhiteSpace(emailUsername))
+{
+    Console.WriteLine("⚠️  EmailMonitor:Username non configuré. Le monitoring email sera inactif. Exécutez configure-secrets.ps1.");
+}
 builder.Services.AddHostedService<EmailMonitorService>();
 builder.Services.AddHostedService<ConnectionMonitorService>();
 
