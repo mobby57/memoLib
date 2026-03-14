@@ -240,7 +240,9 @@ builder.Services.AddDbContext<MemoLibDbContext>(options =>
 var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? new[] { "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5078" };
 
-if (builder.Environment.IsProduction())
+var allowTunnelOrigins = builder.Configuration.GetValue<bool>("Cors:AllowTunnelOrigins");
+
+if (builder.Environment.IsProduction() && !allowTunnelOrigins)
 {
     corsOrigins = corsOrigins
         .Where(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri)
@@ -261,14 +263,25 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
     {
-        policy.WithOrigins(corsOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        if (allowTunnelOrigins || builder.Environment.IsDevelopment())
+        {
+            policy.SetIsOriginAllowed(_ => true)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
+        else
+        {
+            policy.WithOrigins(corsOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        }
     });
 });
 
-// Health checks
-builder.Services.AddHealthChecks();
+// Health checks with DB verification
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<MemoLibDbContext>("database", tags: new[] { "ready" });
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {

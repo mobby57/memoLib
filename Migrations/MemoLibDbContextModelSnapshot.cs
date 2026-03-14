@@ -15,7 +15,7 @@ namespace MemoLib.Api.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
 
             modelBuilder.Entity("MemoLib.Api.Models.AdvancedTemplate", b =>
                 {
@@ -500,6 +500,9 @@ namespace MemoLib.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("CaseId")
                         .HasColumnType("TEXT");
 
@@ -510,20 +513,19 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsPrivate")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Mentions")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<string>("Visibility")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
 
                     b.HasIndex("CaseId", "CreatedAt");
 
@@ -2520,6 +2522,25 @@ namespace MemoLib.Api.Migrations
                         .HasForeignKey("CaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseNote", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Case");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Event", b =>

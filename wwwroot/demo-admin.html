@@ -3,624 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MemoLib - Démo ADMIN (Avocat Senior)</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
-        .header .role-badge { background: #4a90e2; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; display: inline-block; margin-top: 10px; }
-        .card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
-        .card h2 { color: #667eea; margin-bottom: 15px; }
-        .btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 5px; transition: all 0.3s ease; }
-        .btn:hover { transform: translateY(-2px); }
-        .btn.urgent { background: linear-gradient(45deg, #e74c3c, #c0392b); animation: pulse 2s infinite; }
-        .btn.success { background: linear-gradient(45deg, #27ae60, #2ecc71); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); } 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); } }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
-        .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-box .number { font-size: 2.5em; font-weight: bold; }
-        .stat-box .label { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
-        .result { background: #f8f9fa; border-left: 4px solid #667eea; padding: 15px; margin-top: 15px; border-radius: 5px; }
-        .success { border-left-color: #27ae60; background: #d4edda; }
-        .error { border-left-color: #e74c3c; background: #f8d7da; }
-        .warning { border-left-color: #f39c12; background: #fff3cd; }
-        .urgent { border-left-color: #e74c3c; background: #f8d7da; animation: blink 1s infinite; }
-        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.7; } }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
-        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { padding: 10px 20px; background: #ecf0f1; border: none; border-radius: 5px; cursor: pointer; }
-        .tab.active { background: #667eea; color: white; }
-        .hidden { display: none; }
-        .case-item { cursor: pointer; transition: background 0.2s; padding: 10px; border-radius: 5px; }
-        .case-item:hover { background: #f0f0f0; }
-        .deadline-alert { background: #e74c3c; color: white; padding: 10px; border-radius: 5px; margin: 10px 0; animation: pulse 2s infinite; }
-    </style>
+    <title>MemoLib - Espace Avocat Senior</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>⚖️ MemoLib - Gestion Opérationnelle</h1>
-            <div class="role-badge">ADMIN - Avocat Senior</div>
-            <p>Gestion des dossiers, clients et supervision équipe</p>
-        </div>
+        <header class="header">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h1>⚖️ MemoLib — Avocat Senior</h1>
+                    <p>Gestion complète de vos dossiers et clients</p>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <span id="userDisplay" style="font-weight:600;color:var(--primary);"></span>
+                    <a href="demo.html" class="btn btn-secondary" style="text-decoration:none;">← Accueil</a>
+                    <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
+                </div>
+            </div>
+        </header>
 
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('cases')">📁 Mes Dossiers</button>
+        <!-- Navigation -->
+        <nav style="display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:var(--space-xl);">
+            <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="showTab('emails')">📧 Emails</button>
+            <button class="tab" onclick="showTab('cases')">📁 Dossiers</button>
             <button class="tab" onclick="showTab('clients')">👤 Clients</button>
-            <button class="tab" onclick="showTab('deadlines')">⏰ Délais</button>
-            <button class="tab" onclick="showTab('templates')">📝 Templates</button>
-            <button class="tab" onclick="showTab('supervision')">👥 Supervision</button>
-        </div>
+            <button class="tab" onclick="showTab('search')">🔍 Recherche</button>
+            <button class="tab" onclick="showTab('alerts')">⚠️ Alertes</button>
+        </nav>
 
-        <!-- Cases Tab -->
-        <div id="cases-tab" class="tab-content">
-            <div class="card">
-                <h2>Gestion des Dossiers</h2>
-                <div class="input-group">
-                    <label>Titre du dossier</label>
-                    <input type="text" id="case-title" placeholder="Divorce Mme Martin">
-                </div>
-                <div class="input-group">
-                    <label>Type de dossier</label>
-                    <select id="case-type">
-                        <option value="divorce">Droit de la famille - Divorce</option>
-                        <option value="commercial">Droit commercial</option>
-                        <option value="penal">Droit pénal</option>
-                        <option value="travail">Droit du travail</option>
-                        <option value="immobilier">Droit immobilier</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Priorité</label>
-                    <select id="case-priority">
-                        <option value="1">1 - Normale</option>
-                        <option value="3">3 - Importante</option>
-                        <option value="5">5 - Urgente</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Client (email)</label>
-                    <input type="email" id="case-client" placeholder="client@example.com">
-                </div>
-                <button class="btn" onclick="createCase()">➕ Créer Dossier</button>
-                <button class="btn" onclick="loadMyCases()">📁 Mes Dossiers</button>
-                <button class="btn urgent" onclick="loadUrgentCases()">🚨 Urgents</button>
-                <button class="btn success" onclick="updateCaseStatus()">✅ Changer Statut</button>
-                <button class="btn" onclick="assignCaseToTeam()">👥 Assigner</button>
-                <button class="btn" onclick="addCaseTags()">🏷️ Tags</button>
-                <button class="btn" onclick="setCasePriority()">⚡ Priorité</button>
-                <button class="btn" onclick="setCaseDeadline()">⏰ Délai</button>
-                <button class="btn" onclick="exportCaseReport()">📄 Exporter</button>
-                <button class="btn" onclick="mergeDuplicateCases()">🔀 Fusionner</button>
-                <div id="cases-result"></div>
+        <!-- Dashboard -->
+        <div id="dashboard-tab" class="tab-content">
+            <div class="stats">
+                <div class="stat-box"><div class="number" id="sCases">-</div><div class="label">Dossiers</div></div>
+                <div class="stat-box stat-box-success"><div class="number" id="sClients">-</div><div class="label">Clients</div></div>
+                <div class="stat-box stat-box-info"><div class="number" id="sEmails">-</div><div class="label">Emails</div></div>
+                <div class="stat-box stat-box-warning"><div class="number" id="sAnomalies">-</div><div class="label">Anomalies</div></div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="card"><h2>📨 Emails Récents</h2><div id="recentEmails">Chargement...</div></div>
+                <div class="card"><h2>📁 Derniers Dossiers</h2><div id="recentCases">Chargement...</div></div>
             </div>
         </div>
 
-        <!-- Clients Tab -->
+        <!-- Emails -->
+        <div id="emails-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>📧 Scanner les Emails</h2>
+                <p style="color:var(--text-secondary);margin-bottom:1rem;">Scannez votre boîte Gmail pour importer les nouveaux emails clients.</p>
+                <button class="btn" onclick="scanEmails()">🔄 Scanner maintenant</button>
+                <div id="scanResult" style="margin-top:1rem;"></div>
+            </div>
+            <div class="card">
+                <h2>✉️ Envoyer un Email</h2>
+                <div class="input-group"><label>Destinataire</label><input type="email" id="sendTo" placeholder="client@example.com"></div>
+                <div class="input-group"><label>Sujet</label><input type="text" id="sendSubject" placeholder="Objet du message"></div>
+                <div class="input-group"><label>Message</label><textarea id="sendBody" rows="5" placeholder="Votre message..."></textarea></div>
+                <button class="btn btn-success" onclick="sendEmail()">📤 Envoyer</button>
+                <div id="sendResult" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Dossiers -->
+        <div id="cases-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>📁 Mes Dossiers</h2>
+                <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+                    <button class="btn" onclick="loadCases()">Actualiser</button>
+                    <button class="btn btn-success" onclick="createCase()">➕ Nouveau dossier</button>
+                </div>
+                <div id="casesResult"></div>
+            </div>
+        </div>
+
+        <!-- Clients -->
         <div id="clients-tab" class="tab-content hidden">
             <div class="card">
-                <h2>Gestion Clients</h2>
-                <div class="input-group">
-                    <label>Nom complet</label>
-                    <input type="text" id="client-name" placeholder="Sophie Martin">
+                <h2>👤 Gestion Clients</h2>
+                <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+                    <button class="btn" onclick="loadClients()">Actualiser</button>
                 </div>
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="client-email" placeholder="sophie.martin@example.com">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                    <div class="input-group"><label>Nom</label><input type="text" id="clName" placeholder="Nom du client"></div>
+                    <div class="input-group"><label>Email</label><input type="email" id="clEmail" placeholder="client@example.com"></div>
+                    <div class="input-group"><label>Téléphone</label><input type="text" id="clPhone" placeholder="+33 6 00 00 00 00"></div>
+                    <div class="input-group"><label>Adresse</label><input type="text" id="clAddr" placeholder="Adresse"></div>
                 </div>
-                <div class="input-group">
-                    <label>Téléphone</label>
-                    <input type="tel" id="client-phone" placeholder="+33 6 12 34 56 78">
-                </div>
-                <div class="input-group">
-                    <label>Adresse</label>
-                    <textarea id="client-address" rows="3" placeholder="12 rue de la Paix, 75001 Paris"></textarea>
-                </div>
-                <button class="btn" onclick="createClient()">➕ Créer Client</button>
-                <button class="btn" onclick="loadMyClients()">👥 Mes Clients</button>
-                <button class="btn" onclick="searchClients()">🔍 Rechercher</button>
-                <button class="btn" onclick="viewClientHistory()">📊 Historique</button>
-                <button class="btn" onclick="sendClientEmail()">📧 Envoyer Email</button>
-                <button class="btn" onclick="scheduleClientMeeting()">📅 RDV</button>
-                <button class="btn" onclick="generateClientReport()">📄 Rapport</button>
-                <button class="btn" onclick="exportClientData()">💾 Export</button>
-                <button class="btn" onclick="mergeClientDuplicates()">🔀 Fusionner</button>
-                <div id="clients-result"></div>
+                <button class="btn btn-success" onclick="createClient()">➕ Créer client</button>
+                <div id="clientsResult" style="margin-top:1rem;"></div>
             </div>
         </div>
 
-        <!-- Deadlines Tab -->
-        <div id="deadlines-tab" class="tab-content hidden">
+        <!-- Recherche -->
+        <div id="search-tab" class="tab-content hidden">
             <div class="card">
-                <h2>Gestion des Délais</h2>
-                <button class="btn urgent" onclick="loadCriticalDeadlines()">🚨 Délais Critiques</button>
-                <button class="btn" onclick="loadUpcomingDeadlines()">📅 Prochains Délais</button>
-                <button class="btn" onclick="addDeadline()">➕ Ajouter Délai</button>
-                <div id="deadlines-result"></div>
+                <h2>🔍 Recherche Intelligente</h2>
+                <div class="input-group"><label>Mots-clés</label><input type="text" id="searchText" placeholder="Rechercher un email, client, dossier..."></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn" onclick="searchEvents()">🔍 Rechercher</button>
+                    <button class="btn btn-success" onclick="searchAll()">📧 Tous les emails</button>
+                    <button class="btn btn-warning" onclick="semanticSearch()">🧠 Recherche IA</button>
+                </div>
+                <div id="searchResult" style="margin-top:1rem;"></div>
             </div>
         </div>
 
-        <!-- Templates Tab -->
-        <div id="templates-tab" class="tab-content hidden">
+        <!-- Alertes -->
+        <div id="alerts-tab" class="tab-content hidden">
             <div class="card">
-                <h2>Templates d'Emails</h2>
-                <div class="input-group">
-                    <label>Nom du template</label>
-                    <input type="text" id="template-name" placeholder="Première consultation">
-                </div>
-                <div class="input-group">
-                    <label>Sujet</label>
-                    <input type="text" id="template-subject" placeholder="Confirmation de votre rendez-vous">
-                </div>
-                <div class="input-group">
-                    <label>Corps du message</label>
-                    <textarea id="template-body" rows="8" placeholder="Madame, Monsieur,
-
-Suite à votre demande, je vous confirme notre rendez-vous le [DATE] à [HEURE].
-
-Merci de bien vouloir apporter les documents suivants :
-- Pièce d'identité
-- [DOCUMENTS_SPECIFIQUES]
-
-Cordialement,
-[SIGNATURE]"></textarea>
-                </div>
-                <button class="btn" onclick="saveTemplate()">Sauvegarder Template</button>
-                <button class="btn" onclick="loadTemplates()">Mes Templates</button>
-                <div id="templates-result"></div>
-            </div>
-        </div>
-
-        <!-- Supervision Tab -->
-        <div id="supervision-tab" class="tab-content hidden">
-            <div class="card">
-                <h2>Supervision Équipe</h2>
-                <button class="btn" onclick="loadTeamPerformance()">Performance Équipe</button>
-                <button class="btn" onclick="loadWorkload()">Charge de Travail</button>
-                <button class="btn" onclick="assignCase()">Assigner Dossier</button>
-                <div id="supervision-result"></div>
+                <h2>⚠️ Alertes & Anomalies</h2>
+                <button class="btn" onclick="loadAlerts()">Charger les alertes</button>
+                <div id="alertsResult" style="margin-top:1rem;"></div>
             </div>
         </div>
     </div>
 
     <script>
-    const API_BASE = window.location.origin;
+        const API = window.location.origin;
+        let token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        if (!token) { window.location.href = 'demo.html'; }
+        document.getElementById('userDisplay').textContent = localStorage.getItem('memolibUserEmail') || '';
 
-        const API_URL = 'http://localhost:5078';
-        let token = localStorage.getItem('authToken');
+        function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = 'demo.html'; }
+        function show(id, msg, ok=true) { document.getElementById(id).innerHTML = `<div class="result ${ok?'success':'error'}">${msg}</div>`; }
 
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-
-            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
-            event.target.classList.add('active');
+        async function api(path, opts = {}) {
+            opts.headers = { ...opts.headers, 'Authorization': `Bearer ${token}` };
+            return fetch(`${API}${path}`, opts);
         }
 
-        function showResult(elementId, message, isSuccess = true) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                const className = isSuccess ? 'success' : 'error';
-                element.innerHTML = `<div class="result ${className}">${message}</div>`;
-            }
+        function showTab(name) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const tab = document.getElementById(`${name}-tab`);
+            if (tab) tab.classList.remove('hidden');
+            const btn = document.querySelector(`[onclick="showTab('${name}')"]`);
+            if (btn) btn.classList.add('active');
         }
 
-        async function readResponseDataSafe(response) {
-            const text = await response.text();
-            if (!text || !text.trim()) {
-                return null;
-            }
-
+        async function loadDashboard() {
             try {
-                return JSON.parse(text);
-            } catch {
-                return null;
-            }
+                const res = await api('/api/dashboard/overview');
+                if (!res.ok) return;
+                const d = await res.json();
+                document.getElementById('sCases').textContent = d.stats?.totalCases ?? 0;
+                document.getElementById('sClients').textContent = d.stats?.totalClients ?? 0;
+                document.getElementById('sEmails').textContent = d.stats?.totalEvents ?? 0;
+                document.getElementById('sAnomalies').textContent = d.stats?.eventsWithAnomalies ?? 0;
+
+                let eHtml = '';
+                (d.recentEvents || []).slice(0, 6).forEach(e => {
+                    eHtml += `<div class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon email">📧</div>
+                        <div class="dashboard-activity-content">
+                            <strong>${e.subject || 'Email'}</strong>
+                            <div class="dashboard-activity-subtitle">De: ${e.from || 'N/A'}</div>
+                            <div class="dashboard-activity-time">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('recentEmails').innerHTML = eHtml || '<p style="color:var(--text-secondary)">Aucun email</p>';
+
+                let cHtml = '<div class="event-list" style="max-height:300px;">';
+                (d.cases || []).slice(0, 6).forEach(c => {
+                    cHtml += `<div class="event-item"><strong>${c.title || 'Sans titre'}</strong><div class="date">${new Date(c.createdAt).toLocaleDateString('fr-FR')}</div></div>`;
+                });
+                cHtml += '</div>';
+                document.getElementById('recentCases').innerHTML = cHtml;
+            } catch (err) { console.error(err); }
+        }
+
+        async function scanEmails() {
+            show('scanResult', '⏳ Scan en cours...');
+            try {
+                const res = await api('/api/email-scan/manual?previewLimit=50', { method: 'POST' });
+                const d = await res.json();
+                if (res.ok) {
+                    show('scanResult', `✅ Scan terminé — ${d.totalEmails ?? 0} emails, ${d.ingested ?? 0} ingérés, ${d.duplicates ?? 0} doublons`);
+                } else { show('scanResult', `❌ ${d.message || 'Erreur'}`, false); }
+            } catch (err) { show('scanResult', `❌ ${err.message}`, false); }
+        }
+
+        async function sendEmail() {
+            const to = document.getElementById('sendTo').value;
+            const subject = document.getElementById('sendSubject').value;
+            const body = document.getElementById('sendBody').value;
+            if (!to || !subject) return show('sendResult', '❌ Destinataire et sujet requis', false);
+            try {
+                const res = await api('/api/SecureEmail/send', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, subject, body })
+                });
+                if (res.ok) show('sendResult', `✅ Email envoyé à ${to}`);
+                else { const d = await res.json().catch(()=>({})); show('sendResult', `❌ ${d.message || 'Erreur'}`, false); }
+            } catch (err) { show('sendResult', `❌ ${err.message}`, false); }
+        }
+
+        async function loadCases() {
+            try {
+                const res = await api('/api/cases');
+                const data = await res.json();
+                if (!res.ok) return show('casesResult', '❌ Erreur', false);
+                let html = `<div class="result success">✅ ${data.length} dossier(s)</div><div class="event-list">`;
+                data.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(c => {
+                    html += `<div class="event-item"><strong>${c.title || 'Sans titre'}</strong><div class="date">Statut: ${c.status || 'OPEN'} — ${new Date(c.createdAt).toLocaleDateString('fr-FR')}</div></div>`;
+                });
+                html += '</div>';
+                document.getElementById('casesResult').innerHTML = html;
+            } catch (err) { show('casesResult', `❌ ${err.message}`, false); }
         }
 
         async function createCase() {
-            if (!token) return showResult('cases-result', '❌ Connectez-vous d\'abord', false);
-
-            const caseData = {
-                title: document.getElementById('case-title').value,
-                type: document.getElementById('case-type').value,
-                priority: parseInt(document.getElementById('case-priority').value),
-                clientEmail: document.getElementById('case-client').value
-            };
-
+            const title = prompt('Titre du dossier:');
+            if (!title) return;
             try {
-                const res = await fetch(`${API_URL}/api/cases`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(caseData)
-                });
-
-                if (res.ok) {
-                    const data = await readResponseDataSafe(res);
-                    const payload = data || {};
-                    showResult('cases-result', `✅ Dossier créé avec succès: ${payload.id || 'N/A'}<br>📋 Titre: ${caseData.title}<br>⚡ Priorité: ${caseData.priority}/5`);
-
-                    // Auto-calculate legal deadlines
-                    if (caseData.type === 'divorce') {
-                        showResult('cases-result', `✅ Dossier créé: ${payload.id || 'N/A'}<br>⏰ Délais automatiques calculés:<br>• Réponse requête: J+30<br>• Audience: J+60`, true);
-                    }
-                } else {
-                    showResult('cases-result', '❌ Erreur création dossier', false);
-                }
-            } catch (err) {
-                showResult('cases-result', `❌ Erreur: ${err.message}`, false);
-            }
+                const res = await api('/api/cases', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title }) });
+                if (res.ok) { show('casesResult', `✅ Dossier "${title}" créé`); loadCases(); }
+                else { const d = await res.json().catch(()=>({})); show('casesResult', `❌ ${d.message || 'Erreur'}`, false); }
+            } catch (err) { show('casesResult', `❌ ${err.message}`, false); }
         }
 
-        async function loadMyCases() {
-            if (!token) return showResult('cases-result', '❌ Connectez-vous d\'abord', false);
-
+        async function loadClients() {
             try {
-                const res = await fetch(`${API_URL}/api/cases`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const res = await api('/api/client');
+                const data = await res.json();
+                if (!res.ok) return show('clientsResult', '❌ Erreur', false);
+                let html = `<div class="result success">✅ ${data.length} client(s)</div><div class="event-list">`;
+                data.forEach(c => {
+                    html += `<div class="event-item"><strong>${c.name}</strong><div class="date">📧 ${c.email} — 📞 ${c.phoneNumber || 'N/A'}</div><div class="content">🏠 ${c.address || 'N/A'}</div></div>`;
                 });
-                const data = await readResponseDataSafe(res);
-
-                if (res.ok) {
-                    const cases = Array.isArray(data) ? data : [];
-                    let html = '<div class="result success">📁 Mes Dossiers Actifs</div>';
-                    html += '<div class="stats">';
-                    html += `<div class="stat-box"><div class="number">${cases.length}</div><div class="label">Dossiers Total</div></div>`;
-                    html += `<div class="stat-box"><div class="number">${cases.filter(c => c.priority >= 4).length}</div><div class="label">Urgents</div></div>`;
-                    html += `<div class="stat-box"><div class="number">${cases.filter(c => c.status === 'IN_PROGRESS').length}</div><div class="label">En Cours</div></div>`;
-                    html += '</div>';
-
-                    cases.forEach(caseItem => {
-                        const priorityClass = caseItem.priority >= 4 ? 'urgent' : 'result';
-                        const priorityIcon = caseItem.priority >= 4 ? '🚨' : '📁';
-                        html += `<div class="${priorityClass} case-item" onclick="openCase('${caseItem.id}')">
-                            ${priorityIcon} <strong>${caseItem.title}</strong><br>
-                            📊 Priorité: ${caseItem.priority}/5 | 📅 Créé: ${new Date(caseItem.createdAt).toLocaleDateString('fr-FR')}<br>
-                            👤 Client: ${caseItem.clientId || 'Non assigné'}
-                        </div>`;
-                    });
-
-                    document.getElementById('cases-result').innerHTML = html;
-                } else {
-                    showResult('cases-result', '❌ Erreur chargement dossiers', false);
-                }
-            } catch (err) {
-                showResult('cases-result', `❌ Erreur: ${err.message}`, false);
-            }
-        }
-
-        async function loadUrgentCases() {
-            if (!token) return showResult('cases-result', '❌ Connectez-vous d\'abord', false);
-
-            try {
-                const res = await fetch(`${API_URL}/api/cases?priority=urgent`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await readResponseDataSafe(res);
-
-                if (res.ok) {
-                    const cases = Array.isArray(data) ? data : [];
-                    const urgentCases = cases.filter(c => c.priority >= 4);
-                    let html = '<div class="deadline-alert">🚨 DOSSIERS URGENTS - ACTION IMMÉDIATE REQUISE</div>';
-
-                    if (urgentCases.length === 0) {
-                        html += '<div class="result success">✅ Aucun dossier urgent actuellement</div>';
-                    } else {
-                        urgentCases.forEach(caseItem => {
-                            html += `<div class="urgent case-item" onclick="openCase('${caseItem.id}')">
-                                🚨 <strong>${caseItem.title}</strong><br>
-                                ⚡ PRIORITÉ MAXIMALE (${caseItem.priority}/5)<br>
-                                📅 Créé: ${new Date(caseItem.createdAt).toLocaleDateString('fr-FR')}<br>
-                                👤 Client: ${caseItem.clientId || 'Non assigné'}<br>
-                                <button class="btn urgent" onclick="event.stopPropagation(); handleUrgentCase('${caseItem.id}')">TRAITER MAINTENANT</button>
-                            </div>`;
-                        });
-                    }
-
-                    document.getElementById('cases-result').innerHTML = html;
-                } else {
-                    showResult('cases-result', '❌ Erreur chargement dossiers urgents', false);
-                }
-            } catch (err) {
-                showResult('cases-result', `❌ Erreur: ${err.message}`, false);
-            }
+                html += '</div>';
+                document.getElementById('clientsResult').innerHTML = html;
+            } catch (err) { show('clientsResult', `❌ ${err.message}`, false); }
         }
 
         async function createClient() {
-            if (!token) return showResult('clients-result', '❌ Connectez-vous d\'abord', false);
-
-            const clientData = {
-                name: document.getElementById('client-name').value,
-                email: document.getElementById('client-email').value,
-                phoneNumber: document.getElementById('client-phone').value,
-                address: document.getElementById('client-address').value
-            };
-
+            const name = document.getElementById('clName').value;
+            const email = document.getElementById('clEmail').value;
+            const phoneNumber = document.getElementById('clPhone').value || null;
+            const address = document.getElementById('clAddr').value || null;
+            if (!name || !email) return show('clientsResult', '❌ Nom et email requis', false);
             try {
-                const res = await fetch(`${API_URL}/api/client`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(clientData)
-                });
-
-                if (res.ok) {
-                    const data = await readResponseDataSafe(res);
-                    const payload = data || {};
-                    showResult('clients-result', `✅ Client créé: ${payload.name || 'N/A'}<br>📧 ${payload.email || 'N/A'}<br>🆔 ID: ${payload.id || 'N/A'}`);
-                } else {
-                    showResult('clients-result', '❌ Erreur création client', false);
-                }
-            } catch (err) {
-                showResult('clients-result', `❌ Erreur: ${err.message}`, false);
-            }
+                const res = await api('/api/client', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, phoneNumber, address }) });
+                if (res.ok) { show('clientsResult', `✅ Client "${name}" créé`); loadClients(); }
+                else { const d = await res.json().catch(()=>({})); show('clientsResult', `❌ ${d.message || 'Erreur'}`, false); }
+            } catch (err) { show('clientsResult', `❌ ${err.message}`, false); }
         }
 
-        async function loadMyClients() {
-            if (!token) return showResult('clients-result', '❌ Connectez-vous d\'abord', false);
-
+        async function searchEvents() {
+            const text = document.getElementById('searchText').value;
             try {
-                const res = await fetch(`${API_URL}/api/client`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await readResponseDataSafe(res);
+                const res = await api('/api/search/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, limit: 50 }) });
+                const data = await res.json();
+                if (!res.ok || !Array.isArray(data)) return show('searchResult', '❌ Erreur', false);
+                renderSearchResults(data, 'trouvé(s)');
+            } catch (err) { show('searchResult', `❌ ${err.message}`, false); }
+        }
 
-                if (res.ok) {
-                    const clients = Array.isArray(data) ? data : [];
-                    let html = '<div class="result success">👤 Mes Clients</div>';
-                    clients.forEach(client => {
-                        html += `<div class="result case-item" onclick="openClientDetail('${client.id}')">
-                            <strong>${client.name}</strong><br>
-                            📧 ${client.email}<br>
-                            📞 ${client.phoneNumber || 'Non renseigné'}<br>
-                            🏠 ${client.address || 'Non renseignée'}
-                        </div>`;
+        async function searchAll() {
+            try {
+                const res = await api('/api/search/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: '', returnAll: true }) });
+                const data = await res.json();
+                if (Array.isArray(data)) renderSearchResults(data, 'au total');
+            } catch (err) { show('searchResult', `❌ ${err.message}`, false); }
+        }
+
+        async function semanticSearch() {
+            const query = document.getElementById('searchText').value;
+            if (!query) return show('searchResult', '❌ Entrez un texte', false);
+            try {
+                const res = await api('/api/semantic/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query }) });
+                const data = await res.json();
+                if (res.ok && Array.isArray(data)) {
+                    let html = `<div class="result success">✅ ${data.length} résultat(s) IA</div><div class="event-list">`;
+                    data.forEach(e => {
+                        const pct = ((e.similarity || 0) * 100).toFixed(1);
+                        html += `<div class="event-item"><div class="date">Pertinence: ${pct}%</div><div class="content">${(e.textForEmbedding || e.text || '').substring(0, 300)}</div></div>`;
                     });
-                    document.getElementById('clients-result').innerHTML = html;
-                } else {
-                    showResult('clients-result', '❌ Erreur chargement clients', false);
+                    html += '</div>';
+                    document.getElementById('searchResult').innerHTML = html;
                 }
-            } catch (err) {
-                showResult('clients-result', `❌ Erreur: ${err.message}`, false);
-            }
+            } catch (err) { show('searchResult', `❌ ${err.message}`, false); }
         }
 
-        async function loadCriticalDeadlines() {
-            if (!token) return showResult('deadlines-result', '❌ Connectez-vous d\'abord', false);
-
-            // Simulation des délais critiques
-            let html = '<div class="deadline-alert">🚨 DÉLAIS CRITIQUES - ATTENTION IMMÉDIATE</div>';
-            html += '<div class="urgent">⏰ <strong>Appel Tribunal Paris</strong><br>📅 Échéance: Demain (J-1)<br>📋 Dossier: Divorce Martin<br>⚖️ Fondement: Art. 538 CPC</div>';
-            html += '<div class="warning">⚠️ <strong>Réponse conclusions adverses</strong><br>📅 Échéance: Dans 3 jours<br>📋 Dossier: Litige commercial Dupont</div>';
-            html += '<div class="result">📅 <strong>Dépôt mémoire</strong><br>📅 Échéance: Dans 7 jours<br>📋 Dossier: Recours administratif</div>';
-
-            document.getElementById('deadlines-result').innerHTML = html;
-        }
-
-        async function loadUpcomingDeadlines() {
-            if (!token) return showResult('deadlines-result', '❌ Connectez-vous d\'abord', false);
-
-            let html = '<div class="result success">📅 Prochains Délais (30 jours)</div>';
-            html += '<div class="result">📋 <strong>Audience de conciliation</strong><br>📅 Dans 15 jours<br>👤 Client: Sophie Martin</div>';
-            html += '<div class="result">📋 <strong>Remise de conclusions</strong><br>📅 Dans 20 jours<br>👤 Client: Pierre Dubois</div>';
-            html += '<div class="result">📋 <strong>Expertise judiciaire</strong><br>📅 Dans 25 jours<br>👤 Client: Marie Lefebvre</div>';
-
-            document.getElementById('deadlines-result').innerHTML = html;
-        }
-
-        async function saveTemplate() {
-            if (!token) return showResult('templates-result', '❌ Connectez-vous d\'abord', false);
-
-            const templateData = {
-                name: document.getElementById('template-name').value,
-                subject: document.getElementById('template-subject').value,
-                body: document.getElementById('template-body').value
-            };
-
-            try {
-                const res = await fetch(`${API_URL}/api/templates`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify(templateData)
-                });
-
-                if (res.ok) {
-                    showResult('templates-result', `✅ Template "${templateData.name}" sauvegardé`);
-                } else {
-                    showResult('templates-result', '❌ Erreur sauvegarde template', false);
-                }
-            } catch (err) {
-                showResult('templates-result', `❌ Erreur: ${err.message}`, false);
-            }
-        }
-
-        async function loadTeamPerformance() {
-            if (!token) return showResult('supervision-result', '❌ Connectez-vous d\'abord', false);
-
-            let html = '<div class="result success">👥 Performance de l\'Équipe</div>';
-            html += '<div class="stats">';
-            html += '<div class="stat-box"><div class="number">92%</div><div class="label">Délais Respectés</div></div>';
-            html += '<div class="stat-box"><div class="number">4.8</div><div class="label">Satisfaction Client</div></div>';
-            html += '<div class="stat-box"><div class="number">15</div><div class="label">Dossiers/Mois</div></div>';
+        function renderSearchResults(data, label) {
+            let html = `<div class="result success">✅ ${data.length} email(s) ${label}</div><div class="event-list">`;
+            data.forEach(e => {
+                let p = {};
+                try { p = JSON.parse(e.rawPayload || '{}'); } catch {}
+                html += `<div class="event-item">
+                    <div class="date">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                    <strong>${p.subject || p.Subject || 'N/A'}</strong>
+                    <div class="content">De: ${p.from || p.From || 'N/A'}</div>
+                </div>`;
+            });
             html += '</div>';
-
-            html += '<div class="result">👤 <strong>Marie Dupont (Collaboratrice)</strong><br>📊 Performance: 95% | 📁 12 dossiers actifs | ⏰ Délais: 100%</div>';
-            html += '<div class="result">👤 <strong>Jean Martin (Stagiaire)</strong><br>📊 Performance: 85% | 📁 8 dossiers actifs | ⏰ Délais: 90%</div>';
-
-            document.getElementById('supervision-result').innerHTML = html;
+            document.getElementById('searchResult').innerHTML = html;
         }
 
-        function openCase(caseId) {
-            alert(`Ouverture du dossier ${caseId}\n\nFonctionnalités disponibles:\n• Timeline complète\n• Documents attachés\n• Délais automatiques\n• Communication client\n• Facturation`);
-        }
-
-        function handleUrgentCase(caseId) {
-            alert(`🚨 TRAITEMENT URGENT - Dossier ${caseId}\n\nActions immédiates:\n• Notification équipe\n• Blocage agenda\n• Alerte client\n• Escalade si nécessaire`);
-        }
-
-        function openClientDetail(clientId) {
-            alert(`Ouverture fiche client ${clientId}\n\nInformations disponibles:\n• Coordonnées complètes\n• Historique dossiers\n• Communications\n• Facturation`);
-        }
-
-        // Auto-load cases on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            if (token) {
-                loadMyCases();
-            } else {
-                showResult('cases-result', '❌ Connectez-vous d\'abord pour accéder à vos dossiers', false);
-            }
-        });
-
-        // Nouvelles fonctions dossiers
-        async function updateCaseStatus() {
-            const caseId = prompt('ID du dossier:');
-            const status = prompt('Nouveau statut (OPEN/IN_PROGRESS/CLOSED):');
-            if (!caseId || !status) return;
-            
+        async function loadAlerts() {
             try {
-                const res = await fetch(`${API_URL}/api/cases/${caseId}/status`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ status })
+                const res = await api('/api/alerts/requires-attention');
+                const data = await res.json();
+                if (!res.ok) return show('alertsResult', '❌ Erreur', false);
+                if ((data.count || 0) === 0) return show('alertsResult', '✅ Aucune anomalie à traiter');
+                let html = `<div class="result" style="border-color:var(--warning);background:#fff3cd;color:#92400e;">⚠️ ${data.count} email(s) nécessitent attention</div><div class="event-list">`;
+                (data.events || []).forEach(e => {
+                    let p = {};
+                    try { p = JSON.parse(e.rawPayload || '{}'); } catch {}
+                    html += `<div class="event-item" style="border-left-color:var(--warning);">
+                        <div class="date">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                        <strong>De: ${p.from || 'Manquant'}</strong>
+                        <div class="content">Sujet: ${p.subject || 'Manquant'}</div>
+                        <div style="color:var(--warning);margin-top:0.5rem;">⚠️ ${e.validationFlags || 'Anomalie'}</div>
+                    </div>`;
                 });
-                if (res.ok) showResult('cases-result', `✅ Statut mis à jour: ${status}`);
-            } catch (err) {
-                showResult('cases-result', `❌ Erreur: ${err.message}`, false);
-            }
+                html += '</div>';
+                document.getElementById('alertsResult').innerHTML = html;
+            } catch (err) { show('alertsResult', `❌ ${err.message}`, false); }
         }
 
-        async function assignCaseToTeam() {
-            const caseId = prompt('ID du dossier:');
-            const lawyerId = prompt('ID de l\'avocat:');
-            if (!caseId || !lawyerId) return;
-            
-            try {
-                const res = await fetch(`${API_URL}/api/cases/${caseId}/assign`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ lawyerId })
-                });
-                if (res.ok) showResult('cases-result', `✅ Dossier assigné à ${lawyerId}`);
-            } catch (err) {
-                showResult('cases-result', `❌ Erreur: ${err.message}`, false);
-            }
-        }
-
-        async function addCaseTags() {
-            const caseId = prompt('ID du dossier:');
-            const tags = prompt('Tags (séparés par virgule):');
-            if (!caseId || !tags) return;
-            
-            try {
-                const res = await fetch(`${API_URL}/api/cases/${caseId}/tags`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ tags: tags.split(',').map(t => t.trim()) })
-                });
-                if (res.ok) showResult('cases-result', `✅ Tags ajoutés: ${tags}`);
-            } catch (err) {
-                showResult('cases-result', `❌ Erreur: ${err.message}`, false);
-            }
-        }
-
-        async function setCasePriority() {
-            const caseId = prompt('ID du dossier:');
-            const priority = prompt('Priorité (1-5):');
-            if (!caseId || !priority) return;
-            
-            try {
-                const res = await fetch(`${API_URL}/api/cases/${caseId}/priority`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ priority: parseInt(priority) })
-                });
-                if (res.ok) showResult('cases-result', `✅ Priorité mise à jour: ${priority}/5`);
-            } catch (err) {
-                showResult('cases-result', `❌ Erreur: ${err.message}`, false);
-            }
-        }
-
-        async function setCaseDeadline() {
-            const caseId = prompt('ID du dossier:');
-            const deadline = prompt('Date limite (YYYY-MM-DD):');
-            if (!caseId || !deadline) return;
-            showResult('cases-result', `✅ Délai défini: ${deadline} pour dossier ${caseId}`);
-        }
-
-        async function exportCaseReport() {
-            const caseId = prompt('ID du dossier à exporter:');
-            if (!caseId) return;
-            showResult('cases-result', `✅ Rapport exporté pour dossier ${caseId} (PDF généré)`);
-        }
-
-        async function mergeDuplicateCases() {
-            if (!confirm('Fusionner les dossiers en doublon ?')) return;
-            try {
-                const res = await fetch(`${API_URL}/api/cases/merge-duplicates`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await readResponseDataSafe(res);
-                if (res.ok) showResult('cases-result', `✅ ${data.mergedGroups || 0} groupe(s) fusionné(s)`);
-            } catch (err) {
-                showResult('cases-result', `❌ Erreur: ${err.message}`, false);
-            }
-        }
-
-        // Nouvelles fonctions clients
-        function searchClients() {
-            const query = prompt('Rechercher client (nom ou email):');
-            if (!query) return;
-            showResult('clients-result', `🔍 Recherche: "${query}"...`);
-            loadMyClients();
-        }
-
-        function viewClientHistory() {
-            const clientId = prompt('ID du client:');
-            if (!clientId) return;
-            showResult('clients-result', `📊 Historique client ${clientId}:<br>• 3 dossiers traités<br>• 12 emails échangés<br>• Dernier contact: il y a 2 jours`);
-        }
-
-        function sendClientEmail() {
-            const clientEmail = prompt('Email du client:');
-            const subject = prompt('Sujet:');
-            if (!clientEmail || !subject) return;
-            showResult('clients-result', `✅ Email envoyé à ${clientEmail}<br>Sujet: ${subject}`);
-        }
-
-        function scheduleClientMeeting() {
-            const clientName = prompt('Nom du client:');
-            const date = prompt('Date RDV (YYYY-MM-DD):');
-            if (!clientName || !date) return;
-            showResult('clients-result', `✅ RDV programmé avec ${clientName} le ${date}`);
-        }
-
-        function generateClientReport() {
-            const clientId = prompt('ID du client:');
-            if (!clientId) return;
-            showResult('clients-result', `✅ Rapport généré pour client ${clientId} (PDF)`);
-        }
-
-        function exportClientData() {
-            showResult('clients-result', '✅ Export clients en cours... (CSV généré)');
-        }
-
-        function mergeClientDuplicates() {
-            if (!confirm('Fusionner les clients en doublon ?')) return;
-            showResult('clients-result', '✅ 2 doublons fusionnés');
-        }
+        loadDashboard();
     </script>
 </body>
 </html>
