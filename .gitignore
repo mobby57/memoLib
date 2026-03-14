@@ -46,6 +46,12 @@ secrets.json
 logs/
 *.log
 
+## Fichiers temporaires de diagnostic
+.tmp_*.log
+*.tmp_*.log
+memolib.db-shm
+memolib.db-wal
+
 ## Node modules (si frontend séparé)
 node_modules/
 npm-debug.log*
