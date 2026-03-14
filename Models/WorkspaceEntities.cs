@@ -1,17 +1,5 @@
 namespace MemoLib.Api.Models;
 
-public class CaseNote
-{
-    public Guid Id { get; set; }
-    public Guid CaseId { get; set; }
-    public Guid UserId { get; set; }
-    public string Content { get; set; } = string.Empty;
-    public bool IsPrivate { get; set; }
-    public List<string> Mentions { get; set; } = new();
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
-}
-
 public class CaseTask
 {
     public Guid Id { get; set; }

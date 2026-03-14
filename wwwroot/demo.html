@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src *;">
     <title>MemoLib - Système de Gestion Professionnel</title>
     
     <!-- PWA Manifest -->
@@ -82,6 +82,7 @@
 
         <div class="quickbar">
             <button class="btn" id="installBtn">Installer sur PC/Mac</button>
+            <button class="btn" id="logoutBtn" style="background:#c62828;display:none;">🚪 Déconnexion</button>
             <button class="btn" id="stopBtn">Arrêter l'application</button>
             <button class="btn" onclick="openAnomalyCenter()">Centre anomalies</button>
             <button class="btn" onclick="showAdvancedDashboard()" style="background:#28a745;">📊 Dashboard Avancé</button>
@@ -98,19 +99,16 @@
             <span id="accessModeText"></span>
         </div>
 
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('auth')">🔐 Authentification</button>
-            <button class="tab" onclick="showTab('ingest')">📧 Ingestion Email</button>
-            <button id="alertsTabButton" class="tab" onclick="showTab('alerts')">⚠️ Alertes</button>
-            <button class="tab" onclick="showTab('search')">🔍 Recherche Intelligente</button>
-            <button class="tab" onclick="showTab('client')">👤 Clients</button>
-            <button class="tab" onclick="showTab('client-detail')">🧑‍💼 Client détaillé</button>
-            <button class="tab" onclick="showTab('cases')">📁 Gestion Dossiers</button>
-            <button class="tab" onclick="showTab('stats')">📊 Analytics</button>
-            <button class="tab" onclick="showTab('export')">📤 Export</button>
-            <button class="tab" onclick="showTab('audit')">🧾 Audit</button>
-            <button class="tab" onclick="showTab('team')">⚖️ Équipe</button>
-        </div>
+        <nav style="display:flex;flex-wrap:wrap;gap:8px;padding:15px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:10px;box-shadow:0 4px 15px rgba(102,126,234,0.3);">
+            <button class="tab active" onclick="showTab('auth')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.95);color:#667eea;font-weight:600;cursor:pointer;transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.1);">🔐 Auth</button>
+            <button class="tab" onclick="showTab('ingest')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">📧 Emails</button>
+            <button id="alertsTabButton" class="tab" onclick="showTab('alerts')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">⚠️ Alertes</button>
+            <button class="tab" onclick="showTab('search')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">🔍 Recherche</button>
+            <button class="tab" onclick="showTab('client')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">👤 Clients</button>
+            <button class="tab" onclick="showTab('cases')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">📁 Dossiers</button>
+            <button class="tab" onclick="showTab('stats')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">📊 Stats</button>
+            <button class="tab" onclick="showTab('team')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">⚖️ Équipe</button>
+        </nav>
 
         <!-- Auth Tab -->
         <div id="auth-tab" class="tab-content">
@@ -403,9 +401,8 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.min.js">
-    const API_BASE = window.location.origin;
-</script>
+    <script src="/js/signalr.min.js"></script>
+    <script>const API_BASE = window.location.origin;</script>
     <script src="questionnaires.js"></script>
     <script src="advanced-features.js"></script>
     <script src="team-module.js"></script>
@@ -3064,6 +3061,8 @@
             }
         });
 
+        document.getElementById('logoutBtn')?.addEventListener('click', () => logout());
+
         document.getElementById('stopBtn')?.addEventListener('click', async () => {
             try {
                 await stopApplication();
@@ -3096,12 +3095,7 @@
             const loginEmail = document.getElementById('login-email');
             const loginPassword = document.getElementById('login-password');
 
-            if (regEmail && !regEmail.value) regEmail.value = 'sarraboudjellal57@gmail.com';
-            if (regPassword && !regPassword.value) regPassword.value = 'SecurePass123!';
-            if (regName && !regName.value) regName.value = 'Sarra Boudjellal';
             if (regSector && !regSector.value) regSector.value = 'AVOCAT';
-            if (loginEmail && !loginEmail.value) loginEmail.value = 'sarraboudjellal57@gmail.com';
-            if (loginPassword && !loginPassword.value) loginPassword.value = 'SecurePass123!';
         }
 
         function autoConnectDefaultUser() {
@@ -3157,6 +3151,24 @@
             if (display) {
                 display.textContent = email ? `Connecté: ${email}` : '';
             }
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.style.display = email ? 'inline-flex' : 'none';
+            }
+        }
+
+        function logout() {
+            token = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('memolibAuthToken');
+            localStorage.removeItem('memolibUserEmail');
+            sessionStorage.removeItem('authToken');
+            updateCurrentUserDisplay(null);
+            realtimeDashboard = null;
+            templateManager = null;
+            criticalAlerts = null;
+            showResult('login-result', '✅ Déconnecté avec succès.');
+            showTab('auth');
         }
 
         function showResult(elementId, message, isSuccess = true) {
@@ -3174,29 +3186,30 @@
         }
 
         function showTab(tabName) {
-            // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
             });
 
-            // Remove active class from all tab buttons
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
+                tab.style.background = 'rgba(255,255,255,0.2)';
+                tab.style.color = 'white';
+                tab.style.boxShadow = 'none';
             });
 
-            // Show selected tab
             const selectedTab = document.getElementById(`${tabName}-tab`);
             if (selectedTab) {
                 selectedTab.classList.remove('hidden');
             }
 
-            // Add active class to clicked tab button
             const tabButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
             if (tabButton) {
                 tabButton.classList.add('active');
+                tabButton.style.background = 'rgba(255,255,255,0.95)';
+                tabButton.style.color = '#667eea';
+                tabButton.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
             }
 
-            // Load team data when team tab is shown
             if (tabName === 'team' && typeof loadTeamData === 'function') {
                 loadTeamData();
             }
