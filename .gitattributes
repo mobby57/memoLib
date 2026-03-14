@@ -28,6 +28,19 @@
 # Prisma schema
 *.prisma text eol=lf
 
+# C# source files
+*.cs text eol=lf
+*.csproj text eol=lf
+*.sln text eol=lf
+
+# HTML templates
+*.html text eol=lf
+
+# PowerShell scripts
+*.ps1 text eol=lf
+*.psm1 text eol=lf
+*.psd1 text eol=lf
+
 # Lock files (preserve exact format)
 package-lock.json text eol=lf
 pnpm-lock.yaml text eol=lf
