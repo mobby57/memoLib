@@ -65,13 +65,17 @@ public class ClientPortalController : ControllerBase
 
         var timeline = await _context.CaseEvents
             .Where(e => e.CaseId == caseId)
-            .OrderByDescending(e => e.CreatedAt)
+            .Join(_context.Events,
+                ce => ce.EventId,
+                ev => ev.Id,
+                (ce, ev) => ev)
+            .OrderByDescending(e => e.OccurredAt)
             .Select(e => new TimelineEvent
             {
                 Id = e.Id,
-                Type = e.Type,
-                Description = e.Description ?? "",
-                CreatedAt = e.CreatedAt,
+                Type = e.Type ?? "",
+                Description = e.RawPayload ?? "",
+                CreatedAt = e.OccurredAt,
                 VisibleToClient = true
             })
             .ToListAsync();

@@ -32,10 +32,10 @@ public class CaseNotesService
         {
             Id = Guid.NewGuid(),
             CaseId = caseId,
-            UserId = userId,
+            AuthorId = userId,
             Content = content,
-            IsPrivate = isPrivate,
-            Mentions = mentions?.Where(m => !string.IsNullOrWhiteSpace(m)).Distinct(StringComparer.OrdinalIgnoreCase).ToList() ?? new List<string>(),
+            Visibility = isPrivate ? "private" : "team",
+            Mentions = mentions != null ? System.Text.Json.JsonSerializer.Serialize(mentions.Where(m => !string.IsNullOrWhiteSpace(m)).Distinct(StringComparer.OrdinalIgnoreCase).ToList()) : null,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -47,7 +47,7 @@ public class CaseNotesService
     public async Task<CaseNote?> UpdateNoteAsync(Guid caseId, Guid noteId, Guid userId, string content, bool isPrivate, IReadOnlyCollection<string>? mentions)
     {
         var note = await _context.CaseNotes
-            .FirstOrDefaultAsync(n => n.Id == noteId && n.CaseId == caseId && n.UserId == userId);
+            .FirstOrDefaultAsync(n => n.Id == noteId && n.CaseId == caseId && n.AuthorId == userId);
 
         if (note == null)
         {
@@ -55,8 +55,8 @@ public class CaseNotesService
         }
 
         note.Content = content;
-        note.IsPrivate = isPrivate;
-        note.Mentions = mentions?.Where(m => !string.IsNullOrWhiteSpace(m)).Distinct(StringComparer.OrdinalIgnoreCase).ToList() ?? new List<string>();
+        note.Visibility = isPrivate ? "private" : "team";
+        note.Mentions = mentions != null ? System.Text.Json.JsonSerializer.Serialize(mentions.Where(m => !string.IsNullOrWhiteSpace(m)).Distinct(StringComparer.OrdinalIgnoreCase).ToList()) : null;
         note.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
@@ -66,7 +66,7 @@ public class CaseNotesService
     public async Task<bool> DeleteNoteAsync(Guid caseId, Guid noteId, Guid userId)
     {
         var note = await _context.CaseNotes
-            .FirstOrDefaultAsync(n => n.Id == noteId && n.CaseId == caseId && n.UserId == userId);
+            .FirstOrDefaultAsync(n => n.Id == noteId && n.CaseId == caseId && n.AuthorId == userId);
 
         if (note == null)
         {

@@ -85,11 +85,6 @@ public class MemoLibDbContext : DbContext
         modelBuilder.Entity<CaseEvent>()
             .HasKey(ce => new { ce.CaseId, ce.EventId });
 
-        modelBuilder.Entity<CaseNote>()
-            .Property(n => n.Mentions)
-            .HasConversion(stringListConverter)
-            .Metadata.SetValueComparer(stringListComparer);
-
         modelBuilder.Entity<CaseDocument>()
             .Property(d => d.Tags)
             .HasConversion(stringListConverter)

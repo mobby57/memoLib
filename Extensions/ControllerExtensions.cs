@@ -5,6 +5,14 @@ namespace MemoLib.Api.Extensions;
 
 public static class ControllerExtensions
 {
+    public static Guid GetUserId(this ControllerBase controller)
+    {
+        var userIdClaim = controller.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            throw new UnauthorizedAccessException("User ID not found in claims");
+        return userId;
+    }
+
     public static bool TryGetCurrentUserId(this ControllerBase controller, out Guid userId)
     {
         userId = Guid.Empty;
