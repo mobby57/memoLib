@@ -38,6 +38,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "test:advanced": "node scripts/run-advanced-tests.js",
+    "test:vitest": "vitest run --passWithNoTests",
+    "test:vitest:watch": "vitest --ui",
     "test:scenarios": "npx playwright test tests/e2e/advanced-scenarios.spec.ts",
     "test:performance": "npx playwright test tests/performance/load-testing.spec.ts",
     "test:security": "npx playwright test tests/security/security-advanced.spec.ts",
@@ -260,6 +262,7 @@
     "tailwindcss": "^3.4.19",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "undici": "^7.19.1"
+    "undici": "^7.19.1",
+    "vitest": "^4.1.0"
   }
 }
