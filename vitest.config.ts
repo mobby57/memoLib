@@ -12,7 +12,8 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': resolve(dirname, 'src/frontend')
+            // Keep alias resolution aligned with tsconfig.json paths (@/* -> src/*)
+            '@': resolve(dirname, 'src')
         }
     }
 });
