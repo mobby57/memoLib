@@ -6,12 +6,18 @@ import { emailMonitor } from '@/lib/email/email-monitor-service';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
   const tenantId = (session.user as any).tenantId;
+  const role = String((session.user as any).role || '').toUpperCase();
+  const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
+  if (!allowedRoles.has(role)) {
+    return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+  }
+
   if (!tenantId) {
     return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
   }
@@ -20,8 +26,8 @@ export async function POST(req: NextRequest) {
     const { from, subject, body } = await req.json();
 
     if (!from || !subject || !body) {
-      return NextResponse.json({ 
-        error: 'Champs requis: from, subject, body' 
+      return NextResponse.json({
+        error: 'Champs requis: from, subject, body'
       }, { status: 400 });
     }
 
@@ -31,7 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       ...result,
-      message: result.action === 'created' 
+      message: result.action === 'created'
         ? `✅ Nouveau dossier ${result.dossierId} créé`
         : result.action === 'linked'
         ? `✅ Email lié au dossier ${result.dossierId}`
@@ -40,9 +46,8 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     logger.error('Erreur test email:', { error });
-    return NextResponse.json({ 
-      error: 'Erreur serveur',
-      details: error instanceof Error ? error.message : 'Unknown'
+    return NextResponse.json({
+      error: 'Erreur serveur'
     }, { status: 500 });
   }
 }

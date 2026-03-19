@@ -8,28 +8,30 @@ public class MemoLibDbContextFactory : IDesignTimeDbContextFactory<MemoLibDbCont
 {
     public MemoLibDbContext CreateDbContext(string[] args)
     {
-        try
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddJsonFile($"appsettings.{environment}.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var connectionString = configuration.GetConnectionString("Default")
+            ?? "Data Source=memolib.db";
+        var usePostgres = configuration.GetValue<bool>("UsePostgreSQL");
+
+        var optionsBuilder = new DbContextOptionsBuilder<MemoLibDbContext>();
+
+        if (usePostgres)
         {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddJsonFile($"appsettings.{environment}.json", optional: true)
-                .AddEnvironmentVariables()
-                .Build();
-
-            var connectionString = configuration.GetConnectionString("Default")
-                ?? "Data Source=memolib.db";
-
-            var optionsBuilder = new DbContextOptionsBuilder<MemoLibDbContext>();
+            optionsBuilder.UseNpgsql(connectionString, o => o.MigrationsAssembly("MemoLib.Api"));
+        }
+        else
+        {
             optionsBuilder.UseSqlite(connectionString);
+        }
 
-            return new MemoLibDbContext(optionsBuilder.Options);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Failed to create MemoLibDbContext during design-time.", ex);
-        }
+        return new MemoLibDbContext(optionsBuilder.Options);
     }
 }

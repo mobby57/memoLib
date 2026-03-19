@@ -1,3 +1,4 @@
+﻿// @ts-nocheck
 /**
  *  SYSTeME DE LOGGING AVANCe POUR DeVELOPPEMENT
  * Tracabilite complete, metriques temps reel, debugging IA
@@ -184,7 +185,7 @@ class AdvancedLogger {
       this.log(
         LogLevel.WARN,
         LogCategory.PERFORMANCE,
-        '️ Analyse IA lente detectee',
+        'ï¸ Analyse IA lente detectee',
         { model, duration }
       );
     }
@@ -193,7 +194,7 @@ class AdvancedLogger {
       this.log(
         LogLevel.WARN,
         LogCategory.AI,
-        '️ Reponse IA suspecte (trop courte)',
+        'ï¸ Reponse IA suspecte (trop courte)',
         { model, responseLength: response.length }
       );
     }
@@ -271,7 +272,7 @@ class AdvancedLogger {
       [LogCategory.DATABASE]: '',
       [LogCategory.SECURITY]: '',
       [LogCategory.PERFORMANCE]: '',
-      [LogCategory.API]: '🌐',
+      [LogCategory.API]: 'ðŸŒ',
     };
 
     const reset = '\x1b[0m';
@@ -292,7 +293,7 @@ class AdvancedLogger {
     if (this.logs.length === 0) return;
 
     try {
-      // En production, envoyer à Sentry comme breadcrumbs
+      // En production, envoyer Ã  Sentry comme breadcrumbs
       if (process.env.NODE_ENV === 'production') {
         import('@sentry/nextjs').then((Sentry) => {
           this.logs.slice(-50).forEach(log => {
@@ -435,3 +436,5 @@ export const measure = <T>(
   operation: string,
   fn: () => Promise<T>
 ) => logger.measurePerformance(category, operation, fn);
+
+

@@ -5,6 +5,8 @@ import { logger } from '@/lib/logger';
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -18,13 +20,20 @@ export async function GET(
 ) {
   try {
     const { tenantId } = params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    if ((session.user as any).tenantId !== tenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
     const { searchParams } = new URL(request.url);
     const range = searchParams.get('range') || '30d';
 
     // Calculer la date de début selon la période
     const now = new Date();
     const startDate = new Date();
-    
+
     switch (range) {
       case '7d':
         startDate.setDate(now.getDate() - 7);
@@ -53,18 +62,18 @@ export async function GET(
 
     // Calculer les métriques globales
     const totalActions = aiActions.length;
-    const approvedActions = aiActions.filter(a => 
+    const approvedActions = aiActions.filter(a =>
       a.validationStatus === 'APPROVED' || a.validationStatus === 'AUTO_APPROVED'
     ).length;
-    const modifiedActions = aiActions.filter(a => 
+    const modifiedActions = aiActions.filter(a =>
       a.validationStatus === 'MODIFIED_APPROVED'
     ).length;
-    const rejectedActions = aiActions.filter(a => 
+    const rejectedActions = aiActions.filter(a =>
       a.validationStatus === 'REJECTED'
     ).length;
 
-    const globalSuccessRate = totalActions > 0 
-      ? (approvedActions + modifiedActions) / totalActions 
+    const globalSuccessRate = totalActions > 0
+      ? (approvedActions + modifiedActions) / totalActions
       : 0;
 
     // Analyser les performances par type d'action
@@ -107,14 +116,14 @@ export async function GET(
 
     // Calculer les améliorations (simulation basée sur les données actuelles)
     const improvements = Array.from(actionTypeStats.entries()).map(([type, stats]) => {
-      const currentSuccessRate = stats.total > 0 
-        ? (stats.approved + stats.modified) / stats.total 
+      const currentSuccessRate = stats.total > 0
+        ? (stats.approved + stats.modified) / stats.total
         : 0;
-      
+
       // Simulation d'amélioration basée sur le taux de succès
       let improvement = 0;
       let status: 'improving' | 'stable' | 'declining' = 'stable';
-      
+
       if (currentSuccessRate > 0.85) {
         improvement = Math.random() * 0.05; // +0-5%
         status = 'improving';
@@ -161,7 +170,7 @@ export async function GET(
 
       validationTrends.push({
         date: dayStart.toISOString(),
-        approved: dayActions.filter(a => 
+        approved: dayActions.filter(a =>
           a.validationStatus === 'APPROVED' || a.validationStatus === 'AUTO_APPROVED'
         ).length,
         rejected: dayActions.filter(a => a.validationStatus === 'REJECTED').length,

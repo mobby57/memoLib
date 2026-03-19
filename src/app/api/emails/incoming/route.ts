@@ -13,6 +13,20 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+    const expectedWebhookSecret = process.env.INCOMING_EMAIL_WEBHOOK_SECRET;
+    if (!expectedWebhookSecret) {
+      logger.error('[EMAIL] Secret webhook entrant non configure');
+      return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
+    }
+
+    const providedSecret =
+      request.headers.get('x-webhook-secret') ||
+      request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+
+    if (!providedSecret || providedSecret !== expectedWebhookSecret) {
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { from, to, subject, body: emailBody, htmlBody, attachments, messageId } = body;
 
@@ -33,7 +47,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!tenant) {
-      logger.info('[EMAIL] Aucun tenant trouve pour: ${to}');
+      logger.info(`[EMAIL] Aucun tenant trouve pour: ${to}`);
       return NextResponse.json({ error: 'Destinataire non trouve' }, { status: 404 });
     }
 
@@ -189,7 +203,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     logger.error('[EMAIL] Erreur reception email:', { error });
-    return NextResponse.json({ error: 'Erreur serveur', details: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 

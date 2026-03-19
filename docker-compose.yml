@@ -11,7 +11,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__Default=Data Source=/app/data/memolib.db
-      - JwtSettings__SecretKey=${JWT_SECRET_KEY:-MemoLib-Super-Secret-Key-For-JWT-Token-Generation-2025}
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set in .env}
       - JwtSettings__Issuer=memolib
       - JwtSettings__Audience=memolib-users
     volumes:

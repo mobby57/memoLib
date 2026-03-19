@@ -148,18 +148,18 @@ export async function purgeLegalProofs(config: Partial<PurgeConfig> = {}): Promi
           });
 
           // Log événement
-          await eventLogService.createEvent({
+          await eventLogService.createEventLog({
             tenantId: proof.tenantId,
-            userId: null,
             eventType: 'LEGAL_PROOF_PURGED',
             entityType: 'legal_proof',
             entityId: proof.id,
-            description: `Preuve légale purgée automatiquement (expiration ${finalConfig.retentionYears} ans)`,
+            actorType: 'SYSTEM',
             metadata: {
               proofType: proof.type,
               createdAt: proof.createdAt,
               expirationDate: expirationDate,
               archived: finalConfig.archiveBeforeDelete,
+              description: `Preuve legale purgee automatiquement (expiration ${finalConfig.retentionYears} ans)`,
             },
           });
 
@@ -185,13 +185,12 @@ export async function purgeLegalProofs(config: Partial<PurgeConfig> = {}): Promi
 
     // 6. Log événement global
     if (!finalConfig.dryRun) {
-      await eventLogService.createEvent({
+      await eventLogService.createEventLog({
         tenantId: 'SYSTEM',
-        userId: null,
         eventType: 'LEGAL_PROOF_PURGE_COMPLETED',
         entityType: 'system',
         entityId: 'legal-proof-purge',
-        description: `Purge automatique preuves légales complétée`,
+        actorType: 'SYSTEM',
         metadata: result,
       });
     }

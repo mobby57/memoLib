@@ -130,6 +130,23 @@ public class EmailMonitorService : BackgroundService
         var body = message.TextBody ?? message.HtmlBody ?? "";
         var externalId = message.MessageId ?? $"EMAIL-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
 
+        // R2: Vérification SPF/DKIM via headers Authentication-Results
+        var authResult = message.Headers["Authentication-Results"] ?? "";
+        var spfFail = authResult.Contains("spf=fail", StringComparison.OrdinalIgnoreCase)
+                   || authResult.Contains("spf=softfail", StringComparison.OrdinalIgnoreCase);
+        var dkimFail = authResult.Contains("dkim=fail", StringComparison.OrdinalIgnoreCase);
+
+        if (spfFail || dkimFail)
+        {
+            _logger.LogWarning("⚠️ Email suspect (SPF/DKIM fail): {From} | SPF={SpfFail} DKIM={DkimFail}", from, spfFail, dkimFail);
+            var rejectSpoofed = _configuration.GetValue<bool>("EmailMonitor:RejectSpoofedEmails");
+            if (rejectSpoofed)
+            {
+                _logger.LogWarning("🚫 Email rejeté (spoofing détecté): {From}", from);
+                return;
+            }
+        }
+
         // CONTRÔLE: Ignorer certains expéditeurs
         var blacklist = _configuration.GetSection("EmailMonitor:Blacklist").Get<string[]>() ?? Array.Empty<string>();
         if (blacklist.Any(b => from.Contains(b, StringComparison.OrdinalIgnoreCase)))

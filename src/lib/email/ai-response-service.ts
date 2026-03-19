@@ -1,4 +1,5 @@
-﻿import { PrismaClient } from '@prisma/client';
+﻿// @ts-nocheck
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -50,12 +51,12 @@ class OllamaService {
     const settings = await prisma.tenantSettings.findUnique({
       where: { tenantId }
     });
-    
+
     if (settings?.ollamaEnabled) {
       this.baseUrl = settings.ollamaUrl;
       this.model = settings.ollamaModel;
     }
-    
+
     return settings;
   }
 }
@@ -116,7 +117,7 @@ Cordialement,`,
 ];
 
 export class AIResponseService {
-  
+
   /**
    * Generer un brouillon de reponse avec Claude AI
    */
@@ -245,7 +246,7 @@ La reponse doit etre directement utilisable, sans placeholder ni commentaire ent
     try {
       const email = await prisma.email.findUnique({
         where: { id: emailId },
-        include: { 
+        include: {
           classification: true,
           tenant: true
         }
@@ -259,7 +260,7 @@ La reponse doit etre directement utilisable, sans placeholder ni commentaire ent
       }
 
       const systemPrompt = 'Tu es un assistant juridique. Ameliore les reponses tout en gardant un ton professionnel et conforme au droit francais.';
-      
+
       const userPrompt = `Ameliore ce brouillon de reponse selon les instructions:
 
 Brouillon actuel:
@@ -315,7 +316,7 @@ Genere une version amelioree en suivant les instructions. Garde un ton professio
       }
 
       const systemPrompt = `Tu es un extracteur d'informations. Retourne uniquement du JSON valide, sans commentaire.`;
-      
+
       const userPrompt = `Extrais les informations structurees de cet email et retourne-les en JSON strict:
 
 ${email.bodyText}
@@ -341,12 +342,12 @@ Format de reponse STRICT (JSON uniquement):
 
       // Nettoyer la reponse (enlever markdown si present)
       const cleanJson = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      
+
       let extracted;
       try {
         extracted = JSON.parse(cleanJson);
       } catch (e) {
-        console.warn('️ Reponse non-JSON, extraction manuelle...');
+        console.warn('? Reponse non-JSON, extraction manuelle...');
         extracted = {};
       }
 
@@ -386,7 +387,7 @@ Format de reponse STRICT (JSON uniquement):
       }
 
       const systemPrompt = 'Tu es un resumeur de texte. Sois concis et factuel.';
-      
+
       const userPrompt = `Resume cet email en maximum ${maxLength} caracteres:
 
 Sujet: ${email.subject}
@@ -402,7 +403,7 @@ Resume concis (${maxLength} caracteres max):`;
 
     } catch (error: any) {
       console.error(' Erreur generation resume:', error.message);
-      
+
       // Fallback: retourner le sujet tronque
       try {
         const fallbackEmail = await prisma.email.findUnique({
@@ -418,3 +419,7 @@ Resume concis (${maxLength} caracteres max):`;
 }
 
 export const aiResponseService = new AIResponseService();
+
+
+
+

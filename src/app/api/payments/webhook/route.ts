@@ -5,72 +5,99 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, STRIPE_WEBHOOK_SECRET } from '@/lib/stripe/config';
 import { prisma } from '@/lib/prisma';
+import {
+    isStripeEventDuplicate,
+    logStripeWebhookProcessingFailure,
+    parseStripeWebhookRequest,
+} from '@/lib/stripe/webhook';
 import Stripe from 'stripe';
 
+type DbClient = any;
+
+function isStripeEventUniqueViolation(error: any): boolean {
+    const message = String(error?.message || '');
+    return (
+        error?.code === 'P2002' &&
+        (message.includes('stripeEventId') || message.includes('stripeWebhookEvent'))
+    );
+}
+
 export async function POST(request: NextRequest) {
-    const body = await request.text();
-    const signature = request.headers.get('stripe-signature');
-
-    if (!signature) {
-        return NextResponse.json(
-            { error: 'No signature' },
-            { status: 400 }
-        );
+    const parsed = await parseStripeWebhookRequest(request, stripe, STRIPE_WEBHOOK_SECRET);
+    if (!parsed.ok) {
+        return parsed.response;
     }
 
-    let event: Stripe.Event;
+    const { event } = parsed;
 
-    try {
-        event = stripe.webhooks.constructEvent(
-            body,
-            signature,
-            STRIPE_WEBHOOK_SECRET
-        );
-    } catch (err: any) {
-        console.error('Webhook signature verification failed:', err.message);
-        return NextResponse.json(
-            { error: 'Invalid signature' },
-            { status: 400 }
-        );
+    const isDuplicate = await isStripeEventDuplicate(event.id);
+    if (isDuplicate) {
+        return NextResponse.json({ received: true, duplicate: true });
     }
 
     try {
-        switch (event.type) {
-            case 'payment_intent.succeeded':
-                await handlePaymentIntentSucceeded(event.data.object);
-                break;
+        await prisma.$transaction(async tx => {
+            const db = tx as DbClient;
 
-            case 'payment_intent.payment_failed':
-                await handlePaymentIntentFailed(event.data.object);
-                break;
+            await db.stripeWebhookEvent.create({
+                data: {
+                    stripeEventId: event.id,
+                    provider: 'stripe',
+                    eventType: event.type,
+                    status: 'PROCESSING',
+                    payload: JSON.stringify(event),
+                },
+            });
 
-            case 'customer.subscription.created':
-                await handleSubscriptionCreated(event.data.object);
-                break;
+            switch (event.type) {
+                case 'payment_intent.succeeded':
+                    await handlePaymentIntentSucceeded(db, event.data.object as Stripe.PaymentIntent);
+                    break;
 
-            case 'customer.subscription.updated':
-                await handleSubscriptionUpdated(event.data.object);
-                break;
+                case 'payment_intent.payment_failed':
+                    await handlePaymentIntentFailed(db, event.data.object as Stripe.PaymentIntent);
+                    break;
 
-            case 'customer.subscription.deleted':
-                await handleSubscriptionDeleted(event.data.object);
-                break;
+                case 'customer.subscription.created':
+                    await handleSubscriptionCreated(db, event.data.object as Stripe.Subscription);
+                    break;
 
-            case 'invoice.paid':
-                await handleInvoicePaid(event.data.object);
-                break;
+                case 'customer.subscription.updated':
+                    await handleSubscriptionUpdated(db, event.data.object as Stripe.Subscription);
+                    break;
 
-            case 'invoice.payment_failed':
-                await handleInvoicePaymentFailed(event.data.object);
-                break;
+                case 'customer.subscription.deleted':
+                    await handleSubscriptionDeleted(db, event.data.object as Stripe.Subscription);
+                    break;
 
-            default:
-                console.log(`Unhandled event type: ${event.type}`);
-        }
+                case 'invoice.paid':
+                    await handleInvoicePaid(db, event.data.object as Stripe.Invoice);
+                    break;
+
+                case 'invoice.payment_failed':
+                    await handleInvoicePaymentFailed(db, event.data.object as Stripe.Invoice);
+                    break;
+
+                default:
+                    break;
+            }
+
+            await db.stripeWebhookEvent.update({
+                where: { stripeEventId: event.id },
+                data: {
+                    status: 'PROCESSED',
+                    processedAt: new Date(),
+                },
+            });
+        });
 
         return NextResponse.json({ received: true });
     } catch (error: any) {
-        console.error('Webhook handler error:', error);
+        if (isStripeEventUniqueViolation(error)) {
+            return NextResponse.json({ received: true, duplicate: true });
+        }
+
+        logStripeWebhookProcessingFailure(event.type);
         return NextResponse.json(
             { error: 'Webhook handler failed' },
             { status: 500 }
@@ -78,128 +105,104 @@ export async function POST(request: NextRequest) {
     }
 }
 
-async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
-    try {
-        await (prisma as any).paymentIntent.update({
-            where: { stripeIntentId: paymentIntent.id },
-            data: {
-                status: 'succeeded',
-                receiptUrl: (paymentIntent as any).charges?.data?.[0]?.receipt_url,
-            },
-        });
-    } catch (err) {
-        console.error('Error updating payment intent:', err);
-    }
+async function handlePaymentIntentSucceeded(db: DbClient, paymentIntent: Stripe.PaymentIntent) {
+    await db.paymentIntent.update({
+        where: { stripeIntentId: paymentIntent.id },
+        data: {
+            status: 'succeeded',
+            receiptUrl: (paymentIntent as any).charges?.data?.[0]?.receipt_url,
+        },
+    });
 }
 
-async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
-    try {
-        await (prisma as any).paymentIntent.update({
-            where: { stripeIntentId: paymentIntent.id },
-            data: {
-                status: 'failed',
-                lastError: (paymentIntent as any).last_payment_error?.message,
-            },
-        });
-    } catch (err) {
-        console.error('Error updating failed payment intent:', err);
-    }
+async function handlePaymentIntentFailed(db: DbClient, paymentIntent: Stripe.PaymentIntent) {
+    await db.paymentIntent.update({
+        where: { stripeIntentId: paymentIntent.id },
+        data: {
+            status: 'failed',
+            lastError: (paymentIntent as any).last_payment_error?.message,
+        },
+    });
 }
 
-async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
-    try {
-        const customerId = subscription.customer as string;
-        const customer = await (prisma as any).stripeCustomer.findUnique({
-            where: { stripeCustomerId: customerId },
-        });
+async function handleSubscriptionCreated(db: DbClient, subscription: Stripe.Subscription) {
+    const customerId = subscription.customer as string;
+    const customer = await db.stripeCustomer.findUnique({
+        where: { stripeCustomerId: customerId },
+    });
 
-        if (!customer) return;
+    if (!customer) return;
 
-        await (prisma as any).subscription.create({
-            data: {
-                userId: customer.userId,
-                stripeCustomerId: customerId,
-                stripeSubscriptionId: subscription.id,
-                productId: subscription.items.data[0].price.product as string,
-                status: subscription.status,
-                currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-                currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
-            },
-        });
-    } catch (err) {
-        console.error('Error creating subscription:', err);
-    }
+    await db.subscription.create({
+        data: {
+            userId: customer.userId,
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscription.id,
+            productId: subscription.items.data[0].price.product as string,
+            status: subscription.status,
+            currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+            currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+        },
+    });
 }
 
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-    try {
-        await (prisma as any).subscription.update({
-            where: { stripeSubscriptionId: subscription.id },
-            data: {
-                status: subscription.status,
-                currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-                currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
-                cancelAtPeriodEnd: subscription.cancel_at_period_end,
-                canceledAt: subscription.canceled_at
-                    ? new Date(subscription.canceled_at * 1000)
-                    : null,
-            },
-        });
-    } catch (err) {
-        console.error('Error updating subscription:', err);
-    }
+async function handleSubscriptionUpdated(db: DbClient, subscription: Stripe.Subscription) {
+    await db.subscription.update({
+        where: { stripeSubscriptionId: subscription.id },
+        data: {
+            status: subscription.status,
+            currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+            currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+            cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            canceledAt: subscription.canceled_at
+                ? new Date(subscription.canceled_at * 1000)
+                : null,
+        },
+    });
 }
 
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-    try {
-        await (prisma as any).subscription.update({
-            where: { stripeSubscriptionId: subscription.id },
-            data: {
-                status: 'canceled',
-                canceledAt: new Date(),
-            },
-        });
-    } catch (err) {
-        console.error('Error deleting subscription:', err);
-    }
+async function handleSubscriptionDeleted(db: DbClient, subscription: Stripe.Subscription) {
+    await db.subscription.update({
+        where: { stripeSubscriptionId: subscription.id },
+        data: {
+            status: 'canceled',
+            canceledAt: new Date(),
+        },
+    });
 }
 
-async function handleInvoicePaid(invoice: Stripe.Invoice) {
-    try {
-        const customerId = invoice.customer as string;
-        const customer = await (prisma as any).stripeCustomer.findUnique({
-            where: { stripeCustomerId: customerId },
-        });
+async function handleInvoicePaid(db: DbClient, invoice: Stripe.Invoice) {
+    const customerId = invoice.customer as string;
+    const customer = await db.stripeCustomer.findUnique({
+        where: { stripeCustomerId: customerId },
+    });
 
-        if (!customer) return;
+    if (!customer) return;
 
-        await (prisma as any).invoice.upsert({
-            where: { stripeInvoiceId: invoice.id },
-            create: {
-                userId: customer.userId,
-                stripeCustomerId: customerId,
-                stripeInvoiceId: invoice.id,
-                amountCents: invoice.amount_due,
-                taxCents: (invoice as any).tax || 0,
-                totalCents: invoice.total,
-                currency: invoice.currency,
-                status: 'paid',
-                paidDate: new Date((invoice as any).status_transitions.paid_at * 1000),
-                pdfUrl: invoice.invoice_pdf,
-                hostedInvoiceUrl: invoice.hosted_invoice_url,
-            },
-            update: {
-                status: 'paid',
-                paidDate: new Date((invoice as any).status_transitions.paid_at * 1000),
-            },
-        });
-    } catch (err) {
-        console.error('Error handling paid invoice:', err);
-    }
+    await db.invoice.upsert({
+        where: { stripeInvoiceId: invoice.id },
+        create: {
+            userId: customer.userId,
+            stripeCustomerId: customerId,
+            stripeInvoiceId: invoice.id,
+            amountCents: invoice.amount_due,
+            taxCents: (invoice as any).tax || 0,
+            totalCents: invoice.total,
+            currency: invoice.currency,
+            status: 'paid',
+            paidDate: new Date((invoice as any).status_transitions.paid_at * 1000),
+            pdfUrl: invoice.invoice_pdf,
+            hostedInvoiceUrl: invoice.hosted_invoice_url,
+        },
+        update: {
+            status: 'paid',
+            paidDate: new Date((invoice as any).status_transitions.paid_at * 1000),
+        },
+    });
 }
 
-async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
-    await prisma.invoice.update({
+async function handleInvoicePaymentFailed(db: DbClient, invoice: Stripe.Invoice) {
+    await db.invoice.update({
         where: { stripeInvoiceId: invoice.id },
         data: { status: 'uncollectible' },
     });

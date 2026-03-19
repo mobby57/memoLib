@@ -1,6 +1,8 @@
 ﻿import { cacheDelete, cacheInvalidatePattern, cacheThrough, TTL_TIERS } from '@/lib/cache';
 import { logger } from '@/lib/logger';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 function mapPrismaErrorToHttp(error: unknown): { status: number; message: string } | null {
@@ -19,23 +21,56 @@ function mapPrismaErrorToHttp(error: unknown): { status: number; message: string
   return null;
 }
 
+async function resolveTenantAccess(requestedTenantId: string | null): Promise<
+  | { tenantId: string; role: string }
+  | { error: NextResponse }
+> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return { error: NextResponse.json({ error: 'Non authentifie' }, { status: 401 }) };
+  }
+
+  const role = String((session.user as any).role || '').toUpperCase();
+  const sessionTenantId = (session.user as any).tenantId as string | undefined;
+
+  if (role === 'SUPER_ADMIN') {
+    if (!requestedTenantId) {
+      return { error: NextResponse.json({ error: 'tenantId requis' }, { status: 400 }) };
+    }
+    return { tenantId: requestedTenantId, role };
+  }
+
+  if (!sessionTenantId) {
+    return { error: NextResponse.json({ error: 'Tenant non trouve' }, { status: 403 }) };
+  }
+
+  if (requestedTenantId && requestedTenantId !== sessionTenantId) {
+    return { error: NextResponse.json({ error: 'Acces interdit' }, { status: 403 }) };
+  }
+
+  return { tenantId: sessionTenantId, role };
+}
+
 // GET - Liste des clients d'un tenant
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
+    const requestedTenantId = searchParams.get('tenantId');
     const clientId = searchParams.get('id');
     const search = searchParams.get('search');
     const status = searchParams.get('status');
     const limit = Math.max(1, parseInt(searchParams.get('limit') || '100', 10) || 100);
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10) || 0);
 
+    const access = await resolveTenantAccess(requestedTenantId);
+    if ('error' in access) {
+      return access.error;
+    }
+
+    const tenantId = access.tenantId;
+
     // Recuperer un client specifique (avec cache)
     if (clientId) {
-      if (!tenantId) {
-        return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
-      }
-
       const client = await cacheThrough(
         `client:${tenantId}:${clientId}`,
         async () => {
@@ -56,10 +91,6 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
       }
       return NextResponse.json({ client });
-    }
-
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
     }
 
     // Liste avec cache (seulement si pas de recherche)
@@ -135,16 +166,22 @@ export async function POST(request: NextRequest) {
       civilite,
     } = body;
 
-    if (!tenantId || !firstName || !lastName || !email) {
+    if (!firstName || !lastName || !email) {
       return NextResponse.json(
-        { error: 'tenantId, firstName, lastName et email requis' },
+        { error: 'firstName, lastName et email requis' },
         { status: 400 }
       );
     }
 
+    const access = await resolveTenantAccess((tenantId as string | null) || null);
+    if ('error' in access) {
+      return access.error;
+    }
+    const effectiveTenantId = access.tenantId;
+
     // Verifier si le client existe deja
     const existing = await prisma.client.findUnique({
-      where: { tenantId_email: { tenantId, email } },
+      where: { tenantId_email: { tenantId: effectiveTenantId, email } },
     });
 
     if (existing) {
@@ -162,7 +199,7 @@ export async function POST(request: NextRequest) {
     const [client] = await prisma.$transaction([
       prisma.client.create({
         data: {
-          tenantId,
+          tenantId: effectiveTenantId,
           firstName,
           lastName,
           email,
@@ -176,13 +213,13 @@ export async function POST(request: NextRequest) {
         },
       }),
       prisma.tenant.update({
-        where: { id: tenantId },
+        where: { id: effectiveTenantId },
         data: { currentClients: { increment: 1 } },
       }),
     ]);
 
     // Invalider le cache des listes clients
-    await cacheInvalidatePattern(`clients:${tenantId}:*`);
+    await cacheInvalidatePattern(`clients:${effectiveTenantId}:*`);
 
     return NextResponse.json({ success: true, client });
   } catch (error) {
@@ -229,6 +266,11 @@ export async function PATCH(request: NextRequest) {
     const existing = await prisma.client.findUnique({ where: { id: clientId } });
     if (!existing) {
       return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
+    }
+
+    const access = await resolveTenantAccess(existing.tenantId);
+    if ('error' in access) {
+      return access.error;
     }
 
     const updateData: Record<string, unknown> = {};
@@ -295,6 +337,11 @@ export async function DELETE(request: NextRequest) {
 
     if (!client) {
       return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
+    }
+
+    const access = await resolveTenantAccess(client.tenantId);
+    if ('error' in access) {
+      return access.error;
     }
 
     await prisma.$transaction([

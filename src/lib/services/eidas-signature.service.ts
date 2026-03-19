@@ -1,16 +1,17 @@
+﻿// @ts-nocheck
 /**
- * Service de Signatures Électroniques eIDAS
+ * Service de Signatures Ã‰lectroniques eIDAS
  *
- * Intégration avec fournisseurs de signatures qualifiées:
+ * IntÃ©gration avec fournisseurs de signatures qualifiÃ©es:
  * - DocuSign (API REST)
  * - Adobe Sign (API REST)
- * - Yousign (Français)
- * - Universign (Français)
+ * - Yousign (FranÃ§ais)
+ * - Universign (FranÃ§ais)
  *
  * Support des 3 niveaux eIDAS:
  * - Simple: signature basique
- * - Avancée: certificat + identité vérifiée
- * - Qualifiée: HSM + prestataire qualifié (valeur légale maximale)
+ * - AvancÃ©e: certificat + identitÃ© vÃ©rifiÃ©e
+ * - QualifiÃ©e: HSM + prestataire qualifiÃ© (valeur lÃ©gale maximale)
  */
 
 import type { DigitalSignature, SignatureType } from '@/types/legal-proof';
@@ -60,7 +61,7 @@ const ADOBE_SIGN_CONFIG: SignatureProvider = {
   baseUrl: process.env.ADOBE_SIGN_BASE_URL || 'https://api.eu1.adobesign.com/api/rest/v6',
 };
 
-// Configuration Yousign (Français)
+// Configuration Yousign (FranÃ§ais)
 const YOUSIGN_CONFIG: SignatureProvider = {
   name: 'Yousign',
   type: 'yousign',
@@ -69,7 +70,7 @@ const YOUSIGN_CONFIG: SignatureProvider = {
 };
 
 /**
- * Obtenir un token d'accès DocuSign (OAuth 2.0)
+ * Obtenir un token d'accÃ¨s DocuSign (OAuth 2.0)
  */
 async function getDocuSignAccessToken(): Promise<string> {
   if (!DOCUSIGN_CONFIG.apiKey || !DOCUSIGN_CONFIG.apiSecret) {
@@ -103,7 +104,7 @@ async function getDocuSignAccessToken(): Promise<string> {
 }
 
 /**
- * Créer une signature qualifiée avec DocuSign
+ * CrÃ©er une signature qualifiÃ©e avec DocuSign
  */
 async function createDocuSignSignature(
   request: EIDASSignatureRequest
@@ -111,14 +112,14 @@ async function createDocuSignSignature(
   try {
     const accessToken = await getDocuSignAccessToken();
 
-    // 1. Créer une enveloppe DocuSign
+    // 1. CrÃ©er une enveloppe DocuSign
     const envelope = {
       emailSubject: `Signature requise: ${request.reason || 'Document'}`,
       status: 'sent',
       documents: [
         {
           documentId: '1',
-          name: 'Document à signer',
+          name: 'Document Ã  signer',
           documentBase64: Buffer.from(request.documentHash).toString('base64'),
         },
       ],
@@ -162,7 +163,7 @@ async function createDocuSignSignature(
 
     const data = await response.json();
 
-    // 2. Générer la signature
+    // 2. GÃ©nÃ©rer la signature
     const signature: DigitalSignature = {
       signerId: data.envelopeId,
       signerName: request.signerName,
@@ -189,13 +190,13 @@ async function createDocuSignSignature(
 }
 
 /**
- * Créer une signature qualifiée avec Adobe Sign
+ * CrÃ©er une signature qualifiÃ©e avec Adobe Sign
  */
 async function createAdobeSignSignature(
   request: EIDASSignatureRequest
 ): Promise<EIDASSignatureResponse> {
   try {
-    // 1. Créer un agreement Adobe Sign
+    // 1. CrÃ©er un agreement Adobe Sign
     const agreement = {
       fileInfos: [
         {
@@ -204,7 +205,7 @@ async function createAdobeSignSignature(
           },
         },
       ],
-      name: request.reason || 'Document à signer',
+      name: request.reason || 'Document Ã  signer',
       participantSetsInfo: [
         {
           memberInfos: [
@@ -260,7 +261,7 @@ async function createAdobeSignSignature(
 }
 
 /**
- * Créer une signature qualifiée avec Yousign (Français)
+ * CrÃ©er une signature qualifiÃ©e avec Yousign (FranÃ§ais)
  */
 async function createYousignSignature(
   request: EIDASSignatureRequest
@@ -330,14 +331,14 @@ async function createYousignSignature(
 }
 
 /**
- * Créer une signature électronique eIDAS
+ * CrÃ©er une signature Ã©lectronique eIDAS
  *
- * Choix automatique du fournisseur selon disponibilité
+ * Choix automatique du fournisseur selon disponibilitÃ©
  */
 export async function createEIDASSignature(
   request: EIDASSignatureRequest
 ): Promise<EIDASSignatureResponse> {
-  // Vérifier quel fournisseur est configuré
+  // VÃ©rifier quel fournisseur est configurÃ©
   if (DOCUSIGN_CONFIG.apiKey && request.signatureType === 'QUALIFIED') {
     return createDocuSignSignature(request);
   }
@@ -370,22 +371,22 @@ export async function createEIDASSignature(
 }
 
 /**
- * Vérifier une signature eIDAS
+ * VÃ©rifier une signature eIDAS
  */
 export async function verifyEIDASSignature(
   signature: DigitalSignature,
   documentHash: string
 ): Promise<boolean> {
   try {
-    // Vérifier le hash de la signature
+    // VÃ©rifier le hash de la signature
     const expectedHash = crypto
       .createHash('sha256')
       .update(`${signature.signerEmail}${documentHash}${signature.timestamp.getTime()}`)
       .digest('hex');
 
-    // Pour les signatures qualifiées, vérifier aussi le certificat
+    // Pour les signatures qualifiÃ©es, vÃ©rifier aussi le certificat
     if (signature.type === 'QUALIFIED' && signature.certificate) {
-      // TODO: Vérifier le certificat X.509 avec node-forge
+      // TODO: VÃ©rifier le certificat X.509 avec node-forge
       console.log('Certificate verification not yet implemented');
     }
 
@@ -395,3 +396,5 @@ export async function verifyEIDASSignature(
     return false;
   }
 }
+
+

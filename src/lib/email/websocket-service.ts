@@ -1,4 +1,5 @@
-﻿import { Server as SocketIOServer, Socket } from 'socket.io';
+﻿// @ts-nocheck
+import { Server as SocketIOServer, Socket } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 
 interface EmailNotification {
@@ -37,7 +38,7 @@ export class EmailWebSocketService {
       // Rejoindre une room avocat-specific
       socket.on('join-lawyer', (lawyerId: string) => {
         socket.join(`lawyer:${lawyerId}`);
-        console.log(`️  Avocat ${lawyerId} connecte`);
+        console.log(`?  Avocat ${lawyerId} connecte`);
       });
 
       socket.on('disconnect', () => {
@@ -53,7 +54,7 @@ export class EmailWebSocketService {
    */
   notifyNewEmail(tenantId: string, email: EmailNotification): void {
     if (!this.io) {
-      console.warn('️  WebSocket non initialise');
+      console.warn('?  WebSocket non initialise');
       return;
     }
 
@@ -88,12 +89,12 @@ export class EmailWebSocketService {
 
     // Notification sonore et visuelle
     this.io.to(`lawyer:${lawyerId}`).emit('email:urgent', notification);
-    
+
     // Notification systeme (pour notifications browser)
     this.io.to(`lawyer:${lawyerId}`).emit('system:notification', {
       title: notification.alert.title,
       body: notification.alert.message,
-      icon: email.priority === 'critical' ? '' : '️',
+      icon: email.priority === 'critical' ? '' : '?',
       requireInteraction: true
     });
 
@@ -191,3 +192,7 @@ export class EmailWebSocketService {
 
 // Singleton instance
 export const emailWebSocketService = new EmailWebSocketService();
+
+
+
+

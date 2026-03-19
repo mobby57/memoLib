@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const querySchema = z.object({
   tenantId: z.string().min(1),
@@ -10,16 +12,25 @@ const querySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    if (!sessionTenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
 
     const parsed = querySchema.safeParse({
-      tenantId: searchParams.get('tenantId'),
+      tenantId: sessionTenantId,
       limit: searchParams.get('limit') ?? 50,
       offset: searchParams.get('offset') ?? 0,
     });
 
     if (!parsed.success) {
-      return NextResponse.json({ error: 'Paramètres invalides', details: parsed.error.flatten() }, { status: 400 });
+      return NextResponse.json({ error: 'Parametres invalides' }, { status: 400 });
     }
 
     const { tenantId, limit, offset } = parsed.data;

@@ -1,16 +1,34 @@
 ﻿/**
  * Tests d'integration API Legifrance
- * 
+ *
  * Verifie l'integration avec l'API PISTE/Legifrance
  */
 
-import { legifranceApi, LegifranceConfig } from '@/lib/legifrance/api-client';
+import type { LegifranceConfig } from '@/lib/legifrance/api-client';
 
 describe('Legifrance API Integration', () => {
+  let warnSpy: jest.SpyInstance;
+  let logSpy: jest.SpyInstance;
+  let legifranceApi: (typeof import('@/lib/legifrance/api-client'))['legifranceApi'];
+
   const hasApiKeys = Boolean(
-    process.env.PISTE_SANDBOX_CLIENT_ID && 
+    process.env.PISTE_SANDBOX_CLIENT_ID &&
     process.env.PISTE_SANDBOX_CLIENT_SECRET
   );
+
+  beforeAll(async () => {
+    // Silence expected setup and skip logs when API keys are not configured in CI/dev.
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    const apiModule = await import('@/lib/legifrance/api-client');
+    legifranceApi = apiModule.legifranceApi;
+  });
+
+  afterAll(() => {
+    warnSpy.mockRestore();
+    logSpy.mockRestore();
+  });
 
   describe('Configuration', () => {
     it('should have valid configuration', () => {
@@ -21,7 +39,7 @@ describe('Legifrance API Integration', () => {
         oauthUrl: process.env.PISTE_SANDBOX_OAUTH_URL || 'https://sandbox-oauth.piste.gouv.fr',
         apiUrl: process.env.PISTE_SANDBOX_API_URL || 'https://sandbox-api.piste.gouv.fr',
       };
-      
+
       expect(config.environment).toMatch(/^(sandbox|production)$/);
       expect(config.oauthUrl).toMatch(/^https:\/\//);
       expect(config.apiUrl).toMatch(/^https:\/\//);
@@ -51,7 +69,7 @@ describe('Legifrance API Integration', () => {
       }
 
       const article = await legifranceApi.getCesedaArticle('L311-1');
-      
+
       expect(article).toBeDefined();
     });
 
@@ -162,14 +180,14 @@ describe('API Rate Limiting', () => {
     // Rate limit check - ensure we don't exceed 10 req/s
     const startTime = Date.now();
     const requests = 5;
-    
+
     // Simulate delay between requests
     const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
-    
+
     for (let i = 0; i < requests; i++) {
       await delay(100); // 100ms between requests = 10 req/s max
     }
-    
+
     const elapsed = Date.now() - startTime;
     expect(elapsed).toBeGreaterThanOrEqual(requests * 100 - 50); // Allow some tolerance
   });

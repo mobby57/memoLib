@@ -37,10 +37,17 @@ bld/
 *.db-wal
 memolib*.db
 
-## Secrets
+## Secrets & Environment
 appsettings.Development.json
 appsettings.Production.json
 secrets.json
+.env.local
+.env.production
+.env.staging
+.env.security
+.env.infrastructure
+.env*.local
+prod-key.txt
 
 ## Logs
 logs/
@@ -52,7 +59,7 @@ logs/
 memolib.db-shm
 memolib.db-wal
 
-## Node modules (si frontend séparé)
+## Node modules
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -60,6 +67,11 @@ yarn-error.log*
 .next/
 .turbo/
 coverage/
+.jest-cache/
+playwright-report/
+test-results/
+.tmp_*.json
+register_debug.json
 
 ## Python
 venv/

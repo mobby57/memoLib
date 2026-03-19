@@ -1,33 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { getTemplateForEvent } from '@/lib/questionnaire/templates';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 interface RouteContext {
   params: Promise<{ eventId: string }>;
 }
 
-const querySchema = z.object({
-  tenantId: z.string().min(1),
-});
-
-export async function GET(request: NextRequest, context: RouteContext) {
+export async function GET(_request: NextRequest, context: RouteContext) {
   try {
     const { eventId } = await context.params;
-    const { searchParams } = new URL(request.url);
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
 
-    const parsedQuery = querySchema.safeParse({
-      tenantId: searchParams.get('tenantId'),
-    });
-
-    if (!parsedQuery.success) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     const email = await prisma.email.findFirst({
       where: {
         id: eventId,
-        tenantId: parsedQuery.data.tenantId,
+        tenantId,
       },
       select: {
         id: true,

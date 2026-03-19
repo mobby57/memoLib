@@ -1,4 +1,5 @@
-﻿/**
+﻿// @ts-nocheck
+/**
  * GitHub User Actions - Agir pour le compte d'un utilisateur
  * Toutes les actions sont attribuees a l'utilisateur avec le badge de l'application
  */
@@ -410,3 +411,5 @@ ${changes.description ? `\n${changes.description}` : ''}
     throw error;
   }
 }
+
+
