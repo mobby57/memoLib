@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MemoLib.Api.Services;
+using Microsoft.EntityFrameworkCore;
+using MemoLib.Api.Data;
 using System.Security.Claims;
 
 namespace MemoLib.Api.Controllers;
@@ -10,44 +11,76 @@ namespace MemoLib.Api.Controllers;
 [Route("api/[controller]")]
 public class NotificationsController : ControllerBase
 {
-    private readonly RoleBasedNotificationService _notificationService;
+    private readonly MemoLibDbContext _context;
 
-    public NotificationsController(RoleBasedNotificationService notificationService)
+    public NotificationsController(MemoLibDbContext context)
     {
-        _notificationService = notificationService;
+        _context = context;
     }
 
-    private int GetUserId() => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+    private Guid? GetUserId()
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(claim, out var id) ? id : null;
+    }
 
-    // GET /api/notifications/unread
     [HttpGet("unread")]
     public async Task<IActionResult> GetUnread()
     {
-        var notifications = await _notificationService.GetUnreadNotifications(GetUserId());
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var notifications = await _context.Notifications
+            .Where(n => n.UserId == userId.Value && !n.IsRead)
+            .OrderByDescending(n => n.CreatedAt)
+            .Take(50)
+            .ToListAsync();
+
         return Ok(new { notifications, count = notifications.Count });
     }
 
-    // GET /api/notifications/count
     [HttpGet("count")]
     public async Task<IActionResult> GetCount()
     {
-        var count = await _notificationService.CountUnread(GetUserId());
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var count = await _context.Notifications
+            .CountAsync(n => n.UserId == userId.Value && !n.IsRead);
+
         return Ok(new { count });
     }
 
-    // POST /api/notifications/{id}/read
     [HttpPost("{id}/read")]
-    public async Task<IActionResult> MarkAsRead(int id)
+    public async Task<IActionResult> MarkAsRead(Guid id)
     {
-        await _notificationService.MarkAsRead(id, GetUserId());
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var notification = await _context.Notifications
+            .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId.Value);
+
+        if (notification == null) return NotFound();
+
+        notification.IsRead = true;
+        await _context.SaveChangesAsync();
+
         return Ok(new { message = "Notification marquée comme lue" });
     }
 
-    // POST /api/notifications/read-all
     [HttpPost("read-all")]
     public async Task<IActionResult> MarkAllAsRead()
     {
-        await _notificationService.MarkAllAsRead(GetUserId());
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var unread = await _context.Notifications
+            .Where(n => n.UserId == userId.Value && !n.IsRead)
+            .ToListAsync();
+
+        foreach (var n in unread) n.IsRead = true;
+        await _context.SaveChangesAsync();
+
         return Ok(new { message = "Toutes les notifications marquées comme lues" });
     }
 }

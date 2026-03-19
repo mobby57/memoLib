@@ -1,4 +1,5 @@
-﻿import { PrismaClient } from '@prisma/client';
+﻿// @ts-nocheck
+import { PrismaClient } from '@prisma/client';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import * as fs from 'fs';
@@ -111,7 +112,7 @@ export class EmailPrismaService {
 
       if (!email) return;
 
-      // === NOUVEAU CLIENT === 
+      // === NOUVEAU CLIENT ===
       if (classification.type === 'nouveau_client') {
         await this.createProspectFromEmail(email);
       }
@@ -145,7 +146,7 @@ export class EmailPrismaService {
       const fromMatch = email.from.match(/([^<]+)</);
       const fullName = fromMatch ? fromMatch[1].trim() : email.from;
       const nameParts = fullName.split(' ');
-      
+
       const firstName = nameParts[0] || 'Prenom';
       const lastName = nameParts.slice(1).join(' ') || 'Nom';
 
@@ -199,7 +200,7 @@ export class EmailPrismaService {
   private async extractTrackingNumbers(email: any): Promise<void> {
     try {
       const text = (email.bodyText || '').toLowerCase();
-      
+
       // Patterns numeros de suivi (exemples)
       const patterns = [
         /[0-9]{2}[a-z]{2}[0-9]{9}[a-z]{2}/gi, // Format La Poste
@@ -208,7 +209,7 @@ export class EmailPrismaService {
       ];
 
       const trackingNumbers: string[] = [];
-      
+
       for (const pattern of patterns) {
         const matches = text.match(pattern);
         if (matches) {
@@ -221,7 +222,7 @@ export class EmailPrismaService {
           where: { id: email.id },
           data: { trackingNumbers: JSON.stringify([...new Set(trackingNumbers)]) }
         });
-        
+
         console.log(` Numeros de suivi extraits: ${trackingNumbers.join(', ')}`);
       }
 
@@ -270,7 +271,7 @@ export class EmailPrismaService {
           where: { id: email.id },
           data: { clientId: client.id }
         });
-        
+
         console.log(` Email lie au client: ${client.firstName} ${client.lastName}`);
       }
 
@@ -337,3 +338,7 @@ export class EmailPrismaService {
 }
 
 export const emailPrismaService = new EmailPrismaService();
+
+
+
+

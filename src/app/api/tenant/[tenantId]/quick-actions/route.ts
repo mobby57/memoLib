@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -12,6 +14,13 @@ export async function POST(
 ) {
   try {
     const { tenantId } = params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    if ((session.user as any).tenantId !== tenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
     const body = await request.json();
     const { action, data } = body;
 
@@ -46,7 +55,7 @@ export async function POST(
       case 'update_dossier_status':
         const updatedDossier = await prisma.dossier.update({
           where: { id: data.dossierId },
-          data: { 
+          data: {
             statut: data.statut,
             lastActivityAt: new Date()
           }
@@ -56,7 +65,7 @@ export async function POST(
       case 'mark_echeance_complete':
         const updatedEcheance = await prisma.echeance.update({
           where: { id: data.echeanceId },
-          data: { 
+          data: {
             statut: 'termine',
             completedAt: new Date()
           }

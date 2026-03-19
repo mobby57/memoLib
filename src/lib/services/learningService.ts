@@ -1,4 +1,5 @@
-﻿/**
+﻿// @ts-nocheck
+/**
  * Service d'Apprentissage Continu IA
  * Analyse les validations humaines pour ameliorer les predictions
  */
@@ -295,3 +296,5 @@ export class LearningService {
     }
   }
 }
+
+

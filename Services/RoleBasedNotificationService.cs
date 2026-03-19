@@ -15,49 +15,42 @@ public class RoleBasedNotificationService
         _logger = logger;
     }
 
-    // Notification : Nouvel email reçu
-    public async Task NotifyNewEmailReceived(int caseId, string userId)
+    public async Task NotifyNewEmailReceived(Guid caseId, Guid userId)
     {
         var @case = await _context.Cases.FindAsync(caseId);
         if (@case == null) return;
         var clientName = await GetClientDisplayNameAsync(@case);
 
-        // Alerter les secrétaires (doivent traiter)
-        await CreateNotificationsForRole(userId, UserRole.SECRETARY, 
-            "📧 Nouvel email reçu", 
-            $"Email de {clientName} - Dossier #{caseId}", 
+        await CreateNotificationsForRole(userId, UserRole.SECRETARY,
+            "📧 Nouvel email reçu",
+            $"Email de {clientName} - Dossier {caseId}",
             "NEW_EMAIL", caseId, "HIGH");
 
-        // Alerter les associés (supervision)
-        await CreateNotificationsForRole(userId, UserRole.PARTNER, 
-            "📬 Nouvel email", 
-            $"Email de {clientName}", 
+        await CreateNotificationsForRole(userId, UserRole.PARTNER,
+            "📬 Nouvel email",
+            $"Email de {clientName}",
             "NEW_EMAIL", caseId, "LOW");
     }
 
-    // Notification : Dossier assigné
-    public async Task NotifyAssignedToLawyer(int caseId, int assignedToUserId, string assignedByUserId)
+    public async Task NotifyAssignedToLawyer(Guid caseId, Guid assignedToUserId, Guid assignedByUserId)
     {
         var @case = await _context.Cases.FindAsync(caseId);
         var lawyer = await _context.Users.FindAsync(assignedToUserId);
         if (@case == null || lawyer == null) return;
         var clientName = await GetClientDisplayNameAsync(@case);
 
-        // Alerter l'avocat assigné (doit traiter)
-        await CreateNotification(assignedToUserId.ToString(), 
-            "⚖️ Dossier assigné à vous", 
-            $"Dossier #{caseId} - {clientName} - Priorité: {@case.Priority}", 
+        await CreateNotification(assignedToUserId,
+            "⚖️ Dossier assigné à vous",
+            $"Dossier {caseId} - {clientName} - Priorité: {@case.Priority}",
             "CASE_ASSIGNED", caseId, "HIGH");
 
-        // Alerter les associés (supervision)
-        await CreateNotificationsForRole(assignedByUserId, UserRole.PARTNER, 
-            "👤 Dossier assigné", 
-            $"{(lawyer.Name ?? lawyer.Email)} → Dossier #{caseId}", 
+        await CreateNotificationsForRole(assignedByUserId, UserRole.PARTNER,
+            "👤 Dossier assigné",
+            $"{(lawyer.Name ?? lawyer.Email)} → Dossier {caseId}",
             "CASE_ASSIGNED", caseId, "LOW");
     }
 
-    // Notification : Priorité (1=urgent, 5=faible)
-    public async Task NotifyHighPriority(int caseId, string userId)
+    public async Task NotifyHighPriority(Guid caseId, Guid userId)
     {
         var @case = await _context.Cases.FindAsync(caseId);
         if (@case == null || @case.Priority > 2) return;
@@ -66,29 +59,26 @@ public class RoleBasedNotificationService
         var priorityLabel = @case.Priority == 1 ? "CRITIQUE" : "ÉLEVÉE";
         var severity = @case.Priority == 1 ? "CRITICAL" : "HIGH";
 
-        // Alerter l'avocat assigné
         if (@case.AssignedToUserId.HasValue)
         {
-            await CreateNotification(@case.AssignedToUserId.Value.ToString(), 
-                $"🚨 URGENT - Priorité {priorityLabel} ({@case.Priority}/5)", 
-                $"Dossier #{caseId} - {clientName}", 
+            await CreateNotification(@case.AssignedToUserId.Value,
+                $"🚨 URGENT - Priorité {priorityLabel} ({@case.Priority}/5)",
+                $"Dossier {caseId} - {clientName}",
                 "HIGH_PRIORITY", caseId, severity);
         }
 
-        // Alerter tous les associés/partenaires
-        await CreateNotificationsForRole(userId, UserRole.PARTNER, 
-            $"⚠️ Dossier prioritaire ({@case.Priority}/5)", 
-            $"Dossier #{caseId} - {clientName}", 
+        await CreateNotificationsForRole(userId, UserRole.PARTNER,
+            $"⚠️ Dossier prioritaire ({@case.Priority}/5)",
+            $"Dossier {caseId} - {clientName}",
             "HIGH_PRIORITY", caseId, severity);
 
-        await CreateNotificationsForRole(userId, UserRole.OWNER, 
-            $"⚠️ Dossier prioritaire ({@case.Priority}/5)", 
-            $"Dossier #{caseId} - {clientName}", 
+        await CreateNotificationsForRole(userId, UserRole.OWNER,
+            $"⚠️ Dossier prioritaire ({@case.Priority}/5)",
+            $"Dossier {caseId} - {clientName}",
             "HIGH_PRIORITY", caseId, severity);
     }
 
-    // Notification : Échéance proche
-    public async Task NotifyDeadlineApproaching(int caseId, string userId)
+    public async Task NotifyDeadlineApproaching(Guid caseId, Guid userId)
     {
         var @case = await _context.Cases.FindAsync(caseId);
         if (@case == null || !@case.DueDate.HasValue) return;
@@ -97,99 +87,87 @@ public class RoleBasedNotificationService
         var daysLeft = (@case.DueDate.Value - DateTime.UtcNow).Days;
         if (daysLeft > 3) return;
 
-        // Alerter l'avocat assigné
         if (@case.AssignedToUserId.HasValue)
         {
-            await CreateNotification(@case.AssignedToUserId.Value.ToString(), 
-                $"⏰ Échéance dans {daysLeft} jours", 
-                $"Dossier #{caseId} - {clientName}", 
+            await CreateNotification(@case.AssignedToUserId.Value,
+                $"⏰ Échéance dans {daysLeft} jours",
+                $"Dossier {caseId} - {clientName}",
                 "DEADLINE_APPROACHING", caseId, "HIGH");
         }
 
-        // Alerter les associés
-        await CreateNotificationsForRole(userId, UserRole.PARTNER, 
-            $"📅 Échéance proche ({daysLeft}j)", 
-            $"Dossier #{caseId}", 
+        await CreateNotificationsForRole(userId, UserRole.PARTNER,
+            $"📅 Échéance proche ({daysLeft}j)",
+            $"Dossier {caseId}",
             "DEADLINE_APPROACHING", caseId, "MEDIUM");
     }
 
-    // Notification : Statut changé
-    public async Task NotifyStatusChanged(int caseId, string oldStatus, string newStatus, string userId)
+    public async Task NotifyStatusChanged(Guid caseId, string oldStatus, string newStatus, Guid userId)
     {
         var @case = await _context.Cases.FindAsync(caseId);
         if (@case == null) return;
         var clientName = await GetClientDisplayNameAsync(@case);
 
-        // Alerter l'avocat assigné
         if (@case.AssignedToUserId.HasValue)
         {
-            await CreateNotification(@case.AssignedToUserId.Value.ToString(), 
-                $"📊 Statut: {oldStatus} → {newStatus}", 
-                $"Dossier #{caseId} - {clientName}", 
+            await CreateNotification(@case.AssignedToUserId.Value,
+                $"📊 Statut: {oldStatus} → {newStatus}",
+                $"Dossier {caseId} - {clientName}",
                 "STATUS_CHANGED", caseId, "MEDIUM");
         }
 
-        // Si clôturé, alerter les associés
         if (newStatus == "CLOSED")
         {
-            await CreateNotificationsForRole(userId, UserRole.PARTNER, 
-                "✅ Dossier clôturé", 
-                $"Dossier #{caseId} - {clientName}", 
+            await CreateNotificationsForRole(userId, UserRole.PARTNER,
+                "✅ Dossier clôturé",
+                $"Dossier {caseId} - {clientName}",
                 "CASE_CLOSED", caseId, "LOW");
         }
     }
 
-    // Notification : Anomalie détectée
-    public async Task NotifyAnomaly(string anomalyType, string description, int? caseId, string userId)
+    public async Task NotifyAnomaly(string anomalyType, string description, Guid? caseId, Guid userId)
     {
-        // Alerter tous les associés et propriétaires
-        await CreateNotificationsForRole(userId, UserRole.PARTNER, 
-            $"⚠️ Anomalie: {anomalyType}", 
-            description, 
+        await CreateNotificationsForRole(userId, UserRole.PARTNER,
+            $"⚠️ Anomalie: {anomalyType}",
+            description,
             "ANOMALY", caseId, "HIGH");
 
-        await CreateNotificationsForRole(userId, UserRole.OWNER, 
-            $"⚠️ Anomalie: {anomalyType}", 
-            description, 
+        await CreateNotificationsForRole(userId, UserRole.OWNER,
+            $"⚠️ Anomalie: {anomalyType}",
+            description,
             "ANOMALY", caseId, "HIGH");
     }
 
-    // Notification : Nouveau commentaire
-    public async Task NotifyNewComment(int caseId, string commentAuthor, string userId)
+    public async Task NotifyNewComment(Guid caseId, string commentAuthor, Guid userId)
     {
         var @case = await _context.Cases.FindAsync(caseId);
         if (@case == null) return;
 
-        // Alerter l'avocat assigné (si ce n'est pas lui qui a commenté)
         if (@case.AssignedToUserId.HasValue)
         {
-            await CreateNotification(@case.AssignedToUserId.Value.ToString(), 
-                "💬 Nouveau commentaire", 
-                $"{commentAuthor} a commenté le dossier #{caseId}", 
+            await CreateNotification(@case.AssignedToUserId.Value,
+                "💬 Nouveau commentaire",
+                $"{commentAuthor} a commenté le dossier {caseId}",
                 "NEW_COMMENT", caseId, "LOW");
         }
     }
 
-    // Créer notification pour un rôle spécifique
-    private async Task CreateNotificationsForRole(string excludeUserId, UserRole role, string title, string message, string type, int? caseId, string severity)
+    private async Task CreateNotificationsForRole(Guid excludeUserId, UserRole role, string title, string message, string type, Guid? caseId, string severity)
     {
-        var users = await _context.UserTeamMemberships
-            .Where(ut => ut.Role == role && ut.UserId.ToString() != excludeUserId)
+        var userIds = await _context.UserTeamMemberships
+            .Where(ut => ut.Role == role && ut.UserId != excludeUserId)
             .Select(ut => ut.UserId)
             .ToListAsync();
 
-        foreach (var userId in users)
-        {
-            await CreateNotification(userId.ToString(), title, message, type, caseId, severity);
-        }
+        foreach (var uid in userIds)
+            await CreateNotification(uid, title, message, type, caseId, severity);
     }
 
-    // Créer une notification
-    private async Task CreateNotification(string userId, string title, string message, string type, int? caseId, string severity)
+    private async Task CreateNotification(Guid userId, string title, string message, string type, Guid? caseId, string severity)
     {
         var notification = new RoleNotification
         {
-            UserId = int.Parse(userId),
+            Id = Guid.NewGuid(),
+            UserId = userId,
             Title = title,
             Message = message,
             Type = type,
@@ -202,11 +180,10 @@ public class RoleBasedNotificationService
         _context.RoleNotifications.Add(notification);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation($"Notification créée: {title} pour user {userId}");
+        _logger.LogInformation("Notification créée: {Title} pour user {UserId}", title, userId);
     }
 
-    // Récupérer notifications non lues
-    public async Task<List<RoleNotification>> GetUnreadNotifications(int userId)
+    public async Task<List<RoleNotification>> GetUnreadNotifications(Guid userId)
     {
         return await _context.RoleNotifications
             .Where(n => n.UserId == userId && !n.IsRead)
@@ -215,8 +192,7 @@ public class RoleBasedNotificationService
             .ToListAsync();
     }
 
-    // Marquer comme lu
-    public async Task MarkAsRead(int notificationId, int userId)
+    public async Task MarkAsRead(Guid notificationId, Guid userId)
     {
         var notification = await _context.RoleNotifications
             .FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId);
@@ -229,24 +205,22 @@ public class RoleBasedNotificationService
         }
     }
 
-    // Marquer toutes comme lues
-    public async Task MarkAllAsRead(int userId)
+    public async Task MarkAllAsRead(Guid userId)
     {
         var notifications = await _context.RoleNotifications
             .Where(n => n.UserId == userId && !n.IsRead)
             .ToListAsync();
 
-        foreach (var notification in notifications)
+        foreach (var n in notifications)
         {
-            notification.IsRead = true;
-            notification.ReadAt = DateTime.UtcNow;
+            n.IsRead = true;
+            n.ReadAt = DateTime.UtcNow;
         }
 
         await _context.SaveChangesAsync();
     }
 
-    // Compter notifications non lues
-    public async Task<int> CountUnread(int userId)
+    public async Task<int> CountUnread(Guid userId)
     {
         return await _context.RoleNotifications
             .CountAsync(n => n.UserId == userId && !n.IsRead);

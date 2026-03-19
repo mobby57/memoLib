@@ -12,9 +12,13 @@ export async function GET(request: NextRequest) {
   try {
     // Verifier le token de securite
     const authHeader = request.headers.get('authorization');
-    const expectedToken = process.env.CRON_SECRET || 'dev-secret-token';
+    const expectedToken = process.env.CRON_SECRET;
 
-    if (authHeader !== `Bearer ${expectedToken}`) {
+    if (!expectedToken && process.env.NODE_ENV !== 'development') {
+      return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
+    }
+
+    if (!expectedToken || authHeader !== `Bearer ${expectedToken}`) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
