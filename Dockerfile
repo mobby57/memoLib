@@ -31,6 +31,7 @@ RUN mkdir -p /app/data
 ENV ASPNETCORE_URLS=http://+:5078
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ConnectionStrings__Default="Data Source=/app/data/memolib.db"
+ENV DisableHttpsRedirection=true
 
 # Expose port
 EXPOSE 5078

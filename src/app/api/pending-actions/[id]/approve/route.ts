@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { approvePendingAction } from '@/lib/pending-actions/service';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
 const bodySchema = z.object({
-  tenantId: z.string().min(1),
+  tenantId: z.string().min(1).optional(),
   createCase: z.boolean().optional(),
   caseTitle: z.string().optional(),
   createClient: z.boolean().optional(),
@@ -22,21 +24,35 @@ const bodySchema = z.object({
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+
+    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    if (!sessionTenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
+
     const json = await request.json();
     const parsed = bodySchema.safeParse(json);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: 'Payload invalide', details: parsed.error.flatten() }, { status: 400 });
+      return NextResponse.json({ error: 'Payload invalide' }, { status: 400 });
     }
 
     const body = parsed.data;
+    if (body.tenantId && body.tenantId !== sessionTenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
+
     const tags = Array.isArray(body.tags)
       ? body.tags
       : body.tags
         ? body.tags.split(',').map(tag => tag.trim()).filter(Boolean)
         : [];
 
-    const result = await approvePendingAction(id, body.tenantId, {
+    const result = await approvePendingAction(id, sessionTenantId, {
       createCase: body.createCase,
       caseTitle: body.caseTitle,
       createClient: body.createClient,

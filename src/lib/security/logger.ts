@@ -6,6 +6,10 @@ interface LogContext {
   ip?: string;
   userAgent?: string;
   action?: string;
+  method?: string;
+  reason?: string;
+  password?: unknown;
+  credentials?: unknown;
 }
 
 class SecureLogger {
@@ -28,7 +32,7 @@ class SecureLogger {
         'password', 'token', 'secret', 'key', 'auth', 'credential',
         'passportNumber', 'phone', 'address', 'email'
       ];
-      
+
       if (typeof data === 'object' && data !== null) {
         const sanitized = { ...data };
         Object.keys(sanitized).forEach(key => {
@@ -38,7 +42,7 @@ class SecureLogger {
         });
         return sanitized;
       }
-      
+
       if (typeof data === 'string') {
         // Masquer les emails et mots de passe dans les strings
         return data
@@ -46,7 +50,7 @@ class SecureLogger {
           .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL_REDACTED]');
       }
     }
-    
+
     return data;
   }
 
@@ -54,7 +58,7 @@ class SecureLogger {
     const timestamp = new Date().toISOString();
     const contextStr = context ? JSON.stringify(this.sanitizeData(context)) : '';
     const dataStr = data ? JSON.stringify(this.sanitizeData(data)) : '';
-    
+
     return `[${timestamp}] ${level.toUpperCase()}: ${message} ${contextStr} ${dataStr}`.trim();
   }
 
@@ -106,26 +110,26 @@ export const logger = new SecureLogger();
 // Helper pour remplacer console.log dans l'authentification
 export const authLogger = {
   attempt: (email: string, method: string) => {
-    logger.authEvent('LOGIN_ATTEMPT', { 
+    logger.authEvent('LOGIN_ATTEMPT', {
       action: 'login_attempt',
       userId: email.replace(/(.{2}).*(@.*)/, '$1***$2'), // Masquer l'email partiellement
-      method 
+      method
     });
   },
-  
+
   success: (userId: string, method: string) => {
-    logger.authEvent('LOGIN_SUCCESS', { 
+    logger.authEvent('LOGIN_SUCCESS', {
       action: 'login_success',
       userId,
-      method 
+      method
     });
   },
-  
+
   failure: (email: string, reason: string) => {
-    logger.authEvent('LOGIN_FAILURE', { 
+    logger.authEvent('LOGIN_FAILURE', {
       action: 'login_failure',
       userId: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
-      reason 
+      reason
     });
   }
 };

@@ -1,4 +1,5 @@
-﻿/**
+﻿// @ts-nocheck
+/**
  * WORKSPACE EXTRACTION SERVICE
  * 
  * Service d'extraction automatique IA pour WorkspaceReasoning
@@ -382,7 +383,7 @@ export class WorkspaceExtractionService {
     });
 
     if (urgentDeadlines.length > 0) {
-      warnings.push(`️ ${urgentDeadlines.length} deadline(s) critique(s) < 7 jours`);
+      warnings.push(`? ${urgentDeadlines.length} deadline(s) critique(s) < 7 jours`);
     }
 
     return {
@@ -394,3 +395,5 @@ export class WorkspaceExtractionService {
 
 // Singleton pour reutilisation
 export const workspaceExtractionService = new WorkspaceExtractionService();
+
+

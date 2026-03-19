@@ -4,6 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { LearningService } from '@/lib/services/learningService';
 import { logger } from '@/lib/logger';
 
@@ -17,6 +19,13 @@ export async function GET(
 ) {
   try {
     const { tenantId } = params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    if ((session.user as any).tenantId !== tenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action') || 'analyze';
     const period = parseInt(searchParams.get('period') || '30');
@@ -56,6 +65,13 @@ export async function POST(
 ) {
   try {
     const { tenantId } = params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    if ((session.user as any).tenantId !== tenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
     const body = await request.json();
     const { actionType, confidence } = body;
 

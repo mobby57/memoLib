@@ -43,19 +43,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'La date doit etre dans le futur' }, { status: 400 });
     }
 
-    // Log la demande de demo
-    logger.info('=== NOUVELLE DEMANDE DE DEMO ===');
-    logger.info('Nom:', { nom });
-    logger.info('Email:', { email });
-    logger.info('Telephone:', { telephone: telephone || 'Non renseigne' });
-    logger.info('Cabinet:', { cabinet: cabinet || 'Non renseigne' });
-    logger.info('Taille equipe:', { tailleEquipe });
-    logger.info('Date souhaitee:', { dateSouhaitee });
-    logger.info('Heure souhaitee:', { heureSouhaitee });
-    logger.info('Besoin principal:', { besoinPrincipal });
-    logger.info('Commentaire:', { commentaire: commentaire || 'Aucun' });
-    logger.info('Date demande:', { date: new Date().toISOString() });
-    logger.info('================================');
+    // Journalisation RGPD: ne pas logguer de donnees personnelles directes.
+    logger.info('Nouvelle demande de demo', {
+      hasTelephone: Boolean(telephone),
+      hasCabinet: Boolean(cabinet),
+      tailleEquipe,
+      dateSouhaitee,
+      heureSouhaitee,
+      besoinPrincipal,
+      hasCommentaire: Boolean(commentaire),
+      requestedAt: new Date().toISOString(),
+    });
 
     // Optionnel: Créer une entrée dans une table DemoRequest
     // await prisma.demoRequest.create({ data: { ... } });

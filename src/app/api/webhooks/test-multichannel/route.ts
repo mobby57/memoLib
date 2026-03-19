@@ -1,6 +1,8 @@
 import { checkDuplicate, computeChecksum, storeChannelMessage } from '@/lib/deduplication-service';
 import { captureWebhookHealth, trackMetric } from '@/lib/sentry-release-health';
 import * as Sentry from '@sentry/nextjs';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 
@@ -13,7 +15,27 @@ const retryPrismaOperation = async (fn: () => any, retries: number, delay: numbe
 const handlePrismaError = (error: any, ctx?: any) => ({ code: 'PRISMA_ERROR', message: error.message, status: 500 });
 const getUserFriendlyErrorMessage = (code: string) => 'Une erreur est survenue';
 
+async function ensureAdminAccess() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  }
+
+  const role = String((session.user as any).role || '').toUpperCase();
+  const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
+  if (!allowedRoles.has(role)) {
+    return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+  }
+
+  return null;
+}
+
 export async function GET() {
+  const authError = await ensureAdminAccess();
+  if (authError) {
+    return authError;
+  }
+
   return NextResponse.json({
     endpoint: '/api/webhooks/test-multichannel',
     method: 'POST',
@@ -74,6 +96,11 @@ export async function POST(req: NextRequest) {
   let channel = 'UNKNOWN';
 
   try {
+    const authError = await ensureAdminAccess();
+    if (authError) {
+      return authError;
+    }
+
     // Step 1: Check payload size limit
     const contentLength = req.headers.get('content-length');
     if (contentLength) {
@@ -119,7 +146,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: 'VALIDATION_ERROR',
           message: 'Payload validation failed',
-          details: zodErrors,
+          details: process.env.NODE_ENV === 'development' ? zodErrors : undefined,
         },
         { status: 400 }
       );
@@ -304,7 +331,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.error('[Webhook Error]', error.message || error);
+    console.error('[Webhook Error]', error?.message || error);
     return NextResponse.json(
       {
         success: false,

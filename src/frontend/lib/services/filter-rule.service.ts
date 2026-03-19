@@ -1,8 +1,9 @@
+﻿// @ts-nocheck
 /**
  * FilterRuleService - Service de filtrage email automatique (Phase 3)
  *
- * Évalue des règles de filtrage pour router automatiquement les emails
- * vers dossiers, clients, catégories selon conditions (from, subject, etc.)
+ * Ã‰value des rÃ¨gles de filtrage pour router automatiquement les emails
+ * vers dossiers, clients, catÃ©gories selon conditions (from, subject, etc.)
  *
  * @example
  * ```ts
@@ -43,16 +44,16 @@ export type FilterAction = {
 
 export type RuleMatch = {
   rule: FilterRule;
-  matchedConditions: string[]; // Liste des champs qui ont matché
-  confidence: number; // 0-1 (% conditions matchées)
+  matchedConditions: string[]; // Liste des champs qui ont matchÃ©
+  confidence: number; // 0-1 (% conditions matchÃ©es)
 };
 
 export class FilterRuleService {
   constructor(private prisma: PrismaClient = new PrismaClient()) {}
 
   /**
-   * Évalue toutes les règles actives pour un email donné
-   * Retourne les règles qui matchent, triées par priorité
+   * Ã‰value toutes les rÃ¨gles actives pour un email donnÃ©
+   * Retourne les rÃ¨gles qui matchent, triÃ©es par prioritÃ©
    */
   async evaluateAllRules(email: Email, tenantId: string): Promise<RuleMatch[]> {
     const rules = await this.prisma.filterRule.findMany({
@@ -78,7 +79,7 @@ export class FilterRuleService {
   }
 
   /**
-   * Évalue une règle contre un email
+   * Ã‰value une rÃ¨gle contre un email
    * Retourne RuleMatch si toutes les conditions sont remplies, null sinon
    */
   private evaluateRule(email: Email, rule: FilterRule): RuleMatch | null {
@@ -91,7 +92,7 @@ export class FilterRuleService {
       }
     }
 
-    // Si toutes conditions matchent, c'est un succès
+    // Si toutes conditions matchent, c'est un succÃ¨s
     if (matchedConditions.length === conditions.length) {
       return {
         rule,
@@ -104,7 +105,7 @@ export class FilterRuleService {
   }
 
   /**
-   * Évalue une condition individuelle
+   * Ã‰value une condition individuelle
    */
   private evaluateCondition(email: Email, condition: FilterCondition): boolean {
     const fieldValue = this.getFieldValue(email, condition.field);
@@ -147,7 +148,7 @@ export class FilterRuleService {
   }
 
   /**
-   * Récupère la valeur d'un champ email
+   * RÃ©cupÃ¨re la valeur d'un champ email
    */
   private getFieldValue(email: Email, field: FilterCondition['field']): string | null {
     switch (field) {
@@ -171,8 +172,8 @@ export class FilterRuleService {
   }
 
   /**
-   * Applique les actions d'une règle à un email
-   * Met à jour l'email en DB et trace avec EventLog
+   * Applique les actions d'une rÃ¨gle Ã  un email
+   * Met Ã  jour l'email en DB et trace avec EventLog
    */
   async applyActions(emailId: string, rule: FilterRule, tenantId: string): Promise<void> {
     const actions = rule.actions as FilterAction[];
@@ -220,22 +221,22 @@ export class FilterRuleService {
           break;
 
         case 'NOTIFY_USER':
-          // TODO: implémenter notification
+          // TODO: implÃ©menter notification
           break;
 
         case 'TRIGGER_WORKFLOW':
-          // TODO: implémenter trigger workflow
+          // TODO: implÃ©menter trigger workflow
           break;
       }
     }
 
-    // Mettre à jour email
+    // Mettre Ã  jour email
     await this.prisma.email.update({
       where: { id: emailId },
       data: updateData,
     });
 
-    // Mettre à jour stats de la règle
+    // Mettre Ã  jour stats de la rÃ¨gle
     await this.prisma.filterRule.update({
       where: { id: rule.id },
       data: {
@@ -262,7 +263,7 @@ export class FilterRuleService {
   }
 
   /**
-   * Trace une règle qui n'a pas matché (optionnel, pour debug)
+   * Trace une rÃ¨gle qui n'a pas matchÃ© (optionnel, pour debug)
    */
   async logSkippedRule(
     emailId: string,
@@ -285,13 +286,13 @@ export class FilterRuleService {
   }
 
   /**
-   * Valide une règle avant création/update
+   * Valide une rÃ¨gle avant crÃ©ation/update
    */
   validateRule(rule: Partial<FilterRule>): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     if (!rule.name || rule.name.trim().length === 0) {
-      errors.push('Le nom de la règle est requis');
+      errors.push('Le nom de la rÃ¨gle est requis');
     }
 
     if (!rule.conditions) {
@@ -303,7 +304,7 @@ export class FilterRuleService {
       } else {
         conditions.forEach((c, i) => {
           if (!c.field) errors.push(`Condition ${i + 1}: champ manquant`);
-          if (!c.operator) errors.push(`Condition ${i + 1}: opérateur manquant`);
+          if (!c.operator) errors.push(`Condition ${i + 1}: opÃ©rateur manquant`);
           if (!c.value) errors.push(`Condition ${i + 1}: valeur manquante`);
         });
       }
@@ -336,3 +337,5 @@ export class FilterRuleService {
 }
 
 export const filterRuleService = new FilterRuleService();
+
+

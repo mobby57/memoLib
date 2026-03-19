@@ -273,7 +273,7 @@ const config = {
 };
 
 // Log de configuration
-const prismaClientConfig: Parameters<typeof PrismaClient>[0] = {
+const prismaClientConfig: ConstructorParameters<typeof PrismaClient>[0] = {
   datasources: {
     db: {
       url: config.connectionString,
