@@ -3,6 +3,135 @@ import { CesedaService } from '@/lib/ceseda/dossier-service'
 import { LearningService } from '@/lib/ai/learning-service'
 import { SuggestionService } from '@/lib/ai/suggestion-service'
 
+jest.mock('@/lib/prisma', () => {
+  const now = new Date()
+  const criticalDeadline = new Date(now)
+  criticalDeadline.setDate(criticalDeadline.getDate() + 5)
+
+  const oldDate = new Date(now)
+  oldDate.setDate(oldDate.getDate() - 30)
+
+  const dossierModel = {
+    count: jest.fn(async (args?: any) => {
+      const tenantId = args?.where?.tenantId
+      if (tenantId === 'tenant-1') return 7
+      if (tenantId === 'tenant-2') return 3
+      return 0
+    }),
+    create: jest.fn(async (args: any) => ({
+      id: 'dossier-1',
+      numero: args?.data?.numero ?? 'D-2026-001',
+      type: args?.data?.typeDossier,
+      priorite: args?.data?.dateEcheance ? 'CRITIQUE' : (args?.data?.priorite ?? 'normale'),
+      ...args?.data,
+      client: { id: args?.data?.clientId, firstName: 'Test', lastName: 'Client', email: 'client@test.fr' },
+      tenant: { id: args?.data?.tenantId },
+    })),
+    update: jest.fn(async (args: any) => ({ id: args?.where?.id ?? 'dossier-1', ...args?.data })),
+    groupBy: jest.fn(async (args: any) => {
+      if (Array.isArray(args?.by) && args.by.includes('typeDossier')) {
+        return [{ typeDossier: 'OQTF', _count: 1 }]
+      }
+      if (Array.isArray(args?.by) && args.by.includes('statut')) {
+        return [{ statut: 'EN_COURS', _count: 1 }]
+      }
+      return []
+    }),
+    findMany: jest.fn(async (args?: any) => {
+      if (args?.where?.updatedAt?.lt) {
+        return [
+          {
+            id: 'inactive-1',
+            numero: 'D-2026-010',
+            tenantId: args?.where?.tenantId,
+            statut: 'EN_COURS',
+            typeDossier: 'OQTF',
+            updatedAt: oldDate,
+            createdAt: oldDate,
+            priorite: 'HAUTE',
+            dateEcheance: criticalDeadline,
+            client: { firstName: 'Old', lastName: 'Client', email: 'old@test.fr' },
+            documents: [],
+          },
+        ]
+      }
+
+      if (args?.where?.dateEcheance?.lte) {
+        return [
+          {
+            id: 'critical-1',
+            numero: 'D-2026-011',
+            tenantId: args?.where?.tenantId,
+            statut: 'EN_COURS',
+            typeDossier: 'OQTF',
+            updatedAt: now,
+            createdAt: now,
+            priorite: 'CRITIQUE',
+            dateEcheance: criticalDeadline,
+            client: { firstName: 'Urgent', lastName: 'Client', email: 'urgent@test.fr' },
+            documents: [{ filename: 'passeport.pdf' }],
+          },
+        ]
+      }
+
+      return [
+        {
+          id: 'dossier-generic-1',
+          numero: 'D-2026-012',
+          tenantId: args?.where?.tenantId,
+          statut: 'EN_COURS',
+          typeDossier: 'OQTF',
+          updatedAt: now,
+          createdAt: now,
+          priorite: 'HAUTE',
+          dateEcheance: criticalDeadline,
+          client: { firstName: 'Generic', lastName: 'Client', email: 'generic@test.fr' },
+          documents: [{ filename: 'passeport.pdf' }],
+        },
+      ]
+    }),
+  }
+
+  const aiActionModel = {
+    update: jest.fn(async () => ({ id: 'test-action-123' })),
+    findMany: jest.fn(async () => [
+      {
+        id: 'a1',
+        tenantId: 'test-tenant-123',
+        actionType: 'EMAIL_TRIAGE',
+        confidence: 0.95,
+        validationStatus: 'APPROVED',
+        createdAt: now,
+      },
+      {
+        id: 'a2',
+        tenantId: 'test-tenant-123',
+        actionType: 'EMAIL_TRIAGE',
+        confidence: 0.88,
+        validationStatus: 'APPROVED',
+        createdAt: now,
+      },
+    ]),
+  }
+
+  const prisma = {
+    dossier: dossierModel,
+    aIAction: aiActionModel,
+    aIMetrics: {
+      upsert: jest.fn(async () => ({})),
+    },
+    facture: {
+      count: jest.fn(async () => 0),
+    },
+  }
+
+  return {
+    __esModule: true,
+    prisma,
+    default: prisma,
+  }
+})
+
 describe('Integration Tests - memoLib', () => {
   const testTenantId = 'test-tenant-123'
   const testClientId = 'test-client-123'

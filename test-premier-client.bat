@@ -5,6 +5,7 @@ setlocal enabledelayedexpansion
 set BASE=http://localhost:5078
 set /a RAND=%RANDOM%
 set EMAIL=premier-client-%RAND%@test.com
+set PASSWORD=TestPass123Secure
 
 echo ========================================
 echo TEST PARCOURS PREMIER CLIENT
@@ -18,7 +19,7 @@ REM 1. Register (Inscription)
 echo [1/10] Inscription du premier client...
 curl -s -X POST %BASE%/api/auth/register ^
   -H "Content-Type: application/json" ^
-  -d "{\"email\":\"%EMAIL%\",\"password\":\"Test123!@#\",\"name\":\"Premier Client\",\"plan\":\"CABINET\",\"firmName\":\"Cabinet Test\"}" > register.json
+  -d "{\"email\":\"%EMAIL%\",\"password\":\"%PASSWORD%\",\"name\":\"Premier Client\",\"plan\":\"CABINET\",\"firmName\":\"Cabinet Test\"}" > register.json
 
 findstr "id" register.json >nul
 if %errorlevel%==0 (
@@ -35,7 +36,7 @@ REM 2. Login (Connexion)
 echo [2/10] Connexion...
 curl -s -X POST %BASE%/api/auth/login ^
   -H "Content-Type: application/json" ^
-  -d "{\"email\":\"%EMAIL%\",\"password\":\"Test123!@#\"}" > login.json
+  -d "{\"email\":\"%EMAIL%\",\"password\":\"%PASSWORD%\"}" > login.json
 
 findstr "token" login.json >nul
 if %errorlevel%==0 (
@@ -88,7 +89,7 @@ echo [5/10] Reception du premier email...
 curl -s -X POST %BASE%/api/ingest/email ^
   -H "Authorization: Bearer !TOKEN!" ^
   -H "Content-Type: application/json" ^
-  -d "{\"from\":\"sophie.dubois@email.com\",\"to\":\"avocat@cabinet.fr\",\"subject\":\"URGENT - OQTF notifiee\",\"body\":\"Bonjour Maitre, J'ai recu une OQTF le 15/01/2026 avec un delai de 30 jours.\",\"messageId\":\"test-%RAND%@test.local\"}" > email.json
+  -d "{\"externalId\":\"test-%RAND%@test.local\",\"from\":\"sophie.dubois@email.com\",\"subject\":\"URGENT - OQTF notifiee\",\"body\":\"Bonjour Maitre, J'ai recu une OQTF le 15/01/2026 avec un delai de 30 jours.\",\"occurredAt\":\"2026-03-16T12:00:00Z\"}" > email.json
 
 findstr "eventId" email.json >nul
 if %errorlevel%==0 (
@@ -107,12 +108,13 @@ curl -s -X POST %BASE%/api/cases ^
   -H "Content-Type: application/json" ^
   -d "{\"title\":\"Dossier OQTF - Sophie Dubois\",\"description\":\"OQTF notifiee avec delai de 30 jours\",\"clientEmail\":\"sophie.dubois@email.com\",\"clientName\":\"Sophie Dubois\",\"status\":\"OPEN\",\"priority\":5,\"tags\":[\"OQTF\",\"urgent\"]}" > case.json
 
-findstr "id" case.json >nul
+findstr /r "[0-9a-f]" case.json >nul
 if %errorlevel%==0 (
     echo [OK] Premier dossier cree
-    for /f "tokens=2 delims=:," %%a in ('findstr "\"id\"" case.json') do set CASE_ID=%%a
+    set /p CASE_ID=<case.json
 ) else (
     echo [FAIL] Erreur creation dossier
+    type case.json
     goto :cleanup
 )
 echo.
@@ -145,10 +147,10 @@ echo.
 
 REM 9. Get Notifications (Notifications)
 echo [9/10] Verification des notifications...
-curl -s -X GET %BASE%/api/notifications ^
+curl -s -X GET %BASE%/api/Notifications/unread ^
   -H "Authorization: Bearer !TOKEN!" > notifications.json
 
-findstr "[" notifications.json >nul
+findstr "count" notifications.json >nul
 if %errorlevel%==0 (
     echo [OK] Notifications recuperees
 ) else (
@@ -158,10 +160,10 @@ echo.
 
 REM 10. Dashboard Stats (Statistiques)
 echo [10/10] Consultation du dashboard...
-curl -s -X GET %BASE%/api/dashboard/stats ^
+curl -s -X GET %BASE%/api/Dashboard/overview ^
   -H "Authorization: Bearer !TOKEN!" > dashboard.json
 
-findstr "{" dashboard.json >nul
+findstr /r "[{]" dashboard.json >nul
 if %errorlevel%==0 (
     echo [OK] Dashboard consulte
 ) else (
@@ -199,10 +201,10 @@ echo.
 echo Prochaines etapes:
 echo 1. Ouvrir http://localhost:5078
 echo 2. Se connecter avec: %EMAIL%
-echo 3. Mot de passe: Test123!@#
+echo 3. Mot de passe: TestPass123Secure
 echo 4. Explorer l'interface
 echo.
 
 :cleanup
-del *.json 2>nul
+del register.json login.json me.json client.json email.json case.json cases.json clients.json notifications.json dashboard.json 2>nul
 exit /b 0

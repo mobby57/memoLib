@@ -44,6 +44,12 @@ export default function manifest(): MetadataRoute.Manifest {
         url: '/fr/pricing',
       },
       {
+        name: 'Pilote Gratuit',
+        short_name: 'Pilote',
+        description: 'Essai gratuit 30 jours MemoLib',
+        url: '/fr/pilote',
+      },
+      {
         name: 'Contact',
         short_name: 'Contact',
         description: 'Contacter l\'equipe MemoLib',

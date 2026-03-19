@@ -112,49 +112,100 @@
 
         <!-- Auth Tab -->
         <div id="auth-tab" class="tab-content">
-            <div class="card">
-                <h2>Inscription</h2>
-                <p style="color:#666; margin-bottom:15px;">📝 Créez votre compte en 30 secondes. Une fois créé, vous pourrez scanner vos emails et retrouver facilement vos dossiers.</p>
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="reg-email" placeholder="avocat@cabinet.fr" autocomplete="off">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+                <!-- Connexion (prioritaire, a gauche) -->
+                <div class="card" style="border-top:4px solid #667eea;">
+                    <h2 style="display:flex;align-items:center;gap:10px;">🔑 Connexion</h2>
+                    <p style="color:#666; margin-bottom:15px;">Accédez à votre espace cabinet</p>
+                    <div class="input-group">
+                        <label>Email professionnel</label>
+                        <input type="email" id="login-email" placeholder="maitre@cabinet.fr" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label>Mot de passe</label>
+                        <div style="position:relative;">
+                            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+                            <button type="button" onclick="togglePasswordVisibility('login-password', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;" title="Afficher/masquer">👁️</button>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="login()" style="width:100%;padding:14px;font-size:16px;">Se connecter</button>
+                    <div id="login-result"></div>
+                    <div style="margin-top:15px;padding:12px;background:#f0f4ff;border-radius:8px;font-size:13px;color:#555;">
+                        <strong>Compte demo :</strong> demo@memolib.com / Demo2026!
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>Mot de passe (min 8 caractères, majuscules, minuscules, chiffres)</label>
-                    <input type="password" id="reg-password" placeholder="SecurePass123!" autocomplete="new-password">
-                </div>
-                <div class="input-group">
-                    <label>Nom</label>
-                    <input type="text" id="reg-name" placeholder="Jean Dupont" autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <label>Secteur d'activité</label>
-                    <select id="reg-sector">
-                        <option value="AVOCAT" selected>Cabinet d'Avocat</option>
-                        <option value="NOTAIRE">Étude Notariale</option>
-                        <option value="HUISSIER">Étude d'Huissier</option>
-                        <option value="EXPERT_COMPTABLE">Cabinet Comptable</option>
-                        <option value="ARCHITECTE">Agence Architecture</option>
-                        <option value="MEDECIN">Cabinet Médical</option>
-                    </select>
-                </div>
-                <button class="btn" onclick="register()">S'inscrire</button>
-                <div id="reg-result"></div>
-            </div>
 
-            <div class="card">
-                <h2>Connexion</h2>
-                <p style="color:#666; margin-bottom:15px;">🔑 Connectez-vous pour accéder à vos données. Si vous êtes nouveau, utilisez l'inscription juste au-dessus.</p>
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="login-email" placeholder="avocat@cabinet.fr" autocomplete="off">
+                <!-- Inscription -->
+                <div class="card" style="border-top:4px solid #27ae60;">
+                    <h2 style="display:flex;align-items:center;gap:10px;">📝 Créer un compte</h2>
+                    <p style="color:#666; margin-bottom:15px;">Inscription gratuite en 30 secondes</p>
+
+                    <!-- Etape 1: Identite -->
+                    <div id="reg-step-1">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                            <span style="background:#667eea;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;">1</span>
+                            <strong style="color:#667eea;">Votre identité</strong>
+                        </div>
+                        <div class="input-group">
+                            <label>Nom complet *</label>
+                            <input type="text" id="reg-name" placeholder="Me Sarra Boudjellal" autocomplete="off">
+                        </div>
+                        <div class="input-group">
+                            <label>Email professionnel *</label>
+                            <input type="email" id="reg-email" placeholder="sarra@cabinet-boudjellal.fr" autocomplete="off">
+                        </div>
+                        <div class="input-group">
+                            <label>Mot de passe * <span style="font-weight:normal;color:#999;font-size:12px;">(min 8 car., majuscule, chiffre)</span></label>
+                            <div style="position:relative;">
+                                <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password" oninput="updatePasswordStrength(this.value)">
+                                <button type="button" onclick="togglePasswordVisibility('reg-password', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;" title="Afficher/masquer">👁️</button>
+                            </div>
+                            <div id="password-strength" style="height:4px;border-radius:2px;margin-top:6px;transition:all 0.3s;"></div>
+                            <div id="password-hint" style="font-size:11px;color:#999;margin-top:4px;"></div>
+                        </div>
+                        <button class="btn" onclick="goToRegStep2()" style="width:100%;background:#27ae60;">Continuer →</button>
+                    </div>
+
+                    <!-- Etape 2: Cabinet -->
+                    <div id="reg-step-2" style="display:none;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                            <span style="background:#667eea;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;">2</span>
+                            <strong style="color:#667eea;">Votre cabinet</strong>
+                            <button onclick="goToRegStep1()" style="margin-left:auto;background:none;border:none;color:#667eea;cursor:pointer;font-size:13px;">← Retour</button>
+                        </div>
+                        <div class="input-group">
+                            <label>Secteur d'activité *</label>
+                            <select id="reg-sector" onchange="updateSectorFields()">
+                                <option value="AVOCAT" selected>⚖️ Cabinet d'Avocat</option>
+                                <option value="NOTAIRE">📜 Étude Notariale</option>
+                                <option value="HUISSIER">🏛️ Étude d'Huissier</option>
+                                <option value="EXPERT_COMPTABLE">📊 Cabinet Comptable</option>
+                                <option value="ARCHITECTE">🏗️ Agence Architecture</option>
+                                <option value="MEDECIN">🏥 Cabinet Médical</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Nom du cabinet <span style="font-weight:normal;color:#999;">(optionnel)</span></label>
+                            <input type="text" id="reg-firm" placeholder="Cabinet Boudjellal & Associés">
+                        </div>
+                        <div class="input-group" id="reg-bar-group">
+                            <label>N° Barreau / Ordre <span style="font-weight:normal;color:#999;">(optionnel)</span></label>
+                            <input type="text" id="reg-bar" placeholder="Barreau de Paris - N°12345">
+                        </div>
+                        <div class="input-group">
+                            <label>Téléphone <span style="font-weight:normal;color:#999;">(optionnel)</span></label>
+                            <input type="tel" id="reg-phone" placeholder="+33 6 00 00 00 00">
+                        </div>
+                        <div class="input-group">
+                            <label>Ville <span style="font-weight:normal;color:#999;">(optionnel)</span></label>
+                            <input type="text" id="reg-city" placeholder="Paris">
+                        </div>
+                        <button class="btn" onclick="register()" style="width:100%;padding:14px;font-size:16px;background:#27ae60;">Créer mon compte</button>
+                        <div style="margin-top:10px;text-align:center;font-size:12px;color:#999;">🔒 Données hébergées localement sur votre machine</div>
+                    </div>
+
+                    <div id="reg-result"></div>
                 </div>
-                <div class="input-group">
-                    <label>Mot de passe</label>
-                    <input type="password" id="login-password" placeholder="SecurePass123!" autocomplete="current-password">
-                </div>
-                <button class="btn" onclick="login()">Se connecter</button>
-                <div id="login-result"></div>
             </div>
         </div>
 
@@ -733,24 +784,86 @@
             const password = document.getElementById('reg-password').value;
             const name = document.getElementById('reg-name').value;
             const sector = document.getElementById('reg-sector')?.value || 'AVOCAT';
+            const firmName = document.getElementById('reg-firm')?.value || null;
+            const barNumber = document.getElementById('reg-bar')?.value || null;
+            const phone = document.getElementById('reg-phone')?.value || null;
+            const city = document.getElementById('reg-city')?.value || null;
+
+            if (!name || !email || !password) {
+                return showResult('reg-result', '❌ Nom, email et mot de passe sont obligatoires', false);
+            }
 
             try {
                 const res = await apiFetchWithFallback('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, name, role: sector, plan: 'CABINET' })
+                    body: JSON.stringify({ email, password, name, role: sector, plan: 'CABINET', firmName, barNumber, phone, city })
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    showResult('reg-result', `✅ Compte créé avec succès! ID: ${data.id}`);
+                    showResult('reg-result', `✅ Bienvenue Me ${name} ! Votre compte est créé.`);
                     document.getElementById('login-email').value = email;
                     document.getElementById('login-password').value = password;
+                    setTimeout(() => login(), 500);
                 } else {
-                    showResult('reg-result', `❌ Erreur: ${data.message}`, false);
+                    showResult('reg-result', `❌ ${data.message}`, false);
                 }
             } catch (err) {
                 showResult('reg-result', `❌ Erreur: ${err.message}`, false);
             }
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+            else { input.type = 'password'; btn.textContent = '👁️'; }
+        }
+
+        function updatePasswordStrength(pwd) {
+            const bar = document.getElementById('password-strength');
+            const hint = document.getElementById('password-hint');
+            if (!bar) return;
+            let score = 0;
+            if (pwd.length >= 8) score++;
+            if (/[A-Z]/.test(pwd)) score++;
+            if (/[0-9]/.test(pwd)) score++;
+            if (/[^A-Za-z0-9]/.test(pwd)) score++;
+            const colors = ['#dc3545','#ff9800','#ffc107','#27ae60'];
+            const labels = ['Faible','Moyen','Bon','Excellent'];
+            const widths = ['25%','50%','75%','100%'];
+            const idx = Math.max(0, score - 1);
+            bar.style.width = pwd.length === 0 ? '0' : widths[idx];
+            bar.style.background = pwd.length === 0 ? 'transparent' : colors[idx];
+            hint.textContent = pwd.length === 0 ? '' : labels[idx];
+            hint.style.color = colors[idx];
+        }
+
+        function goToRegStep1() {
+            document.getElementById('reg-step-1').style.display = 'block';
+            document.getElementById('reg-step-2').style.display = 'none';
+        }
+
+        function goToRegStep2() {
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const pwd = document.getElementById('reg-password').value;
+            if (!name) return showResult('reg-result', '❌ Entrez votre nom', false);
+            if (!email) return showResult('reg-result', '❌ Entrez votre email', false);
+            if (pwd.length < 8) return showResult('reg-result', '❌ Mot de passe trop court (min 8 caractères)', false);
+            document.getElementById('reg-result').innerHTML = '';
+            document.getElementById('reg-step-1').style.display = 'none';
+            document.getElementById('reg-step-2').style.display = 'block';
+        }
+
+        function updateSectorFields() {
+            const sector = document.getElementById('reg-sector').value;
+            const barGroup = document.getElementById('reg-bar-group');
+            const barLabel = barGroup?.querySelector('label');
+            if (!barLabel) return;
+            if (sector === 'AVOCAT') { barLabel.textContent = 'N° Barreau (optionnel)'; }
+            else if (sector === 'NOTAIRE') { barLabel.textContent = 'N° Chambre (optionnel)'; }
+            else if (sector === 'MEDECIN') { barLabel.textContent = 'N° RPPS (optionnel)'; }
+            else { barLabel.textContent = 'N° Ordre / Registre (optionnel)'; }
         }
 
         async function login() {

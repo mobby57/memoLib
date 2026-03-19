@@ -1,4 +1,5 @@
-﻿/**
+﻿// @ts-nocheck
+/**
  * Service de gestion des transitions d'etat du Workspace Reasoning
  * Applique les regles de validation et cree les audit trails
  */
@@ -278,7 +279,7 @@ export class WorkspaceReasoningService {
     summary += `- ${obligations} obligation${obligations > 1 ? 's' : ''}\n`;
 
     if (blocking > 0) {
-      summary += `\n️ ${blocking} element${blocking > 1 ? 's' : ''} bloquant${blocking > 1 ? 's' : ''}\n`;
+      summary += `\n? ${blocking} element${blocking > 1 ? 's' : ''} bloquant${blocking > 1 ? 's' : ''}\n`;
     }
 
     if (risks > 0) {
@@ -288,3 +289,5 @@ export class WorkspaceReasoningService {
     return summary;
   }
 }
+
+

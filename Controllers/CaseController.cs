@@ -33,24 +33,33 @@ public class CaseController : ControllerBase
 
     [Authorize(Policy = Policies.ViewCases)]
     [HttpGet]
-    public async Task<IActionResult> ListCases()
+    public async Task<IActionResult> ListCases([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         if (!this.TryGetCurrentUserId(out var userId))
             return Unauthorized(new { message = "Utilisateur non authentifié" });
 
-        // MANAGER+ voit tous les dossiers
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
         var query = User.IsManagerOrAbove()
             ? _context.Cases
             : _context.Cases.Where(c => c.UserId == userId);
 
+        var totalCount = await query.CountAsync();
+
         var cases = await query
             .OrderByDescending(c => c.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(c => new
             {
                 c.Id,
                 c.UserId,
                 c.ClientId,
                 c.Title,
+                c.Status,
+                c.Priority,
+                c.Tags,
                 c.CreatedAt,
                 FirstEvent = _context.CaseEvents
                     .Where(ce => ce.CaseId == c.Id)
@@ -61,7 +70,7 @@ public class CaseController : ControllerBase
             })
             .ToListAsync();
 
-        return Ok(cases);
+        return Ok(new { items = cases, page, pageSize, totalCount, totalPages = (int)Math.Ceiling((double)totalCount / pageSize) });
     }
 
     [Authorize(Policy = Policies.ViewCases)]

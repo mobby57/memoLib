@@ -14,6 +14,13 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
 export async function POST(request: NextRequest) {
   try {
+    if (!webhookSecret) {
+      logger.error('STRIPE_WEBHOOK_SECRET non configure', undefined, {
+        route: '/api/webhooks/stripe',
+      });
+      return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
+    }
+
     const body = await request.text();
     const requestHeaders = await headers();
     const signature = requestHeaders.get('stripe-signature');

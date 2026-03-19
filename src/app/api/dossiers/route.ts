@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete, cacheInvalidatePattern } from '@/lib/cache';
 import { logger } from '@/lib/logger';
@@ -21,8 +23,17 @@ function mapPrismaErrorToHttp(error: unknown): { status: number; message: string
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    if (!sessionTenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
+    const tenantId = sessionTenantId;
     const dossierId = searchParams.get('id');
     const clientId = searchParams.get('clientId');
     const status = searchParams.get('status');
@@ -30,8 +41,6 @@ export async function GET(request: NextRequest) {
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10) || 0);
 
     if (dossierId) {
-      if (!tenantId) return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
-
       const dossier = await cacheThrough(
         `dossier:${tenantId}:${dossierId}`,
         async () => {
@@ -52,8 +61,6 @@ export async function GET(request: NextRequest) {
       if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
       return NextResponse.json({ dossier });
     }
-
-    if (!tenantId) return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
 
     const cacheKey = `dossiers:${tenantId}:${clientId || 'all'}:${status || 'all'}:${limit}:${offset}`;
 
@@ -94,6 +101,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    if (!sessionTenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     let body: Record<string, unknown>;
     try {
       body = (await request.json()) as Record<string, unknown>;
@@ -102,7 +118,7 @@ export async function POST(request: NextRequest) {
     }
 
     const {
-      tenantId,
+      tenantId: _ignoredTenantId,
       clientId,
       titre,
       description,
@@ -113,9 +129,11 @@ export async function POST(request: NextRequest) {
       priorite,
     } = body;
 
-    if (!tenantId || !clientId || !titre || !type) {
+    const tenantId = sessionTenantId;
+
+    if (!clientId || !titre || !type) {
       return NextResponse.json(
-        { error: 'tenantId, clientId, titre et type requis' },
+        { error: 'clientId, titre et type requis' },
         { status: 400 }
       );
     }
@@ -173,6 +191,15 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    if (!sessionTenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     let body: Record<string, unknown>;
     try {
       body = (await request.json()) as Record<string, unknown>;
@@ -182,7 +209,7 @@ export async function PATCH(request: NextRequest) {
 
     const {
       dossierId,
-      tenantId,
+      tenantId: _ignoredTenantId,
       titre,
       description,
       status,
@@ -192,8 +219,10 @@ export async function PATCH(request: NextRequest) {
       dateCloture,
     } = body;
 
-    if (!dossierId || !tenantId)
-      return NextResponse.json({ error: 'dossierId et tenantId requis' }, { status: 400 });
+    const tenantId = sessionTenantId;
+
+    if (!dossierId)
+      return NextResponse.json({ error: 'dossierId requis' }, { status: 400 });
 
     const existing = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
     if (!existing) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
@@ -239,12 +268,21 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+    const sessionTenantId = (session.user as any).tenantId as string | undefined;
+    if (!sessionTenantId) {
+      return NextResponse.json({ error: 'Acces refuse' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const dossierId = searchParams.get('id');
-    const tenantId = searchParams.get('tenantId');
+    const tenantId = sessionTenantId;
 
-    if (!dossierId || !tenantId)
-      return NextResponse.json({ error: 'id et tenantId requis' }, { status: 400 });
+    if (!dossierId)
+      return NextResponse.json({ error: 'id requis' }, { status: 400 });
 
     const dossier = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
     if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });

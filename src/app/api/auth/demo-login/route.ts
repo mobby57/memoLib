@@ -6,7 +6,20 @@ import { NextResponse } from 'next/server';
  */
 export async function POST(req: Request) {
   try {
+    const isDemoMode = process.env.DEMO_MODE === 'true' || process.env.DEMO_MODE === '1';
+    if (process.env.NODE_ENV === 'production' || !isDemoMode) {
+      return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+    }
+
     const { email, password } = await req.json();
+
+    const demoAdminPassword = process.env.DEMO_ADMIN_PASSWORD;
+    const demoLawyerPassword = process.env.DEMO_LAWYER_PASSWORD;
+    const demoClientPassword = process.env.DEMO_CLIENT_PASSWORD;
+
+    if (!demoAdminPassword || !demoLawyerPassword || !demoClientPassword) {
+      return NextResponse.json({ error: 'Demo credentials not configured' }, { status: 503 });
+    }
 
     // Comptes de démonstration hardcodés
     const demoUsers = {
@@ -15,7 +28,7 @@ export async function POST(req: Request) {
         email: 'admin@memolib.fr',
         name: 'Admin Demo',
         role: 'SUPER_ADMIN',
-        password: 'admin123',
+        password: demoAdminPassword,
         tenantId: 'demo-tenant-1',
       },
       'avocat@memolib.fr': {
@@ -23,7 +36,7 @@ export async function POST(req: Request) {
         email: 'avocat@memolib.fr',
         name: 'Avocat Demo',
         role: 'LAWYER',
-        password: 'admin123',
+        password: demoLawyerPassword,
         tenantId: 'demo-tenant-1',
       },
       'client@memolib.fr': {
@@ -31,7 +44,7 @@ export async function POST(req: Request) {
         email: 'client@memolib.fr',
         name: 'Client Demo',
         role: 'CLIENT',
-        password: 'demo123',
+        password: demoClientPassword,
         tenantId: 'demo-tenant-1',
         clientId: 'demo-client-1',
       },

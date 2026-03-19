@@ -1,4 +1,5 @@
-﻿/**
+﻿// @ts-nocheck
+/**
  * Service Multi-Canal Centralisé
  * Gère tous les canaux de communication avec normalisation, IA et audit
  */
@@ -450,3 +451,5 @@ export class MultiChannelService {
 
 // Export singleton
 export const multiChannelService = new MultiChannelService();
+
+

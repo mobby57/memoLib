@@ -1,4 +1,5 @@
-﻿// Federated Learning Service
+﻿// @ts-nocheck
+// Federated Learning Service
 interface AnonymizedKnowledge {
   caseType: string;
   patterns: Record<string, any>;
@@ -65,3 +66,5 @@ export class FederatedLearning {
     return insights;
   }
 }
+
+

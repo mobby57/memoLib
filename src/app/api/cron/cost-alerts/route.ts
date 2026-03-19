@@ -16,7 +16,7 @@ import { runCostAlertCheck } from '@/lib/billing/cost-alerts';
 import { logger } from '@/lib/logger';
 
 // Clé secrète pour protéger le cron
-const CRON_SECRET = process.env.CRON_SECRET || 'dev-cron-secret';
+const CRON_SECRET = process.env.CRON_SECRET;
 
 export async function GET(request: NextRequest) {
   // Vérifier l'autorisation
@@ -29,8 +29,12 @@ export async function GET(request: NextRequest) {
   // 3. En développement local
   const isAuthorized =
     cronHeader === '1' ||
-    authHeader === `Bearer ${CRON_SECRET}` ||
+    Boolean(CRON_SECRET && authHeader === `Bearer ${CRON_SECRET}`) ||
     process.env.NODE_ENV === 'development';
+
+  if (!CRON_SECRET && process.env.NODE_ENV !== 'development' && cronHeader !== '1') {
+    return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
+  }
 
   if (!isAuthorized) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
@@ -55,7 +59,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Erreur lors du check des alertes',
-        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

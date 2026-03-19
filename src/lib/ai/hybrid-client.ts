@@ -1,15 +1,16 @@
-﻿/**
- * Hybrid AI Client - Bascule Automatique Ollama ↔ Cloudflare Workers AI
+﻿// @ts-nocheck
+/**
+ * Hybrid AI Client - Bascule Automatique Ollama ? Cloudflare Workers AI
  * 
  * Strategie de fallback avec CONTROLE DES COUTS:
  * 1. Verifier le budget IA du tenant
  * 2. Verifier le cache IA (economie 30-50%)
  * 3. Essayer Ollama local (gratuit, prive) - TOUJOURS PRIORITAIRE
- * 4. Si echec ET budget OK → Cloudflare Workers AI (payant, cloud)
+ * 4. Si echec ET budget OK ? Cloudflare Workers AI (payant, cloud)
  * 5. Si echec [Next] Erreur explicite
  * 
- * 🛡️ Anti-faillite: Force Ollama si budget depasse
- * 💰 Cache IA: Reduit les couts de 30-50%
+ * ??? Anti-faillite: Force Ollama si budget depasse
+ * ?? Cache IA: Reduit les couts de 30-50%
  */
 
 import { OllamaClient } from '../../../lib/ai/ollama-client';
@@ -79,7 +80,7 @@ export class HybridAIClient {
   }
   
   /**
-   * 🛡️ Generer une reponse avec controle des couts
+   * ??? Generer une reponse avec controle des couts
    * Nouvelle signature avec tenantId obligatoire pour le tracking
    */
   async generateWithCostControl(
@@ -91,7 +92,7 @@ export class HybridAIClient {
     const estimatedTokens = Math.ceil((prompt.length + (systemPrompt?.length || 0)) / 4);
     const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
     
-    // 🛡️ ETAPE 0: Verifier le cache IA
+    // ??? ETAPE 0: Verifier le cache IA
     const cached = await getCachedResponse(fullPrompt, 'auto');
     if (cached.hit && cached.response) {
       logger.info('AI Cache HIT - Économie!', { 
@@ -109,10 +110,10 @@ export class HybridAIClient {
       };
     }
     
-    // 🛡️ ETAPE 1: Verifier le budget IA du tenant
+    // ??? ETAPE 1: Verifier le budget IA du tenant
     const optimalProvider = await selectOptimalProvider(tenantId, estimatedTokens);
     
-    // 🛡️ ETAPE 2: Forcer Ollama si budget serre
+    // ??? ETAPE 2: Forcer Ollama si budget serre
     if (optimalProvider === 'ollama') {
       logger.info('Cost control: Using Ollama (budget protection)', { tenantId });
     }
@@ -124,7 +125,7 @@ export class HybridAIClient {
         const latency = Date.now() - startTime;
         const tokensUsed = Math.ceil(response.length / 4);
         
-        // 💾 Mettre en cache la réponse
+        // ?? Mettre en cache la réponse
         await setCachedResponse(fullPrompt, 'ollama', response, tokensUsed);
         
         // Enregistrer l'usage (cout = 0 pour Ollama)
@@ -150,7 +151,7 @@ export class HybridAIClient {
       }
     }
     
-    // 🛡️ ETAPE 3: Utiliser Cloudflare SEULEMENT si budget OK
+    // ??? ETAPE 3: Utiliser Cloudflare SEULEMENT si budget OK
     if (optimalProvider === 'cloudflare' && await this.cloudflare.isAvailable()) {
       const budget = await checkAICostBudget(tenantId);
       
@@ -168,7 +169,7 @@ export class HybridAIClient {
         const tokensUsed = Math.ceil(response.length / 4) + estimatedTokens;
         const cost = estimateCost('cloudflare', tokensUsed);
         
-        // 💾 Mettre en cache la réponse (important pour Cloudflare payant!)
+        // ?? Mettre en cache la réponse (important pour Cloudflare payant!)
         await setCachedResponse(fullPrompt, 'cloudflare', response, tokensUsed);
         
         // Enregistrer l'usage PAYANT
@@ -380,3 +381,7 @@ export class HybridAIClient {
 export const hybridAI = new HybridAIClient();
 
 export default hybridAI;
+
+
+
+

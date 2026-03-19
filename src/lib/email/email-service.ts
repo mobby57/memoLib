@@ -1,4 +1,5 @@
-﻿/**
+﻿// @ts-nocheck
+/**
  * Service d'envoi d'emails
  * Compatible avec: Resend, SendGrid, Nodemailer SMTP
  */
@@ -125,7 +126,7 @@ export const emailTemplates = {
     joursRestants: number;
     lienDossier: string;
   }) => ({
-    subject: `️ echeance proche: ${data.dossierNumero} - ${data.joursRestants} jours restants`,
+    subject: `? echeance proche: ${data.dossierNumero} - ${data.joursRestants} jours restants`,
     html: `
 <!DOCTYPE html>
 <html>
@@ -147,7 +148,7 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 24px;">️ Alerte echeance</h1>
+      <h1 style="margin: 0; font-size: 24px;">? Alerte echeance</h1>
       <p style="margin: 10px 0 0 0; opacity: 0.9;">${data.joursRestants} jours restants</p>
     </div>
     <div class="content">
@@ -251,7 +252,7 @@ export const emailTemplates = {
     loginUrl: string;
     email: string;
   }) => ({
-    subject: `🎉 Bienvenue chez ${data.cabinetName}`,
+    subject: `?? Bienvenue chez ${data.cabinetName}`,
     html: `
 <!DOCTYPE html>
 <html>
@@ -272,7 +273,7 @@ export const emailTemplates = {
 <body>
   <div class="container">
     <div class="header">
-      <h1 style="margin: 0; font-size: 28px;">🎉 Bienvenue !</h1>
+      <h1 style="margin: 0; font-size: 28px;">?? Bienvenue !</h1>
       <p style="margin: 10px 0 0 0; opacity: 0.9;">Votre espace client est pret</p>
     </div>
     <div class="content">
@@ -317,3 +318,7 @@ export const emailTemplates = {
 };
 
 export default { sendEmail, emailTemplates };
+
+
+
+

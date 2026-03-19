@@ -82,6 +82,17 @@ public class AuthController : ControllerBase
         await _bruteForceProtection.RecordSuccessfulLoginAsync(clientIp);
         var authToken = _jwtService.GenerateToken(user);
 
+        // Stocker le refresh token en base pour révocation
+        _dbContext.RefreshTokens.Add(new Models.RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            Token = authToken.RefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            CreatedAt = DateTime.UtcNow
+        });
+        await _dbContext.SaveChangesAsync();
+
         var response = new LoginResponse
         {
             Token = authToken.AccessToken,
@@ -110,7 +121,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Rafraîchit un JWT token via un refresh token
+    /// Rafraîchit un JWT token via un refresh token (avec révocation)
     /// </summary>
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshRequest request)
@@ -118,6 +129,15 @@ public class AuthController : ControllerBase
         if (request == null || string.IsNullOrWhiteSpace(request.RefreshToken))
         {
             return BadRequest(new { message = "Refresh token requis" });
+        }
+
+        // Vérifier que le token existe en base et est actif
+        var storedToken = await _dbContext.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == request.RefreshToken);
+
+        if (storedToken == null || storedToken.IsRevoked || storedToken.IsExpired)
+        {
+            return Unauthorized(new { message = "Refresh token invalide ou révoqué" });
         }
 
         if (!_jwtService.TryValidateRefreshToken(request.RefreshToken, out var principal) || principal == null)
@@ -150,6 +170,20 @@ public class AuthController : ControllerBase
 
         var authToken = _jwtService.GenerateToken(user);
 
+        // Révoquer l'ancien token et stocker le nouveau
+        storedToken.RevokedAt = DateTime.UtcNow;
+        storedToken.ReplacedByToken = authToken.RefreshToken;
+
+        _dbContext.RefreshTokens.Add(new Models.RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            Token = authToken.RefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            CreatedAt = DateTime.UtcNow
+        });
+        await _dbContext.SaveChangesAsync();
+
         var response = new RefreshResponse
         {
             Token = authToken.AccessToken,
@@ -159,6 +193,30 @@ public class AuthController : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Déconnecte l'utilisateur en révoquant tous ses refresh tokens
+    /// </summary>
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var activeTokens = await _dbContext.RefreshTokens
+            .Where(t => t.UserId == userId && t.RevokedAt == null)
+            .ToListAsync();
+
+        foreach (var token in activeTokens)
+            token.RevokedAt = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Logout: {Count} tokens révoqués pour {UserId}", activeTokens.Count, userId);
+        return Ok(new { message = "Déconnecté avec succès" });
     }
 
     /// <summary>

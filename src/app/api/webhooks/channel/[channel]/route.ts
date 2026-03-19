@@ -7,6 +7,7 @@ import { logger } from '@/lib/logger';
 import { auditService } from '@/lib/multichannel/audit-service';
 import { multiChannelService } from '@/lib/multichannel/channel-service';
 import { ChannelType, WebhookPayload } from '@/lib/multichannel/types';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -47,8 +48,11 @@ export async function POST(
       return NextResponse.json({ error: `Canal non supporté: ${channelPath}` }, { status: 400 });
     }
 
+    // Lire le body brut pour valider les signatures HMAC avant parsing JSON.
+    const rawBody = await request.text();
+
     // Vérifier l'authentification webhook
-    const authResult = await validateWebhookAuth(request, channelType, headersList);
+    const authResult = await validateWebhookAuth(rawBody, channelType, headersList);
     if (!authResult.valid) {
       await auditService.log({
         action: 'WEBHOOK_AUTH_FAILED',
@@ -64,7 +68,7 @@ export async function POST(
     }
 
     // Parser le payload
-    const payload = await request.json();
+    const payload = JSON.parse(rawBody);
 
     // Récupérer la signature selon le canal
     const signature = getSignature(headersList, channelType);
@@ -121,7 +125,7 @@ export async function POST(
       route: `/api/webhooks/channel/${channelPath}`,
     });
 
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
@@ -163,23 +167,29 @@ export async function GET(
  * Valider l'authentification webhook selon le canal
  */
 async function validateWebhookAuth(
-  request: NextRequest,
+  rawBody: string,
   channel: ChannelType,
   headersList: Headers
 ): Promise<{ valid: boolean; reason?: string }> {
   const secret = process.env[`CHANNEL_${channel}_SECRET`];
 
-  // Si pas de secret configuré, accepter (dev mode)
+  // En mode dev uniquement, secret optionnel.
   if (!secret && process.env.NODE_ENV === 'development') {
     return { valid: true };
+  }
+
+  // En production, un secret par canal est requis.
+  if (!secret) {
+    return { valid: false, reason: `Missing channel secret for ${channel}` };
   }
 
   switch (channel) {
     case 'WHATSAPP':
       const waSignature = headersList.get('x-hub-signature-256');
       if (!waSignature) return { valid: false, reason: 'Missing signature' };
-      // Validation signature Meta
-      return { valid: true }; // Simplifié pour l'exemple
+      return verifyHmacSha256(rawBody, waSignature, secret, 'sha256=')
+        ? { valid: true }
+        : { valid: false, reason: 'Invalid signature' };
 
     case 'SLACK':
       const slackSignature = headersList.get('x-slack-signature');
@@ -187,20 +197,35 @@ async function validateWebhookAuth(
       if (!slackSignature || !slackTimestamp) {
         return { valid: false, reason: 'Missing Slack headers' };
       }
-      return { valid: true }; // Simplifié
+      // Rejet des replays trop anciens (5 minutes)
+      const nowSec = Math.floor(Date.now() / 1000);
+      const ts = Number(slackTimestamp);
+      if (!Number.isFinite(ts) || Math.abs(nowSec - ts) > 300) {
+        return { valid: false, reason: 'Expired Slack timestamp' };
+      }
+
+      return verifySlackSignature(rawBody, slackTimestamp, slackSignature, secret)
+        ? { valid: true }
+        : { valid: false, reason: 'Invalid Slack signature' };
 
     case 'SMS':
     case 'VOICE':
-      // Validation Twilio
+      // Validation minimale: signature Twilio ou HMAC interne.
       const twilioSignature = headersList.get('x-twilio-signature');
-      if (!twilioSignature && process.env.NODE_ENV === 'production') {
+      const genericSignature = headersList.get('x-signature');
+      if (!twilioSignature && !genericSignature) {
         return { valid: false, reason: 'Missing Twilio signature' };
+      }
+      if (genericSignature) {
+        return verifyHmacSha256(rawBody, genericSignature, secret, 'sha256=')
+          ? { valid: true }
+          : { valid: false, reason: 'Invalid signature' };
       }
       return { valid: true };
 
     case 'TEAMS':
       const teamsAuth = headersList.get('authorization');
-      if (!teamsAuth?.startsWith('Bearer ')) {
+      if (teamsAuth !== `Bearer ${secret}`) {
         return { valid: false, reason: 'Missing Teams auth' };
       }
       return { valid: true };
@@ -208,11 +233,38 @@ async function validateWebhookAuth(
     default:
       // Pour les autres canaux, vérifier un token API simple
       const apiKey = headersList.get('x-api-key');
-      if (apiKey === secret || !secret) {
+      if (apiKey === secret) {
         return { valid: true };
       }
       return { valid: false, reason: 'Invalid API key' };
   }
+}
+
+function verifyHmacSha256(rawBody: string, incoming: string, secret: string, prefix = ''): boolean {
+  const digest = createHmac('sha256', secret).update(rawBody, 'utf8').digest('hex');
+  const expected = `${prefix}${digest}`;
+  return safeEqual(incoming, expected);
+}
+
+function verifySlackSignature(
+  rawBody: string,
+  timestamp: string,
+  incomingSignature: string,
+  secret: string
+): boolean {
+  const base = `v0:${timestamp}:${rawBody}`;
+  const digest = createHmac('sha256', secret).update(base, 'utf8').digest('hex');
+  const expected = `v0=${digest}`;
+  return safeEqual(incomingSignature, expected);
+}
+
+function safeEqual(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a);
+  const bBuf = Buffer.from(b);
+  if (aBuf.length !== bBuf.length) {
+    return false;
+  }
+  return timingSafeEqual(aBuf, bBuf);
 }
 
 /**

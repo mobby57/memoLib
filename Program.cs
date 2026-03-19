@@ -8,11 +8,14 @@ using MemoLib.Api.Models;
 using MemoLib.Api.Services;
 using MemoLib.Api.Middleware;
 using MemoLib.Api.Authorization;
+using MemoLib.Api.Services.Integration;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Serilog;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,12 @@ var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
+    .Filter.ByExcluding(logEvent =>
+        logEvent.MessageTemplate.Text.Contains("Token validated") ||
+        logEvent.MessageTemplate.Text.Contains("Claims:") ||
+        logEvent.MessageTemplate.Text.Contains("Bearer ") ||
+        logEvent.MessageTemplate.Text.Contains("Authorization"))
+    .Destructure.ByTransforming<Exception>(e => new { e.Message, e.Source })
     .WriteTo.Console()
     .WriteTo.File("logs/memolib-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
@@ -83,8 +92,10 @@ builder.Services.AddAuthentication(options =>
         },
         OnTokenValidated = context =>
         {
-            var claims = string.Join(", ", context.Principal.Claims.Select(c => $"{c.Type}={c.Value}"));
-            Log.Information("JWT Token validated. Claims: {Claims}", claims);
+            var safeClaims = context.Principal?.Claims
+                .Where(c => c.Type is "userId" or "role" or "email")
+                .Select(c => $"{c.Type}={c.Value}");
+            Log.Information("JWT Token validated. User: {Claims}", string.Join(", ", safeClaims ?? []));
             return Task.CompletedTask;
         }
     };
@@ -137,6 +148,57 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(Policies.ManageBilling, policy => policy.RequireRole(Roles.Owner));
 });
 builder.Services.AddControllers();
+
+// Swagger / OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "MemoLib API",
+        Version = "v1",
+        Description = "API de gestion d'emails et dossiers pour cabinets d'avocats"
+    });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header. Exemple: 'Bearer {token}'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// API Versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new HeaderApiVersionReader("X-Api-Version"),
+        new QueryStringApiVersionReader("api-version"));
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+// Limite globale taille requetes (10 Mo)
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 10 * 1024 * 1024;
+});
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddMemoryCache();
@@ -191,7 +253,7 @@ builder.Services.AddScoped<AdvancedSearchService>();
 builder.Services.AddScoped<ExportService>();
 builder.Services.AddScoped<RealtimeNotificationService>();
 builder.Services.AddScoped<FullTextSearchService>();
-builder.Services.AddScoped<WebhookService>();
+builder.Services.AddScoped<MemoLib.Api.Services.WebhookService>();
 builder.Services.AddScoped<AdvancedTemplateService>();
 builder.Services.AddScoped<SignatureService>();
 builder.Services.AddScoped<DynamicFormService>();
@@ -199,8 +261,22 @@ builder.Services.AddScoped<ClientIntakeService>();
 builder.Services.AddScoped<SharedWorkspaceService>();
 builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<VaultService>();
+builder.Services.AddScoped<PdfExportService>();
+builder.Services.AddScoped<IEmailAdapter, MailKitEmailAdapter>();
+builder.Services.AddScoped<IDocuSignService, DocuSignService>();
+builder.Services.AddScoped<ILegalDatabaseService, LegalDatabaseService>();
+builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+builder.Services.AddScoped<INotificationChannelService, NotificationChannelService>();
+builder.Services.AddScoped<IIntegrationMonitorService, IntegrationMonitorService>();
 builder.Services.AddHttpClient();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.MaximumParallelInvocationsPerClient = 5;
+    options.MaximumReceiveMessageSize = 64 * 1024; // 64 Ko
+    options.StreamBufferCapacity = 10;
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+});
 
 // Avertissement si EmailMonitor n'est pas configuré
 var emailUsername = builder.Configuration["EmailMonitor:Username"];
@@ -234,6 +310,14 @@ builder.Services.AddDbContext<MemoLibDbContext>(options =>
             sqliteOptions.CommandTimeout(30);
         });
         Log.Information("✅ Base de données: SQLite");
+
+        // R1: Chiffrement SQLite au repos via PRAGMA
+        var sqliteCipherKey = builder.Configuration["SqliteCipherKey"];
+        if (!string.IsNullOrWhiteSpace(sqliteCipherKey))
+        {
+            options.AddInterceptors(new MemoLib.Api.Data.SqliteCipherInterceptor(sqliteCipherKey));
+            Log.Information("🔒 Chiffrement SQLite activé (PRAGMA key)");
+        }
     }
 
     // Enhanced logging in development
@@ -307,14 +391,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MemoLibDbContext>();
 
-    try
-    {
-        db.Database.Migrate();
-    }
-    catch (InvalidOperationException ex) when (ex.Message.Contains("PendingModelChangesWarning"))
-    {
-        Console.WriteLine("⚠️ Migrations en attente détectées. Démarrage poursuivi en mode développement sans application auto des migrations.");
-    }
+    db.Database.Migrate();
+    Log.Information("✅ Migrations appliquées avec succès");
 
     if (app.Environment.IsDevelopment() && !db.Sources.Any())
     {
@@ -364,8 +442,23 @@ using (var scope = app.Services.CreateScope())
     }
 
     // Seed questionnaires par défaut
-    await QuestionnaireSeeder.SeedDefaultQuestionnaires(db);
+    try
+    {
+        await QuestionnaireSeeder.SeedDefaultQuestionnaires(db);
+    }
+    catch (Exception ex)
+    {
+        Log.Warning(ex, "⚠️ Seed questionnaires ignoré (tables potentiellement absentes)");
+    }
 }
+
+// Swagger UI
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MemoLib API v1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<GlobalExceptionMiddleware>();
@@ -450,6 +543,7 @@ Log.Information("✅ MemoLib API démarrée avec succès!");
 Log.Information("🌐 Interface: http://localhost:5078/demo.html");
 Log.Information("🔌 API: http://localhost:5078/api");
 Log.Information("❤️ Santé: http://localhost:5078/health");
+Log.Information("📖 Swagger: http://localhost:5078/swagger");
 
 try
 {

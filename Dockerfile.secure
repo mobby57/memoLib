@@ -18,8 +18,8 @@ FROM base AS deps
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Installer uniquement les dépendances de production
-RUN npm ci --only=production --ignore-scripts && \
+# Installer toutes les deps (prisma generate a besoin des devDeps)
+RUN npm ci --ignore-scripts && \
     npm cache clean --force
 
 # Stage 2: Builder
@@ -31,10 +31,13 @@ COPY . .
 # Générer Prisma client
 RUN npx prisma generate
 
-# Build Next.js avec optimisations
+# Build Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 RUN npm run build
+
+# Prune devDependencies for production copy
+RUN npm prune --production
 
 # Stage 3: Runner (production)
 FROM node:20-alpine AS runner
@@ -74,8 +77,9 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Utiliser dumb-init pour gérer les signaux
+# Run Prisma migrations then start
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
 
 # Labels pour métadonnées
 LABEL maintainer="MemoLib Assistant"

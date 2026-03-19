@@ -2,179 +2,208 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
-  DOTNET_VERSION: '9.0.x'
+  NODE_VERSION: '20'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # =========================================================================
+  # Build, Lint, Type-check, Test
+  # =========================================================================
   build-and-test:
-    name: Build and Test
+    name: Build & Test
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 15
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      id: setup-dotnet
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-    - name: Restore dependencies
-      id: restore-deps
-      run: dotnet restore
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build
-      id: build
-      run: dotnet build --no-restore --configuration Release
+      - name: Generate Prisma client
+        run: npx prisma generate
 
-    - name: Run unit tests
-      id: run-tests
-      run: dotnet test Tests/MemoLib.Tests.csproj --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
+      - name: Lint
+        run: npm run lint
 
-    - name: Publish test results
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: Test Results
-        path: '**/test-results.trx'
-        reporter: dotnet-trx
+      - name: Type check
+        run: npm run type-check
 
-    - name: Code coverage
-      id: code-coverage
-      run: |
-        dotnet test Tests/MemoLib.Tests.csproj --no-build --configuration Release \
-          --collect:"XPlat Code Coverage" --results-directory ./coverage
+      - name: Unit tests
+        run: npm run test:ci
+        env:
+          DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
+          NEXTAUTH_SECRET: 'ci-test-secret-not-for-production'
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        directory: ./coverage
-        fail_ci_if_error: false
+      - name: Build Next.js
+        run: npm run build
+        env:
+          DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
+          NEXTAUTH_SECRET: 'ci-test-secret-not-for-production'
+          NEXTAUTH_URL: 'http://localhost:3000'
 
+      - name: Upload coverage
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./coverage
+          fail_ci_if_error: false
+
+  # =========================================================================
+  # Security Scan (blocks deploy on CRITICAL)
+  # =========================================================================
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: build-and-test
-    
+    timeout-minutes: 10
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Run Trivy vulnerability scanner
-      id: trivy-scan
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
 
-    - name: Upload Trivy results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v2
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
 
+  # =========================================================================
+  # Docker Build & Push
+  # =========================================================================
   docker-build:
-    name: Build Docker Image
+    name: Docker Build & Push
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: [build-and-test, security-scan]
     if: github.event_name == 'push'
-    
+    timeout-minutes: 15
+
     permissions:
       contents: read
       packages: write
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      id: setup-buildx
-      uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v3
 
-    - name: Log in to Container Registry
-      id: docker-login
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=sha,prefix={{branch}}-
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
 
-    - name: Build and push Docker image
-      id: docker-build-push
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.secure
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
+  # =========================================================================
+  # Deploy Staging (develop branch → Fly.io staging)
+  # =========================================================================
   deploy-staging:
-    name: Deploy to Staging
+    name: Deploy Staging
     runs-on: ubuntu-latest
     needs: docker-build
     if: github.ref == 'refs/heads/develop'
     environment:
       name: staging
-      url: https://staging.memolib.com
-    
-    steps:
-    - name: Deploy to staging
-      id: deploy-staging
-      run: |
-        echo "Deploying to staging environment..."
-        # Add your deployment commands here
-        # Example: kubectl set image deployment/memolib-api memolib-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:develop
+      url: https://memolib-staging.fly.dev
+    timeout-minutes: 10
 
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Run Prisma migrations
+        run: |
+          npm ci --ignore-scripts
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Deploy to Fly.io staging
+        run: flyctl deploy --app memolib-staging --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Smoke test
+        run: |
+          sleep 10
+          curl -f https://memolib-staging.fly.dev/api/health || exit 1
+
+  # =========================================================================
+  # Deploy Production (main branch → Fly.io prod)
+  # =========================================================================
   deploy-production:
-    name: Deploy to Production
+    name: Deploy Production
     runs-on: ubuntu-latest
     needs: docker-build
     if: github.ref == 'refs/heads/main'
     environment:
       name: production
-      url: https://memolib.com
-    
-    steps:
-    - name: Deploy to production
-      id: deploy-production
-      run: |
-        echo "Deploying to production environment..."
-        # Add your deployment commands here
-        # Example: kubectl set image deployment/memolib-api memolib-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+      url: https://memolib.fly.dev
+    timeout-minutes: 10
 
-  notify:
-    name: Notify
-    runs-on: ubuntu-latest
-    needs: [build-and-test, security-scan, docker-build]
-    if: always()
-    
     steps:
-    - name: Send notification
-      id: send-notification
-      run: |
-        echo "Pipeline completed with status: ${{ job.status }}"
-        # Add notification logic (Slack, Teams, Email, etc.)
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Run Prisma migrations
+        run: |
+          npm ci --ignore-scripts
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+
+      - name: Deploy to Fly.io production
+        run: flyctl deploy --app memolib-api --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Smoke test
+        run: |
+          sleep 10
+          curl -f https://memolib.fly.dev/api/health || exit 1

@@ -9,7 +9,7 @@ function verifySignature(payload: string, signature: string, secret: string): bo
   const expectedSignature = 'sha256=' + createHmac('sha256', secret)
     .update(payload)
     .digest('hex');
-  
+
   try {
     return timingSafeEqual(
       Buffer.from(signature),
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('x-hub-signature-256');
     const event = request.headers.get('x-github-event');
     const delivery = request.headers.get('x-github-delivery');
-    
+
     if (!signature || !event) {
       logger.warn('Webhook GitHub sans signature/event', { hasSignature: !!signature, event });
       return NextResponse.json({ error: 'Missing headers' }, { status: 400 });
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     const rawBody = await request.text();
     const secret = process.env.GITHUB_WEBHOOK_SECRET;
-    
+
     if (!secret) {
       logger.error('GITHUB_WEBHOOK_SECRET non configure');
       return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const payload = JSON.parse(rawBody);
-    
+
     logger.info('Webhook GitHub recu', {
       event,
       delivery,
@@ -96,7 +96,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  return NextResponse.json({ 
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+  }
+
+  return NextResponse.json({
     status: 'active',
     supported_events: ['push', 'pull_request', 'issues', 'ping']
   });

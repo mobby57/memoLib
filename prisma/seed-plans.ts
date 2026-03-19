@@ -15,6 +15,44 @@ async function main() {
   console.log('🌱 Seed des plans tarifaires...\n');
 
   // ============================================
+  // ⚡ PLAN PILOTE (Gratuit 30 jours)
+  // ============================================
+  const planPilot = await prisma.plan.upsert({
+    where: { name: 'PILOT' },
+    update: {},
+    create: {
+      name: 'PILOT',
+      displayName: 'Plan Pilote',
+      description: 'Essai gratuit 30 jours — découvrez MemoLib sans engagement',
+
+      priceMonthly: 0,
+      priceYearly: 0,
+      currency: 'EUR',
+
+      maxWorkspaces: 1,
+      maxDossiers: 5,
+      maxClients: 5,
+      maxStorageGb: 1,
+      maxUsers: 1,
+
+      aiAutonomyLevel: 1,
+      humanValidation: true,
+      advancedAnalytics: false,
+      externalAiAccess: false,
+
+      prioritySupport: false,
+      customBranding: false,
+      apiAccess: false,
+
+      isActive: true,
+    },
+  });
+
+  console.log('✅ Plan PILOT créé:', planPilot.name);
+  console.log(`   Prix: GRATUIT (30 jours)`);
+  console.log(`   Quotas: ${planPilot.maxDossiers} dossiers, ${planPilot.maxClients} clients\n`);
+
+  // ============================================
   // 🟢 PLAN SOLO / ASSOCIATION
   // ============================================
   const planSolo = await prisma.plan.upsert({

@@ -25,6 +25,28 @@ import Link from 'next/link';
 
 const PLANS = [
   {
+    id: 'PILOT',
+    name: 'Pilote',
+    description: 'Essai gratuit 30 jours',
+    price: 0,
+    priceAnnual: 0,
+    popular: false,
+    icon: Zap,
+    color: 'green',
+    features: [
+      { name: '5 clients maximum', included: true },
+      { name: '5 dossiers', included: true },
+      { name: '1 utilisateur', included: true },
+      { name: '1 GB stockage', included: true },
+      { name: 'Analyse IA basique', included: true },
+      { name: 'Support email', included: true },
+      { name: 'Multi-utilisateurs', included: false },
+      { name: 'API PISTE', included: false },
+      { name: 'Support prioritaire', included: false },
+      { name: 'Formation personnalisee', included: false },
+    ],
+  },
+  {
     id: 'SOLO',
     name: 'Solo',
     description: 'Pour les avocats independants',
@@ -167,7 +189,7 @@ export default function PricingPage() {
 
       {/* Plans */}
       <div className="max-w-7xl mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {PLANS.map(plan => {
             const Icon = plan.icon;
             return (
@@ -199,11 +221,22 @@ export default function PricingPage() {
 
                   {/* Price */}
                   <div className="mb-6">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-bold text-white">{plan.price}€</span>
-                      <span className="text-gray-400">/mois</span>
-                    </div>
-                    <p className="text-sm text-green-400">ou {plan.priceAnnual}€/mois (annuel)</p>
+                    {plan.price === 0 ? (
+                      <>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-4xl font-bold text-white">Gratuit</span>
+                        </div>
+                        <p className="text-sm text-green-400">30 jours sans engagement</p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-4xl font-bold text-white">{plan.price}€</span>
+                          <span className="text-gray-400">/mois</span>
+                        </div>
+                        <p className="text-sm text-green-400">ou {plan.priceAnnual}€/mois (annuel)</p>
+                      </>
+                    )}
                   </div>
 
                   {/* CTA */}
@@ -212,10 +245,12 @@ export default function PricingPage() {
                     className={`block w-full text-center py-3 rounded-lg font-medium transition-colors mb-8 ${
                       plan.popular
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-white/10 text-white hover:bg-white/20'
+                        : plan.price === 0
+                          ? 'bg-green-600 text-white hover:bg-green-700'
+                          : 'bg-white/10 text-white hover:bg-white/20'
                     }`}
                   >
-                    Commencer l'essai gratuit
+                    {plan.price === 0 ? 'Demarrer le pilote gratuit' : "Commencer l'essai gratuit"}
                   </Link>
 
                   {/* Features */}
@@ -306,8 +341,14 @@ export default function PricingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/auth/register"
+              href="/pilote"
               className="px-8 py-4 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+            >
+              Pilote gratuit 30 jours
+            </Link>
+            <Link
+              href="/auth/register"
+              className="px-8 py-4 bg-blue-700 text-white rounded-lg font-medium hover:bg-blue-800 transition-colors"
             >
               Commencer gratuitement
             </Link>

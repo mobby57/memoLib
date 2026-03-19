@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
-import { cacheThrough, cacheDelete, TTL_TIERS } from '@/lib/cache';
+import { cacheThrough, cacheDelete } from '@/lib/cache';
 import { logger } from '@/lib/logger';
 
 interface RouteParams {
@@ -11,14 +13,17 @@ interface RouteParams {
  * GET /api/dossiers/[id]
  * Récupère un dossier spécifique par son ID
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     const dossier = await cacheThrough(
@@ -81,12 +86,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
-    const body = await request.json();
-    const { tenantId, ...updateData } = body;
-
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { tenantId: _ignoredTenantId, ...updateData } = body;
 
     // Vérifier que le dossier existe
     const existing = await prisma.dossier.findFirst({
@@ -149,12 +159,20 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: dossierId } = await params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    const tenantId = (session.user as any).tenantId as string | undefined;
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
     const hardDelete = searchParams.get('hard') === 'true';
 
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
+    if (hardDelete && !['ADMIN', 'SUPER_ADMIN'].includes((session.user as any).role)) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     // Vérifier que le dossier existe

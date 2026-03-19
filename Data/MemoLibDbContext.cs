@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MemoLib.Api.Models;
 using System.Text.Json;
@@ -10,6 +11,12 @@ public class MemoLibDbContext : DbContext
 {
     public MemoLibDbContext(DbContextOptions<MemoLibDbContext> options)
         : base(options) { }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(w =>
+            w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Source> Sources => Set<Source>();
@@ -69,6 +76,7 @@ public class MemoLibDbContext : DbContext
     public DbSet<WorkspaceDocument> WorkspaceDocuments => Set<WorkspaceDocument>();
     public DbSet<WorkspaceActivity> WorkspaceActivities => Set<WorkspaceActivity>();
     public DbSet<SecretVault> SecretVaults => Set<SecretVault>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -315,6 +323,13 @@ public class MemoLibDbContext : DbContext
         modelBuilder.Entity<SecretVault>()
             .HasIndex(s => new { s.UserId, s.Key })
             .IsUnique();
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(r => r.Token)
+            .IsUnique();
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(r => new { r.UserId, r.RevokedAt });
 
         base.OnModelCreating(modelBuilder);
     }

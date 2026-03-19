@@ -1,13 +1,47 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
+import { getServerSession } from 'next-auth';
+
+async function resolveTenantAccess(requestedTenantId: string | null): Promise<
+  | { tenantId: string; role: string; userId: string; userEmail: string }
+  | { error: NextResponse }
+> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return { error: NextResponse.json({ error: 'Non authentifie' }, { status: 401 }) };
+  }
+
+  const role = String((session.user as any).role || '').toUpperCase();
+  const sessionTenantId = (session.user as any).tenantId as string | undefined;
+  const userId = String((session.user as any).id || '');
+  const userEmail = String((session.user as any).email || '');
+
+  if (role === 'SUPER_ADMIN') {
+    if (!requestedTenantId) {
+      return { error: NextResponse.json({ error: 'tenantId requis' }, { status: 400 }) };
+    }
+    return { tenantId: requestedTenantId, role, userId, userEmail };
+  }
+
+  if (!sessionTenantId) {
+    return { error: NextResponse.json({ error: 'Tenant non trouve' }, { status: 403 }) };
+  }
+
+  if (requestedTenantId && requestedTenantId !== sessionTenantId) {
+    return { error: NextResponse.json({ error: 'Acces interdit' }, { status: 403 }) };
+  }
+
+  return { tenantId: sessionTenantId, role, userId, userEmail };
+}
 
 // GET - Liste des logs d'audit
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
+    const requestedTenantId = searchParams.get('tenantId');
     const userId = searchParams.get('userId');
     const action = searchParams.get('action');
     const entityType = searchParams.get('entityType');
@@ -17,9 +51,17 @@ export async function GET(request: NextRequest) {
     const limit = Math.max(1, parseInt(searchParams.get('limit') || '100', 10));
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10));
 
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
+    const access = await resolveTenantAccess(requestedTenantId);
+    if ('error' in access) {
+      return access.error;
     }
+
+    const allowedReadRoles = new Set(['ADMIN', 'SUPER_ADMIN', 'LAWYER']);
+    if (!allowedReadRoles.has(access.role)) {
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+    }
+
+    const tenantId = access.tenantId;
 
     const where: Record<string, unknown> = { tenantId };
     if (userId) where.userId = userId;
@@ -67,16 +109,26 @@ export async function POST(request: NextRequest) {
       userAgent,
     } = body;
 
-    if (!tenantId || !userId || !userEmail || !userRole || !action || !entityType || !entityId) {
+    if (!tenantId || !action || !entityType || !entityId) {
       return NextResponse.json(
         { error: 'Champs requis manquants' },
         { status: 400 }
       );
     }
 
+    const access = await resolveTenantAccess(tenantId);
+    if ('error' in access) {
+      return access.error;
+    }
+
+    const effectiveTenantId = access.tenantId;
+    const effectiveUserId = access.userId;
+    const effectiveUserEmail = access.userEmail;
+    const effectiveRole = access.role;
+
     // Récupérer le dernier log pour la chaîne
     const lastLog = await prisma.auditLog.findFirst({
-      where: { tenantId },
+      where: { tenantId: effectiveTenantId },
       orderBy: { timestamp: 'desc' },
       select: { id: true, timestampHash: true },
     });
@@ -88,10 +140,10 @@ export async function POST(request: NextRequest) {
 
     const log = await prisma.auditLog.create({
       data: {
-        tenantId,
-        userId,
-        userEmail,
-        userRole,
+        tenantId: effectiveTenantId,
+        userId: effectiveUserId,
+        userEmail: effectiveUserEmail,
+        userRole: effectiveRole,
         action,
         entityType,
         entityId,

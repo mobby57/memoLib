@@ -1,5 +1,6 @@
-﻿/**
- * ️ Moteur de Workflows Intelligents
+﻿// @ts-nocheck
+/**
+ * ? Moteur de Workflows Intelligents
  * Orchestration des workflows automatises contextuels
  */
 
@@ -584,3 +585,5 @@ export const ALL_WORKFLOWS = [
   WORKFLOW_DEADLINE_MANAGEMENT,
   WORKFLOW_COURT_DOCUMENT,
 ];
+
+

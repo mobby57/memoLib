@@ -14,9 +14,32 @@ import { cesedaAnalyzer } from '@/lib/ai/ceseda-analyzer';
 import { logger, logIAUsage } from '@/lib/logger';
 import { anonymizeForAI } from '@/lib/utils/rgpd-helpers';
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 async function handler(req: NextRequest, context: any) {
+  let tenantId = '';
+  let userId = '';
+
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+    }
+
+    const role = String((session.user as any).role || '').toUpperCase();
+    const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
+    if (!allowedRoles.has(role)) {
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+    }
+
+    tenantId = String((session.user as any).tenantId || context?.tenantId || '');
+    userId = String((session.user as any).id || context?.userId || '');
+
+    if (!tenantId || !userId) {
+      return NextResponse.json({ error: 'Contexte utilisateur invalide' }, { status: 400 });
+    }
+
     const body = await req.json();
 
     const { caseType, clientSituation, documents, notificationDate } = body;
@@ -35,8 +58,8 @@ async function handler(req: NextRequest, context: any) {
     }).situation;
 
     logger.info('Starting CESEDA case analysis', {
-      tenantId: context.tenantId,
-      userId: context.userId,
+      tenantId,
+      userId,
       caseType,
       documentCount: documents?.length || 0,
     });
@@ -50,7 +73,7 @@ async function handler(req: NextRequest, context: any) {
     });
 
     // Log AI usage for audit trail
-    logIAUsage('ANALYSIS', context.userId, context.tenantId, 'test-dossier', {
+    logIAUsage('ANALYSIS', userId, tenantId, 'test-dossier', {
       caseType,
       confidence: analysis.confidence,
       riskLevel: analysis.riskLevel,
@@ -61,22 +84,21 @@ async function handler(req: NextRequest, context: any) {
       success: true,
       analysis,
       metadata: {
-        tenantId: context.tenantId,
+        tenantId,
         timestamp: new Date().toISOString(),
         aiModel: process.env.OLLAMA_MODEL || 'llama3.2:3b',
       },
     });
   } catch (error) {
     logger.error('CESEDA analysis failed', error, {
-      tenantId: context.tenantId,
-      userId: context.userId,
+      tenantId,
+      userId,
     });
 
     return NextResponse.json(
       {
         success: false,
         error: 'Analysis failed',
-        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

@@ -12,6 +12,7 @@
     "jsx": "react-jsx",
     "noEmit": true,
     "incremental": true,
+    "ignoreDeprecations": "5.0",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
