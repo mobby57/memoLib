@@ -1,4 +1,10 @@
 // Jest exposes helpers globally in setupFilesAfterEnv.
+
+// Variables d'environnement requises par les tests
+process.env.NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || 'test-secret';
+process.env.NEXTAUTH_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+process.env.NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/test';
 const realFetch = global.fetch ? global.fetch.bind(global) : undefined;
 
 if (typeof global.TextEncoder === 'undefined' || typeof global.TextDecoder === 'undefined') {

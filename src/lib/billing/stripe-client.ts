@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Client Stripe pour memoLib
  * Gestion des paiements et abonnements

@@ -125,3 +125,4 @@ frontend-node/
 _build_check/
 MemoLib-Package-Client/app/frontend-node/
 MemoLib-Package-Client/app/_build_check/
+.vercel

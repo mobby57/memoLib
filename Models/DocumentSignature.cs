@@ -1,8 +1,9 @@
+using MemoLib.Api.Models.Base;
+
 namespace MemoLib.Api.Models;
 
-public class DocumentSignature
+public class DocumentSignature : TenantEntity
 {
-    public Guid Id { get; set; }
     public Guid DocumentId { get; set; }
     public Guid CaseId { get; set; }
     public Guid UserId { get; set; }
@@ -10,10 +11,13 @@ public class DocumentSignature
     public string DocumentUrl { get; set; } = string.Empty;
     public List<SignatureRequest> SignatureRequests { get; set; } = new();
     public SignatureStatus Status { get; set; } = SignatureStatus.PENDING;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? CompletedAt { get; set; }
     public string? IpAddress { get; set; }
     public string? AuditTrail { get; set; }
+
+    // Navigation
+    public Case? Case { get; set; }
+    public User? User { get; set; }
 }
 
 public class SignatureRequest
@@ -25,10 +29,10 @@ public class SignatureRequest
     public string? SignerPhone { get; set; }
     public int Order { get; set; }
     public SignatureStatus Status { get; set; } = SignatureStatus.PENDING;
-    public string? SignatureData { get; set; } // Base64 image
+    public string? SignatureData { get; set; }
     public DateTime? SignedAt { get; set; }
     public string? IpAddress { get; set; }
-    public string? Token { get; set; } // Unique token for signing link
+    public string? Token { get; set; }
     public DateTime? TokenExpiresAt { get; set; }
     public DocumentSignature? DocumentSignature { get; set; }
 }

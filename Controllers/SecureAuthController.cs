@@ -7,6 +7,7 @@ using MemoLib.Api.Data;
 using MemoLib.Api.Models;
 using MemoLib.Api.Services;
 using MemoLib.Api.Validators;
+using MemoLib.Api.Authorization;
 
 namespace MemoLib.Api.Controllers;
 
@@ -132,7 +133,7 @@ public class SecureAuthController : ControllerBase
             Email = normalizedEmail,
             Password = hashedPasswordStr,
             Name = request.Name,
-            Role = request.Role ?? "AVOCAT",
+            Role = Roles.Agent,
             Phone = request.Phone,
             FirmName = request.FirmName,
             BarNumber = request.BarNumber,
@@ -159,7 +160,7 @@ public class SecureAuthController : ControllerBase
             Id = user.Id,
             Email = user.Email,
             Name = user.Name,
-            Role = user.Role ?? "AVOCAT"
+            Role = user.Role ?? Roles.Agent
         });
     }
 

@@ -39,7 +39,7 @@ public class RateLimitService : IRateLimitService
         _logger = logger;
     }
 
-    public async Task<bool> IsAllowedAsync(string key, int maxRequests, TimeSpan window)
+    public Task<bool> IsAllowedAsync(string key, int maxRequests, TimeSpan window)
     {
         var policy = new RateLimitPolicy
         {
@@ -48,11 +48,10 @@ public class RateLimitService : IRateLimitService
             Strategy = RateLimitStrategy.SlidingWindow
         };
 
-        var result = await CheckRateLimitAsync(key, policy);
-        return result.IsAllowed;
+        return CheckRateLimitAsync(key, policy).ContinueWith(t => t.Result.IsAllowed);
     }
 
-    public async Task<RateLimitResult> CheckRateLimitAsync(string key, RateLimitPolicy policy)
+    public Task<RateLimitResult> CheckRateLimitAsync(string key, RateLimitPolicy policy)
     {
         var now = DateTime.UtcNow;
         var entry = _cache.AddOrUpdate(key, 
@@ -69,12 +68,12 @@ public class RateLimitService : IRateLimitService
                 key, entry.RequestCount, policy.MaxRequests);
         }
 
-        return new RateLimitResult
+        return Task.FromResult(new RateLimitResult
         {
             IsAllowed = isAllowed,
             RemainingRequests = remaining,
             RetryAfter = retryAfter
-        };
+        });
     }
 
     private RateLimitEntry UpdateEntry(RateLimitEntry existing, DateTime now, RateLimitPolicy policy)

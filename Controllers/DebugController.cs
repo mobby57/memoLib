@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+#if DEBUG
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Data;
@@ -59,3 +59,4 @@ public class DebugController : ControllerBase
         });
     }
 }
+#endif

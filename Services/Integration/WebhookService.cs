@@ -45,25 +45,22 @@ public class WebhookService : IWebhookService
         return signature.Equals($"sha256={expectedSignature}", StringComparison.OrdinalIgnoreCase);
     }
 
-    private async Task<bool> ProcessGmailWebhookAsync(string payload)
+    private Task<bool> ProcessGmailWebhookAsync(string payload)
     {
-        // Process Gmail push notification
         _logger.LogInformation("Processing Gmail webhook");
-        return true;
+        return Task.FromResult(true);
     }
 
-    private async Task<bool> ProcessDocuSignWebhookAsync(string payload)
+    private Task<bool> ProcessDocuSignWebhookAsync(string payload)
     {
-        // Process DocuSign status update
         _logger.LogInformation("Processing DocuSign webhook");
-        return true;
+        return Task.FromResult(true);
     }
 
-    private async Task<bool> ProcessPaymentWebhookAsync(string payload)
+    private Task<bool> ProcessPaymentWebhookAsync(string payload)
     {
-        // Process payment notification
         _logger.LogInformation("Processing Payment webhook");
-        return true;
+        return Task.FromResult(true);
     }
 
     private string ComputeHmacSha256(string data, string key)

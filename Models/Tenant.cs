@@ -1,13 +1,16 @@
+using MemoLib.Api.Models.Base;
+
 namespace MemoLib.Api.Models;
 
-public class Tenant
+public class Tenant : AuditableEntity
 {
-    public Guid Id { get; set; }
-    public string SectorId { get; set; } = string.Empty; // "legal", "medical", "consulting"
-    public string DisplayName { get; set; } = string.Empty; // "LegalMemo", "MediMemo"
-    public string ConfigJson { get; set; } = string.Empty; // Configuration complète
-    public DateTime CreatedAt { get; set; }
+    public string SectorId { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public string ConfigJson { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
+
+    // Navigation
+    public ICollection<User> Users { get; set; } = new List<User>();
 }
 
 public class SectorConfig
@@ -24,9 +27,9 @@ public class SectorConfig
 public class CustomFieldDefinition
 {
     public string Name { get; set; } = string.Empty;
-    public string Type { get; set; } = "string"; // string, number, date, enum
+    public string Type { get; set; } = "string";
     public string Label { get; set; } = string.Empty;
-    public List<string>? Options { get; set; } // Pour type enum
+    public List<string>? Options { get; set; }
 }
 
 public class SectorTemplate

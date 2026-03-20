@@ -50,7 +50,7 @@ public class AnalyticsService
                 TopClients = new List<TopClientItem>()
             };
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Retourner des métriques par défaut en cas d'erreur
             return new DashboardMetrics

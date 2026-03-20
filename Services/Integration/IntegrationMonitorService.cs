@@ -96,16 +96,17 @@ public class IntegrationMonitorService : IIntegrationMonitorService
         return results;
     }
 
-    public async Task RecordMetricAsync(string integration, string metric, double value)
+    public Task RecordMetricAsync(string integration, string metric, double value)
     {
         _logger.LogInformation("Metric recorded: {Integration}.{Metric} = {Value}", 
             integration, metric, value);
         
-        // Store metrics for monitoring dashboard
         if (_healthCache.TryGetValue(integration, out var health))
         {
             health.Data[metric] = value;
         }
+
+        return Task.CompletedTask;
     }
 
     private async Task<bool> CheckApiHealthAsync()

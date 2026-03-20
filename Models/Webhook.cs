@@ -1,21 +1,24 @@
+using MemoLib.Api.Models.Base;
+
 namespace MemoLib.Api.Models;
 
-public class Webhook
+public class Webhook : AuditableEntity
 {
-    public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public string Url { get; set; } = null!;
-    public string Event { get; set; } = null!; // CASE_CREATED, MESSAGE_RECEIVED, STATUS_CHANGED, etc.
-    public string Secret { get; set; } = null!; // Pour signature HMAC
+    public string Event { get; set; } = null!;
+    public string Secret { get; set; } = null!;
     public bool IsActive { get; set; } = true;
-    public DateTime CreatedAt { get; set; }
     public DateTime? LastTriggeredAt { get; set; }
     public int TriggerCount { get; set; }
+
+    // Navigation
+    public User? User { get; set; }
+    public ICollection<WebhookLog> Logs { get; set; } = new List<WebhookLog>();
 }
 
-public class WebhookLog
+public class WebhookLog : BaseEntity
 {
-    public Guid Id { get; set; }
     public Guid WebhookId { get; set; }
     public string Event { get; set; } = null!;
     public string Payload { get; set; } = null!;
@@ -23,4 +26,7 @@ public class WebhookLog
     public string? Response { get; set; }
     public bool Success { get; set; }
     public DateTime TriggeredAt { get; set; }
+
+    // Navigation
+    public Webhook? Webhook { get; set; }
 }

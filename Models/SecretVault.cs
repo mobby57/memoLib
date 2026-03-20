@@ -6,7 +6,10 @@ public class SecretVault
     public Guid UserId { get; set; }
     public string Key { get; set; } = string.Empty;
     public string EncryptedValue { get; set; } = string.Empty;
-    public string Category { get; set; } = string.Empty; // Email, Database, API, etc.
+    public string Category { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+
+    // Navigation
+    public User? User { get; set; }
 }
