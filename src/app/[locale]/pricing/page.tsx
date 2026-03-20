@@ -341,10 +341,10 @@ export default function PricingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/pilote"
+              href="/contact"
               className="px-8 py-4 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition-colors"
             >
-              Pilote gratuit 30 jours
+              Demander un accompagnement
             </Link>
             <Link
               href="/auth/register"
