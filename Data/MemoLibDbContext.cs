@@ -324,6 +324,42 @@ public class MemoLibDbContext : DbContext
             .HasIndex(s => new { s.UserId, s.Key })
             .IsUnique();
 
+        modelBuilder.Entity<CaseCollaborator>()
+            .HasOne(c => c.User)
+            .WithMany()
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CaseCollaborator>()
+            .HasOne(c => c.AddedBy)
+            .WithMany()
+            .HasForeignKey(c => c.AddedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Case>()
+            .HasOne(c => c.Owner)
+            .WithMany(u => u.OwnedCases)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Case>()
+            .HasOne(c => c.AssignedTo)
+            .WithMany(u => u.AssignedCases)
+            .HasForeignKey(c => c.AssignedToUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TaskDependency>()
+            .HasOne(d => d.Task)
+            .WithMany(t => t.Dependencies)
+            .HasForeignKey(d => d.TaskId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TaskDependency>()
+            .HasOne(d => d.DependsOnTask)
+            .WithMany()
+            .HasForeignKey(d => d.DependsOnTaskId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<RefreshToken>()
             .HasIndex(r => r.Token)
             .IsUnique();

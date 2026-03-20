@@ -1,8 +1,9 @@
+using MemoLib.Api.Models.Base;
+
 namespace MemoLib.Api.Models;
 
-public class CaseTask
+public class CaseTask : TenantEntity
 {
-    public Guid Id { get; set; }
     public Guid CaseId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
@@ -10,14 +11,19 @@ public class CaseTask
     public DateTime? DueDate { get; set; }
     public int Priority { get; set; } = 3;
     public bool IsCompleted { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? CompletedAt { get; set; }
     public Guid? CompletedByUserId { get; set; }
+
+    // Navigation
+    public Case? Case { get; set; }
+    public User? AssignedTo { get; set; }
+    public User? CompletedBy { get; set; }
+    public ICollection<TaskDependency> Dependencies { get; set; } = new List<TaskDependency>();
+    public ICollection<TaskChecklistItem> ChecklistItems { get; set; } = new List<TaskChecklistItem>();
 }
 
-public class CaseDocument
+public class CaseDocument : SoftDeletableEntity
 {
-    public Guid Id { get; set; }
     public Guid CaseId { get; set; }
     public string FileName { get; set; } = string.Empty;
     public string FilePath { get; set; } = string.Empty;
@@ -30,11 +36,16 @@ public class CaseDocument
     public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
     public string? Category { get; set; }
     public List<string> Tags { get; set; } = new();
+
+    // Navigation
+    public Case? Case { get; set; }
+    public User? UploadedBy { get; set; }
+    public CaseDocument? ParentDocument { get; set; }
+    public ICollection<CaseDocument> Versions { get; set; } = new List<CaseDocument>();
 }
 
-public class PhoneCall
+public class PhoneCall : TenantEntity
 {
-    public Guid Id { get; set; }
     public Guid CaseId { get; set; }
     public Guid? ClientId { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;
@@ -46,22 +57,28 @@ public class PhoneCall
     public string? RecordingUrl { get; set; }
     public string? Transcription { get; set; }
     public Guid HandledByUserId { get; set; }
+
+    // Navigation
+    public Case? Case { get; set; }
+    public Client? Client { get; set; }
+    public User? HandledBy { get; set; }
 }
 
-public class CustomForm
+public class CustomForm : TenantEntity
 {
-    public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public List<FormField> Fields { get; set; } = new();
     public bool IsActive { get; set; } = true;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation
+    public User? User { get; set; }
+    public ICollection<FormSubmission> Submissions { get; set; } = new List<FormSubmission>();
 }
 
-public class Automation
+public class Automation : TenantEntity
 {
-    public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string TriggerType { get; set; } = string.Empty;
@@ -69,12 +86,13 @@ public class Automation
     public string ActionType { get; set; } = string.Empty;
     public Dictionary<string, string> ActionParams { get; set; } = new();
     public bool IsActive { get; set; } = true;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // Navigation
+    public User? User { get; set; }
 }
 
-public class Report
+public class Report : TenantEntity
 {
-    public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string ReportType { get; set; } = string.Empty;
@@ -83,11 +101,13 @@ public class Report
     public DateTime? EndDate { get; set; }
     public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
     public string? ExportUrl { get; set; }
+
+    // Navigation
+    public User? User { get; set; }
 }
 
-public class Integration
+public class Integration : AuditableEntity
 {
-    public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public string Provider { get; set; } = string.Empty;
     public string AccessToken { get; set; } = string.Empty;
@@ -96,11 +116,13 @@ public class Integration
     public DateTime? ExpiresAt { get; set; }
     public bool IsActive { get; set; } = true;
     public Dictionary<string, string> Settings { get; set; } = new();
+
+    // Navigation
+    public User? User { get; set; }
 }
 
-public class TeamMessage
+public class TeamMessage : BaseEntity
 {
-    public Guid Id { get; set; }
     public Guid FromUserId { get; set; }
     public Guid? ToUserId { get; set; }
     public Guid? CaseId { get; set; }
@@ -108,11 +130,15 @@ public class TeamMessage
     public DateTime SentAt { get; set; } = DateTime.UtcNow;
     public bool IsRead { get; set; }
     public DateTime? ReadAt { get; set; }
+
+    // Navigation
+    public User? FromUser { get; set; }
+    public User? ToUser { get; set; }
+    public Case? Case { get; set; }
 }
 
-public class ExternalShare
+public class ExternalShare : TenantEntity
 {
-    public Guid Id { get; set; }
     public Guid CaseId { get; set; }
     public string ShareToken { get; set; } = string.Empty;
     public string RecipientEmail { get; set; } = string.Empty;
@@ -121,6 +147,9 @@ public class ExternalShare
     public DateTime? ExpiresAt { get; set; }
     public string? Password { get; set; }
     public Guid SharedByUserId { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? AccessedAt { get; set; }
+
+    // Navigation
+    public Case? Case { get; set; }
+    public User? SharedBy { get; set; }
 }

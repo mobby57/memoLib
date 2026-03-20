@@ -23,6 +23,16 @@ public class AttachmentController : ControllerBase
         Directory.CreateDirectory(_uploadPath);
     }
 
+    private async Task<bool> UserOwnsEventAsync(Guid userId, Guid eventId)
+    {
+        var userSourceIds = await _db.Sources
+            .Where(s => s.UserId == userId)
+            .Select(s => s.Id)
+            .ToListAsync();
+
+        return await _db.Events.AnyAsync(e => e.Id == eventId && userSourceIds.Contains(e.SourceId));
+    }
+
     [HttpPost("upload/{eventId}")]
     [RequestSizeLimit(Attachment.MaxFileSize)]
     public async Task<IActionResult> Upload(Guid eventId, IFormFile file)
@@ -36,8 +46,8 @@ public class AttachmentController : ControllerBase
         if (Attachment.BlockedExtensions.Contains(ext))
             return BadRequest(new { message = $"Extension {ext} non autorisee" });
 
-        var evt = await _db.Events.FirstOrDefaultAsync(e => e.Id == eventId);
-        if (evt == null) return NotFound();
+        if (!await UserOwnsEventAsync(userId, eventId))
+            return NotFound();
 
         var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
         var filePath = Path.Combine(_uploadPath, fileName);
@@ -70,8 +80,13 @@ public class AttachmentController : ControllerBase
     [HttpGet("{attachmentId}")]
     public async Task<IActionResult> Download(Guid attachmentId)
     {
+        if (!this.TryGetCurrentUserId(out var userId)) return Unauthorized();
+
         var attachment = await _db.Attachments.FirstOrDefaultAsync(a => a.Id == attachmentId);
         if (attachment == null || !System.IO.File.Exists(attachment.FilePath))
+            return NotFound();
+
+        if (!await UserOwnsEventAsync(userId, attachment.EventId))
             return NotFound();
 
         // Verification integrite
@@ -87,9 +102,14 @@ public class AttachmentController : ControllerBase
     }
 
     [HttpGet("event/{eventId}")]
-    public IActionResult ListByEvent(Guid eventId)
+    public async Task<IActionResult> ListByEvent(Guid eventId)
     {
-        var attachments = _db.Attachments.Where(a => a.EventId == eventId).ToList();
+        if (!this.TryGetCurrentUserId(out var userId)) return Unauthorized();
+
+        if (!await UserOwnsEventAsync(userId, eventId))
+            return NotFound();
+
+        var attachments = await _db.Attachments.Where(a => a.EventId == eventId).ToListAsync();
         return Ok(attachments);
     }
 }
