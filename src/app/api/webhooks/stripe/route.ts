@@ -144,7 +144,6 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       where: { id: tenantId },
       include: { owner: true },
     });
-    if (tenant?.owner?.email) {
     if (tenant?.owner?.email && process.env.RESEND_API_KEY) {
       const { Resend } = await import('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
@@ -161,7 +160,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       });
     }
   } catch (emailError) {
-    logger.error('Erreur envoi email alerte paiement', { error: emailError, tenantId });
+    logger.error('Erreur envoi email alerte paiement', emailError instanceof Error ? emailError : undefined, { tenantId });
   }
 
   logger.warn(`echec paiement pour tenant ${tenantId}`, {
