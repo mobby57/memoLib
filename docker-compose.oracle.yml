@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  memolib:
+    build: .
+    container_name: memolib-api
+    restart: always
+    ports:
+      - "5078:5078"
+    volumes:
+      - memolib-data:/app/data
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5078
+      - ConnectionStrings__Default=Data Source=/app/data/memolib.db
+      - DisableHttpsRedirection=true
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=MemoLib
+      - JwtSettings__Audience=MemoLib
+      - Cors__AllowTunnelOrigins=true
+
+volumes:
+  memolib-data:

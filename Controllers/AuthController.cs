@@ -7,6 +7,7 @@ using MemoLib.Api.Data;
 using MemoLib.Api.Models;
 using MemoLib.Api.Services;
 using MemoLib.Api.Validators;
+using MemoLib.Api.Authorization;
 
 namespace MemoLib.Api.Controllers;
 
@@ -311,7 +312,7 @@ public class AuthController : ControllerBase
             Email = normalizedEmail,
             Password = hashedPasswordStr,
             Name = request.Name,
-            Role = request.Role ?? "AGENT",
+            Role = Roles.Agent,
             Phone = request.Phone,
             FirmName = request.FirmName,
             BarNumber = request.BarNumber,
@@ -338,7 +339,7 @@ public class AuthController : ControllerBase
             Id = user.Id,
             Email = user.Email,
             Name = user.Name,
-            Role = request.Role ?? "AGENT"
+            Role = Roles.Agent
         });
     }
 }
