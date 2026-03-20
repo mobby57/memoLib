@@ -120,6 +120,10 @@ publish/
 *.bak
 *.backup
 
+## Package manager lockfiles (npm only)
+pnpm-lock.yaml
+yarn.lock
+
 ## Legacy/build artifacts (not part of main project)
 frontend-node/
 _build_check/
