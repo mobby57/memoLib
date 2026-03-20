@@ -48,33 +48,39 @@ public class IntegrationConfigService : IIntegrationConfigService
     public async Task<T> GetConfigAsync<T>(string integration, string key) where T : class
     {
         var cacheKey = $"integration_config:{integration}:{key}";
-        
-        return await _cacheService.GetOrSetAsync(cacheKey, async () =>
+
+        // Try cache first
+        var cached = await _cacheService.GetAsync<T>(cacheKey);
+        if (cached != null) return cached;
+
+        // Try configuration
+        var configValue = _configuration[$"Integrations:{integration}:{key}"];
+        if (!string.IsNullOrEmpty(configValue))
         {
-            // Try configuration first
-            var configValue = _configuration[$"Integrations:{integration}:{key}"];
-            if (!string.IsNullOrEmpty(configValue))
+            try
             {
-                try
+                var deserialized = System.Text.Json.JsonSerializer.Deserialize<T>(configValue);
+                if (deserialized != null)
                 {
-                    return System.Text.Json.JsonSerializer.Deserialize<T>(configValue);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to deserialize config for {Integration}.{Key}", integration, key);
+                    await _cacheService.SetAsync(cacheKey, deserialized, TimeSpan.FromMinutes(10));
+                    return deserialized;
                 }
             }
-
-            // Return default if available
-            if (_defaultSettings.TryGetValue(integration, out var settings) &&
-                settings.CustomSettings.TryGetValue(key, out var defaultValue) &&
-                defaultValue is T typedValue)
+            catch (Exception ex)
             {
-                return typedValue;
+                _logger.LogWarning(ex, "Failed to deserialize config for {Integration}.{Key}", integration, key);
             }
+        }
 
-            return null;
-        }, TimeSpan.FromMinutes(10));
+        // Return default if available
+        if (_defaultSettings.TryGetValue(integration, out var settings) &&
+            settings.CustomSettings.TryGetValue(key, out var defaultValue) &&
+            defaultValue is T typedValue)
+        {
+            return typedValue;
+        }
+
+        return null!;
     }
 
     public async Task SetConfigAsync<T>(string integration, string key, T value) where T : class
@@ -95,7 +101,7 @@ public class IntegrationConfigService : IIntegrationConfigService
     {
         var cacheKey = $"integration_settings:{integration}";
         
-        return await _cacheService.GetOrSetAsync(cacheKey, async () =>
+        return await _cacheService.GetOrSetAsync(cacheKey, () =>
         {
             // Try to load from configuration
             var configSection = _configuration.GetSection($"Integrations:{integration}");
@@ -103,11 +109,11 @@ public class IntegrationConfigService : IIntegrationConfigService
             {
                 var settings = new IntegrationSettings();
                 configSection.Bind(settings);
-                return settings;
+                return Task.FromResult(settings);
             }
 
             // Return default settings
-            return _defaultSettings.GetValueOrDefault(integration, new IntegrationSettings());
+            return Task.FromResult(_defaultSettings.GetValueOrDefault(integration, new IntegrationSettings()));
         }, TimeSpan.FromMinutes(5));
     }
 

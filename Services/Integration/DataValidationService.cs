@@ -136,18 +136,17 @@ public class DataValidationService : IDataValidationService
         return result;
     }
 
-    public async Task<T> TransformDataAsync<T>(object input, string transformationRule) where T : class
+    public Task<T> TransformDataAsync<T>(object input, string transformationRule) where T : class
     {
         try
         {
             var inputJson = JsonSerializer.Serialize(input);
             var inputDoc = JsonDocument.Parse(inputJson);
 
-            // Apply transformation rules (simplified implementation)
             var transformedData = ApplyTransformationRules(inputDoc, transformationRule);
             
             var result = JsonSerializer.Deserialize<T>(transformedData);
-            return result ?? throw new InvalidOperationException("Transformation resulted in null");
+            return Task.FromResult(result ?? throw new InvalidOperationException("Transformation resulted in null"));
         }
         catch (Exception ex)
         {
@@ -156,7 +155,7 @@ public class DataValidationService : IDataValidationService
         }
     }
 
-    public async Task<bool> SanitizeDataAsync<T>(T data) where T : class
+    public Task<bool> SanitizeDataAsync<T>(T data) where T : class
     {
         try
         {
@@ -175,13 +174,12 @@ public class DataValidationService : IDataValidationService
                 }
             }
 
-            await Task.CompletedTask;
-            return true;
+            return Task.FromResult(true);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Data sanitization failed for type: {Type}", typeof(T).Name);
-            return false;
+            return Task.FromResult(false);
         }
     }
 
@@ -315,7 +313,7 @@ public class DataValidationService : IDataValidationService
         return JsonSerializer.Serialize(entities);
     }
 
-    private async Task<ValidationResult> ValidateDocuSignWebhook(string payload)
+    private Task<ValidationResult> ValidateDocuSignWebhook(string payload)
     {
         var result = new ValidationResult { IsValid = true };
         
@@ -341,11 +339,10 @@ public class DataValidationService : IDataValidationService
             result.IsValid = false;
         }
 
-        await Task.CompletedTask;
-        return result;
+        return Task.FromResult(result);
     }
 
-    private async Task<ValidationResult> ValidateGmailWebhook(string payload)
+    private Task<ValidationResult> ValidateGmailWebhook(string payload)
     {
         var result = new ValidationResult { IsValid = true };
         
@@ -365,11 +362,10 @@ public class DataValidationService : IDataValidationService
             result.IsValid = false;
         }
 
-        await Task.CompletedTask;
-        return result;
+        return Task.FromResult(result);
     }
 
-    private async Task<ValidationResult> ValidatePaymentWebhook(string payload)
+    private Task<ValidationResult> ValidatePaymentWebhook(string payload)
     {
         var result = new ValidationResult { IsValid = true };
         
@@ -395,8 +391,7 @@ public class DataValidationService : IDataValidationService
             result.IsValid = false;
         }
 
-        await Task.CompletedTask;
-        return result;
+        return Task.FromResult(result);
     }
 
     private List<string> ExtractCompanyNames(string content)

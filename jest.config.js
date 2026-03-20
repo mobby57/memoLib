@@ -1,5 +1,14 @@
 module.exports = {
   testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    env: {
+      NODE_ENV: 'test',
+      NEXTAUTH_SECRET: 'test-secret',
+      NEXTAUTH_URL: 'http://localhost:3000',
+      NEXT_PUBLIC_APP_URL: 'http://localhost:3000',
+      DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
+    },
+  },
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{test,spec}.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',

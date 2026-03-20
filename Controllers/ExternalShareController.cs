@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Data;
 using MemoLib.Api.Models;
-using System.Security.Claims;
 
 namespace MemoLib.Api.Controllers;
 
@@ -17,16 +16,29 @@ public class ExternalShareController : ControllerBase
     public ExternalShareController(MemoLibDbContext context) => _context = context;
 
     [HttpPost]
-    public async Task<IActionResult> CreateShare([FromBody] ExternalShare share)
+    public async Task<IActionResult> CreateShare([FromBody] CreateShareRequest request)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var caseExists = await _context.Cases.AnyAsync(c => c.Id == share.CaseId && c.UserId == userId);
+        if (!this.TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+
+        var caseExists = await _context.Cases.AnyAsync(c => c.Id == request.CaseId && c.UserId == userId);
         if (!caseExists) return NotFound();
 
-        share.SharedByUserId = userId;
-        share.ShareToken = Guid.NewGuid().ToString("N");
-        share.CreatedAt = DateTime.UtcNow;
-        
+        var share = new ExternalShare
+        {
+            CaseId = request.CaseId,
+            RecipientEmail = request.RecipientEmail ?? string.Empty,
+            Password = string.IsNullOrWhiteSpace(request.Password)
+                ? null
+                : BCrypt.Net.BCrypt.HashPassword(request.Password),
+            ExpiresAt = request.ExpiresAt,
+            AllowDownload = request.AllowDownload,
+            DocumentIds = request.DocumentIds ?? new List<Guid>(),
+            SharedByUserId = userId,
+            ShareToken = Guid.NewGuid().ToString("N"),
+            CreatedAt = DateTime.UtcNow
+        };
+
         _context.ExternalShares.Add(share);
         await _context.SaveChangesAsync();
 
@@ -87,7 +99,9 @@ public class ExternalShareController : ControllerBase
     [HttpGet("case/{caseId}")]
     public async Task<IActionResult> GetCaseShares(Guid caseId)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        if (!this.TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+
         var caseExists = await _context.Cases.AnyAsync(c => c.Id == caseId && c.UserId == userId);
         if (!caseExists) return NotFound();
 
@@ -101,7 +115,9 @@ public class ExternalShareController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> RevokeShare(Guid id)
     {
-        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        if (!this.TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+
         var share = await _context.ExternalShares.FirstOrDefaultAsync(s => s.Id == id && s.SharedByUserId == userId);
         if (share == null) return NotFound();
 
@@ -110,3 +126,12 @@ public class ExternalShareController : ControllerBase
         return NoContent();
     }
 }
+
+public record CreateShareRequest(
+    Guid CaseId,
+    string? RecipientEmail,
+    string? Password,
+    DateTime? ExpiresAt,
+    bool AllowDownload,
+    List<Guid>? DocumentIds
+);

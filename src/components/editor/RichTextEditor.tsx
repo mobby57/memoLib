@@ -1,44 +1,139 @@
-﻿import { useState } from 'react';
+﻿"use client";
 
-const TOOLBAR_ACTIONS = ['bold', 'italic', 'underline', 'link', 'code'] as const;
+import { EditorContent, useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
 
-type ToolbarAction = typeof TOOLBAR_ACTIONS[number];
+type RichTextEditorProps = {
+    onChange?: (value: string) => void;
+    initialValue?: string;
+    placeholder?: string;
+};
 
-export default function RichTextEditor({ onChange }: { onChange?: (value: string) => void }) {
-    const [value, setValue] = useState('');
+const TOOLBAR_BUTTON_CLASS =
+    'rounded-lg border px-3 py-1 text-sm font-medium transition-colors';
 
-    const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const nextValue = event.target.value;
-        setValue(nextValue);
-        onChange?.(nextValue);
+export default function RichTextEditor({
+    onChange,
+    initialValue = '',
+    placeholder = 'Ecrivez votre contenu ici...',
+}: RichTextEditorProps) {
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            Underline,
+            Link.configure({
+                openOnClick: false,
+                autolink: true,
+                defaultProtocol: 'https',
+            }),
+        ],
+        content: initialValue,
+        immediatelyRender: false,
+        onUpdate: ({ editor: currentEditor }) => {
+            onChange?.(currentEditor.getHTML());
+        },
+        editorProps: {
+            attributes: {
+                class:
+                    'min-h-[220px] w-full rounded-lg border border-gray-200 p-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'aria-label': placeholder,
+            },
+        },
+    });
+
+    const setLink = () => {
+        if (!editor) {
+            return;
+        }
+
+        const previousUrl = editor.getAttributes('link').href as string | undefined;
+        const url = window.prompt('Entrez une URL', previousUrl ?? 'https://');
+
+        if (url === null) {
+            return;
+        }
+
+        const trimmedUrl = url.trim();
+        if (trimmedUrl.length === 0) {
+            editor.chain().focus().extendMarkRange('link').unsetLink().run();
+            return;
+        }
+
+        editor.chain().focus().extendMarkRange('link').setLink({ href: trimmedUrl }).run();
     };
 
-    const handleAction = (action: ToolbarAction) => {
-        // Placeholder action handler – integrate real editor later
-        console.info(`[RichTextEditor] Action triggered: ${action}`);
+    const clearFormatting = () => {
+        editor?.chain().focus().unsetAllMarks().clearNodes().run();
     };
+
+    if (!editor) {
+        return (
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <p className="text-sm text-gray-500">Chargement de l'editeur...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <div className="flex flex-wrap gap-2">
-                {TOOLBAR_ACTIONS.map((action) => (
-                    <button
-                        key={action}
-                        type="button"
-                        onClick={() => handleAction(action)}
-                        className="rounded-lg border border-gray-200 px-3 py-1 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                    >
-                        {action.toUpperCase()}
-                    </button>
-                ))}
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    className={`${TOOLBAR_BUTTON_CLASS} ${editor.isActive('bold')
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                >
+                    Gras
+                </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    className={`${TOOLBAR_BUTTON_CLASS} ${editor.isActive('italic')
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                >
+                    Italique
+                </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    className={`${TOOLBAR_BUTTON_CLASS} ${editor.isActive('underline')
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                >
+                    Souligne
+                </button>
+                <button
+                    type="button"
+                    onClick={setLink}
+                    className={`${TOOLBAR_BUTTON_CLASS} ${editor.isActive('link')
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                >
+                    Lien
+                </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleCode().run()}
+                    className={`${TOOLBAR_BUTTON_CLASS} ${editor.isActive('code')
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                >
+                    Code
+                </button>
+                <button
+                    type="button"
+                    onClick={clearFormatting}
+                    className={`${TOOLBAR_BUTTON_CLASS} border-gray-200 text-gray-600 hover:bg-gray-50`}
+                >
+                    Reinitialiser
+                </button>
             </div>
-            <textarea
-                value={value}
-                onChange={handleInput}
-                rows={8}
-                className="w-full resize-y rounded-lg border border-gray-200 p-3 font-mono text-sm text-gray-800 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Write rich content here..."
-            />
+
+            <EditorContent editor={editor} />
         </div>
     );
 }
