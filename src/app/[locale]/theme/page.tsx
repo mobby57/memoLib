@@ -46,10 +46,10 @@ export default function ThemeDemo() {
           </p>
 
           <div className="mt-6 flex gap-4">
-            <Link href="/icons">
+            <Link href="/dashboard">
               <Button variant="outline">
                 <LayoutDashboard className="mr-2" size={18} />
-                Voir les icones
+                Ouvrir le dashboard
               </Button>
             </Link>
             <Button variant="primary">

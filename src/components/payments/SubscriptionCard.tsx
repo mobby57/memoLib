@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PRODUCT_TIERS, type ProductTier } from '@/lib/stripe/config';
+import { PRODUCT_TIERS, type ProductTier } from '@/lib/billing/plans';
 
 interface SubscriptionCardProps {
     tier: ProductTier;

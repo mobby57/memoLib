@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { PRODUCT_TIERS, type ProductTier } from '@/lib/stripe/config';
+import { PRODUCT_TIERS, type ProductTier } from '@/lib/billing/plans';
 import SubscriptionCard from '@/components/payments/SubscriptionCard';
 import PaymentForm from '@/components/payments/PaymentForm';
 
