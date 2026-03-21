@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { createPageMetadata } from '@/lib/metadata';
+import { createPageMetadata, getBaseUrl } from '@/lib/metadata';
 
 export function generateMetadata({
   params,
@@ -18,9 +18,12 @@ export function generateMetadata({
 
 export default function FaqLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { locale: string };
 }) {
+  const baseUrl = getBaseUrl();
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -68,13 +71,13 @@ export default function FaqLayout({
         '@type': 'ListItem',
         position: 1,
         name: 'Demo',
-        item: '/fr/demo',
+        item: `${baseUrl}/${params.locale}/demo`,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'FAQ',
-        item: '/fr/faq',
+        item: `${baseUrl}/${params.locale}/faq`,
       },
     ],
   };

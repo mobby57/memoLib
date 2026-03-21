@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { createPageMetadata } from '@/lib/metadata';
+import { createPageMetadata, getBaseUrl } from '@/lib/metadata';
 
 export function generateMetadata({
   params,
@@ -18,9 +18,12 @@ export function generateMetadata({
 
 export default function ContactLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { locale: string };
 }) {
+  const baseUrl = getBaseUrl();
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -29,13 +32,13 @@ export default function ContactLayout({
         '@type': 'ListItem',
         position: 1,
         name: 'Demo',
-        item: '/fr/demo',
+        item: `${baseUrl}/${params.locale}/demo`,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Contact',
-        item: '/fr/contact',
+        item: `${baseUrl}/${params.locale}/contact`,
       },
     ],
   };
