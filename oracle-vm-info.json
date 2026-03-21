@@ -1,0 +1,17 @@
+{
+    "SSHKey":  "C:\\Users\\moros\\.ssh\\memolib-oracle",
+    "IP":  [
+               "Usage: oci network vnic get [OPTIONS]",
+               "",
+               "Error: Got unexpected extra arguments (Error: Got unexpected extra arguments (Error: Got unexpected extra arguments (Error: Option \u0027--compartment-id\u0027 requires an argument. For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`. Error: Got unexpected extra argument (Canonical Ubuntu) For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`. Error: Got unexpected extra arguments (Error: Option \u0027--compartment-id\u0027 requires an argument. For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`.) For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`.) For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`.) For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`.)",
+               "",
+               "For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`."
+           ],
+    "InstanceId":  [
+                       "Usage: oci compute instance launch [OPTIONS]",
+                       "",
+                       "Error: Got unexpected extra arguments (Error: Option \u0027--compartment-id\u0027 requires an argument. For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`. Error: Got unexpected extra argument (Canonical Ubuntu) For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`. Error: Got unexpected extra arguments (Error: Option \u0027--compartment-id\u0027 requires an argument. For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`.) For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`.)",
+                       "",
+                       "For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`."
+                   ]
+}

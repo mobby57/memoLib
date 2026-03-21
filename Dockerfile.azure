@@ -1,0 +1,39 @@
+# === Stage 1: Build ===
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+WORKDIR /src
+
+COPY ["MemoLib.Api.csproj", "./"]
+RUN dotnet restore "MemoLib.Api.csproj" --runtime linux-musl-x64
+
+COPY . .
+RUN dotnet publish "MemoLib.Api.csproj" -c Release -o /app/publish \
+    --runtime linux-musl-x64 \
+    --self-contained false \
+    /p:UseAppHost=false
+
+# === Stage 2: Runtime ===
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
+WORKDIR /app
+
+RUN apk add --no-cache curl icu-libs
+
+# Non-root user
+RUN addgroup -S memolib && adduser -S memolib -G memolib
+RUN mkdir -p /app/data /app/uploads /app/logs && chown -R memolib:memolib /app
+
+COPY --from=build --chown=memolib:memolib /app/publish .
+
+USER memolib
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+ENV ConnectionStrings__Default="Data Source=/app/data/memolib.db"
+ENV DisableHttpsRedirection=true
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8080/health/live || exit 1
+
+ENTRYPOINT ["dotnet", "MemoLib.Api.dll"]

@@ -1,0 +1,65 @@
+name: Deploy MemoLib to Azure Container Apps
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AZURE_RESOURCE_GROUP: memolib-rg
+  AZURE_CONTAINER_APP: memolib-api
+  ACR_NAME: memolibacr
+  IMAGE_NAME: memolib-api
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build & Push to ACR
+        run: |
+          az acr login --name ${{ env.ACR_NAME }}
+          ACR_SERVER=$(az acr show --name ${{ env.ACR_NAME }} --query loginServer -o tsv)
+          TAG="${ACR_SERVER}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          TAG_LATEST="${ACR_SERVER}/${{ env.IMAGE_NAME }}:latest"
+          
+          docker build -f Dockerfile.azure -t $TAG -t $TAG_LATEST .
+          docker push $TAG
+          docker push $TAG_LATEST
+
+      - name: Deploy to Container Apps
+        run: |
+          ACR_SERVER=$(az acr show --name ${{ env.ACR_NAME }} --query loginServer -o tsv)
+          
+          az containerapp update \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AZURE_CONTAINER_APP }} \
+            --image "${ACR_SERVER}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+
+      - name: Health Check
+        run: |
+          APP_URL=$(az containerapp show \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AZURE_CONTAINER_APP }} \
+            --query "properties.configuration.ingress.fqdn" -o tsv)
+          
+          echo "🌐 App URL: https://$APP_URL"
+          
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$APP_URL/health/live" || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Health check passed!"
+              exit 0
+            fi
+            echo "⏳ Attempt $i/5 - Status: $STATUS - Waiting 15s..."
+            sleep 15
+          done
+          
+          echo "❌ Health check failed after 5 attempts"
+          exit 1
