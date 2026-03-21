@@ -19,6 +19,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: route.changeFrequency,
       priority: route.priority,
+      alternates: {
+        languages: Object.fromEntries(
+          SUPPORTED_LOCALES.map(altLocale => [altLocale, `${baseUrl}/${altLocale}${route.path}`])
+        ),
+      },
     }))
   );
 }
