@@ -1,6 +1,5 @@
-﻿'use client';
+'use client';
 
-// Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { logger } from '@/lib/logger';
@@ -19,11 +18,10 @@ export default function LoginPage() {
   const [timeoutMessage, setTimeoutMessage] = useState<string>('');
 
   useEffect(() => {
-    // Verifier si la session a expire via les parametres URL
     const params = new URLSearchParams(window.location.search);
     if (params.get('timeout') === 'true') {
       setTimeoutMessage(
-        '? Votre session a expire pour des raisons de securite. Veuillez vous reconnecter.'
+        'Votre session a expiré pour des raisons de sécurité. Veuillez vous reconnecter.'
       );
     } else if (params.get('error')) {
       setError('Une erreur est survenue lors de la connexion');
@@ -50,7 +48,6 @@ export default function LoginPage() {
         setError('Email ou mot de passe incorrect');
         setLoading(false);
       } else if (result?.ok) {
-        // Redirection bas�e sur l'email (d�termin� c�t� serveur)
         if (email === 'admin@memolib.fr') {
           router.push('/super-admin/dashboard');
         } else if (email === 'client@memolib.fr') {
@@ -70,7 +67,6 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex">
       {/* Left side - Features */}
       <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-center relative overflow-hidden">
-        {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
           <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -81,17 +77,16 @@ export default function LoginPage() {
             href="/"
             className="inline-flex items-center gap-2 text-white mb-8 hover:opacity-80 transition-opacity"
           >
-            <span className="text-4xl">??</span>
-            <span className="text-2xl font-bold">memoLib</span>
+            <span className="text-4xl">{'\u2696\uFE0F'}</span>
+            <span className="text-2xl font-bold">MemoLib</span>
           </Link>
 
           <h2 className="text-4xl font-bold text-white mb-6">
-            G�rez votre cabinet avec intelligence
+            {`G\u00E9rez votre cabinet avec intelligence`}
           </h2>
 
           <p className="text-blue-200 text-lg mb-12">
-            La solution compl�te pour les avocats modernes : dossiers, clients, factures et IA
-            int�gr�e.
+            {`La solution compl\u00E8te pour les avocats modernes : dossiers, clients, factures et IA int\u00E9gr\u00E9e.`}
           </p>
 
           <div className="space-y-6">
@@ -100,9 +95,9 @@ export default function LoginPage() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-white mb-1">S�curit� maximale</h3>
+                <h3 className="font-semibold text-white mb-1">{`S\u00E9curit\u00E9 maximale`}</h3>
                 <p className="text-blue-200 text-sm">
-                  Chiffrement AES-256 et conformit� RGPD garantie
+                  {`Chiffrement AES-256 et conformit\u00E9 RGPD garantie`}
                 </p>
               </div>
             </div>
@@ -112,7 +107,7 @@ export default function LoginPage() {
                 <Zap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-white mb-1">IA int�gr�e</h3>
+                <h3 className="font-semibold text-white mb-1">{`IA int\u00E9gr\u00E9e`}</h3>
                 <p className="text-blue-200 text-sm">
                   Analyse automatique des documents et suggestions intelligentes
                 </p>
@@ -126,7 +121,7 @@ export default function LoginPage() {
               <div>
                 <h3 className="font-semibold text-white mb-1">Multi-cabinet</h3>
                 <p className="text-blue-200 text-sm">
-                  G�rez plusieurs cabinets avec un seul compte
+                  {`G\u00E9rez plusieurs cabinets avec un seul compte`}
                 </p>
               </div>
             </div>
@@ -139,25 +134,25 @@ export default function LoginPage() {
         <div className="max-w-md w-full">
           {/* Mobile logo */}
           <div className="text-center mb-8 lg:hidden">
-            <span className="text-6xl">??</span>
-            <h1 className="text-3xl font-bold text-white mt-4">memoLib</h1>
+            <span className="text-6xl">{'\u2696\uFE0F'}</span>
+            <h1 className="text-3xl font-bold text-white mt-4">MemoLib</h1>
           </div>
 
           {/* Form card */}
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Connexion</h2>
-            <p className="text-gray-500 mb-6">Acc�dez � votre espace de gestion</p>
+            <p className="text-gray-500 mb-6">{`Acc\u00E9dez \u00E0 votre espace de gestion`}</p>
 
             {timeoutMessage && (
               <div className="mb-4 bg-amber-50 border-l-4 border-amber-500 text-amber-800 px-4 py-3 rounded-r">
-                <p className="font-semibold">?? Session expir�e</p>
+                <p className="font-semibold">{`\u23F0 Session expir\u00E9e`}</p>
                 <p className="text-sm">{timeoutMessage}</p>
               </div>
             )}
 
             {error && (
               <div className="mb-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r">
-                <p className="font-semibold">? Erreur</p>
+                <p className="font-semibold">{`\u274C Erreur`}</p>
                 <p className="text-sm">{error}</p>
               </div>
             )}
@@ -195,7 +190,7 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     required
                     className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    placeholder="��������"
+                    placeholder=""
                   />
                   <button
                     type="button"
@@ -221,7 +216,7 @@ export default function LoginPage() {
                   href="/auth/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                 >
-                  Mot de passe oubli� ?
+                  {`Mot de passe oubli\u00E9 ?`}
                 </Link>
               </div>
 
@@ -301,18 +296,17 @@ export default function LoginPage() {
             {/* Demo accounts */}
             <details className="mt-6">
               <summary className="cursor-pointer text-sm font-semibold text-gray-700 flex items-center gap-2 hover:text-blue-600">
-                <span>??</span>
-                <span>Comptes de d�monstration</span>
+                {`\uD83E\uDDEA Comptes de d\u00E9monstration`}
               </summary>
               <div className="mt-3 space-y-2 text-xs">
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
-                  <p className="font-bold text-purple-900">?? Super Admin</p>
+                  <p className="font-bold text-purple-900">{`\uD83D\uDC51 Super Admin`}</p>
                   <p className="text-purple-700 mt-1 font-mono text-xs">
                     superadmin@memoLib.com | SuperAdmin2026!
                   </p>
                 </div>
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
-                  <p className="font-bold text-blue-900">?? Avocat</p>
+                  <p className="font-bold text-blue-900">{`\u2696\uFE0F Avocat`}</p>
                   <p className="text-blue-700 mt-1 font-mono text-xs">
                     avocat@cabinet-dupont.fr | Avocat2026!
                   </p>
@@ -324,17 +318,17 @@ export default function LoginPage() {
           {/* Footer */}
           <div className="text-center mt-6 space-y-3">
             <p className="text-blue-200 text-sm">
-              Pas encore de compte ?{' '}
+              {'Pas encore de compte ? '}
               <Link href="/auth/register" className="font-semibold text-white hover:underline">
-                Cr�er un compte
+                {`Cr\u00E9er un compte`}
               </Link>
             </p>
             <div className="flex items-center justify-center gap-4 text-xs text-blue-300/70">
               <span className="flex items-center gap-1">
-                <Shield className="w-3 h-3" /> S�curis�
+                <Shield className="w-3 h-3" /> {`S\u00E9curis\u00E9`}
               </span>
               <span className="flex items-center gap-1">
-                <Lock className="w-3 h-3" /> Chiffr�
+                <Lock className="w-3 h-3" /> {`Chiffr\u00E9`}
               </span>
               <span className="flex items-center gap-1">
                 <CheckCircle className="w-3 h-3" /> RGPD
@@ -344,7 +338,7 @@ export default function LoginPage() {
               href="/"
               className="inline-block text-blue-200 hover:text-white text-sm hover:underline"
             >
-              ? Retour � l'accueil
+              {`\u2190 Retour \u00E0 l'accueil`}
             </Link>
           </div>
         </div>
