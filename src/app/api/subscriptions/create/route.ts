@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { stripe } from '@/lib/stripe/config';
 import { prisma } from '@/lib/prisma';
+import Stripe from 'stripe';
 
 const ALLOWED_PRICE_IDS: Record<string, string> = {
     PRO_MONTHLY:        process.env.STRIPE_PRICE_PRO_MONTHLY        || '',
@@ -11,6 +12,17 @@ const ALLOWED_PRICE_IDS: Record<string, string> = {
 };
 const ALLOWED_TIERS = ['PRO', 'ENTERPRISE'] as const;
 type AllowedTier = (typeof ALLOWED_TIERS)[number];
+
+type ExpandedSubscription = Stripe.Subscription & {
+    latest_invoice?: Stripe.Invoice & {
+        payment_intent?: Stripe.PaymentIntent;
+    };
+};
+
+type SubscriptionPeriods = {
+    current_period_start: number;
+    current_period_end: number;
+};
 
 export async function POST(req: NextRequest) {
     try {
@@ -75,7 +87,9 @@ export async function POST(req: NextRequest) {
             payment_settings: { save_default_payment_method: 'on_subscription' },
             expand: ['latest_invoice.payment_intent'],
             metadata: { userId: user.id, tier }
-        });
+        }) as ExpandedSubscription;
+
+        const subscriptionPeriods = subscription as unknown as SubscriptionPeriods;
 
         await prisma.subscription.create({
             data: {
@@ -84,15 +98,15 @@ export async function POST(req: NextRequest) {
                 stripeCustomerId,
                 tier: tier as AllowedTier,
                 status: subscription.status,
-                currentPeriodStart: new Date((subscription as Record<string, number>).current_period_start * 1000),
-                currentPeriodEnd: new Date((subscription as Record<string, number>).current_period_end * 1000),
+                currentPeriodStart: new Date(subscriptionPeriods.current_period_start * 1000),
+                currentPeriodEnd: new Date(subscriptionPeriods.current_period_end * 1000),
                 cancelAtPeriodEnd: subscription.cancel_at_period_end
             }
         });
 
         return NextResponse.json({
             subscriptionId: subscription.id,
-            clientSecret: (subscription.latest_invoice as Record<string, Record<string, string>>)?.payment_intent?.client_secret
+            clientSecret: subscription.latest_invoice?.payment_intent?.client_secret
         });
     } catch (error: unknown) {
         console.error('Error creating subscription:', error);
