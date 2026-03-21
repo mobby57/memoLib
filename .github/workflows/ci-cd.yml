@@ -11,9 +11,6 @@ on:
       - 'next.config.js'
       - 'tsconfig.json'
       - '.github/workflows/ci-cd.yml'
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
   pull_request:
     branches: [main]
     paths:
@@ -24,9 +21,6 @@ on:
       - 'next.config.js'
       - 'tsconfig.json'
       - '.github/workflows/ci-cd.yml'
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
   workflow_dispatch:
 
 env:
