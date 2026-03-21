@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: {
+    root: __dirname,
+  },
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react']

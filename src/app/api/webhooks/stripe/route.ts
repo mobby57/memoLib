@@ -87,7 +87,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   if (!subscriptionId) return;
 
   // Recuperer la subscription Stripe
-  const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const stripeSubscription = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription;
   const tenantId = stripeSubscription.metadata.tenantId;
 
   if (!tenantId) {
@@ -128,7 +128,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const subscriptionId = (invoice as Stripe.Invoice & { subscription?: string }).subscription;
   if (!subscriptionId) return;
 
-  const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const stripeSubscription = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription;
   const tenantId = stripeSubscription.metadata.tenantId;
 
   if (!tenantId) return;
@@ -248,7 +248,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const subscriptionId = session.subscription as string;
   if (!subscriptionId) return;
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription;
   const tenantId = subscription.metadata.tenantId;
 
   if (!tenantId) return;
