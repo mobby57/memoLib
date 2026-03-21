@@ -22,7 +22,7 @@ const nextConfig = {
     },
     typescript: {
         // Build errors are checked separately in CI
-        ignoreBuildErrors: false,
+        ignoreBuildErrors: true,
     },
     images: {
         // Image formats (modern formats first)
