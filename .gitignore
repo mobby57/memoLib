@@ -67,6 +67,10 @@ yarn-error.log*
 .next/
 .turbo/
 coverage/
+
+## Uploaded user files (RGPD - ne jamais committer)
+uploads/
+!uploads/.gitkeep
 .jest-cache/
 playwright-report/
 test-results/
