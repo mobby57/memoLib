@@ -87,8 +87,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# Python build artifacts (not src/lib/)
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -130,3 +131,9 @@ _build_check/
 MemoLib-Package-Client/app/frontend-node/
 MemoLib-Package-Client/app/_build_check/
 .vercel
+
+
+# Azure deployment secrets
+.azure-secrets.json
+
+.azure-demo-secrets.json

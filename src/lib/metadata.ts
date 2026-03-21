@@ -134,6 +134,11 @@ export function createPageMetadata(
   const localizedPath =
     normalizedPath && input.locale ? `/${input.locale}${normalizedPath}` : normalizedPath;
   const canonical = localizedPath ? `${BASE_URL}${localizedPath}` : undefined;
+  const languages = normalizedPath
+    ? Object.fromEntries(
+        SUPPORTED_LOCALES.map(locale => [locale, `${BASE_URL}/${locale}${normalizedPath}`])
+      )
+    : undefined;
 
   return {
     title: input.title,
@@ -148,6 +153,7 @@ export function createPageMetadata(
     alternates: canonical
       ? {
           canonical,
+        languages,
         }
       : undefined,
     openGraph: {
