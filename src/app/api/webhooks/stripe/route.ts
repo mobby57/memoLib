@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Webhook Stripe - Gestion des evenements de paiement
  * IMPORTANT: Cette route doit etre en mode RAW body (pas de parsing JSON automatique)
  */
@@ -9,6 +9,9 @@ import { prisma } from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+
+type SubPeriod = { current_period_end: number };
+const periodEnd = (s: Stripe.Subscription) => (s as unknown as SubPeriod).current_period_end;
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
@@ -105,7 +108,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     },
     data: {
       status: 'active',
-      currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+      currentPeriodEnd: new Date(periodEnd(stripeSubscription) * 1000),
     },
   });
 
@@ -150,12 +153,12 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       await resend.emails.send({
         from: process.env.EMAIL_FROM || 'billing@memoLib.com',
         to: tenant.owner.email,
-        subject: '⚠️ Action requise : Échec de paiement - memoLib',
+        subject: '?? Action requise : �chec de paiement - memoLib',
         html: `
-          <h2>Échec de paiement</h2>
+          <h2>�chec de paiement</h2>
           <p>Nous n'avons pas pu traiter votre paiement pour l'abonnement ${tenant.name}.</p>
-          <p>Veuillez mettre à jour vos informations de paiement pour éviter une interruption de service.</p>
-          <a href="${process.env.NEXTAUTH_URL}/settings/billing" style="background:#dc2626;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Mettre à jour le paiement</a>
+          <p>Veuillez mettre � jour vos informations de paiement pour �viter une interruption de service.</p>
+          <a href="${process.env.NEXTAUTH_URL}/settings/billing" style="background:#dc2626;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Mettre � jour le paiement</a>
         `,
       });
     }
@@ -209,7 +212,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
             : subscription.status === 'past_due'
               ? 'past_due'
               : 'canceled',
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodEnd: new Date(periodEnd(subscription) * 1000),
       autoRenew: !subscription.cancel_at_period_end,
     },
   });
@@ -258,7 +261,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     where: { tenantId },
     data: {
       status: subscription.status === 'trialing' ? 'trialing' : 'active',
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodEnd: new Date(periodEnd(subscription) * 1000),
       autoRenew: !subscription.cancel_at_period_end,
     },
   });
