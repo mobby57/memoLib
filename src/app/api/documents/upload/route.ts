@@ -106,8 +106,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Fallback: stockage local en développement
-    if (!fileUrl && process.env.NODE_ENV === 'development') {
+    // Fallback: stockage local (si pas de Vercel Blob configuré)
+    if (!fileUrl) {
       try {
         const fs = await import('fs/promises');
         const path = await import('path');
