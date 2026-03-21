@@ -216,3 +216,32 @@ jobs:
         run: |
           sleep 15
           curl -f https://memolib.vercel.app/api/health || echo 'Health check pending'
+
+  # =========================================================================
+  # Quality Gate — always runs, even when paths filter skips other jobs.
+  # Configure THIS job as the single required status check in Branch Protection.
+  # =========================================================================
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [build-and-test, security-scan]
+
+    steps:
+      - name: Evaluate results
+        run: |
+          BUILD_RESULT="${{ needs.build-and-test.result }}"
+          SCAN_RESULT="${{ needs.security-scan.result }}"
+          echo "build-and-test : $BUILD_RESULT"
+          echo "security-scan  : $SCAN_RESULT"
+
+          # "skipped" means the paths filter prevented the job from running → treat as pass
+          if [[ "$BUILD_RESULT" == "failure" || "$BUILD_RESULT" == "cancelled" ]]; then
+            echo "❌ build-and-test failed — quality gate blocked."
+            exit 1
+          fi
+          if [[ "$SCAN_RESULT" == "failure" || "$SCAN_RESULT" == "cancelled" ]]; then
+            echo "❌ security-scan failed — quality gate blocked."
+            exit 1
+          fi
+          echo "✅ Quality gate passed."
