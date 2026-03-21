@@ -2,9 +2,23 @@ name: trufflehog-secrets
 
 on:
   pull_request:
-    branches: [main, memolib-2.0]
-  push:
-    branches: [main, memolib-2.0]
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'prisma/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/trufflehog.yml'
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * 1'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   scan:

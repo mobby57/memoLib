@@ -2,9 +2,23 @@ name: snyk-securit
 
 on:
   pull_request:
-    branches: [main, memolib-2.0]
-  push:
-    branches: [main, memolib-2.0]
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'prisma/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/snyk.yml'
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * 1'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   security:
@@ -21,8 +35,3 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --severity-threshold=high
-
-      - name: Skip if no token
-        id: skip-no-token
-        if: ${{ env.SNYK_TOKEN == '' }}
-        run: echo "Snyk token not configured, skipping"
