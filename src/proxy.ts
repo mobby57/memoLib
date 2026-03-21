@@ -25,12 +25,25 @@ type UserContext = {
 };
 
 /**
- * Verifie si la route est publique
+ * Retire le prefixe locale du pathname pour les verifications de routes
+ */
+function stripLocale(pathname: string): string {
+  for (const l of LOCALES) {
+    if (pathname === `/${l}`) return '/';
+    if (pathname.startsWith(`/${l}/`)) return pathname.slice(l.length + 1);
+  }
+  return pathname;
+}
+
+/**
+ * Verifie si la route est publique (ignore le prefixe locale)
  */
 function isPublicRoute(pathname: string): boolean {
-  return pathname === '/' ||
-         pathname.startsWith('/auth') ||
-         pathname.startsWith('/api/auth');
+  const p = stripLocale(pathname);
+  return p === '/' ||
+         p.startsWith('/auth') ||
+         p.startsWith('/api/auth') ||
+         p.startsWith('/demo');
 }
 
 /**
@@ -41,7 +54,9 @@ function handleUnauthenticated(pathname: string, request: NextRequest): NextResp
     return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
   }
 
-  const url = new URL('/auth/login', request.url);
+  // Garder le prefixe locale dans la redirection login
+  const locale = LOCALES.find(l => pathname === `/${l}` || pathname.startsWith(`/${l}/`)) || DEFAULT_LOCALE;
+  const url = new URL(`/${locale}/auth/login`, request.url);
   url.searchParams.set('callbackUrl', pathname);
   return NextResponse.redirect(url);
 }
@@ -69,8 +84,9 @@ function handleSuperAdminRoutes(pathname: string, userRole: string): NextRespons
  * Verifie si le pathname correspond a une route admin
  */
 function isAdminRoute(pathname: string): boolean {
+  const p = stripLocale(pathname);
   const adminPaths = ['/admin', '/api/admin', '/dashboard', '/dossiers', '/clients', '/factures'];
-  return adminPaths.some(path => pathname.startsWith(path));
+  return adminPaths.some(path => p.startsWith(path));
 }
 
 /**
