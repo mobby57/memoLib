@@ -179,11 +179,31 @@ function handleRootRedirect(pathname: string, userRole: string, request: NextReq
   return null;
 }
 
+const LOCALES = ['fr', 'en', 'es'];
+const DEFAULT_LOCALE = 'fr';
+
+function hasLocalePrefix(pathname: string): boolean {
+  return LOCALES.some(l => pathname === `/${l}` || pathname.startsWith(`/${l}/`));
+}
+
 /**
  * Fonction principale du middleware
  */
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // 0. i18n : Rediriger vers la locale par defaut si absente
+  if (
+    !pathname.startsWith('/api/') &&
+    !pathname.startsWith('/_next/') &&
+    !pathname.startsWith('/favicon') &&
+    !pathname.includes('.') &&
+    !hasLocalePrefix(pathname)
+  ) {
+    return NextResponse.redirect(
+      new URL(`/${DEFAULT_LOCALE}${pathname}`, request.url)
+    );
+  }
 
   // 1. SeCURITe : Rate limiting
   if (!checkRateLimit(request)) {
