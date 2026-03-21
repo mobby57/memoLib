@@ -1,5 +1,4 @@
 ﻿import { PrismaClient } from '@prisma/client';
-import 'dotenv/config';
 
 /**
  *  Prisma Client Avance - Expert Level
