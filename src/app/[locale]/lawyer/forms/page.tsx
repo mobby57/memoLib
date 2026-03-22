@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -45,7 +45,7 @@ export default function FormsPage() {
               <div className="flex items-center">
                 <span className="text-green-600 mr-2">[Check]</span>
                 <p className="text-green-800 font-medium">
-                  Formulaire soumis avec succes ! Un email a ete envoye aux approbateurs.
+                  Formulaire soumis avec succès ! Un email a été envoye aux approbateurs.
                 </p>
               </div>
             </div>
@@ -165,10 +165,10 @@ export default function FormsPage() {
           </div>
         </div>
 
-        {/* Fonctionnalites cles */}
+        {/* Fonctionnalités cles */}
         <div className="mt-12 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Fonctionnalites Intelligentes
+            Fonctionnalités Intelligentes
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-start">

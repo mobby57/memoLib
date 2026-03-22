@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -170,7 +170,7 @@ export default function SuperAdminDashboard() {
               </svg>
             </div>
             <p className="text-3xl font-bold">{stats.totalMRR.toLocaleString('fr-FR')}�</p>
-            <p className="text-xs mt-2 opacity-75">Revenu mensuel recurrent</p>
+            <p className="text-xs mt-2 opacity-75">Revenu mensuel récurrent</p>
           </div>
 
           {/* ARR */}
@@ -187,7 +187,7 @@ export default function SuperAdminDashboard() {
               </svg>
             </div>
             <p className="text-3xl font-bold">{stats.totalARR.toLocaleString('fr-FR')}�</p>
-            <p className="text-xs mt-2 opacity-75">Revenu annuel recurrent</p>
+            <p className="text-xs mt-2 opacity-75">Revenu annuel récurrent</p>
           </div>
 
           {/* Tenants actifs */}

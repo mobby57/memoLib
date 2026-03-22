@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -44,7 +44,7 @@ export default function SearchPageClient() {
 
         {currentQuery && (
           <section className="text-sm text-slate-600 dark:text-slate-300">
-            Resultats pour <span className="font-semibold">{currentQuery}</span>
+            Résultats pour <span className="font-semibold">{currentQuery}</span>
           </section>
         )}
 
@@ -64,7 +64,7 @@ export default function SearchPageClient() {
             </button>
 
             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-              <span>{searchStats.totalResults} resultats</span>
+              <span>{searchStats.totalResults} résultats</span>
               <span>-</span>
               <span>{searchStats.executionTime} ms</span>
               <span>-</span>
@@ -87,7 +87,7 @@ export default function SearchPageClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
                 <div className="flex items-center gap-2 font-semibold text-slate-800 dark:text-white">
-                  <Calendar className="w-4 h-4" /> Periode
+                  <Calendar className="w-4 h-4" /> Période
                 </div>
                 <select className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                   <option>Toutes les dates</option>
@@ -153,7 +153,7 @@ export default function SearchPageClient() {
             <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
               <p className="text-xs uppercase tracking-wide text-slate-400">Precision</p>
               <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-2">92%</p>
-              <p className="text-xs text-slate-500">de resultats pertinents</p>
+              <p className="text-xs text-slate-500">de résultats pertinents</p>
             </div>
             <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
               <p className="text-xs uppercase tracking-wide text-slate-400">Indices</p>

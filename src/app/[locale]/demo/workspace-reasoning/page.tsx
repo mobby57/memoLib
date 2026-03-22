@@ -7,7 +7,7 @@ import { Brain, FileText, Clock, AlertTriangle, CheckCircle, ArrowRight } from '
 const DEMO_STEPS = [
   { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
   { id: 2, label: 'Raisonnement dossier', href: '/demo/workspace-reasoning' },
-  { id: 3, label: 'Preuve légale', href: '/demo/legal-proof' },
+  { id: 3, label: 'Preuve légale', href: '/demo/légal-proof' },
 ];
 
 const REASONING_STEPS = [
@@ -176,7 +176,7 @@ export default function WorkspaceReasoningPage() {
 
         <div className="mt-8 text-center">
           <Link
-            href="/demo/legal-proof"
+            href="/demo/légal-proof"
             className={`inline-flex items-center gap-2 font-semibold py-3 px-6 rounded-lg transition-colors ${
               isProcessing 
                 ? 'bg-gray-400 text-white cursor-not-allowed'

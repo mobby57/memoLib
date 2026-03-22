@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -77,7 +77,7 @@ export default function DocumentUploadPage() {
       const data = await res.json();
 
       if (res.ok) {
-        // Mettre a jour avec l'ID reel
+        // Mettre à jour avec l'ID reel
         setDocuments((prev) =>
           prev.map((d) =>
             d.id === tempId
@@ -146,7 +146,7 @@ export default function DocumentUploadPage() {
           );
         }
       } catch (error) {
-        console.error('Erreur verification OCR:', error);
+        console.error('Erreur vérification OCR:', error);
       }
     };
 
@@ -200,7 +200,7 @@ export default function DocumentUploadPage() {
           Glissez-deposez vos fichiers ici
         </p>
         <p className="text-sm text-gray-500 mb-4">
-          ou cliquez pour selectionner
+          ou cliquez pour sélectionner
         </p>
         <input
           type="file"
@@ -214,7 +214,7 @@ export default function DocumentUploadPage() {
           htmlFor="file-upload"
           className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors"
         >
-          Selectionner des fichiers
+          Sélectionner des fichiers
         </label>
         <p className="text-xs text-gray-400 mt-4">
           Formats supportes: PDF, Images (PNG, JPG), Documents (DOC, DOCX)

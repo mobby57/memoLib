@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -43,11 +43,11 @@ export default function ForgotPasswordPage() {
       if (response.ok) {
         setSuccess(true);
       } else {
-        // Ne pas reveler si l'email existe ou non (securite)
+        // Ne pas reveler si l'email existe ou non (sécurité)
         setSuccess(true);
       }
     } catch (err) {
-      // Meme en cas d'erreur, afficher le succes pour la securite
+      // Meme en cas d'erreur, afficher le succès pour la sécurité
       setSuccess(true);
     } finally {
       setLoading(false);
@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
-            {/* Icone succes */}
+            {/* Icone succès */}
             <div className="flex justify-center mb-6">
               <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-10 h-10 text-green-400" />
@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
               className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               <ArrowLeft className="w-4 h-4" />
-              Retour a la connexion
+              Retour à la connexion
             </Link>
           </div>
         </div>
@@ -107,7 +107,7 @@ export default function ForgotPasswordPage() {
           className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-200 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour a la connexion
+          Retour à la connexion
         </Link>
 
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
@@ -176,7 +176,7 @@ export default function ForgotPasswordPage() {
             <p className="text-gray-400 text-sm">
               Vous n'avez pas de compte ?{' '}
               <Link href="/auth/register" className="text-blue-400 hover:text-blue-300 font-medium">
-                Creer un compte
+                Créer un compte
               </Link>
             </p>
           </div>

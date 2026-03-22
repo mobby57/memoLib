@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { useState, useMemo } from 'react';
@@ -15,12 +15,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const dossierSchema = z.object({
-  numero: z.string().min(1, 'Le numero est requis'),
+  numéro: z.string().min(1, 'Le numéro est requis'),
   titre: z.string().min(3, 'Le titre doit contenir au moins 3 caracteres'),
   clientId: z.string().min(1, 'Le client est requis'),
   type: z.enum(['CIVIL', 'PENAL', 'COMMERCIAL', 'ADMINISTRATIF']),
   statut: z.enum(['EN_COURS', 'CLOS', 'EN_ATTENTE', 'ARCHIVE']),
-  priorite: z.enum(['BASSE', 'NORMALE', 'HAUTE', 'URGENTE']).default('NORMALE'),
+  priorité: z.enum(['BASSE', 'NORMALE', 'HAUTE', 'URGENTE']).default('NORMALE'),
   dateOuverture: z.string().min(1, 'La date d\'ouverture est requise'),
   dateCloture: z.string().optional(),
   description: z.string().optional(),
@@ -43,13 +43,13 @@ interface Dossier extends DossierFormData {
 const MOCK_DOSSIERS: Dossier[] = [
   {
     id: '1',
-    numero: 'DOS-2024-001',
+    numéro: 'DOS-2024-001',
     titre: 'Litige commercial SARL Martin',
     clientId: '1',
     clientNom: 'Jean Dupont',
     type: 'COMMERCIAL',
     statut: 'EN_COURS',
-    priorite: 'HAUTE',
+    priorité: 'HAUTE',
     dateOuverture: '2024-01-15',
     description: 'Litige avec fournisseur sur qualite marchandise',
     montant: 150000,
@@ -62,13 +62,13 @@ const MOCK_DOSSIERS: Dossier[] = [
   },
   {
     id: '2',
-    numero: 'DOS-2024-002',
+    numéro: 'DOS-2024-002',
     titre: 'Divorce contentieux',
     clientId: '2',
     clientNom: 'Marie Martin',
     type: 'CIVIL',
     statut: 'EN_COURS',
-    priorite: 'NORMALE',
+    priorité: 'NORMALE',
     dateOuverture: '2024-02-20',
     montant: 0,
     avocat: 'Me. Dupont',
@@ -80,13 +80,13 @@ const MOCK_DOSSIERS: Dossier[] = [
   },
   {
     id: '3',
-    numero: 'DOS-2024-003',
+    numéro: 'DOS-2024-003',
     titre: 'Contentieux administratif permis construire',
     clientId: '3',
     clientNom: 'SCI Investimo',
     type: 'ADMINISTRATIF',
     statut: 'EN_ATTENTE',
-    priorite: 'BASSE',
+    priorité: 'BASSE',
     dateOuverture: '2024-03-10',
     montant: 50000,
     avocat: 'Me. Martin',
@@ -97,13 +97,13 @@ const MOCK_DOSSIERS: Dossier[] = [
   },
   {
     id: '4',
-    numero: 'DOS-2023-045',
+    numéro: 'DOS-2023-045',
     titre: 'Defense penale - Vol',
     clientId: '4',
     clientNom: 'Thomas Bernard',
     type: 'PENAL',
     statut: 'CLOS',
-    priorite: 'URGENTE',
+    priorité: 'URGENTE',
     dateOuverture: '2023-11-05',
     dateCloture: '2024-01-20',
     montant: 0,
@@ -115,13 +115,13 @@ const MOCK_DOSSIERS: Dossier[] = [
   },
   {
     id: '5',
-    numero: 'DOS-2023-032',
+    numéro: 'DOS-2023-032',
     titre: 'Succession familiale',
     clientId: '5',
     clientNom: 'Sophie Dubois',
     type: 'CIVIL',
     statut: 'ARCHIVE',
-    priorite: 'NORMALE',
+    priorité: 'NORMALE',
     dateOuverture: '2023-09-12',
     dateCloture: '2023-12-30',
     montant: 200000,
@@ -194,7 +194,7 @@ export default function DossiersAdvancedPage() {
   const [dateFin, setDateFin] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
-  // Selection multiple
+  // Sélection multiple
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   
   // Pagination et tri
@@ -224,14 +224,14 @@ export default function DossiersAdvancedPage() {
   const filteredDossiers = useMemo(() => {
     return dossiers.filter(dossier => {
       const matchSearch = 
-        dossier.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        dossier.numéro.toLowerCase().includes(searchTerm.toLowerCase()) ||
         dossier.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         dossier.clientNom.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (dossier.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
       
       const matchType = typeFilter === 'ALL' || dossier.type === typeFilter;
       const matchStatut = statutFilter === 'ALL' || dossier.statut === statutFilter;
-      const matchPriorite = prioriteFilter === 'ALL' || dossier.priorite === prioriteFilter;
+      const matchPriorite = prioriteFilter === 'ALL' || dossier.priorité === prioriteFilter;
       const matchAvocat = avocatFilter === 'ALL' || dossier.avocat === avocatFilter;
       
       let matchDate = true;
@@ -274,13 +274,13 @@ export default function DossiersAdvancedPage() {
       enCours: enCours.length,
       enAttente: dossiers.filter(d => d.statut === 'EN_ATTENTE').length,
       clos: dossiers.filter(d => d.statut === 'CLOS').length,
-      urgents: dossiers.filter(d => d.priorite === 'URGENTE' && d.statut === 'EN_COURS').length,
+      urgents: dossiers.filter(d => d.priorité === 'URGENTE' && d.statut === 'EN_COURS').length,
       montantTotal: totalMontant,
       avgDocuments: Math.round(dossiers.reduce((sum, d) => sum + (d.documents || 0), 0) / dossiers.length),
     };
   }, [dossiers]);
 
-  // Selection
+  // Sélection
   const toggleSelection = (id: string) => {
     const newSelected = new Set(selectedIds);
     if (newSelected.has(id)) {
@@ -302,7 +302,7 @@ export default function DossiersAdvancedPage() {
   // Actions en masse
   const bulkArchive = () => {
     if (selectedIds.size === 0) {
-      addToast({ variant: 'warning', title: 'Aucune selection', message: 'Veuillez selectionner au moins un dossier.' });
+      addToast({ variant: 'warning', title: 'Aucune sélection', message: 'Veuillez sélectionner au moins un dossier.' });
       return;
     }
     
@@ -326,16 +326,16 @@ export default function DossiersAdvancedPage() {
     addToast({
       variant: 'success',
       title: 'Statut modifie',
-      message: `${selectedIds.size} dossier(s) mis a jour.`,
+      message: `${selectedIds.size} dossier(s) mis à jour.`,
     });
     setSelectedIds(new Set());
   };
 
   const exportToCSV = () => {
     const csvContent = [
-      ['Numero', 'Titre', 'Client', 'Type', 'Statut', 'Priorite', 'Date Ouverture', 'Montant', 'Avocat'].join(','),
+      ['Numéro', 'Titre', 'Client', 'Type', 'Statut', 'Priorité', 'Date Ouverture', 'Montant', 'Avocat'].join(','),
       ...filteredDossiers.map(d =>
-        [d.numero, d.titre, d.clientNom, d.type, d.statut, d.priorite, d.dateOuverture, d.montant || 0, d.avocat || ''].join(',')
+        [d.numéro, d.titre, d.clientNom, d.type, d.statut, d.priorité, d.dateOuverture, d.montant || 0, d.avocat || ''].join(',')
       ),
     ].join('\n');
     
@@ -363,12 +363,12 @@ export default function DossiersAdvancedPage() {
   const openCreateModal = () => {
     setEditingDossier(null);
     reset({
-      numero: '',
+      numéro: '',
       titre: '',
       clientId: '',
       type: 'CIVIL',
       statut: 'EN_COURS',
-      priorite: 'NORMALE',
+      priorité: 'NORMALE',
       dateOuverture: new Date().toISOString().split('T')[0],
       description: '',
       montant: 0,
@@ -399,7 +399,7 @@ export default function DossiersAdvancedPage() {
       addToast({
         variant: 'success',
         title: 'Dossier modifie',
-        message: `Le dossier ${data.numero} a ete modifie avec succes.`,
+        message: `Le dossier ${data.numéro} a été modifie avec succès.`,
       });
     } else {
       const newDossier: Dossier = {
@@ -415,7 +415,7 @@ export default function DossiersAdvancedPage() {
       addToast({
         variant: 'success',
         title: 'Dossier cree',
-        message: `Le dossier ${data.numero} a ete cree avec succes.`,
+        message: `Le dossier ${data.numéro} a été cree avec succès.`,
       });
     }
     setIsModalOpen(false);
@@ -423,12 +423,12 @@ export default function DossiersAdvancedPage() {
 
   const deleteDossier = (id: string) => {
     const dossier = dossiers.find(d => d.id === id);
-    if (window.confirm(`etes-vous sur de vouloir supprimer le dossier ${dossier?.numero} ?`)) {
+    if (window.confirm(`etes-vous sur de vouloir supprimer le dossier ${dossier?.numéro} ?`)) {
       setDossiers(prev => prev.filter(d => d.id !== id));
       addToast({
         variant: 'info',
         title: 'Dossier supprime',
-        message: `Le dossier ${dossier?.numero} a ete supprime.`,
+        message: `Le dossier ${dossier?.numéro} a été supprime.`,
       });
     }
   };
@@ -474,10 +474,10 @@ export default function DossiersAdvancedPage() {
       ),
     },
     { 
-      key: 'numero', 
+      key: 'numéro', 
       header: (
-        <button onClick={() => handleSort('numero')} className="flex items-center gap-1 font-semibold hover:text-blue-600">
-          Numero <ArrowUpDown className="w-3 h-3" />
+        <button onClick={() => handleSort('numéro')} className="flex items-center gap-1 font-semibold hover:text-blue-600">
+          Numéro <ArrowUpDown className="w-3 h-3" />
         </button>
       ),
     },
@@ -500,10 +500,10 @@ export default function DossiersAdvancedPage() {
       )
     },
     {
-      key: 'priorite',
-      header: 'Priorite',
+      key: 'priorité',
+      header: 'Priorité',
       render: (row: Dossier) => (
-        <Badge variant={PRIORITE_COLORS[row.priorite]}>{PRIORITE_LABELS[row.priorite]}</Badge>
+        <Badge variant={PRIORITE_COLORS[row.priorité]}>{PRIORITE_LABELS[row.priorité]}</Badge>
       ),
     },
     {
@@ -676,7 +676,7 @@ export default function DossiersAdvancedPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Rechercher par numero, titre, client, tags..."
+                placeholder="Rechercher par numéro, titre, client, tags..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
@@ -742,14 +742,14 @@ export default function DossiersAdvancedPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Priorite
+                  Priorité
                 </label>
                 <select
                   value={prioriteFilter}
                   onChange={(e) => setPrioriteFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 >
-                  <option value="ALL">Toutes les priorites</option>
+                  <option value="ALL">Toutes les priorités</option>
                   {Object.entries(PRIORITE_LABELS).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
                   ))}
@@ -802,7 +802,7 @@ export default function DossiersAdvancedPage() {
           {selectedIds.size > 0 && (
             <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                {selectedIds.size} dossier(s) selectionne(s)
+                {selectedIds.size} dossier(s) sélectionné(s)
               </span>
               <div className="flex gap-2 ml-auto">
                 <button
@@ -830,7 +830,7 @@ export default function DossiersAdvancedPage() {
         </div>
       </Card>
 
-      {/* Resultats */}
+      {/* Résultats */}
       <div className="text-sm text-gray-600 dark:text-gray-400">
         {filteredDossiers.length} dossier(s) trouve(s)
         {filteredDossiers.length !== dossiers.length && ` sur ${dossiers.length} total`}
@@ -873,14 +873,14 @@ export default function DossiersAdvancedPage() {
                       onClick={() => openEditModal(dossier)}
                     >
                       <div className="font-medium text-sm text-gray-900 dark:text-white mb-1">
-                        {dossier.numero}
+                        {dossier.numéro}
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                         {dossier.titre}
                       </div>
                       <div className="flex items-center justify-between">
-                        <Badge variant={PRIORITE_COLORS[dossier.priorite]} size="sm">
-                          {PRIORITE_LABELS[dossier.priorite]}
+                        <Badge variant={PRIORITE_COLORS[dossier.priorité]} size="sm">
+                          {PRIORITE_LABELS[dossier.priorité]}
                         </Badge>
                         <span className="text-xs text-gray-500">
                           {dossier.clientNom}
@@ -902,7 +902,7 @@ export default function DossiersAdvancedPage() {
               Vue Calendrier
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              La vue calendrier avec les audiences et echeances sera bientot disponible
+              La vue calendrier avec les audiences et échéances sera bientot disponible
             </p>
           </div>
         </Card>
@@ -918,15 +918,15 @@ export default function DossiersAdvancedPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Numero *
+                Numéro *
               </label>
               <input
-                {...register('numero')}
+                {...register('numéro')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                 placeholder="DOS-2024-001"
               />
-              {errors.numero && (
-                <p className="mt-1 text-sm text-red-600">{errors.numero.message}</p>
+              {errors.numéro && (
+                <p className="mt-1 text-sm text-red-600">{errors.numéro.message}</p>
               )}
             </div>
 
@@ -938,7 +938,7 @@ export default function DossiersAdvancedPage() {
                 {...register('clientId')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
-                <option value="">Selectionner un client</option>
+                <option value="">Sélectionner un client</option>
                 {MOCK_CLIENTS.map(client => (
                   <option key={client.id} value={client.id}>{client.nom}</option>
                 ))}
@@ -980,10 +980,10 @@ export default function DossiersAdvancedPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Priorite *
+                Priorité *
               </label>
               <select
-                {...register('priorite')}
+                {...register('priorité')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 {Object.entries(PRIORITE_LABELS).map(([key, label]) => (
@@ -1072,7 +1072,7 @@ export default function DossiersAdvancedPage() {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              {editingDossier ? 'Modifier' : 'Creer'}
+              {editingDossier ? 'Modifier' : 'Créer'}
             </button>
           </div>
         </form>

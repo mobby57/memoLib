@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -28,7 +28,7 @@ export default function ExportsPage() {
   // Donnees mockees pour la demo
   const mockDossiers = [
     {
-      numero: 'DOS-2026-001',
+      numéro: 'DOS-2026-001',
       titre: 'Contentieux commercial ABC',
       client: 'Societe ABC',
       type: 'Commercial',
@@ -37,7 +37,7 @@ export default function ExportsPage() {
       responsable: 'Jean Dupont',
     },
     {
-      numero: 'DOS-2026-002',
+      numéro: 'DOS-2026-002',
       titre: 'Litige RH XYZ',
       client: 'Entreprise XYZ',
       type: 'RH',
@@ -49,7 +49,7 @@ export default function ExportsPage() {
 
   const mockFactures = [
     {
-      numero: 'FAC-2026-001',
+      numéro: 'FAC-2026-001',
       client: 'Societe ABC',
       montant: 5000,
       statut: 'Payee',
@@ -57,7 +57,7 @@ export default function ExportsPage() {
       dateEcheance: '2026-01-31',
     },
     {
-      numero: 'FAC-2026-002',
+      numéro: 'FAC-2026-002',
       client: 'Entreprise XYZ',
       montant: 3500,
       statut: 'En attente',
@@ -171,7 +171,7 @@ export default function ExportsPage() {
 
         <Button onClick={handleExportFinancial}>
           <Download className="w-4 h-4 mr-2" />
-          Generer rapport Excel multi-feuilles
+          Générer rapport Excel multi-feuilles
         </Button>
 
         <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -202,7 +202,7 @@ export default function ExportsPage() {
               className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors cursor-pointer"
             >
               <FileUp className="w-4 h-4 mr-2" />
-              {importing ? 'Import en cours...' : 'Selectionner un fichier CSV'}
+              {importing ? 'Import en cours...' : 'Sélectionner un fichier CSV'}
             </label>
             <input
               id="csv-upload"
@@ -219,7 +219,7 @@ export default function ExportsPage() {
               Format attendu :
             </p>
             <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
-{`Nom,Email,Telephone,Adresse,Type
+{`Nom,Email,Téléphone,Adresse,Type
 Dupont SA,contact@dupont.fr,0123456789,1 rue de Paris,entreprise
 Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
             </pre>
@@ -263,7 +263,7 @@ Martin SARL,info@martin.fr,0987654321,2 avenue Victor Hugo,entreprise`}
                Calendrier
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              evenements et echeances au format iCal
+              événements et échéances au format iCal
             </p>
             <Button size="sm" variant="outline">
               Exporter

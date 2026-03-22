@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -18,27 +18,27 @@ const SOURCE_TYPE_CONFIG = {
   EMAIL: {
     icon: '',
     label: 'Email',
-    description: 'Creer depuis un email recu',
+    description: 'Créer depuis un email recu',
   },
   FORM: {
     icon: '',
     label: 'Formulaire',
-    description: 'Creer depuis une soumission de formulaire',
+    description: 'Créer depuis une soumission de formulaire',
   },
   PHONE: {
     icon: '',
-    label: 'Telephone',
-    description: 'Creer depuis un appel telephonique',
+    label: 'Téléphone',
+    description: 'Créer depuis un appel telephonique',
   },
   COURRIER: {
     icon: '?',
     label: 'Courrier',
-    description: 'Creer depuis un courrier postal',
+    description: 'Créer depuis un courrier postal',
   },
   MANUAL: {
     icon: '?',
     label: 'Manuel',
-    description: 'Creer manuellement un workspace',
+    description: 'Créer manuellement un workspace',
   },
 };
 
@@ -49,7 +49,7 @@ const PROCEDURE_TYPES = [
   { value: 'NATURALISATION', label: 'Naturalisation' },
   { value: 'REGROUPEMENT_FAMILIAL', label: 'Regroupement Familial' },
   { value: 'ASILE', label: "Demande d'Asile" },
-  { value: 'AUTRE', label: 'Autre procedure CESEDA' },
+  { value: 'AUTRE', label: 'Autre procédure CESEDA' },
 ];
 
 export default function NewWorkspacePage() {
@@ -122,7 +122,7 @@ export default function NewWorkspacePage() {
             Nouveau Workspace de Raisonnement
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Creez un espace de raisonnement pour analyser intelligemment une situation juridique
+            Créez un espace de raisonnement pour analyser intelligemment une situation juridique
           </p>
         </div>
       </div>
@@ -224,10 +224,10 @@ export default function NewWorkspacePage() {
             </p>
           </div>
 
-          {/* Procedure Type */}
+          {/* Procédure Type */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-              Type de Procedure CESEDA (optionnel)
+              Type de Procédure CESEDA (optionnel)
             </label>
             <select
               value={procedureType}
@@ -270,7 +270,7 @@ export default function NewWorkspacePage() {
               ) : (
                 <>
                   <Sparkles className="w-5 h-5" />
-                  Creer le Workspace
+                  Créer le Workspace
                 </>
               )}
             </button>

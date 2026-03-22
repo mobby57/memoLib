@@ -7,12 +7,12 @@ export function generateMetadata({
   params: { locale: string };
 }): Metadata {
   return createPageMetadata({
-    title: 'Demo Preuve Legale - MemoLib',
+    title: 'Demo Preuve Légale - MemoLib',
     description:
-      'Explorez la generation de preuves legales, le controle de conformite et la preparation de documents juridiques dans MemoLib.',
-    path: '/demo/legal-proof',
+      'Explorez la generation de preuves legales, le controle de conformité et la preparation de documents juridiques dans MemoLib.',
+    path: '/demo/légal-proof',
     locale: params.locale,
-    keywords: ['preuve legale numerique', 'generation document juridique', 'conformite dossier avocat'],
+    keywords: ['preuve légale numerique', 'generation document juridique', 'conformité dossier avocat'],
   });
 }
 

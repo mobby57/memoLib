@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -77,7 +77,7 @@ function SearchContent() {
 
             {searchStats.totalResults > 0 && (
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                <span className="font-semibold">{searchStats.totalResults}</span> resultats
+                <span className="font-semibold">{searchStats.totalResults}</span> résultats
                 <span className="mx-2">-</span>
                 <span>{searchStats.executionTime}ms</span>
               </div>
@@ -106,7 +106,7 @@ function SearchContent() {
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Calendar className="w-4 h-4" />
-                  Periode
+                  Période
                 </label>
                 <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                   <option>Toutes les dates</option>

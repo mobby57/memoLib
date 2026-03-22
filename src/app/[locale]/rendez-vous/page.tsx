@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -40,7 +40,7 @@ interface RendezVous {
   status: string;
   user?: { name: string; email: string };
   client?: { firstName: string; lastName: string };
-  dossier?: { numero: string; typeDossier: string };
+  dossier?: { numéro: string; typeDossier: string };
 }
 
 interface Client {
@@ -51,7 +51,7 @@ interface Client {
 
 interface Dossier {
   id: string;
-  numero: string;
+  numéro: string;
   typeDossier: string;
 }
 
@@ -261,7 +261,7 @@ export default function RendezVousPage() {
       rdv.title.toLowerCase().includes(search) ||
       rdv.client?.firstName?.toLowerCase().includes(search) ||
       rdv.client?.lastName?.toLowerCase().includes(search) ||
-      rdv.dossier?.numero?.toLowerCase().includes(search)
+      rdv.dossier?.numéro?.toLowerCase().includes(search)
     );
   });
 
@@ -453,7 +453,7 @@ export default function RendezVousPage() {
                                 {rdv.dossier && (
                                   <span className="flex items-center gap-1">
                                     <Folder className="w-4 h-4" />
-                                    {rdv.dossier.numero}
+                                    {rdv.dossier.numéro}
                                   </span>
                                 )}
                               </div>
@@ -676,7 +676,7 @@ export default function RendezVousPage() {
                     <option value="">Sélectionner...</option>
                     {dossiers.map((dossier) => (
                       <option key={dossier.id} value={dossier.id}>
-                        {dossier.numero} - {dossier.typeDossier}
+                        {dossier.numéro} - {dossier.typeDossier}
                       </option>
                     ))}
                   </select>

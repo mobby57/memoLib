@@ -36,7 +36,7 @@ const DEMO_FEATURES = [
     title: 'Preuve légale',
     description: 'Génération automatique de documents avec vérification de conformité',
     icon: Scale,
-    href: '/demo/legal-proof',
+    href: '/demo/légal-proof',
     color: 'green',
     duration: '2 min',
   },

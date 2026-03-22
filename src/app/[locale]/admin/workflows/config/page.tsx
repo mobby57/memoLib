@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -137,7 +137,7 @@ export default function WorkflowConfigPage() {
               variant={preset === 'security' ? 'default' : 'outline'}
               onClick={() => loadPreset('security')}
             >
-              Securite
+              Sécurité
             </Button>
             <Button
               variant={preset === 'automated' ? 'default' : 'outline'}
@@ -163,7 +163,7 @@ export default function WorkflowConfigPage() {
           <TabsTrigger value="notifications"> Notifications</TabsTrigger>
           <TabsTrigger value="forms"> Formulaires</TabsTrigger>
           <TabsTrigger value="calendar"> Calendrier</TabsTrigger>
-          <TabsTrigger value="security"> Securite</TabsTrigger>
+          <TabsTrigger value="security"> Sécurité</TabsTrigger>
         </TabsList>
 
         {/* Configuration IA */}
@@ -358,7 +358,7 @@ export default function WorkflowConfigPage() {
                 </div>
               </div>
 
-              {/* Priorites */}
+              {/* Priorités */}
               {['critical', 'high', 'medium', 'low'].map(priority => (
                 <Card key={priority}>
                   <CardHeader>
@@ -438,7 +438,7 @@ export default function WorkflowConfigPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Escalade apres (minutes)</Label>
+                        <Label>Escalade après (minutes)</Label>
                         <Input
                           type="number"
                           value={config.notifications.priority[priority].escalateAfterMinutes}
@@ -606,7 +606,7 @@ export default function WorkflowConfigPage() {
         <TabsContent value="security">
           <Card>
             <CardHeader>
-              <CardTitle>Securite & Conformite</CardTitle>
+              <CardTitle>Sécurité & Conformité</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
