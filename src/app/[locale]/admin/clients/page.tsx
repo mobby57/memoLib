@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -160,7 +160,7 @@ export default function ClientsAdmin() {
               <span className="text-6xl mb-4 block"></span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filterStatus !== 'all'
-                  ? 'Aucun client ne correspond a votre recherche'
+                  ? 'Aucun client ne correspond à votre recherche'
                   : 'Aucun client pour le moment'}
               </p>
             </div>

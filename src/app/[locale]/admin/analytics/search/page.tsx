@@ -1,4 +1,4 @@
-﻿import { Metadata } from 'next';
+import { Metadata } from 'next';
 import SearchAnalytics from '@/components/SearchAnalytics';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -28,7 +28,7 @@ export default async function SearchAnalyticsPage() {
           [Chart] Analytics de Recherche
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Analysez les tendances et l'utilisation du systeme de recherche
+          Analysez les tendances et l'utilisation du système de recherche
         </p>
       </div>
 

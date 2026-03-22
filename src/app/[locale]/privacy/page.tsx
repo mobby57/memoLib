@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -153,9 +153,9 @@ export default function PrivacyPage() {
                     </div>
                 </div>
 
-                {/* Cookie Preferences */}
+                {/* Cookie Préférences */}
                 <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                    <h2 className="text-2xl font-semibold mb-4">Cookie Preferences</h2>
+                    <h2 className="text-2xl font-semibold mb-4">Cookie Préférences</h2>
                     <p className="text-gray-600 mb-4">
                         Manage how we use cookies and tracking technologies on our website.
                     </p>

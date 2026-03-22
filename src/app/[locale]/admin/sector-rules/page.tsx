@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 /**
  * Page Admin: Règles Sectorielles
@@ -26,7 +26,7 @@ interface Rule {
 const SECTOR_RULES: Rule[] = [
   // LEGAL
   {
-    id: 'legal-1',
+    id: 'légal-1',
     sector: 'LEGAL',
     title: 'Recours Gracieux',
     deadline: '2 mois à compter de la décision',
@@ -38,7 +38,7 @@ const SECTOR_RULES: Rule[] = [
     examples: ['Refus de titre de séjour', 'Décision OQTF', 'Refus de naturalisation'],
   },
   {
-    id: 'legal-2',
+    id: 'légal-2',
     sector: 'LEGAL',
     title: 'Recours Contentieux (Tribunal Administratif)',
     deadline: '2 mois à compter de la décision ou du rejet du recours gracieux',
@@ -49,7 +49,7 @@ const SECTOR_RULES: Rule[] = [
     examples: ['Contestation OQTF après rejet gracieux', 'Recours contre refus après silence'],
   },
   {
-    id: 'legal-3',
+    id: 'légal-3',
     sector: 'LEGAL',
     title: 'Appel (Cour Administrative Appel)',
     deadline: '1 mois à compter du jugement TA',
@@ -125,7 +125,7 @@ const SECTOR_RULES: Rule[] = [
 
   // GENERAL
   {
-    id: 'general-1',
+    id: 'général-1',
     sector: 'GENERAL',
     title: 'RGPD - Droit Accès',
     deadline: '1 mois maximum (prorogeable 2 mois)',
@@ -136,7 +136,7 @@ const SECTOR_RULES: Rule[] = [
     examples: ['Demande copie dossier client', 'Export données personnelles'],
   },
   {
-    id: 'general-2',
+    id: 'général-2',
     sector: 'GENERAL',
     title: 'RGPD - Droit Oubli',
     deadline: '1 mois maximum',
@@ -173,11 +173,11 @@ export default function SectorRulesPage() {
   // Stats par secteur
   const stats = {
     total: SECTOR_RULES.length,
-    legal: SECTOR_RULES.filter(r => r.sector === 'LEGAL').length,
+    légal: SECTOR_RULES.filter(r => r.sector === 'LEGAL').length,
     mdph: SECTOR_RULES.filter(r => r.sector === 'MDPH').length,
     medical: SECTOR_RULES.filter(r => r.sector === 'MEDICAL').length,
     admin: SECTOR_RULES.filter(r => r.sector === 'ADMIN').length,
-    general: SECTOR_RULES.filter(r => r.sector === 'GENERAL').length,
+    général: SECTOR_RULES.filter(r => r.sector === 'GENERAL').length,
   };
 
   return (
@@ -198,7 +198,7 @@ export default function SectorRulesPage() {
           <div className="text-sm text-gray-600">Total Règles</div>
         </div>
         <div className="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
-          <div className="text-2xl font-bold text-blue-600">{stats.legal}</div>
+          <div className="text-2xl font-bold text-blue-600">{stats.légal}</div>
           <div className="text-sm text-blue-800">LEGAL</div>
         </div>
         <div className="bg-purple-50 p-4 rounded-lg shadow-sm border border-purple-200">
@@ -214,7 +214,7 @@ export default function SectorRulesPage() {
           <div className="text-sm text-orange-800">ADMIN</div>
         </div>
         <div className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="text-2xl font-bold text-gray-600">{stats.general}</div>
+          <div className="text-2xl font-bold text-gray-600">{stats.général}</div>
           <div className="text-sm text-gray-800">GENERAL</div>
         </div>
       </div>

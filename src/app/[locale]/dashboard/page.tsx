@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -192,7 +192,7 @@ export default function DashboardPage() {
           trends: { dossiers: 8, factures: 12, revenus: 15 },
         };
       } else {
-        // API specifique au tenant pour les admins
+        // API spécifique au tenant pour les admins
         const statsResponse = await fetch(`${baseUrl}/dashboard/stats`);
         if (statsResponse.ok) {
           statsData = await statsResponse.json();
@@ -235,7 +235,7 @@ export default function DashboardPage() {
         setMonthlyData(monthlyDataResult);
       }
 
-      // Charger les activites recentes
+      // Charger les activités recentes
       const activitiesResponse = await fetch(`${baseUrl}/dashboard/recent-activities`);
       if (activitiesResponse.ok) {
         const activitiesData = await activitiesResponse.json();
@@ -292,7 +292,7 @@ export default function DashboardPage() {
       color: 'bg-indigo-500 hover:bg-indigo-600',
     });
 
-    // Nouveau: Fonctionnalites IA Avancees
+    // Nouveau: Fonctionnalités IA Avancees
     actions.push({
       label: ' IA Avancee',
       href: '/lawyer/advanced',
@@ -326,9 +326,9 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Acces non autorise</p>
+          <p className="text-gray-600 dark:text-gray-400">Accès non autorise</p>
           <Link href="/" className="text-blue-600 hover:underline mt-2 inline-block">
-            Retour a l'accueil
+            Retour à l'accueil
           </Link>
         </div>
       </div>
@@ -620,7 +620,7 @@ export default function DashboardPage() {
           <Card>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Activites Recentes
+                Activités Recentes
               </h3>
               <Link
                 href="/dossiers"
@@ -695,7 +695,7 @@ export default function DashboardPage() {
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white">Nouveau Dossier</h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Creer un dossier client
+                      Créer un dossier client
                     </p>
                   </div>
                 </div>
@@ -713,7 +713,7 @@ export default function DashboardPage() {
                     <h4 className="font-semibold text-gray-900 dark:text-white">
                       Nouvelle Facture
                     </h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Generer une facture</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Générer une facture</p>
                   </div>
                 </div>
               </Link>

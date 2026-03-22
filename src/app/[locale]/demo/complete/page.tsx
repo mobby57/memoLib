@@ -70,7 +70,7 @@ const DEMO_STEPS: DemoStep[] = [
     why: 'Accélérer la production documentaire tout en restant conforme.',
     action:
       'Passez sur la preuve légale, ouvrez un document généré et contrôlez les points de conformité.',
-    href: '/demo/legal-proof',
+    href: '/demo/légal-proof',
     tool: 'Génération documentaire + checks conformité',
     expectedResult: 'Le dossier est prêt avec des documents exploitables et un niveau de risque visible.',
   },
@@ -268,7 +268,7 @@ export default function DemoCompletePage() {
               Voir le raisonnement
             </Link>
             <Link
-              href="/demo/legal-proof"
+              href="/demo/légal-proof"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               <FileText className="w-4 h-4" />

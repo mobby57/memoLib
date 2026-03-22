@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -42,7 +42,7 @@ const TYPES_DEMANDE = [
     value: 'TITRE_SEJOUR', 
     label: 'Titre de Sejour', 
     icon: '',
-    description: 'Premiere demande ou renouvellement de titre de sejour'
+    description: 'Première demande ou renouvellement de titre de sejour'
   },
   { 
     value: 'RECOURS_OQTF', 
@@ -117,7 +117,7 @@ export default function NouvelleDemandePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          priorite: data.urgence ? 'URGENTE' : 'NORMALE',
+          priorité: data.urgence ? 'URGENTE' : 'NORMALE',
           statut: 'BROUILLON', // Les demandes clients commencent en brouillon
         }),
       })
@@ -132,7 +132,7 @@ export default function NouvelleDemandePage() {
       toast({
         variant: 'success',
         title: 'Demande envoyee !',
-        description: 'Votre demande a ete transmise a votre avocat qui la traitera dans les plus brefs delais.'
+        description: 'Votre demande a été transmise à votre avocat qui la traitera dans les plus brefs delais.'
       })
 
       router.push('/client/dossiers')
@@ -174,7 +174,7 @@ export default function NouvelleDemandePage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Selection du type de demande */}
+          {/* Sélection du type de demande */}
           <Card className="p-6 bg-white">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Briefcase className="text-blue-600" size={24} />
@@ -246,7 +246,7 @@ Exemples :
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Date echeance */}
+                {/* Date échéance */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Date limite (si applicable)
@@ -296,7 +296,7 @@ Exemples :
                 <textarea
                   {...register('complementInfo')}
                   rows={3}
-                  placeholder="Ajoutez toute information utile : documents deja en votre possession, demarches deja effectuees, questions specifiques..."
+                  placeholder="Ajoutez toute information utile : documents deja en votre possession, demarches deja effectuees, questions spécifiques..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
                 ></textarea>
               </div>
@@ -310,7 +310,7 @@ Exemples :
               <div className="text-sm text-blue-900">
                 <p className="font-medium mb-1">a savoir :</p>
                 <ul className="space-y-1 list-disc list-inside">
-                  <li>Votre demande sera transmise a votre avocat</li>
+                  <li>Votre demande sera transmise à votre avocat</li>
                   <li>Vous recevrez une confirmation par email</li>
                   <li>L'avocat vous contactera sous 24-48h</li>
                   <li>Vous pourrez suivre l'avancement dans votre espace "Mes Dossiers"</li>

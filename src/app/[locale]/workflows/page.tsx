@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -37,7 +37,7 @@ export default function WorkflowsPage() {
   const handleToggle = (id: string) => {
     toggleWorkflow(id)
     refreshWorkflows()
-    showToast('Workflow mis a jour', 'success')
+    showToast('Workflow mis à jour', 'success')
   }
 
   const handleDelete = (id: string) => {
@@ -55,7 +55,7 @@ export default function WorkflowsPage() {
         triggeredBy: 'manual',
       })
       refreshWorkflows()
-      showToast('Workflow execute avec succes', 'success')
+      showToast('Workflow execute avec succès', 'success')
     } catch (error) {
       showToast('Erreur lors de l\'execution', 'error')
     }
@@ -78,10 +78,10 @@ export default function WorkflowsPage() {
     dossier_status_changed: 'Statut dossier modifie',
     facture_created: 'Facture creee',
     facture_overdue: 'Facture en retard',
-    echeance_approaching: 'echeance proche',
+    echeance_approaching: 'échéance proche',
     document_uploaded: 'Document uploade',
     client_created: 'Client cree',
-    scheduled: 'Planifie',
+    scheduled: 'Planifié',
   }
 
   const actionLabels: Record<ActionType, string> = {
@@ -164,7 +164,7 @@ export default function WorkflowsPage() {
                         : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                     }`}
                   >
-                    {workflow.enabled ? 'Actif' : 'Desactive'}
+                    {workflow.enabled ? 'Actif' : 'Désactivé'}
                   </span>
                 </div>
                 
@@ -193,7 +193,7 @@ export default function WorkflowsPage() {
                   </div>
                   {workflow.lastExecuted && (
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">Derniere:</span>
+                      <span className="text-gray-500 dark:text-gray-400">Dernière:</span>
                       <span className="ml-2 font-medium text-gray-900 dark:text-white">
                         {new Date(workflow.lastExecuted).toLocaleString('fr-FR')}
                       </span>
@@ -246,7 +246,7 @@ export default function WorkflowsPage() {
               Aucun workflow configure
             </p>
             <Button onClick={() => setShowEditor(true)} className="mt-4">
-              Creer votre premier workflow
+              Créer votre premier workflow
             </Button>
           </Card>
         )}

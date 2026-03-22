@@ -8,7 +8,7 @@ import { API_ENDPOINTS } from '@/lib/api-config';
 const DEMO_STEPS = [
   { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
   { id: 2, label: 'Raisonnement dossier', href: '/demo/workspace-reasoning' },
-  { id: 3, label: 'Preuve légale', href: '/demo/legal-proof' },
+  { id: 3, label: 'Preuve légale', href: '/demo/légal-proof' },
 ];
 
 const TEST_CLIENTS = [

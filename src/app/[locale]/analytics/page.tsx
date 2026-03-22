@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
     try {
       const response = await fetch('/api/analytics/revenue?type=current', { cache: 'no-store' });
       if (!response.ok) {
-        throw new Error('Impossible de recuperer les donnees revenus');
+        throw new Error('Impossible de récupérer les donnees revenus');
       }
       const payload = await response.json();
       setRevenue({ loading: false, error: null, data: payload?.data ?? payload ?? null });
@@ -87,7 +87,7 @@ export default function AnalyticsPage() {
     try {
       const response = await fetch('/api/analytics/emails?type=current', { cache: 'no-store' });
       if (!response.ok) {
-        throw new Error('Impossible de recuperer les donnees emails');
+        throw new Error('Impossible de récupérer les donnees emails');
       }
       const payload = await response.json();
       setEmails({ loading: false, error: null, data: payload?.data ?? payload ?? null });
@@ -101,7 +101,7 @@ export default function AnalyticsPage() {
     try {
       const response = await fetch('/api/analytics/ai?type=current', { cache: 'no-store' });
       if (!response.ok) {
-        throw new Error('Impossible de recuperer les donnees IA');
+        throw new Error('Impossible de récupérer les donnees IA');
       }
       const payload = await response.json();
       setAi({ loading: false, error: null, data: payload?.data ?? payload ?? null });
@@ -115,7 +115,7 @@ export default function AnalyticsPage() {
     try {
       const response = await fetch('/api/analytics/metrics', { cache: 'no-store' });
       if (!response.ok) {
-        throw new Error('Impossible de recuperer les metriques');
+        throw new Error('Impossible de récupérer les metriques');
       }
       const payload = await response.json();
       setMetrics({ loading: false, error: null, data: payload ?? null });
@@ -248,7 +248,7 @@ export default function AnalyticsPage() {
       </div>
 
       <Card className="p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Resume technique</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Résumé technique</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <p className="text-sm text-gray-500">Temps de reponse moyen API</p>

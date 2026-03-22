@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -12,10 +12,10 @@ import { FileText, Clock, CheckCircle, AlertTriangle, LogOut, Bell, User, Calend
 interface ClientDashboardData {
   monDossier: {
     id: string;
-    numero: string;
+    numéro: string;
     typeDossier: string;
     statut: string;
-    priorite: string;
+    priorité: string;
     dateCreation: string;
     dateEcheance?: string;
     description?: string;
@@ -92,7 +92,7 @@ export default function ClientDashboardPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Acces non autorise</p>
+          <p className="text-gray-600 dark:text-gray-400">Accès non autorise</p>
         </div>
       </div>
     );
@@ -183,7 +183,7 @@ export default function ClientDashboardPage() {
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white">
-                      {data.monDossier.numero}
+                      {data.monDossier.numéro}
                     </h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       {data.monDossier.typeDossier}
@@ -201,7 +201,7 @@ export default function ClientDashboardPage() {
                 <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                   <span>Cree le {new Date(data.monDossier.dateCreation).toLocaleDateString('fr-FR')}</span>
                   {data.monDossier.dateEcheance && (
-                    <span>echeance: {new Date(data.monDossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
+                    <span>échéance: {new Date(data.monDossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
                   )}
                 </div>
               </div>

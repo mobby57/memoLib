@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +16,7 @@ import {
 interface ContactForm {
   nom: string;
   email: string;
-  telephone: string;
+  téléphone: string;
   cabinet: string;
   sujet: string;
   message: string;
@@ -31,7 +31,7 @@ export default function ContactPage() {
   const [form, setForm] = useState<ContactForm>({
     nom: '',
     email: '',
-    telephone: '',
+    téléphone: '',
     cabinet: '',
     sujet: '',
     message: '',
@@ -79,7 +79,7 @@ export default function ContactPage() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Retour a l'accueil
+            Retour à l'accueil
           </Link>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default function ContactPage() {
                   <Phone className="w-6 h-6 text-blue-300" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Telephone</h3>
+                  <h3 className="font-semibold mb-1">Téléphone</h3>
                   <p className="text-blue-200">+33 1 23 45 67 89</p>
                   <p className="text-sm text-blue-300">Lun-Ven 9h-18h</p>
                 </div>
@@ -157,7 +157,7 @@ export default function ContactPage() {
 
             {/* Quick links */}
             <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-              <h3 className="font-semibold mb-4">Acces rapide</h3>
+              <h3 className="font-semibold mb-4">Accès rapide</h3>
               <div className="grid grid-cols-2 gap-3">
                 <Link href="/pricing" className="flex items-center gap-2 text-blue-200 hover:text-white transition-colors">
                   <Building className="w-4 h-4" />
@@ -251,12 +251,12 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Telephone
+                    Téléphone
                   </label>
                   <input
                     type="tel"
-                    value={form.telephone}
-                    onChange={(e) => setForm({ ...form, telephone: e.target.value })}
+                    value={form.téléphone}
+                    onChange={(e) => setForm({ ...form, téléphone: e.target.value })}
                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="01 23 45 67 89"
                   />
@@ -273,7 +273,7 @@ export default function ContactPage() {
                   value={form.sujet}
                   onChange={(e) => setForm({ ...form, sujet: e.target.value })}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Ex: Question sur les fonctionnalites IA"
+                  placeholder="Ex: Question sur les fonctionnalités IA"
                 />
               </div>
 

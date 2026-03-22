@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -69,11 +69,11 @@ export default function TemplatesPage() {
   );
 
   const categoryCounts = templates.reduce((acc, t) => {
-    acc[t.categorie] = (acc[t.categorie] || 0) + 1;
+    acc[t.catégorie] = (acc[t.catégorie] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  const getCategoryColor = (categorie: string) => {
+  const getCategoryColor = (catégorie: string) => {
     const colors: Record<string, string> = {
       contrat: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
       courrier: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
@@ -81,10 +81,10 @@ export default function TemplatesPage() {
       attestation: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
       autre: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
     };
-    return colors[categorie] || colors.autre;
+    return colors[catégorie] || colors.autre;
   };
 
-  const getCategoryLabel = (categorie: string) => {
+  const getCategoryLabel = (catégorie: string) => {
     const labels: Record<string, string> = {
       contrat: 'Contrat',
       courrier: 'Courrier',
@@ -92,7 +92,7 @@ export default function TemplatesPage() {
       attestation: 'Attestation',
       autre: 'Autre'
     };
-    return labels[categorie] || categorie;
+    return labels[catégorie] || catégorie;
   };
 
   return (
@@ -103,7 +103,7 @@ export default function TemplatesPage() {
           Templates de Documents
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Creez et gerez vos modeles de documents personnalisables
+          Créez et gérez vos modeles de documents personnalisables
         </p>
       </div>
 
@@ -167,8 +167,8 @@ export default function TemplatesPage() {
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <span className={`px-2 py-1 text-xs rounded-full ${getCategoryColor(template.categorie)}`}>
-                  {getCategoryLabel(template.categorie)}
+                <span className={`px-2 py-1 text-xs rounded-full ${getCategoryColor(template.catégorie)}`}>
+                  {getCategoryLabel(template.catégorie)}
                 </span>
               </div>
             </div>

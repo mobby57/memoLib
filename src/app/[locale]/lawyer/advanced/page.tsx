@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -14,14 +14,14 @@ export default function LawyerAdvancedPage() {
           <div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
               <span></span>
-              Fonctionnalites IA Avancees
+              Fonctionnalités IA Avancees
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
               Outils d'analyse et d'automatisation pour votre cabinet
             </p>
           </div>
           <Link
-            href="/lawyer/integrations"
+            href="/lawyer/intégrations"
             className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors"
           >
             Voir la demo complete [Next]
@@ -66,10 +66,10 @@ export default function LawyerAdvancedPage() {
                   Notifications Temps Reel
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                  WebSocket pour mises a jour instantanees
+                  WebSocket pour mises à jour instantanees
                 </p>
                 <Link
-                  href="/lawyer/integrations"
+                  href="/lawyer/intégrations"
                   className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
                 >
                   Voir la demo [Next]
@@ -86,7 +86,7 @@ export default function LawyerAdvancedPage() {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-1">
-                  Conformite RGPD
+                  Conformité RGPD
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
                   Outils d'anonymisation et export de donnees
@@ -99,10 +99,10 @@ export default function LawyerAdvancedPage() {
           </div>
         </div>
 
-        {/* Integration Status */}
+        {/* Intégration Status */}
         <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-slate-200 dark:border-slate-700">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
-            etat de l'integration
+            etat de l'intégration
           </h2>
           <div className="space-y-3">
             <StatusItem
@@ -140,10 +140,10 @@ export default function LawyerAdvancedPage() {
             <CommandCard
               title="Verifier Ollama"
               command="curl http://localhost:11434"
-              description="Confirmer que Ollama est demarre"
+              description="Confirmer que Ollama est démarré"
             />
             <CommandCard
-              title="Demarrer le serveur"
+              title="Démarrer le serveur"
               command="npm run dev"
               description="Lancer l'application en mode developpement"
             />

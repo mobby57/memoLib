@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -255,7 +255,7 @@ export default function EmailMonitoringPage() {
               <option value="nouveau_client">Nouveau Client</option>
               <option value="urgent">Urgent</option>
               <option value="spam">Spam</option>
-              <option value="general">General</option>
+              <option value="général">Général</option>
             </select>
 
             <select
@@ -263,7 +263,7 @@ export default function EmailMonitoringPage() {
               onChange={(e) => setFilter({ ...filter, priority: e.target.value })}
               className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
-              <option value="">Toutes les priorites</option>
+              <option value="">Toutes les priorités</option>
               <option value="urgent">Urgent</option>
               <option value="high">Haute</option>
               <option value="medium">Moyenne</option>
@@ -338,7 +338,7 @@ export default function EmailMonitoringPage() {
                         }}
                         disabled={creatingDossier === email.id}
                         className="p-2 hover:bg-green-100 dark:hover:bg-green-900 rounded-lg disabled:opacity-50"
-                        title="Creer un dossier"
+                        title="Créer un dossier"
                       >
                         {creatingDossier === email.id ? (
                           <div className="animate-spin h-5 w-5 border-2 border-green-600 border-t-transparent rounded-full"></div>
