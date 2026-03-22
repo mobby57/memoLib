@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -36,7 +36,7 @@ import {
 } from 'lucide-react';
 
 const dossierSchema = z.object({
-  numero: z.string().min(1, 'Le numero est requis'),
+  numéro: z.string().min(1, 'Le numéro est requis'),
   titre: z.string().min(3, 'Le titre doit contenir au moins 3 caracteres'),
   clientId: z.string().min(1, 'Le client est requis'),
   type: z.enum(['CIVIL', 'PENAL', 'COMMERCIAL', 'ADMINISTRATIF']),
@@ -56,7 +56,7 @@ interface Dossier extends DossierFormData {
 const MOCK_DOSSIERS: Dossier[] = [
   {
     id: '1',
-    numero: 'DOS-2024-001',
+    numéro: 'DOS-2024-001',
     titre: 'Litige commercial SARL Martin',
     clientId: '1',
     clientNom: 'Jean Dupont',
@@ -67,7 +67,7 @@ const MOCK_DOSSIERS: Dossier[] = [
   },
   {
     id: '2',
-    numero: 'DOS-2024-002',
+    numéro: 'DOS-2024-002',
     titre: 'Divorce contentieux',
     clientId: '2',
     clientNom: 'Marie Martin',
@@ -77,7 +77,7 @@ const MOCK_DOSSIERS: Dossier[] = [
   },
   {
     id: '3',
-    numero: 'DOS-2024-003',
+    numéro: 'DOS-2024-003',
     titre: 'Contentieux administratif permis construire',
     clientId: '3',
     clientNom: 'SCI Investimo',
@@ -87,7 +87,7 @@ const MOCK_DOSSIERS: Dossier[] = [
   },
   {
     id: '4',
-    numero: 'DOS-2023-045',
+    numéro: 'DOS-2023-045',
     titre: 'Defense penale - Vol',
     clientId: '4',
     clientNom: 'Thomas Bernard',
@@ -98,7 +98,7 @@ const MOCK_DOSSIERS: Dossier[] = [
   },
   {
     id: '5',
-    numero: 'DOS-2023-032',
+    numéro: 'DOS-2023-032',
     titre: 'Succession familiale',
     clientId: '5',
     clientNom: 'Sophie Dubois',
@@ -176,7 +176,7 @@ export default function DossiersPage() {
   const filteredDossiers = useMemo(() => {
     return dossiers.filter(dossier => {
       const matchSearch =
-        dossier.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        dossier.numéro.toLowerCase().includes(searchTerm.toLowerCase()) ||
         dossier.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         dossier.clientNom.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -208,7 +208,7 @@ export default function DossiersPage() {
   const openCreateModal = () => {
     setEditingDossier(null);
     reset({
-      numero: '',
+      numéro: '',
       titre: '',
       clientId: '',
       type: 'CIVIL',
@@ -241,7 +241,7 @@ export default function DossiersPage() {
       toast({
         variant: 'success',
         title: 'Dossier modifie',
-        description: `Le dossier ${data.numero} a ete modifie avec succes.`,
+        description: `Le dossier ${data.numéro} a été modifie avec succès.`,
       });
     } else {
       const newDossier: Dossier = {
@@ -253,7 +253,7 @@ export default function DossiersPage() {
       toast({
         variant: 'success',
         title: 'Dossier cree',
-        description: `Le dossier ${data.numero} a ete cree avec succes.`,
+        description: `Le dossier ${data.numéro} a été cree avec succès.`,
       });
     }
     setIsModalOpen(false);
@@ -262,12 +262,12 @@ export default function DossiersPage() {
   const deleteDossier = useCallback(
     (id: string) => {
       const dossier = dossiers.find(d => d.id === id);
-      if (window.confirm(`�tes-vous s�r de vouloir supprimer le dossier ${dossier?.numero} ?`)) {
+      if (window.confirm(`�tes-vous s�r de vouloir supprimer le dossier ${dossier?.numéro} ?`)) {
         setDossiers(prev => prev.filter(d => d.id !== id));
         toast({
           variant: 'default',
           title: 'Dossier supprim�',
-          description: `Le dossier ${dossier?.numero} a �t� supprim�.`,
+          description: `Le dossier ${dossier?.numéro} a �t� supprim�.`,
         });
       }
     },
@@ -278,7 +278,7 @@ export default function DossiersPage() {
     // Export CSV
     const headers = ['Num�ro', 'Titre', 'Client', 'Type', 'Statut', 'Date ouverture'];
     const rows = filteredDossiers.map(d => [
-      d.numero,
+      d.numéro,
       d.titre,
       d.clientNom,
       TYPE_LABELS[d.type],
@@ -343,7 +343,7 @@ export default function DossiersPage() {
 
   const columns = useMemo(
     () => [
-      { key: 'numero', header: 'Num�ro' },
+      { key: 'numéro', header: 'Num�ro' },
       { key: 'titre', header: 'Titre' },
       {
         key: 'clientNom',
@@ -392,7 +392,7 @@ export default function DossiersPage() {
               onClick={() => router.push(`/dossiers/${row.id}`)}
               className="p-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900/30 rounded transition-colors"
               title="Consulter le dossier"
-              aria-label={`Consulter le dossier ${row.numero}`}
+              aria-label={`Consulter le dossier ${row.numéro}`}
             >
               <Eye className="w-4 h-4" />
             </button>
@@ -400,7 +400,7 @@ export default function DossiersPage() {
               onClick={() => openEditModal(row)}
               className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30 rounded transition-colors"
               title="Modifier le dossier"
-              aria-label={`Modifier le dossier ${row.numero}`}
+              aria-label={`Modifier le dossier ${row.numéro}`}
             >
               <Pencil className="w-4 h-4" />
             </button>
@@ -408,7 +408,7 @@ export default function DossiersPage() {
               onClick={() => deleteDossier(row.id)}
               className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30 rounded transition-colors"
               title="Supprimer le dossier"
-              aria-label={`Supprimer le dossier ${row.numero}`}
+              aria-label={`Supprimer le dossier ${row.numéro}`}
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -520,7 +520,7 @@ export default function DossiersPage() {
                 <div className="flex-1">
                   <p className="font-medium text-gray-900 dark:text-white">{dossier.titre}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {dossier.numero} - {dossier.clientNom}
+                    {dossier.numéro} - {dossier.clientNom}
                   </p>
                 </div>
                 <div className="text-right">
@@ -622,20 +622,20 @@ export default function DossiersPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingDossier ? 'Modifier le dossier' : 'Creer un dossier'}
+        title={editingDossier ? 'Modifier le dossier' : 'Créer un dossier'}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Numero *
+                Numéro *
               </label>
               <input
-                {...register('numero')}
+                {...register('numéro')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
-              {errors.numero && (
-                <p className="mt-1 text-sm text-red-600">{errors.numero.message}</p>
+              {errors.numéro && (
+                <p className="mt-1 text-sm text-red-600">{errors.numéro.message}</p>
               )}
             </div>
 
@@ -647,7 +647,7 @@ export default function DossiersPage() {
                 {...register('clientId')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
-                <option value="">Selectionner un client</option>
+                <option value="">Sélectionner un client</option>
                 {MOCK_CLIENTS.map(client => (
                   <option key={client.id} value={client.id}>
                     {client.nom}
@@ -755,7 +755,7 @@ export default function DossiersPage() {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              {editingDossier ? 'Modifier' : 'Creer'}
+              {editingDossier ? 'Modifier' : 'Créer'}
             </button>
           </div>
         </form>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,7 @@ interface CalendarEvent {
   type: string;
   status: string;
   user: { name: string; email: string };
-  dossier?: { numero: string };
+  dossier?: { numéro: string };
   client?: { firstName: string; lastName: string };
 }
 
@@ -48,7 +48,7 @@ export default function CalendarPage() {
       const data = await res.json();
       setEvents(data.events || []);
     } catch (error) {
-      console.error('Erreur chargement evenements:', error);
+      console.error('Erreur chargement événements:', error);
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export default function CalendarPage() {
     return icons[type] || '';
   };
 
-  // Generer les jours du mois
+  // Générer les jours du mois
   const getDaysInMonth = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -91,7 +91,7 @@ export default function CalendarPage() {
 
     const days: CalendarDay[] = [];
 
-    // Jours du mois precedent
+    // Jours du mois précédent
     const prevMonth = new Date(year, month, 0);
     for (let i = startingDay - 1; i >= 0; i--) {
       days.push({
@@ -155,7 +155,7 @@ export default function CalendarPage() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900"> Calendrier</h1>
-          <p className="text-gray-600">Gerez vos rendez-vous et echeances</p>
+          <p className="text-gray-600">Gérez vos rendez-vous et échéances</p>
         </div>
         <button
           onClick={() => {
@@ -279,9 +279,9 @@ export default function CalendarPage() {
         )}
       </div>
 
-      {/* Prochains evenements */}
+      {/* Prochains événements */}
       <div className="mt-6 bg-white rounded-lg shadow p-4">
-        <h3 className="font-semibold mb-3"> Prochains evenements</h3>
+        <h3 className="font-semibold mb-3"> Prochains événements</h3>
         {events
           .filter((e) => new Date(e.startDate) >= new Date())
           .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
@@ -309,11 +309,11 @@ export default function CalendarPage() {
             </div>
           ))}
         {events.filter((e) => new Date(e.startDate) >= new Date()).length === 0 && (
-          <p className="text-gray-500 text-center py-4">Aucun evenement a venir</p>
+          <p className="text-gray-500 text-center py-4">Aucun événement a venir</p>
         )}
       </div>
 
-      {/* Modal Nouvel evenement */}
+      {/* Modal Nouvel événement */}
       {showNewEvent && (
         <NewEventModal
           tenantId={tenantId}
@@ -331,7 +331,7 @@ export default function CalendarPage() {
         />
       )}
 
-      {/* Modal Detail evenement */}
+      {/* Modal Detail événement */}
       {selectedEvent && (
         <EventDetailModal
           event={selectedEvent}
@@ -346,7 +346,7 @@ export default function CalendarPage() {
   );
 }
 
-// Modal Nouvel evenement
+// Modal Nouvel événement
 function NewEventModal({
   tenantId,
   userId,
@@ -401,11 +401,11 @@ function NewEventModal({
         onCreated();
       } else {
         const data = await res.json();
-        setErrorMessage(data.error || 'Erreur creation evenement');
+        setErrorMessage(data.error || 'Erreur creation événement');
       }
     } catch (error) {
       console.error('Erreur:', error);
-      setErrorMessage('Erreur creation evenement');
+      setErrorMessage('Erreur creation événement');
     } finally {
       setLoading(false);
     }
@@ -415,7 +415,7 @@ function NewEventModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
         <div className="p-6 border-b">
-          <h2 className="text-xl font-bold"> Nouvel evenement</h2>
+          <h2 className="text-xl font-bold"> Nouvel événement</h2>
         </div>
 
         <div className="p-6 space-y-4">
@@ -445,7 +445,7 @@ function NewEventModal({
             >
               <option value="rdv"> Rendez-vous</option>
               <option value="audience">? Audience</option>
-              <option value="deadline"> echeance</option>
+              <option value="deadline"> échéance</option>
               <option value="rappel"> Rappel</option>
               <option value="autre"> Autre</option>
             </select>
@@ -490,7 +490,7 @@ function NewEventModal({
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg"
               rows={3}
-              placeholder="Notes sur l'evenement..."
+              placeholder="Notes sur l'événement..."
             />
           </div>
         </div>
@@ -504,7 +504,7 @@ function NewEventModal({
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Creation...' : 'Creer'}
+            {loading ? 'Creation...' : 'Créer'}
           </button>
         </div>
       </div>
@@ -512,7 +512,7 @@ function NewEventModal({
   );
 }
 
-// Modal Detail evenement
+// Modal Detail événement
 function EventDetailModal({
   event,
   onClose,
@@ -525,7 +525,7 @@ function EventDetailModal({
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
-    if (!confirm('Supprimer cet evenement ?')) return;
+    if (!confirm('Supprimer cet événement ?')) return;
 
     setLoading(true);
     try {
@@ -541,7 +541,7 @@ function EventDetailModal({
   const typeLabels: Record<string, string> = {
     rdv: ' Rendez-vous',
     audience: '? Audience',
-    deadline: ' echeance',
+    deadline: ' échéance',
     rappel: ' Rappel',
     autre: ' Autre',
   };
@@ -604,7 +604,7 @@ function EventDetailModal({
           {event.dossier && (
             <div className="flex items-center gap-2">
               <span className="text-gray-500"> Dossier:</span>
-              <span>{event.dossier.numero}</span>
+              <span>{event.dossier.numéro}</span>
             </div>
           )}
         </div>

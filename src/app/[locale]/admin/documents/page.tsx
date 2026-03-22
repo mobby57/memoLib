@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ interface Document {
   dateUpload: string;
   dossier: {
     id: string;
-    numero: string;
+    numéro: string;
     titre: string;
   };
   client: {
@@ -82,7 +82,7 @@ export default function DocumentsAdmin() {
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = 
       doc.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.dossier.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.dossier.numéro.toLowerCase().includes(searchTerm.toLowerCase()) ||
       doc.dossier.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       `${doc.client.firstName} ${doc.client.lastName}`.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -200,7 +200,7 @@ export default function DocumentsAdmin() {
               <span className="text-6xl mb-4 block"></span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filterType !== 'all'
-                  ? 'Aucun document ne correspond a votre recherche'
+                  ? 'Aucun document ne correspond à votre recherche'
                   : 'Aucun document pour le moment'}
               </p>
             </div>
@@ -234,7 +234,7 @@ export default function DocumentsAdmin() {
                           href={`/admin/dossiers/${doc.dossier.id}`}
                           className="hover:text-blue-600 transition-colors"
                         >
-                          <p className="font-mono text-sm text-blue-600">{doc.dossier.numero}</p>
+                          <p className="font-mono text-sm text-blue-600">{doc.dossier.numéro}</p>
                           <p className="text-sm text-gray-500">{doc.dossier.titre}</p>
                         </Link>
                       </td>
@@ -264,7 +264,7 @@ export default function DocumentsAdmin() {
                           onClick={() => downloadDocument(doc.id, doc.nom)}
                           className="px-4 py-2 bg-blue-500 text-white rounded text-sm font-semibold hover:bg-blue-600 transition-colors"
                         >
-                          Telecharger ?
+                          Télécharger ?
                         </button>
                       </td>
                     </tr>

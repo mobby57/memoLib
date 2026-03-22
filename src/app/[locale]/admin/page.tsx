@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Dashboard Admin/Avocat - Gestion du cabinet
  * Niveau 2 : Gestion clients, dossiers, avec limites plan
  */
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
-                          <span className="text-red-600 font-bold">{dossier.numero}</span>
+                          <span className="text-red-600 font-bold">{dossier.numéro}</span>
                           <h3 className="font-semibold text-gray-900">{dossier.typeDossier}</h3>
                           <span className="px-2 py-1 bg-red-500 text-white rounded text-xs font-semibold">
                             URGENT
@@ -342,7 +342,7 @@ export default function AdminDashboard() {
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-3 px-4 text-gray-600 font-semibold">Nom</th>
                     <th className="text-left py-3 px-4 text-gray-600 font-semibold">Email</th>
-                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Telephone</th>
+                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Téléphone</th>
                     <th className="text-center py-3 px-4 text-gray-600 font-semibold">Dossiers</th>
                     <th className="text-center py-3 px-4 text-gray-600 font-semibold">Portail</th>
                   </tr>
@@ -354,7 +354,7 @@ export default function AdminDashboard() {
                         {client.nom} {client.prenom}
                       </td>
                       <td className="py-4 px-4 text-gray-600">{client.email}</td>
-                      <td className="py-4 px-4 text-gray-600">{client.telephone}</td>
+                      <td className="py-4 px-4 text-gray-600">{client.téléphone}</td>
                       <td className="py-4 px-4 text-center">
                         <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
                           {client._count?.dossiers || 0}

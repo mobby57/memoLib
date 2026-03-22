@@ -25,7 +25,7 @@ export default function Image() {
       >
         <div style={{ fontSize: 58, fontWeight: 700, marginBottom: 16 }}>FAQ MemoLib</div>
         <div style={{ fontSize: 34, maxWidth: 900 }}>
-          Reponses sur la securite, le RGPD, les tarifs et les integrations
+          Reponses sur la sécurité, le RGPD, les tarifs et les intégrations
         </div>
       </div>
     ),

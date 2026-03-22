@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -18,7 +18,7 @@ interface Email {
   category: string;
   urgency: string;
   client?: { firstName: string; lastName: string };
-  dossier?: { numero: string; typeDossier: string };
+  dossier?: { numéro: string; typeDossier: string };
 }
 
 interface PendingActionApiItem {
@@ -291,7 +291,7 @@ export default function EmailMonitorPage() {
                 {email.dossier && (
                   <div className="flex items-center gap-2 text-sm text-green-600">
                     <LinkIcon className="w-4 h-4" />
-                    Dossier {email.dossier.numero} - {email.dossier.typeDossier}
+                    Dossier {email.dossier.numéro} - {email.dossier.typeDossier}
                   </div>
                 )}
 

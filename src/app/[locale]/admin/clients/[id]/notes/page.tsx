@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -134,7 +134,7 @@ export default function BillingPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Facturation & Abonnement</h1>
-          <p className="mt-2 text-gray-600">Gerez votre abonnement, quotas et factures</p>
+          <p className="mt-2 text-gray-600">Gérez votre abonnement, quotas et factures</p>
         </div>
 
         {/* Subscription actuelle */}
@@ -157,7 +157,7 @@ export default function BillingPage() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Periode actuelle</p>
+                <p className="text-sm text-gray-600">Période actuelle</p>
                 <p className="text-lg font-semibold text-gray-900">
                   {new Date(subscription.currentPeriodStart).toLocaleDateString('fr-FR')} - {' '}
                   {new Date(subscription.currentPeriodEnd).toLocaleDateString('fr-FR')}

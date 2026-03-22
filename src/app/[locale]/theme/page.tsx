@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -39,7 +39,7 @@ export default function ThemeDemo() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
             <Palette size={32} />
-            Systeme de Design Tokens
+            Système de Design Tokens
           </h1>
           <p className="text-gray-600">
             Couleurs et styles extraits depuis Figma et integres dans l'application
@@ -169,7 +169,7 @@ const invalid: ColorToken = 'invalid'; //  Erreur TypeScript`}
              Synchronisation Figma
           </h3>
           <p className="text-blue-700 mb-4">
-            Pour mettre a jour les design tokens depuis Figma, executez :
+            Pour mettre à jour les design tokens depuis Figma, executez :
           </p>
           <pre className="bg-white p-3 rounded border border-blue-200 text-sm">
             npm run figma:sync

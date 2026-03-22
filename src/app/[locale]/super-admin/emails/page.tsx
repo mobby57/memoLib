@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -80,14 +80,14 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 const CATEGORY_LABELS: Record<string, string> = {
   'client-urgent': ' Urgent Client',
   'new-case': ' Nouveau Dossier',
-  'deadline-reminder': ' echeance',
+  'deadline-reminder': ' échéance',
   'invoice': ' Facture',
-  'legal-question': '? Question Juridique',
+  'légal-question': '? Question Juridique',
   'court-document': '??? Document Judiciaire',
   'client-complaint': ' Reclamation',
   'document-request': ' Demande Document',
   'appointment-request': ' Rendez-vous',
-  'general-inquiry': ' Demande Generale'
+  'général-inquiry': ' Demande Générale'
 };
 
 export default function EmailWorkflowMonitoringPage() {
@@ -351,7 +351,7 @@ export default function EmailWorkflowMonitoringPage() {
                       <p className="font-medium">{selectedEmail.subject}</p>
                     </div>
                     <div>
-                      <span className="text-gray-500">Categorie:</span>
+                      <span className="text-gray-500">Catégorie:</span>
                       <p>{CATEGORY_LABELS[selectedEmail.category]}</p>
                     </div>
                     <div>
@@ -420,7 +420,7 @@ export default function EmailWorkflowMonitoringPage() {
                       Progression
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                      Demarre
+                      Démarré
                     </th>
                   </tr>
                 </thead>

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { ZeroRiskExport } from '@/lib/zero-risk-export'
 import { useState } from 'react'
@@ -15,8 +15,8 @@ export default function ExportsPage() {
     setExporting(true)
     try {
       const dossiers = [
-        { numero: 'D-2026-001', client: 'Jean Dupuis', type: 'OQTF', statut: 'EN_COURS' },
-        { numero: 'D-2026-002', client: 'Marie Martin', type: 'ASILE', statut: 'URGENT' }
+        { numéro: 'D-2026-001', client: 'Jean Dupuis', type: 'OQTF', statut: 'EN_COURS' },
+        { numéro: 'D-2026-002', client: 'Marie Martin', type: 'ASILE', statut: 'URGENT' }
       ]
       ZeroRiskExport.exportToCSV(dossiers, 'dossiers-export')
     } finally {
@@ -33,7 +33,7 @@ export default function ExportsPage() {
     try {
       const data = await ZeroRiskExport.importFromCSV(file)
       console.log('Donnees importees:', data)
-      setFeedback({ type: 'success', message: `${data.length} lignes importees avec succes` })
+      setFeedback({ type: 'success', message: `${data.length} lignes importees avec succès` })
     } catch (error) {
       setFeedback({ type: 'error', message: 'Erreur import: ' + (error as Error).message })
     } finally {
@@ -120,11 +120,11 @@ export default function ExportsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>? Securite ZeRO RISQUE</CardTitle>
+          <CardTitle>? Sécurité ZeRO RISQUE</CardTitle>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm">
-            <li> Aucune dependance externe vulnerable</li>
+            <li> Aucune dépendance externe vulnerable</li>
             <li> APIs natives du navigateur uniquement</li>
             <li> Validation stricte des formats</li>
             <li> Pas de parsing complexe</li>

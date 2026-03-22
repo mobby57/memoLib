@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -39,7 +39,7 @@ const dossierSchema = z.object({
     'REGROUPEMENT_FAMILIAL', 'ASILE', 'VISA', 'AUTRE'
   ]),
   objetDemande: z.string().min(10, 'Minimum 10 caracteres'),
-  priorite: z.enum(['NORMALE', 'HAUTE', 'URGENTE', 'CRITIQUE']),
+  priorité: z.enum(['NORMALE', 'HAUTE', 'URGENTE', 'CRITIQUE']),
   dateEcheance: z.string().optional(),
   
   // Identite
@@ -53,7 +53,7 @@ const dossierSchema = z.object({
   sexe: z.enum(['M', 'F', 'AUTRE']),
   
   // Contact
-  telephone: z.string().regex(/^0[1-9]\d{8}$/, 'Format: 0123456789'),
+  téléphone: z.string().regex(/^0[1-9]\d{8}$/, 'Format: 0123456789'),
   email: z.string().email('Email invalide'),
   adresse: z.string().min(5, 'Adresse complete requise'),
   codePostal: z.string().regex(/^\d{5}$/, 'Code postal: 5 chiffres'),
@@ -70,7 +70,7 @@ const dossierSchema = z.object({
   numeroEtranger: z.string().optional(),
   prefectureRattachement: z.string().optional(),
   
-  // Metadonnees specifiques CESEDA (optionnelles, stockees en JSON)
+  // Metadonnees spécifiques CESEDA (optionnelles, stockees en JSON)
   metadata: z.record(z.any()).optional(),
 })
 
@@ -81,7 +81,7 @@ const TYPES_DOSSIER = [
     value: 'TITRE_SEJOUR', 
     label: 'Titre de Sejour', 
     icon: '',
-    description: 'Premiere demande ou renouvellement',
+    description: 'Première demande ou renouvellement',
     delais: ['60 jours avant expiration', 'Recepisse', 'Decision prefecture'],
     documents: ['Passeport', 'Photos', 'Justificatif domicile', 'Contrat travail']
   },
@@ -114,7 +114,7 @@ const TYPES_DOSSIER = [
     label: 'Demande d\'Asile', 
     icon: '??',
     description: 'Protection internationale',
-    delais: ['Procedure acceleree 15 jours', 'Procedure normale 6 mois', 'CNDA 5 mois'],
+    delais: ['Procédure acceleree 15 jours', 'Procédure normale 6 mois', 'CNDA 5 mois'],
     documents: ['Recit', 'Preuves persecution', 'Documents identite', 'Convocation OFPRA']
   },
   { 
@@ -129,7 +129,7 @@ const TYPES_DOSSIER = [
 
 const ETAPES = [
   { id: 'type', label: 'Type de Dossier', icon: FileText },
-  { id: 'ceseda', label: 'Infos Specifiques', icon: Briefcase },
+  { id: 'ceseda', label: 'Infos Spécifiques', icon: Briefcase },
   { id: 'identite', label: 'Identite', icon: User },
   { id: 'situation', label: 'Situation', icon: Home },
   { id: 'professionnel', label: 'Professionnel', icon: Briefcase },
@@ -153,7 +153,7 @@ export default function NouveauDossierAvance() {
     resolver: zodResolver(dossierSchema),
     mode: 'onChange',
     defaultValues: {
-      priorite: 'NORMALE',
+      priorité: 'NORMALE',
       nombreEnfants: 0,
       // Donnees client anonymisees
       nom: 'DOE',
@@ -166,7 +166,7 @@ export default function NouveauDossierAvance() {
       adresse: '123 rue de la Republique',
       codePostal: '75001',
       ville: 'Paris',
-      telephone: '+33612345678',
+      téléphone: '+33612345678',
       email: 'client.anonyme@example.com',
       situationFamiliale: 'CELIBATAIRE',
     }
@@ -206,15 +206,15 @@ export default function NouveauDossierAvance() {
 
     const templates: Record<string, Partial<DossierFormData>> = {
       RECOURS_OQTF: {
-        priorite: 'URGENTE',
+        priorité: 'URGENTE',
         objetDemande: 'Recours contentieux contre OQTF notifiee le ',
       },
       ASILE: {
-        priorite: 'HAUTE',
+        priorité: 'HAUTE',
         objetDemande: 'Demande d\'asile - Protection internationale',
       },
       NATURALISATION: {
-        priorite: 'NORMALE',
+        priorité: 'NORMALE',
         objetDemande: 'Demande de naturalisation francaise par decret',
       },
     }
@@ -313,7 +313,7 @@ export default function NouveauDossierAvance() {
 
       toast({ 
         title: ' Dossier cree', 
-        description: `Dossier #${dossier.id} cree avec succes` 
+        description: `Dossier #${dossier.id} cree avec succès` 
       })
 
       setTimeout(() => router.push(`/dossiers/${dossier.id}`), 1500)
@@ -330,10 +330,10 @@ export default function NouveauDossierAvance() {
 
   function getChampsEtape(etape: number): string[] {
     const etapesChamps: Record<number, string[]> = {
-      0: ['typeDossier', 'objetDemande', 'priorite'],
+      0: ['typeDossier', 'objetDemande', 'priorité'],
       1: [], // CESEDA-specific fields are optional
       2: ['nom', 'prenom', 'dateNaissance', 'lieuNaissance', 'nationalite', 'sexe'],
-      3: ['telephone', 'email', 'adresse', 'codePostal', 'ville', 'situationFamiliale'],
+      3: ['téléphone', 'email', 'adresse', 'codePostal', 'ville', 'situationFamiliale'],
       4: ['situationPro', 'niveauFrancais'],
       5: ['dateArrivee', 'numeroEtranger', 'prefectureRattachement'],
     }
@@ -348,7 +348,7 @@ export default function NouveauDossierAvance() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-                Creer un Nouveau Dossier
+                Créer un Nouveau Dossier
               </h1>
               <p className="text-gray-600">Formulaire guide avec extraction intelligente de documents</p>
             </div>
@@ -420,13 +420,13 @@ export default function NouveauDossierAvance() {
                   variant="outline"
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
-                  Precedent
+                  Précédent
                 </Button>
 
                 <div className="flex items-center gap-2">
                   <Badge variant={autoSaveEnabled ? 'default' : 'warning'}>
                     <Clock className="w-3 h-3 mr-1" />
-                    {autoSaveEnabled ? 'Sauvegarde auto' : 'Sauvegarde desactivee'}
+                    {autoSaveEnabled ? 'Sauvegarde auto' : 'Sauvegarde désactivée'}
                   </Badge>
                 </div>
 
@@ -440,7 +440,7 @@ export default function NouveauDossierAvance() {
                     {loading ? 'Creation...' : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        Creer le Dossier
+                        Créer le Dossier
                       </>
                     )}
                   </Button>
@@ -509,7 +509,7 @@ function EtapeIdentite() {
         <div>
           <label className="block text-sm font-medium mb-2">Sexe <span className="text-red-500">*</span></label>
           <select {...register('sexe')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">Selectionner...</option>
+            <option value="">Sélectionner...</option>
             <option value="M">Masculin</option>
             <option value="F">Feminin</option>
             <option value="AUTRE">Autre</option>
@@ -529,8 +529,8 @@ function EtapeSituation() {
       
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Telephone <span className="text-red-500">*</span></label>
-          <input {...register('telephone')} className="w-full px-4 py-2 border rounded-lg" placeholder="0601020304" />
+          <label className="block text-sm font-medium mb-2">Téléphone <span className="text-red-500">*</span></label>
+          <input {...register('téléphone')} className="w-full px-4 py-2 border rounded-lg" placeholder="0601020304" />
         </div>
         
         <div>
@@ -556,7 +556,7 @@ function EtapeSituation() {
         <div>
           <label className="block text-sm font-medium mb-2">Situation familiale <span className="text-red-500">*</span></label>
           <select {...register('situationFamiliale')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">Selectionner...</option>
+            <option value="">Sélectionner...</option>
             <option value="CELIBATAIRE">Celibataire</option>
             <option value="MARIE">Marie(e)</option>
             <option value="PACSE">Pacse(e)</option>
@@ -591,7 +591,7 @@ function EtapeProfessionnel() {
         <div>
           <label className="block text-sm font-medium mb-2">Niveau de francais</label>
           <select {...register('niveauFrancais')} className="w-full px-4 py-2 border rounded-lg">
-            <option value="">Selectionner...</option>
+            <option value="">Sélectionner...</option>
             <option value="A1">A1 - Debutant</option>
             <option value="A2">A2 - elementaire</option>
             <option value="B1">B1 - Intermediaire</option>
@@ -619,7 +619,7 @@ function EtapeAdministratif() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Numero etranger (si connu)</label>
+          <label className="block text-sm font-medium mb-2">Numéro etranger (si connu)</label>
           <input {...register('numeroEtranger')} className="w-full px-4 py-2 border rounded-lg" />
         </div>
 
@@ -652,7 +652,7 @@ function EtapeDocuments({ onUpload, analyzing }: any) {
           htmlFor="file-upload"
           className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700"
         >
-          Selectionner des fichiers
+          Sélectionner des fichiers
         </label>
         {analyzing && <p className="mt-4 text-blue-600">Analyse en cours...</p>}
       </div>
@@ -683,8 +683,8 @@ function EtapeValidation() {
             <dd className="font-medium">{data.email}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-600">Telephone:</dt>
-            <dd className="font-medium">{data.telephone}</dd>
+            <dt className="text-gray-600">Téléphone:</dt>
+            <dd className="font-medium">{data.téléphone}</dd>
           </div>
         </dl>
       </Card>
@@ -694,7 +694,7 @@ function EtapeValidation() {
           [Check] <strong>Mode Super Admin:</strong> Ce dossier sera cree avec des donnees anonymisees. L'avocat (Me. Dupont) sera notifie en backup et pourra acceder au dossier pour traitement.
         </p>
         <p className="text-xs text-blue-600 mt-2">
-           Les donnees personnelles sont masquees pour des raisons de confidentialite.
+           Les donnees personnelles sont masquees pour des raisons de confidentialité.
         </p>
       </div>
     </div>

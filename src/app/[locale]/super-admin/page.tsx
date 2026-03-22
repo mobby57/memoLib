@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -163,7 +163,7 @@ export default function SuperAdminDashboard() {
               <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
             </div>
             <h3 className="text-xl font-bold mb-2">Gerer les Tenants</h3>
-            <p className="text-white/80 text-sm">Voir, creer, modifier les cabinets</p>
+            <p className="text-white/80 text-sm">Voir, créer, modifier les cabinets</p>
           </Link>
 
           <Link
