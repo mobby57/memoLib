@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -30,7 +30,7 @@ export default function DocumentsPage() {
     try {
       await deleteFile(fileId)
       refreshFiles()
-      showToast('Fichier supprime avec succes', 'success')
+      showToast('Fichier supprime avec succès', 'success')
     } catch (error) {
       showToast('Erreur lors de la suppression', 'error')
     }
@@ -38,7 +38,7 @@ export default function DocumentsPage() {
 
   const handleDownload = (file: StoredFile) => {
     downloadFile(file)
-    showToast('Telechargement demarre', 'info')
+    showToast('Téléchargement démarré', 'info')
   }
 
   const handleViewVersions = (file: StoredFile) => {
@@ -52,7 +52,7 @@ export default function DocumentsPage() {
     ? files 
     : files.filter(f => f.metadata.category === selectedCategory)
 
-  const categories = [
+  const catégories = [
     { value: 'all', label: 'Tous', count: files.length },
     { value: 'piece_jointe', label: 'Pieces jointes', count: stats.byCategory['piece_jointe'] || 0 },
     { value: 'document_genere', label: 'Documents generes', count: stats.byCategory['document_genere'] || 0 },
@@ -124,7 +124,7 @@ export default function DocumentsPage() {
 
       {/* Filtres */}
       <div className="flex gap-2 flex-wrap">
-        {categories.map(cat => (
+        {catégories.map(cat => (
           <button
             key={cat.value}
             onClick={() => setSelectedCategory(cat.value)}

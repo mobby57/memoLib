@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ interface Document {
   uploadedAt: string;
   description?: string;
   dossier?: {
-    numero: string;
+    numéro: string;
     typeDossier: string;
   };
 }
@@ -136,7 +136,7 @@ export default function DocumentsClient() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Mes Documents
                 </h1>
-                <p className="text-gray-600 mt-1">Gerez tous vos documents juridiques</p>
+                <p className="text-gray-600 mt-1">Gérez tous vos documents juridiques</p>
               </div>
             </div>
             <div className="text-right">
@@ -253,7 +253,7 @@ export default function DocumentsClient() {
               <span className="text-6xl mb-4 block"></span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filter !== 'all'
-                  ? 'Aucun document ne correspond a votre recherche'
+                  ? 'Aucun document ne correspond à votre recherche'
                   : 'Aucun document pour le moment'}
               </p>
             </div>
@@ -272,7 +272,7 @@ export default function DocumentsClient() {
                       href={`/api/client/documents/${doc.id}/download`}
                       className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                       download
-                      title="Telecharger"
+                      title="Télécharger"
                     >
                       ?
                     </a>
@@ -319,7 +319,7 @@ export default function DocumentsClient() {
                 <li>- Privilegiez le format PDF pour les documents officiels</li>
                 <li>- Nommez vos fichiers de maniere claire et descriptive</li>
                 <li>- Assurez-vous que les documents sont lisibles et complets</li>
-                <li>- Les documents seront accessibles a votre avocat</li>
+                <li>- Les documents seront accessibles à votre avocat</li>
               </ul>
             </div>
           </div>

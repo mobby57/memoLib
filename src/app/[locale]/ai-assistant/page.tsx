@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -41,7 +41,7 @@ export default function AIAssistantPage() {
     type: 'Contentieux commercial',
     statut: 'En cours',
     client: 'Societe ABC',
-    echeances: [
+    échéances: [
       { date: '2026-02-15', description: 'Audience de conciliation' },
     ],
   }
@@ -56,7 +56,7 @@ export default function AIAssistantPage() {
         conditions: 'Paiement a 30 jours',
       })
       setResult({ type: 'document', content: doc })
-      showToast('Document genere avec succes', 'success')
+      showToast('Document généré avec succès', 'success')
     } catch (error) {
       showToast('Erreur lors de la generation', 'error')
     } finally {
@@ -96,7 +96,7 @@ export default function AIAssistantPage() {
     const colors = {
       faible: 'text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-300',
       moyen: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900 dark:text-yellow-300',
-      eleve: 'text-orange-600 bg-orange-100 dark:bg-orange-900 dark:text-orange-300',
+      élevé: 'text-orange-600 bg-orange-100 dark:bg-orange-900 dark:text-orange-300',
       critique: 'text-red-600 bg-red-100 dark:bg-red-900 dark:text-red-300',
     }
     return colors[level as keyof typeof colors] || colors.moyen
@@ -211,19 +211,19 @@ export default function AIAssistantPage() {
               <div className="space-y-3">
                 <Button onClick={handleGenerateDocument} className="w-full justify-start">
                   <FileText className="w-4 h-4 mr-2" />
-                  Generer un contrat
+                  Générer un contrat
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <FileText className="w-4 h-4 mr-2" />
-                  Generer une mise en demeure
+                  Générer une mise en demeure
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <FileText className="w-4 h-4 mr-2" />
-                  Generer une assignation
+                  Générer une assignation
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <FileText className="w-4 h-4 mr-2" />
-                  Generer un courrier
+                  Générer un courrier
                 </Button>
               </div>
             </Card>
@@ -239,10 +239,10 @@ export default function AIAssistantPage() {
             </Card>
           </div>
 
-          {/* Resultats */}
+          {/* Résultats */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Resultat
+              Résultat
             </h2>
             
             {loading ? (
@@ -262,7 +262,7 @@ export default function AIAssistantPage() {
                     Copier
                   </Button>
                   <Button size="sm" variant="outline">
-                    Telecharger PDF
+                    Télécharger PDF
                   </Button>
                 </div>
               </div>
@@ -279,7 +279,7 @@ export default function AIAssistantPage() {
               </div>
             ) : (
               <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                Aucun resultat pour le moment
+                Aucun résultat pour le moment
               </div>
             )}
           </Card>
@@ -314,7 +314,7 @@ export default function AIAssistantPage() {
 
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Resultat de l'analyse
+              Résultat de l'analyse
             </h2>
 
             {loading ? (

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -49,7 +49,7 @@ export default function WorkspacesPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Mes Dossiers CESDA</h1>
             <p className="text-gray-600 mt-1">
-              Gestion des procedures contentieuses des etrangers
+              Gestion des procédures contentieuses des etrangers
             </p>
           </div>
           <Link
@@ -65,7 +65,7 @@ export default function WorkspacesPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Type de procedure
+                Type de procédure
               </label>
               <select
                 value={filters.procedureType}
@@ -93,7 +93,7 @@ export default function WorkspacesPage() {
               >
                 <option value="">Tous</option>
                 <option value="CRITIQUE"> Critique</option>
-                <option value="ELEVE"> eleve</option>
+                <option value="ELEVE"> élevé</option>
                 <option value="MOYEN"> Moyen</option>
                 <option value="FAIBLE"> Faible</option>
               </select>
@@ -131,7 +131,7 @@ export default function WorkspacesPage() {
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="text-sm text-gray-600">eleve</div>
+            <div className="text-sm text-gray-600">élevé</div>
             <div className="text-2xl font-bold text-orange-600">
               {workspaces.filter((w) => w.urgencyLevel === "ELEVE").length}
             </div>
@@ -157,7 +157,7 @@ export default function WorkspacesPage() {
               href="/workspaces/new"
               className="inline-block mt-4 text-blue-600 hover:text-blue-700 font-medium"
             >
-              Creer votre premier dossier [Next]
+              Créer votre premier dossier [Next]
             </Link>
           </div>
         ) : (

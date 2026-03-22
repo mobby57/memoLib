@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -25,7 +25,7 @@ export default function SettingsPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Parametres Plateforme</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Paramètres Plateforme</h1>
           <p className="text-gray-600 mt-2">Configuration globale</p>
         </div>
 

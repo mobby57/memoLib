@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -52,7 +52,7 @@ export default function CalendrierPage() {
       startTime: '10:00',
       endTime: '11:00',
       type: 'rendez-vous',
-      description: 'Premiere consultation contentieux commercial',
+      description: 'Première consultation contentieux commercial',
       client: 'Sophie Bernard',
       location: 'Cabinet - Salle 2',
     },
@@ -139,7 +139,7 @@ export default function CalendrierPage() {
       showToast('�v�nement modifi� avec succ�s', 'success');
     } else {
       setEvents([...events, eventData]);
-      showToast('evenement ajoute avec succes', 'success');
+      showToast('événement ajoute avec succès', 'success');
     }
 
     setIsModalOpen(false);
@@ -167,9 +167,9 @@ export default function CalendrierPage() {
   };
 
   const handleDeleteEvent = (eventId: string) => {
-    if (confirm('Voulez-vous vraiment supprimer cet evenement ?')) {
+    if (confirm('Voulez-vous vraiment supprimer cet événement ?')) {
       setEvents(events.filter(e => e.id !== eventId));
-      showToast('evenement supprime', 'success');
+      showToast('événement supprime', 'success');
       setIsEventDetailOpen(false);
     }
   };
@@ -201,7 +201,7 @@ export default function CalendrierPage() {
           Calendrier & echeances
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Gerez vos rendez-vous, audiences et echeances juridiques
+          Gérez vos rendez-vous, audiences et echeances juridiques
         </p>
       </div>
 
@@ -216,7 +216,7 @@ export default function CalendrierPage() {
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {upcomingEvents}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">evenements a venir</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">événements a venir</div>
             </div>
           </div>
         </Card>
@@ -252,7 +252,7 @@ export default function CalendrierPage() {
             </div>
             <div>
               <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                Prochain evenement
+                Prochain événement
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400">
                 {nextEvent ? (
@@ -262,7 +262,7 @@ export default function CalendrierPage() {
                     {nextEvent.date.toLocaleDateString('fr-FR')}
                   </>
                 ) : (
-                  'Aucun evenement'
+                  'Aucun événement'
                 )}
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function CalendrierPage() {
       {urgentEvents > 0 && (
         <Alert variant="warning" className="mb-6">
           <AlertTriangle className="h-5 w-5" />
-          Vous avez <strong>{urgentEvents}</strong> evenement{urgentEvents > 1 ? 's' : ''} urgent
+          Vous avez <strong>{urgentEvents}</strong> événement{urgentEvents > 1 ? 's' : ''} urgent
           {urgentEvents > 1 ? 's' : ''} dans les 3 prochains jours !
         </Alert>
       )}
@@ -286,11 +286,11 @@ export default function CalendrierPage() {
         onAddEvent={handleAddEvent}
       />
 
-      {/* Modal d'ajout d'evenement */}
+      {/* Modal d'ajout d'événement */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Ajouter un evenement"
+        title="Ajouter un événement"
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Input
@@ -339,7 +339,7 @@ export default function CalendrierPage() {
               {...register('description')}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              placeholder="Details supplementaires..."
+              placeholder="Details supplémentaires..."
             />
           </div>
 
@@ -363,17 +363,17 @@ export default function CalendrierPage() {
             <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>
               Annuler
             </Button>
-            <Button type="submit">Ajouter l'evenement</Button>
+            <Button type="submit">Ajouter l'événement</Button>
           </div>
         </form>
       </Modal>
 
-      {/* Modal details evenement */}
+      {/* Modal details événement */}
       {selectedEvent && (
         <Modal
           isOpen={isEventDetailOpen}
           onClose={() => setIsEventDetailOpen(false)}
-          title="Details de l'evenement"
+          title="Details de l'événement"
         >
           <div className="space-y-4">
             <div>

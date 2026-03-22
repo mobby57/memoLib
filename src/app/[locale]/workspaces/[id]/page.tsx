@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -23,7 +23,7 @@ export default function NewWorkspacePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.procedureType) {
-      setErrorMessage("Veuillez selectionner un type de procedure")
+      setErrorMessage("Veuillez sélectionner un type de procédure")
       return
     }
 
@@ -67,7 +67,7 @@ export default function NewWorkspacePage() {
                 }
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Selectionner...</option>
+                <option value="">Sélectionner...</option>
                 <option value="sans_delai">Sans delai (48h)</option>
                 <option value="avec_delai">Avec delai de depart volontaire (30j)</option>
               </select>
@@ -148,14 +148,14 @@ export default function NewWorkspacePage() {
                 }
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Selectionner...</option>
+                <option value="">Sélectionner...</option>
                 <option value="OFPRA">OFPRA</option>
                 <option value="CNDA">CNDA</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Numero OFPRA/CNDA
+                Numéro OFPRA/CNDA
               </label>
               <input
                 type="text"
@@ -208,7 +208,7 @@ export default function NewWorkspacePage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Nouveau Dossier CESDA</h1>
           <p className="text-gray-600 mt-1">
-            Creer un nouveau dossier de contentieux des etrangers
+            Créer un nouveau dossier de contentieux des etrangers
           </p>
         </div>
 
@@ -219,10 +219,10 @@ export default function NewWorkspacePage() {
             </div>
           )}
 
-          {/* Type de procedure */}
+          {/* Type de procédure */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Type de procedure *
+              Type de procédure *
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {(Object.keys(PROCEDURE_COLORS) as ProcedureType[]).map((type) => (
@@ -289,11 +289,11 @@ export default function NewWorkspacePage() {
             />
           </div>
 
-          {/* Metadata fields based on procedure type */}
+          {/* Metadata fields based on procédure type */}
           {formData.procedureType && (
             <div className="border-t pt-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Informations specifiques
+                Informations spécifiques
               </h3>
               {renderMetadataFields()}
             </div>
@@ -313,7 +313,7 @@ export default function NewWorkspacePage() {
               disabled={loading}
               className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
-              {loading ? "Creation..." : "Creer le dossier"}
+              {loading ? "Creation..." : "Créer le dossier"}
             </button>
           </div>
         </form>

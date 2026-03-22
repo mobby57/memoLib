@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -24,7 +24,7 @@ interface FormData {
   email: string
   password: string
   confirmPassword: string
-  telephone: string
+  téléphone: string
 
   // Informations cabinet
   cabinetNom: string
@@ -83,7 +83,7 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    telephone: '',
+    téléphone: '',
     cabinetNom: '',
     numeroBarreau: '',
     adresse: '',
@@ -301,8 +301,8 @@ export default function RegisterPage() {
                 </label>
                 <input
                   type="tel"
-                  value={formData.telephone}
-                  onChange={(e) => updateField('telephone', e.target.value)}
+                  value={formData.téléphone}
+                  onChange={(e) => updateField('téléphone', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   placeholder="06 12 34 56 78"
                 />

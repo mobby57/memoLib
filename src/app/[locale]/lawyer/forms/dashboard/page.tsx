@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -263,7 +263,7 @@ export default function FormsDashboardPage() {
                         </span>
                       </div>
                       <p className="text-sm text-orange-600 mt-1">
-                         echeance: {new Date(approval.dueDate).toLocaleDateString('fr-FR')}
+                         échéance: {new Date(approval.dueDate).toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                     <div className="flex gap-2">
@@ -359,7 +359,7 @@ export default function FormsDashboardPage() {
                   <h3 className="font-semibold mb-3">Delai Moyen d'Approbation</h3>
                   <div className="text-4xl font-bold">4.2 jours</div>
                   <p className="text-sm text-gray-600 mt-2">
-                    -15% vs mois precedent
+                    -15% vs mois précédent
                   </p>
                 </div>
               </div>

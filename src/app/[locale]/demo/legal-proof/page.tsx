@@ -7,7 +7,7 @@ import { Scale, FileCheck, Download, Eye, Shield, CheckCircle } from 'lucide-rea
 const DEMO_STEPS = [
   { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
   { id: 2, label: 'Raisonnement dossier', href: '/demo/workspace-reasoning' },
-  { id: 3, label: 'Preuve légale', href: '/demo/legal-proof' },
+  { id: 3, label: 'Preuve légale', href: '/demo/légal-proof' },
 ];
 
 const LEGAL_DOCUMENTS = [

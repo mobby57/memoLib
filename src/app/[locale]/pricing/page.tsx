@@ -1,9 +1,9 @@
-﻿'use client';
+'use client';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Page Tarifs - Presentation des plans et fonctionnalites
+ * Page Tarifs - Presentation des plans et fonctionnalités
  */
 
 import {
@@ -108,7 +108,7 @@ const PLANS = [
       { name: 'Support 24/7 dedie', included: true },
       { name: 'Multi-utilisateurs', included: true },
       { name: 'Workflows avances', included: true },
-      { name: 'API PISTE integree', included: true },
+      { name: 'API PISTE intégrée', included: true },
       { name: 'Formation sur site', included: true },
     ],
   },
@@ -124,7 +124,7 @@ const FEATURES_DETAILS = [
   {
     icon: FileText,
     title: 'Gestion Documentaire',
-    description: 'Stockage securise, OCR, recherche dans le contenu des documents',
+    description: 'Stockage sécurisé, OCR, recherche dans le contenu des documents',
   },
   {
     icon: Users,
@@ -133,8 +133,8 @@ const FEATURES_DETAILS = [
   },
   {
     icon: Shield,
-    title: 'Securite RGPD',
-    description: 'Chiffrement bout en bout, hebergement en France, conformite totale',
+    title: 'Sécurité RGPD',
+    description: 'Chiffrement bout en bout, hebergement en France, conformité totale',
   },
   {
     icon: Clock,
@@ -144,7 +144,7 @@ const FEATURES_DETAILS = [
   {
     icon: Headphones,
     title: 'Support Reactif',
-    description: 'Equipe francaise disponible par email, chat et telephone',
+    description: 'Equipe francaise disponible par email, chat et téléphone',
   },
 ];
 
@@ -178,7 +178,7 @@ export default function PricingPage() {
           Tarifs simples et transparents
         </h1>
         <p className="text-xl text-blue-200 max-w-2xl mx-auto mb-8">
-          Choisissez le plan adapte a la taille de votre cabinet. Tous les plans incluent 14 jours
+          Choisissez le plan adapte à la taille de votre cabinet. Tous les plans incluent 14 jours
           d'essai gratuit.
         </p>
         <div className="inline-flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full text-sm">
@@ -250,7 +250,7 @@ export default function PricingPage() {
                           : 'bg-white/10 text-white hover:bg-white/20'
                     }`}
                   >
-                    {plan.price === 0 ? 'Demarrer le pilote gratuit' : "Commencer l'essai gratuit"}
+                    {plan.price === 0 ? 'Démarrer le pilote gratuit' : "Commencer l'essai gratuit"}
                   </Link>
 
                   {/* Features */}
@@ -279,7 +279,7 @@ export default function PricingPage() {
       <div className="bg-white/5 border-t border-white/10 py-16">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-white text-center mb-12">
-            Toutes les fonctionnalites incluses
+            Toutes les fonctionnalités incluses
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {FEATURES_DETAILS.map((feature, index) => {
@@ -312,7 +312,7 @@ export default function PricingPage() {
               },
               {
                 q: 'Les donnees sont-elles securisees ?',
-                a: 'Absolument. Toutes les donnees sont chiffrees et hebergees en France, en conformite avec le RGPD.',
+                a: 'Absolument. Toutes les donnees sont chiffrees et hebergees en France, en conformité avec le RGPD.',
               },
               {
                 q: 'Y a-t-il un engagement ?',
@@ -320,7 +320,7 @@ export default function PricingPage() {
               },
               {
                 q: "Comment fonctionne l'essai gratuit ?",
-                a: "Vous beneficiez de 14 jours d'acces complet sans carte bancaire. A la fin, vous choisissez votre plan.",
+                a: "Vous beneficiez de 14 jours d'accès complet sans carte bancaire. A la fin, vous choisissez votre plan.",
               },
             ].map((faq, index) => (
               <div key={index} className="bg-white/5 rounded-xl p-6 border border-white/10">

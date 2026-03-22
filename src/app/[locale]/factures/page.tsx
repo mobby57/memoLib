@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with useSession hook
 export const dynamic = 'force-dynamic';
@@ -35,7 +35,7 @@ import { z } from 'zod';
 
 interface Facture {
   id: string;
-  numero: string;
+  numéro: string;
   client: string;
   dossier?: string;
   montantHT: number;
@@ -47,14 +47,14 @@ interface Facture {
 }
 
 const factureSchema = z.object({
-  numero: z.string().min(1, 'Numero requis'),
+  numéro: z.string().min(1, 'Numéro requis'),
   client: z.string().min(1, 'Client requis'),
   dossier: z.string().optional(),
   montantHT: z.string().min(1, 'Montant HT requis'),
   tauxTVA: z.string().min(1, 'Taux TVA requis'),
   statut: z.enum(['brouillon', 'envoyee', 'payee', 'en_retard', 'annulee']),
   dateEmission: z.string().min(1, "Date d'emission requise"),
-  dateEcheance: z.string().min(1, "Date d'echeance requise"),
+  dateEcheance: z.string().min(1, "Date d'échéance requise"),
   datePaiement: z.string().optional(),
 });
 
@@ -63,7 +63,7 @@ type FactureFormData = z.infer<typeof factureSchema>;
 const mockFactures: Facture[] = [
   {
     id: '1',
-    numero: 'FACT-2024-001',
+    numéro: 'FACT-2024-001',
     client: 'SARL Martin',
     dossier: 'DOS-2024-001',
     montantHT: 1500,
@@ -75,7 +75,7 @@ const mockFactures: Facture[] = [
   },
   {
     id: '2',
-    numero: 'FACT-2024-002',
+    numéro: 'FACT-2024-002',
     client: 'SAS TechCorp',
     dossier: 'DOS-2024-002',
     montantHT: 2200,
@@ -86,7 +86,7 @@ const mockFactures: Facture[] = [
   },
   {
     id: '3',
-    numero: 'FACT-2024-003',
+    numéro: 'FACT-2024-003',
     client: 'EURL Dupont',
     montantHT: 850,
     montantTTC: 1020,
@@ -96,7 +96,7 @@ const mockFactures: Facture[] = [
   },
   {
     id: '4',
-    numero: 'FACT-2024-004',
+    numéro: 'FACT-2024-004',
     client: 'SCI Investissement',
     dossier: 'DOS-2024-004',
     montantHT: 3500,
@@ -107,7 +107,7 @@ const mockFactures: Facture[] = [
   },
   {
     id: '5',
-    numero: 'FACT-2023-125',
+    numéro: 'FACT-2023-125',
     client: 'M. Bernard',
     dossier: 'DOS-2023-125',
     montantHT: 1200,
@@ -119,7 +119,7 @@ const mockFactures: Facture[] = [
   },
   {
     id: '6',
-    numero: 'FACT-2024-005',
+    numéro: 'FACT-2024-005',
     client: 'SARL Dubois',
     montantHT: 1800,
     montantTTC: 2160,
@@ -129,7 +129,7 @@ const mockFactures: Facture[] = [
   },
   {
     id: '7',
-    numero: 'FACT-2024-006',
+    numéro: 'FACT-2024-006',
     client: 'Entreprise ABC',
     dossier: 'DOS-2024-006',
     montantHT: 2500,
@@ -140,7 +140,7 @@ const mockFactures: Facture[] = [
   },
   {
     id: '8',
-    numero: 'FACT-2024-007',
+    numéro: 'FACT-2024-007',
     client: 'Client XYZ',
     montantHT: 950,
     montantTTC: 1140,
@@ -203,7 +203,7 @@ export default function FacturesPage() {
   const filteredFactures = useMemo(() => {
     return factures.filter(facture => {
       const matchSearch =
-        facture.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        facture.numéro.toLowerCase().includes(searchTerm.toLowerCase()) ||
         facture.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
         facture.dossier?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -240,7 +240,7 @@ export default function FacturesPage() {
   const openCreateModal = () => {
     setEditingFacture(null);
     reset({
-      numero: '',
+      numéro: '',
       client: '',
       dossier: '',
       montantHT: '',
@@ -256,7 +256,7 @@ export default function FacturesPage() {
   const openEditModal = (facture: Facture) => {
     setEditingFacture(facture);
     reset({
-      numero: facture.numero,
+      numéro: facture.numéro,
       client: facture.client,
       dossier: facture.dossier || '',
       montantHT: facture.montantHT.toString(),
@@ -290,7 +290,7 @@ export default function FacturesPage() {
       addToast({
         variant: 'success',
         title: 'Facture modifiee',
-        message: `La facture ${data.numero} a ete modifiee avec succes.`,
+        message: `La facture ${data.numéro} a été modifiee avec succès.`,
       });
     } else {
       const newFacture: Facture = {
@@ -303,7 +303,7 @@ export default function FacturesPage() {
       addToast({
         variant: 'success',
         title: 'Facture creee',
-        message: `La facture ${data.numero} a ete creee avec succes.`,
+        message: `La facture ${data.numéro} a été creee avec succès.`,
       });
     }
     setIsCreateModalOpen(false);
@@ -311,12 +311,12 @@ export default function FacturesPage() {
 
   const deleteFacture = (id: string) => {
     const facture = factures.find(f => f.id === id);
-    if (window.confirm(`etes-vous sur de vouloir supprimer la facture ${facture?.numero} ?`)) {
+    if (window.confirm(`etes-vous sur de vouloir supprimer la facture ${facture?.numéro} ?`)) {
       setFactures(prev => prev.filter(f => f.id !== id));
       addToast({
         variant: 'info',
         title: 'Facture supprimee',
-        message: `La facture ${facture?.numero} a ete supprimee.`,
+        message: `La facture ${facture?.numéro} a été supprimee.`,
       });
     }
   };
@@ -324,17 +324,17 @@ export default function FacturesPage() {
   const exportData = () => {
     // Export CSV functionality
     const headers = [
-      'Numero',
+      'Numéro',
       'Client',
       'Dossier',
       'Montant HT',
       'Montant TTC',
       'Statut',
       'Date Emission',
-      'Date Echeance',
+      'Date Ã‰chéance',
     ];
     const rows = filteredFactures.map(f => [
-      f.numero,
+      f.numéro,
       f.client,
       f.dossier || '',
       f.montantHT.toFixed(2),
@@ -366,7 +366,7 @@ export default function FacturesPage() {
       addToast({
         variant: 'success',
         title: 'Facture envoyee',
-        message: `La facture ${facture.numero} a ete envoyee au client.`,
+        message: `La facture ${facture.numéro} a été envoyee au client.`,
       });
     }
   };
@@ -387,7 +387,7 @@ export default function FacturesPage() {
       addToast({
         variant: 'success',
         title: 'Paiement enregistre',
-        message: `La facture ${facture.numero} a ete marquee comme payee.`,
+        message: `La facture ${facture.numéro} a été marquee comme payee.`,
       });
     }
   };
@@ -396,7 +396,7 @@ export default function FacturesPage() {
     addToast({
       variant: 'info',
       title: 'Relance envoyee',
-      message: `Une relance a ete envoyee pour la facture ${facture.numero}.`,
+      message: `Une relance a été envoyee pour la facture ${facture.numéro}.`,
     });
   };
 
@@ -405,7 +405,7 @@ export default function FacturesPage() {
   };
 
   const columns = [
-    { accessor: 'numero' as const, header: 'Numero' },
+    { accessor: 'numéro' as const, header: 'Numéro' },
     { accessor: 'client' as const, header: 'Client' },
     {
       accessor: 'dossier' as const,
@@ -430,7 +430,7 @@ export default function FacturesPage() {
       ),
     },
     { accessor: 'dateEmission' as const, header: 'Date emission' },
-    { accessor: 'dateEcheance' as const, header: 'Date echeance' },
+    { accessor: 'dateEcheance' as const, header: 'Date échéance' },
     {
       accessor: 'id' as const,
       header: 'Actions',
@@ -668,7 +668,7 @@ export default function FacturesPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Rechercher par numero, client ou dossier..."
+              placeholder="Rechercher par numéro, client ou dossier..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -689,7 +689,7 @@ export default function FacturesPage() {
         </div>
         {(searchTerm || filterStatut !== 'all') && (
           <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-            {filteredFactures.length} resultat(s) trouve(s)
+            {filteredFactures.length} résultat(s) trouve(s)
           </div>
         )}
       </Card>
@@ -714,20 +714,20 @@ export default function FacturesPage() {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title={editingFacture ? 'Modifier la facture' : 'Creer une facture'}
+        title={editingFacture ? 'Modifier la facture' : 'Créer une facture'}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Numero *
+                Numéro *
               </label>
               <input
-                {...register('numero')}
+                {...register('numéro')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
-              {errors.numero && (
-                <p className="mt-1 text-sm text-red-600">{errors.numero.message}</p>
+              {errors.numéro && (
+                <p className="mt-1 text-sm text-red-600">{errors.numéro.message}</p>
               )}
             </div>
 
@@ -832,7 +832,7 @@ export default function FacturesPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Date echeance *
+                Date échéance *
               </label>
               <input
                 type="date"
@@ -868,7 +868,7 @@ export default function FacturesPage() {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              {editingFacture ? 'Modifier' : 'Creer'}
+              {editingFacture ? 'Modifier' : 'Créer'}
             </button>
           </div>
         </form>

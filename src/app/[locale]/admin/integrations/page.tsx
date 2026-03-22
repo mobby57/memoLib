@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -28,10 +28,10 @@ import {
 import ConsentModal, { IntegrationConsent } from '@/components/integrations/ConsentModal';
 
 /**
- * Integrations Dashboard - GDPR Compliant
+ * Intégrations Dashboard - GDPR Compliant
  * 
  * Features:
- * - Connected integrations management
+ * - Connected intégrations management
  * - Data access audit log
  * - Consent management (revoke/modify)
  * - DPA agreement tracking
@@ -40,7 +40,7 @@ import ConsentModal, { IntegrationConsent } from '@/components/integrations/Cons
  * - Security monitoring
  */
 
-interface Integration {
+interface Intégration {
     id: string;
     provider: 'gmail' | 'outlook' | 'calendar' | 'slack' | 'hubspot' | 'salesforce';
     providerName: string;
@@ -49,7 +49,7 @@ interface Integration {
     lastSyncAt?: Date;
     scopes: string[];
     dataAccess: {
-        categories: string[];
+        catégories: string[];
         lastAccessedAt?: Date;
         accessCount: number;
     };
@@ -72,7 +72,7 @@ interface Integration {
 interface AuditLogEntry {
     id: string;
     action: string;
-    integration: string;
+    intégration: string;
     timestamp: Date;
     details: string;
     ipAddress?: string;
@@ -81,12 +81,12 @@ interface AuditLogEntry {
 export default function IntegrationsPage() {
     const { data: session } = useSession();
     const [loading, setLoading] = useState(true);
-    const [integrations, setIntegrations] = useState<Integration[]>([]);
+    const [intégrations, setIntegrations] = useState<Intégration[]>([]);
     const [auditLog, setAuditLog] = useState<AuditLogEntry[]>([]);
     const [selectedIntegration, setSelectedIntegration] = useState<string | null>(null);
     const [showConsentModal, setShowConsentModal] = useState(false);
     const [consentConfig, setConsentConfig] = useState<IntegrationConsent | null>(null);
-    const [activeTab, setActiveTab] = useState<'integrations' | 'audit' | 'webhooks' | 'security'>('integrations');
+    const [activeTab, setActiveTab] = useState<'intégrations' | 'audit' | 'webhooks' | 'security'>('intégrations');
 
     useEffect(() => {
         if (session) {
@@ -97,11 +97,11 @@ export default function IntegrationsPage() {
 
     const loadIntegrations = async () => {
         try {
-            const response = await fetch('/api/integrations');
+            const response = await fetch('/api/intégrations');
             const data = await response.json();
-            setIntegrations(data.integrations || []);
+            setIntegrations(data.intégrations || []);
         } catch (error) {
-            console.error('Failed to load integrations:', error);
+            console.error('Failed to load intégrations:', error);
         } finally {
             setLoading(false);
         }
@@ -109,7 +109,7 @@ export default function IntegrationsPage() {
 
     const loadAuditLog = async () => {
         try {
-            const response = await fetch('/api/integrations/audit');
+            const response = await fetch('/api/intégrations/audit');
             const data = await response.json();
             setAuditLog(data.logs || []);
         } catch (error) {
@@ -129,7 +129,7 @@ export default function IntegrationsPage() {
 
         try {
             // Initiate OAuth flow
-            const response = await fetch('/api/integrations/connect', {
+            const response = await fetch('/api/intégrations/connect', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -145,7 +145,7 @@ export default function IntegrationsPage() {
                 window.location.href = data.authUrl;
             }
         } catch (error) {
-            console.error('Failed to connect integration:', error);
+            console.error('Failed to connect intégration:', error);
         } finally {
             setShowConsentModal(false);
         }
@@ -157,35 +157,35 @@ export default function IntegrationsPage() {
         }
 
         try {
-            await fetch(`/api/integrations/${integrationId}`, {
+            await fetch(`/api/intégrations/${integrationId}`, {
                 method: 'DELETE',
             });
             loadIntegrations();
             loadAuditLog();
         } catch (error) {
-            console.error('Failed to disconnect integration:', error);
+            console.error('Failed to disconnect intégration:', error);
         }
     };
 
     const handleSync = async (integrationId: string) => {
         try {
-            await fetch(`/api/integrations/${integrationId}/sync`, {
+            await fetch(`/api/intégrations/${integrationId}/sync`, {
                 method: 'POST',
             });
             loadIntegrations();
         } catch (error) {
-            console.error('Failed to sync integration:', error);
+            console.error('Failed to sync intégration:', error);
         }
     };
 
     const exportData = async (integrationId: string) => {
         try {
-            const response = await fetch(`/api/integrations/${integrationId}/export`);
+            const response = await fetch(`/api/intégrations/${integrationId}/export`);
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `integration-data-${integrationId}.json`;
+            a.download = `intégration-data-${integrationId}.json`;
             a.click();
         } catch (error) {
             console.error('Failed to export data:', error);
@@ -214,8 +214,8 @@ export default function IntegrationsPage() {
                 {/* Tabs */}
                 <div className="flex gap-2 mb-6 border-b border-gray-200">
                     <TabButton
-                        active={activeTab === 'integrations'}
-                        onClick={() => setActiveTab('integrations')}
+                        active={activeTab === 'intégrations'}
+                        onClick={() => setActiveTab('intégrations')}
                         icon={<Zap className="w-4 h-4" />}
                         label="Intégrations"
                     />
@@ -239,10 +239,10 @@ export default function IntegrationsPage() {
                     />
                 </div>
 
-                {/* Integrations Tab */}
-                {activeTab === 'integrations' && (
+                {/* Intégrations Tab */}
+                {activeTab === 'intégrations' && (
                     <div className="space-y-6">
-                        {/* Available Integrations */}
+                        {/* Available Intégrations */}
                         <div className="bg-white rounded-lg shadow p-6">
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">
                                 Intégrations disponibles
@@ -253,7 +253,7 @@ export default function IntegrationsPage() {
                                     description="Synchronisez vos emails Gmail"
                                     icon={<Mail className="w-8 h-8 text-red-500" />}
                                     provider="gmail"
-                                    status={integrations.find(i => i.provider === 'gmail')?.status}
+                                    status={intégrations.find(i => i.provider === 'gmail')?.status}
                                     onConnect={() => handleConnectIntegration('gmail')}
                                 />
                                 <IntegrationCard
@@ -261,7 +261,7 @@ export default function IntegrationsPage() {
                                     description="Synchronisez vos emails Outlook"
                                     icon={<Mail className="w-8 h-8 text-blue-500" />}
                                     provider="outlook"
-                                    status={integrations.find(i => i.provider === 'outlook')?.status}
+                                    status={intégrations.find(i => i.provider === 'outlook')?.status}
                                     onConnect={() => handleConnectIntegration('outlook')}
                                 />
                                 <IntegrationCard
@@ -269,7 +269,7 @@ export default function IntegrationsPage() {
                                     description="Gérez vos événements"
                                     icon={<Calendar className="w-8 h-8 text-green-500" />}
                                     provider="calendar"
-                                    status={integrations.find(i => i.provider === 'calendar')?.status}
+                                    status={intégrations.find(i => i.provider === 'calendar')?.status}
                                     onConnect={() => handleConnectIntegration('calendar')}
                                 />
                                 <IntegrationCard
@@ -277,7 +277,7 @@ export default function IntegrationsPage() {
                                     description="Notifications et alertes"
                                     icon={<MessageSquare className="w-8 h-8 text-purple-500" />}
                                     provider="slack"
-                                    status={integrations.find(i => i.provider === 'slack')?.status}
+                                    status={intégrations.find(i => i.provider === 'slack')?.status}
                                     onConnect={() => handleConnectIntegration('slack')}
                                 />
                                 <IntegrationCard
@@ -285,7 +285,7 @@ export default function IntegrationsPage() {
                                     description="CRM et contacts"
                                     icon={<Users className="w-8 h-8 text-orange-500" />}
                                     provider="hubspot"
-                                    status={integrations.find(i => i.provider === 'hubspot')?.status}
+                                    status={intégrations.find(i => i.provider === 'hubspot')?.status}
                                     onConnect={() => handleConnectIntegration('hubspot')}
                                 />
                                 <IntegrationCard
@@ -293,31 +293,31 @@ export default function IntegrationsPage() {
                                     description="CRM d'entreprise"
                                     icon={<Users className="w-8 h-8 text-blue-600" />}
                                     provider="salesforce"
-                                    status={integrations.find(i => i.provider === 'salesforce')?.status}
+                                    status={intégrations.find(i => i.provider === 'salesforce')?.status}
                                     onConnect={() => handleConnectIntegration('salesforce')}
                                 />
                             </div>
                         </div>
 
-                        {/* Connected Integrations */}
+                        {/* Connected Intégrations */}
                         <div className="bg-white rounded-lg shadow p-6">
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">
                                 Intégrations connectées
                             </h2>
-                            {integrations.length === 0 ? (
+                            {intégrations.length === 0 ? (
                                 <p className="text-gray-500 text-center py-8">
                                     Aucune intégration connectée
                                 </p>
                             ) : (
                                 <div className="space-y-4">
-                                    {integrations.map((integration) => (
+                                    {intégrations.map((intégration) => (
                                         <ConnectedIntegration
-                                            key={integration.id}
-                                            integration={integration}
-                                            onDisconnect={() => handleDisconnect(integration.id)}
-                                            onSync={() => handleSync(integration.id)}
-                                            onExport={() => exportData(integration.id)}
-                                            onViewDetails={() => setSelectedIntegration(integration.id)}
+                                            key={intégration.id}
+                                            intégration={intégration}
+                                            onDisconnect={() => handleDisconnect(intégration.id)}
+                                            onSync={() => handleSync(intégration.id)}
+                                            onExport={() => exportData(intégration.id)}
+                                            onViewDetails={() => setSelectedIntegration(intégration.id)}
                                         />
                                     ))}
                                 </div>
@@ -363,7 +363,7 @@ export default function IntegrationsPage() {
                                                 {entry.action}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {entry.integration}
+                                                {entry.intégration}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-600">
                                                 {entry.details}
@@ -421,7 +421,7 @@ function TabButton({
     );
 }
 
-// Integration Card Component
+// Intégration Card Component
 function IntegrationCard({
     name,
     description,
@@ -461,15 +461,15 @@ function IntegrationCard({
     );
 }
 
-// Connected Integration Component
+// Connected Intégration Component
 function ConnectedIntegration({
-    integration,
+    intégration,
     onDisconnect,
     onSync,
     onExport,
     onViewDetails,
 }: {
-    integration: Integration;
+    intégration: Intégration;
     onDisconnect: () => void;
     onSync: () => void;
     onExport: () => void;
@@ -479,16 +479,16 @@ function ConnectedIntegration({
         <div className="border border-gray-200 rounded-lg p-6">
             <div className="flex items-start justify-between mb-4">
                 <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{integration.providerName}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{intégration.providerName}</h3>
                     <p className="text-sm text-gray-600">
-                        Connecté le {integration.connectedAt ? new Date(integration.connectedAt).toLocaleDateString('fr-FR') : '-'}
+                        Connecté le {intégration.connectedAt ? new Date(intégration.connectedAt).toLocaleDateString('fr-FR') : '-'}
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
-                    {integration.status === 'connected' && (
+                    {intégration.status === 'connected' && (
                         <CheckCircle className="w-5 h-5 text-green-500" />
                     )}
-                    {integration.status === 'error' && (
+                    {intégration.status === 'error' && (
                         <XCircle className="w-5 h-5 text-red-500" />
                     )}
                 </div>
@@ -499,19 +499,19 @@ function ConnectedIntegration({
                 <div>
                     <p className="text-xs text-gray-500">Dernière synchro</p>
                     <p className="text-sm font-medium text-gray-900">
-                        {integration.lastSyncAt ? new Date(integration.lastSyncAt).toLocaleDateString('fr-FR') : 'Jamais'}
+                        {intégration.lastSyncAt ? new Date(intégration.lastSyncAt).toLocaleDateString('fr-FR') : 'Jamais'}
                     </p>
                 </div>
                 <div>
                     <p className="text-xs text-gray-500">Accès données</p>
                     <p className="text-sm font-medium text-gray-900">
-                        {integration.dataAccess.accessCount} fois
+                        {intégration.dataAccess.accessCount} fois
                     </p>
                 </div>
                 <div>
                     <p className="text-xs text-gray-500">Rate Limit</p>
                     <p className="text-sm font-medium text-gray-900">
-                        {integration.rateLimit.current}/{integration.rateLimit.limit}
+                        {intégration.rateLimit.current}/{intégration.rateLimit.limit}
                     </p>
                 </div>
             </div>
@@ -593,12 +593,12 @@ function getConsentConfig(provider: string): IntegrationConsent {
                 },
             ],
             dataProcessingAgreement: {
-                url: '/legal/dpa-gmail.pdf',
+                url: '/légal/dpa-gmail.pdf',
                 version: '2.1',
                 effectiveDate: new Date('2024-01-01'),
             },
-            privacyPolicy: '/legal/privacy',
-            termsOfService: '/legal/terms',
+            privacyPolicy: '/légal/privacy',
+            termsOfService: '/légal/terms',
         },
     };
 

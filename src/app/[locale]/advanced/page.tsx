@@ -1,5 +1,5 @@
-﻿/**
- * Page de demonstration des fonctionnalites avancees
+/**
+ * Page de demonstration des fonctionnalités avancees
  * Recherche semantique, Suggestions, Analytics
  */
 
@@ -38,7 +38,7 @@ export default function AdvancedFeaturesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white">Fonctionnalites Avancees IA</h1>
+              <h1 className="text-3xl font-bold text-white">Fonctionnalités Avancees IA</h1>
               <p className="text-blue-100 mt-1">
                 Apprentissage continu, Suggestions intelligentes, Recherche semantique
               </p>
@@ -98,19 +98,19 @@ export default function AdvancedFeaturesPage() {
             <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-2">Apprentissage Continu</h2>
               <p className="text-gray-700">
-                Le systeme analyse chaque validation humaine pour ameliorer ses predictions. Plus
+                Le système analyse chaque validation humaine pour ameliorer ses predictions. Plus
                 vous validez, plus le syst�me devient pr�cis et adapt� � votre cabinet.
               </p>
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4">
                   <div className="text-sm text-gray-600">Ajustement automatique</div>
                   <div className="text-lg font-bold text-green-600">+5% confiance</div>
-                  <div className="text-xs text-gray-500">Actions &gt; 90% succes</div>
+                  <div className="text-xs text-gray-500">Actions &gt; 90% succès</div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
                   <div className="text-sm text-gray-600">Detection de baisse</div>
                   <div className="text-lg font-bold text-orange-600">-10% confiance</div>
-                  <div className="text-xs text-gray-500">Actions &lt; 70% succes</div>
+                  <div className="text-xs text-gray-500">Actions &lt; 70% succès</div>
                 </div>
                 <div className="bg-white rounded-lg p-4">
                   <div className="text-sm text-gray-600">Prediction d'approbation</div>
@@ -143,7 +143,7 @@ export default function AdvancedFeaturesPage() {
                 </div>
                 <div className="bg-white rounded-lg p-3 text-center">
                   <div className="text-2xl mb-1"></div>
-                  <div className="text-xs font-medium">echeances proches</div>
+                  <div className="text-xs font-medium">échéances proches</div>
                 </div>
                 <div className="bg-white rounded-lg p-3 text-center">
                   <div className="text-2xl mb-1"></div>
@@ -178,7 +178,7 @@ export default function AdvancedFeaturesPage() {
                   <div className="text-2xl mb-2"></div>
                   <div className="font-semibold text-gray-900 mb-1">Analyse de patterns</div>
                   <div className="text-sm text-gray-600">
-                    Documents communs, durees, taux de succes
+                    Documents communs, durees, taux de succès
                   </div>
                 </div>
                 <div className="bg-white rounded-lg p-4">

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -130,7 +130,7 @@ export default function WorkspacesPage() {
             <p className="text-gray-600">
               {searchQuery || filterState !== 'ALL'
                 ? 'Essayez de modifier vos filtres.'
-                : 'Creez votre premier workspace de raisonnement.'}
+                : 'Créez votre premier workspace de raisonnement.'}
             </p>
           </div>
         ) : (

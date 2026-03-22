@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -47,15 +47,15 @@ export default function NotificationsPage() {
     // Sauvegarder dans localStorage pour la demo
     safeLocalStorage.setItem('notification_config', JSON.stringify(config));
     
-    showToast('Parametres de notification sauvegardes', 'success');
+    showToast('Paramètres de notification sauvegardes', 'success');
     setIsSaving(false);
   };
 
-  const handleTestEmail = async (type: 'echeance' | 'facture' | 'summary') => {
+  const handleTestEmail = async (type: 'échéance' | 'facture' | 'summary') => {
     let template;
     
     switch (type) {
-      case 'echeance':
+      case 'échéance':
         template = generateEcheanceReminderEmail({
           titre: 'Depot des conclusions',
           date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
@@ -66,7 +66,7 @@ export default function NotificationsPage() {
       
       case 'facture':
         template = generateFactureOverdueEmail({
-          numero: 'FACT-2026-001',
+          numéro: 'FACT-2026-001',
           client: 'Martin Dupont',
           montant: 1500,
           dateEcheance: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -97,7 +97,7 @@ export default function NotificationsPage() {
       <Breadcrumb
         items={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Parametres', href: '/settings' },
+          { label: 'Paramètres', href: '/settings' },
           { label: 'Notifications', href: '/settings/notifications' }
         ]}
       />
@@ -113,10 +113,10 @@ export default function NotificationsPage() {
 
       <Alert variant="info" className="mb-6">
         <Bell className="h-5 w-5" />
-        Les notifications sont envoyees automatiquement selon vos preferences. Vous pouvez tester chaque type de notification ci-dessous.
+        Les notifications sont envoyees automatiquement selon vos préférences. Vous pouvez tester chaque type de notification ci-dessous.
       </Alert>
 
-      {/* Statut general */}
+      {/* Statut général */}
       <Card className="p-6 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -153,7 +153,7 @@ export default function NotificationsPage() {
         </div>
       </Card>
 
-      {/* Rappels d'echeances */}
+      {/* Rappels d'échéances */}
       <Card className="p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -162,7 +162,7 @@ export default function NotificationsPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Rappels d'echeances
+                Rappels d'échéances
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Recevez des rappels avant les dates limites importantes
@@ -170,26 +170,26 @@ export default function NotificationsPage() {
             </div>
           </div>
           <button
-            onClick={() => handleToggle(['triggers', 'echeances', 'enabled'])}
+            onClick={() => handleToggle(['triggers', 'échéances', 'enabled'])}
             className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-              config.triggers.echeances.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+              config.triggers.échéances.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
             }`}
           >
             <span
               className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                config.triggers.echeances.enabled ? 'translate-x-7' : 'translate-x-1'
+                config.triggers.échéances.enabled ? 'translate-x-7' : 'translate-x-1'
               }`}
             />
           </button>
         </div>
 
-        {config.triggers.echeances.enabled && (
+        {config.triggers.échéances.enabled && (
           <div className="space-y-3 pl-12">
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Rappels envoyes avant l'echeance:
+              Rappels envoyes avant l'échéance:
             </p>
             <div className="flex flex-wrap gap-2">
-              {config.triggers.echeances.daysBefore.map(days => (
+              {config.triggers.échéances.daysBefore.map(days => (
                 <span
                   key={days}
                   className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm"
@@ -201,7 +201,7 @@ export default function NotificationsPage() {
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => handleTestEmail('echeance')}
+              onClick={() => handleTestEmail('échéance')}
               className="mt-3"
             >
               <Send className="h-4 w-4 mr-2" />
@@ -244,7 +244,7 @@ export default function NotificationsPage() {
         {config.triggers.facturesOverdue.enabled && (
           <div className="space-y-3 pl-12">
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Relances envoyees apres l'echeance:
+              Relances envoyees après l'échéance:
             </p>
             <div className="flex flex-wrap gap-2">
               {config.triggers.facturesOverdue.daysAfter.map(days => (
@@ -252,7 +252,7 @@ export default function NotificationsPage() {
                   key={days}
                   className="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full text-sm"
                 >
-                  {days} jour{days > 1 ? 's' : ''} apres
+                  {days} jour{days > 1 ? 's' : ''} après
                 </span>
               ))}
             </div>
@@ -269,7 +269,7 @@ export default function NotificationsPage() {
         )}
       </Card>
 
-      {/* Resume hebdomadaire */}
+      {/* Résumé hebdomadaire */}
       <Card className="p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -278,10 +278,10 @@ export default function NotificationsPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Resume hebdomadaire
+                Résumé hebdomadaire
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Synthese de votre activite chaque semaine
+                Synthese de votre activité chaque semaine
               </p>
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function NotificationsPage() {
               className="mt-3"
             >
               <Send className="h-4 w-4 mr-2" />
-              Tester le resume
+              Tester le résumé
             </Button>
           </div>
         )}
@@ -331,13 +331,13 @@ export default function NotificationsPage() {
           ) : (
             <>
               <CheckCircle className="h-4 w-4 mr-2" />
-              Sauvegarder les parametres
+              Sauvegarder les paramètres
             </>
           )}
         </Button>
       </div>
 
-      {/* Informations supplementaires */}
+      {/* Informations supplémentaires */}
       <Card className="p-6 mt-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
         <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
           <Zap className="h-5 w-5" />

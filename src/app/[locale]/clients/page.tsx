@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -37,7 +37,7 @@ interface Client {
   nom: string;
   type: 'particulier' | 'entreprise';
   email: string;
-  telephone: string;
+  téléphone: string;
   adresse: string;
   ville: string;
   codePostal: string;
@@ -51,7 +51,7 @@ const clientSchema = z.object({
   nom: z.string().min(2, 'Nom requis (min 2 caracteres)'),
   type: z.enum(['particulier', 'entreprise']),
   email: z.string().email('Email invalide'),
-  telephone: z.string().min(10, 'Telephone invalide'),
+  téléphone: z.string().min(10, 'Téléphone invalide'),
   adresse: z.string().min(5, 'Adresse requise'),
   ville: z.string().min(2, 'Ville requise'),
   codePostal: z.string().min(5, 'Code postal requis'),
@@ -67,7 +67,7 @@ const mockClients: Client[] = [
     nom: 'SARL Martin',
     type: 'entreprise',
     email: 'contact@sarl-martin.fr',
-    telephone: '0145678901',
+    téléphone: '0145678901',
     adresse: '12 Rue de la Paix',
     ville: 'Paris',
     codePostal: '75001',
@@ -81,7 +81,7 @@ const mockClients: Client[] = [
     nom: 'SAS TechCorp',
     type: 'entreprise',
     email: 'info@techcorp.com',
-    telephone: '0198765432',
+    téléphone: '0198765432',
     adresse: '45 Avenue des Champs',
     ville: 'Lyon',
     codePostal: '69001',
@@ -95,7 +95,7 @@ const mockClients: Client[] = [
     nom: 'M. Dupont Jean',
     type: 'particulier',
     email: 'jean.dupont@email.com',
-    telephone: '0612345678',
+    téléphone: '0612345678',
     adresse: '8 Rue Victor Hugo',
     ville: 'Marseille',
     codePostal: '13001',
@@ -108,7 +108,7 @@ const mockClients: Client[] = [
     nom: 'SCI Investissement',
     type: 'entreprise',
     email: 'sci@invest.fr',
-    telephone: '0478901234',
+    téléphone: '0478901234',
     adresse: '23 Boulevard Haussmann',
     ville: 'Paris',
     codePostal: '75009',
@@ -122,7 +122,7 @@ const mockClients: Client[] = [
     nom: 'Mme Bernard Sophie',
     type: 'particulier',
     email: 'sophie.bernard@mail.com',
-    telephone: '0623456789',
+    téléphone: '0623456789',
     adresse: '15 Allee des Roses',
     ville: 'Toulouse',
     codePostal: '31000',
@@ -135,7 +135,7 @@ const mockClients: Client[] = [
     nom: 'EURL Conseil Plus',
     type: 'entreprise',
     email: 'contact@conseil-plus.fr',
-    telephone: '0467890123',
+    téléphone: '0467890123',
     adresse: '7 Place Bellecour',
     ville: 'Lyon',
     codePostal: '69002',
@@ -149,7 +149,7 @@ const mockClients: Client[] = [
     nom: 'M. Lefebvre Marc',
     type: 'particulier',
     email: 'marc.lefebvre@mail.fr',
-    telephone: '0634567890',
+    téléphone: '0634567890',
     adresse: '22 Rue Nationale',
     ville: 'Lille',
     codePostal: '59000',
@@ -162,7 +162,7 @@ const mockClients: Client[] = [
     nom: 'SAS Innovation Tech',
     type: 'entreprise',
     email: 'contact@innovation-tech.fr',
-    telephone: '0456789012',
+    téléphone: '0456789012',
     adresse: '88 Avenue de la Republique',
     ville: 'Bordeaux',
     codePostal: '33000',
@@ -176,7 +176,7 @@ const mockClients: Client[] = [
     nom: 'Mme Moreau Claire',
     type: 'particulier',
     email: 'claire.moreau@email.com',
-    telephone: '0645678901',
+    téléphone: '0645678901',
     adresse: '5 Impasse du Parc',
     ville: 'Nantes',
     codePostal: '44000',
@@ -189,7 +189,7 @@ const mockClients: Client[] = [
     nom: 'SARL Digital Services',
     type: 'entreprise',
     email: 'info@digital-services.fr',
-    telephone: '0423456789',
+    téléphone: '0423456789',
     adresse: '31 Boulevard Saint-Michel',
     ville: 'Nice',
     codePostal: '06000',
@@ -238,7 +238,7 @@ export default function ClientsPage() {
       'Nom',
       'Type',
       'Email',
-      'Telephone',
+      'Téléphone',
       'Adresse',
       'Ville',
       'Code Postal',
@@ -251,7 +251,7 @@ export default function ClientsPage() {
       c.nom,
       TYPE_LABELS[c.type],
       c.email,
-      c.telephone,
+      c.téléphone,
       c.adresse,
       c.ville,
       c.codePostal,
@@ -327,7 +327,7 @@ export default function ClientsPage() {
       nom: '',
       type: 'particulier',
       email: '',
-      telephone: '',
+      téléphone: '',
       adresse: '',
       ville: '',
       codePostal: '',
@@ -349,7 +349,7 @@ export default function ClientsPage() {
       addToast({
         variant: 'success',
         title: 'Client modifie',
-        message: `Le client ${data.nom} a ete modifie avec succes.`,
+        message: `Le client ${data.nom} a été modifie avec succès.`,
       });
     } else {
       const newClient: Client = {
@@ -362,7 +362,7 @@ export default function ClientsPage() {
       addToast({
         variant: 'success',
         title: 'Client cree',
-        message: `Le client ${data.nom} a ete cree avec succes.`,
+        message: `Le client ${data.nom} a été cree avec succès.`,
       });
     }
     setIsCreateModalOpen(false);
@@ -384,7 +384,7 @@ export default function ClientsPage() {
       addToast({
         variant: 'info',
         title: 'Client supprime',
-        message: `Le client ${client?.nom} a ete supprime.`,
+        message: `Le client ${client?.nom} a été supprime.`,
       });
     }
   };
@@ -420,7 +420,7 @@ export default function ClientsPage() {
           </div>
           <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
             <Phone className="w-3 h-3" />
-            <span>{row.telephone}</span>
+            <span>{row.téléphone}</span>
           </div>
         </div>
       ),
@@ -508,7 +508,7 @@ export default function ClientsPage() {
               Gestion des clients
             </h1>
             <p className="text-blue-100 mt-2 max-w-lg">
-              Gerez votre portefeuille de {stats.total} clients - Suivez vos prospects et fidelisez
+              Gérez votre portefeuille de {stats.total} clients - Suivez vos prospects et fidelisez
               vos clients actifs
             </p>
           </div>
@@ -620,7 +620,7 @@ export default function ClientsPage() {
         {(searchTerm || filterType !== 'all' || filterStatut !== 'all') && (
           <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full">
-              {filteredClients.length} resultat(s)
+              {filteredClients.length} résultat(s)
             </span>
             <button
               onClick={() => {
@@ -693,7 +693,7 @@ export default function ClientsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <Phone className="w-4 h-4" />
-                  <span>{client.telephone}</span>
+                  <span>{client.téléphone}</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <MapPin className="w-4 h-4" />
@@ -745,7 +745,7 @@ export default function ClientsPage() {
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title={editingClient ? 'Modifier le client' : 'Creer un client'}
+        title={editingClient ? 'Modifier le client' : 'Créer un client'}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -823,15 +823,15 @@ export default function ClientsPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Telephone *
+                Téléphone *
               </label>
               <input
                 type="tel"
-                {...register('telephone')}
+                {...register('téléphone')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
-              {errors.telephone && (
-                <p className="mt-1 text-sm text-red-600">{errors.telephone.message}</p>
+              {errors.téléphone && (
+                <p className="mt-1 text-sm text-red-600">{errors.téléphone.message}</p>
               )}
             </div>
           </div>
@@ -888,7 +888,7 @@ export default function ClientsPage() {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              {editingClient ? 'Modifier' : 'Creer'}
+              {editingClient ? 'Modifier' : 'Créer'}
             </button>
           </div>
         </form>

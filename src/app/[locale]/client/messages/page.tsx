@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -301,7 +301,7 @@ export default function MessagesClient() {
               <ul className="text-sm text-yellow-700 space-y-1">
                 <li>- Les messages sont consultables par votre avocat et son equipe</li>
                 <li>- evitez de partager des informations sensibles (mots de passe, codes PIN)</li>
-                <li>- Pour les urgences, contactez directement votre cabinet par telephone</li>
+                <li>- Pour les urgences, contactez directement votre cabinet par téléphone</li>
                 <li>- Les messages sont archives et peuvent servir de preuve</li>
               </ul>
             </div>

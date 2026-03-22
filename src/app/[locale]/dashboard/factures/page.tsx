@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 interface Facture {
   id: string;
-  numero: string;
+  numéro: string;
   montantHT: number;
   montantTVA: number;
   montantTTC: number;
@@ -21,7 +21,7 @@ interface Facture {
     email: string;
   };
   dossier?: {
-    numero: string;
+    numéro: string;
     typeDossier: string;
   };
   lignes: Array<{
@@ -117,7 +117,7 @@ export default function FacturesPage() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900"> Facturation</h1>
-          <p className="text-gray-600">Gerez vos factures et paiements</p>
+          <p className="text-gray-600">Gérez vos factures et paiements</p>
         </div>
         <button
           onClick={() => setShowNewFacture(true)}
@@ -175,26 +175,26 @@ export default function FacturesPage() {
               onClick={() => setShowNewFacture(true)}
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Creer une facture
+              Créer une facture
             </button>
           </div>
         ) : (
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Numero</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Numéro</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant TTC</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">echeance</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">échéance</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredFactures.map((facture) => (
                 <tr key={facture.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap font-medium">{facture.numero}</td>
+                  <td className="px-6 py-4 whitespace-nowrap font-medium">{facture.numéro}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {facture.client.firstName} {facture.client.lastName}
                   </td>
@@ -289,7 +289,7 @@ function NewFactureModal({
 
   const handleSubmit = async () => {
     if (!clientId || lignes.length === 0) {
-      setErrorMessage('Veuillez selectionner un client et ajouter au moins une ligne');
+      setErrorMessage('Veuillez sélectionner un client et ajouter au moins une ligne');
       return;
     }
 
@@ -342,7 +342,7 @@ function NewFactureModal({
               onChange={(e) => setClientId(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg"
             >
-              <option value="">Selectionner un client</option>
+              <option value="">Sélectionner un client</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.firstName} {c.lastName} - {c.email}
@@ -416,7 +416,7 @@ function NewFactureModal({
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Creation...' : 'Creer la facture'}
+            {loading ? 'Creation...' : 'Créer la facture'}
           </button>
         </div>
       </div>
@@ -463,7 +463,7 @@ function FactureDetailModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b flex justify-between items-center">
-          <h2 className="text-xl font-bold"> Facture {facture.numero}</h2>
+          <h2 className="text-xl font-bold"> Facture {facture.numéro}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl">
             x
           </button>
@@ -540,7 +540,7 @@ function FactureDetailModal({
                  Marquer payee
               </button>
             )}
-            <button className="px-4 py-2 border rounded-lg hover:bg-gray-50"> Telecharger PDF</button>
+            <button className="px-4 py-2 border rounded-lg hover:bg-gray-50"> Télécharger PDF</button>
           </div>
         </div>
       </div>
