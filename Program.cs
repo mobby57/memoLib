@@ -391,8 +391,17 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MemoLibDbContext>();
 
-    db.Database.Migrate();
-    Log.Information("✅ Migrations appliquées avec succès");
+    if (usePostgres)
+    {
+        db.Database.Migrate();
+        Log.Information("✅ Migrations PostgreSQL appliquées");
+    }
+    else
+    {
+        try { db.Database.Migrate(); }
+        catch { db.Database.EnsureCreated(); }
+        Log.Information("✅ Base SQLite prête");
+    }
 
     if (app.Environment.IsDevelopment() && !db.Sources.Any())
     {
