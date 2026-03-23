@@ -264,7 +264,7 @@ public class PdfExportService
                         {
                             right.Item().Text($"N° {invoice.InvoiceNumber ?? invoice.Id.ToString()[..8]}").FontSize(11).Bold();
                             right.Item().Text($"Date : {invoice.IssueDate:dd/MM/yyyy}").FontSize(10);
-                            if (invoice.DueDate.HasValue)
+                            if (invoice.DueDate != default)
                                 right.Item().Text($"Échéance : {invoice.DueDate:dd/MM/yyyy}").FontSize(10);
                         });
                     });
