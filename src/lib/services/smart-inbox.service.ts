@@ -2,7 +2,7 @@
 /**
  * SmartInboxService - Service de scoring intelligent des emails (Phase 4)
  *
- * Calcule un score de prioritÃ© 0-100 pour chaque email basÃ© sur:
+ * Calcule un score de priorité 0-100 pour chaque email basé sur:
  * - Urgence (30%)
  * - Client VIP (25%)
  * - Deadline proche (20%)
@@ -41,7 +41,7 @@ export class SmartInboxService {
   constructor(private prisma: PrismaClient = new PrismaClient()) {}
 
   /**
-   * Calcule le score de prioritÃ© pour un email
+   * Calcule le score de priorité pour un email
    */
   async calculateScore(email: Email, tenantId: string): Promise<InboxScoreResult> {
     const factors: ScoringFactors = {
@@ -86,7 +86,7 @@ export class SmartInboxService {
         factors.hasAttachments
     );
 
-    // Confidence basÃ©e sur nombre de facteurs non-nuls
+    // Confidence basée sur nombre de facteurs non-nuls
     const nonZeroFactors = Object.values(factors).filter(v => v > 0).length - 1; // -1 pour exclure total
     const confidence: 'low' | 'medium' | 'high' =
       nonZeroFactors >= 4 ? 'high' : nonZeroFactors >= 2 ? 'medium' : 'low';
@@ -119,7 +119,7 @@ export class SmartInboxService {
 
   /**
    * Score client VIP: 25 points si VIP, 0 sinon
-   * CritÃ¨res VIP: >5 dossiers actifs OU factures >10kâ‚¬
+   * Critères VIP: >5 dossiers actifs OU factures >10kâ‚¬
    */
   private async scoreVIPClient(client: Client | null): Promise<number> {
     if (!client) return 0;
@@ -133,7 +133,7 @@ export class SmartInboxService {
 
     if (dossiers >= 5) return 25;
 
-    // TODO: VÃ©rifier montant factures si >10kâ‚¬
+    // TODO: Vérifier montant factures si >10kâ‚¬
     // const factures = await prisma.facture.aggregate({ ... })
 
     return 0;
@@ -184,7 +184,7 @@ export class SmartInboxService {
   private scoreSentiment(sentiment: string): number {
     switch (sentiment.toLowerCase()) {
       case 'negative':
-        return 15; // Client mÃ©content = prioritaire
+        return 15; // Client mécontent = prioritaire
       case 'neutral':
         return 8;
       case 'positive':
@@ -195,7 +195,7 @@ export class SmartInboxService {
   }
 
   /**
-   * Score attachments: 10 points si >=1 piÃ¨ce jointe
+   * Score attachments: 10 points si >=1 pièce jointe
    */
   private scoreAttachments(count: number): number {
     return count > 0 ? 10 : 0;
@@ -205,7 +205,7 @@ export class SmartInboxService {
    * Sauvegarde le score en DB et trace avec EventLog
    */
   async saveScore(emailId: string, scoreResult: InboxScoreResult, tenantId: string): Promise<void> {
-    // CrÃ©er/mettre Ã  jour InboxScore
+    // Créer/mettre à jour InboxScore
     await this.prisma.inboxScore.upsert({
       where: { emailId },
       create: {
@@ -241,7 +241,7 @@ export class SmartInboxService {
   }
 
   /**
-   * RÃ©cupÃ¨re emails triÃ©s par score (inbox priorisÃ©e)
+   * Récupère emails triés par score (inbox priorisée)
    */
   async getPrioritizedInbox(
     tenantId: string,

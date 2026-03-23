@@ -77,6 +77,7 @@ public class MemoLibDbContext : DbContext
     public DbSet<WorkspaceActivity> WorkspaceActivities => Set<WorkspaceActivity>();
     public DbSet<SecretVault> SecretVaults => Set<SecretVault>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -366,6 +367,13 @@ public class MemoLibDbContext : DbContext
 
         modelBuilder.Entity<RefreshToken>()
             .HasIndex(r => new { r.UserId, r.RevokedAt });
+
+        modelBuilder.Entity<EmailVerificationToken>()
+            .HasIndex(t => t.Token)
+            .IsUnique();
+
+        modelBuilder.Entity<EmailVerificationToken>()
+            .HasIndex(t => t.UserId);
 
         base.OnModelCreating(modelBuilder);
     }

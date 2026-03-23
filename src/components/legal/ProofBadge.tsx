@@ -1,84 +1,44 @@
-﻿'use client';
-
-import { Shield, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Shield, XCircle } from 'lucide-react';
 
 interface ProofBadgeProps {
   isValid: boolean;
-  timestamp?: string;
-  signaturesCount?: number;
-  hasTimestampAuthority?: boolean;
+  signaturesCount: number;
+  hasTimestampAuthority: boolean;
   compact?: boolean;
 }
 
-/**
- * Badge de preuve légale certifiée
- * Affiche le statut de validation avec icône et tooltip
- */
-export function ProofBadge({
-  isValid,
-  timestamp,
-  signaturesCount = 0,
-  hasTimestampAuthority = false,
-  compact = false,
-}: ProofBadgeProps) {
+export function ProofBadge({ isValid, signaturesCount, hasTimestampAuthority, compact }: ProofBadgeProps) {
   if (compact) {
     return (
-      <div
-        className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
-        style={{
-          backgroundColor: isValid ? '#d4edda' : '#f8d7da',
-          color: isValid ? '#155724' : '#721c24',
-        }}
-        title={
-          isValid
-            ? `Preuve certifiée - ${signaturesCount} signature(s)`
-            : 'Preuve invalide'
-        }
-      >
+      <div className="flex items-center gap-1">
         {isValid ? (
-          <Shield className="w-3 h-3" />
+          <CheckCircle className="w-4 h-4 text-green-500" />
         ) : (
-          <AlertTriangle className="w-3 h-3" />
+          <XCircle className="w-4 h-4 text-red-500" />
         )}
-        <span>Certifié</span>
+        {hasTimestampAuthority && <Shield className="w-3 h-3 text-blue-500" />}
+        <span className="text-xs text-gray-500">{signaturesCount} sig.</span>
       </div>
     );
   }
 
   return (
-    <div
-      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border"
-      style={{
-        backgroundColor: isValid ? '#d4edda' : '#f8d7da',
-        borderColor: isValid ? '#c3e6cb' : '#f5c6cb',
-        color: isValid ? '#155724' : '#721c24',
-      }}
-    >
-      <div className="flex-shrink-0">
-        {isValid ? (
-          <CheckCircle className="w-5 h-5" />
-        ) : (
-          <XCircle className="w-5 h-5" />
-        )}
-      </div>
-      <div className="flex flex-col gap-1">
-        <div className="font-semibold text-sm">
-          {isValid ? '🔐 Preuve Légale Certifiée' : '⚠️ Preuve Invalide'}
-        </div>
-        <div className="text-xs flex flex-wrap gap-2">
-          {timestamp && (
-            <span>
-              📅 {new Date(timestamp).toLocaleDateString('fr-FR')}
-            </span>
-          )}
-          {signaturesCount > 0 && (
-            <span>
-              ✍️ {signaturesCount} signature{signaturesCount > 1 ? 's' : ''}
-            </span>
-          )}
-          {hasTimestampAuthority && <span>⏱️ RFC 3161</span>}
-        </div>
-      </div>
+    <div className="flex items-center gap-2">
+      <span
+        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+          isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`}
+      >
+        {isValid ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+        {isValid ? 'Valide' : 'Invalide'}
+      </span>
+      {hasTimestampAuthority && (
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          <Shield className="w-3 h-3" />
+          RFC 3161
+        </span>
+      )}
+      <span className="text-xs text-gray-500">{signaturesCount} signature(s)</span>
     </div>
   );
 }

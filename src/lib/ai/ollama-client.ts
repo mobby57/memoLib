@@ -36,12 +36,12 @@ Format attendu:
 {
   "typeDossier": "TITRE_SEJOUR|NATURALISATION|REGROUPEMENT_FAMILIAL|CONTENTIEUX_OQTF|GENERAL",
   "urgency": "low|medium|high",
-  "clientName": "nom du client si mentionnÃ©",
-  "summary": "rÃ©sumÃ© en 1 phrase",
+  "clientName": "nom du client si mentionné",
+  "summary": "résumé en 1 phrase",
   "entities": {
-    "dates": ["dates trouvÃ©es"],
-    "documents": ["documents mentionnÃ©s"],
-    "references": ["numÃ©ros de dossier"]
+    "dates": ["dates trouvées"],
+    "documents": ["documents mentionnés"],
+    "references": ["numéros de dossier"]
   }
 }`;
 
@@ -52,7 +52,7 @@ Format attendu:
       return {
         typeDossier: 'GENERAL',
         urgency: 'medium',
-        summary: 'Classification automatique Ã©chouÃ©e',
+        summary: 'Classification automatique échouée',
         entities: {},
       };
     }

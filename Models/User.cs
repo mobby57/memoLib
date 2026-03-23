@@ -16,6 +16,7 @@ public class User : AuditableEntity
     public string? City { get; set; }
     public string? PostalCode { get; set; }
     public string? Plan { get; set; } = "CABINET";
+    public bool IsEmailVerified { get; set; }
 
     // Navigation
     public Tenant? Tenant { get; set; }
