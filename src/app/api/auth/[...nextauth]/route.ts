@@ -128,13 +128,14 @@ export const authOptions: NextAuthOptions = {
             'avocat@memolib.fr': {
               id: 'demo-lawyer-1',
               email: 'avocat@memolib.fr',
-              name: 'Me. Sophie Martin',
+              name: 'Me. Sarra Boudjellal',
               role: 'AVOCAT',
               password: process.env.DEMO_LAWYER_PASSWORD || 'demo123',
               tenantId: 'demo-tenant-1',
-              tenantName: 'Cabinet Demo',
+              tenantName: 'Cabinet Boudjellal',
               tenantPlan: 'professional',
               clientId: null,
+              monitoredEmail: 'sarraboudjellal57@gmail.com',
             },
             'associe@memolib.fr': {
               id: 'demo-associe-1',
