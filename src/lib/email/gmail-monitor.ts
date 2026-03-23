@@ -21,7 +21,7 @@ export class GmailMonitor {
     this.gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
   }
 
-  // RÃ©cupÃ©rer les nouveaux emails
+  // Récupérer les nouveaux emails
   async fetchNewEmails(tenantId: string, lastCheckTime?: Date) {
     const query = lastCheckTime
       ? `after:${Math.floor(lastCheckTime.getTime() / 1000)}`
@@ -52,7 +52,7 @@ export class GmailMonitor {
     });
 
     const rawEmail = Buffer.from(msg.data.raw, 'base64').toString('utf-8');
-    // RULE-005: Tracer rÃ©ception flux
+    // RULE-005: Tracer réception flux
     await createEventLog({
       eventType: 'FLOW_RECEIVED',
       entityType: 'email',
@@ -92,7 +92,7 @@ export class GmailMonitor {
         const results = await this.fetchNewEmails(tenantId, lastCheck);
 
         if (results.length > 0) {
-          console.log(`âœ… ${results.length} nouveaux emails traitÃ©s`);
+          console.log(`âœ… ${results.length} nouveaux emails traités`);
           results.forEach(r => {
             console.log(`  - ${r.action}: ${r.classification?.typeDossier}`);
           });

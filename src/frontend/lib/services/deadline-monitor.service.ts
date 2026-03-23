@@ -1,7 +1,7 @@
 ﻿// @ts-nocheck
 /**
  * DeadlineMonitorService - Phase 6
- * Monitoring et notifications dÃ©lais critiques
+ * Monitoring et notifications délais critiques
  */
 
 import { PrismaClient, DeadlineStatus } from '@prisma/client';
@@ -27,7 +27,7 @@ export class DeadlineMonitorService {
   }
 
   /**
-   * Calculer jours restants jusqu'Ã  deadline
+   * Calculer jours restants jusqu'à deadline
    */
   private calculateDaysRemaining(dueDate: Date): number {
     const now = new Date();
@@ -39,10 +39,10 @@ export class DeadlineMonitorService {
   }
 
   /**
-   * DÃ©terminer status selon jours restants
+   * Déterminer status selon jours restants
    */
   private determineStatus(daysRemaining: number, currentStatus: DeadlineStatus): DeadlineStatus {
-    // Ne pas changer si dÃ©jÃ  COMPLETED ou CANCELLED
+    // Ne pas changer si déjà COMPLETED ou CANCELLED
     if (currentStatus === 'COMPLETED' || currentStatus === 'CANCELLED') {
       return currentStatus;
     }
@@ -52,26 +52,26 @@ export class DeadlineMonitorService {
     } else if (daysRemaining === 0 || daysRemaining === 1) {
       return 'CRITICAL'; // J-1 ou J-0
     } else if (daysRemaining <= 3) {
-      return 'URGENT'; // J-3 Ã  J-2
+      return 'URGENT'; // J-3 à J-2
     } else if (daysRemaining <= 7) {
-      return 'APPROACHING'; // J-7 Ã  J-4
+      return 'APPROACHING'; // J-7 à J-4
     }
     return 'PENDING';
   }
 
   /**
-   * VÃ©rifier et mettre Ã  jour une deadline
+   * Vérifier et mettre à jour une deadline
    */
   private async checkSingleDeadline(deadline: any): Promise<DeadlineCheckResult | null> {
     const daysRemaining = this.calculateDaysRemaining(deadline.dueDate);
     const newStatus = this.determineStatus(daysRemaining, deadline.status);
 
-    // Pas de changement nÃ©cessaire
+    // Pas de changement nécessaire
     if (newStatus === deadline.status) {
       return null;
     }
 
-    // Mettre Ã  jour status + flags alert
+    // Mettre à jour status + flags alert
     const updates: any = { status: newStatus };
 
     if (daysRemaining <= 7 && !deadline.alertJ7Sent) {
@@ -89,7 +89,7 @@ export class DeadlineMonitorService {
       data: updates,
     });
 
-    // CrÃ©er EventLog selon nouveau status
+    // Créer EventLog selon nouveau status
     let eventType: any = null;
     if (newStatus === 'APPROACHING') eventType = 'DEADLINE_APPROACHING';
     else if (newStatus === 'URGENT') eventType = 'DEADLINE_URGENT';
@@ -131,7 +131,7 @@ export class DeadlineMonitorService {
   }
 
   /**
-   * VÃ©rifier toutes les deadlines actives
+   * Vérifier toutes les deadlines actives
    */
   async checkAllDeadlines(tenantId?: string) {
     const where: any = {
@@ -174,7 +174,7 @@ export class DeadlineMonitorService {
   }
 
   /**
-   * RÃ©cupÃ©rer deadlines urgentes (upcoming)
+   * Récupérer deadlines urgentes (upcoming)
    */
   async getUpcomingDeadlines(
     tenantId: string,
@@ -244,7 +244,7 @@ export class DeadlineMonitorService {
   }
 
   /**
-   * Marquer une deadline comme complÃ©tÃ©e
+   * Marquer une deadline comme complétée
    */
   async completeDeadline(deadlineId: string, tenantId: string, userId: string, note?: string) {
     const deadline = await this.prisma.legalDeadline.findUnique({

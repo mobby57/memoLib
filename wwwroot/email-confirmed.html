@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib — Confirmation email</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 48px 40px; max-width: 480px; width: 90%; text-align: center; }
+        .icon { font-size: 64px; margin-bottom: 16px; }
+        h1 { font-size: 24px; margin-bottom: 12px; color: #1a1a2e; }
+        p { color: #555; line-height: 1.6; margin-bottom: 24px; }
+        .btn { display: inline-block; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; transition: transform 0.15s; }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { background: #2563eb; color: #fff; }
+        .btn-secondary { background: #e5e7eb; color: #374151; margin-left: 8px; }
+        .success h1 { color: #059669; }
+        .error h1 { color: #dc2626; }
+    </style>
+</head>
+<body>
+    <div class="card" id="content"></div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const status = params.get('status');
+        const container = document.getElementById('content');
+
+        if (status === 'ok') {
+            container.classList.add('success');
+            container.innerHTML = `
+                <div class="icon">✅</div>
+                <h1>Email confirmé !</h1>
+                <p>Votre adresse email a été vérifiée avec succès.<br>Vous pouvez maintenant vous connecter à MemoLib.</p>
+                <a href="/demo-secure.html" class="btn btn-primary">Se connecter</a>
+            `;
+        } else {
+            container.classList.add('error');
+            container.innerHTML = `
+                <div class="icon">❌</div>
+                <h1>Lien invalide ou expiré</h1>
+                <p>Ce lien de confirmation n'est plus valide.<br>Il a peut-être déjà été utilisé ou a expiré (24h).</p>
+                <a href="/demo-secure.html" class="btn btn-primary">Retour à l'accueil</a>
+                <a href="#" class="btn btn-secondary" onclick="resend()">Renvoyer un email</a>
+                <div id="resend-result" style="margin-top:16px;"></div>
+            `;
+        }
+
+        async function resend() {
+            const email = prompt("Entrez votre adresse email :");
+            if (!email) return;
+            try {
+                const res = await fetch('/api/auth/resend-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                document.getElementById('resend-result').innerHTML =
+                    '<p style="color:#059669;">📧 ' + data.message + '</p>';
+            } catch {
+                document.getElementById('resend-result').innerHTML =
+                    '<p style="color:#dc2626;">Erreur réseau. Réessayez.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

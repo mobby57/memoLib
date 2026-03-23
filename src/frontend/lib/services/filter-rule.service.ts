@@ -2,8 +2,8 @@
 /**
  * FilterRuleService - Service de filtrage email automatique (Phase 3)
  *
- * Ã‰value des rÃ¨gles de filtrage pour router automatiquement les emails
- * vers dossiers, clients, catÃ©gories selon conditions (from, subject, etc.)
+ * Ã‰value des règles de filtrage pour router automatiquement les emails
+ * vers dossiers, clients, catégories selon conditions (from, subject, etc.)
  *
  * @example
  * ```ts
@@ -44,16 +44,16 @@ export type FilterAction = {
 
 export type RuleMatch = {
   rule: FilterRule;
-  matchedConditions: string[]; // Liste des champs qui ont matchÃ©
-  confidence: number; // 0-1 (% conditions matchÃ©es)
+  matchedConditions: string[]; // Liste des champs qui ont matché
+  confidence: number; // 0-1 (% conditions matchées)
 };
 
 export class FilterRuleService {
   constructor(private prisma: PrismaClient = new PrismaClient()) {}
 
   /**
-   * Ã‰value toutes les rÃ¨gles actives pour un email donnÃ©
-   * Retourne les rÃ¨gles qui matchent, triÃ©es par prioritÃ©
+   * Ã‰value toutes les règles actives pour un email donné
+   * Retourne les règles qui matchent, triées par priorité
    */
   async evaluateAllRules(email: Email, tenantId: string): Promise<RuleMatch[]> {
     const rules = await this.prisma.filterRule.findMany({
@@ -79,7 +79,7 @@ export class FilterRuleService {
   }
 
   /**
-   * Ã‰value une rÃ¨gle contre un email
+   * Ã‰value une règle contre un email
    * Retourne RuleMatch si toutes les conditions sont remplies, null sinon
    */
   private evaluateRule(email: Email, rule: FilterRule): RuleMatch | null {
@@ -92,7 +92,7 @@ export class FilterRuleService {
       }
     }
 
-    // Si toutes conditions matchent, c'est un succÃ¨s
+    // Si toutes conditions matchent, c'est un succès
     if (matchedConditions.length === conditions.length) {
       return {
         rule,
@@ -148,7 +148,7 @@ export class FilterRuleService {
   }
 
   /**
-   * RÃ©cupÃ¨re la valeur d'un champ email
+   * Récupère la valeur d'un champ email
    */
   private getFieldValue(email: Email, field: FilterCondition['field']): string | null {
     switch (field) {
@@ -172,8 +172,8 @@ export class FilterRuleService {
   }
 
   /**
-   * Applique les actions d'une rÃ¨gle Ã  un email
-   * Met Ã  jour l'email en DB et trace avec EventLog
+   * Applique les actions d'une règle à un email
+   * Met à jour l'email en DB et trace avec EventLog
    */
   async applyActions(emailId: string, rule: FilterRule, tenantId: string): Promise<void> {
     const actions = rule.actions as FilterAction[];
@@ -221,22 +221,22 @@ export class FilterRuleService {
           break;
 
         case 'NOTIFY_USER':
-          // TODO: implÃ©menter notification
+          // TODO: implémenter notification
           break;
 
         case 'TRIGGER_WORKFLOW':
-          // TODO: implÃ©menter trigger workflow
+          // TODO: implémenter trigger workflow
           break;
       }
     }
 
-    // Mettre Ã  jour email
+    // Mettre à jour email
     await this.prisma.email.update({
       where: { id: emailId },
       data: updateData,
     });
 
-    // Mettre Ã  jour stats de la rÃ¨gle
+    // Mettre à jour stats de la règle
     await this.prisma.filterRule.update({
       where: { id: rule.id },
       data: {
@@ -263,7 +263,7 @@ export class FilterRuleService {
   }
 
   /**
-   * Trace une rÃ¨gle qui n'a pas matchÃ© (optionnel, pour debug)
+   * Trace une règle qui n'a pas matché (optionnel, pour debug)
    */
   async logSkippedRule(
     emailId: string,
@@ -286,13 +286,13 @@ export class FilterRuleService {
   }
 
   /**
-   * Valide une rÃ¨gle avant crÃ©ation/update
+   * Valide une règle avant création/update
    */
   validateRule(rule: Partial<FilterRule>): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     if (!rule.name || rule.name.trim().length === 0) {
-      errors.push('Le nom de la rÃ¨gle est requis');
+      errors.push('Le nom de la règle est requis');
     }
 
     if (!rule.conditions) {
@@ -304,7 +304,7 @@ export class FilterRuleService {
       } else {
         conditions.forEach((c, i) => {
           if (!c.field) errors.push(`Condition ${i + 1}: champ manquant`);
-          if (!c.operator) errors.push(`Condition ${i + 1}: opÃ©rateur manquant`);
+          if (!c.operator) errors.push(`Condition ${i + 1}: opérateur manquant`);
           if (!c.value) errors.push(`Condition ${i + 1}: valeur manquante`);
         });
       }

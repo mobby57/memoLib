@@ -141,3 +141,22 @@ MemoLib-Package-Client/app/_build_check/
 .azure-secrets.json
 
 .azure-demo-secrets.json
+
+# Artifacts & logs (never commit)
+artifacts/
+memolib-logs/
+memolib-fix.tar
+response.json
+egress2.json
+ingress2.json
+lint-output.txt
+test-full.txt
+test-output*.txt
+tsc-output.txt
+build-output.txt
+build_output.txt
+build_errors.txt
+api_output.log
+$($found
+$($ms
+$null
