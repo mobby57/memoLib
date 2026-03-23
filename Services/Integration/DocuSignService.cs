@@ -48,28 +48,130 @@ public class DocuSignService : IDocuSignService
     {
         _logger.LogInformation("Creating DocuSign envelope for document: {DocumentName}", request.DocumentName);
 
-        // Stub: retourne un ID simulé tant que DocuSign n'est pas configuré
         var apiKey = _config["DocuSign:ApiKey"];
-        if (string.IsNullOrWhiteSpace(apiKey))
+        var accountId = _config["DocuSign:AccountId"];
+        var baseUrl = _config["DocuSign:BaseUrl"] ?? "https://demo.docusign.net/restapi";
+
+        if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(accountId))
         {
-            _logger.LogWarning("DocuSign API key not configured, returning simulated envelope");
+            _logger.LogWarning("DocuSign non configuré (DocuSign:ApiKey + DocuSign:AccountId requis), mode simulation");
             await Task.CompletedTask;
             return $"sim_{Guid.NewGuid():N}";
         }
 
-        // TODO: Intégration réelle DocuSign API
-        await Task.CompletedTask;
-        return $"env_{Guid.NewGuid():N}";
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+            httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+
+            var signers = request.Signers.Select((s, i) => new
+            {
+                email = s.Email,
+                name = s.Name,
+                recipientId = (i + 1).ToString(),
+                routingOrder = s.RoutingOrder.ToString(),
+                tabs = new
+                {
+                    signHereTabs = new[]
+                    {
+                        new { documentId = "1", pageNumber = "1", xPosition = "200", yPosition = "700" }
+                    }
+                }
+            }).ToArray();
+
+            var envelope = new
+            {
+                emailSubject = request.Subject,
+                emailBlurb = request.Message,
+                documents = new[]
+                {
+                    new
+                    {
+                        documentBase64 = Convert.ToBase64String(request.DocumentContent),
+                        name = request.DocumentName,
+                        fileExtension = "pdf",
+                        documentId = "1"
+                    }
+                },
+                recipients = new { signers },
+                status = "sent"
+            };
+
+            var response = await httpClient.PostAsJsonAsync(
+                $"{baseUrl}/v2.1/accounts/{accountId}/envelopes", envelope);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var doc = System.Text.Json.JsonDocument.Parse(json);
+                var envelopeId = doc.RootElement.GetProperty("envelopeId").GetString();
+                _logger.LogInformation("DocuSign envelope créé: {EnvelopeId}", envelopeId);
+                return envelopeId ?? $"env_{Guid.NewGuid():N}";
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            _logger.LogWarning("Échec DocuSign: {Status} {Error}", response.StatusCode, error);
+            return $"err_{Guid.NewGuid():N}";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur DocuSign API");
+            return $"err_{Guid.NewGuid():N}";
+        }
     }
 
     public async Task<EnvelopeStatus> GetEnvelopeStatusAsync(string envelopeId)
     {
         _logger.LogInformation("Getting status for envelope: {EnvelopeId}", envelopeId);
-        await Task.CompletedTask;
 
-        if (envelopeId.StartsWith("sim_"))
+        if (envelopeId.StartsWith("sim_") || envelopeId.StartsWith("err_"))
+        {
+            await Task.CompletedTask;
             return EnvelopeStatus.Created;
+        }
 
-        return EnvelopeStatus.Sent;
+        var apiKey = _config["DocuSign:ApiKey"];
+        var accountId = _config["DocuSign:AccountId"];
+        var baseUrl = _config["DocuSign:BaseUrl"] ?? "https://demo.docusign.net/restapi";
+
+        if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(accountId))
+        {
+            await Task.CompletedTask;
+            return EnvelopeStatus.Created;
+        }
+
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+
+            var response = await httpClient.GetAsync(
+                $"{baseUrl}/v2.1/accounts/{accountId}/envelopes/{envelopeId}");
+
+            if (!response.IsSuccessStatusCode)
+                return EnvelopeStatus.Created;
+
+            var json = await response.Content.ReadAsStringAsync();
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            var status = doc.RootElement.GetProperty("status").GetString();
+
+            return status?.ToLower() switch
+            {
+                "created" => EnvelopeStatus.Created,
+                "sent" => EnvelopeStatus.Sent,
+                "delivered" => EnvelopeStatus.Delivered,
+                "signed" => EnvelopeStatus.Signed,
+                "completed" => EnvelopeStatus.Completed,
+                "declined" => EnvelopeStatus.Declined,
+                "voided" => EnvelopeStatus.Voided,
+                _ => EnvelopeStatus.Created
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur récupération statut DocuSign");
+            return EnvelopeStatus.Created;
+        }
     }
 }

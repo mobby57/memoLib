@@ -37,6 +37,7 @@ public class RegisterResponse
     public string Email { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string Role { get; set; } = null!;
+    public string? Message { get; set; }
 }
 
 public class UserDto
@@ -71,4 +72,9 @@ public class ResetPasswordRequest
     public string Email { get; set; } = null!;
     public string CurrentPassword { get; set; } = null!;
     public string NewPassword { get; set; } = null!;
+}
+
+public class ResendVerificationRequest
+{
+    public string Email { get; set; } = null!;
 }

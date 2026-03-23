@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Contracts;
 using MemoLib.Api.Data;
 using MemoLib.Api.Models;
+using MemoLib.Api.Services;
 
 namespace MemoLib.Api.Controllers;
 
@@ -14,10 +15,12 @@ namespace MemoLib.Api.Controllers;
 public class IngestionController : ControllerBase
 {
     private readonly MemoLibDbContext _context;
+    private readonly EmailClassificationService _classifier;
 
-    public IngestionController(MemoLibDbContext context)
+    public IngestionController(MemoLibDbContext context, EmailClassificationService classifier)
     {
         _context = context;
+        _classifier = classifier;
     }
 
     private static string NormalizeForDedup(string? value)
@@ -257,6 +260,15 @@ public class IngestionController : ControllerBase
             _context.Notifications.Add(notification);
         }
 
+        // Auto-classification IA/règles
+        EmailClassification? classification = null;
+        try
+        {
+            classification = await _classifier.ClassifyAsync(request.From ?? "", request.Subject ?? "", request.Body ?? "");
+            ev.Severity = classification.SuggestedPriority;
+        }
+        catch { /* fallback: pas de classification */ }
+
         ev.TextForEmbedding =
             $"{request.From}\n" +
             $"{request.Subject}\n" +
@@ -391,7 +403,15 @@ public class IngestionController : ControllerBase
             caseId,
             caseCreated,
             requiresAttention,
-            validationFlags = validationFlags.ToArray()
+            validationFlags = validationFlags.ToArray(),
+            classification = classification != null ? new
+            {
+                classification.Category,
+                classification.Urgency,
+                classification.SuggestedPriority,
+                classification.SuggestedTags,
+                classification.AISummary
+            } : null
         });
     }
 }

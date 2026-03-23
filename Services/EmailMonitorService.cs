@@ -77,26 +77,31 @@ public class EmailMonitorService : BackgroundService
                     var query = SearchQuery.And(SearchQuery.NotSeen, SearchQuery.DeliveredAfter(DateTime.UtcNow.AddDays(-7)));
                     var uids = await inbox.SearchAsync(query, stoppingToken);
 
-                    var batches = uids.Take(batchSize).Chunk(10);
-                    foreach (var batch in batches)
+                    var messagesToProcess = new List<MimeMessage>();
+                    foreach (var uid in uids.Take(batchSize))
                     {
-                        var tasks = batch.Select(async uid =>
+                        lock (client.SyncRoot)
                         {
-                            var message = await inbox.GetMessageAsync(uid, stoppingToken);
-                            await ProcessEmailAsync(message, stoppingToken);
-                            await inbox.AddFlagsAsync(uid, MessageFlags.Seen, true, stoppingToken);
-                        });
-                        await Task.WhenAll(tasks);
+                            var message = inbox.GetMessage(uid, stoppingToken);
+                            messagesToProcess.Add(message);
+                            inbox.AddFlags(uid, MessageFlags.Seen, true, stoppingToken);
+                        }
                     }
 
                     await client.DisconnectAsync(true, stoppingToken);
                     success = true;
+
+                    // Traiter les messages APRÈS déconnexion IMAP
+                    foreach (var message in messagesToProcess)
+                    {
+                        await ProcessEmailAsync(message, stoppingToken);
+                    }
                 }
                 catch (Exception ex)
                 {
                     retryCount++;
                     _logger.LogError(ex, $"Erreur monitoring email (tentative {retryCount}/{maxRetries})");
-                    
+
                     if (retryCount < maxRetries)
                     {
                         var delay = TimeSpan.FromSeconds(Math.Pow(2, retryCount));
@@ -124,6 +129,7 @@ public class EmailMonitorService : BackgroundService
         var context = scope.ServiceProvider.GetRequiredService<MemoLibDbContext>();
         var organizer = scope.ServiceProvider.GetRequiredService<IntelligentWorkspaceOrganizerService>();
         var signalService = scope.ServiceProvider.GetRequiredService<SignalCommandCenterService>();
+        var classifier = scope.ServiceProvider.GetRequiredService<EmailClassificationService>();
 
         var from = message.From.Mailboxes.FirstOrDefault()?.Address ?? "unknown@unknown.com";
         var subject = message.Subject ?? "";
@@ -164,7 +170,7 @@ public class EmailMonitorService : BackgroundService
         }
 
         var checksum = ComputeSHA256(body);
-        var duplicate = await context.Events.FirstOrDefaultAsync(e => 
+        var duplicate = await context.Events.FirstOrDefaultAsync(e =>
             e.ExternalId == externalId || e.Checksum == checksum, cancellationToken);
 
         if (duplicate != null)
@@ -206,6 +212,20 @@ public class EmailMonitorService : BackgroundService
             ValidationFlags = string.IsNullOrWhiteSpace(from) ? "MISSING_SENDER" : null,
             RequiresAttention = string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(subject)
         };
+
+        // Classification automatique de l'email
+        try
+        {
+            var classification = await classifier.ClassifyAsync(from, subject, body);
+            evt.TextForEmbedding = $"[{classification.Category}] {subject} - {body}";
+            _logger.LogInformation("📊 Email classifié: {Category} (urgence: {Urgency}, priorité: {Priority})",
+                classification.Category, classification.Urgency, classification.SuggestedPriority);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Classification email échouée, fallback sans classification");
+            evt.TextForEmbedding = $"{subject} - {body}";
+        }
 
         context.Events.Add(evt);
 
