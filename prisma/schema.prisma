@@ -549,7 +549,7 @@ model Email {
   sourceProvider  String?
   sourceDirection String   @default("inbound")
 
-  messageId   String?  @unique
+  messageId   String?
   providerMessageId String?
   threadId    String?
   internetMessageId String?
@@ -607,6 +607,10 @@ model Email {
 
   @@index([tenantId, isProcessed])
   @@index([tenantId, category])
+  @@unique([tenantId, messageId], map: "Email_tenantId_messageId_key")
+  @@unique([tenantId, providerMessageId], map: "Email_tenantId_providerMessageId_key")
+  @@unique([tenantId, internetMessageId], map: "Email_tenantId_internetMessageId_key")
+  @@unique([tenantId, contentHash], map: "Email_tenantId_contentHash_key")
   @@index([tenantId, receivedDate])
   @@index([tenantId, sourceProvider])
   @@index([tenantId, threadId])
