@@ -293,7 +293,7 @@ class AdvancedLogger {
     if (this.logs.length === 0) return;
 
     try {
-      // En production, envoyer Ã  Sentry comme breadcrumbs
+      // En production, envoyer à Sentry comme breadcrumbs
       if (process.env.NODE_ENV === 'production') {
         import('@sentry/nextjs').then((Sentry) => {
           this.logs.slice(-50).forEach(log => {

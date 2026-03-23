@@ -25,10 +25,38 @@ public class NotificationChannelService : INotificationChannelService
     {
         try
         {
-            _logger.LogInformation("Sending SMS to {Phone}", phoneNumber);
-            // Délègue au service Twilio/SMS existant si configuré
-            await Task.CompletedTask;
-            return true;
+            var accountSid = _config["Twilio:AccountSid"];
+            var authToken = _config["Twilio:AuthToken"];
+            var fromNumber = _config["Twilio:PhoneNumber"];
+
+            if (string.IsNullOrWhiteSpace(accountSid) || string.IsNullOrWhiteSpace(authToken) || string.IsNullOrWhiteSpace(fromNumber))
+            {
+                _logger.LogWarning("Twilio non configuré (AccountSid/AuthToken/PhoneNumber)");
+                return false;
+            }
+
+            var url = $"https://api.twilio.com/2010-04-01/Accounts/{accountSid}/Messages.json";
+            var content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("To", phoneNumber),
+                new KeyValuePair<string, string>("From", fromNumber),
+                new KeyValuePair<string, string>("Body", message)
+            });
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
+            var authValue = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes($"{accountSid}:{authToken}"));
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authValue);
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("SMS envoyé à {Phone}", phoneNumber);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            _logger.LogWarning("Échec SMS Twilio: {Status} {Error}", response.StatusCode, error);
+            return false;
         }
         catch (Exception ex)
         {
@@ -84,9 +112,33 @@ public class NotificationChannelService : INotificationChannelService
     {
         try
         {
-            _logger.LogInformation("Sending push notification: {Title}", title);
-            await Task.CompletedTask;
-            return true;
+            var vapidEndpoint = _config["Push:VapidEndpoint"];
+            if (string.IsNullOrWhiteSpace(vapidEndpoint))
+            {
+                // Fallback: webhook générique
+                var webhookUrl = _config["Push:WebhookUrl"];
+                if (!string.IsNullOrWhiteSpace(webhookUrl))
+                {
+                    var payload = new { token, title, body = message, timestamp = DateTime.UtcNow };
+                    var response = await _httpClient.PostAsJsonAsync(webhookUrl, payload);
+                    return response.IsSuccessStatusCode;
+                }
+
+                _logger.LogWarning("Push notification non configuré (Push:VapidEndpoint ou Push:WebhookUrl)");
+                return false;
+            }
+
+            var pushPayload = new { to = token, notification = new { title, body = message } };
+            var pushResponse = await _httpClient.PostAsJsonAsync(vapidEndpoint, pushPayload);
+            
+            if (pushResponse.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Push notification envoyée: {Title}", title);
+                return true;
+            }
+
+            _logger.LogWarning("Échec push: {Status}", pushResponse.StatusCode);
+            return false;
         }
         catch (Exception ex)
         {

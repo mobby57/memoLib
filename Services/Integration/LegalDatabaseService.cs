@@ -109,27 +109,56 @@ public class LegalDatabaseService : ILegalDatabaseService
         
         try
         {
-            // Simulation d'une recherche Dalloz (API fictive)
-            var documents = new List<LegalDocument>
+            var apiKey = _config["LegalDatabases:Dalloz:ApiKey"];
+            var baseUrl = _config["LegalDatabases:Dalloz:BaseUrl"] ?? "https://api.dalloz.fr";
+
+            if (!string.IsNullOrWhiteSpace(apiKey))
             {
-                new LegalDocument
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+
+                var requestBody = new { query, limit = 20, offset = 0 };
+                var response = await _httpClient.PostAsJsonAsync($"{baseUrl}/v1/search", requestBody);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    Id = "dalloz_001",
-                    Title = $"Résultat Dalloz pour: {query}",
-                    Summary = "Résumé du document juridique Dalloz...",
-                    Source = "Dalloz",
-                    PublicationDate = DateTime.Now.AddDays(-30),
-                    RelevanceScore = 0.85
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var searchResponse = JsonSerializer.Deserialize<DallozSearchResponse>(jsonResponse);
+
+                    var documents = searchResponse?.Results?.Select(r => new LegalDocument
+                    {
+                        Id = r.Id ?? "",
+                        Title = r.Title ?? "",
+                        Summary = r.Abstract ?? "",
+                        Source = "Dalloz",
+                        Url = r.Url ?? "",
+                        PublicationDate = DateTime.TryParse(r.Date, out var date) ? date : DateTime.MinValue,
+                        RelevanceScore = r.Score
+                    }).ToList() ?? new List<LegalDocument>();
+
+                    return new LegalSearchResult
+                    {
+                        Source = "Dalloz",
+                        TotalResults = searchResponse?.Total ?? documents.Count,
+                        Documents = documents,
+                        SearchTime = DateTime.UtcNow - startTime
+                    };
                 }
-            };
 
-            await Task.Delay(200); // Simulation latence réseau
+                _logger.LogWarning("Dalloz API returned {Status}", response.StatusCode);
+            }
+            else
+            {
+                _logger.LogWarning("Dalloz API key not configured (LegalDatabases:Dalloz:ApiKey)");
+            }
 
+            // Fallback: recherche locale simulée si API non disponible
             return new LegalSearchResult
             {
                 Source = "Dalloz",
-                TotalResults = documents.Count,
-                Documents = documents,
+                TotalResults = 0,
+                Documents = new List<LegalDocument>(),
                 SearchTime = DateTime.UtcNow - startTime
             };
         }
@@ -191,16 +220,36 @@ public class LegalDatabaseService : ILegalDatabaseService
 
     private async Task<LegalDocument> GetDallozDocumentAsync(string documentId)
     {
-        // Simulation récupération document Dalloz
-        await Task.Delay(150);
-        
+        var apiKey = _config["LegalDatabases:Dalloz:ApiKey"];
+        var baseUrl = _config["LegalDatabases:Dalloz:BaseUrl"] ?? "https://api.dalloz.fr";
+
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+
+            var response = await _httpClient.GetAsync($"{baseUrl}/v1/documents/{documentId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var doc = JsonSerializer.Deserialize<DallozDocument>(json);
+                return new LegalDocument
+                {
+                    Id = documentId,
+                    Title = doc?.Title ?? "",
+                    Content = doc?.Content ?? "",
+                    Source = "Dalloz",
+                    PublicationDate = DateTime.TryParse(doc?.Date, out var date) ? date : DateTime.MinValue
+                };
+            }
+        }
+
         return new LegalDocument
         {
             Id = documentId,
             Title = "Document Dalloz",
-            Content = "Contenu complet du document juridique Dalloz...",
-            Source = "Dalloz",
-            PublicationDate = DateTime.Now.AddDays(-15)
+            Content = "Document non disponible (API Dalloz non configurée)",
+            Source = "Dalloz"
         };
     }
 
@@ -225,5 +274,28 @@ public class LegalDatabaseService : ILegalDatabaseService
         public string? Title { get; set; }
         public string? Content { get; set; }
         public string? PublicationDate { get; set; }
+    }
+
+    private class DallozSearchResponse
+    {
+        public int Total { get; set; }
+        public List<DallozResult>? Results { get; set; }
+    }
+
+    private class DallozResult
+    {
+        public string? Id { get; set; }
+        public string? Title { get; set; }
+        public string? Abstract { get; set; }
+        public string? Url { get; set; }
+        public string? Date { get; set; }
+        public double Score { get; set; }
+    }
+
+    private class DallozDocument
+    {
+        public string? Title { get; set; }
+        public string? Content { get; set; }
+        public string? Date { get; set; }
     }
 }

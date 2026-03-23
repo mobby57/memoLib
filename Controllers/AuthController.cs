@@ -21,6 +21,7 @@ public class AuthController : ControllerBase
     private readonly MemoLibDbContext _dbContext;
     private readonly BruteForceProtectionService _bruteForceProtection;
     private readonly EmailValidationService _emailValidation;
+    private readonly EmailVerificationService _emailVerification;
 
     public AuthController(
         JwtTokenService jwtService,
@@ -28,7 +29,8 @@ public class AuthController : ControllerBase
         ILogger<AuthController> logger,
         MemoLibDbContext dbContext,
         BruteForceProtectionService bruteForceProtection,
-        EmailValidationService emailValidation)
+        EmailValidationService emailValidation,
+        EmailVerificationService emailVerification)
     {
         _jwtService = jwtService;
         _passwordService = passwordService;
@@ -36,6 +38,7 @@ public class AuthController : ControllerBase
         _dbContext = dbContext;
         _bruteForceProtection = bruteForceProtection;
         _emailValidation = emailValidation;
+        _emailVerification = emailVerification;
     }
 
     private static UserDto MapToUserDto(User user) => new()
@@ -78,6 +81,11 @@ public class AuthController : ControllerBase
             await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
             _logger.LogWarning("Tentative de connexion échouée pour: {Email} depuis {IP}", normalizedEmail, clientIp);
             return Unauthorized(new { message = "Identifiants invalides" });
+        }
+
+        if (!user.IsEmailVerified)
+        {
+            return StatusCode(403, new { message = "Veuillez confirmer votre adresse email avant de vous connecter.", code = "EMAIL_NOT_VERIFIED" });
         }
 
         await _bruteForceProtection.RecordSuccessfulLoginAsync(clientIp);
@@ -334,13 +342,52 @@ public class AuthController : ControllerBase
 
         _logger.LogInformation("Nouvel utilisateur inscrit: {Email}", user.Email);
 
+        // Envoyer email de vérification
+        var token = await _emailVerification.CreateVerificationTokenAsync(user.Id);
+        var emailSent = await _emailVerification.SendVerificationEmailAsync(user.Email, token);
+
         return Ok(new RegisterResponse
         {
             Id = user.Id,
             Email = user.Email,
             Name = user.Name,
-            Role = Roles.Agent
+            Role = Roles.Agent,
+            Message = emailSent
+                ? "Un email de confirmation a été envoyé. Vérifiez votre boîte de réception."
+                : "Compte créé. SMTP non configuré — contactez l'administrateur pour activer votre compte."
         });
+    }
+
+    /// <summary>
+    /// Confirme l'adresse email via le token reçu par mail — redirige vers page HTML
+    /// </summary>
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return Redirect("/email-confirmed.html?status=error");
+
+        var user = await _emailVerification.ConfirmEmailAsync(token);
+        if (user == null)
+            return Redirect("/email-confirmed.html?status=error");
+
+        _logger.LogInformation("Email confirmé pour: {Email}", user.Email);
+        return Redirect("/email-confirmed.html?status=ok");
+    }
+
+    /// <summary>
+    /// Renvoie l'email de vérification
+    /// </summary>
+    [HttpPost("resend-verification")]
+    public async Task<IActionResult> ResendVerification([FromBody] ResendVerificationRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Email))
+            return BadRequest(new { message = "Email requis" });
+
+        await _emailVerification.ResendVerificationAsync(request.Email.Trim().ToLowerInvariant());
+
+        // Toujours retourner OK pour ne pas révéler si l'email existe
+        return Ok(new { message = "Si un compte non vérifié existe avec cet email, un nouveau lien a été envoyé." });
     }
 }
 

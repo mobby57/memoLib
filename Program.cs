@@ -202,7 +202,23 @@ builder.WebHost.ConfigureKestrel(options =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddMemoryCache();
-builder.Services.AddDistributedMemoryCache();
+
+// Cache distribué: Redis si configuré, sinon mémoire
+var redisConnection = builder.Configuration.GetConnectionString("Redis");
+if (!string.IsNullOrWhiteSpace(redisConnection))
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = redisConnection;
+        options.InstanceName = "MemoLib:";
+    });
+    Log.Information("✅ Cache distribué: Redis ({Connection})", redisConnection.Split(',')[0]);
+}
+else
+{
+    builder.Services.AddDistributedMemoryCache();
+    Log.Information("✅ Cache distribué: Mémoire (Redis non configuré)");
+}
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -222,6 +238,7 @@ builder.Services.AddScoped<UrlValidationService>();
 builder.Services.AddScoped<PasswordResetService>();
 builder.Services.AddScoped<BruteForceProtectionService>();
 builder.Services.AddScoped<EmailValidationService>();
+builder.Services.AddScoped<EmailVerificationService>();
 builder.Services.AddScoped<QuestionnaireService>();
 builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddScoped<AnalyticsService>();
@@ -262,6 +279,10 @@ builder.Services.AddScoped<SharedWorkspaceService>();
 builder.Services.AddScoped<TransactionService>();
 builder.Services.AddScoped<VaultService>();
 builder.Services.AddScoped<PdfExportService>();
+builder.Services.AddScoped<ExcelExportService>();
+builder.Services.AddScoped<EmailClassificationService>();
+builder.Services.AddScoped<CustomReportBuilderService>();
+builder.Services.AddScoped<RedisCacheService>();
 builder.Services.AddScoped<IEmailAdapter, MailKitEmailAdapter>();
 builder.Services.AddScoped<IDocuSignService, DocuSignService>();
 builder.Services.AddScoped<ILegalDatabaseService, LegalDatabaseService>();
@@ -286,6 +307,7 @@ if (string.IsNullOrWhiteSpace(emailUsername))
 }
 builder.Services.AddHostedService<EmailMonitorService>();
 builder.Services.AddHostedService<ConnectionMonitorService>();
+builder.Services.AddHostedService<AutomationEngineService>();
 
 // Configuration base de données (SQLite dev / PostgreSQL prod)
 var connectionString = builder.Configuration.GetConnectionString("Default");
@@ -393,7 +415,12 @@ using (var scope = app.Services.CreateScope())
 
     if (usePostgres)
     {
-        db.Database.Migrate();
+        try { db.Database.Migrate(); }
+        catch
+        {
+            Log.Warning("⚠️ Migrations échouées, création directe du schéma...");
+            db.Database.EnsureCreated();
+        }
         Log.Information("✅ Migrations PostgreSQL appliquées");
     }
     else
@@ -412,6 +439,7 @@ using (var scope = app.Services.CreateScope())
             Id = Guid.NewGuid(),
             Email = "admin@memolib.local",
             Role = Roles.Owner,
+            IsEmailVerified = true,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -432,6 +460,7 @@ using (var scope = app.Services.CreateScope())
             Password = passwordService.HashPassword("Admin123!"),
             Role = Roles.Owner,
             Name = "Admin",
+            IsEmailVerified = true,
             CreatedAt = DateTime.UtcNow
         };
         db.Users.Add(userWithPassword);

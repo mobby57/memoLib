@@ -1,4 +1,5 @@
 // Jest exposes helpers globally in setupFilesAfterEnv.
+require('@testing-library/jest-dom');
 
 // Variables d'environnement requises par les tests
 process.env.NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || 'test-secret';

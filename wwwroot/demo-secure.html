@@ -449,7 +449,7 @@
 
                 const data = await res.json();
                 if (res.ok) {
-                    showResult('reg-result', `✅ Compte créé avec succès! ID: ${data.id}`);
+                    showResult('reg-result', `✅ Compte créé !<br>📧 <strong>${data.message || 'Vérifiez votre boîte mail pour confirmer votre adresse.'}</strong>`);
                     document.getElementById('login-email').value = email;
                     document.getElementById('login-password').value = password;
                     updateCSRFTokens();
@@ -485,6 +485,8 @@
                     updateCurrentUserDisplay(email);
                     showResult('login-result', `✅ Connecté avec succès!`);
                     updateCSRFTokens();
+                } else if (res.status === 403 && data.code === 'EMAIL_NOT_VERIFIED') {
+                    showResult('login-result', `⚠️ ${data.message}<br><button class="btn" style="margin-top:10px;background:#ff9800;" onclick="resendVerification('${email}')">📧 Renvoyer l'email de confirmation</button><div id="resend-result" style="margin-top:8px;"></div>`, false);
                 } else {
                     showResult('login-result', `❌ Erreur: ${data.message}`, false);
                 }
@@ -901,6 +903,21 @@
         setInterval(keepPinnedSessionAlive, 180000);
 
         console.log('🔒 MemoLib chargé avec protections de sécurité activées');
+
+        async function resendVerification(email) {
+            try {
+                const res = await secureFetch(`${API_URL}/api/auth/resend-verification`, {
+                    method: 'POST',
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                const el = document.getElementById('resend-result');
+                if (el) el.innerHTML = `<span style="color:#059669;">✅ ${data.message}</span>`;
+            } catch (err) {
+                const el = document.getElementById('resend-result');
+                if (el) el.innerHTML = `<span style="color:#dc2626;">❌ Erreur réseau</span>`;
+            }
+        }
     </script>
 </body>
 </html>

@@ -30,7 +30,7 @@ export class CollaborationService {
   }
 
   /**
-   * DÃ©tecte les mentions @username dans le contenu
+   * Détecte les mentions @username dans le contenu
    * Format: @john.doe ou @marie
    */
   private async parseMentions(
@@ -46,7 +46,7 @@ export class CollaborationService {
 
     const usernames = [...new Set(matches.map((m) => m[1]))];
 
-    // RÃ©cupÃ©rer les users du tenant par email/username
+    // Récupérer les users du tenant par email/username
     const users = await this.prisma.user.findMany({
       where: {
         tenantId,
@@ -68,21 +68,21 @@ export class CollaborationService {
   }
 
   /**
-   * CrÃ©er un commentaire avec mentions automatiques
+   * Créer un commentaire avec mentions automatiques
    */
   async createComment(params: CreateCommentParams) {
     const { content, entityType, entityId, authorId, tenantId } = params;
 
-    // DÃ©tecter mentions
+    // Détecter mentions
     const mentions = await this.parseMentions(content, tenantId);
 
-    // CrÃ©er commentaire + mentions en transaction
+    // Créer commentaire + mentions en transaction
     const runTransaction = this.prisma.$transaction as <T>(
       fn: (tx: Prisma.TransactionClient) => Promise<T>
     ) => Promise<T>;
 
     const comment = await runTransaction(async (tx) => {
-      // 1. CrÃ©er le commentaire
+      // 1. Créer le commentaire
       const newComment = await tx.comment.create({
         data: {
           content,
@@ -103,7 +103,7 @@ export class CollaborationService {
         },
       });
 
-      // 2. CrÃ©er les mentions
+      // 2. Créer les mentions
       if (mentions.length > 0) {
         await tx.mention.createMany({
           data: mentions.map((m) => ({
@@ -150,7 +150,7 @@ export class CollaborationService {
       return newComment;
     });
 
-    // RÃ©cupÃ©rer avec mentions
+    // Récupérer avec mentions
     const commentWithMentions = await this.prisma.comment.findUnique({
       where: { id: comment.id },
       include: {
@@ -180,7 +180,7 @@ export class CollaborationService {
   }
 
   /**
-   * RÃ©cupÃ©rer tous les commentaires d'une entitÃ©
+   * Récupérer tous les commentaires d'une entité
    */
   async getComments(
     entityType: string,
@@ -233,7 +233,7 @@ export class CollaborationService {
   }
 
   /**
-   * RÃ©cupÃ©rer les mentions non lues d'un utilisateur
+   * Récupérer les mentions non lues d'un utilisateur
    */
   async getMyMentions(userId: string, options: { limit?: number } = {}) {
     const { limit = 20 } = options;
@@ -281,7 +281,7 @@ export class CollaborationService {
    * Supprimer un commentaire (soft delete possible selon besoin)
    */
   async deleteComment(commentId: string, tenantId: string, userId: string) {
-    // VÃ©rifier propriÃ©tÃ©
+    // Vérifier propriété
     const comment = await this.prisma.comment.findUnique({
       where: { id: commentId },
     });

@@ -38,6 +38,10 @@ public class AnalyticsService
                 .Where(e => e.OccurredAt >= today)
                 .CountAsync();
 
+            var avgResponse = await CalculateAverageResponseTimeAsync(userId);
+            var weeklyTrend = await GetWeeklyTrendAsync(userId);
+            var topClients = await GetTopClientsAsync(userId);
+
             return new DashboardMetrics
             {
                 EmailsToday = emailsToday,
@@ -45,9 +49,9 @@ public class AnalyticsService
                 TotalClients = totalClients,
                 TotalEvents = totalEvents,
                 OpenAnomalies = openAnomalies,
-                AverageResponseTimeHours = 2.5, // Valeur par défaut
-                WeeklyTrend = new List<WeeklyTrendItem>(),
-                TopClients = new List<TopClientItem>()
+                AverageResponseTimeHours = avgResponse,
+                WeeklyTrend = weeklyTrend,
+                TopClients = topClients
             };
         }
         catch (Exception)

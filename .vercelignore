@@ -1,3 +1,4 @@
+# Build artifacts
 .next
 node_modules
 *.db
@@ -5,11 +6,109 @@ node_modules
 *.db-wal
 bin/
 obj/
-MemoLib-Package-Client/app/_build_check/
-MemoLib-Package-Client/app/frontend-node/
-frontend-node/
 coverage/
 test-results/
 playwright-report/
 .jest-cache/
+.open-next/
+.swc/
+.wrangler/
+out/
+dist/
+publish/
+
+# .NET / C# (pas utilisé par Vercel)
+Controllers/
+Models/
+Data/
+Services/
+Migrations/
+Migrations_sqlite_backup/
+Hubs/
+Middleware/
+Validators/
+Exceptions/
+Extensions/
+Authorization/
+Configuration/
+Contracts/
+Properties/
+*.csproj
+*.cs
+*.csx
+appsettings*.json
+Program.cs
+
+# Python
+backend-python/
+ai-service/
+venv/
+.venv/
+*.py
+*.pyc
+__pycache__/
+*.ini
+
+# Docker
+docker/
+docker-compose*.yml
+compose*.yaml
+Dockerfile*
+
+# Scripts & tools
+scripts/
+*.ps1
+*.bat
+*.sh
+tampermonkey/
+cloudflare-workers/
+security/
+analysis/
+issues/
+pull_requests/
+
+# Docs (centaines de .md inutiles pour le build)
+docs/
+*.md
+!README.md
+
+# Logs & temp
+logs/
+memolib-logs/
 *.log
+*.tmp
+.tmp_*
+*.tar
+*.tar.gz
+*.zip
+
+# Test files
+__tests__/
+__mocks__/
+tests/
+*.test.ts
+*.test.tsx
+*.test.js
+*.spec.ts
+*.http
+test-*.ps1
+test-*.bat
+test-*.html
+
+# Marketing & artifacts
+marketing/
+artifacts/
+app-sentry-backup/
+MemoLib-Package-Client/
+frontend-node/
+wwwroot/
+
+# Config files not needed for build
+*.ipynb
+*.csv
+*.txt
+!prod-key.txt
+.zap/
+.devcontainer/
+.github/
+.husky/

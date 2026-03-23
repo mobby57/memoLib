@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Data;
 using MemoLib.Api.Models;
+using MemoLib.Api.Services;
 using System.Security.Claims;
 
 namespace MemoLib.Api.Controllers;
@@ -13,8 +14,13 @@ namespace MemoLib.Api.Controllers;
 public class ReportsController : ControllerBase
 {
     private readonly MemoLibDbContext _context;
+    private readonly CustomReportBuilderService _reportBuilder;
 
-    public ReportsController(MemoLibDbContext context) => _context = context;
+    public ReportsController(MemoLibDbContext context, CustomReportBuilderService reportBuilder)
+    {
+        _context = context;
+        _reportBuilder = reportBuilder;
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetReports()
@@ -98,5 +104,41 @@ public class ReportsController : ControllerBase
             .ToListAsync();
 
         return data;
+    }
+
+    /// <summary>
+    /// Génère un rapport personnalisé avec colonnes, filtres et agrégations dynamiques
+    /// </summary>
+    [HttpPost("custom")]
+    public async Task<IActionResult> GenerateCustomReport([FromBody] CustomReportRequest request)
+    {
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        try
+        {
+            var result = await _reportBuilder.BuildReportAsync(userId, request);
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Liste les sources de données disponibles pour les rapports personnalisés
+    /// </summary>
+    [HttpGet("custom/datasources")]
+    public IActionResult GetAvailableDataSources()
+    {
+        var sources = new[]
+        {
+            new { id = "CASES", name = "Dossiers", columns = new[] { "Id", "Title", "Status", "Priority", "Tags", "CreatedAt", "DueDate", "ClosedAt", "ClientId", "AssignedToUserId" } },
+            new { id = "CLIENTS", name = "Clients", columns = new[] { "Id", "Name", "Email", "Phone", "Address", "CreatedAt" } },
+            new { id = "TIME_ENTRIES", name = "Entrées de temps", columns = new[] { "Id", "CaseId", "StartTime", "Duration", "Description", "Amount", "HourlyRate", "IsBillable" } },
+            new { id = "INVOICES", name = "Factures", columns = new[] { "Id", "InvoiceNumber", "CaseId", "ClientId", "IssueDate", "DueDate", "TotalAmount", "Status" } },
+            new { id = "EVENTS", name = "Événements", columns = new[] { "Id", "EventType", "OccurredAt", "IngestedAt", "Severity", "RequiresAttention" } },
+            new { id = "TASKS", name = "Tâches", columns = new[] { "Id", "CaseId", "Title", "Description", "Priority", "IsCompleted", "DueDate", "CompletedAt", "CreatedAt" } }
+        };
+        return Ok(sources);
     }
 }

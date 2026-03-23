@@ -34,6 +34,15 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -41,14 +50,23 @@ namespace MemoLib.Api.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -59,6 +77,8 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("AdvancedTemplates");
                 });
@@ -72,9 +92,6 @@ namespace MemoLib.Api.Migrations
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("QuestionnaireResponseId")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("ResponseId")
                         .HasColumnType("TEXT");
 
@@ -84,7 +101,7 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuestionnaireResponseId");
+                    b.HasIndex("QuestionId");
 
                     b.HasIndex("ResponseId");
 
@@ -104,6 +121,18 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("EventId")
                         .HasColumnType("TEXT");
 
@@ -117,6 +146,15 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("TEXT");
@@ -138,10 +176,19 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("EntityId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EntityType")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Metadata")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UserId")
@@ -171,11 +218,26 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TriggerConditions")
@@ -184,6 +246,12 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<string>("TriggerType")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -208,6 +276,15 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -220,6 +297,9 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAllDay")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Location")
@@ -239,8 +319,17 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -273,8 +362,20 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Priority")
                         .HasColumnType("INTEGER");
@@ -286,11 +387,17 @@ namespace MemoLib.Api.Migrations
                     b.Property<string>("Tags")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UserId")
@@ -347,6 +454,10 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CaseId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("CaseActivities");
                 });
 
@@ -392,6 +503,12 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AddedByUserId");
+
+                    b.HasIndex("CaseId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("CaseCollaborators");
                 });
 
@@ -411,6 +528,15 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("EditedAt")
                         .HasColumnType("TEXT");
 
@@ -423,10 +549,22 @@ namespace MemoLib.Api.Migrations
                     b.Property<Guid?>("ParentCommentId")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CaseId");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("CaseComments");
                 });
@@ -447,6 +585,18 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
@@ -461,6 +611,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid?>("ParentDocumentId")
                         .HasColumnType("TEXT");
 
@@ -468,7 +621,16 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UploadedById")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UploadedByUserId")
@@ -478,6 +640,10 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentDocumentId");
+
+                    b.HasIndex("UploadedById");
 
                     b.HasIndex("CaseId", "Version");
 
@@ -493,6 +659,8 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("CaseId", "EventId");
+
+                    b.HasIndex("EventId");
 
                     b.ToTable("CaseEvents");
                 });
@@ -516,10 +684,28 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Mentions")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Visibility")
@@ -551,6 +737,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("SharedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("SharedById")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("SharedByUserId")
                         .HasColumnType("TEXT");
 
@@ -566,6 +755,8 @@ namespace MemoLib.Api.Migrations
 
                     b.HasIndex("CaseId");
 
+                    b.HasIndex("SharedById");
+
                     b.HasIndex("SharedWithEmail");
 
                     b.ToTable("CaseShares");
@@ -577,6 +768,9 @@ namespace MemoLib.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("AssignedToId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("AssignedToUserId")
                         .HasColumnType("TEXT");
 
@@ -586,10 +780,22 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CompletedById")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("CompletedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -601,14 +807,30 @@ namespace MemoLib.Api.Migrations
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Priority")
                         .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedToId");
+
+                    b.HasIndex("CompletedById");
 
                     b.HasIndex("CaseId", "IsCompleted", "DueDate");
 
@@ -627,9 +849,21 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -639,6 +873,15 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PhoneNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("UserId")
@@ -660,6 +903,15 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -671,6 +923,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -679,7 +934,13 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -709,6 +970,12 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("FormData")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -717,6 +984,9 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ReviewedById")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("ReviewedByUserId")
@@ -729,11 +999,21 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("SubmittedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UploadedDocumentIds")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CaseId");
+
+                    b.HasIndex("ReviewedById");
 
                     b.HasIndex("FormId", "Status", "SubmittedAt");
 
@@ -763,6 +1043,9 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("CreatedCaseId")
@@ -795,10 +1078,20 @@ namespace MemoLib.Api.Migrations
                     b.Property<Guid>("TemplateId")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccessToken")
                         .IsUnique();
+
+                    b.HasIndex("CreatedCaseId");
+
+                    b.HasIndex("TemplateId");
 
                     b.HasIndex("OwnerUserId", "Status", "CreatedAt");
 
@@ -812,6 +1105,9 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -840,7 +1136,10 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -862,6 +1161,15 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -873,8 +1181,20 @@ namespace MemoLib.Api.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -905,6 +1225,15 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("DocumentId")
                         .HasColumnType("TEXT");
 
@@ -919,6 +1248,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<string>("IpAddress")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("SignatureRequests")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -926,10 +1258,23 @@ namespace MemoLib.Api.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CaseId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("DocumentSignatures");
                 });
@@ -943,6 +1288,15 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -952,6 +1306,9 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsPublic")
@@ -964,13 +1321,21 @@ namespace MemoLib.Api.Migrations
                     b.Property<string>("PublicUrl")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("DynamicForms");
                 });
@@ -988,6 +1353,18 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -996,12 +1373,55 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("EmailTemplates");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.EmailVerificationToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EmailVerificationTokens");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Event", b =>
@@ -1012,6 +1432,18 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<string>("Checksum")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EmbeddingVector")
@@ -1026,6 +1458,9 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<DateTime>("IngestedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("OccurredAt")
                         .HasColumnType("TEXT");
@@ -1047,6 +1482,12 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Type")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ValidationFlags")
@@ -1082,12 +1523,24 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("DocumentIds")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Password")
                         .HasColumnType("TEXT");
@@ -1100,13 +1553,29 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("SharedById")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("SharedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CaseId");
+
                     b.HasIndex("ShareToken")
                         .IsUnique();
+
+                    b.HasIndex("SharedById");
 
                     b.ToTable("ExternalShares");
                 });
@@ -1147,6 +1616,8 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CaseId");
+
                     b.HasIndex("FormId", "SubmittedAt");
 
                     b.ToTable("FormSubmissions");
@@ -1165,6 +1636,12 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("ConnectedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("TEXT");
 
@@ -1180,6 +1657,12 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<string>("Settings")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -1207,12 +1690,24 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("InvoiceNumber")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("TEXT");
@@ -1242,10 +1737,19 @@ namespace MemoLib.Api.Migrations
                     b.Property<decimal>("TaxRate")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal>("Total")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("TotalAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -1284,6 +1788,10 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("TimeEntryId");
+
                     b.ToTable("InvoiceItems");
                 });
 
@@ -1299,8 +1807,20 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("EventId")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("INTEGER");
@@ -1321,6 +1841,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime?>("ResolvedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -1329,10 +1852,18 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EventId");
 
                     b.HasIndex("UserId", "IsRead", "CreatedAt");
 
@@ -1363,6 +1894,8 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("PasswordResetTokens");
                 });
 
@@ -1373,6 +1906,15 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("EventId")
@@ -1391,6 +1933,9 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<string>("FromName")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Preview")
                         .IsRequired()
@@ -1429,6 +1974,15 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("SuggestedClientPhone")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("UserArchive")
@@ -1475,6 +2029,10 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("PendingActions");
                 });
 
@@ -1490,6 +2048,18 @@ namespace MemoLib.Api.Migrations
                     b.Property<Guid?>("ClientId")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Direction")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -1500,8 +2070,14 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("HandledById")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("HandledByUserId")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Notes")
                         .HasColumnType("TEXT");
@@ -1516,10 +2092,23 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Transcription")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("HandledById");
 
                     b.HasIndex("CaseId", "StartTime");
 
@@ -1568,6 +2157,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
@@ -1583,6 +2175,12 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Tags")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -1612,6 +2210,10 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("QuestionnaireId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("CaseId", "EventId");
 
@@ -1659,6 +2261,18 @@ namespace MemoLib.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("TEXT");
 
@@ -1672,6 +2286,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("GeneratedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -1681,6 +2298,15 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -1705,6 +2331,18 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("INTEGER");
 
@@ -1719,6 +2357,9 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -1727,10 +2368,18 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CaseId");
 
                     b.HasIndex("UserId", "IsRead", "CreatedAt");
 
@@ -1758,11 +2407,26 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImprovementSuggestions")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("OverallSatisfaction")
                         .HasColumnType("INTEGER");
@@ -1789,10 +2453,25 @@ namespace MemoLib.Api.Migrations
                     b.Property<string>("SurveyToken")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool?>("WouldRecommend")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedLawyerId");
+
+                    b.HasIndex("CaseId");
+
+                    b.HasIndex("ClientId");
 
                     b.ToTable("SatisfactionSurveys");
                 });
@@ -1844,7 +2523,19 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -1853,6 +2544,15 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<string>("Participants")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -1925,6 +2625,8 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Sources");
                 });
 
@@ -1949,6 +2651,8 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TaskId");
+
                     b.ToTable("TaskChecklistItems");
                 });
 
@@ -1965,6 +2669,10 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DependsOnTaskId");
+
+                    b.HasIndex("TaskId");
 
                     b.ToTable("TaskDependencies");
                 });
@@ -1999,6 +2707,10 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CaseId");
+
+                    b.HasIndex("FromUserId");
+
                     b.HasIndex("ToUserId", "IsRead", "SentAt");
 
                     b.ToTable("TeamMessages");
@@ -2017,6 +2729,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -2026,6 +2741,12 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<string>("SectorId")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -2056,6 +2777,18 @@ namespace MemoLib.Api.Migrations
                     b.Property<Guid>("CaseId")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -2075,10 +2808,22 @@ namespace MemoLib.Api.Migrations
                     b.Property<bool>("IsBillable")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsInvoiced")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("StartTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UserId")
@@ -2113,12 +2858,18 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirmName")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
@@ -2138,10 +2889,21 @@ namespace MemoLib.Api.Migrations
                     b.Property<string>("Role")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Users");
                 });
@@ -2241,6 +3003,9 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
                     b.ToTable("UserAutomationSettings");
                 });
 
@@ -2286,7 +3051,8 @@ namespace MemoLib.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("UserEmailConfigs");
                 });
@@ -2298,6 +3064,9 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -2322,6 +3091,12 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<int>("Role")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -2369,6 +3144,9 @@ namespace MemoLib.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Event")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -2386,6 +3164,12 @@ namespace MemoLib.Api.Migrations
                     b.Property<int>("TriggerCount")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -2394,6 +3178,8 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Webhooks");
                 });
@@ -2428,6 +3214,8 @@ namespace MemoLib.Api.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("WebhookId");
 
                     b.ToTable("WebhookLogs");
                 });
@@ -2477,6 +3265,18 @@ namespace MemoLib.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -2487,6 +3287,15 @@ namespace MemoLib.Api.Migrations
 
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("TEXT");
@@ -2509,17 +3318,40 @@ namespace MemoLib.Api.Migrations
                     b.ToTable("WorkspaceDocuments");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.AdvancedTemplate", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Answer", b =>
                 {
-                    b.HasOne("MemoLib.Api.Models.QuestionnaireResponse", null)
+                    b.HasOne("MemoLib.Api.Models.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.QuestionnaireResponse", "Response")
                         .WithMany("Answers")
-                        .HasForeignKey("QuestionnaireResponseId");
+                        .HasForeignKey("ResponseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Response");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Attachment", b =>
                 {
                     b.HasOne("MemoLib.Api.Models.Event", "Event")
-                        .WithMany()
+                        .WithMany("Attachments")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2527,7 +3359,599 @@ namespace MemoLib.Api.Migrations
                     b.Navigation("Event");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.AuditLog", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Automation", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.CalendarEvent", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany("CalendarEvents")
+                        .HasForeignKey("CaseId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Case", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "AssignedTo")
+                        .WithMany("AssignedCases")
+                        .HasForeignKey("AssignedToUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("MemoLib.Api.Models.Client", "Client")
+                        .WithMany("Cases")
+                        .HasForeignKey("ClientId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "Owner")
+                        .WithMany("OwnedCases")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseActivity", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany("Activities")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseCollaborator", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "AddedBy")
+                        .WithMany()
+                        .HasForeignKey("AddedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany("Collaborators")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AddedBy");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseComment", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany("Comments")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.CaseComment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseDocument", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany("Documents")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.CaseDocument", "ParentDocument")
+                        .WithMany("Versions")
+                        .HasForeignKey("ParentDocumentId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "UploadedBy")
+                        .WithMany()
+                        .HasForeignKey("UploadedById");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("ParentDocument");
+
+                    b.Navigation("UploadedBy");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseEvent", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", null)
+                        .WithMany("CaseEvents")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.Event", null)
+                        .WithMany("CaseEvents")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseNote", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany("Notes")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Case");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseShare", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "SharedBy")
+                        .WithMany()
+                        .HasForeignKey("SharedById");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("SharedBy");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseTask", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId");
+
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany("Tasks")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "CompletedBy")
+                        .WithMany()
+                        .HasForeignKey("CompletedById");
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("CompletedBy");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Client", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.ClientIntakeForm", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.ClientIntakeSubmission", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId");
+
+                    b.HasOne("MemoLib.Api.Models.ClientIntakeForm", "Form")
+                        .WithMany("Submissions")
+                        .HasForeignKey("FormId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "ReviewedBy")
+                        .WithMany()
+                        .HasForeignKey("ReviewedById");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("Form");
+
+                    b.Navigation("ReviewedBy");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.ClientOnboardingRequest", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "CreatedCase")
+                        .WithMany()
+                        .HasForeignKey("CreatedCaseId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.ClientOnboardingTemplate", "Template")
+                        .WithMany("Requests")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedCase");
+
+                    b.Navigation("OwnerUser");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.ClientOnboardingTemplate", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CustomForm", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.DocumentSignature", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.DynamicForm", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.EmailTemplate", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany("EmailTemplates")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.EmailVerificationToken", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Event", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Source", "Source")
+                        .WithMany("Events")
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Source");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.ExternalShare", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "SharedBy")
+                        .WithMany()
+                        .HasForeignKey("SharedById");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("SharedBy");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.FormSubmission", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId");
+
+                    b.HasOne("MemoLib.Api.Models.CustomForm", "Form")
+                        .WithMany("Submissions")
+                        .HasForeignKey("FormId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("Form");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Integration", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Invoice", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany("Invoices")
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.Client", "Client")
+                        .WithMany("Invoices")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.InvoiceItem", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Invoice", "Invoice")
+                        .WithMany("Items")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.TimeEntry", "TimeEntry")
+                        .WithMany()
+                        .HasForeignKey("TimeEntryId");
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("TimeEntry");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Notification", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.PasswordResetToken", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.PendingAction", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.PhoneCall", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "HandledBy")
+                        .WithMany()
+                        .HasForeignKey("HandledById");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("HandledBy");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Question", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Questionnaire", "Questionnaire")
+                        .WithMany("Questions")
+                        .HasForeignKey("QuestionnaireId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Questionnaire");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.QuestionnaireResponse", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.Questionnaire", "Questionnaire")
+                        .WithMany("Responses")
+                        .HasForeignKey("QuestionnaireId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
+
+                    b.Navigation("Questionnaire");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.RefreshToken", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Report", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.RoleNotification", b =>
                 {
                     b.HasOne("MemoLib.Api.Models.Case", "Case")
                         .WithMany()
@@ -2544,56 +3968,12 @@ namespace MemoLib.Api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MemoLib.Api.Models.Case", b =>
+            modelBuilder.Entity("MemoLib.Api.Models.SatisfactionSurvey", b =>
                 {
-                    b.HasOne("MemoLib.Api.Models.Client", "Client")
+                    b.HasOne("MemoLib.Api.Models.User", "AssignedLawyer")
                         .WithMany()
-                        .HasForeignKey("ClientId");
+                        .HasForeignKey("AssignedLawyerId");
 
-                    b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("MemoLib.Api.Models.CaseEvent", b =>
-                {
-                    b.HasOne("MemoLib.Api.Models.Case", null)
-                        .WithMany("CaseEvents")
-                        .HasForeignKey("CaseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MemoLib.Api.Models.CaseNote", b =>
-                {
-                    b.HasOne("MemoLib.Api.Models.User", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MemoLib.Api.Models.Case", "Case")
-                        .WithMany()
-                        .HasForeignKey("CaseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Author");
-
-                    b.Navigation("Case");
-                });
-
-            modelBuilder.Entity("MemoLib.Api.Models.Event", b =>
-                {
-                    b.HasOne("MemoLib.Api.Models.Source", "Source")
-                        .WithMany()
-                        .HasForeignKey("SourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Source");
-                });
-
-            modelBuilder.Entity("MemoLib.Api.Models.Invoice", b =>
-                {
                     b.HasOne("MemoLib.Api.Models.Case", "Case")
                         .WithMany()
                         .HasForeignKey("CaseId")
@@ -2606,18 +3986,33 @@ namespace MemoLib.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("AssignedLawyer");
+
                     b.Navigation("Case");
 
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("MemoLib.Api.Models.Question", b =>
+            modelBuilder.Entity("MemoLib.Api.Models.SecretVault", b =>
                 {
-                    b.HasOne("MemoLib.Api.Models.Questionnaire", null)
-                        .WithMany("Questions")
-                        .HasForeignKey("QuestionnaireId")
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.SharedWorkspace", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Case");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.SignatureRequest", b =>
@@ -2631,15 +4026,79 @@ namespace MemoLib.Api.Migrations
                     b.Navigation("DocumentSignature");
                 });
 
-            modelBuilder.Entity("MemoLib.Api.Models.TimeEntry", b =>
+            modelBuilder.Entity("MemoLib.Api.Models.Source", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.TaskChecklistItem", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.CaseTask", "Task")
+                        .WithMany("ChecklistItems")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.TaskDependency", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.CaseTask", "DependsOnTask")
+                        .WithMany()
+                        .HasForeignKey("DependsOnTaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.CaseTask", "Task")
+                        .WithMany("Dependencies")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DependsOnTask");
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.TeamMessage", b =>
                 {
                     b.HasOne("MemoLib.Api.Models.Case", "Case")
                         .WithMany()
+                        .HasForeignKey("CaseId");
+
+                    b.HasOne("MemoLib.Api.Models.User", "FromUser")
+                        .WithMany()
+                        .HasForeignKey("FromUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MemoLib.Api.Models.User", "ToUser")
+                        .WithMany()
+                        .HasForeignKey("ToUserId");
+
+                    b.Navigation("Case");
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("ToUser");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.TimeEntry", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany("TimeEntries")
                         .HasForeignKey("CaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MemoLib.Api.Models.Invoice", null)
+                    b.HasOne("MemoLib.Api.Models.Invoice", "Invoice")
                         .WithMany("TimeEntries")
                         .HasForeignKey("InvoiceId");
 
@@ -2651,14 +4110,36 @@ namespace MemoLib.Api.Migrations
 
                     b.Navigation("Case");
 
+                    b.Navigation("Invoice");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.User", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Tenant", "Tenant")
+                        .WithMany("Users")
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.UserAutomationSettings", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithOne("AutomationSettings")
+                        .HasForeignKey("MemoLib.Api.Models.UserAutomationSettings", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.UserEmailConfig", b =>
                 {
                     b.HasOne("MemoLib.Api.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("EmailConfig")
+                        .HasForeignKey("MemoLib.Api.Models.UserEmailConfig", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2693,24 +4174,175 @@ namespace MemoLib.Api.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.Webhook", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.WebhookLog", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.Webhook", "Webhook")
+                        .WithMany("Logs")
+                        .HasForeignKey("WebhookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Webhook");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.WorkspaceActivity", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.SharedWorkspace", "Workspace")
+                        .WithMany("Activities")
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Workspace");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.WorkspaceDocument", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.SharedWorkspace", "Workspace")
+                        .WithMany("Documents")
+                        .HasForeignKey("WorkspaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Workspace");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Case", b =>
                 {
+                    b.Navigation("Activities");
+
+                    b.Navigation("CalendarEvents");
+
+                    b.Navigation("CaseEvents");
+
+                    b.Navigation("Collaborators");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("Documents");
+
+                    b.Navigation("Invoices");
+
+                    b.Navigation("Notes");
+
+                    b.Navigation("Tasks");
+
+                    b.Navigation("TimeEntries");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseComment", b =>
+                {
+                    b.Navigation("Replies");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseDocument", b =>
+                {
+                    b.Navigation("Versions");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CaseTask", b =>
+                {
+                    b.Navigation("ChecklistItems");
+
+                    b.Navigation("Dependencies");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Client", b =>
+                {
+                    b.Navigation("Cases");
+
+                    b.Navigation("Invoices");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.ClientIntakeForm", b =>
+                {
+                    b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.ClientOnboardingTemplate", b =>
+                {
+                    b.Navigation("Requests");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.CustomForm", b =>
+                {
+                    b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Event", b =>
+                {
+                    b.Navigation("Attachments");
+
                     b.Navigation("CaseEvents");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Invoice", b =>
                 {
+                    b.Navigation("Items");
+
                     b.Navigation("TimeEntries");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Questionnaire", b =>
                 {
                     b.Navigation("Questions");
+
+                    b.Navigation("Responses");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.QuestionnaireResponse", b =>
                 {
                     b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.SharedWorkspace", b =>
+                {
+                    b.Navigation("Activities");
+
+                    b.Navigation("Documents");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Source", b =>
+                {
+                    b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Tenant", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.User", b =>
+                {
+                    b.Navigation("AssignedCases");
+
+                    b.Navigation("AutomationSettings");
+
+                    b.Navigation("EmailConfig");
+
+                    b.Navigation("EmailTemplates");
+
+                    b.Navigation("Notifications");
+
+                    b.Navigation("OwnedCases");
+
+                    b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.Webhook", b =>
+                {
+                    b.Navigation("Logs");
                 });
 #pragma warning restore 612, 618
         }
