@@ -1,11 +1,9 @@
-# Build artifacts
+# Build artifacts & caches
 .next
 node_modules
 *.db
 *.db-shm
 *.db-wal
-bin/
-obj/
 coverage/
 test-results/
 playwright-report/
@@ -17,98 +15,78 @@ out/
 dist/
 publish/
 
-# .NET / C# (pas utilisé par Vercel)
-Controllers/
-Models/
-Data/
-Services/
-Migrations/
-Migrations_sqlite_backup/
-Hubs/
-Middleware/
-Validators/
-Exceptions/
-Extensions/
-Authorization/
-Configuration/
-Contracts/
-Properties/
-*.csproj
-*.cs
-*.csx
-appsettings*.json
+# .NET (root level only)
+/bin/
+/obj/
+/Controllers/
+/Models/
+/Data/
+/Services/
+/Migrations/
+/Migrations_sqlite_backup/
+/Hubs/
+/Middleware/
+/Validators/
+/Exceptions/
+/Extensions/
+/Authorization/
+/Configuration/
+/Contracts/
+/Properties/
 Program.cs
+*.csproj
+*.csx
 
-# Python
-backend-python/
-ai-service/
-venv/
-.venv/
-*.py
-*.pyc
-__pycache__/
-*.ini
+# Python backend
+/backend-python/
+/ai-service/
+/venv/
+/.venv/
 
 # Docker
-docker/
+/docker/
 docker-compose*.yml
 compose*.yaml
 Dockerfile*
 
 # Scripts & tools
-scripts/
+/scripts/
 *.ps1
 *.bat
-*.sh
-tampermonkey/
-cloudflare-workers/
-security/
-analysis/
-issues/
-pull_requests/
+/tampermonkey/
+/cloudflare-workers/
+/security/
+/analysis/
+/issues/
+/pull_requests/
 
-# Docs (centaines de .md inutiles pour le build)
-docs/
+# Docs
+/docs/
 *.md
 !README.md
 
 # Logs & temp
-logs/
-memolib-logs/
+/logs/
+/memolib-logs/
+/artifacts/
 *.log
-*.tmp
 .tmp_*
 *.tar
 *.tar.gz
 *.zip
 
-# Test files
-__tests__/
-__mocks__/
-tests/
-*.test.ts
-*.test.tsx
-*.test.js
-*.spec.ts
+# Tests (root level only)
+/tests/
 *.http
-test-*.ps1
-test-*.bat
-test-*.html
 
-# Marketing & artifacts
-marketing/
-artifacts/
-app-sentry-backup/
-MemoLib-Package-Client/
-frontend-node/
-wwwroot/
-
-# Config files not needed for build
+# Other
+/marketing/
+/app-sentry-backup/
+/MemoLib-Package-Client/
+/frontend-node/
+/wwwroot/
 *.ipynb
 *.csv
-*.txt
-!prod-key.txt
 .zap/
 .devcontainer/
-.github/
 .husky/
