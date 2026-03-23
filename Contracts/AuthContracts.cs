@@ -37,7 +37,7 @@ public class RegisterResponse
     public string Email { get; set; } = null!;
     public string Name { get; set; } = null!;
     public string Role { get; set; } = null!;
-    public string? Message { get; set; }
+    public string Message { get; set; } = string.Empty;
 }
 
 public class UserDto
