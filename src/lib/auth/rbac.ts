@@ -26,8 +26,12 @@ export type RbacPermission = (typeof RBAC_PERMISSIONS)[keyof typeof RBAC_PERMISS
 export type RbacGroup =
   | 'platform-admin'
   | 'cabinet-admin'
+  | 'associate'
   | 'billing-manager'
   | 'lawyer'
+  | 'intern'
+  | 'secretary'
+  | 'accountant'
   | 'client';
 
 type SessionLike = {
@@ -40,6 +44,8 @@ type SessionLike = {
 
 const GROUP_PERMISSIONS: Record<RbacGroup, RbacPermission[]> = {
   'platform-admin': ['*'],
+
+  // Avocat titulaire — tout le cabinet
   'cabinet-admin': [
     RBAC_PERMISSIONS.USERS_READ,
     RBAC_PERMISSIONS.USERS_MANAGE,
@@ -59,12 +65,27 @@ const GROUP_PERMISSIONS: Record<RbacGroup, RbacPermission[]> = {
     RBAC_PERMISSIONS.ANALYTICS_READ,
     RBAC_PERMISSIONS.TENANTS_READ,
   ],
-  'billing-manager': [
+
+  // Associé — comme cabinet-admin + finances
+  associate: [
+    RBAC_PERMISSIONS.USERS_READ,
+    RBAC_PERMISSIONS.CLIENTS_READ,
+    RBAC_PERMISSIONS.CLIENTS_MANAGE,
+    RBAC_PERMISSIONS.TASKS_READ,
+    RBAC_PERMISSIONS.TASKS_MANAGE,
+    RBAC_PERMISSIONS.EVENTS_READ,
+    RBAC_PERMISSIONS.EVENTS_MANAGE,
+    RBAC_PERMISSIONS.DOSSIERS_READ,
+    RBAC_PERMISSIONS.DOSSIERS_MANAGE,
+    RBAC_PERMISSIONS.DOCUMENTS_READ,
+    RBAC_PERMISSIONS.DOCUMENTS_MANAGE,
     RBAC_PERMISSIONS.FACTURES_READ,
     RBAC_PERMISSIONS.FACTURES_MANAGE,
     RBAC_PERMISSIONS.PAYMENTS_CREATE_INTENT,
     RBAC_PERMISSIONS.ANALYTICS_READ,
   ],
+
+  // Collaborateur — dossiers, clients, docs
   lawyer: [
     RBAC_PERMISSIONS.CLIENTS_READ,
     RBAC_PERMISSIONS.CLIENTS_MANAGE,
@@ -79,6 +100,46 @@ const GROUP_PERMISSIONS: Record<RbacGroup, RbacPermission[]> = {
     RBAC_PERMISSIONS.FACTURES_READ,
     RBAC_PERMISSIONS.PAYMENTS_CREATE_INTENT,
   ],
+
+  // Stagiaire — lecture + tâches assignées
+  intern: [
+    RBAC_PERMISSIONS.CLIENTS_READ,
+    RBAC_PERMISSIONS.TASKS_READ,
+    RBAC_PERMISSIONS.TASKS_MANAGE,
+    RBAC_PERMISSIONS.EVENTS_READ,
+    RBAC_PERMISSIONS.DOSSIERS_READ,
+    RBAC_PERMISSIONS.DOCUMENTS_READ,
+  ],
+
+  // Secrétaire — agenda, emails, docs, clients
+  secretary: [
+    RBAC_PERMISSIONS.CLIENTS_READ,
+    RBAC_PERMISSIONS.CLIENTS_MANAGE,
+    RBAC_PERMISSIONS.TASKS_READ,
+    RBAC_PERMISSIONS.TASKS_MANAGE,
+    RBAC_PERMISSIONS.EVENTS_READ,
+    RBAC_PERMISSIONS.EVENTS_MANAGE,
+    RBAC_PERMISSIONS.DOSSIERS_READ,
+    RBAC_PERMISSIONS.DOCUMENTS_READ,
+    RBAC_PERMISSIONS.DOCUMENTS_MANAGE,
+  ],
+
+  // Comptable — factures, paiements, analytics
+  accountant: [
+    RBAC_PERMISSIONS.FACTURES_READ,
+    RBAC_PERMISSIONS.FACTURES_MANAGE,
+    RBAC_PERMISSIONS.PAYMENTS_CREATE_INTENT,
+    RBAC_PERMISSIONS.ANALYTICS_READ,
+    RBAC_PERMISSIONS.CLIENTS_READ,
+  ],
+
+  'billing-manager': [
+    RBAC_PERMISSIONS.FACTURES_READ,
+    RBAC_PERMISSIONS.FACTURES_MANAGE,
+    RBAC_PERMISSIONS.PAYMENTS_CREATE_INTENT,
+    RBAC_PERMISSIONS.ANALYTICS_READ,
+  ],
+
   client: [
     RBAC_PERMISSIONS.DOSSIERS_READ,
     RBAC_PERMISSIONS.DOCUMENTS_READ,
@@ -90,7 +151,13 @@ const GROUP_PERMISSIONS: Record<RbacGroup, RbacPermission[]> = {
 const ROLE_GROUPS: Record<string, RbacGroup[]> = {
   SUPER_ADMIN: ['platform-admin'],
   ADMIN: ['cabinet-admin', 'billing-manager'],
+  AVOCAT: ['cabinet-admin', 'billing-manager'],
+  ASSOCIE: ['associate', 'billing-manager'],
+  COLLABORATEUR: ['lawyer'],
   LAWYER: ['lawyer'],
+  STAGIAIRE: ['intern'],
+  SECRETAIRE: ['secretary'],
+  COMPTABLE: ['accountant'],
   CLIENT: ['client'],
 };
 

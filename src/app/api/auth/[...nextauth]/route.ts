@@ -128,9 +128,64 @@ export const authOptions: NextAuthOptions = {
             'avocat@memolib.fr': {
               id: 'demo-lawyer-1',
               email: 'avocat@memolib.fr',
-              name: 'Avocat Demo',
-              role: 'LAWYER',
+              name: 'Me. Sophie Martin',
+              role: 'AVOCAT',
               password: process.env.DEMO_LAWYER_PASSWORD || 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'associe@memolib.fr': {
+              id: 'demo-associe-1',
+              email: 'associe@memolib.fr',
+              name: 'Me. Pierre Durand',
+              role: 'ASSOCIE',
+              password: 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'collaborateur@memolib.fr': {
+              id: 'demo-collab-1',
+              email: 'collaborateur@memolib.fr',
+              name: 'Me. Julie Petit',
+              role: 'COLLABORATEUR',
+              password: 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'stagiaire@memolib.fr': {
+              id: 'demo-stagiaire-1',
+              email: 'stagiaire@memolib.fr',
+              name: 'Lucas Bernard',
+              role: 'STAGIAIRE',
+              password: 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'secretaire@memolib.fr': {
+              id: 'demo-secretaire-1',
+              email: 'secretaire@memolib.fr',
+              name: 'Marie Leroy',
+              role: 'SECRETAIRE',
+              password: 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'comptable@memolib.fr': {
+              id: 'demo-comptable-1',
+              email: 'comptable@memolib.fr',
+              name: 'Anne Moreau',
+              role: 'COMPTABLE',
+              password: 'demo123',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'professional',
@@ -262,15 +317,22 @@ export const authOptions: NextAuthOptions = {
         (session as any).githubRefreshToken = token.githubRefreshToken;
         (session as any).githubTokenExpiry = token.githubTokenExpiry;
 
+        const STAFF_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR', 'SECRETAIRE', 'COMPTABLE', 'STAGIAIRE'];
+        const MANAGE_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE'];
+        const FINANCE_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE', 'COMPTABLE'];
+        const userRole = token.role as string;
+
         (session.user as any).permissions = {
-          canManageTenants: token.role === 'SUPER_ADMIN',
-          canManageClients: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
-          canManageDossiers: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
-          canViewOwnDossier: token.role === 'CLIENT',
-          canManageFactures: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
-          canViewOwnFactures: token.role === 'CLIENT',
-          canAccessAnalytics: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
-          canManageUsers: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
+          canManageTenants: userRole === 'SUPER_ADMIN',
+          canManageClients: MANAGE_ROLES.includes(userRole) || userRole === 'SECRETAIRE',
+          canManageDossiers: MANAGE_ROLES.includes(userRole) || userRole === 'COLLABORATEUR',
+          canViewOwnDossier: userRole === 'CLIENT',
+          canManageFactures: FINANCE_ROLES.includes(userRole),
+          canViewOwnFactures: userRole === 'CLIENT',
+          canAccessAnalytics: FINANCE_ROLES.includes(userRole),
+          canManageUsers: MANAGE_ROLES.includes(userRole),
+          canManageCalendar: STAFF_ROLES.includes(userRole),
+          canManageDocuments: STAFF_ROLES.filter(r => r !== 'STAGIAIRE').includes(userRole),
           canAccessRbacDossiers:
             rbac.permissions.includes('*') ||
             rbac.permissions.includes(RBAC_PERMISSIONS.DOSSIERS_READ),
