@@ -1,6 +1,14 @@
 ﻿// Types globaux pour l'application
 // Roles hierarchiques standardises
-export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'CLIENT';
+export type UserRole =
+  | 'SUPER_ADMIN'    // Plateforme entière
+  | 'AVOCAT'         // Avocat titulaire / admin du cabinet
+  | 'ASSOCIE'        // Avocat associé (finances + analytics)
+  | 'COLLABORATEUR'  // Avocat collaborateur (dossiers assignés)
+  | 'STAGIAIRE'      // Élève-avocat (lecture + tâches)
+  | 'SECRETAIRE'     // Secrétaire juridique (agenda, emails, docs)
+  | 'COMPTABLE'      // Comptable (factures, paiements)
+  | 'CLIENT';        // Client du cabinet
 export type TenantPlan = 'BASIC' | 'PREMIUM' | 'ENTERPRISE';
 
 export interface User {
