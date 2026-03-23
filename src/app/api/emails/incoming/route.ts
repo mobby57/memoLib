@@ -9,6 +9,11 @@ import { eventLogService } from '@/lib/services/event-log.service';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
 import { filterRuleService } from '@/frontend/lib/services/filter-rule.service';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
+import { Prisma } from '@prisma/client';
+import {
+  IncomingEmailPayloadSchema,
+  normalizeIncomingEmailPayload,
+} from '@/lib/email/ingestion';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -27,19 +32,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { from, to, subject, body: emailBody, htmlBody, attachments, messageId } = body;
+    const rawRequestBody = await request.text();
 
-    if (!from || !to || !subject) {
-      return NextResponse.json({ error: 'from, to et subject sont requis' }, { status: 400 });
+    let requestBody: unknown;
+    try {
+      requestBody = JSON.parse(rawRequestBody);
+    } catch {
+      return NextResponse.json({ error: 'Payload JSON invalide' }, { status: 400 });
     }
+
+    const parsedPayload = IncomingEmailPayloadSchema.safeParse(requestBody);
+    if (!parsedPayload.success) {
+      return NextResponse.json(
+        { error: 'Payload email invalide', details: parsedPayload.error.flatten() },
+        { status: 400 }
+      );
+    }
+
+    const normalized = normalizeIncomingEmailPayload(parsedPayload.data, rawRequestBody);
+    const { from, to, subject, body: emailBody, htmlBody, attachments, messageId } = normalized;
 
     // Trouver le tenant destinataire base sur l'email "to"
     const tenant = await prisma.tenant.findFirst({
       where: {
         users: {
           some: {
-            email: to.toLowerCase(),
+            email: { in: normalized.tenantLookupRecipients },
             role: { in: ['ADMIN', 'LAWYER', 'USER'] },
           },
         },
@@ -51,11 +69,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Destinataire non trouve' }, { status: 404 });
     }
 
+    const duplicateEmail = await findDuplicateEmail(tenant.id, normalized);
+    if (duplicateEmail) {
+      await eventLogService.createEventLog({
+        eventType: 'FLOW_RECEIVED',
+        entityType: 'email',
+        entityId: duplicateEmail.id,
+        actorType: 'SYSTEM',
+        tenantId: tenant.id,
+        metadata: {
+          source: 'incoming-webhook',
+          deduplicated: true,
+          duplicateOfEmailId: duplicateEmail.id,
+          messageId: normalized.messageId,
+          providerMessageId: normalized.providerMessageId,
+          contentHash: normalized.contentHash,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        duplicate: true,
+        emailId: duplicateEmail.id,
+        message: 'Email deja traite (idempotent)',
+      });
+    }
+
     // Chercher si l'expediteur est un client connu
     const client = await prisma.client.findFirst({
       where: {
         tenantId: tenant.id,
-        email: from.toLowerCase(),
+        email: normalized.fromAddress || from.toLowerCase(),
       },
     });
 
@@ -70,7 +114,7 @@ export async function POST(request: NextRequest) {
         subject,
         body: emailBody,
         from,
-        receivedAt: new Date(),
+        receivedAt: normalized.receivedAt,
         attachments,
       });
 
@@ -87,24 +131,63 @@ export async function POST(request: NextRequest) {
     }
 
     // Creer l'email dans la base
-    const email = await prisma.email.create({
-      data: {
-        tenantId: tenant.id,
-        messageId,
-        from: from.toLowerCase(),
-        to: to.toLowerCase(),
-        subject,
-        body: emailBody || '',
-        htmlBody,
-        preview: (emailBody || '').substring(0, 200),
-        category,
-        urgency,
-        sentiment,
-        aiAnalysis,
-        clientId: client?.id,
-        receivedAt: new Date(),
-      },
-    });
+    let email;
+    try {
+      email = await prisma.email.create({
+        data: {
+          tenantId: tenant.id,
+          messageId,
+          providerMessageId: normalized.providerMessageId,
+          threadId: normalized.threadId,
+          internetMessageId: normalized.internetMessageId,
+          sourceChannel: normalized.sourceChannel,
+          sourceProvider: normalized.sourceProvider,
+          sourceDirection: normalized.sourceDirection,
+          from: from.toLowerCase(),
+          fromAddress: normalized.fromAddress,
+          to: to.toLowerCase(),
+          toAddresses: normalized.toAddresses,
+          cc: normalized.cc,
+          bcc: normalized.bcc,
+          replyTo: normalized.replyTo,
+          inReplyTo: normalized.inReplyTo,
+          referenceIds: normalized.referenceIds,
+          subject,
+          body: emailBody || '',
+          bodyText: normalized.bodyText,
+          htmlBody,
+          preview: (emailBody || '').substring(0, 200),
+          hasAttachments: normalized.hasAttachments,
+          rawFormat: normalized.rawFormat,
+          rawPayload: normalized.rawPayload,
+          rawHeaders: normalized.rawHeaders,
+          rawContent: normalized.rawContent,
+          normalizedPayload: normalized.normalizedPayload,
+          contentHash: normalized.contentHash,
+          category,
+          urgency,
+          sentiment,
+          aiAnalysis,
+          clientId: client?.id,
+          receivedAt: normalized.receivedAt,
+          receivedDate: normalized.receivedDate,
+        },
+      });
+    } catch (error) {
+      // Handle race conditions on unique messageId inserts with an idempotent response.
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const existing = await findDuplicateEmail(tenant.id, normalized);
+        if (existing) {
+          return NextResponse.json({
+            success: true,
+            duplicate: true,
+            emailId: existing.id,
+            message: 'Email deja traite (idempotent)',
+          });
+        }
+      }
+      throw error;
+    }
 
     // RULE-005: Tracer réception flux email
     await eventLogService.createEventLog({
@@ -155,14 +238,18 @@ export async function POST(request: NextRequest) {
     logger.info(`[SMART-INBOX] Score calculé: ${scoreResult.score}/100 pour email ${email.id}`);
 
     // Creer les pieces jointes si presentes
-    if (attachments && attachments.length > 0) {
+    if (attachments.length > 0) {
       await prisma.emailAttachment.createMany({
-        data: attachments.map((att: any) => ({
+        data: attachments.map(att => ({
           emailId: email.id,
           filename: att.filename,
-          mimeType: att.mimeType || 'application/octet-stream',
-          size: att.size || 0,
+          mimeType: att.mimeType,
+          size: att.size,
           storageKey: att.storageKey,
+          contentId: att.contentId,
+          disposition: att.disposition,
+          checksum: att.checksum,
+          metadata: att.metadata,
         })),
       });
     }
@@ -277,5 +364,42 @@ async function executeWorkflowSteps(
       isProcessed: true,
       processedAt: new Date(),
     },
+  });
+}
+
+async function findDuplicateEmail(
+  tenantId: string,
+  normalized: {
+    messageId: string | null;
+    providerMessageId: string | null;
+    internetMessageId: string | null;
+    contentHash: string;
+  }
+) {
+  const orConditions: Prisma.EmailWhereInput[] = [];
+
+  if (normalized.messageId) {
+    orConditions.push({ messageId: normalized.messageId });
+  }
+  if (normalized.providerMessageId) {
+    orConditions.push({ providerMessageId: normalized.providerMessageId });
+  }
+  if (normalized.internetMessageId) {
+    orConditions.push({ internetMessageId: normalized.internetMessageId });
+  }
+  if (normalized.contentHash) {
+    orConditions.push({ contentHash: normalized.contentHash });
+  }
+
+  if (orConditions.length === 0) {
+    return null;
+  }
+
+  return prisma.email.findFirst({
+    where: {
+      tenantId,
+      OR: orConditions,
+    },
+    select: { id: true },
   });
 }
