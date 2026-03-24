@@ -78,6 +78,8 @@ public class MemoLibDbContext : DbContext
     public DbSet<SecretVault> SecretVaults => Set<SecretVault>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+    public DbSet<LegalDeadline> LegalDeadlines => Set<LegalDeadline>();
+    public DbSet<Hearing> Hearings => Set<Hearing>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -374,6 +376,18 @@ public class MemoLibDbContext : DbContext
 
         modelBuilder.Entity<EmailVerificationToken>()
             .HasIndex(t => t.UserId);
+
+        modelBuilder.Entity<LegalDeadline>()
+            .HasIndex(d => new { d.CaseId, d.Deadline });
+
+        modelBuilder.Entity<LegalDeadline>()
+            .HasIndex(d => new { d.Status, d.Deadline });
+
+        modelBuilder.Entity<Hearing>()
+            .HasIndex(h => new { h.CaseId, h.Date });
+
+        modelBuilder.Entity<Hearing>()
+            .HasIndex(h => new { h.Status, h.Date });
 
         base.OnModelCreating(modelBuilder);
     }

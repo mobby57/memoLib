@@ -78,3 +78,31 @@ public class ResendVerificationRequest
 {
     public string Email { get; set; } = null!;
 }
+
+public class AccountProfileDto
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; } = null!;
+    public string? Name { get; set; }
+    public string? Role { get; set; }
+    public string? Phone { get; set; }
+    public string? FirmName { get; set; }
+    public string? BarNumber { get; set; }
+    public string? Address { get; set; }
+    public string? City { get; set; }
+    public string? PostalCode { get; set; }
+    public string? Plan { get; set; }
+    public bool IsEmailVerified { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+public class UpdateProfileRequest
+{
+    public string? Name { get; set; }
+    public string? Phone { get; set; }
+    public string? FirmName { get; set; }
+    public string? BarNumber { get; set; }
+    public string? Address { get; set; }
+    public string? City { get; set; }
+    public string? PostalCode { get; set; }
+}
