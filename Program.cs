@@ -57,7 +57,7 @@ if (string.IsNullOrWhiteSpace(secretKey) || secretKey.Length < 32)
 }
 
 // SECURITY: Bloquer secrets par défaut en production
-if (builder.Environment.IsProduction() && 
+if (builder.Environment.IsProduction() &&
     (secretKey.Contains("VotreCle") || secretKey.Contains("default") || secretKey.Contains("Secret")))
 {
     throw new SecurityException("CRITICAL: Default JWT secret detected in production! Use Azure KeyVault or User Secrets.");
@@ -82,7 +82,7 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = audience,
         ClockSkew = TimeSpan.Zero
     };
-    
+
     options.Events = new JwtBearerEvents
     {
         OnAuthenticationFailed = context =>
@@ -113,32 +113,32 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(Policies.CloseCases, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.DeleteCases, policy => policy.RequireRole(Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.ExportCases, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
-    
+
     // Contacts/Clients
     options.AddPolicy(Policies.ViewContacts, policy => policy.RequireRole(Roles.User, Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.CreateContacts, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.EditContacts, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.DeleteContacts, policy => policy.RequireRole(Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.ExportContacts, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
-    
+
     // Communication
     options.AddPolicy(Policies.ViewMessages, policy => policy.RequireRole(Roles.User, Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.SendMessages, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.DeleteMessages, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.UseTemplates, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.ManageTemplates, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
-    
+
     // Documents
     options.AddPolicy(Policies.ViewDocuments, policy => policy.RequireRole(Roles.User, Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.UploadDocuments, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.DeleteDocuments, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.ShareDocuments, policy => policy.RequireRole(Roles.Agent, Roles.Manager, Roles.Admin, Roles.Owner));
-    
+
     // Analytics & Rapports
     options.AddPolicy(Policies.ViewAnalytics, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.ViewReports, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.ExportReports, policy => policy.RequireRole(Roles.Manager, Roles.Admin, Roles.Owner));
-    
+
     // Administration
     options.AddPolicy(Policies.ManageUsers, policy => policy.RequireRole(Roles.Admin, Roles.Owner));
     options.AddPolicy(Policies.ManageRoles, policy => policy.RequireRole(Roles.Owner));
@@ -288,6 +288,8 @@ builder.Services.AddScoped<IDocuSignService, DocuSignService>();
 builder.Services.AddScoped<ILegalDatabaseService, LegalDatabaseService>();
 builder.Services.AddScoped<IOpenAIService, OpenAIService>();
 builder.Services.AddScoped<INotificationChannelService, NotificationChannelService>();
+builder.Services.AddScoped<LegalDeadlineService>();
+builder.Services.AddScoped<HearingService>();
 builder.Services.AddScoped<IIntegrationMonitorService, IntegrationMonitorService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSignalR(options =>
@@ -308,22 +310,23 @@ if (string.IsNullOrWhiteSpace(emailUsername))
 builder.Services.AddHostedService<EmailMonitorService>();
 builder.Services.AddHostedService<ConnectionMonitorService>();
 builder.Services.AddHostedService<AutomationEngineService>();
+builder.Services.AddHostedService<DeadlineAlertService>();
 
-// Configuration base de données (SQLite dev / PostgreSQL prod)
+// Configuration base de données (SQLite dev / SQL Server prod)
 var connectionString = builder.Configuration.GetConnectionString("Default");
-var usePostgres = builder.Configuration.GetValue<bool>("UsePostgreSQL");
+var useSqlServer = builder.Configuration.GetValue<bool>("UseSqlServer");
 
 builder.Services.AddDbContext<MemoLibDbContext>(options =>
 {
-    if (usePostgres)
+    if (useSqlServer)
     {
-        options.UseNpgsql(connectionString, npgsqlOptions =>
+        options.UseSqlServer(connectionString, sqlServerOptions =>
         {
-            npgsqlOptions.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorCodesToAdd: null);
-            npgsqlOptions.CommandTimeout(30);
-            npgsqlOptions.MigrationsAssembly("MemoLib.Api");
+            sqlServerOptions.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorNumbersToAdd: null);
+            sqlServerOptions.CommandTimeout(30);
+            sqlServerOptions.MigrationsAssembly("MemoLib.Api");
         });
-        Log.Information("✅ Base de données: PostgreSQL");
+        Log.Information("✅ Base de données: SQL Server");
     }
     else
     {
@@ -413,7 +416,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MemoLibDbContext>();
 
-    if (usePostgres)
+    if (useSqlServer)
     {
         try { db.Database.Migrate(); }
         catch
@@ -421,7 +424,7 @@ using (var scope = app.Services.CreateScope())
             Log.Warning("⚠️ Migrations échouées, création directe du schéma...");
             db.Database.EnsureCreated();
         }
-        Log.Information("✅ Migrations PostgreSQL appliquées");
+        Log.Information("✅ Migrations SQL Server appliquées");
     }
     else
     {
@@ -433,7 +436,7 @@ using (var scope = app.Services.CreateScope())
     if (app.Environment.IsDevelopment() && !db.Sources.Any())
     {
         var passwordService = scope.ServiceProvider.GetRequiredService<PasswordService>();
-        
+
         var user = new User
         {
             Id = Guid.NewGuid(),
@@ -451,7 +454,7 @@ using (var scope = app.Services.CreateScope())
             Type = "email",
             UserId = user.Id
         });
-        
+
         // Créer utilisateur avec mot de passe
         var userWithPassword = new User
         {
@@ -464,7 +467,7 @@ using (var scope = app.Services.CreateScope())
             CreatedAt = DateTime.UtcNow
         };
         db.Users.Add(userWithPassword);
-        
+
         db.Sources.Add(new Source
         {
             Id = Guid.NewGuid(),
@@ -473,7 +476,7 @@ using (var scope = app.Services.CreateScope())
         });
 
         db.SaveChanges();
-        
+
         Log.Information("✅ Utilisateurs créés:");
         Log.Information("   - admin@memolib.local (sans mot de passe)");
         Log.Information("   - admin@freetime.com (mot de passe: Admin123!)");

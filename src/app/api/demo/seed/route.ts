@@ -69,7 +69,7 @@ export async function POST(req: Request) {
       { email: 'comptable@demo.com', name: 'Anne Moreau', role: 'COMPTABLE', phone: '+33 6 12 34 56 83' },
     ];
 
-    const teamMembers = [];
+    const teamMembers: { id: string }[] = [];
     for (const m of teamSeed) {
       const user = await prisma.user.upsert({
         where: { email: m.email },

@@ -28,11 +28,11 @@ export default function NotificationsPage() {
     setConfig(prev => {
       const newConfig = { ...prev };
       let current: any = newConfig;
-      
+
       for (let i = 0; i < path.length - 1; i++) {
         current = current[path[i]];
       }
-      
+
       current[path[path.length - 1]] = !current[path[path.length - 1]];
       return newConfig;
     });
@@ -40,20 +40,20 @@ export default function NotificationsPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    
+
     // Simuler la sauvegarde
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // Sauvegarder dans localStorage pour la demo
     safeLocalStorage.setItem('notification_config', JSON.stringify(config));
-    
+
     showToast('Paramètres de notification sauvegardes', 'success');
     setIsSaving(false);
   };
 
   const handleTestEmail = async (type: 'échéance' | 'facture' | 'summary') => {
     let template;
-    
+
     switch (type) {
       case 'échéance':
         template = generateEcheanceReminderEmail({
@@ -63,16 +63,16 @@ export default function NotificationsPage() {
           description: 'Depot des conclusions au greffe du tribunal'
         }, 3);
         break;
-      
+
       case 'facture':
         template = generateFactureOverdueEmail({
-          numéro: 'FACT-2026-001',
+          numero: 'FACT-2026-001',
           client: 'Martin Dupont',
           montant: 1500,
           dateEcheance: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         }, 7);
         break;
-      
+
       case 'summary':
         template = generateWeeklySummaryEmail({
           newDossiers: 5,
@@ -83,12 +83,12 @@ export default function NotificationsPage() {
         });
         break;
     }
-    
+
     await sendEmail({
       to: [{ email: 'user@example.com', name: 'Utilisateur Test' }],
       template
     });
-    
+
     showToast('Email de test envoye (verifiez la console)', 'success');
   };
 
@@ -132,8 +132,8 @@ export default function NotificationsPage() {
                 Notifications {config.enabled ? 'activees' : 'desactivees'}
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {config.enabled 
-                  ? 'Les emails automatiques seront envoyes selon votre configuration' 
+                {config.enabled
+                  ? 'Les emails automatiques seront envoyes selon votre configuration'
                   : 'Aucun email automatique ne sera envoye'}
               </p>
             </div>
@@ -170,26 +170,26 @@ export default function NotificationsPage() {
             </div>
           </div>
           <button
-            onClick={() => handleToggle(['triggers', 'échéances', 'enabled'])}
+            onClick={() => handleToggle(['triggers', 'echeances', 'enabled'])}
             className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-              config.triggers.échéances.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+              config.triggers.echeances.enabled ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
             }`}
           >
             <span
               className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                config.triggers.échéances.enabled ? 'translate-x-7' : 'translate-x-1'
+                config.triggers.echeances.enabled ? 'translate-x-7' : 'translate-x-1'
               }`}
             />
           </button>
         </div>
 
-        {config.triggers.échéances.enabled && (
+        {config.triggers.echeances.enabled && (
           <div className="space-y-3 pl-12">
             <p className="text-sm text-gray-700 dark:text-gray-300">
               Rappels envoyes avant l'échéance:
             </p>
             <div className="flex flex-wrap gap-2">
-              {config.triggers.échéances.daysBefore.map(days => (
+              {config.triggers.echeances.daysBefore.map(days => (
                 <span
                   key={days}
                   className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm"
