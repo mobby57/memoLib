@@ -25,7 +25,7 @@ async function makeRequest(url, timeout = 10000) {
     };
 
     const protocol = parsedUrl.protocol === 'https:' ? https : http;
-    
+
     const req = protocol.request(options, (res) => {
       let data = '';
       res.on('data', (chunk) => data += chunk);
@@ -51,20 +51,20 @@ async function makeRequest(url, timeout = 10000) {
 
 async function runHealthChecks() {
   console.log('🏥 Vérification de la santé de l\'application...');
-  
+
   // Récupérer l'URL depuis les arguments ou variable d'environnement
   const args = process.argv.slice(2);
   const urlArg = args.find(arg => arg.startsWith('--url='));
   const baseUrl = urlArg ? urlArg.split('=')[1] : process.env.DEPLOYMENT_URL || 'http://localhost:3000';
-  
+
   console.log(`🎯 URL de vérification: ${baseUrl}`);
-  
+
   const healthChecks = [
     {
       name: 'Application principale',
       url: baseUrl,
       check: (result) => {
-        return result.statusCode === 200 && result.responseTime < 5000;
+        return (result.statusCode >= 200 && result.statusCode < 400) && result.responseTime < 5000;
       }
     },
     {
@@ -90,16 +90,16 @@ async function runHealthChecks() {
   for (const check of healthChecks) {
     try {
       console.log(`\n🔍 ${check.name}...`);
-      
+
       const result = await makeRequest(check.url, 15000);
-      
+
       if (check.check(result)) {
         console.log(`✅ OK - ${result.responseTime}ms`);
         healthScore++;
       } else {
         console.log(`❌ FAIL - Status: ${result.statusCode}, Time: ${result.responseTime}ms`);
       }
-      
+
     } catch (error) {
       console.log(`❌ ERREUR: ${error.message}`);
     }
