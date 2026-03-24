@@ -55,7 +55,16 @@ const customJestConfig = {
 
   // Transform configuration
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }]
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', {
+      presets: [[
+        'next/babel',
+        {
+          'preset-react': {
+            runtime: 'automatic'
+          }
+        }
+      ]]
+    }]
   },
 
   // Mock configuration

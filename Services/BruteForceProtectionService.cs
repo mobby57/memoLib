@@ -6,10 +6,11 @@ public class BruteForceProtectionService
 {
     private readonly IMemoryCache _cache;
     private readonly ILogger<BruteForceProtectionService> _logger;
-    
-    private const int MaxAttempts = 5;
-    private const int LockoutMinutes = 15;
-    private const int BaseDelayMs = 1000;
+
+    private const int MaxAttemptsPerUser = 5;
+    private const int MaxAttemptsPerIp = 20;
+    private const int LockoutMinutesUser = 5;
+    private const int LockoutMinutesIp = 15;
 
     public BruteForceProtectionService(IMemoryCache cache, ILogger<BruteForceProtectionService> logger)
     {
@@ -17,77 +18,87 @@ public class BruteForceProtectionService
         _logger = logger;
     }
 
-    public Task<bool> IsLockedOutAsync(string identifier)
+    public Task<bool> IsLockedOutAsync(string ip, string? email = null)
     {
-        var key = $"lockout_{identifier}";
-        var lockoutInfo = _cache.Get<LockoutInfo>(key);
-        
-        if (lockoutInfo == null)
-            return Task.FromResult(false);
-
-        if (lockoutInfo.LockedUntil > DateTime.UtcNow)
+        // Vérifier lockout par IP+Email (prioritaire)
+        if (!string.IsNullOrEmpty(email))
         {
-            _logger.LogWarning("Tentative d'accès bloquée pour: {Identifier}", identifier);
+            var userKey = $"lockout_user_{ip}_{email.ToLowerInvariant()}";
+            var userLockout = _cache.Get<DateTime?>(userKey);
+            if (userLockout > DateTime.UtcNow)
+            {
+                _logger.LogWarning("Accès bloqué pour {Email} depuis {IP} (lockout utilisateur)", email, ip);
+                return Task.FromResult(true);
+            }
+        }
+
+        // Vérifier lockout global IP (seuil beaucoup plus haut)
+        var ipKey = $"lockout_ip_{ip}";
+        var ipLockout = _cache.Get<DateTime?>(ipKey);
+        if (ipLockout > DateTime.UtcNow)
+        {
+            _logger.LogWarning("Accès bloqué pour IP {IP} (lockout global)", ip);
             return Task.FromResult(true);
         }
 
-        // Lockout expiré, nettoyer
-        _cache.Remove(key);
         return Task.FromResult(false);
     }
 
-    public Task RecordFailedAttemptAsync(string identifier)
+    // Surcharge rétrocompatible (IP seule)
+    public Task<bool> IsLockedOutAsync(string identifier)
+        => IsLockedOutAsync(identifier, null);
+
+    public Task RecordFailedAttemptAsync(string ip, string? email = null)
     {
-        var key = $"attempts_{identifier}";
-        var attempts = _cache.Get<int>(key);
-        attempts++;
-
-        _cache.Set(key, attempts, TimeSpan.FromMinutes(LockoutMinutes));
-
-        if (attempts >= MaxAttempts)
+        // Compteur par IP+Email
+        if (!string.IsNullOrEmpty(email))
         {
-            var lockoutKey = $"lockout_{identifier}";
-            var lockoutInfo = new LockoutInfo
+            var normalizedEmail = email.ToLowerInvariant();
+            var userAttemptsKey = $"attempts_user_{ip}_{normalizedEmail}";
+            var attempts = _cache.Get<int>(userAttemptsKey) + 1;
+            _cache.Set(userAttemptsKey, attempts, TimeSpan.FromMinutes(LockoutMinutesUser));
+
+            if (attempts >= MaxAttemptsPerUser)
             {
-                LockedUntil = DateTime.UtcNow.AddMinutes(LockoutMinutes),
-                AttemptCount = attempts
-            };
-            
-            _cache.Set(lockoutKey, lockoutInfo, TimeSpan.FromMinutes(LockoutMinutes));
-            _logger.LogWarning("Compte verrouillé pour: {Identifier} après {Attempts} tentatives", identifier, attempts);
+                var lockoutKey = $"lockout_user_{ip}_{normalizedEmail}";
+                _cache.Set(lockoutKey, DateTime.UtcNow.AddMinutes(LockoutMinutesUser), TimeSpan.FromMinutes(LockoutMinutesUser));
+                _logger.LogWarning("Lockout utilisateur: {Email} depuis {IP} après {N} tentatives ({Min}min)", normalizedEmail, ip, attempts, LockoutMinutesUser);
+            }
         }
-        else
+
+        // Compteur global par IP (seuil haut pour éviter faux positifs cabinet)
+        var ipAttemptsKey = $"attempts_ip_{ip}";
+        var ipAttempts = _cache.Get<int>(ipAttemptsKey) + 1;
+        _cache.Set(ipAttemptsKey, ipAttempts, TimeSpan.FromMinutes(LockoutMinutesIp));
+
+        if (ipAttempts >= MaxAttemptsPerIp)
         {
-            _logger.LogWarning("Tentative échouée {Attempts}/{MaxAttempts} pour: {Identifier}", attempts, MaxAttempts, identifier);
+            var ipLockoutKey = $"lockout_ip_{ip}";
+            _cache.Set(ipLockoutKey, DateTime.UtcNow.AddMinutes(LockoutMinutesIp), TimeSpan.FromMinutes(LockoutMinutesIp));
+            _logger.LogWarning("Lockout IP global: {IP} après {N} tentatives ({Min}min)", ip, ipAttempts, LockoutMinutesIp);
         }
+
         return Task.CompletedTask;
     }
 
-    public Task<int> GetDelayForFailedAttemptAsync(string identifier)
+    // Surcharge rétrocompatible
+    public Task RecordFailedAttemptAsync(string identifier)
+        => RecordFailedAttemptAsync(identifier, null);
+
+    public Task RecordSuccessfulLoginAsync(string ip, string? email = null)
     {
-        var key = $"attempts_{identifier}";
-        var attempts = _cache.Get<int>(key);
-        
-        // Délai progressif: 1s, 2s, 4s, 8s, 16s
-        var delay = BaseDelayMs * (int)Math.Pow(2, Math.Min(attempts - 1, 4));
-        return Task.FromResult(Math.Min(delay, 16000)); // Max 16 secondes
+        if (!string.IsNullOrEmpty(email))
+        {
+            var normalizedEmail = email.ToLowerInvariant();
+            _cache.Remove($"attempts_user_{ip}_{normalizedEmail}");
+            _cache.Remove($"lockout_user_{ip}_{normalizedEmail}");
+        }
+
+        // Ne PAS reset le compteur IP global (un login réussi d'un user ne doit pas débloquer les autres)
+        return Task.CompletedTask;
     }
 
+    // Surcharge rétrocompatible
     public Task RecordSuccessfulLoginAsync(string identifier)
-    {
-        var attemptsKey = $"attempts_{identifier}";
-        var lockoutKey = $"lockout_{identifier}";
-        
-        _cache.Remove(attemptsKey);
-        _cache.Remove(lockoutKey);
-        
-        _logger.LogInformation("Connexion réussie, compteurs réinitialisés pour: {Identifier}", identifier);
-        return Task.CompletedTask;
-    }
-
-    private class LockoutInfo
-    {
-        public DateTime LockedUntil { get; set; }
-        public int AttemptCount { get; set; }
-    }
+        => RecordSuccessfulLoginAsync(identifier, null);
 }
