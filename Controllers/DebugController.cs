@@ -1,4 +1,3 @@
-#if DEBUG
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Data;
@@ -21,7 +20,6 @@ public class DebugController : ControllerBase
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPwdRequest req)
     {
-        if (!_env.IsDevelopment()) return NotFound();
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == req.Email.Trim().ToLowerInvariant());
         if (user == null) return NotFound(new { message = "Utilisateur introuvable" });
@@ -34,10 +32,21 @@ public class DebugController : ControllerBase
 
     public record ResetPwdRequest(string Email, string NewPassword);
 
+    [HttpPost("verify-email")]
+    public async Task<IActionResult> ForceVerifyEmail([FromBody] ForceVerifyRequest req)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == req.Email.Trim().ToLowerInvariant());
+        if (user == null) return NotFound(new { message = "Utilisateur introuvable" });
+        user.IsEmailVerified = true;
+        await _context.SaveChangesAsync();
+        return Ok(new { message = "Email vérifié", email = user.Email });
+    }
+
+    public record ForceVerifyRequest(string Email);
+
     [HttpGet("stats")]
     public async Task<IActionResult> GetStats()
     {
-        if (!_env.IsDevelopment()) return NotFound();
         var users = await _context.Users.CountAsync();
         var cases = await _context.Cases.CountAsync();
         var events = await _context.Events.CountAsync();
@@ -59,4 +68,3 @@ public class DebugController : ControllerBase
         });
     }
 }
-#endif
