@@ -69,7 +69,7 @@ export default function TemplatesPage() {
   );
 
   const categoryCounts = templates.reduce((acc, t) => {
-    acc[t.catégorie] = (acc[t.catégorie] || 0) + 1;
+    acc[t.categorie] = (acc[t.categorie] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -167,8 +167,8 @@ export default function TemplatesPage() {
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <span className={`px-2 py-1 text-xs rounded-full ${getCategoryColor(template.catégorie)}`}>
-                  {getCategoryLabel(template.catégorie)}
+                <span className={`px-2 py-1 text-xs rounded-full ${getCategoryColor(template.categorie)}`}>
+                  {getCategoryLabel(template.categorie)}
                 </span>
               </div>
             </div>
