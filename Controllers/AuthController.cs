@@ -55,30 +55,31 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        
-        if (await _bruteForceProtection.IsLockedOutAsync(clientIp))
+        var emailForBrute = request.Email?.Trim().ToLowerInvariant();
+
+        if (await _bruteForceProtection.IsLockedOutAsync(clientIp, emailForBrute))
         {
-            return StatusCode(429, new { message = "Trop de tentatives. Réessayez plus tard." });
+            return StatusCode(429, new { message = "Trop de tentatives. Réessayez dans quelques minutes.", retryAfterMinutes = 5 });
         }
 
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
         {
-            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
+            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp, emailForBrute);
             return BadRequest(new { message = "Email et mot de passe requis" });
         }
 
         if (!_emailValidation.ValidateEmail(request.Email).IsValid)
         {
-            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
+            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp, emailForBrute);
             return BadRequest(new { message = "Format d'email invalide" });
         }
 
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var normalizedEmail = emailForBrute!;
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail);
 
         if (user == null || !_passwordService.VerifyPassword(request.Password, user.Password))
         {
-            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
+            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp, normalizedEmail);
             _logger.LogWarning("Tentative de connexion échouée pour: {Email} depuis {IP}", normalizedEmail, clientIp);
             return Unauthorized(new { message = "Identifiants invalides" });
         }
@@ -88,7 +89,7 @@ public class AuthController : ControllerBase
             return StatusCode(403, new { message = "Veuillez confirmer votre adresse email avant de vous connecter.", code = "EMAIL_NOT_VERIFIED" });
         }
 
-        await _bruteForceProtection.RecordSuccessfulLoginAsync(clientIp);
+        await _bruteForceProtection.RecordSuccessfulLoginAsync(clientIp, normalizedEmail);
         var authToken = _jwtService.GenerateToken(user);
 
         // Stocker le refresh token en base pour révocation
