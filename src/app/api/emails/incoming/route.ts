@@ -9,7 +9,8 @@ import { eventLogService } from '@/lib/services/event-log.service';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
 import { filterRuleService } from '@/frontend/lib/services/filter-rule.service';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
-import { Prisma } from '@prisma/client';
+import { type Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import {
   IncomingEmailPayloadSchema,
   normalizeIncomingEmailPayload,
@@ -175,7 +176,7 @@ export async function POST(request: NextRequest) {
       });
     } catch (error) {
       // Handle race conditions on unique messageId inserts with an idempotent response.
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (error instanceof PrismaClientKnownRequestError && error.code === 'P2002') {
         const existing = await findDuplicateEmail(tenant.id, normalized);
         if (existing) {
           return NextResponse.json({
@@ -376,7 +377,7 @@ async function findDuplicateEmail(
     contentHash: string;
   }
 ) {
-  const orConditions: Prisma.EmailWhereInput[] = [];
+  const orConditions: { messageId?: string | null; providerMessageId?: string | null; internetMessageId?: string | null; contentHash?: string | null }[] = [];
 
   if (normalized.messageId) {
     orConditions.push({ messageId: normalized.messageId });

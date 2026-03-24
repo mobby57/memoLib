@@ -112,7 +112,8 @@ export function LegalProofViewer({
       {/* Badge principal */}
       <ProofBadge
         isValid={verification.isValid}
-        timestamp={verification.verifiedAt}
+        signaturesCount={verification.details?.signaturesValid ? 1 : 0}
+        hasTimestampAuthority={!!verification.details?.timestampValid}
         compact={false}
       />
 
