@@ -1623,6 +1623,108 @@ namespace MemoLib.Api.Migrations
                     b.ToTable("FormSubmissions");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.Hearing", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AssignedToId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AssignedToUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Chamber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CourtAddress")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentsToProvide")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Duration")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("JudgeName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Jurisdiction")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OpposingLawyer")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OpposingParty")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Outcome")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("ReminderJ1Sent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("ReminderJ7Sent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RoleNumber")
+                        .HasColumnType("TEXT");
+
+                    b.Property<TimeSpan?>("StartTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedToId");
+
+                    b.HasIndex("CaseId", "Date");
+
+                    b.HasIndex("Status", "Date");
+
+                    b.ToTable("Hearings");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Integration", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1793,6 +1895,96 @@ namespace MemoLib.Api.Migrations
                     b.HasIndex("TimeEntryId");
 
                     b.ToTable("InvoiceItems");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.LegalDeadline", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("AlertJ1Sent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AlertJ30Sent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AlertJ3Sent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AlertJ7Sent")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("AssignedToId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AssignedToUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Deadline")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Jurisdiction")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LegalBasis")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedToId");
+
+                    b.HasIndex("CaseId", "Deadline");
+
+                    b.HasIndex("Status", "Deadline");
+
+                    b.ToTable("LegalDeadlines");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Notification", b =>
@@ -3774,6 +3966,23 @@ namespace MemoLib.Api.Migrations
                     b.Navigation("Form");
                 });
 
+            modelBuilder.Entity("MemoLib.Api.Models.Hearing", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId");
+
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("Case");
+                });
+
             modelBuilder.Entity("MemoLib.Api.Models.Integration", b =>
                 {
                     b.HasOne("MemoLib.Api.Models.User", "User")
@@ -3819,6 +4028,23 @@ namespace MemoLib.Api.Migrations
                     b.Navigation("Invoice");
 
                     b.Navigation("TimeEntry");
+                });
+
+            modelBuilder.Entity("MemoLib.Api.Models.LegalDeadline", b =>
+                {
+                    b.HasOne("MemoLib.Api.Models.User", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId");
+
+                    b.HasOne("MemoLib.Api.Models.Case", "Case")
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("Case");
                 });
 
             modelBuilder.Entity("MemoLib.Api.Models.Notification", b =>

@@ -19,13 +19,13 @@ public class MemoLibDbContextFactory : IDesignTimeDbContextFactory<MemoLibDbCont
 
         var connectionString = configuration.GetConnectionString("Default")
             ?? "Data Source=memolib.db";
-        var usePostgres = configuration.GetValue<bool>("UsePostgreSQL");
+        var useSqlServer = configuration.GetValue<bool>("UseSqlServer");
 
         var optionsBuilder = new DbContextOptionsBuilder<MemoLibDbContext>();
 
-        if (usePostgres)
+        if (useSqlServer)
         {
-            optionsBuilder.UseNpgsql(connectionString, o => o.MigrationsAssembly("MemoLib.Api"));
+            optionsBuilder.UseSqlServer(connectionString, o => o.MigrationsAssembly("MemoLib.Api"));
         }
         else
         {
