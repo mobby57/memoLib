@@ -66,6 +66,8 @@
     "hooks:install": "powershell -ExecutionPolicy Bypass -File ./scripts/install-git-hooks.ps1",
     "commit:snapshot": "powershell -ExecutionPolicy Bypass -File ./scripts/git-snapshot.ps1",
     "commit:snapshot:push": "powershell -ExecutionPolicy Bypass -File ./scripts/git-snapshot.ps1 -Push",
+    "tag:version": "powershell -ExecutionPolicy Bypass -File ./scripts/git-tag-version.ps1",
+    "tag:version:push": "powershell -ExecutionPolicy Bypass -File ./scripts/git-tag-version.ps1 -Push",
     "prepare": "echo Skipping husky install",
     "postinstall": "prisma generate",
     "db:reset": "node scripts/reset-db.js",
