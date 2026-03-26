@@ -1,153 +1,400 @@
 ﻿'use client';
 
-import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { CheckCircle2, Filter, Search } from 'lucide-react';
+import { listTasks, updateTask, type TaskApiItem, type TaskAssignee } from '@/lib/services/tasks-api';
 
-export default function TermsPage() {
-  const router = useRouter();
+type TaskStatus = 'todo' | 'in-progress' | 'blocked' | 'done';
+type TaskPriority = 'critique' | 'haute' | 'normale';
+
+type TaskItem = {
+  id: string;
+  title: string;
+  dossier: string;
+  owner: string;
+  dueIn: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  assignedToId?: string | null;
+};
+
+const statusToApi: Record<TaskStatus, 'TODO' | 'IN_PROGRESS' | 'BLOCKED' | 'DONE'> = {
+  todo: 'TODO',
+  'in-progress': 'IN_PROGRESS',
+  blocked: 'BLOCKED',
+  done: 'DONE',
+};
+
+const priorityToApi: Record<TaskPriority, 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'> = {
+  normale: 'MEDIUM',
+  haute: 'HIGH',
+  critique: 'CRITICAL',
+};
+
+function normalizeStatus(value: string | null | undefined): TaskStatus {
+  const normalized = (value || '').toLowerCase();
+  if (normalized === 'in_progress' || normalized === 'in-progress' || normalized === 'doing') return 'in-progress';
+  if (normalized === 'blocked') return 'blocked';
+  if (normalized === 'done' || normalized === 'completed') return 'done';
+  return 'todo';
+}
+
+function normalizePriority(value: string | null | undefined): TaskPriority {
+  const normalized = (value || '').toLowerCase();
+  if (normalized === 'critical' || normalized === 'critique') return 'critique';
+  if (normalized === 'high' || normalized === 'haute') return 'haute';
+  return 'normale';
+}
+
+function toDueIn(value: string | null | undefined): string {
+  if (!value) return 'Sans echeance';
+  const due = new Date(value);
+  if (isNaN(due.getTime())) return 'Sans echeance';
+
+  const diffMs = due.getTime() - Date.now();
+  if (diffMs <= 0) return 'Echu';
+
+  const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+  if (diffHours < 24) return `${diffHours}h`;
+
+  const diffDays = Math.round(diffHours / 24);
+  return `${diffDays}j`;
+}
+
+function toUiTask(task: TaskApiItem): TaskItem {
+  return {
+    id: task.id,
+    title: task.title || 'Tache sans titre',
+    dossier: task.case?.numero || task.case?.title || 'Sans dossier',
+    owner: task.assignedTo?.name || task.assignedTo?.email || 'Equipe',
+    dueIn: toDueIn(task.dueDate),
+    status: normalizeStatus(task.status),
+    priority: normalizePriority(task.priority),
+    assignedToId: task.assignedToId,
+  };
+}
+
+const statusLabel: Record<TaskStatus, string> = {
+  todo: 'A faire',
+  'in-progress': 'En cours',
+  blocked: 'Bloquee',
+  done: 'Terminee',
+};
+
+const statusClass: Record<TaskStatus, string> = {
+  todo: 'bg-slate-100 text-slate-700',
+  'in-progress': 'bg-blue-100 text-blue-700',
+  blocked: 'bg-rose-100 text-rose-700',
+  done: 'bg-emerald-100 text-emerald-700',
+};
+
+const priorityClass: Record<TaskPriority, string> = {
+  critique: 'bg-rose-100 text-rose-700',
+  haute: 'bg-orange-100 text-orange-700',
+  normale: 'bg-slate-100 text-slate-700',
+};
+
+export default function TasksPage() {
+  const [assignees, setAssignees] = useState<TaskAssignee[]>([]);
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [savingTaskId, setSavingTaskId] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState<'all' | TaskStatus>('all');
+  const [priority, setPriority] = useState<'all' | TaskPriority>('all');
+  const [sortBy, setSortBy] = useState<'dueDate' | 'createdAt' | 'priority' | 'status'>('dueDate');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  useEffect(() => {
+    let active = true;
+
+    const run = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await listTasks({
+          sortBy,
+          sortOrder,
+          includeAssignees: true,
+        });
+        if (!active) return;
+        setTasks(response.data.map(toUiTask));
+        setAssignees(response.assignees || []);
+      } catch (fetchError) {
+        if (!active) return;
+        const message = fetchError instanceof Error ? fetchError.message : 'Erreur de chargement des taches';
+        setError(message);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    run();
+
+    return () => {
+      active = false;
+    };
+  }, [sortBy, sortOrder]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  const filteredTasks = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return tasks.filter((task) => {
+      const matchesStatus = status === 'all' || task.status === status;
+      const matchesPriority = priority === 'all' || task.priority === priority;
+      const matchesQuery =
+        normalizedQuery.length === 0 ||
+        task.title.toLowerCase().includes(normalizedQuery) ||
+        task.dossier.toLowerCase().includes(normalizedQuery) ||
+        task.owner.toLowerCase().includes(normalizedQuery);
+
+      return matchesStatus && matchesPriority && matchesQuery;
+    });
+  }, [tasks, priority, query, status]);
+
+  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    const previous = tasks;
+    setSavingTaskId(taskId);
+    setError(null);
+
+    setTasks((current) => current.map((task) => (task.id === taskId ? { ...task, status: newStatus } : task)));
+
+    try {
+      await updateTask(taskId, { status: statusToApi[newStatus] });
+      setToast('Statut mis a jour');
+    } catch (mutationError) {
+      const message = mutationError instanceof Error ? mutationError.message : 'Erreur de mise a jour du statut';
+      setError(message);
+      setTasks(previous);
+    } finally {
+      setSavingTaskId(null);
+    }
+  };
+
+  const handlePriorityChange = async (taskId: string, newPriority: TaskPriority) => {
+    const previous = tasks;
+    setSavingTaskId(taskId);
+    setError(null);
+
+    setTasks((current) => current.map((task) => (task.id === taskId ? { ...task, priority: newPriority } : task)));
+
+    try {
+      await updateTask(taskId, { priority: priorityToApi[newPriority] });
+      setToast('Priorite mise a jour');
+    } catch (mutationError) {
+      const message = mutationError instanceof Error ? mutationError.message : 'Erreur de mise a jour de la priorite';
+      setError(message);
+      setTasks(previous);
+    } finally {
+      setSavingTaskId(null);
+    }
+  };
+
+  const handleAssigneeChange = async (taskId: string, assigneeId: string) => {
+    const previous = tasks;
+    setSavingTaskId(taskId);
+    setError(null);
+
+    const assignee = assignees.find((item) => item.id === assigneeId);
+
+    setTasks((current) =>
+      current.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              assignedToId: assigneeId,
+              owner: assignee?.name || assignee?.email || 'Equipe',
+            }
+          : task
+      )
+    );
+
+    try {
+      await updateTask(taskId, { assignedToId: assigneeId });
+      setToast('Assignation mise a jour');
+    } catch (mutationError) {
+      const message = mutationError instanceof Error ? mutationError.message : "Erreur de mise a jour de l'assignation";
+      setError(message);
+      setTasks(previous);
+    } finally {
+      setSavingTaskId(null);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      {/* Header */}
-      <div className="border-b bg-white sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
-          >
-            <ArrowLeft size={20} />
-            Retour
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900">Conditions Générales d'Utilisation (CGU)</h1>
+    <div className="space-y-6">
+      {toast ? (
+        <div role="alert" className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
+          {toast}
         </div>
-      </div>
+      ) : null}
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="prose prose-lg max-w-none text-gray-700">
-          <div className="space-y-8">
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Définitions</h2>
-              <div className="space-y-2">
-                <p><strong>Service :</strong> La plateforme MemoLib accessible via memolib.fly.dev</p>
-                <p><strong>Utilisateur :</strong> Toute personne inscrite et utilisant le Service</p>
-                <p><strong>Contenu :</strong> Dossiers, clients, documents créés par l'Utilisateur</p>
-              </div>
-            </section>
+      <header className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-semibold text-slate-900">File de traitement</h1>
+            <p className="text-sm text-slate-500">Priorisez, filtrez et avancez les dossiers en retard</p>
+          </div>
 
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Acceptation des CGU</h2>
-              <p>
-                En utilisant MemoLib, vous acceptez l'intégralité de ces CGU. Si vous n'acceptez pas
-                ces conditions, veuillez ne pas utiliser le Service.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Licence d'Utilisation</h2>
-              <p>
-                MemoLib vous octroie une licence non-exclusive, non-transférable et révocable
-                d'accès et d'utilisation du Service selon votre plan d'abonnement.
-              </p>
-              <p className="mt-2">
-                Vous ne pouvez pas :
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Reproduire, dupliquer ou copier le code source</li>
-                <li>Revendre ou affermer l'accès au Service</li>
-                <li>Utiliser le Service pour des activités illégales</li>
-                <li>Contourner la sécurité ou les limitations du Service</li>
-                <li>Dépasser les limites de votre plan (clients, dossiers, stockage)</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Plans d'Abonnement</h2>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Plan Gratuit</h3>
-                  <p>5 clients, 10 dossiers, 1 Go de stockage</p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Plan Pro (29€/mois)</h3>
-                  <p>50 clients, 500 dossiers, 50 Go, Analyse IA, Rapports avancés</p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Plan Enterprise (99€/mois)</h3>
-                  <p>Clients illimités, Dossiers illimités, 500 Go, Accès API, Support 24/7</p>
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Facturation et Paiement</h2>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Les paiements sont traités par Stripe de manière sécurisée</li>
-                <li>Les abonnements se renouvellent automatiquement</li>
-                <li>Vous pouvez annuler votre abonnement à tout moment</li>
-                <li>Essai gratuit de 14 jours pour les nouveaux utilisateurs (plans payants)</li>
-                <li>Pas de remboursement pour les périodes partielles</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Propriété du Contenu</h2>
-              <p>
-                Vous conservez la propriété intégrale de votre Contenu. En utilisant le Service,
-                vous nous accordez une licence pour stocker, héberger et traiter votre Contenu selon votre instruction.
-              </p>
-              <p className="mt-2">
-                Nous ne partageons jamais votre Contenu avec des tiers sans votre consentement explicite.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Responsabilité</h2>
-              <p className="font-semibold">
-                🔴 Limitation de responsabilité importante :
-              </p>
-              <p>
-                MemoLib est un outil d'assistance. Vous restez entièrement responsable de la qualité
-                juridique de votre travail. Any output est destiné à vous assister, pas à remplacer
-                votre jugement professionnel.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Suspension et Résiliation</h2>
-              <p>
-                Nous nous réservons le droit de suspendre ou résilier votre accès au Service si vous :
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Violez ces CGU</li>
-                <li>Utilisez le Service de manière abusive ou nuisible</li>
-                <li>Ne payez pas les frais dus</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Modifications du Service</h2>
-              <p>
-                MemoLib se réserve le droit de modifier, suspendre ou discontinuer le Service à tout
-                moment, avec ou sans préavis.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Droit Applicable</h2>
-              <p>
-                Ces CGU sont régies par la loi française et soumises à la juridiction exclusive des
-                tribunaux français.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Contact</h2>
-              <p>Pour toute question : <span className="font-mono">contact@memolib.fr</span></p>
-            </section>
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            <CheckCircle2 size={14} />
+            {filteredTasks.length} tache(s) visible(s)
           </div>
         </div>
-      </div>
+
+        <div className="mt-5 grid gap-3 lg:grid-cols-[2fr,1fr,1fr,1fr]">
+          <label className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+              placeholder="Rechercher par titre, dossier, proprietaire"
+            />
+          </label>
+
+          <select
+            value={status}
+            onChange={(event) => setStatus(event.target.value as 'all' | TaskStatus)}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+          >
+            <option value="all">Tous les statuts</option>
+            <option value="todo">A faire</option>
+            <option value="in-progress">En cours</option>
+            <option value="blocked">Bloquee</option>
+            <option value="done">Terminee</option>
+          </select>
+
+          <select
+            value={priority}
+            onChange={(event) => setPriority(event.target.value as 'all' | TaskPriority)}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+          >
+            <option value="all">Toutes les priorites</option>
+            <option value="critique">Critique</option>
+            <option value="haute">Haute</option>
+            <option value="normale">Normale</option>
+          </select>
+
+          <select
+            value={`${sortBy}:${sortOrder}`}
+            onChange={(event) => {
+              const [nextSortBy, nextSortOrder] = event.target.value.split(':');
+              setSortBy(nextSortBy as 'dueDate' | 'createdAt' | 'priority' | 'status');
+              setSortOrder(nextSortOrder as 'asc' | 'desc');
+            }}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+          >
+            <option value="dueDate:asc">Tri: echeance proche</option>
+            <option value="dueDate:desc">Tri: echeance lointaine</option>
+            <option value="createdAt:desc">Tri: plus recentes</option>
+            <option value="priority:desc">Tri: priorite</option>
+            <option value="status:asc">Tri: statut</option>
+          </select>
+        </div>
+      </header>
+
+      <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <header className="flex items-center gap-2 border-b border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700">
+          <Filter size={15} />
+          Resultats
+        </header>
+
+        <div className="divide-y divide-slate-100">
+          {loading ? (
+            <div className="px-6 py-10 text-center text-sm text-slate-500">Chargement des taches...</div>
+          ) : error ? (
+            <div className="space-y-3 px-6 py-10 text-center">
+              <p className="text-sm text-rose-600">{error}</p>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Reessayer
+              </button>
+            </div>
+          ) : filteredTasks.length === 0 ? (
+            <div className="px-6 py-10 text-center text-sm text-slate-500">
+              Aucune tache ne correspond aux filtres en cours.
+            </div>
+          ) : (
+            filteredTasks.map((task) => (
+              <article key={task.id} className="grid gap-3 px-6 py-4 md:grid-cols-[2fr,1fr,1fr,1fr] md:items-center">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">{task.title}</p>
+                  <p className="text-xs text-slate-500">
+                    {task.dossier} - {task.owner}
+                  </p>
+                </div>
+
+                <p className="text-xs font-medium text-slate-600">Echeance: {task.dueIn}</p>
+
+                <div className="space-y-2">
+                  <span className={`inline-flex w-fit rounded-full px-2 py-1 text-xs font-semibold ${statusClass[task.status]}`}>
+                    {statusLabel[task.status]}
+                  </span>
+                  <select
+                    value={task.status}
+                    disabled={savingTaskId === task.id}
+                    onChange={(event) => handleStatusChange(task.id, event.target.value as TaskStatus)}
+                    className="w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none transition focus:border-blue-500 disabled:opacity-60"
+                  >
+                    <option value="todo">A faire</option>
+                    <option value="in-progress">En cours</option>
+                    <option value="blocked">Bloquee</option>
+                    <option value="done">Terminee</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <span
+                    className={`inline-flex w-fit justify-center rounded-full px-2 py-1 text-xs font-semibold uppercase ${priorityClass[task.priority]}`}
+                  >
+                    {task.priority}
+                  </span>
+                  <select
+                    value={task.priority}
+                    disabled={savingTaskId === task.id}
+                    onChange={(event) => handlePriorityChange(task.id, event.target.value as TaskPriority)}
+                    className="w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none transition focus:border-blue-500 disabled:opacity-60"
+                  >
+                    <option value="critique">Critique</option>
+                    <option value="haute">Haute</option>
+                    <option value="normale">Normale</option>
+                  </select>
+                </div>
+
+                <div>
+                  <select
+                    value={task.assignedToId || ''}
+                    disabled={savingTaskId === task.id || assignees.length === 0}
+                    onChange={(event) => handleAssigneeChange(task.id, event.target.value)}
+                    className="w-full rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none transition focus:border-blue-500 disabled:opacity-60"
+                  >
+                    <option value="" disabled>
+                      Assigne a
+                    </option>
+                    {assignees.map((assignee) => (
+                      <option key={assignee.id} value={assignee.id}>
+                        {assignee.name || assignee.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
     </div>
   );
 }
