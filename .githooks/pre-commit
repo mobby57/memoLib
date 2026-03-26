@@ -1,0 +1,22 @@
+#!/bin/sh
+
+STAGED_FILES=$(git diff --cached --name-only)
+
+if [ -z "$STAGED_FILES" ]; then
+  exit 0
+fi
+
+if ! git diff --cached --check; then
+  echo "Commit bloque: corrige les erreurs signalees par git diff --cached --check."
+  exit 1
+fi
+
+if printf '%s
+' "$STAGED_FILES" | grep -Eq '^package.json$'; then
+  if ! node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'));"; then
+    echo "Commit bloque: package.json est invalide."
+    exit 1
+  fi
+fi
+
+exit 0
