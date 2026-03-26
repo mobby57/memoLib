@@ -121,7 +121,7 @@ export default function DossiersPage({ params }: DossiersPageProps) {
     return () => {
       active = false;
     };
-  }, [page, status]);
+  }, [page, pageSize, sortBy, sortOrder, status]);
 
   useEffect(() => {
     setPage(1);

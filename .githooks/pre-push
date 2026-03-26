@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if ! git diff --quiet --ignore-submodules --; then
+  echo "Push bloque: il reste des changements non commits."
+  echo "Astuce: npm run commit:snapshot"
+  exit 1
+fi
+
+if ! git diff --cached --quiet --ignore-submodules --; then
+  echo "Push bloque: il reste des changements indexes non commits."
+  echo "Astuce: npm run commit:snapshot"
+  exit 1
+fi
+
+exit 0
