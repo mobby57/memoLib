@@ -24,7 +24,7 @@ test.describe('Dossiers', () => {
   });
 
   test('shows success toast after dossier creation redirect', async ({ authenticatedPage }) => {
-    await authenticatedPage.route('**/api/v1/dossiers/dossier-1', (route) =>
+    await authenticatedPage.route('**/api/v1/dossiers/dossier-1', route =>
       route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -32,7 +32,9 @@ test.describe('Dossiers', () => {
       })
     );
 
-    await authenticatedPage.goto('/fr/dossiers/dossier-1?created=1', { waitUntil: 'domcontentloaded' });
+    await authenticatedPage.goto('/fr/dossiers/dossier-1?created=1', {
+      waitUntil: 'domcontentloaded',
+    });
 
     await expect(
       authenticatedPage.locator('[role="alert"]', { hasText: 'Dossier cree avec succes' })
@@ -40,7 +42,7 @@ test.describe('Dossiers', () => {
   });
 
   test('does not show creation toast without created=1 param', async ({ authenticatedPage }) => {
-    await authenticatedPage.route('**/api/v1/dossiers/dossier-1', (route) =>
+    await authenticatedPage.route('**/api/v1/dossiers/dossier-1', route =>
       route.fulfill({
         status: 200,
         contentType: 'application/json',

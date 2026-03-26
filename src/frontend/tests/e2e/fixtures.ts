@@ -26,7 +26,9 @@ class AuthPage {
 
 class DossiersPage {
   constructor(private page: Page) {}
-  async goto() { await this.page.goto('/dossiers', { waitUntil: 'domcontentloaded' }); }
+  async goto() {
+    await this.page.goto('/dossiers', { waitUntil: 'domcontentloaded' });
+  }
   async create(data: { title: string; clientName: string; description?: string }) {
     await this.page.click('button:has-text("Nouveau dossier")');
     await this.page.fill('input[name="title"]', data.title);
@@ -38,7 +40,9 @@ class DossiersPage {
 
 class InvoicesPage {
   constructor(private page: Page) {}
-  async goto() { await this.page.goto('/invoices', { waitUntil: 'domcontentloaded' }); }
+  async goto() {
+    await this.page.goto('/invoices', { waitUntil: 'domcontentloaded' });
+  }
   async create(data: { clientName: string; amount: number }) {
     await this.page.click('button:has-text("Nouvelle facture")');
     await this.page.fill('input[name="clientName"]', data.clientName);
@@ -59,7 +63,7 @@ export const test = base.extend<Fixtures>({
   dossiersPage: async ({ page }, use) => await use(new DossiersPage(page)),
   invoicesPage: async ({ page }, use) => await use(new InvoicesPage(page)),
   authenticatedPage: async ({ page }, use) => {
-    await page.route('**/api/auth/session**', async (route) => {
+    await page.route('**/api/auth/session**', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

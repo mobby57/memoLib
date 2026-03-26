@@ -104,7 +104,8 @@ export default function DashboardPage({ params }: DashboardPageProps) {
         });
       } catch (fetchError) {
         if (!active) return;
-        const message = fetchError instanceof Error ? fetchError.message : 'Erreur de chargement dashboard';
+        const message =
+          fetchError instanceof Error ? fetchError.message : 'Erreur de chargement dashboard';
         setError(message);
       } finally {
         if (active) setLoading(false);
@@ -119,8 +120,12 @@ export default function DashboardPage({ params }: DashboardPageProps) {
   }, []);
 
   const metrics = useMemo(() => {
-    const tasksUrgentes = data.tasks.filter((task) => toSeverity(task.priority) === 'critique' || toSeverity(task.priority) === 'haute').length;
-    const dossiersActifs = data.dossiers.filter((dossier) => (dossier.statut || '').toLowerCase() !== 'archive').length;
+    const tasksUrgentes = data.tasks.filter(
+      task => toSeverity(task.priority) === 'critique' || toSeverity(task.priority) === 'haute'
+    ).length;
+    const dossiersActifs = data.dossiers.filter(
+      dossier => (dossier.statut || '').toLowerCase() !== 'archive'
+    ).length;
 
     return [
       {
@@ -167,7 +172,7 @@ export default function DashboardPage({ params }: DashboardPageProps) {
       const db = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
       return da - db;
     });
-    return sorted.slice(0, 5).map((task) => ({
+    return sorted.slice(0, 5).map(task => ({
       id: task.case?.numero || task.id,
       title: task.title,
       sla: toSla(task.dueDate),
@@ -177,20 +182,31 @@ export default function DashboardPage({ params }: DashboardPageProps) {
   }, [data.tasks, queueSort]);
 
   if (loading) {
-    return <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">Chargement dashboard...</div>;
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+        Chargement dashboard...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 shadow-sm">{error}</div>;
+    return (
+      <div className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 shadow-sm">
+        {error}
+      </div>
+    );
   }
 
   return (
     <div className="space-y-8">
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((metric) => {
+        {metrics.map(metric => {
           const Icon = metric.icon;
           return (
-            <article key={metric.label} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <article
+              key={metric.label}
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-slate-500">{metric.label}</p>
@@ -245,23 +261,29 @@ export default function DashboardPage({ params }: DashboardPageProps) {
           <div className="divide-y divide-slate-100">
             {priorityQueue.length === 0 ? (
               <div className="px-6 py-6 text-sm text-slate-500">Aucune tache prioritaire.</div>
-            ) : priorityQueue.map((item) => (
-              <div key={item.id} className="flex items-start justify-between gap-4 px-6 py-4">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                  <p className="mt-1 text-xs text-slate-500">{item.id} - {item.owner}</p>
+            ) : (
+              priorityQueue.map(item => (
+                <div key={item.id} className="flex items-start justify-between gap-4 px-6 py-4">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {item.id} - {item.owner}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${severityClass[item.severity]}`}
+                    >
+                      {item.severity}
+                    </span>
+                    <p className="mt-2 inline-flex items-center gap-1 text-xs text-slate-500">
+                      <Clock3 size={12} />
+                      {item.sla}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${severityClass[item.severity]}`}>
-                    {item.severity}
-                  </span>
-                  <p className="mt-2 inline-flex items-center gap-1 text-xs text-slate-500">
-                    <Clock3 size={12} />
-                    {item.sla}
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </article>
 
@@ -271,24 +293,35 @@ export default function DashboardPage({ params }: DashboardPageProps) {
 
           <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Sante ingestion email</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+                Sante ingestion email
+              </p>
               {data.emailIngestionHealth ? (
-                <span className={`rounded-full px-2 py-1 text-xs font-semibold ${healthClass[data.emailIngestionHealth.status]}`}>
+                <span
+                  className={`rounded-full px-2 py-1 text-xs font-semibold ${healthClass[data.emailIngestionHealth.status]}`}
+                >
                   {data.emailIngestionHealth.status}
                 </span>
               ) : (
-                <span className="rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-600">indisponible</span>
+                <span className="rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-600">
+                  indisponible
+                </span>
               )}
             </div>
             {data.emailIngestionHealth ? (
               <>
                 <p className="mt-2 text-xs text-slate-600">
-                  succes {data.emailIngestionHealth.successRate}% - erreurs {data.emailIngestionHealth.errorRate}%
+                  succes {data.emailIngestionHealth.successRate}% - erreurs{' '}
+                  {data.emailIngestionHealth.errorRate}%
                 </p>
-                <p className="mt-1 text-xs text-slate-500">{data.emailIngestionHealth.primaryReason}</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {data.emailIngestionHealth.primaryReason}
+                </p>
               </>
             ) : (
-              <p className="mt-2 text-xs text-slate-500">Accessible pour les roles admin uniquement.</p>
+              <p className="mt-2 text-xs text-slate-500">
+                Accessible pour les roles admin uniquement.
+              </p>
             )}
           </div>
 
