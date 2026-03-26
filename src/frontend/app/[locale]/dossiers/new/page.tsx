@@ -71,7 +71,7 @@ export default function NewDossierPage({ params }: NewDossierPageProps) {
         dateEcheance: dateEcheance || undefined,
       });
 
-      router.push(`/${params.locale}/dossiers/${created.id}`);
+      router.push(`/${params.locale}/dossiers/${created.id}?created=1`);
     } catch (submitError) {
       const message = submitError instanceof Error ? submitError.message : 'Erreur de creation du dossier';
       setError(message);
