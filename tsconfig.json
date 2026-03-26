@@ -13,9 +13,8 @@
     "noEmit": true,
     "incremental": true,
     "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*", "./src/frontend/*"]
     },
     "strict": false,
     "strictNullChecks": true,

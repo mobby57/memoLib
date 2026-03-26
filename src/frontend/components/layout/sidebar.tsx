@@ -30,6 +30,8 @@ const sidebarItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const currentPath = pathname ?? '';
+  const pathSegments = currentPath.split('/').filter(Boolean);
+  const activeLocale = pathSegments[0] ?? 'fr';
 
   return (
     <aside className="w-64 bg-slate-900 text-white h-screen flex flex-col">
@@ -43,12 +45,14 @@ export function Sidebar() {
       <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
-          const isActive = currentPath.startsWith(item.href);
+          const localizedHref = `/${activeLocale}${item.href}`;
+          const isActive =
+            currentPath === localizedHref || currentPath.startsWith(`${localizedHref}/`);
 
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={localizedHref}
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
                 isActive
@@ -66,7 +70,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="border-t border-slate-700 p-3 space-y-2">
         <Link
-          href="/settings"
+          href={`/${activeLocale}/settings`}
           className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors"
         >
           <Settings size={20} />

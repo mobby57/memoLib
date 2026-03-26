@@ -32,21 +32,48 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
     const priority = searchParams.get('priority');
+    const includeAssignees = searchParams.get('includeAssignees') === '1';
+    const sortBy = searchParams.get('sortBy') || 'dueDate';
+    const sortOrder = (searchParams.get('sortOrder') || 'asc').toLowerCase();
 
     const where: any = {};
     if (status) where.status = status;
     if (priority) where.priority = priority;
+
+    const allowedSortBy = ['dueDate', 'createdAt', 'priority', 'status'] as const;
+    const normalizedSortBy = allowedSortBy.includes(sortBy as (typeof allowedSortBy)[number])
+      ? (sortBy as (typeof allowedSortBy)[number])
+      : 'dueDate';
+    const normalizedSortOrder: 'asc' | 'desc' = sortOrder === 'desc' ? 'desc' : 'asc';
 
     const tasks = await prisma.task.findMany({
       where: {
         ...where,
         assignedToId: user.id,
       },
-      include: { case: true, createdBy: true },
-      orderBy: { dueDate: 'asc' },
+      include: { case: true, createdBy: true, assignedTo: true },
+      orderBy: { [normalizedSortBy]: normalizedSortOrder },
     });
 
-    return NextResponse.json({ data: tasks });
+    if (!includeAssignees) {
+      return NextResponse.json({ data: tasks });
+    }
+
+    const assignees = await prisma.user.findMany({
+      where: {
+        tenantId: user.tenantId,
+        role: { in: ['ADMIN', 'LAWYER'] },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    return NextResponse.json({ data: tasks, assignees });
   } catch (error) {
     console.error('[GET /api/v1/tasks]', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
