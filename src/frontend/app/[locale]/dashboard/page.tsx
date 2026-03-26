@@ -69,6 +69,7 @@ export default function DashboardPage({ params }: DashboardPageProps) {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [queueSort, setQueueSort] = useState<'priority' | 'dueDate'>('priority');
 
   useEffect(() => {
     let active = true;
@@ -153,15 +154,27 @@ export default function DashboardPage({ params }: DashboardPageProps) {
     ];
   }, [data]);
 
+  const PRIORITY_ORDER: Record<string, number> = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+
   const priorityQueue = useMemo(() => {
-    return data.tasks.slice(0, 3).map((task) => ({
+    const sorted = [...data.tasks].sort((a, b) => {
+      if (queueSort === 'priority') {
+        const pa = PRIORITY_ORDER[(a.priority || '').toUpperCase()] ?? 4;
+        const pb = PRIORITY_ORDER[(b.priority || '').toUpperCase()] ?? 4;
+        if (pa !== pb) return pa - pb;
+      }
+      const da = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+      const db = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+      return da - db;
+    });
+    return sorted.slice(0, 5).map((task) => ({
       id: task.case?.numero || task.id,
       title: task.title,
       sla: toSla(task.dueDate),
-      owner: 'Equipe',
+      owner: task.assignedTo?.name || 'Equipe',
       severity: toSeverity(task.priority),
     }));
-  }, [data.tasks]);
+  }, [data.tasks, queueSort]);
 
   if (loading) {
     return <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">Chargement dashboard...</div>;
@@ -197,12 +210,36 @@ export default function DashboardPage({ params }: DashboardPageProps) {
         <article className="rounded-xl border border-slate-200 bg-white shadow-sm">
           <header className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
             <h2 className="text-lg font-semibold text-slate-900">File prioritaire</h2>
-            <Link
-              href={`/${params.locale}/tasks`}
-              className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
-            >
-              Ouvrir toutes les taches
-            </Link>
+            <div className="flex items-center gap-3">
+              <div className="flex rounded-lg border border-slate-200 text-xs">
+                <button
+                  onClick={() => setQueueSort('priority')}
+                  className={`px-2 py-1 rounded-l-lg transition-colors ${
+                    queueSort === 'priority'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  Priorite
+                </button>
+                <button
+                  onClick={() => setQueueSort('dueDate')}
+                  className={`px-2 py-1 rounded-r-lg transition-colors ${
+                    queueSort === 'dueDate'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  Echeance
+                </button>
+              </div>
+              <Link
+                href={`/${params.locale}/tasks`}
+                className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+              >
+                Ouvrir toutes les taches
+              </Link>
+            </div>
           </header>
 
           <div className="divide-y divide-slate-100">

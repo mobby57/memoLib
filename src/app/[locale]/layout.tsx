@@ -1,16 +1,19 @@
 import type { Metadata } from 'next';
 import { defaultMetadata, getBaseUrl, SITE_DESCRIPTION, SITE_NAME } from '@/lib/metadata';
+import { Providers } from './providers';
 import './globals.css';
 
 export const metadata: Metadata = defaultMetadata;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -27,7 +30,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang={params.locale}>
+    <html lang={locale}>
       <body className="antialiased">
         <script
           type="application/ld+json"
@@ -35,7 +38,7 @@ export default function RootLayout({
             __html: JSON.stringify(structuredData),
           }}
         />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

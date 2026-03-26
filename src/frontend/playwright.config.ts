@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+import path from 'node:path';
+
+const repoRoot = path.resolve(__dirname, '..', '..');
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -8,11 +11,11 @@ export default defineConfig({
   workers: process.env.CI ? 2 : '75%',
   timeout: 15000,
   expect: { timeout: 5000 },
-  
+
   reporter: [['html', { open: 'never' }]],
 
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3200',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -28,7 +31,7 @@ export default defineConfig({
 
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/user.json',
         launchOptions: {
@@ -44,9 +47,9 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: true,
+    command: `npm --prefix "${repoRoot}" run dev -- --port 3200`,
+    url: 'http://localhost:3200',
+    reuseExistingServer: !process.env.CI,
     timeout: 60000,
   },
 });

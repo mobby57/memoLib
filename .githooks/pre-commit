@@ -1,6 +1,8 @@
 #!/bin/sh
 
-STAGED_FILES=$(git diff --cached --name-only)
+# Only validate added/copied/modified/renamed files so deletions like *.tsbuildinfo
+# can be removed from the index without being blocked by the hook itself.
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)
 FORMATTED_FILES=$(printf '%s
 ' "$STAGED_FILES" | grep -E '\.(ts|tsx|js|jsx|json|md|css|scss|yml|yaml)$' || true)
 POWERSHELL_FILES=$(printf '%s
