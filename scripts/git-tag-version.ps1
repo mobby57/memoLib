@@ -31,22 +31,6 @@ function Invoke-Git {
   return $output
 }
 
-function Get-LatestSemanticTag {
-  $tags = Invoke-Git -GitArgs @('tag', '--list', 'v*.*.*')
-  $versions = @()
-
-  foreach ($tag in $tags) {
-    if ($tag -match '^v(\d+)\.(\d+)\.(\d+)$') {
-      $versions += [PSCustomObject]@{
-        Tag = $tag
-        Version = [Version]::new([int]$Matches[1], [int]$Matches[2], [int]$Matches[3])
-      }
-    }
-  }
-
-  return $versions | Sort-Object Version -Descending | Select-Object -First 1
-}
-
 function Get-PackageVersion {
   $packageJsonPath = Join-Path $repoRoot 'package.json'
   $packageJson = Get-Content -Path $packageJsonPath -Raw | ConvertFrom-Json
@@ -89,33 +73,40 @@ function Get-NextVersion {
   }
 }
 
-$latestTag = Get-LatestSemanticTag
+function Test-TagExists {
+  param([Version]$Version)
+
+  $tagName = "v$($Version.ToString())"
+  $existingTag = & git -C $repoRoot tag --list $tagName
+  if ($LASTEXITCODE -ne 0) {
+    throw 'Impossible de verifier les tags existants'
+  }
+
+  return -not [string]::IsNullOrWhiteSpace(($existingTag | Out-String).Trim())
+}
+
 $packageVersion = Get-PackageVersion
 $workingTreeStatus = Get-WorkingTreeStatus
+$explicitBump = $PSBoundParameters.ContainsKey('Bump')
 
 if (-not [string]::IsNullOrWhiteSpace($workingTreeStatus)) {
   throw 'Le depot doit etre propre avant de creer un tag de version.'
 }
 
-if ($null -eq $latestTag) {
-  $nextVersion = $packageVersion
-}
-elseif ($packageVersion -gt $latestTag.Version) {
-  $nextVersion = $packageVersion
+if ($explicitBump) {
+  $nextVersion = Get-NextVersion -BaseVersion $packageVersion -BumpType $Bump
 }
 else {
-  $nextVersion = Get-NextVersion -BaseVersion $latestTag.Version -BumpType $Bump
+  $nextVersion = $packageVersion
+  while (Test-TagExists -Version $nextVersion) {
+    $nextVersion = Get-NextVersion -BaseVersion $nextVersion -BumpType 'patch'
+  }
 }
 
 $tagName = "v$($nextVersion.ToString())"
 $packageWillChange = (-not $SkipPackageSync) -and ($packageVersion -ne $nextVersion)
 
-$existingTag = & git -C $repoRoot tag --list $tagName
-if ($LASTEXITCODE -ne 0) {
-  throw 'Impossible de verifier les tags existants'
-}
-
-if ($existingTag) {
+if (Test-TagExists -Version $nextVersion) {
   throw "Le tag existe deja: $tagName"
 }
 
