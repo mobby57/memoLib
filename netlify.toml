@@ -13,4 +13,4 @@
   package = "@netlify/plugin-nextjs"
 
 [functions]
-  directory = "src/frontend/.netlify/functions"
+  directory = ".netlify/functions"
