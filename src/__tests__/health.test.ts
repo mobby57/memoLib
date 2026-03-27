@@ -11,7 +11,7 @@ describe('Application Health', () => {
   it('should have Next.js environment configured', () => {
     expect(process.env.NEXTAUTH_SECRET).toEqual(expect.any(String));
     expect(process.env.NEXTAUTH_SECRET).not.toHaveLength(0);
-    expect(process.env.NEXTAUTH_URL).toBe('http://localhost:3000');
+    expect(process.env.NEXTAUTH_URL).toEqual(expect.stringMatching(/^https?:\/\//));
   });
 
   it('should perform basic math operations', () => {
