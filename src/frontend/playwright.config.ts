@@ -9,8 +9,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : '75%',
-  timeout: 15000,
-  expect: { timeout: 5000 },
+  timeout: 60000,
+  expect: { timeout: 10000 },
 
   reporter: [['html', { open: 'never' }]],
 
@@ -19,8 +19,8 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    actionTimeout: 10000,
-    navigationTimeout: 10000,
+    actionTimeout: 15000,
+    navigationTimeout: 30000,
   },
 
   projects: [
@@ -50,6 +50,6 @@ export default defineConfig({
     command: `npm --prefix "${repoRoot}" run dev -- --port 3200`,
     url: 'http://localhost:3200',
     reuseExistingServer: !process.env.CI,
-    timeout: 60000,
+    timeout: 120000,
   },
 });

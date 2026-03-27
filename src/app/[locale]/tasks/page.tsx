@@ -44,16 +44,25 @@ export default function TasksPage() {
     return new URLSearchParams({ sortBy, sortOrder }).toString();
   }, [sort]);
 
-  const loadTasks = async (queryString: string) => {
-    const response = await fetch(`/api/v1/tasks?${queryString}`);
-    if (!response.ok) return;
-    const payload = (await response.json()) as TasksPayload;
-    setTasks(payload.data ?? []);
-    setAssignees(payload.assignees ?? []);
+  const loadTasks = async (queryString: string, signal: AbortSignal) => {
+    try {
+      const response = await fetch(`/api/v1/tasks?${queryString}`, { signal });
+      if (!response.ok) return;
+      const payload = (await response.json()) as TasksPayload;
+      if (signal.aborted) return;
+      setTasks(payload.data ?? []);
+      setAssignees(payload.assignees ?? []);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        return;
+      }
+    }
   };
 
   useEffect(() => {
-    void loadTasks(query);
+    const controller = new AbortController();
+    void loadTasks(query, controller.signal);
+    return () => controller.abort();
   }, [query]);
 
   const patchTask = async (id: string, body: Record<string, unknown>, successMessage: string) => {

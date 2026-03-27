@@ -69,6 +69,18 @@ export const test = base.extend<Fixtures>({
   dossiersPage: async ({ page }, use) => await use(new DossiersPage(page)),
   invoicesPage: async ({ page }, use) => await use(new InvoicesPage(page)),
   authenticatedPage: async ({ page }, use) => {
+    await page.context().addCookies([
+      {
+        name: 'next-auth.session-token',
+        value: 'e2e-mock-session-token',
+        domain: 'localhost',
+        path: '/',
+        httpOnly: true,
+        sameSite: 'Lax',
+        expires: Math.floor(Date.now() / 1000) + 86400,
+      },
+    ]);
+
     await page.route('**/api/auth/session**', async route => {
       await route.fulfill({
         status: 200,

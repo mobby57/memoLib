@@ -113,9 +113,10 @@ test.describe('Tasks', () => {
     await expect(authenticatedPage.locator('h1')).toBeVisible({ timeout: 3000 });
 
     const sortSelect = authenticatedPage.getByLabel('tri');
-    await sortSelect.selectOption('createdAt:desc');
 
+    await sortSelect.selectOption('createdAt:desc');
     await expect(sortSelect).toHaveValue('createdAt:desc');
+    await expect(authenticatedPage.locator('text=Rediger conclusions')).toBeVisible();
   });
 
   test('should rollback status and show no toast on API error', async ({ authenticatedPage }) => {

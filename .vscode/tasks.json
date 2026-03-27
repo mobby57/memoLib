@@ -69,6 +69,24 @@
 
     // ===== PYTHON / BACKEND =====
     {
+      "label": "Python: Activate Virtual Environment",
+      "type": "shell",
+      "command": "${workspaceFolder}/venv/Scripts/Activate.ps1",
+      "options": {
+        "shell": {
+          "executable": "pwsh",
+          "args": ["-NoExit", "-Command"]
+        }
+      },
+      "presentation": {
+        "reveal": "silent"
+      },
+      "runOptions": {
+        "instanceLimit": 1,
+        "reevaluateOnRerun": true
+      }
+    },
+    {
       "label": "Backend: Flask Dev",
       "type": "shell",
       "command": "python -m flask --app backend-python/app.py run --debug --port 5000 --exclude-patterns \"*site-packages*;*WindowsApps*;*AppData*;*.venv*;*__pycache__*\"",
