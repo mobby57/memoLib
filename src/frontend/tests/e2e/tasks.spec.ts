@@ -112,7 +112,7 @@ test.describe('Tasks', () => {
     await authenticatedPage.goto('/fr/tasks', { waitUntil: 'domcontentloaded' });
     await expect(authenticatedPage.locator('h1')).toBeVisible({ timeout: 3000 });
 
-    const sortSelect = authenticatedPage.locator('select').filter({ hasText: /Tri:/ });
+    const sortSelect = authenticatedPage.getByLabel('tri');
     await sortSelect.selectOption('createdAt:desc');
 
     await expect(sortSelect).toHaveValue('createdAt:desc');
@@ -141,9 +141,9 @@ test.describe('Tasks', () => {
     const taskStatusSelect = authenticatedPage.locator('article').first().locator('select').first();
     await taskStatusSelect.selectOption('in-progress');
 
-    // No success toast after error
     await expect(
       authenticatedPage.locator('[role="alert"]', { hasText: 'Statut mis a jour' })
     ).not.toBeVisible({ timeout: 3000 });
+    await expect(taskStatusSelect).toHaveValue('todo');
   });
 });

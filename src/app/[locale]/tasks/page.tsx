@@ -2,6 +2,20 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+const DEFAULT_SORT = 'priority:desc';
+
+const UI_TO_DOMAIN_STATUS: Record<string, string> = {
+  todo: 'TODO',
+  'in-progress': 'IN_PROGRESS',
+  done: 'DONE',
+};
+
+const DOMAIN_TO_UI_STATUS: Record<string, string> = {
+  TODO: 'todo',
+  IN_PROGRESS: 'in-progress',
+  DONE: 'done',
+};
+
 type Task = {
   id: string;
   title: string;
@@ -18,8 +32,6 @@ type TasksPayload = {
   data: Task[];
   assignees: Assignee[];
 };
-
-const DEFAULT_SORT = 'priority:desc';
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -53,10 +65,11 @@ export default function TasksPage() {
 
     if (!response.ok) {
       setToast(null);
-      return;
+      return false;
     }
 
     setToast(successMessage);
+    return true;
   };
 
   return (
@@ -64,19 +77,9 @@ export default function TasksPage() {
       <h1 className="text-2xl font-semibold">Tasks</h1>
 
       <div>
-        <select
-          aria-label="tri"
-          value={sort}
-          onChange={event => {
-            const nextSort = event.target.value;
-            const [sortBy, sortOrder] = nextSort.split(':');
-            const nextQuery = new URLSearchParams({ sortBy, sortOrder }).toString();
-            setSort(nextSort);
-            void loadTasks(nextQuery);
-          }}
-        >
-          <option value="priority:desc">Tri: Priorite (desc)</option>
-          <option value="createdAt:desc">Tri: Date creation (desc)</option>
+        <select aria-label="tri" value={sort} onChange={event => setSort(event.target.value)}>
+          <option value="priority:desc">Tri : Priorité (desc)</option>
+          <option value="createdAt:desc">Tri : Date de création (desc)</option>
         </select>
       </div>
 
@@ -89,17 +92,28 @@ export default function TasksPage() {
             <div className="mt-2 flex gap-2">
               <select
                 aria-label={`status-${task.id}`}
-                value={task.status.toLowerCase().replace('_', '-')}
+                value={DOMAIN_TO_UI_STATUS[task.status] ?? 'todo'}
                 onChange={async event => {
                   const nextStatus = event.target.value;
+                  const previousStatus = task.status;
+                  const mappedStatus = UI_TO_DOMAIN_STATUS[nextStatus] ?? previousStatus;
                   setTasks(previous =>
                     previous.map(current =>
-                      current.id === task.id
-                        ? { ...current, status: nextStatus.toUpperCase() }
-                        : current
+                      current.id === task.id ? { ...current, status: mappedStatus } : current
                     )
                   );
-                  await patchTask(task.id, { status: nextStatus }, 'Statut mis a jour');
+                  const succeeded = await patchTask(
+                    task.id,
+                    { status: mappedStatus },
+                    'Statut mis a jour'
+                  );
+                  if (!succeeded) {
+                    setTasks(previous =>
+                      previous.map(current =>
+                        current.id === task.id ? { ...current, status: previousStatus } : current
+                      )
+                    );
+                  }
                 }}
               >
                 <option value="todo">A faire</option>
@@ -111,13 +125,27 @@ export default function TasksPage() {
                 aria-label={`assignee-${task.id}`}
                 value={task.assignedToId ?? ''}
                 onChange={async event => {
+                  const previousAssigneeId = task.assignedToId;
                   const assignedToId = event.target.value || null;
                   setTasks(previous =>
                     previous.map(current =>
                       current.id === task.id ? { ...current, assignedToId } : current
                     )
                   );
-                  await patchTask(task.id, { assignedToId }, 'Assignation mise a jour');
+                  const succeeded = await patchTask(
+                    task.id,
+                    { assignedToId },
+                    'Assignation mise a jour'
+                  );
+                  if (!succeeded) {
+                    setTasks(previous =>
+                      previous.map(current =>
+                        current.id === task.id
+                          ? { ...current, assignedToId: previousAssigneeId }
+                          : current
+                      )
+                    );
+                  }
                 }}
               >
                 <option value="">Non assigne</option>

@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -158,10 +158,12 @@ const ETAPES = [
 
 export default function NouveauDossierAvance() {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const createdRedirect = searchParams?.get('created') === '1';
+  const [showCreatedAlert, setShowCreatedAlert] = useState(createdRedirect);
   const [etapeActive, setEtapeActive] = useState(0);
   const [loading, setLoading] = useState(false);
   const [documentAnalyzing, setDocumentAnalyzing] = useState(false);
@@ -186,11 +188,23 @@ export default function NouveauDossierAvance() {
       adresse: '123 rue de la Republique',
       codePostal: '75001',
       ville: 'Paris',
-      téléphone: '+33612345678',
+      téléphone: '0612345678',
       email: 'client.anonyme@example.com',
       situationFamiliale: 'CELIBATAIRE',
     },
   });
+
+  useEffect(() => {
+    if (!createdRedirect) return;
+
+    setShowCreatedAlert(true);
+
+    const nextParams = new URLSearchParams(searchParams?.toString() ?? '');
+    nextParams.delete('created');
+    const nextUrl = nextParams.toString() ? `${pathname}?${nextParams.toString()}` : pathname;
+
+    router.replace(nextUrl);
+  }, [createdRedirect, pathname, router, searchParams]);
 
   const {
     watch,
@@ -371,7 +385,7 @@ export default function NouveauDossierAvance() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
-        {createdRedirect ? (
+        {showCreatedAlert ? (
           <div
             role="alert"
             className="mb-2 p-3 rounded bg-green-50 border border-green-200 text-green-900"

@@ -1,6 +1,12 @@
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
+const TEST_LOCALE = 'fr';
+
+function localizePath(path: string) {
+  return `/${TEST_LOCALE}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 const MOCK_SESSION = {
   user: {
     id: 'user-1',
@@ -14,7 +20,7 @@ const MOCK_SESSION = {
 class AuthPage {
   constructor(private page: Page) {}
   async login(email: string, password: string) {
-    await this.page.goto('/fr/auth/login');
+    await this.page.goto(localizePath('/auth/login'));
     await Promise.all([
       this.page.fill('input[name="email"]', email),
       this.page.fill('input[name="password"]', password),
@@ -27,7 +33,7 @@ class AuthPage {
 class DossiersPage {
   constructor(private page: Page) {}
   async goto() {
-    await this.page.goto('/dossiers', { waitUntil: 'domcontentloaded' });
+    await this.page.goto(localizePath('/dossiers'), { waitUntil: 'domcontentloaded' });
   }
   async create(data: { title: string; clientName: string; description?: string }) {
     await this.page.click('button:has-text("Nouveau dossier")');
@@ -41,7 +47,7 @@ class DossiersPage {
 class InvoicesPage {
   constructor(private page: Page) {}
   async goto() {
-    await this.page.goto('/invoices', { waitUntil: 'domcontentloaded' });
+    await this.page.goto(localizePath('/invoices'), { waitUntil: 'domcontentloaded' });
   }
   async create(data: { clientName: string; amount: number }) {
     await this.page.click('button:has-text("Nouvelle facture")');
