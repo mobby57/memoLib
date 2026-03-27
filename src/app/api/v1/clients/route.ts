@@ -100,7 +100,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if client already exists
     const existing = await prisma.client.findFirst({
       where: { tenantId: user.tenantId, email },
     });
@@ -123,7 +122,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Log to audit
     await prisma.auditLog.create({
       data: {
         tenantId: user.tenantId,

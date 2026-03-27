@@ -80,7 +80,7 @@
     "PowerShell": {
       "source": "PowerShell",
       "icon": "terminal-powershell",
-      "args": ["-NoExit", "-Command", "${workspaceFolder}\\.vscode\\activate-env.ps1"]
+      "args": ["-NoExit", "-File", "${workspaceFolder}\\.vscode\\activate-env.ps1"]
     },
     "Command Prompt": {
       "path": "C:\\Windows\\System32\\cmd.exe",

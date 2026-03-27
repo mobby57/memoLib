@@ -74,8 +74,8 @@
       "command": "${workspaceFolder}/venv/Scripts/Activate.ps1",
       "options": {
         "shell": {
-          "executable": "pwsh",
-          "args": ["-NoExit", "-Command"]
+          "executable": "powershell.exe",
+          "args": ["-NoExit", "-ExecutionPolicy", "Bypass", "-Command"]
         }
       },
       "presentation": {

@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * Get a single dossier
  */
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -82,7 +82,6 @@ export async function PUT(
       return NextResponse.json({ error: 'No tenant found' }, { status: 400 });
     }
 
-    // Check if dossier exists & belongs to tenant
     const existing = await prisma.dossier.findFirst({
       where: { id: params.id, tenantId: user.tenantId },
     });
@@ -106,7 +105,6 @@ export async function PUT(
       include: { client: true },
     });
 
-    // Log to audit
     await prisma.auditLog.create({
       data: {
         tenantId: user.tenantId,
@@ -157,7 +155,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'No tenant found' }, { status: 400 });
     }
 
-    // Check existence
     const existing = await prisma.dossier.findFirst({
       where: { id: params.id, tenantId: user.tenantId },
     });
@@ -166,13 +163,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Dossier not found' }, { status: 404 });
     }
 
-    // Soft delete
-    const deleted = await prisma.dossier.update({
+    await prisma.dossier.update({
       where: { id: params.id },
-      data: { dateCloture: new Date() }, // Mark as closed
+      data: { dateCloture: new Date() },
     });
 
-    // Log to audit
     await prisma.auditLog.create({
       data: {
         tenantId: user.tenantId,

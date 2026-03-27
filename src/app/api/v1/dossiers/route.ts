@@ -21,7 +21,6 @@ export async function GET(req: NextRequest) {
       return guard.response;
     }
 
-    // Get user & tenant
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       include: { tenant: true },
@@ -31,7 +30,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'No tenant found' }, { status: 400 });
     }
 
-    // Get query params for filtering
     const { searchParams } = new URL(req.url);
     const statut = searchParams.get('statut');
     const clientId = searchParams.get('clientId');
@@ -42,7 +40,6 @@ export async function GET(req: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    // Build filter
     const where: any = { tenantId: user.tenantId };
     if (statut) where.statut = statut;
     if (clientId) where.clientId = clientId;
@@ -53,7 +50,6 @@ export async function GET(req: NextRequest) {
       : 'dateCreation';
     const normalizedSortOrder: 'asc' | 'desc' = sortOrder === 'asc' ? 'asc' : 'desc';
 
-    // Fetch dossiers
     const [dossiers, total] = await Promise.all([
       prisma.dossier.findMany({
         where,
@@ -92,7 +88,6 @@ export async function POST(req: NextRequest) {
       return guard.response;
     }
 
-    // Get user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       include: { tenant: true },
@@ -105,7 +100,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { numero, clientId, typeDossier, dateEcheance, description, priorite } = body;
 
-    // Validate required fields
     if (!numero || !clientId || !typeDossier) {
       return NextResponse.json(
         { error: 'Missing required fields: numero, clientId, typeDossier' },
@@ -113,7 +107,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if client exists & belongs to tenant
     const client = await prisma.client.findFirst({
       where: { id: clientId, tenantId: user.tenantId },
     });
@@ -122,7 +115,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }
 
-    // Create dossier
     const dossier = await prisma.dossier.create({
       data: {
         tenantId: user.tenantId,
@@ -139,7 +131,6 @@ export async function POST(req: NextRequest) {
       include: { client: true },
     });
 
-    // Log to audit
     await prisma.auditLog.create({
       data: {
         tenantId: user.tenantId,
