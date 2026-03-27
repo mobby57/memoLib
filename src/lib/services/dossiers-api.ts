@@ -32,9 +32,19 @@ export type DossierListResponse = {
 
 export type DossierDetail = DossierListItem & {
   documents?: Array<{ id: string; title?: string | null; createdAt?: string | null }>;
-  legalDeadlines?: Array<{ id: string; dueDate?: string | null; title?: string | null; status?: string | null }>;
+  legalDeadlines?: Array<{
+    id: string;
+    dueDate?: string | null;
+    title?: string | null;
+    status?: string | null;
+  }>;
   emails?: Array<{ id: string; subject?: string | null; receivedAt?: string | null }>;
-  factures?: Array<{ id: string; numero?: string | null; montantTTC?: number | null; dateEmission?: string | null }>;
+  factures?: Array<{
+    id: string;
+    numero?: string | null;
+    montantTTC?: number | null;
+    dateEmission?: string | null;
+  }>;
 };
 
 export type ClientsResponse = {
@@ -85,13 +95,15 @@ async function parseResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
-export async function listDossiers(params: {
-  page?: number;
-  limit?: number;
-  statut?: string;
-  sortBy?: 'dateCreation' | 'updatedAt' | 'priorite' | 'statut';
-  sortOrder?: 'asc' | 'desc';
-} = {}): Promise<DossierListResponse> {
+export async function listDossiers(
+  params: {
+    page?: number;
+    limit?: number;
+    statut?: string;
+    sortBy?: 'dateCreation' | 'updatedAt' | 'priorite' | 'statut';
+    sortOrder?: 'asc' | 'desc';
+  } = {}
+): Promise<DossierListResponse> {
   const search = new URLSearchParams();
   if (params.page) search.set('page', String(params.page));
   if (params.limit) search.set('limit', String(params.limit));
@@ -132,7 +144,9 @@ export async function createDossier(payload: CreateDossierPayload): Promise<Doss
   return parseResponse<DossierDetail>(response);
 }
 
-export async function listClients(params: { page?: number; limit?: number; search?: string } = {}): Promise<ClientsResponse> {
+export async function listClients(
+  params: { page?: number; limit?: number; search?: string } = {}
+): Promise<ClientsResponse> {
   const search = new URLSearchParams();
   if (params.page) search.set('page', String(params.page));
   if (params.limit) search.set('limit', String(params.limit));

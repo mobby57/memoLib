@@ -8,10 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * GET /api/v1/dossiers/[id]
  * Get a single dossier
  */
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -58,10 +55,7 @@ export async function GET(
  * PUT /api/v1/dossiers/[id]
  * Update a dossier
  */
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -131,10 +125,7 @@ export async function PUT(
  * DELETE /api/v1/dossiers/[id]
  * Soft delete a dossier
  */
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
 
