@@ -195,7 +195,7 @@ export default function NouveauDossierAvance() {
   });
 
   useEffect(() => {
-    if (!createdRedirect) return;
+    if (!createdRedirect || !pathname) return;
 
     setShowCreatedAlert(true);
 
