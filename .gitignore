@@ -74,6 +74,9 @@ uploads/
 .jest-cache/
 playwright-report/
 test-results/
+playwright/.auth/
+src/frontend/playwright/.auth/
+src/frontend/tests/playwright/.auth/
 .tmp_*.json
 register_debug.json
 
@@ -128,6 +131,7 @@ publish/
 ## Package manager lockfiles (npm only)
 pnpm-lock.yaml
 yarn.lock
+*.tsbuildinfo
 
 ## Legacy/build artifacts (not part of main project)
 frontend-node/

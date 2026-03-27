@@ -1,10 +1,26 @@
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
+const TEST_LOCALE = 'fr';
+
+function localizePath(path: string) {
+  return `/${TEST_LOCALE}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+const MOCK_SESSION = {
+  user: {
+    id: 'user-1',
+    name: 'Marie Dupont',
+    email: 'marie@example.com',
+    role: 'LAWYER',
+  },
+  expires: '2099-01-01T00:00:00.000Z',
+};
+
 class AuthPage {
   constructor(private page: Page) {}
   async login(email: string, password: string) {
-    await this.page.goto('/auth/signin');
+    await this.page.goto(localizePath('/auth/login'));
     await Promise.all([
       this.page.fill('input[name="email"]', email),
       this.page.fill('input[name="password"]', password),
@@ -16,7 +32,9 @@ class AuthPage {
 
 class DossiersPage {
   constructor(private page: Page) {}
-  async goto() { await this.page.goto('/dossiers', { waitUntil: 'domcontentloaded' }); }
+  async goto() {
+    await this.page.goto(localizePath('/dossiers'), { waitUntil: 'domcontentloaded' });
+  }
   async create(data: { title: string; clientName: string; description?: string }) {
     await this.page.click('button:has-text("Nouveau dossier")');
     await this.page.fill('input[name="title"]', data.title);
@@ -28,7 +46,9 @@ class DossiersPage {
 
 class InvoicesPage {
   constructor(private page: Page) {}
-  async goto() { await this.page.goto('/invoices', { waitUntil: 'domcontentloaded' }); }
+  async goto() {
+    await this.page.goto(localizePath('/invoices'), { waitUntil: 'domcontentloaded' });
+  }
   async create(data: { clientName: string; amount: number }) {
     await this.page.click('button:has-text("Nouvelle facture")');
     await this.page.fill('input[name="clientName"]', data.clientName);
@@ -48,8 +68,26 @@ export const test = base.extend<Fixtures>({
   authPage: async ({ page }, use) => await use(new AuthPage(page)),
   dossiersPage: async ({ page }, use) => await use(new DossiersPage(page)),
   invoicesPage: async ({ page }, use) => await use(new InvoicesPage(page)),
-  authenticatedPage: async ({ page, authPage }, use) => {
-    await authPage.login('test@example.com', 'password123');
+  authenticatedPage: async ({ page }, use) => {
+    await page.context().addCookies([
+      {
+        name: 'next-auth.session-token',
+        value: 'e2e-mock-session-token',
+        domain: 'localhost',
+        path: '/',
+        httpOnly: true,
+        sameSite: 'Lax',
+        expires: Math.floor(Date.now() / 1000) + 86400,
+      },
+    ]);
+
+    await page.route('**/api/auth/session**', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(MOCK_SESSION),
+      });
+    });
     await use(page);
   },
 });

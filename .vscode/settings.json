@@ -69,6 +69,25 @@
   },
   "http.systemCertificates": true,
 
+  // -------- Python Virtual Environment (Auto-Activation) --------
+  "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe",
+  "python.terminal.executeInFileDir": true,
+  "python.terminal.executeInTerminalTitle": "Python: ${interpreterPath}",
+
+  // -------- Terminal Integration --------
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell",
+      "args": ["-NoExit", "-File", "${workspaceFolder}\\.vscode\\activate-env.ps1"]
+    },
+    "Command Prompt": {
+      "path": "C:\\Windows\\System32\\cmd.exe",
+      "icon": "terminal-cmd"
+    }
+  },
+
   // -------- Telemetry (Reduce overhead) --------
   "telemetry.telemetryLevel": "off",
   "extensions.autoCheckUpdates": false,

@@ -31,25 +31,35 @@ export function useToast() {
 export function ToastProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const addToast = useCallback((toast: Omit<Toast, 'id'>) => {
-    const id = Date.now().toString();
-    const newToast = { ...toast, id };
-    setToasts(prev => [...prev, newToast]);
-
-    if (toast.duration !== 0) {
-      setTimeout(() => {
-        removeToast(id);
-      }, toast.duration || 5000);
-    }
+  const createToastId = useCallback(() => {
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   }, []);
-
-  const showToast = useCallback((message: string, variant: Toast['variant'], title?: string) => {
-    addToast({ message, variant, title });
-  }, [addToast]);
 
   const removeToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   }, []);
+
+  const addToast = useCallback(
+    (toast: Omit<Toast, 'id'>) => {
+      const id = createToastId();
+      const newToast = { ...toast, id };
+      setToasts(prev => [...prev, newToast]);
+
+      if (toast.duration !== 0) {
+        setTimeout(() => {
+          removeToast(id);
+        }, toast.duration || 5000);
+      }
+    },
+    [createToastId, removeToast]
+  );
+
+  const showToast = useCallback(
+    (message: string, variant: Toast['variant'], title?: string) => {
+      addToast({ message, variant, title });
+    },
+    [addToast]
+  );
 
   const contextValue = useMemo(
     () => ({ toasts, addToast, showToast, removeToast }),
@@ -64,7 +74,10 @@ export function ToastProvider({ children }: Readonly<{ children: ReactNode }>) {
   );
 }
 
-function ToastContainer({ toasts, removeToast }: Readonly<{ toasts: Toast[]; removeToast: (id: string) => void }>) {
+function ToastContainer({
+  toasts,
+  removeToast,
+}: Readonly<{ toasts: Toast[]; removeToast: (id: string) => void }>) {
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2 max-w-md">
       {toasts.map(toast => (
@@ -114,9 +127,7 @@ function ToastItem({ toast, onClose }: Readonly<{ toast: Toast; onClose: () => v
         <Icon className={`h-5 w-5 ${config.iconColor} mt-0.5`} />
         <div className="ml-3 flex-1">
           {toast.title && (
-            <p className={`text-sm font-medium ${config.textColor}`}>
-              {toast.title}
-            </p>
+            <p className={`text-sm font-medium ${config.textColor}`}>{toast.title}</p>
           )}
           <p className={`text-sm ${toast.title ? 'mt-1' : ''} ${config.textColor}`}>
             {toast.message}

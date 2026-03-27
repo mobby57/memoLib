@@ -109,18 +109,9 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
   });
 
   afterAll(async () => {
-    if (dbReady && prisma?.tenant && prisma?.plan) {
-      await prisma.tenant.deleteMany({
-        where: {
-          subdomain: { startsWith: 'int-' },
-        },
-      });
-
-      await prisma.plan.deleteMany({
-        where: {
-          name: { startsWith: 'int-plan-' },
-        },
-      });
+    if (dbReady && prisma?.$executeRaw && tenantId && planId) {
+      await prisma.$executeRaw`DELETE FROM "Tenant" WHERE id = ${tenantId}`;
+      await prisma.$executeRaw`DELETE FROM "Plan" WHERE id = ${planId}`;
     }
 
     if (prisma?.$disconnect) {
