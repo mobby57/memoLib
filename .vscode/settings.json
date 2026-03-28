@@ -1,7 +1,6 @@
 {
   // ===========================================
   // VS Code Performance Optimizations for .NET
-  // MemoLib.Api Project
   // ===========================================
   
   // -------- OmniSharp / C# Optimizations --------
@@ -30,7 +29,15 @@
     "**/.vs": true,
     "**/TestResults": true,
     "**/.dotnet": true,
-    "**/.nuget": true
+    "**/.nuget": true,
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/.vercel": true,
+    "**/.swc": true,
+    "**/coverage": true,
+    "**/.pytest_cache": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true
   },
 
   // -------- Search Exclusions --------
@@ -41,7 +48,13 @@
     "**/TestResults": true,
     "**/*.user": true,
     "**/*.suo": true,
-    "**/.dotnet": true
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/.vercel": true,
+    "**/coverage": true,
+    "**/.dotnet": true,
+    "**/dist": true,
+    "**/build": true
   },
 
   // -------- Editor Performance --------
@@ -74,6 +87,13 @@
   "extensions.autoCheckUpdates": false,
   "extensions.autoUpdate": false,
 
+  // -------- TypeScript/JavaScript (if needed) --------
+  "javascript.updateImportsOnFileMove.enabled": "never",
+  "typescript.updateImportsOnFileMove.enabled": "never",
+
+  // -------- Python --------
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+
   // -------- Debugging --------
   "debug.console.fontSize": 12,
   "debug.inlineValues": false,
@@ -84,5 +104,7 @@
   "editor.smoothScrolling": true,
   "editor.renderWhitespace": "selection",
   "editor.renderLineHighlight": "line",
-  "window.newWindowDimensions": "inherit"
+  "window.newWindowDimensions": "inherit",
+  "workbench.startupEditor": "welcomePage",
+  "workbench.enableTabs": false
 }

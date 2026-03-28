@@ -4,7 +4,7 @@
 version: 2
 
 # Chemins à exclure du scan
-paths-ignore:
+paths_ignore:
   - node_modules/**
   - .next/**
   - dist/**
@@ -17,19 +17,16 @@ paths-ignore:
   - public/**
   - CUsersmorosDesktopiaPostemanage/**
   - code-connect/**
-  
-# Fichiers spécifiques à ignorer
-exclude:
   - "*.md"
   - "*.log"
   - "*.min.js"
   - "*.min.css"
-  - "package-lock.json"
-  - "pnpm-lock.yaml"
-  - "yarn.lock"
+  - package-lock.json
+  - pnpm-lock.yaml
+  - yarn.lock
 
 # Patterns à ignorer (faux positifs connus)
-matches-ignore:
+matches_ignore:
   # Exemples de tokens dans la documentation
   - name: Documentation examples
     match: "re_123456789_abcdefghijklmnop"
@@ -50,7 +47,7 @@ matches-ignore:
     match: "Client123!"
 
 # Détecteurs personnalisés
-custom-detectors:
+custom_detectors:
   - name: Anthropic API Key
     regex: 'sk-ant-api03-[A-Za-z0-9\-_]{95}'
     
@@ -63,19 +60,18 @@ custom-detectors:
 # Paramètres de scan
 secret:
   # Afficher tous les secrets trouvés
-  show-secrets: false
+  show_secrets: false
   
   # Ignorer les secrets connus (dans .env.example par exemple)
-  ignore-known-secrets: true
+  ignore_known_secrets: true
 
 # Sortie
 verbose: false
-output: text
 
 # Exit code
-exit-zero: false
+exit_zero: false
 
 # Bannir certains types de secrets
-ignore-policies:
+ignore_policies:
   - "Generic Password"
   - "Generic API Key"
