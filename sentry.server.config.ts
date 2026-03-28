@@ -15,7 +15,7 @@ Sentry.init({
   maxBreadcrumbs: 50,
   debug: false,
 
-  beforeSend(event, hint) {
+  beforeSend(event, hint: any) {
     // Tag server-side release health events
     if (!event.tags) {
       event.tags = {};
