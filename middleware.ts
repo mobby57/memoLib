@@ -1,6 +1,5 @@
 import createIntlMiddleware from 'next-intl/middleware';
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 /**
  * Middleware combiné: i18n + sécurité globale pour MemoLib
@@ -15,18 +14,15 @@ const intlMiddleware = createIntlMiddleware({
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const isApiRoute = pathname.startsWith('/api');
+  const isNextAsset = pathname.startsWith('/_next');
+  const isStaticAsset = pathname.startsWith('/static');
+  const isFavicon = pathname === '/favicon.ico';
+  const isImage = /\.(png|jpg|jpeg|gif|svg|webp)$/i.test(pathname);
 
-  if (
-    pathname.startsWith('/api') ||
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/static') ||
-    pathname === '/favicon.ico' ||
-    /\.(?:png|jpg|jpeg|gif|svg|webp)$/.test(pathname)
-  ) {
-    return NextResponse.next();
-  }
-
-  const response = intlMiddleware(request);
+  const response = (isApiRoute || isNextAsset || isStaticAsset || isFavicon || isImage)
+    ? NextResponse.next()
+    : intlMiddleware(request);
 
   // 🔒 X-Frame-Options: Prévient les attaques clickjacking
   response.headers.set('X-Frame-Options', 'DENY');
