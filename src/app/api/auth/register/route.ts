@@ -6,14 +6,48 @@ import { randomUUID } from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
+type RegisterPayload = {
+  prenom?: string;
+  nom?: string;
+  email?: string;
+  password?: string;
+  telephone?: string;
+  cabinetNom?: string;
+  numeroBarreau?: string;
+  adresse?: string;
+  ville?: string;
+  codePostal?: string;
+  plan?: string;
+};
+
+function buildBillingAddress(data: Pick<RegisterPayload, 'adresse' | 'codePostal' | 'ville'>): string | null {
+  const parts = [data.adresse, [data.codePostal, data.ville].filter(Boolean).join(' ') || undefined]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .map((value) => value.trim());
+
+  return parts.length > 0 ? parts.join(', ') : null;
+}
+
+function validatePayload(data: RegisterPayload): string | null {
+  if (!data.prenom || !data.nom || !data.email || !data.password) {
+    return 'Champs obligatoires manquants';
+  }
+
+  if (data.password.length < 8) {
+    return 'Le mot de passe doit contenir au moins 8 caractères';
+  }
+
+  return null;
+}
+
 /**
  * POST /api/auth/register
  * Inscription d'un nouvel avocat avec création du cabinet (tenant)
  */
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
-
+    const data = (await request.json()) as RegisterPayload;
+    
     const {
       prenom,
       nom,
@@ -28,24 +62,21 @@ export async function POST(request: NextRequest) {
       plan: planName,
     } = data;
 
-    // Validation basique
-    if (!prenom || !nom || !email || !password) {
+    const validationError = validatePayload(data);
+    if (validationError) {
       return NextResponse.json(
-        { error: 'Champs obligatoires manquants' },
+        { error: validationError },
         { status: 400 }
       );
     }
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: 'Le mot de passe doit contenir au moins 8 caractères' },
-        { status: 400 }
-      );
-    }
+    const normalizedEmail = email.toLowerCase();
+    const normalizedPhone = telephone?.trim() || null;
+    const billingAddress = buildBillingAddress({ adresse, codePostal, ville });
 
     // Vérifier si l'email existe déjà
     const existingUser = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -55,23 +86,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const requestedPlan = String(planName || 'SOLO').toUpperCase();
-    const planAliases: Record<string, string[]> = {
-      SOLO: ['SOLO', 'STARTER'],
-      CABINET: ['CABINET', 'PRO'],
-      ENTERPRISE: ['ENTERPRISE'],
-    };
-
-    const candidatePlanNames = planAliases[requestedPlan] || [requestedPlan];
-
-    const plan = await prisma.plan.findFirst({
-      where: {
-        name: {
-          in: candidatePlanNames,
-          mode: 'insensitive',
-        },
-      },
+    // Récupérer le plan choisi
+    let plan = await prisma.plan.findUnique({
+      where: { name: planName || 'SOLO' },
     });
+
+    // Compatibilité avec les labels front (SOLO/CABINET/ENTERPRISE) ou autres variantes
+    if (!plan && planName) {
+      const normalized = planName.toUpperCase();
+      const aliases: Record<string, string[]> = {
+        SOLO: ['SOLO', 'STARTER', 'BASIC'],
+        CABINET: ['CABINET', 'PRO', 'PROFESSIONAL'],
+        ENTERPRISE: ['ENTERPRISE', 'BUSINESS', 'PREMIUM'],
+      };
+
+      const candidates = aliases[normalized] ?? [planName];
+      plan = await prisma.plan.findFirst({
+        where: {
+          OR: candidates.map((name) => ({ name })),
+          isActive: true,
+        },
+      });
+    }
+
+    if (!plan) {
+      plan = await prisma.plan.findFirst({
+        where: { isActive: true },
+        orderBy: { priceMonthly: 'asc' },
+      });
+    }
 
     if (!plan) {
       return NextResponse.json(
@@ -83,33 +126,36 @@ export async function POST(request: NextRequest) {
     // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    const baseSlug = nom.toLowerCase().replace(/\s+/g, '-');
+    const uniqueSuffix = Date.now().toString();
+
     // Créer le tenant (cabinet) et l'utilisateur en transaction
     const result = await prisma.$transaction(async (tx) => {
-      const baseSubdomain = (cabinetNom || nom || 'cabinet')
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 30) || 'cabinet';
-
-      const uniqueSuffix = Date.now().toString().slice(-6);
-      const subdomain = `${baseSubdomain}-${uniqueSuffix}`;
-
       // 1. Créer le tenant (cabinet)
       const tenant = await tx.tenant.create({
         data: {
           id: randomUUID(),
           name: cabinetNom || `Cabinet ${nom}`,
-          subdomain,
+          subdomain: `${baseSlug}-${uniqueSuffix}`.slice(0, 63),
           planId: plan.id,
-
+          billingEmail: normalizedEmail,
+          billingAddress,
+          
           // Compteurs initiaux
           currentWorkspaces: 0,
           currentDossiers: 0,
           currentClients: 0,
           currentUsers: 1,
           currentStorageGb: 0,
+          settings: {
+            create: {
+              numeroBarreau: numeroBarreau?.trim() || null,
+              adresse: adresse?.trim() || null,
+              ville: ville?.trim() || null,
+              codePostal: codePostal?.trim() || null,
+              telephone: normalizedPhone,
+            },
+          },
         },
       });
 
@@ -117,14 +163,12 @@ export async function POST(request: NextRequest) {
       const user = await tx.user.create({
         data: {
           id: randomUUID(),
-          email: email.toLowerCase(),
+          email: normalizedEmail,
           name: `${prenom} ${nom}`,
           password: hashedPassword,
+          phone: normalizedPhone,
           role: 'AVOCAT',
-          status: 'active',
-          tenant: {
-            connect: { id: tenant.id },
-          },
+          tenant: { connect: { id: tenant.id } },
         },
       });
 
@@ -132,7 +176,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Log de l'inscription
-    logger.info('[REGISTER] Nouvel avocat inscrit: ${result.user.email} - Cabinet: ${result.tenant.name}');
+    logger.info(`[REGISTER] Nouvel avocat inscrit: ${result.user.email} - Cabinet: ${result.tenant.name}`);
 
     return NextResponse.json({
       success: true,
@@ -149,18 +193,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    const isDatabaseUnavailable = message.includes("Can't reach database server");
-
-    logger.error('[REGISTER] Erreur inscription', error);
-
-    if (isDatabaseUnavailable) {
-      return NextResponse.json(
-        { error: 'Service d’inscription temporairement indisponible (base de données).' },
-        { status: 503 }
-      );
-    }
-
+    logger.error('[REGISTER] Erreur:', { error });
     return NextResponse.json(
       { error: 'Erreur lors de l\'inscription' },
       { status: 500 }
