@@ -72,15 +72,15 @@ NEXTAUTH_URL=https://memolib.vercel.app
 # GitHub App (MemoLib Guardian)
 GITHUB_APP_ID=2782101
 GITHUB_APP_CLIENT_ID=Iv23li1esofvkxLzxiD1
-GITHUB_APP_CLIENT_SECRET=f13b7458307f23c30f66e133fdb2472690e6ef3b
-GITHUB_APP_PRIVATE_KEY=-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----
-GITHUB_WEBHOOK_SECRET=6thw5ec4b1DmGJj3fxLI9NuVOsU8aoWYykS0REiQZKpCdTl7PA2rFvgMHzXnBq
+GITHUB_APP_CLIENT_SECRET=<your-github-app-client-secret>
+GITHUB_APP_PRIVATE_KEY=<PASTE_MULTILINE_PEM_PRIVATE_KEY>
+GITHUB_WEBHOOK_SECRET=<your-webhook-secret>
 
 # Database
 DATABASE_URL=postgresql://...
 
 # Autres
-SECRET_KEY=225d23f8799ba86f844ab5e82c3cb351154e08b061d2c7dfcedac2b598c076ae
+SECRET_KEY=<generate-a-strong-secret>
 SENTRY_DSN=votre-sentry-dsn
 ```
 
