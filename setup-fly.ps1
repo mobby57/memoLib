@@ -13,8 +13,8 @@ try {
     exit 1
 }
 
-# DATABASE_URL depuis .env.local
-$databaseUrl = "postgresql://neondb_owner:npg_5CzMD0oXUYRO@ep-crimson-rice-ahz3jjtv-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+# DATABASE_URL a definir via variable d'environnement locale
+$databaseUrl = "postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
 
 Write-Host "`n📋 Étapes de configuration:" -ForegroundColor Yellow
 Write-Host "1. Configurer DATABASE_URL"

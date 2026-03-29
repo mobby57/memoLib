@@ -2,21 +2,21 @@
 Write-Host "Configuring Netlify environment variables..." -ForegroundColor Cyan
 
 # Database
-netlify env:set DATABASE_URL "postgresql://neondb_owner:npg_5CzMD0oXUYRO@ep-crimson-rice-ahz3jjtv-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+netlify env:set DATABASE_URL "postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
 Write-Host "DATABASE_URL set" -ForegroundColor Green
 
 # NextAuth
-netlify env:set NEXTAUTH_SECRET "super-secret-key-for-iapostemanager-2026-change-in-production"
+netlify env:set NEXTAUTH_SECRET "<generate-a-strong-secret>"
 Write-Host "NEXTAUTH_SECRET set" -ForegroundColor Green
 
 netlify env:set NEXTAUTH_URL "https://bright-dodol-d4bf9b.netlify.app"
 Write-Host "NEXTAUTH_URL set" -ForegroundColor Green
 
 # GitHub OAuth
-netlify env:set GITHUB_CLIENT_ID "Ov23li9OEdVRtXfo8CE6"
+netlify env:set GITHUB_CLIENT_ID "<your-github-client-id>"
 Write-Host "GITHUB_CLIENT_ID set" -ForegroundColor Green
 
-netlify env:set GITHUB_CLIENT_SECRET "1c30ae04ba8d99b5cb4a56be2e05ab819849af5a"
+netlify env:set GITHUB_CLIENT_SECRET "<your-github-client-secret>"
 Write-Host "GITHUB_CLIENT_SECRET set" -ForegroundColor Green
 
 # Stripe

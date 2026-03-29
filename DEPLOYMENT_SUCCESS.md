@@ -45,8 +45,8 @@ Client: client@memolib.fr / client123
 ### 1. Configuration Secrets
 
 ```bash
-fly secrets set DATABASE_URL="postgresql://neondb_owner:npg_5CzMD0oXUYRO@ep-crimson-rice-ahz3jjtv-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
-fly secrets set NEXTAUTH_SECRET="super-secret-key-for-iapostemanager-2026-change-in-production"
+fly secrets set DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
+fly secrets set NEXTAUTH_SECRET="<generate-a-strong-secret>"
 fly secrets set NEXTAUTH_URL="https://memolib.fly.dev"
 ```
 

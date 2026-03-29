@@ -5,7 +5,7 @@
 ### Configurer DATABASE_URL sur Fly.io
 ```bash
 # Définir le secret DATABASE_URL
-fly secrets set DATABASE_URL="postgresql://neondb_owner:npg_5CzMD0oXUYRO@ep-crimson-rice-ahz3jjtv-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+fly secrets set DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require"
 
 # Vérifier les secrets
 fly secrets list

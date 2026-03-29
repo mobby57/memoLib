@@ -41,12 +41,15 @@ memolib*.db
 appsettings.Development.json
 appsettings.Production.json
 secrets.json
+.env
 .env.local
 .env.production
 .env.staging
 .env.security
 .env.infrastructure
 .env*.local
+*.pem
+*.key
 prod-key.txt
 
 ## Logs
@@ -135,6 +138,8 @@ _build_check/
 MemoLib-Package-Client/app/frontend-node/
 MemoLib-Package-Client/app/_build_check/
 .vercel
+.netlify/
+.wrangler/
 
 
 # Azure deployment secrets
