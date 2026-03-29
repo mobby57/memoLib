@@ -10,12 +10,12 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  
+
   // Coverage configuration
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
-  
+
   // Coverage thresholds (80% target)
   coverageThreshold: {
     global: {
@@ -38,14 +38,14 @@ const customJestConfig = {
       statements: 95
     }
   },
-  
+
   // Test patterns
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',
     '<rootDir>/__tests__/**/*.{js,jsx,ts,tsx}'
   ],
-  
+
   // Module name mapping
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -54,10 +54,10 @@ const customJestConfig = {
     '^@/hooks/(.*)$': '<rootDir>/src/hooks/$1',
     '^@/types/(.*)$': '<rootDir>/src/types/$1'
   },
-  
+
   // Mock configuration
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  
+
   // Module path ignore patterns
   modulePathIgnorePatterns: [
     '<rootDir>/.venv/',
@@ -69,7 +69,7 @@ const customJestConfig = {
     '<rootDir>/MemoLib.Api/',
     '<rootDir>/MemoLib.Api-cleanpush/'
   ],
-  
+
   // Watch path ignore patterns
   watchPathIgnorePatterns: [
     '/node_modules/',
@@ -81,20 +81,23 @@ const customJestConfig = {
     '/MemoLib.Api/',
     '/MemoLib.Api-cleanpush/'
   ],
-  
+
   // Ignore patterns
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '<rootDir>/out/',
     '<rootDir>/build/',
+    '<rootDir>/src/frontend/tests/e2e/',
+    '<rootDir>/tests/e2e/',
+    '\\.e2e\\.test\\.',
     '<rootDir>/.venv/',
     '<rootDir>/venv/',
     '<rootDir>/__pycache__/',
     '<rootDir>/MemoLib.Api/',
     '<rootDir>/MemoLib.Api-cleanpush/'
   ],
-  
+
   // Coverage ignore patterns
   coveragePathIgnorePatterns: [
     '/node_modules/',
@@ -110,18 +113,18 @@ const customJestConfig = {
     '/__pycache__/',
     '.d.ts$'
   ],
-  
+
   // Performance optimization
   maxWorkers: '50%',
   cache: true,
   cacheDirectory: '<rootDir>/.jest-cache',
-  
+
   // Test timeout
   testTimeout: 10000,
-  
+
   // Verbose output for debugging
   verbose: false,
-  
+
   // Collect coverage from these files
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
