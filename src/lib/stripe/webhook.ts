@@ -1,4 +1,6 @@
 import { Redis } from '@upstash/redis';
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
 
 const processedEventIds = new Map<string, number>();
 
@@ -41,4 +43,37 @@ export async function isStripeEventDuplicate(eventId: string): Promise<boolean> 
 
   processedEventIds.set(eventId, now + ttlSeconds * 1000);
   return false;
+}
+
+type ParseWebhookResult =
+  | { ok: true; event: Stripe.Event }
+  | { ok: false; response: NextResponse };
+
+export async function parseStripeWebhookRequest(
+  request: NextRequest,
+  stripe: Stripe,
+  webhookSecret: string
+): Promise<ParseWebhookResult> {
+  try {
+    const signature = request.headers.get('stripe-signature');
+    if (!signature) {
+      return {
+        ok: false,
+        response: NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 }),
+      };
+    }
+
+    const body = await request.text();
+    const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    return { ok: true, event };
+  } catch {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 }),
+    };
+  }
+}
+
+export function logStripeWebhookProcessingFailure(eventType: string): void {
+  console.error('[stripe-webhook] processing failed', { eventType });
 }

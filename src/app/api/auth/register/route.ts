@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email!.toLowerCase();
     const normalizedPhone = telephone?.trim() || null;
     const billingAddress = buildBillingAddress({ adresse, codePostal, ville });
 
@@ -124,9 +124,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash du mot de passe
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password!, 12);
 
-    const baseSlug = nom.toLowerCase().replace(/\s+/g, '-');
+    const baseSlug = nom!.toLowerCase().replace(/\s+/g, '-');
     const uniqueSuffix = Date.now().toString();
 
     // Créer le tenant (cabinet) et l'utilisateur en transaction
