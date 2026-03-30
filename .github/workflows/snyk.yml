@@ -9,9 +9,6 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/snyk.yml'
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
   workflow_dispatch:
   schedule:
     - cron: '0 4 * * 1'
