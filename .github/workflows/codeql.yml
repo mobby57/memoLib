@@ -9,9 +9,6 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/codeql.yml'
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * 1' # Weekly on Monday
