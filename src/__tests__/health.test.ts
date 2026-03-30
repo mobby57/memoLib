@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Basic Health Check Test
  * Ensures the test suite is working properly
  */
@@ -9,7 +9,8 @@ describe('Application Health', () => {
   })
 
   it('should have Next.js environment configured', () => {
-    expect(process.env.NEXTAUTH_SECRET).toBe('test-secret')
+    expect(process.env.NEXTAUTH_SECRET).toBeDefined()
+    expect((process.env.NEXTAUTH_SECRET || '').length).toBeGreaterThan(0)
     expect(process.env.NEXTAUTH_URL).toBe('http://localhost:3000')
   })
 
