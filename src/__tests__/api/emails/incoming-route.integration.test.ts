@@ -110,17 +110,9 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
 
   afterAll(async () => {
     if (dbReady && prisma?.tenant && prisma?.plan) {
-      await prisma.tenant.deleteMany({
-        where: {
-          subdomain: { startsWith: 'int-' },
-        },
-      });
-
-      await prisma.plan.deleteMany({
-        where: {
-          name: { startsWith: 'int-plan-' },
-        },
-      });
+      // Use raw deletes to avoid Prisma soft-delete middleware on models without deletedAt.
+      await prisma.$executeRawUnsafe(`DELETE FROM \"Tenant\" WHERE \"subdomain\" LIKE 'int-%'`);
+      await prisma.$executeRawUnsafe(`DELETE FROM \"Plan\" WHERE \"name\" LIKE 'int-plan-%'`);
     }
 
     if (prisma?.$disconnect) {
