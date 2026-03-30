@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  * WORKSPACE EXTRACTION SERVICE
  * 
@@ -15,8 +15,8 @@
 
 import type { WorkspaceReasoning } from '@prisma/client';
 
-// Import Ollama depuis la racine lib/
-import { OllamaClient } from '../../../lib/ai/ollama-client';
+// Import Ollama depuis src/lib/ai
+import { OllamaClient } from './ollama-client';
 
 // ============================================
 // TYPES D'EXTRACTION
@@ -395,5 +395,3 @@ export class WorkspaceExtractionService {
 
 // Singleton pour reutilisation
 export const workspaceExtractionService = new WorkspaceExtractionService();
-
-
