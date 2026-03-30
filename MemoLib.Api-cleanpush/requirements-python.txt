@@ -1,0 +1,101 @@
+# Requirements Python complet pour memoLib
+# Version unifiee et remise a niveau (2026)
+
+# ============================================
+# WEB FRAMEWORKS
+# ============================================
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+flask>=3.1.0
+flask-cors>=5.0.0
+flask-jwt-extended>=4.7.1
+gunicorn>=22.0.0
+
+# ============================================
+# DATA SCIENCE & MACHINE LEARNING
+# ============================================
+numpy>=1.26.4
+pandas>=2.2.3
+scikit-learn>=1.5.2
+plotly>=5.24.1
+
+# ============================================
+# OLLAMA & IA LOCALE
+# ============================================
+ollama>=0.4.7
+
+# ============================================
+# UTILITIES
+# ============================================
+python-dateutil>=2.9.0.post0
+httpx>=0.28.1
+python-multipart>=0.0.20
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+email-validator>=2.2.0
+python-dotenv>=1.0.1
+apscheduler>=3.10.4
+requests>=2.32.3
+python-ulid>=2.3.0
+
+# ============================================
+# PDF GENERATION
+# ============================================
+reportlab>=4.2.5
+pypdf2>=3.0.1
+weasyprint>=63.0
+
+# ============================================
+# EMAIL SERVICES
+# ============================================
+google-auth>=2.37.0
+google-auth-oauthlib>=1.2.1
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.154.0
+html2text>=2024.2.26
+
+# ============================================
+# NLP & TEXT PROCESSING
+# ============================================
+spacy>=3.8.2
+beautifulsoup4>=4.12.3
+lxml>=5.3.0
+
+# ============================================
+# DATABASE
+# ============================================
+sqlalchemy>=2.0.36
+psycopg2-binary>=2.9.10
+redis>=5.2.0
+openai>=1.58.0
+
+# ============================================
+# SECURITY & AUTH
+# ============================================
+python-jose[cryptography]>=3.4.0
+passlib[bcrypt]>=1.7.4
+cryptography>=44.0.0
+
+# ============================================
+# MONITORING & LOGGING
+# ============================================
+prometheus-client>=0.21.0
+prometheus-fastapi-instrumentator>=7.0.0
+sentry-sdk>=2.19.0
+python-json-logger>=2.0.7
+
+# ============================================
+# TESTING
+# ============================================
+pytest>=8.3.0
+pytest-asyncio>=0.24.0
+pytest-cov>=6.0.0
+
+# ============================================
+# DEVELOPMENT TOOLS
+# ============================================
+black>=24.10.0
+flake8>=7.1.1
+mypy>=1.14.0
+ipython>=8.31.0
+jupyter>=1.1.1
