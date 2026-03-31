@@ -47,3 +47,4 @@ pytest-cov>=4.1.0
 
 # Development
 python-dotenv==1.0.1
+requests>=2.33.0 # not directly required, pinned by Snyk to avoid a vulnerability
