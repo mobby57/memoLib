@@ -1,4 +1,4 @@
-# Requirements Python complet pour IA Poste Manager
+# Requirements Python complet pour memoLib
 # Version unifiee et remise a niveau (2026)
 
 # ============================================
