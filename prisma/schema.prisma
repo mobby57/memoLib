@@ -289,6 +289,9 @@ model User {
   status    String    @default("active")
   lastLogin DateTime?
 
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
   language String @default("fr")
   timezone String @default("Europe/Paris")
 
@@ -475,7 +478,7 @@ model Facture {
   montantTTC    Float
 
   statut        String   @default("brouillon")
-  
+
   dateEmission  DateTime @default(now())
   dateEcheance  DateTime
   datePaiement  DateTime?
@@ -545,18 +548,41 @@ model Email {
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  messageId   String?  @unique
+  sourceChannel   String   @default("email")
+  sourceProvider  String?
+  sourceDirection String   @default("inbound")
+
+  messageId   String?
+  providerMessageId String?
+  threadId    String?
+  internetMessageId String?
+  fromAddress String?
+  toAddresses String?
+  cc          String?
+  bcc         String?
+  replyTo     String?
+  inReplyTo   String?
+  referenceIds String?
   from        String
   to          String
   subject     String
   body        String
+  bodyText    String?
   htmlBody    String?
   preview     String?
+  hasAttachments Boolean @default(false)
+
+  rawFormat       String?
+  rawPayload      String?
+  rawHeaders      String?
+  rawContent      String?
+  normalizedPayload String?
+  contentHash     String?
 
   category    String   @default("general-inquiry")
   urgency     String   @default("medium")
   sentiment   String   @default("neutral")
-  
+
   isRead      Boolean  @default(false)
   isStarred   Boolean  @default(false)
   isArchived  Boolean  @default(false)
@@ -567,11 +593,12 @@ model Email {
 
   clientId    String?
   client      Client?  @relation(fields: [clientId], references: [id])
-  
+
   dossierId   String?
   dossier     Dossier? @relation(fields: [dossierId], references: [id])
 
   receivedAt  DateTime @default(now())
+  receivedDate DateTime?
   readAt      DateTime?
   processedAt DateTime?
 
@@ -583,6 +610,15 @@ model Email {
 
   @@index([tenantId, isProcessed])
   @@index([tenantId, category])
+  @@unique([tenantId, messageId], map: "Email_tenantId_messageId_key")
+  @@unique([tenantId, providerMessageId], map: "Email_tenantId_providerMessageId_key")
+  @@unique([tenantId, internetMessageId], map: "Email_tenantId_internetMessageId_key")
+  @@unique([tenantId, contentHash], map: "Email_tenantId_contentHash_key")
+  @@index([tenantId, receivedDate])
+  @@index([tenantId, sourceProvider])
+  @@index([tenantId, threadId])
+  @@index([tenantId, fromAddress])
+  @@index([contentHash])
   @@index([from])
 }
 
@@ -595,7 +631,11 @@ model EmailAttachment {
   mimeType    String
   size        Int
   storageKey  String?
-  
+  contentId   String?
+  disposition String?
+  checksum    String?
+  metadata    String?
+
   createdAt DateTime @default(now())
 
   @@index([emailId])
@@ -608,7 +648,7 @@ model WorkflowExecution {
 
   workflowId   String
   workflowName String
-  
+
   emailId      String?
   email        Email?   @relation(fields: [emailId], references: [id])
 
@@ -625,7 +665,7 @@ model WorkflowExecution {
 
   startedAt    DateTime?
   completedAt  DateTime?
-  
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -667,7 +707,7 @@ model CalendarEvent {
   outlookEventId String?
 
   reminders String?
-  
+
   isRecurring Boolean @default(false)
   recurrenceRule String?
 
@@ -708,35 +748,35 @@ model LegalDeadline {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   dossierId String
   dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  
+
   clientId  String
   client    Client   @relation(fields: [clientId], references: [id])
-  
+
   type      DeadlineType
   label     String
   description String?
-  
+
   referenceDate DateTime
   dueDate       DateTime
-  
+
   status    DeadlineStatus @default(PENDING)
-  
+
   legalBasis    String?
   legalDays     Int?
-  
+
   alertJ7Sent   Boolean @default(false)
   alertJ3Sent   Boolean @default(false)
   alertJ1Sent   Boolean @default(false)
-  
+
   completedAt   DateTime?
   completedBy   String?
   completionNote String?
-  
+
   proofId       String?
-  
+
   createdBy     String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -754,12 +794,12 @@ model DeadlineAlert {
   id          String   @id @default(uuid())
   deadlineId  String
   deadline    LegalDeadline @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
-  
+
   alertType   String
   sentAt      DateTime @default(now())
   sentTo      String
   channel     String
-  
+
   acknowledged Boolean @default(false)
   acknowledgedAt DateTime?
   acknowledgedBy String?
@@ -769,28 +809,28 @@ model DeadlineAlert {
 
 model LegalReference {
   id        String   @id @default(uuid())
-  
+
   code      String
   article   String
   version   String?
-  
+
   title     String
   content   String
   summary   String?
-  
+
   category  String
   keywords  String?
-  
+
   defaultDeadlineDays Int?
   deadlineType        String?
-  
+
   legifrance_url String?
   eurlex_url     String?
-  
+
   isActive  Boolean  @default(true)
   validFrom DateTime?
   validUntil DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -808,26 +848,26 @@ model InformationUnit {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   source        InformationUnitSource
   content       String
   contentHash   String   @unique
-  
+
   currentStatus InformationUnitStatus @default(RECEIVED)
-  
+
   sourceMetadata    String?
   linkedWorkspaceId String?
   metadata          String?
-  
+
   lastStatusChangeBy String?
   lastStatusChangeAt DateTime?
-  
+
   receivedAt    DateTime @default(now())
   classifiedAt  DateTime?
   analyzedAt    DateTime?
   resolvedAt    DateTime?
   closedAt      DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -844,16 +884,16 @@ model InformationStatusHistory {
   id          String   @id @default(uuid())
   unitId      String
   unit        InformationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  
+
   fromStatus  InformationUnitStatus?
   toStatus    InformationUnitStatus
   reason      String?
-  
+
   changedBy   String
   changedAt   DateTime @default(now())
-  
+
   timestampHash String?
-  
+
   @@index([unitId])
   @@index([changedAt])
 }
@@ -862,41 +902,41 @@ model Proof {
   id                String   @id @default(uuid())
   tenantId          String
   tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   type              ProofType
   title             String
   description       String?
-  
+
   dossierId         String?
   dossier           Dossier? @relation(fields: [dossierId], references: [id])
-  
+
   clientId          String?
-  
+
   documentId        String?
   document          Document? @relation(fields: [documentId], references: [id])
-  
+
   informationUnitId String?
   informationUnit   InformationUnit? @relation(fields: [informationUnitId], references: [id])
-  
+
   fileStorageKey    String?
   fileHash          String?
   fileMimeType      String?
   fileSize          Int?
-  
+
   proofDate         DateTime
   capturedAt        DateTime @default(now())
   capturedBy        String
-  
+
   status            ProofStatus @default(PENDING_VALIDATION)
   validatedBy       String?
   validatedAt       DateTime?
   rejectionReason   String?
-  
+
   timestampHash     String?
   chainPreviousId   String?
-  
+
   metadata          String?
-  
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -911,25 +951,25 @@ model AuditLog {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   userId    String
   userEmail String
   userRole  String
-  
+
   action    AuditAction
   entityType String
   entityId  String
-  
+
   oldValue  String?
   newValue  String?
-  
+
   ipAddress String?
   userAgent String?
-  
+
   timestamp DateTime @default(now())
   timestampHash String?
   previousLogId String?
-  
+
   createdAt DateTime @default(now())
 
   @@index([tenantId])
@@ -937,6 +977,22 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([timestamp])
   @@index([action])
+}
+
+model StripeWebhookEvent {
+  id            String   @id @default(uuid())
+  stripeEventId String   @unique
+  provider      String   @default("stripe")
+  eventType     String
+  status        String   @default("PROCESSING")
+  payload       String?
+  processedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([provider, eventType])
+  @@index([status])
+  @@index([createdAt])
 }
 
 // ============================================
@@ -947,27 +1003,27 @@ model ArchivePolicy {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   entityType String
   entityId   String
-  
+
   status     ArchiveStatus @default(ACTIVE)
-  
+
   retentionDays    Int
   retentionReason  String?
-  
+
   lastAccessAt     DateTime?
   archiveAt        DateTime?
   deleteAt         DateTime?
-  
+
   archivedAt       DateTime?
   archivedBy       String?
   deletedAt        DateTime?
   deletedBy        String?
-  
+
   holdUntil        DateTime?
   holdReason       String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -982,35 +1038,35 @@ model Report {
   id        String   @id @default(uuid())
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   type      ReportType
   title     String
   description String?
-  
+
   parameters String?
-  
+
   dossierId String?
   clientId  String?
-  
+
   periodStart DateTime?
   periodEnd   DateTime?
-  
+
   status    ReportStatus @default(PENDING)
   fileStorageKey String?
   fileMimeType   String?
   fileSize       Int?
-  
+
   generatedAt DateTime?
   generatedBy String
-  
+
   isPublic    Boolean @default(false)
   accessCount Int     @default(0)
   lastAccessAt DateTime?
-  
+
   expiresAt   DateTime?
-  
+
   error       String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

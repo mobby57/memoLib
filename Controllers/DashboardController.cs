@@ -19,7 +19,9 @@ public class DashboardController : ControllerBase
     [HttpGet("metrics")]
     public async Task<IActionResult> GetMetrics()
     {
-        var userId = Guid.Parse(User.FindFirst("userId")!.Value);
+        if (!this.TryGetCurrentUserId(out var userId))
+            return Unauthorized(new { message = "Utilisateur non authentifié" });
+
         var metrics = await _analyticsService.GetMetricsAsync(userId);
         return Ok(metrics);
     }
@@ -27,7 +29,9 @@ public class DashboardController : ControllerBase
     [HttpGet("realtime-stats")]
     public async Task<IActionResult> GetRealtimeStats()
     {
-        var userId = Guid.Parse(User.FindFirst("userId")!.Value);
+        if (!this.TryGetCurrentUserId(out var userId))
+            return Unauthorized(new { message = "Utilisateur non authentifié" });
+
         var metrics = await _analyticsService.GetMetricsAsync(userId);
         
         return Ok(new
@@ -36,6 +40,27 @@ public class DashboardController : ControllerBase
             openAnomalies = metrics.OpenAnomalies,
             avgResponseTime = $"{metrics.AverageResponseTimeHours:F1}h",
             status = metrics.OpenAnomalies > 0 ? "attention" : "ok"
+        });
+    }
+
+    [HttpGet("overview")]
+    public async Task<IActionResult> GetOverview()
+    {
+        if (!this.TryGetCurrentUserId(out var userId))
+            return Unauthorized(new { message = "Utilisateur non authentifié" });
+
+        var metrics = await _analyticsService.GetMetricsAsync(userId);
+        
+        return Ok(new
+        {
+            stats = new
+            {
+                totalCases = metrics.TotalCases,
+                totalClients = metrics.TotalClients,
+                emailsToday = metrics.EmailsToday,
+                openAnomalies = metrics.OpenAnomalies
+            },
+            metrics
         });
     }
 }

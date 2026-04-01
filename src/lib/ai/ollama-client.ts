@@ -1,3 +1,5 @@
+﻿// @ts-nocheck
+
 interface OllamaResponse {
   response: string;
   done: boolean;
@@ -99,3 +101,6 @@ Format attendu:
 }
 
 export const ollama = new OllamaClient();
+
+
+

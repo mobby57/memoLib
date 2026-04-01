@@ -6,11 +6,57 @@ import AzureADProvider from 'next-auth/providers/azure-ad';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import EmailProvider from 'next-auth/providers/email';
 import GitHubProvider from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
+import { buildRbacContext, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
+
+async function handleOAuthSignIn(user: any, providerName: string) {
+  const existingUser = await prisma.user.findUnique({
+    where: { email: user.email! },
+    include: {
+      tenant: {
+        select: { id: true, name: true, status: true, plan: { select: { name: true } } },
+      },
+    },
+  });
+
+  if (existingUser) {
+    await prisma.user.update({
+      where: { id: existingUser.id },
+      data: {
+        name: user.name || existingUser.name,
+        avatar: user.image,
+        lastLogin: new Date(),
+      },
+    });
+
+    (user as any).role = existingUser.role;
+    (user as any).tenantId = existingUser.tenantId;
+    (user as any).tenantName = existingUser.tenant?.name;
+    (user as any).tenantPlan = existingUser.tenant?.plan?.name;
+    (user as any).clientId = existingUser.clientId;
+    (user as any).id = existingUser.id;
+  } else {
+    const newUser = await prisma.user.create({
+      data: {
+        email: user.email!,
+        name: user.name || `Utilisateur ${providerName}`,
+        password: '',
+        role: 'CLIENT',
+        avatar: user.image,
+        status: 'active',
+        lastLogin: new Date(),
+      },
+    });
+
+    (user as any).role = 'CLIENT';
+    (user as any).id = newUser.id;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    // Azure AD Provider pour authentification SSO (avocats CESEDA)
+    // Azure AD Provider pour authentification SSO
     ...(process.env.AZURE_CLIENT_ID &&
     process.env.AZURE_CLIENT_SECRET &&
     process.env.AZURE_TENANT_ID
@@ -19,15 +65,11 @@ export const authOptions: NextAuthOptions = {
             clientId: process.env.AZURE_CLIENT_ID,
             clientSecret: process.env.AZURE_CLIENT_SECRET,
             tenantId: process.env.AZURE_TENANT_ID,
-            authorization: {
-              params: {
-                scope: 'openid profile email',
-              },
-            },
+            authorization: { params: { scope: 'openid profile email' } },
           }),
         ]
       : []),
-    // Email Provider pour authentification par lien magique
+    // Email Provider pour lien magique
     ...(process.env.EMAIL_SERVER
       ? [
           EmailProvider({
@@ -36,18 +78,24 @@ export const authOptions: NextAuthOptions = {
           }),
         ]
       : []),
-    // GitHub Provider (optionnel)
+    // GitHub Provider
     ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
       ? [
           GitHubProvider({
             clientId: process.env.GITHUB_CLIENT_ID,
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
             authorization: {
-              params: {
-                // Scopes pour agir au nom de l'utilisateur
-                scope: 'read:user user:email repo write:org',
-              },
+              params: { scope: 'read:user user:email repo write:org' },
             },
+          }),
+        ]
+      : []),
+    // Google Provider
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
           }),
         ]
       : []),
@@ -62,9 +110,8 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Identifiants requis');
         }
 
-        // MODE DEMO - Seulement en développement
         const isDemoMode = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true';
-        
+
         if (isDemoMode) {
           const demoUsers: Record<string, any> = {
             'admin@memolib.fr': {
@@ -81,9 +128,65 @@ export const authOptions: NextAuthOptions = {
             'avocat@memolib.fr': {
               id: 'demo-lawyer-1',
               email: 'avocat@memolib.fr',
-              name: 'Avocat Demo',
-              role: 'LAWYER',
+              name: 'Me. Sarra Boudjellal',
+              role: 'AVOCAT',
               password: process.env.DEMO_LAWYER_PASSWORD || 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Boudjellal',
+              tenantPlan: 'professional',
+              clientId: null,
+              monitoredEmail: 'sarraboudjellal57@gmail.com',
+            },
+            'associe@memolib.fr': {
+              id: 'demo-associe-1',
+              email: 'associe@memolib.fr',
+              name: 'Me. Pierre Durand',
+              role: 'ASSOCIE',
+              password: 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'collaborateur@memolib.fr': {
+              id: 'demo-collab-1',
+              email: 'collaborateur@memolib.fr',
+              name: 'Me. Julie Petit',
+              role: 'COLLABORATEUR',
+              password: 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'stagiaire@memolib.fr': {
+              id: 'demo-stagiaire-1',
+              email: 'stagiaire@memolib.fr',
+              name: 'Lucas Bernard',
+              role: 'STAGIAIRE',
+              password: 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'secretaire@memolib.fr': {
+              id: 'demo-secretaire-1',
+              email: 'secretaire@memolib.fr',
+              name: 'Marie Leroy',
+              role: 'SECRETAIRE',
+              password: 'demo123',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'professional',
+              clientId: null,
+            },
+            'comptable@memolib.fr': {
+              id: 'demo-comptable-1',
+              email: 'comptable@memolib.fr',
+              name: 'Anne Moreau',
+              role: 'COMPTABLE',
+              password: 'demo123',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'professional',
@@ -109,26 +212,15 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-        // Sinon, chercher dans la base de données
         try {
-          console.log('[DB AUTH] Recherche dans la base de données:', credentials.email);
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
             include: {
               tenant: {
-                select: {
-                  id: true,
-                  name: true,
-                  status: true,
-                  plan: { select: { name: true } },
-                },
+                select: { id: true, name: true, status: true, plan: { select: { name: true } } },
               },
               client: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                },
+                select: { id: true, firstName: true, lastName: true },
               },
             },
           });
@@ -158,7 +250,6 @@ export const authOptions: NextAuthOptions = {
             clientId: user.clientId,
           } as any;
         } catch (dbError: any) {
-          // Si la base de données n'est pas accessible et on est en démo, accepter les comptes démo
           if (dbError.message?.includes("Can't reach database")) {
             throw new Error('Identifiants invalides (DB indisponible)');
           }
@@ -169,111 +260,20 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
-      // Handle Azure AD login
       if (account?.provider === 'azure-ad') {
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! },
-          include: {
-            tenant: {
-              select: { id: true, name: true, status: true, plan: { select: { name: true } } },
-            },
-          },
-        });
-
-        if (existingUser) {
-          await prisma.user.update({
-            where: { id: existingUser.id },
-            data: {
-              name: user.name || existingUser.name,
-              avatar: user.image,
-              lastLogin: new Date(),
-            },
-          });
-
-          (user as any).role = existingUser.role;
-          (user as any).tenantId = existingUser.tenantId;
-          (user as any).tenantName = existingUser.tenant?.name;
-          (user as any).tenantPlan = existingUser.tenant?.plan?.name;
-          (user as any).clientId = existingUser.clientId;
-          (user as any).id = existingUser.id;
-        } else {
-          const newUser = await prisma.user.create({
-            data: {
-              email: user.email!,
-              name: user.name || 'Utilisateur Azure AD',
-              password: '', // No password for SSO users
-              role: 'CLIENT',
-              avatar: user.image,
-              status: 'active',
-              lastLogin: new Date(),
-            },
-          });
-
-          (user as any).role = 'CLIENT';
-          (user as any).id = newUser.id;
-        }
+        await handleOAuthSignIn(user, 'Azure AD');
         return true;
       }
 
-      if (account?.provider === 'github') {
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! },
-          include: {
-            tenant: {
-              select: { id: true, name: true, status: true, plan: { select: { name: true } } },
-            },
-          },
-        });
-
-        if (existingUser) {
-          await prisma.user.update({
-            where: { id: existingUser.id },
-            data: {
-              name: user.name || existingUser.name,
-              avatar: user.image,
-              lastLogin: new Date(),
-            },
-          });
-
-          (user as any).role = existingUser.role;
-          (user as any).tenantId = existingUser.tenantId;
-          (user as any).tenantName = existingUser.tenant?.name;
-          (user as any).tenantPlan = existingUser.tenant?.plan?.name;
-          (user as any).clientId = existingUser.clientId;
-          (user as any).id = existingUser.id;
-        } else {
-          const newUser = await prisma.user.create({
-            data: {
-              email: user.email!,
-              name: user.name || 'Utilisateur GitHub',
-              password: '',
-              role: 'CLIENT',
-              avatar: user.image,
-              status: 'active',
-              lastLogin: new Date(),
-            },
-          });
-
-          (user as any).role = 'CLIENT';
-          (user as any).id = newUser.id;
-        }
+      if (account?.provider === 'github' || account?.provider === 'google') {
+        await handleOAuthSignIn(user, account.provider === 'github' ? 'GitHub' : 'Google');
       }
       return true;
     },
-    async redirect({ url, baseUrl, user }) {
-      // Redirection intelligente selon le rôle
+    async redirect({ url, baseUrl }) {
       if (url.startsWith('/auth/')) {
-        // Depuis la page de login, rediriger selon le rôle
-        if ((user as any)?.role === 'SUPER_ADMIN') {
-          return `${baseUrl}/super-admin/dashboard`;
-        } else if ((user as any)?.role === 'LAWYER' || (user as any)?.role === 'ADMIN') {
-          return `${baseUrl}/dashboard`;
-        } else if ((user as any)?.role === 'CLIENT') {
-          return `${baseUrl}/client-dashboard`;
-        }
         return `${baseUrl}/dashboard`;
       }
-
       if (url.startsWith('/')) return `${baseUrl}${url}`;
       if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
@@ -289,7 +289,6 @@ export const authOptions: NextAuthOptions = {
         token.provider = account?.provider;
       }
 
-      // Sauvegarder le token GitHub pour user-to-server auth
       if (account?.provider === 'github') {
         token.githubAccessToken = account.access_token;
         token.githubRefreshToken = account.refresh_token;
@@ -300,6 +299,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
+        const rbac = buildRbacContext({
+          role: token.role as string | undefined,
+          groups: token.groups as string[] | undefined,
+        });
+
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
         (session.user as any).tenantId = token.tenantId;
@@ -307,21 +311,35 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).tenantPlan = token.tenantPlan;
         (session.user as any).clientId = token.clientId;
         (session.user as any).provider = token.provider;
+        (session.user as any).groups = rbac.groups;
+        (session.user as any).rbacPermissions = rbac.permissions;
 
-        // Tokens GitHub pour user-to-server auth
         (session as any).githubAccessToken = token.githubAccessToken;
         (session as any).githubRefreshToken = token.githubRefreshToken;
         (session as any).githubTokenExpiry = token.githubTokenExpiry;
 
+        const STAFF_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR', 'SECRETAIRE', 'COMPTABLE', 'STAGIAIRE'];
+        const MANAGE_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE'];
+        const FINANCE_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE', 'COMPTABLE'];
+        const userRole = token.role as string;
+
         (session.user as any).permissions = {
-          canManageTenants: token.role === 'SUPER_ADMIN',
-          canManageClients: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
-          canManageDossiers: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
-          canViewOwnDossier: token.role === 'CLIENT',
-          canManageFactures: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
-          canViewOwnFactures: token.role === 'CLIENT',
-          canAccessAnalytics: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
-          canManageUsers: ['SUPER_ADMIN', 'ADMIN'].includes(token.role as string),
+          canManageTenants: userRole === 'SUPER_ADMIN',
+          canManageClients: MANAGE_ROLES.includes(userRole) || userRole === 'SECRETAIRE',
+          canManageDossiers: MANAGE_ROLES.includes(userRole) || userRole === 'COLLABORATEUR',
+          canViewOwnDossier: userRole === 'CLIENT',
+          canManageFactures: FINANCE_ROLES.includes(userRole),
+          canViewOwnFactures: userRole === 'CLIENT',
+          canAccessAnalytics: FINANCE_ROLES.includes(userRole),
+          canManageUsers: MANAGE_ROLES.includes(userRole),
+          canManageCalendar: STAFF_ROLES.includes(userRole),
+          canManageDocuments: STAFF_ROLES.filter(r => r !== 'STAGIAIRE').includes(userRole),
+          canAccessRbacDossiers:
+            rbac.permissions.includes('*') ||
+            rbac.permissions.includes(RBAC_PERMISSIONS.DOSSIERS_READ),
+          canAccessRbacFactures:
+            rbac.permissions.includes('*') ||
+            rbac.permissions.includes(RBAC_PERMISSIONS.FACTURES_READ),
         };
       }
       return session;
@@ -333,9 +351,8 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    // Session adaptée aux avocats (8h de travail)
-    maxAge: 8 * 60 * 60, // 8 heures (28800 secondes)
-    updateAge: 15 * 60, // Mise a jour toutes les 15 minutes
+    maxAge: 8 * 60 * 60,
+    updateAge: 15 * 60,
   },
   cookies: {
     sessionToken: {
@@ -348,7 +365,7 @@ export const authOptions: NextAuthOptions = {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 8 * 60 * 60, // 8 heures
+        maxAge: 8 * 60 * 60,
       },
     },
     callbackUrl: {

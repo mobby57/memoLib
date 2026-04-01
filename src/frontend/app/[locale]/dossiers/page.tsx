@@ -1,153 +1,295 @@
 ﻿'use client';
 
-import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import { Search, SlidersHorizontal } from 'lucide-react';
+import { listDossiers, type DossierListItem } from '@/lib/services/dossiers-api';
 
-export default function TermsPage() {
-  const router = useRouter();
+type DossierStatus = 'nouveau' | 'en_cours' | 'bloque' | 'clos' | 'archive' | 'all';
+type DossierPriority = 'haute' | 'normale';
+
+type Dossier = {
+  id: string;
+  numero: string;
+  client: string;
+  objet: string;
+  status: DossierStatus;
+  priority: DossierPriority;
+  updatedAt: string;
+};
+
+type DossiersPageProps = {
+  params: {
+    locale: string;
+  };
+};
+
+const statusClass: Record<Exclude<DossierStatus, 'all'>, string> = {
+  nouveau: 'bg-cyan-100 text-cyan-700',
+  en_cours: 'bg-blue-100 text-blue-700',
+  bloque: 'bg-rose-100 text-rose-700',
+  clos: 'bg-slate-100 text-slate-700',
+  archive: 'bg-purple-100 text-purple-700',
+};
+
+const priorityClass: Record<DossierPriority, string> = {
+  haute: 'bg-orange-100 text-orange-700',
+  normale: 'bg-slate-100 text-slate-700',
+};
+
+const statusLabel: Record<Exclude<DossierStatus, 'all'>, string> = {
+  nouveau: 'Nouveau',
+  en_cours: 'En cours',
+  bloque: 'Bloque',
+  clos: 'Clos',
+  archive: 'Archive',
+};
+
+function normalizeStatus(value: string | null | undefined): Exclude<DossierStatus, 'all'> {
+  const normalized = (value || '').toLowerCase().replace('-', '_');
+
+  if (normalized === 'en_cours' || normalized === 'en cours') return 'en_cours';
+  if (normalized === 'nouveau') return 'nouveau';
+  if (normalized === 'bloque') return 'bloque';
+  if (normalized === 'archive') return 'archive';
+  if (normalized === 'clos' || normalized === 'cloture' || normalized === 'ferme') return 'clos';
+
+  return 'en_cours';
+}
+
+function normalizePriority(value: string | null | undefined): DossierPriority {
+  return (value || '').toLowerCase() === 'haute' ? 'haute' : 'normale';
+}
+
+function toUiDossier(item: DossierListItem): Dossier {
+  const clientName = [item.client?.firstName, item.client?.lastName].filter(Boolean).join(' ').trim();
+  const updatedAtIso = item.updatedAt || item.dateCreation || null;
+
+  return {
+    id: item.id,
+    numero: item.numero,
+    client: clientName.length > 0 ? clientName : 'Client inconnu',
+    objet: item.description?.trim() || item.typeDossier || 'Sans objet',
+    status: normalizeStatus(item.statut),
+    priority: normalizePriority(item.priorite),
+    updatedAt: updatedAtIso ? new Date(updatedAtIso).toLocaleDateString('fr-FR') : 'Date inconnue',
+  };
+}
+
+export default function DossiersPage({ params }: DossiersPageProps) {
+  const pageSize = 20;
+  const [sortBy, setSortBy] = useState<'dateCreation' | 'updatedAt' | 'priorite' | 'statut'>('dateCreation');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [dossiers, setDossiers] = useState<Dossier[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState<DossierStatus>('all');
+
+  useEffect(() => {
+    let active = true;
+
+    const run = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await listDossiers({
+          page,
+          limit: pageSize,
+          statut: status === 'all' ? undefined : status,
+          sortBy,
+          sortOrder,
+        });
+        if (!active) return;
+        setDossiers(response.data.map(toUiDossier));
+        setTotalPages(Math.max(1, response.pagination.pages));
+        setTotalCount(response.pagination.total);
+      } catch (fetchError) {
+        if (!active) return;
+        const message = fetchError instanceof Error ? fetchError.message : 'Erreur de chargement';
+        setError(message);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    run();
+
+    return () => {
+      active = false;
+    };
+  }, [page, pageSize, sortBy, sortOrder, status]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [status]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [sortBy, sortOrder]);
+
+  const filtered = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+
+    return dossiers.filter((dossier) => {
+      const matchesStatus = status === 'all' || dossier.status === status;
+      const matchesQuery =
+        normalized.length === 0 ||
+        dossier.numero.toLowerCase().includes(normalized) ||
+        dossier.client.toLowerCase().includes(normalized) ||
+        dossier.objet.toLowerCase().includes(normalized);
+
+      return matchesStatus && matchesQuery;
+    });
+  }, [dossiers, query, status]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      {/* Header */}
-      <div className="border-b bg-white sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
+    <div className="space-y-6">
+      <header className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold text-slate-900">Dossiers</h1>
+            <p className="text-sm text-slate-500">Suivi centralise des dossiers CESEDA et recours</p>
+          </div>
+
+          <Link
+            href={`/${params.locale}/dossiers/new`}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
-            <ArrowLeft size={20} />
-            Retour
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900">Conditions Générales d'Utilisation (CGU)</h1>
+            Nouveau dossier
+          </Link>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="prose prose-lg max-w-none text-gray-700">
-          <div className="space-y-8">
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Définitions</h2>
-              <div className="space-y-2">
-                <p><strong>Service :</strong> La plateforme MemoLib accessible via memolib.fly.dev</p>
-                <p><strong>Utilisateur :</strong> Toute personne inscrite et utilisant le Service</p>
-                <p><strong>Contenu :</strong> Dossiers, clients, documents créés par l'Utilisateur</p>
-              </div>
-            </section>
+        <div className="mt-4 grid gap-3 md:grid-cols-[2fr,1fr,1fr]">
+          <label className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Rechercher par numero, client ou objet"
+              className="w-full rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+            />
+          </label>
 
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Acceptation des CGU</h2>
-              <p>
-                En utilisant MemoLib, vous acceptez l'intégralité de ces CGU. Si vous n'acceptez pas
-                ces conditions, veuillez ne pas utiliser le Service.
-              </p>
-            </section>
+          <div className="relative">
+            <SlidersHorizontal className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <select
+              value={status}
+              onChange={(event) => setStatus(event.target.value as 'all' | DossierStatus)}
+              className="w-full appearance-none rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="nouveau">Nouveau</option>
+              <option value="en_cours">En cours</option>
+              <option value="bloque">Bloque</option>
+              <option value="clos">Clos</option>
+              <option value="archive">Archive</option>
+            </select>
+          </div>
 
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Licence d'Utilisation</h2>
-              <p>
-                MemoLib vous octroie une licence non-exclusive, non-transférable et révocable
-                d'accès et d'utilisation du Service selon votre plan d'abonnement.
-              </p>
-              <p className="mt-2">
-                Vous ne pouvez pas :
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Reproduire, dupliquer ou copier le code source</li>
-                <li>Revendre ou affermer l'accès au Service</li>
-                <li>Utiliser le Service pour des activités illégales</li>
-                <li>Contourner la sécurité ou les limitations du Service</li>
-                <li>Dépasser les limites de votre plan (clients, dossiers, stockage)</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Plans d'Abonnement</h2>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Plan Gratuit</h3>
-                  <p>5 clients, 10 dossiers, 1 Go de stockage</p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Plan Pro (29€/mois)</h3>
-                  <p>50 clients, 500 dossiers, 50 Go, Analyse IA, Rapports avancés</p>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Plan Enterprise (99€/mois)</h3>
-                  <p>Clients illimités, Dossiers illimités, 500 Go, Accès API, Support 24/7</p>
-                </div>
-              </div>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Facturation et Paiement</h2>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Les paiements sont traités par Stripe de manière sécurisée</li>
-                <li>Les abonnements se renouvellent automatiquement</li>
-                <li>Vous pouvez annuler votre abonnement à tout moment</li>
-                <li>Essai gratuit de 14 jours pour les nouveaux utilisateurs (plans payants)</li>
-                <li>Pas de remboursement pour les périodes partielles</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Propriété du Contenu</h2>
-              <p>
-                Vous conservez la propriété intégrale de votre Contenu. En utilisant le Service,
-                vous nous accordez une licence pour stocker, héberger et traiter votre Contenu selon votre instruction.
-              </p>
-              <p className="mt-2">
-                Nous ne partageons jamais votre Contenu avec des tiers sans votre consentement explicite.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Responsabilité</h2>
-              <p className="font-semibold">
-                🔴 Limitation de responsabilité importante :
-              </p>
-              <p>
-                MemoLib est un outil d'assistance. Vous restez entièrement responsable de la qualité
-                juridique de votre travail. Any output est destiné à vous assister, pas à remplacer
-                votre jugement professionnel.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Suspension et Résiliation</h2>
-              <p>
-                Nous nous réservons le droit de suspendre ou résilier votre accès au Service si vous :
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Violez ces CGU</li>
-                <li>Utilisez le Service de manière abusive ou nuisible</li>
-                <li>Ne payez pas les frais dus</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Modifications du Service</h2>
-              <p>
-                MemoLib se réserve le droit de modifier, suspendre ou discontinuer le Service à tout
-                moment, avec ou sans préavis.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Droit Applicable</h2>
-              <p>
-                Ces CGU sont régies par la loi française et soumises à la juridiction exclusive des
-                tribunaux français.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Contact</h2>
-              <p>Pour toute question : <span className="font-mono">contact@memolib.fr</span></p>
-            </section>
+          <div className="relative">
+            <SlidersHorizontal className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <select
+              value={`${sortBy}:${sortOrder}`}
+              onChange={(event) => {
+                const [nextSortBy, nextSortOrder] = event.target.value.split(':');
+                setSortBy(nextSortBy as 'dateCreation' | 'updatedAt' | 'priorite' | 'statut');
+                setSortOrder(nextSortOrder as 'asc' | 'desc');
+              }}
+              className="w-full appearance-none rounded-lg border border-slate-200 py-2 pl-9 pr-3 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+            >
+              <option value="dateCreation:desc">Tri: plus recents</option>
+              <option value="dateCreation:asc">Tri: plus anciens</option>
+              <option value="updatedAt:desc">Tri: maj recente</option>
+              <option value="priorite:desc">Tri: priorite haute</option>
+              <option value="statut:asc">Tri: statut</option>
+            </select>
           </div>
         </div>
-      </div>
+      </header>
+
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="grid grid-cols-[1.2fr,1fr,1fr,1fr,auto] border-b border-slate-200 bg-slate-50 px-6 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span>Dossier</span>
+          <span>Client</span>
+          <span>Statut</span>
+          <span>Priorite</span>
+          <span></span>
+        </div>
+
+        {loading ? (
+          <div className="px-6 py-10 text-center text-sm text-slate-500">Chargement des dossiers...</div>
+        ) : error ? (
+          <div className="space-y-3 px-6 py-10 text-center">
+            <p className="text-sm text-rose-600">{error}</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Reessayer
+            </button>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="px-6 py-10 text-center text-sm text-slate-500">Aucun dossier ne correspond aux filtres.</div>
+        ) : (
+          filtered.map((dossier) => (
+            <article
+              key={dossier.id}
+              className="grid grid-cols-[1.2fr,1fr,1fr,1fr,auto] items-center gap-3 border-b border-slate-100 px-6 py-4 last:border-b-0"
+            >
+              <div>
+                <p className="text-sm font-semibold text-slate-900">{dossier.numero}</p>
+                <p className="text-xs text-slate-500">{dossier.objet}</p>
+              </div>
+
+              <p className="text-sm text-slate-700">{dossier.client}</p>
+
+              <span className={`inline-flex w-fit rounded-full px-2 py-1 text-xs font-semibold ${statusClass[dossier.status]}`}>
+                {statusLabel[dossier.status]}
+              </span>
+
+              <span className={`inline-flex w-fit rounded-full px-2 py-1 text-xs font-semibold uppercase ${priorityClass[dossier.priority]}`}>
+                {dossier.priority}
+              </span>
+
+              <Link
+                href={`/${params.locale}/dossiers/${dossier.id}`}
+                className="text-sm font-semibold text-blue-600 transition hover:text-blue-700"
+              >
+                Ouvrir
+              </Link>
+            </article>
+          ))
+        )}
+      </section>
+
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm text-slate-600 shadow-sm">
+        <p>
+          Page {page} / {totalPages} • {totalCount} dossier(s)
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={page <= 1 || loading}
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
+            className="rounded-lg border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Precedent
+          </button>
+          <button
+            type="button"
+            disabled={page >= totalPages || loading}
+            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+            className="rounded-lg border border-slate-200 px-3 py-1.5 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Suivant
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Démonstration Professionnelle Complète</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { max-width: 1800px; margin: 0 auto; padding: 20px; }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h1 { color: #667eea; font-size: 2.5em; margin-bottom: 10px; }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .tab:hover { transform: translateY(-3px); }
+        .tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+        }
+        .content.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn:hover { transform: scale(1.05); }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            display: none;
+        }
+        .result.show { display: block; }
+        .result.success { background: #f0fdf4; border-left-color: #10b981; }
+        .result.error { background: #fef2f2; border-left-color: #ef4444; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+        .card h3 { color: #667eea; margin-bottom: 15px; }
+        .list-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .badge.success { background: #10b981; color: white; }
+        .badge.warning { background: #f59e0b; color: white; }
+        .badge.info { background: #3b82f6; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 MemoLib - Démonstration Professionnelle</h1>
+            <p>Testez toutes les fonctionnalités avec de vraies données</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('auth')">🔐 Connexion</div>
+            <div class="tab" onclick="showTab('email')">📧 Email Réel</div>
+            <div class="tab" onclick="showTab('notes')">📝 Notes</div>
+            <div class="tab" onclick="showTab('tasks')">✅ Tâches</div>
+            <div class="tab" onclick="showTab('documents')">📄 Documents</div>
+            <div class="tab" onclick="showTab('calls')">📞 Appels</div>
+            <div class="tab" onclick="showTab('forms')">📋 Formulaires</div>
+            <div class="tab" onclick="showTab('automations')">⚡ Automatisations</div>
+            <div class="tab" onclick="showTab('reports')">📊 Rapports</div>
+            <div class="tab" onclick="showTab('integrations')">🔗 Intégrations</div>
+            <div class="tab" onclick="showTab('chat')">💬 Chat</div>
+            <div class="tab" onclick="showTab('share')">🔐 Partage</div>
+        </div>
+
+        <!-- Auth Tab -->
+        <div id="auth" class="content active">
+            <h2>🔐 Connexion</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" value="test@example.com">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <input type="password" id="loginPassword" value="Test123!">
+            </div>
+            <button class="btn" onclick="login()">Se connecter</button>
+            <div id="authResult" class="result"></div>
+        </div>
+
+        <!-- Email Tab -->
+        <div id="email" class="content">
+            <h2>📧 Envoyer un Email Réel</h2>
+            <div class="form-group">
+                <label>À</label>
+                <input type="email" id="emailTo" placeholder="destinataire@example.com">
+            </div>
+            <div class="form-group">
+                <label>Sujet</label>
+                <input type="text" id="emailSubject" placeholder="URGENT - Besoin d'assistance">
+            </div>
+            <div class="form-group">
+                <label>Message</label>
+                <textarea id="emailBody" placeholder="Votre message..."></textarea>
+            </div>
+            <button class="btn" onclick="sendEmail()">📧 Envoyer Email</button>
+            <div id="emailResult" class="result"></div>
+        </div>
+
+        <!-- Notes Tab -->
+        <div id="notes" class="content">
+            <h2>📝 Gestion des Notes</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Créer une Note</h3>
+                    <div class="form-group">
+                        <label>Contenu</label>
+                        <textarea id="noteContent" placeholder="Votre note..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="notePrivate"> Note privée
+                        </label>
+                    </div>
+                    <button class="btn" onclick="createNote()">Créer Note</button>
+                </div>
+                <div class="card">
+                    <h3>Notes Existantes</h3>
+                    <div id="notesList"></div>
+                </div>
+            </div>
+            <div id="notesResult" class="result"></div>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div id="tasks" class="content">
+            <h2>✅ Gestion des Tâches</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Créer une Tâche</h3>
+                    <div class="form-group">
+                        <label>Titre</label>
+                        <input type="text" id="taskTitle" placeholder="Préparer conclusions">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="taskDesc" placeholder="Description..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Priorité</label>
+                        <select id="taskPriority">
+                            <option value="1">🔴 Critique</option>
+                            <option value="2">🟠 Haute</option>
+                            <option value="3" selected>🟡 Moyenne</option>
+                            <option value="4">🟢 Basse</option>
+                            <option value="5">⚪ Très basse</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Échéance</label>
+                        <input type="datetime-local" id="taskDue">
+                    </div>
+                    <button class="btn" onclick="createTask()">Créer Tâche</button>
+                </div>
+                <div class="card">
+                    <h3>Tâches Actives</h3>
+                    <div id="tasksList"></div>
+                </div>
+            </div>
+            <div id="tasksResult" class="result"></div>
+        </div>
+
+        <!-- Documents Tab -->
+        <div id="documents" class="content">
+            <h2>📄 Gestion des Documents</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Upload Document</h3>
+                    <div class="form-group">
+                        <label>Fichier</label>
+                        <input type="file" id="docFile">
+                    </div>
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <input type="text" id="docCategory" placeholder="Contrats">
+                    </div>
+                    <div class="form-group">
+                        <label>Tags (séparés par virgule)</label>
+                        <input type="text" id="docTags" placeholder="urgent, signature">
+                    </div>
+                    <button class="btn" onclick="uploadDocument()">📤 Upload</button>
+                </div>
+                <div class="card">
+                    <h3>Documents</h3>
+                    <div id="docsList"></div>
+                </div>
+            </div>
+            <div id="docsResult" class="result"></div>
+        </div>
+
+        <!-- Calls Tab -->
+        <div id="calls" class="content">
+            <h2>📞 Enregistrement d'Appels</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Logger un Appel</h3>
+                    <div class="form-group">
+                        <label>Numéro</label>
+                        <input type="tel" id="callPhone" placeholder="+33612345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Direction</label>
+                        <select id="callDirection">
+                            <option value="OUTBOUND">📞 Sortant</option>
+                            <option value="INBOUND">📱 Entrant</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="callNotes" placeholder="Notes de l'appel..."></textarea>
+                    </div>
+                    <button class="btn" onclick="logCall()">Enregistrer Appel</button>
+                </div>
+                <div class="card">
+                    <h3>Historique Appels</h3>
+                    <div id="callsList"></div>
+                </div>
+            </div>
+            <div id="callsResult" class="result"></div>
+        </div>
+
+        <!-- Forms Tab -->
+        <div id="forms" class="content">
+            <h2>📋 Formulaires Personnalisés</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Créer un Formulaire</h3>
+                    <div class="form-group">
+                        <label>Nom du formulaire</label>
+                        <input type="text" id="formName" placeholder="Consultation Initiale">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="formDesc" placeholder="Description..."></textarea>
+                    </div>
+                    <button class="btn" onclick="createForm()">Créer Formulaire</button>
+                </div>
+                <div class="card">
+                    <h3>Formulaires Actifs</h3>
+                    <div id="formsList"></div>
+                </div>
+            </div>
+            <div id="formsResult" class="result"></div>
+        </div>
+
+        <!-- Automations Tab -->
+        <div id="automations" class="content">
+            <h2>⚡ Automatisations</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Créer une Automatisation</h3>
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" id="autoName" placeholder="Auto-assignation emails urgents">
+                    </div>
+                    <div class="form-group">
+                        <label>Déclencheur</label>
+                        <select id="autoTrigger">
+                            <option value="EMAIL_RECEIVED">📧 Email reçu</option>
+                            <option value="CASE_CREATED">📁 Dossier créé</option>
+                            <option value="PRIORITY_CHANGED">🔴 Priorité changée</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Action</label>
+                        <select id="autoAction">
+                            <option value="SET_PRIORITY">🔴 Définir priorité</option>
+                            <option value="ASSIGN_USER">👤 Assigner utilisateur</option>
+                            <option value="SEND_EMAIL">📧 Envoyer email</option>
+                            <option value="CREATE_TASK">✅ Créer tâche</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="createAutomation()">Créer Automatisation</button>
+                </div>
+                <div class="card">
+                    <h3>Automatisations Actives</h3>
+                    <div id="autosList"></div>
+                </div>
+            </div>
+            <div id="autosResult" class="result"></div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports" class="content">
+            <h2>📊 Rapports & Analytics</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Générer un Rapport</h3>
+                    <div class="form-group">
+                        <label>Type de rapport</label>
+                        <select id="reportType">
+                            <option value="TIME_BY_CASE">⏱️ Temps par dossier</option>
+                            <option value="REVENUE_BY_CLIENT">💰 Revenus par client</option>
+                            <option value="CASE_STATUS">📊 Statut des dossiers</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date début</label>
+                        <input type="date" id="reportStart">
+                    </div>
+                    <div class="form-group">
+                        <label>Date fin</label>
+                        <input type="date" id="reportEnd">
+                    </div>
+                    <button class="btn" onclick="generateReport()">Générer Rapport</button>
+                </div>
+                <div class="card">
+                    <h3>Rapports Générés</h3>
+                    <div id="reportsList"></div>
+                </div>
+            </div>
+            <div id="reportsResult" class="result"></div>
+        </div>
+
+        <!-- Integrations Tab -->
+        <div id="integrations" class="content">
+            <h2>🔗 Intégrations Tierces</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Connecter une Intégration</h3>
+                    <div class="form-group">
+                        <label>Provider</label>
+                        <select id="integProvider">
+                            <option value="GOOGLE">Google Drive</option>
+                            <option value="MICROSOFT">Microsoft 365</option>
+                            <option value="DROPBOX">Dropbox</option>
+                            <option value="DOCUSIGN">DocuSign</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Access Token</label>
+                        <input type="text" id="integToken" placeholder="ya29.a0AfH6SMBx...">
+                    </div>
+                    <button class="btn" onclick="createIntegration()">Connecter</button>
+                </div>
+                <div class="card">
+                    <h3>Intégrations Actives</h3>
+                    <div id="integsList"></div>
+                </div>
+            </div>
+            <div id="integsResult" class="result"></div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div id="chat" class="content">
+            <h2>💬 Chat Interne</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Envoyer un Message</h3>
+                    <div class="form-group">
+                        <label>Destinataire (User ID)</label>
+                        <input type="text" id="chatTo" placeholder="User ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="chatContent" placeholder="Votre message..."></textarea>
+                    </div>
+                    <button class="btn" onclick="sendMessage()">Envoyer</button>
+                </div>
+                <div class="card">
+                    <h3>Messages</h3>
+                    <div id="chatList"></div>
+                </div>
+            </div>
+            <div id="chatResult" class="result"></div>
+        </div>
+
+        <!-- Share Tab -->
+        <div id="share" class="content">
+            <h2>🔐 Partage Externe Sécurisé</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Créer un Partage</h3>
+                    <div class="form-group">
+                        <label>Email destinataire</label>
+                        <input type="email" id="shareEmail" placeholder="client@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Mot de passe (optionnel)</label>
+                        <input type="password" id="sharePassword" placeholder="Mot de passe">
+                    </div>
+                    <div class="form-group">
+                        <label>Date d'expiration</label>
+                        <input type="date" id="shareExpiry">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="shareDownload" checked> Autoriser téléchargement
+                        </label>
+                    </div>
+                    <button class="btn" onclick="createShare()">Créer Partage</button>
+                </div>
+                <div class="card">
+                    <h3>Partages Actifs</h3>
+                    <div id="sharesList"></div>
+                </div>
+            </div>
+            <div id="shareResult" class="result"></div>
+        </div>
+    </div>
+
+    <script src="demo-pro.js"></script>
+</body>
+</html>

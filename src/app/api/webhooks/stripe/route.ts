@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Webhook Stripe - Gestion des evenements de paiement
  * IMPORTANT: Cette route doit etre en mode RAW body (pas de parsing JSON automatique)
  */
@@ -10,12 +10,23 @@ import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+type SubPeriod = { current_period_end: number };
+const periodEnd = (s: Stripe.Subscription) => (s as unknown as SubPeriod).current_period_end;
+
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
 export async function POST(request: NextRequest) {
   try {
+    if (!webhookSecret) {
+      logger.error('STRIPE_WEBHOOK_SECRET non configure', undefined, {
+        route: '/api/webhooks/stripe',
+      });
+      return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
+    }
+
     const body = await request.text();
-    const signature = headers().get('stripe-signature');
+    const requestHeaders = await headers();
+    const signature = requestHeaders.get('stripe-signature');
 
     if (!signature) {
       return NextResponse.json({ error: 'Pas de signature' }, { status: 400 });
@@ -75,11 +86,11 @@ export async function POST(request: NextRequest) {
  * Facture payee - Mettre a jour dans la base
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
+  const subscriptionId = (invoice as Stripe.Invoice & { subscription?: string }).subscription;
   if (!subscriptionId) return;
 
   // Recuperer la subscription Stripe
-  const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const stripeSubscription = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription;
   const tenantId = stripeSubscription.metadata.tenantId;
 
   if (!tenantId) {
@@ -97,44 +108,17 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     },
     data: {
       status: 'active',
+      currentPeriodEnd: new Date(periodEnd(stripeSubscription) * 1000),
     },
   });
 
-  // Creer la facture dans notre base
-  const tenant = await prisma.tenant.findUnique({
-    where: { id: tenantId },
-    select: { name: true },
+  // Mettre a jour la Facture Stripe si elle existe deja dans notre base
+  await prisma.facture.updateMany({
+    where: { tenantId, stripeInvoiceId: invoice.id },
+    data: { statut: 'payee', datePaiement: new Date() },
   });
 
-  await prisma.invoice.create({
-    data: {
-      tenantId,
-      subscriptionId: stripeSubscription.id,
-      invoiceNumber: `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
-      subtotal: invoice.subtotal / 100, // Stripe en centimes
-      tax: (invoice.tax || 0) / 100,
-      total: invoice.total / 100,
-      status: 'paid',
-      issueDate: new Date(invoice.created * 1000),
-      dueDate: new Date(invoice.due_date ? invoice.due_date * 1000 : Date.now()),
-      paidAt: new Date(),
-      billingEmail: invoice.customer_email || undefined,
-      lineItems: JSON.stringify(
-        invoice.lines.data.map(line => ({
-          description: line.description,
-          quantity: line.quantity,
-          unitPrice: line.price?.unit_amount ? line.price.unit_amount / 100 : 0,
-          total: line.amount / 100,
-        }))
-      ),
-      metadata: JSON.stringify({
-        stripe_invoice_id: invoice.id,
-        stripe_payment_intent: invoice.payment_intent,
-      }),
-    },
-  });
-
-  logger.info(`Facture payee pour tenant ${tenant?.name || tenantId}`, {
+  logger.info(`Paiement recu pour tenant ${tenantId} (invoice Stripe: ${invoice.id})`, {
     route: '/api/webhooks/stripe',
     tenantId,
   });
@@ -144,10 +128,10 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
  * echec de paiement - Marquer comme past_due
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
+  const subscriptionId = (invoice as Stripe.Invoice & { subscription?: string }).subscription;
   if (!subscriptionId) return;
 
-  const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const stripeSubscription = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription;
   const tenantId = stripeSubscription.metadata.tenantId;
 
   if (!tenantId) return;
@@ -163,26 +147,23 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       where: { id: tenantId },
       include: { owner: true },
     });
-    if (tenant?.owner?.email) {
+    if (tenant?.owner?.email && process.env.RESEND_API_KEY) {
       const { Resend } = await import('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
-
-      if (process.env.RESEND_API_KEY) {
-        await resend.emails.send({
-          from: process.env.EMAIL_FROM || 'billing@memoLib.com',
-          to: tenant.owner.email,
-          subject: '⚠️ Action requise : Échec de paiement - memoLib',
-          html: `
-            <h2>Échec de paiement</h2>
-            <p>Nous n'avons pas pu traiter votre paiement pour l'abonnement ${tenant.name}.</p>
-            <p>Veuillez mettre à jour vos informations de paiement pour éviter une interruption de service.</p>
-            <a href="${process.env.NEXTAUTH_URL}/settings/billing" style="background:#dc2626;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Mettre à jour le paiement</a>
-          `,
-        });
-      }
+      await resend.emails.send({
+        from: process.env.EMAIL_FROM || 'billing@memoLib.com',
+        to: tenant.owner.email,
+        subject: '?? Action requise : �chec de paiement - memoLib',
+        html: `
+          <h2>�chec de paiement</h2>
+          <p>Nous n'avons pas pu traiter votre paiement pour l'abonnement ${tenant.name}.</p>
+          <p>Veuillez mettre � jour vos informations de paiement pour �viter une interruption de service.</p>
+          <a href="${process.env.NEXTAUTH_URL}/settings/billing" style="background:#dc2626;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Mettre � jour le paiement</a>
+        `,
+      });
     }
   } catch (emailError) {
-    logger.error('Erreur envoi email alerte paiement', { error: emailError, tenantId });
+    logger.error('Erreur envoi email alerte paiement', emailError instanceof Error ? emailError : undefined, { tenantId });
   }
 
   logger.warn(`echec paiement pour tenant ${tenantId}`, {
@@ -231,6 +212,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
             : subscription.status === 'past_due'
               ? 'past_due'
               : 'canceled',
+      currentPeriodEnd: new Date(periodEnd(subscription) * 1000),
+      autoRenew: !subscription.cancel_at_period_end,
     },
   });
 
@@ -268,10 +251,20 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const subscriptionId = session.subscription as string;
   if (!subscriptionId) return;
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription;
   const tenantId = subscription.metadata.tenantId;
 
   if (!tenantId) return;
+
+  // Synchroniser le statut en base (fallback si POST /subscriptions/create a echoue)
+  await prisma.subscription.updateMany({
+    where: { tenantId },
+    data: {
+      status: subscription.status === 'trialing' ? 'trialing' : 'active',
+      currentPeriodEnd: new Date(periodEnd(subscription) * 1000),
+      autoRenew: !subscription.cancel_at_period_end,
+    },
+  });
 
   logger.info(`Checkout complete pour tenant ${tenantId}`, {
     route: '/api/webhooks/stripe',

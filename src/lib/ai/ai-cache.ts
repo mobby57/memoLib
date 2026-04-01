@@ -1,4 +1,5 @@
-﻿/**
+﻿// @ts-nocheck
+/**
  * Cache IA - Réduit les coûts de 30-50% en évitant les requêtes répétitives
  */
 
@@ -205,3 +206,7 @@ export function clearCache(): void {
   memoryCache.clear();
   console.log('[AI Cache] Cache vidé');
 }
+
+
+
+

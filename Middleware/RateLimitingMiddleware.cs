@@ -22,6 +22,7 @@ public class RateLimitingMiddleware
         {
             var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             var key = $"{ip}:{endpoint}";
+            var limit = endpoint.Contains("/auth/register") ? 3 : MaxRequests;
 
             var (lastReset, count) = _requests.GetOrAdd(key, _ => (DateTime.UtcNow, 0));
 
@@ -29,7 +30,7 @@ public class RateLimitingMiddleware
             {
                 _requests[key] = (DateTime.UtcNow, 1);
             }
-            else if (count >= MaxRequests)
+            else if (count >= limit)
             {
                 context.Response.StatusCode = 429;
                 await context.Response.WriteAsync("Too many requests. Please try again later.");

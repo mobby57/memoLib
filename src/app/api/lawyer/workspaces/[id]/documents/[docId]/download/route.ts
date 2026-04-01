@@ -17,7 +17,7 @@ export async function GET(
   { params }: { params: { id: string; docId: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions as any);
+    const session: any = await getServerSession(authOptions as any);
     if (!session?.user) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }

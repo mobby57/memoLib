@@ -1,14 +1,37 @@
 ﻿import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { prisma } from '@/lib/prisma';
 
 const startTime = Date.now();
 const DEMO_MODE = process.env.DEMO_MODE === '1' || process.env.DEMO_MODE === 'true';
 const AI_HEALTH_STRICT = process.env.AI_HEALTH_STRICT !== 'false';
+
+async function ensureAdminAccess() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  }
+
+  const role = String((session.user as any).role || '').toUpperCase();
+  const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
+  if (!allowedRoles.has(role)) {
+    return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+  }
+
+  return null;
+}
 
 /**
  * GET /api/dev/health - Health check systeme
  */
 export async function GET() {
   try {
+    const authError = await ensureAdminAccess();
+    if (authError) {
+      return authError;
+    }
+
     const uptime = Date.now() - startTime;
     const uptimeFormatted = formatUptime(uptime);
 
@@ -42,10 +65,7 @@ export async function GET() {
 async function checkDatabase(): Promise<{ healthy: boolean; message: string }> {
   try {
     // Vérifier connexion Prisma avec une requête simple
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
     await prisma.$queryRaw`SELECT 1`;
-    await prisma.$disconnect();
     return { healthy: true, message: 'Database OK' };
   } catch (error) {
     return { healthy: false, message: `Database connection failed: ${error}` };

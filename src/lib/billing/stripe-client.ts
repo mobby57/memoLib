@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Client Stripe pour memoLib
  * Gestion des paiements et abonnements
  */
@@ -6,11 +6,11 @@
 import Stripe from 'stripe';
 
 if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn('️ STRIPE_SECRET_KEY non definie - Paiements desactives');
+  console.warn('? STRIPE_SECRET_KEY non definie - Paiements desactives');
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy', {
-  apiVersion: '2024-12-18.acacia',
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY?.trim() || 'sk_test_dummy', {
+  apiVersion: '2026-01-28.clover',
   typescript: true,
 });
 
@@ -174,3 +174,4 @@ export async function createStripeProduct(params: {
     metadata: params.metadata,
   });
 }
+

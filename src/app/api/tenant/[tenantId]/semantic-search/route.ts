@@ -5,7 +5,10 @@ import { logger } from '@/lib/logger';
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 interface SemanticSearchParams {
   params: { tenantId: string };
@@ -16,17 +19,17 @@ function calculateCosineSimilarity(query: string, text: string): number {
   // Simulation de similarité basée sur des mots-clés et contexte
   const queryWords = query.toLowerCase().split(' ');
   const textWords = text.toLowerCase().split(' ');
-  
+
   let matches = 0;
   let contextBonus = 0;
-  
+
   // Correspondances exactes
   queryWords.forEach(qWord => {
     if (textWords.some(tWord => tWord.includes(qWord) || qWord.includes(tWord))) {
       matches++;
     }
   });
-  
+
   // Bonus contextuel pour termes juridiques
   const legalTerms = {
     'regulariser': ['titre', 'sejour', 'prefecture', 'oqtf'],
@@ -35,7 +38,7 @@ function calculateCosineSimilarity(query: string, text: string): number {
     'famille': ['regroupement', 'conjoint', 'enfant'],
     'travail': ['salarie', 'emploi', 'autorisation']
   };
-  
+
   Object.entries(legalTerms).forEach(([term, related]) => {
     if (query.toLowerCase().includes(term)) {
       related.forEach(relatedTerm => {
@@ -45,7 +48,7 @@ function calculateCosineSimilarity(query: string, text: string): number {
       });
     }
   });
-  
+
   const baseScore = matches / Math.max(queryWords.length, 1);
   return Math.min(baseScore + contextBonus, 1);
 }
@@ -60,17 +63,17 @@ function analyzePatterns(dossiers: any[]) {
 
   dossiers.forEach(dossier => {
     const type = dossier.typeDossier;
-    
+
     // Documents communs
     dossier.documents.forEach((doc: any) => {
       const key = `${type}:${doc.documentType || 'autre'}`;
       patterns.documentsCommuns.set(key, (patterns.documentsCommuns.get(key) || 0) + 1);
     });
-    
+
     // Durées
     if (dossier.dateCloture) {
       const duree = Math.floor(
-        (new Date(dossier.dateCloture).getTime() - new Date(dossier.dateCreation).getTime()) 
+        (new Date(dossier.dateCloture).getTime() - new Date(dossier.dateCreation).getTime())
         / (24 * 60 * 60 * 1000)
       );
       if (!patterns.dureesMoyennes.has(type)) {
@@ -78,7 +81,7 @@ function analyzePatterns(dossiers: any[]) {
       }
       patterns.dureesMoyennes.get(type)!.push(duree);
     }
-    
+
     // Taux de réussite
     if (!patterns.tauxReussite.has(type)) {
       patterns.tauxReussite.set(type, { total: 0, reussis: 0 });
@@ -98,7 +101,7 @@ function analyzePatterns(dossiers: any[]) {
         const [type, docType] = key.split(':');
         return { type, documentType: docType, frequency: count };
       }),
-    
+
     dureesMoyennes: Array.from(patterns.dureesMoyennes.entries())
       .map(([type, durees]) => ({
         type,
@@ -106,7 +109,7 @@ function analyzePatterns(dossiers: any[]) {
         min: Math.min(...durees),
         max: Math.max(...durees)
       })),
-    
+
     tauxReussite: Array.from(patterns.tauxReussite.entries())
       .map(([type, stats]) => ({
         type,
@@ -122,6 +125,13 @@ export async function GET(
 ) {
   try {
     const { tenantId } = params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    if ((session.user as any).tenantId !== tenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -190,9 +200,9 @@ export async function GET(
     .slice(0, limit);
 
     // Analyser les patterns si on a des résultats
-    let patterns = null;
+    let patterns: ReturnType<typeof analyzePatterns> | null = null;
     if (results.length > 0) {
-      const similarDossiers = allDossiers.filter(d => 
+      const similarDossiers = allDossiers.filter(d =>
         results.some(r => r.dossier.id === d.id)
       );
       patterns = analyzePatterns(similarDossiers);
@@ -201,7 +211,7 @@ export async function GET(
     // Suggestions de requêtes populaires (simulation)
     const suggestions = [
       'régulariser situation administrative',
-      'demande naturalisation française', 
+      'demande naturalisation française',
       'recours OQTF préfecture',
       'regroupement familial conjoint',
       'renouvellement titre séjour',
@@ -234,6 +244,13 @@ export async function POST(
 ) {
   try {
     const { tenantId } = params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+    if ((session.user as any).tenantId !== tenantId) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    }
     const body = await request.json();
     const { query, filters = {} } = body;
 

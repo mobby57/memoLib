@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -37,7 +37,7 @@ export default function ProfilClient() {
   const [profile, setProfile] = useState<ClientProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'infos' | 'securite'>('infos');
+  const [activeTab, setActiveTab] = useState<'infos' | 'sécurité'>('infos');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const [passwordData, setPasswordData] = useState({
@@ -104,10 +104,10 @@ export default function ProfilClient() {
       });
 
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Profil mis a jour avec succes !' });
+        setMessage({ type: 'success', text: 'Profil mis à jour avec succès !' });
         setTimeout(() => setMessage(null), 5000);
       } else {
-        setMessage({ type: 'error', text: 'Erreur lors de la mise a jour' });
+        setMessage({ type: 'error', text: 'Erreur lors de la mise à jour' });
       }
     } catch (err) {
       setMessage({ type: 'error', text: 'Erreur de connexion' });
@@ -143,7 +143,7 @@ export default function ProfilClient() {
       });
 
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Mot de passe modifie avec succes !' });
+        setMessage({ type: 'success', text: 'Mot de passe modifie avec succès !' });
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         setTimeout(() => setMessage(null), 5000);
       } else {
@@ -193,7 +193,7 @@ export default function ProfilClient() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Mon Profil
                 </h1>
-                <p className="text-gray-600 mt-1">Gerez vos informations personnelles</p>
+                <p className="text-gray-600 mt-1">Gérez vos informations personnelles</p>
               </div>
             </div>
             <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
@@ -233,14 +233,14 @@ export default function ProfilClient() {
               ? Informations Personnelles
             </button>
             <button
-              onClick={() => setActiveTab('securite')}
+              onClick={() => setActiveTab('sécurité')}
               className={`flex-1 px-6 py-4 font-semibold transition-colors ${
-                activeTab === 'securite'
+                activeTab === 'sécurité'
                   ? 'bg-blue-500 text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-               Securite
+               Sécurité
             </button>
           </div>
 
@@ -316,7 +316,7 @@ export default function ProfilClient() {
                       <p className="text-xs text-gray-500 mt-1">L'email ne peut pas etre modifie</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Telephone</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Téléphone</label>
                       <input
                         type="tel"
                         name="phone"
@@ -327,7 +327,7 @@ export default function ProfilClient() {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Telephone secondaire</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Téléphone secondaire</label>
                       <input
                         type="tel"
                         name="phoneSecondaire"
@@ -396,9 +396,9 @@ export default function ProfilClient() {
                   </div>
                 </div>
 
-                {/* Preferences */}
+                {/* Préférences */}
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase border-b pb-2">Preferences</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 uppercase border-b pb-2">Préférences</h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <input
@@ -435,8 +435,8 @@ export default function ProfilClient() {
             </form>
           )}
 
-          {/* Tab: Securite */}
-          {activeTab === 'securite' && (
+          {/* Tab: Sécurité */}
+          {activeTab === 'sécurité' && (
             <form onSubmit={handlePasswordChange} className="p-8">
               <div className="space-y-6 max-w-2xl">
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">

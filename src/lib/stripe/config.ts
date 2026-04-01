@@ -1,46 +1,20 @@
 import Stripe from 'stripe';
+import { PRODUCT_TIERS, type ProductTier } from '@/lib/billing/plans';
 
-export type ProductTier = 'FREE' | 'PRO' | 'ENTERPRISE';
+if (!process.env.STRIPE_SECRET_KEY) {
+    console.warn('STRIPE_SECRET_KEY non definie au build: fallback test key utilisee.');
+}
+if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    console.warn('STRIPE_WEBHOOK_SECRET non definie au build: fallback placeholder utilise.');
+}
 
-const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY ?? 'sk_test_placeholder';
+const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY?.trim() || 'sk_test_placeholder';
 
 export const stripe = new Stripe(STRIPE_SECRET, {
     apiVersion: '2026-01-28.clover',
 });
 
-export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET ?? 'whsec_placeholder';
+export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET?.trim() || 'whsec_placeholder';
 
-export const PRODUCT_TIERS: Record<ProductTier, {
-    name: string;
-    priceMonthly: number;
-    priceYearly: number;
-    features: string[];
-}> = {
-    FREE: {
-        name: 'Free',
-        priceMonthly: 0,
-        priceYearly: 0,
-        features: [
-            'Up to 50 documents',
-            'Community support',
-        ],
-    },
-    PRO: {
-        name: 'Pro',
-        priceMonthly: 29,
-        priceYearly: 299,
-        features: [
-            'Advanced collaboration',
-            'Priority support',
-        ],
-    },
-    ENTERPRISE: {
-        name: 'Enterprise',
-        priceMonthly: 99,
-        priceYearly: 999,
-        features: [
-            'Unlimited usage',
-            'Dedicated success manager',
-        ],
-    },
-};
+export { PRODUCT_TIERS };
+export type { ProductTier };

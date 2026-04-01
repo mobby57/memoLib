@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Dashboard Intégrations</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@7.0.0/dist/browser/signalr.min.js"></script>
+    <style>
+        /* Styles spécifiques au dashboard intégrations */
+        body { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); }
+        
+        .dashboard-header { background: var(--white); color: var(--primary); padding: var(--space-2xl); box-shadow: var(--shadow-lg); border-radius: var(--radius-xl); margin-bottom: var(--space-xl); }
+        .dashboard-header h1 { font-size: 2rem; margin-bottom: var(--space-sm); font-weight: 700; }
+        .dashboard-header p { color: var(--text-secondary); font-size: 1rem; font-weight: 500; }
+        
+        .dashboard-container { max-width: 1400px; margin: var(--space-xl) auto; padding: 0 var(--space-xl); }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-xl); }
+        
+        .integration-card { background: var(--white); border-radius: var(--radius-lg); padding: var(--space-lg); box-shadow: var(--shadow); transition: var(--transition); border-left: 4px solid var(--primary); }
+        .integration-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .integration-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md); }
+        .integration-card-title { font-size: 1.125rem; font-weight: 600; color: var(--primary); }
+        
+        .integration-status { display: inline-flex; align-items: center; gap: var(--space-sm); padding: 0.4rem 0.8rem; border-radius: var(--radius-full); font-size: 0.875rem; font-weight: 600; }
+        .integration-status.healthy { background: #d1fae5; color: #065f46; }
+        .integration-status.degraded { background: #fef3c7; color: #92400e; }
+        .integration-status.unhealthy { background: #fee2e2; color: #991b1b; }
+        .integration-status-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .integration-status.healthy .integration-status-dot { background: var(--success); box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+        .integration-status.degraded .integration-status-dot { background: var(--warning); box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
+        .integration-status.unhealthy .integration-status-dot { background: var(--danger); box-shadow: 0 0 8px rgba(220, 38, 38, 0.5); }
+        
+        .integration-metric { display: flex; justify-content: space-between; padding: var(--space-md) 0; border-bottom: 1px solid var(--border); }
+        .integration-metric:last-child { border-bottom: none; }
+        .integration-metric-label { color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; }
+        .integration-metric-value { font-weight: 700; color: var(--primary); font-size: 1.125rem; }
+        /* Boutons héritent du thème principal */
+        .btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
+        /* Tabs héritent du thème principal */
+        .dashboard-tabs { background: var(--white); padding: var(--space-sm); border-radius: var(--radius-lg); box-shadow: var(--shadow); margin-bottom: var(--space-xl); }
+        
+        .integration-alert { padding: var(--space-md) var(--space-lg); border-radius: var(--radius-lg); margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-md); border-left: 4px solid; font-weight: 500; }
+        .integration-alert.info { background: #dbeafe; color: #1e40af; border-color: var(--info); }
+        .integration-alert.warning { background: #fef3c7; color: #92400e; border-color: var(--warning); }
+        .integration-alert.error { background: #fee2e2; color: #991b1b; border-color: var(--danger); }
+        .integration-alert.success { background: #d1fae5; color: #065f46; border-color: var(--success); }
+        
+        .integration-progress { height: 8px; background: var(--bg); border-radius: var(--radius); overflow: hidden; margin-top: var(--space-sm); }
+        .integration-progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); transition: width 0.3s ease; }
+        
+        .queue-item { display: flex; justify-content: space-between; align-items: center; padding: var(--space-md); background: var(--bg); border-radius: var(--radius); margin-bottom: var(--space-sm); transition: var(--transition); }
+        .queue-item:hover { background: var(--white); box-shadow: var(--shadow-sm); }
+        .queue-name { font-weight: 600; color: var(--text-primary); }
+        .queue-count { background: var(--primary); color: var(--white); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.875rem; font-weight: 600; }
+        
+        .integration-card.gmail { border-left-color: #ea4335; }
+        .integration-card.outlook { border-left-color: #0078d4; }
+        .integration-card.docusign { border-left-color: #ffb900; }
+        .integration-card.openai { border-left-color: #10a37f; }
+        .integration-card.legifrance { border-left-color: var(--secondary); }
+        
+        .integration-chart { height: 200px; background: var(--bg); border-radius: var(--radius-lg); display: flex; align-items: flex-end; justify-content: space-around; padding: var(--space-lg); }
+        .integration-chart-bar { width: 40px; background: linear-gradient(180deg, var(--primary), var(--primary-light)); border-radius: var(--radius) var(--radius) 0 0; transition: height 0.3s ease; box-shadow: 0 -2px 8px rgba(30, 58, 138, 0.2); }
+        /* Modal hérite du thème principal */
+        .integration-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; }
+        .integration-modal.active { display: flex; align-items: center; justify-content: center; }
+        /* Forms héritent du thème principal via input-group */
+        .integration-form-group { margin-bottom: var(--space-lg); }
+        .integration-form-label { display: block; margin-bottom: var(--space-sm); font-weight: 600; color: var(--text-primary); font-size: 0.875rem; }
+        .integration-form-input { width: 100%; padding: 0.75rem 1rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem; transition: var(--transition); }
+        .integration-form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+        
+        .integration-loading { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: integration-spin 0.8s linear infinite; }
+        @keyframes integration-spin { to { transform: rotate(360deg); } }
+        
+        .integration-notification { position: fixed; top: 20px; right: 20px; background: var(--white); padding: var(--space-md) var(--space-lg); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); z-index: 2000; animation: integration-slideIn 0.3s ease; border-left: 4px solid var(--primary); }
+        @keyframes integration-slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .integration-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; }
+        .integration-badge.primary { background: #eef2ff; color: #4f46e5; }
+        .integration-badge.success { background: #d1fae5; color: #065f46; }
+        .integration-badge.warning { background: #fef3c7; color: #92400e; }
+        .integration-badge.danger { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <h1>🔌 Dashboard Intégrations MemoLib</h1>
+        <p>Monitoring temps réel • Machine Learning • Backup & Sync</p>
+    </div>
+
+    <div class="dashboard-container">
+        <div id="alerts"></div>
+
+        <div class="tabs dashboard-tabs">
+            <button class="tab active" onclick="switchTab('overview')">Vue d'ensemble</button>
+            <button class="tab" onclick="switchTab('integrations')">Intégrations</button>
+            <button class="tab" onclick="switchTab('ml')">Machine Learning</button>
+            <button class="tab" onclick="switchTab('backup')">Backup & Sync</button>
+            <button class="tab" onclick="switchTab('config')">Configuration</button>
+        </div>
+
+        <div id="overview-tab" class="tab-content">
+            <div class="dashboard-grid">
+                <div class="integration-card">
+                    <div class="integration-card-header">
+                        <span class="integration-card-title">📊 Statut Système</span>
+                        <span class="integration-status healthy"><span class="integration-status-dot"></span>Opérationnel</span>
+                    </div>
+                    <div class="integration-metric">
+                        <span class="integration-metric-label">Intégrations actives</span>
+                        <span class="integration-metric-value" id="active-integrations">0</span>
+                    </div>
+                    <div class="integration-metric">
+                        <span class="integration-metric-label">Uptime</span>
+                        <span class="integration-metric-value">99.8%</span>
+                    </div>
+                    <div class="integration-metric">
+                        <span class="integration-metric-label">Dernière mise à jour</span>
+                        <span class="integration-metric-value" id="last-update">--</span>
+                    </div>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-card-header">
+                        <span class="integration-card-title">📋 Files d'attente</span>
+                        <button class="btn btn-secondary btn-sm" onclick="refreshQueues()">Actualiser</button>
+                    </div>
+                    <div id="queues-list"></div>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-card-header">
+                        <span class="integration-card-title">⚡ Performance</span>
+                    </div>
+                    <div class="integration-metric">
+                        <span class="integration-metric-label">Temps réponse moyen</span>
+                        <span class="integration-metric-value" id="avg-response">245ms</span>
+                    </div>
+                    <div class="integration-metric">
+                        <span class="integration-metric-label">Taux d'erreur</span>
+                        <span class="integration-metric-value" id="error-rate">1.2%</span>
+                    </div>
+                    <div class="integration-metric">
+                        <span class="integration-metric-label">Cache hit rate</span>
+                        <span class="integration-metric-value" id="cache-hit">93.8%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="integration-card">
+                <div class="integration-card-header">
+                    <span class="integration-card-title">📈 Activité des dernières 24h</span>
+                </div>
+                <div class="integration-chart" id="activity-chart"></div>
+            </div>
+        </div>
+
+        <div id="integrations-tab" class="tab-content" style="display:none;">
+            <div class="dashboard-grid" id="integrations-grid"></div>
+        </div>
+
+        <div id="ml-tab" class="tab-content" style="display:none;">
+            <div class="dashboard-grid">
+                <div class="integration-card">
+                    <div class="integration-card-header">
+                        <span class="integration-card-title">🤖 Prédiction de Pannes</span>
+                        <button class="btn btn-primary" onclick="predictFailure()">Analyser</button>
+                    </div>
+                    <div id="prediction-result"></div>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-card-header">
+                        <span class="integration-card-title">🔍 Détection d'Anomalies</span>
+                        <button class="btn btn-primary" onclick="detectAnomalies()">Détecter</button>
+                    </div>
+                    <div id="anomalies-result"></div>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-card-header">
+                        <span class="integration-card-title">💡 Suggestions d'Optimisation</span>
+                        <button class="btn btn-primary" onclick="getOptimizations()">Obtenir</button>
+                    </div>
+                    <div id="optimizations-result"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="backup-tab" class="tab-content" style="display:none;">
+            <div class="dashboard-grid">
+                <div class="integration-card">
+                    <div class="integration-card-header">
+                        <span class="integration-card-title">💾 Créer un Backup</span>
+                    </div>
+                    <div class="integration-form-group">
+                        <label class="integration-form-label">Intégration</label>
+                        <select class="integration-form-input" id="backup-integration">
+                            <option value="gmail">Gmail</option>
+                            <option value="outlook">Outlook</option>
+                            <option value="docusign">DocuSign</option>
+                            <option value="openai">OpenAI</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="createBackup()">Créer Backup</button>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-card-header">
+                        <span class="integration-card-title">📜 Historique des Backups</span>
+                        <button class="btn btn-secondary btn-sm" onclick="loadBackupHistory()">Actualiser</button>
+                    </div>
+                    <div id="backup-history"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="config-tab" class="tab-content" style="display:none;">
+            <div class="integration-card">
+                <div class="integration-card-header">
+                    <span class="integration-card-title">⚙️ Configuration des Intégrations</span>
+                </div>
+                <div id="config-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal integration-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="modal-title">Détails</span>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin + '/api';
+        let connection = null;
+
+        // Initialize SignalR
+        async function initSignalR() {
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/integrationHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("IntegrationStatusUpdate", (data) => {
+                showNotification(`${data.integration}: ${data.status}`, 'info');
+                refreshIntegrations();
+            });
+
+            connection.on("QueueUpdate", (data) => {
+                updateQueueDisplay(data.queueName, data.size);
+            });
+
+            connection.on("SystemAlert", (data) => {
+                showNotification(data.message, data.severity);
+            });
+
+            try {
+                await connection.start();
+                console.log("SignalR Connected");
+            } catch (err) {
+                console.error("SignalR Error:", err);
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-tab`).style.display = 'block';
+            
+            if (tabName === 'integrations') loadIntegrations();
+            if (tabName === 'backup') loadBackupHistory();
+            if (tabName === 'config') loadConfigurations();
+        }
+
+        // Load integrations
+        async function loadIntegrations() {
+            try {
+                const response = await fetch(`${API_BASE}/integrations/status`);
+                const data = await response.json();
+                
+                const grid = document.getElementById('integrations-grid');
+                grid.innerHTML = '';
+                
+                Object.entries(data.health).forEach(([name, health]) => {
+                    const card = document.createElement('div');
+                    card.className = `integration-card ${name}`;
+                    card.innerHTML = `
+                        <div class="integration-card-header">
+                            <span class="integration-card-title">${getIntegrationIcon(name)} ${name}</span>
+                            <span class="integration-status ${health.status.toLowerCase()}"><span class="integration-status-dot"></span>${health.status}</span>
+                        </div>
+                        <div class="integration-metric">
+                            <span class="integration-metric-label">Temps de réponse</span>
+                            <span class="integration-metric-value">${health.responseTime.toFixed(0)}ms</span>
+                        </div>
+                        <div class="integration-metric">
+                            <span class="integration-metric-label">Dernière vérification</span>
+                            <span class="integration-metric-value">${new Date(health.lastCheck).toLocaleTimeString()}</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="testIntegration('${name}')">Tester</button>
+                        <button class="btn btn-secondary" onclick="viewIntegrationDetails('${name}')">Détails</button>
+                    `;
+                    grid.appendChild(card);
+                });
+                
+                document.getElementById('active-integrations').textContent = Object.keys(data.health).length;
+            } catch (error) {
+                showNotification('Erreur lors du chargement des intégrations', 'error');
+            }
+        }
+
+        // Refresh queues
+        async function refreshQueues() {
+            try {
+                const response = await fetch(`${API_BASE}/integrations/queues`);
+                const data = await response.json();
+                
+                const list = document.getElementById('queues-list');
+                list.innerHTML = '';
+                
+                Object.entries(data).forEach(([name, info]) => {
+                    const item = document.createElement('div');
+                    item.className = 'queue-item';
+                    item.innerHTML = `
+                        <span class="queue-name">${name}</span>
+                        <span class="queue-count">${info.size}</span>
+                    `;
+                    list.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Queue refresh error:', error);
+            }
+        }
+
+        // ML Functions
+        async function predictFailure() {
+            const integration = 'gmail';
+            try {
+                const response = await fetch(`${API_BASE}/integrations/advanced/ml/predict-failure/${integration}?hoursAhead=24`);
+                const data = await response.json();
+                
+                const result = document.getElementById('prediction-result');
+                result.innerHTML = `
+                    <div class="integration-alert ${data.failureProbability > 0.5 ? 'warning' : 'success'}">
+                        Probabilité de panne: ${(data.failureProbability * 100).toFixed(1)}%
+                    </div>
+                    <div class="integration-metric">
+                        <span class="integration-metric-label">Confiance</span>
+                        <span class="integration-metric-value">${data.confidence}</span>
+                    </div>
+                    ${data.riskFactors.length > 0 ? `
+                        <p style="margin-top:1rem;font-weight:600;color:var(--text-primary);">Facteurs de risque:</p>
+                        <ul style="margin-left:1.5rem;margin-top:0.5rem;color:var(--text-secondary);">
+                            ${data.riskFactors.map(f => `<li>${f}</li>`).join('')}
+                        </ul>
+                    ` : ''}
+                `;
+            } catch (error) {
+                showNotification('Erreur lors de la prédiction', 'error');
+            }
+        }
+
+        async function detectAnomalies() {
+            const integration = 'gmail';
+            try {
+                const response = await fetch(`${API_BASE}/integrations/advanced/ml/detect-anomalies/${integration}?hoursBack=24`);
+                const data = await response.json();
+                
+                const result = document.getElementById('anomalies-result');
+                result.innerHTML = `
+                    <div class="integration-alert ${data.severity === 'Critical' ? 'error' : data.severity === 'High' ? 'warning' : 'info'}">
+                        Sévérité: ${data.severity} (Score: ${data.overallScore.toFixed(2)})
+                    </div>
+                    ${data.anomalies.length > 0 ? `
+                        <p style="margin-top:1rem;font-weight:600;color:var(--text-primary);">${data.anomalies.length} anomalie(s) détectée(s):</p>
+                        ${data.anomalies.map(a => `
+                            <div class="integration-metric">
+                                <span class="integration-metric-label">${a.type}</span>
+                                <span class="integration-badge warning">${a.description}</span>
+                            </div>
+                        `).join('')}
+                    ` : '<p style="margin-top:1rem;color:var(--text-secondary);">Aucune anomalie détectée</p>'}
+                `;
+            } catch (error) {
+                showNotification('Erreur lors de la détection', 'error');
+            }
+        }
+
+        async function getOptimizations() {
+            const integration = 'gmail';
+            try {
+                const response = await fetch(`${API_BASE}/integrations/advanced/ml/optimization-suggestions/${integration}`);
+                const data = await response.json();
+                
+                const result = document.getElementById('optimizations-result');
+                result.innerHTML = `
+                    <div class="integration-metric">
+                        <span class="integration-metric-label">Amélioration potentielle</span>
+                        <span class="integration-metric-value">${(data.potentialImprovement * 100).toFixed(0)}%</span>
+                    </div>
+                    <div class="integration-metric">
+                        <span class="integration-metric-label">Priorité</span>
+                        <span class="integration-badge ${data.priority === 'High' ? 'danger' : data.priority === 'Medium' ? 'warning' : 'primary'}">${data.priority}</span>
+                    </div>
+                    ${data.suggestions.map(s => `
+                        <div style="margin-top:1rem;padding:1rem;background:var(--bg);border-radius:var(--radius-lg);border-left:3px solid var(--primary);">
+                            <strong style="color:var(--primary);">${s.category}</strong>
+                            <p style="margin:0.5rem 0;color:var(--text-secondary);font-size:0.9rem;">${s.description}</p>
+                            <p style="margin:0;font-size:0.875rem;color:var(--text-primary);"><strong>Action:</strong> ${s.action}</p>
+                        </div>
+                    `).join('')}
+                `;
+            } catch (error) {
+                showNotification('Erreur lors de l\'analyse', 'error');
+            }
+        }
+
+        // Backup functions
+        async function createBackup() {
+            const integration = document.getElementById('backup-integration').value;
+            try {
+                const response = await fetch(`${API_BASE}/integrations/advanced/backup/${integration}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ includeConfiguration: true, compressBackup: true })
+                });
+                const data = await response.json();
+                showNotification(`Backup créé: ${data.backupId}`, 'success');
+                loadBackupHistory();
+            } catch (error) {
+                showNotification('Erreur lors de la création du backup', 'error');
+            }
+        }
+
+        async function loadBackupHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/integrations/advanced/backup/history`);
+                const data = await response.json();
+                
+                const history = document.getElementById('backup-history');
+                history.innerHTML = data.slice(0, 10).map(b => `
+                    <div class="queue-item">
+                        <div>
+                            <div class="queue-name">${b.integration}</div>
+                            <div style="font-size:0.875rem;color:var(--text-secondary);margin-top:0.25rem;">${new Date(b.createdAt).toLocaleString()}</div>
+                        </div>
+                        <span class="integration-badge primary">${(b.sizeBytes / 1024).toFixed(0)} KB</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Backup history error:', error);
+            }
+        }
+
+        // Utility functions
+        function getIntegrationIcon(name) {
+            const icons = {
+                gmail: '📧',
+                outlook: '📨',
+                docusign: '✍️',
+                openai: '🤖',
+                legifrance: '⚖️'
+            };
+            return icons[name] || '🔌';
+        }
+
+        function showNotification(message, type = 'info') {
+            const notif = document.createElement('div');
+            notif.className = `integration-notification integration-alert ${type}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 5000);
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function updateQueueDisplay(queueName, size) {
+            const queues = document.getElementById('queues-list');
+            const items = queues.querySelectorAll('.queue-item');
+            items.forEach(item => {
+                if (item.querySelector('.queue-name').textContent === queueName) {
+                    item.querySelector('.queue-count').textContent = size;
+                }
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initSignalR();
+            await loadIntegrations();
+            await refreshQueues();
+            
+            // Update time
+            setInterval(() => {
+                document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+            }, 1000);
+            
+            // Refresh data every 30 seconds
+            setInterval(() => {
+                refreshQueues();
+                loadIntegrations();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

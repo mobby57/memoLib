@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Models;
 using MemoLib.Api.Data;
+using MemoLib.Api.Extensions;
 using System.Text.RegularExpressions;
 
 namespace MemoLib.Api.Controllers;
@@ -104,7 +105,7 @@ public class ClientController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ClientResponse>>> GetAllClients()
+    public async Task<ActionResult<IEnumerable<ClientResponse>>> GetAllClients([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         if (!this.TryGetCurrentUserId(out var userId))
         {
@@ -112,11 +113,16 @@ public class ClientController : ControllerBase
             return Unauthorized(new { message = "Utilisateur non authentifié" });
         }
 
-        var clients = await _context.Clients
-            .AsNoTracking()
-            .Where(c => c.UserId == userId)
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var query = _context.Clients.AsNoTracking().Where(c => c.UserId == userId);
+        var totalCount = await query.CountAsync();
+
+        var clients = await query
             .OrderByDescending(c => c.CreatedAt)
-            .Take(100)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(c => new ClientResponse
             {
                 Id = c.Id,
@@ -130,7 +136,7 @@ public class ClientController : ControllerBase
 
         _logger.LogInformation("Retrieved {Count} clients for user: {UserId}", clients.Count, userId);
 
-        return Ok(clients);
+        return Ok(new { items = clients, page, pageSize, totalCount, totalPages = (int)Math.Ceiling((double)totalCount / pageSize) });
     }
 
     [HttpGet("{id}/detail")]

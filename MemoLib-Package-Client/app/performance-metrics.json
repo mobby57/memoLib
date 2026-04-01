@@ -1,0 +1,224 @@
+{
+  "timestamp": "2026-01-20T23:38:43.592Z",
+  "uptime": 681,
+  "globalMetrics": {
+    "totalQueries": 18,
+    "averageDuration": 6.72,
+    "slowQueries": [],
+    "fastQueries": 18,
+    "mediumQueries": 0,
+    "slowQueriesCount": 0,
+    "cacheHitRate": 0,
+    "connectionPoolSize": 1,
+    "activeConnections": 1
+  },
+  "tenantMetrics": [
+    {
+      "tenantId": "4620e3a1-29c2-489e-a58c-76c1cddaaacc",
+      "tenantName": "Cabinet Dupont",
+      "queryCount": 0,
+      "averageDuration": 0,
+      "totalDossiers": 2,
+      "totalClients": 2,
+      "storageUsed": 0
+    },
+    {
+      "tenantId": "49938dd8-e4dc-44f7-922e-1ca3f5d154f4",
+      "tenantName": "Cabinet Martin & Associés",
+      "queryCount": 0,
+      "averageDuration": 0,
+      "totalDossiers": 2,
+      "totalClients": 2,
+      "storageUsed": 0
+    },
+    {
+      "tenantId": "b6daae99-79e3-4304-a106-c09474d75353",
+      "tenantName": "Cabinet Rousseau International",
+      "queryCount": 0,
+      "averageDuration": 0,
+      "totalDossiers": 2,
+      "totalClients": 2,
+      "storageUsed": 0
+    },
+    {
+      "tenantId": "a91b1723-6ef7-4d1d-a8b4-ec929612fb85",
+      "tenantName": "Cabinet Test Billing",
+      "queryCount": 0,
+      "averageDuration": 0,
+      "totalDossiers": 0,
+      "totalClients": 0,
+      "storageUsed": 0
+    },
+    {
+      "tenantId": "7230a286-28f2-4ad2-b3de-3ae0ddbd54cf",
+      "tenantName": "Cabinet de Test",
+      "queryCount": 0,
+      "averageDuration": 0,
+      "totalDossiers": 0,
+      "totalClients": 0,
+      "storageUsed": 0
+    },
+    {
+      "tenantId": "8fcdaec3-4238-4869-b384-080af262cd33",
+      "tenantName": "Cabinet Demo",
+      "queryCount": 0,
+      "averageDuration": 0,
+      "totalDossiers": 9,
+      "totalClients": 3,
+      "storageUsed": 0
+    }
+  ],
+  "recommendations": [
+    "💡 Implémenter un cache Redis pour les requêtes fréquentes (plans, tenants) pourrait réduire la charge de 30-40%.",
+    "💡 Configurer un monitoring continu avec DataDog/New Relic pour alertes en temps réel."
+  ],
+  "rawMetrics": [
+    {
+      "query": "SELECT 1",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:42.956Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT COUNT(*) FROM (SELECT `main`.`Plan`.`id` FROM `main`.`Plan` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`",
+      "duration": 9,
+      "timestamp": "2026-01-20T23:38:42.971Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Tenant`.`id`, `main`.`Tenant`.`name`, `main`.`Tenant`.`subdomain`, `main`.`Tenant`.`domain`, `main`.`Tenant`.`planId`, `main`.`Tenant`.`status`, `main`.`Tenant`.`trialEndsAt`, `main`.`Tenant`.`billingEmail`, `main`.`Tenant`.`billingAddress`, `main`.`Tenant`.`vatNumber`, `main`.`Tenant`.`currentWorkspaces`, `main`.`Tenant`.`currentDossiers`, `main`.`Tenant`.`currentClients`, `main`.`Tenant`.`currentStorageGb`, `main`.`Tenant`.`currentUsers`, `main`.`Tenant`.`createdAt`, `main`.`Tenant`.`updatedAt` FROM `main`.`Tenant` WHERE 1=1 ORDER BY `main`.`Tenant`.`id` ASC LIMIT ? OFFSET ?",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:42.977Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Plan`.`id`, `main`.`Plan`.`name`, `main`.`Plan`.`displayName`, `main`.`Plan`.`description`, `main`.`Plan`.`priceMonthly`, `main`.`Plan`.`priceYearly`, `main`.`Plan`.`currency`, `main`.`Plan`.`maxWorkspaces`, `main`.`Plan`.`maxDossiers`, `main`.`Plan`.`maxClients`, `main`.`Plan`.`maxStorageGb`, `main`.`Plan`.`maxUsers`, `main`.`Plan`.`aiAutonomyLevel`, `main`.`Plan`.`humanValidation`, `main`.`Plan`.`advancedAnalytics`, `main`.`Plan`.`externalAiAccess`, `main`.`Plan`.`prioritySupport`, `main`.`Plan`.`customBranding`, `main`.`Plan`.`apiAccess`, `main`.`Plan`.`isActive`, `main`.`Plan`.`createdAt`, `main`.`Plan`.`updatedAt` FROM `main`.`Plan` WHERE `main`.`Plan`.`id` IN (?,?,?,?,?) LIMIT ? OFFSET ?",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:42.978Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`User`.`id`, `main`.`User`.`email`, `main`.`User`.`name`, `main`.`User`.`password`, `main`.`User`.`role`, `main`.`User`.`tenantId`, `main`.`User`.`clientId`, `main`.`User`.`avatar`, `main`.`User`.`phone`, `main`.`User`.`status`, `main`.`User`.`lastLogin`, `main`.`User`.`language`, `main`.`User`.`timezone`, `main`.`User`.`createdAt`, `main`.`User`.`updatedAt` FROM `main`.`User` WHERE `main`.`User`.`tenantId` IN (?,?,?,?,?,?) ORDER BY `main`.`User`.`id` ASC LIMIT ? OFFSET ?",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:42.979Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Client`.`id`, `main`.`Client`.`tenantId`, `main`.`Client`.`civilite`, `main`.`Client`.`firstName`, `main`.`Client`.`lastName`, `main`.`Client`.`nomNaissance`, `main`.`Client`.`prenomUsuel`, `main`.`Client`.`email`, `main`.`Client`.`emailSecondaire`, `main`.`Client`.`phone`, `main`.`Client`.`phoneSecondaire`, `main`.`Client`.`telephoneUrgence`, `main`.`Client`.`dateOfBirth`, `main`.`Client`.`lieuNaissance`, `main`.`Client`.`nationality`, `main`.`Client`.`nationaliteOrigine`, `main`.`Client`.`address`, `main`.`Client`.`codePostal`, `main`.`Client`.`ville`, `main`.`Client`.`pays`, `main`.`Client`.`adresseCorrespondance`, `main`.`Client`.`codePostalCorrespondance`, `main`.`Client`.`villeCorrespondance`, `main`.`Client`.`paysCorrespondance`, `main`.`Client`.`passportNumber`, `main`.`Client`.`passportExpiry`, `main`.`Client`.`passportCountry`, `main`.`Client`.`idCardNumber`, `main`.`Client`.`idCardExpiry`, `main`.`Client`.`titreSejourNumber`, `main`.`Client`.`titreSejourType`, `main`.`Client`.`titreSejourExpiry`, `main`.`Client`.`numeroOFII`, `main`.`Client`.`numeroAgrefe`, `main`.`Client`.`situationFamiliale`, `main`.`Client`.`nombreEnfants`, `main`.`Client`.`personneACharge`, `main`.`Client`.`profession`, `main`.`Client`.`employeur`, `main`.`Client`.`secteurActivite`, `main`.`Client`.`situationPro`, `main`.`Client`.`revenusAnnuels`, `main`.`Client`.`iban`, `main`.`Client`.`bic`, `main`.`Client`.`titulaireBancaire`, `main`.`Client`.`contactUrgenceNom`, `main`.`Client`.`contactUrgenceLien`, `main`.`Client`.`contactUrgenceTel`, `main`.`Client`.`languePrincipale`, `main`.`Client`.`languesSecondaires`, `main`.`Client`.`prefCommunication`, `main`.`Client`.`accepteNotifications`, `main`.`Client`.`accepteNewsletter`, `main`.`Client`.`status`, `main`.`Client`.`categorie`, `main`.`Client`.`source`, `main`.`Client`.`qualite`, `main`.`Client`.`scoreRisque`, `main`.`Client`.`tarifHoraire`, `main`.`Client`.`plafondHoraire`, `main`.`Client`.`modeFacturation`, `main`.`Client`.`delaiPaiement`, `main`.`Client`.`origineClient`, `main`.`Client`.`datePremiereVisite`, `main`.`Client`.`dateDernierContact`, `main`.`Client`.`frequenceContact`, `main`.`Client`.`satisfactionScore`, `main`.`Client`.`niveauConfidentialite`, `main`.`Client`.`consentementRGPD`, `main`.`Client`.`dateConsentementRGPD`, `main`.`Client`.`notes`, `main`.`Client`.`notesPrivees`, `main`.`Client`.`tags`, `main`.`Client`.`couleurEtiquette`, `main`.`Client`.`emoji`, `main`.`Client`.`dateArchivage`, `main`.`Client`.`raisonArchivage`, `main`.`Client`.`champsPersonnalises`, `main`.`Client`.`createdAt`, `main`.`Client`.`updatedAt`, `main`.`Client`.`lastActivityAt` FROM `main`.`Client` WHERE `main`.`Client`.`tenantId` IN (?,?,?,?,?,?) ORDER BY `main`.`Client`.`id` ASC LIMIT ? OFFSET ?",
+      "duration": 1,
+      "timestamp": "2026-01-20T23:38:42.981Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Dossier`.`id`, `main`.`Dossier`.`tenantId`, `main`.`Dossier`.`numero`, `main`.`Dossier`.`clientId`, `main`.`Dossier`.`typeDossier`, `main`.`Dossier`.`articleCeseda`, `main`.`Dossier`.`categorieJuridique`, `main`.`Dossier`.`statut`, `main`.`Dossier`.`priorite`, `main`.`Dossier`.`phase`, `main`.`Dossier`.`dateCreation`, `main`.`Dossier`.`dateOuverture`, `main`.`Dossier`.`dateEcheance`, `main`.`Dossier`.`dateProchaineEtape`, `main`.`Dossier`.`dateCloture`, `main`.`Dossier`.`dateArchivage`, `main`.`Dossier`.`juridiction`, `main`.`Dossier`.`numeroJuridiction`, `main`.`Dossier`.`typeRecours`, `main`.`Dossier`.`instanceRecours`, `main`.`Dossier`.`responsableId`, `main`.`Dossier`.`collaborateurs`, `main`.`Dossier`.`avocatAdverse`, `main`.`Dossier`.`objet`, `main`.`Dossier`.`description`, `main`.`Dossier`.`contexteLegal`, `main`.`Dossier`.`notes`, `main`.`Dossier`.`notesPrivees`, `main`.`Dossier`.`honorairesEstimes`, `main`.`Dossier`.`honorairesReel`, `main`.`Dossier`.`avanceSurFrais`, `main`.`Dossier`.`fraisDossier`, `main`.`Dossier`.`tauxHoraire`, `main`.`Dossier`.`tempsEstime`, `main`.`Dossier`.`tempsReel`, `main`.`Dossier`.`modeFacturation`, `main`.`Dossier`.`niveauConfidentialite`, `main`.`Dossier`.`accessRestreint`, `main`.`Dossier`.`autorisationsAcces`, `main`.`Dossier`.`dureeConservation`, `main`.`Dossier`.`dateDestructionPrevue`, `main`.`Dossier`.`archivePhysique`, `main`.`Dossier`.`archiveNumerique`, `main`.`Dossier`.`etapesWorkflow`, `main`.`Dossier`.`checklistItems`, `main`.`Dossier`.`jalons`, `main`.`Dossier`.`aiAnalysis`, `main`.`Dossier`.`riskScore`, `main`.`Dossier`.`successProbability`, `main`.`Dossier`.`aiRecommendations`, `main`.`Dossier`.`aiSummary`, `main`.`Dossier`.`predictedOutcome`, `main`.`Dossier`.`tempsReponseJuridiction`, `main`.`Dossier`.`tauxReussite`, `main`.`Dossier`.`scoreComplexite`, `main`.`Dossier`.`dossiersPrecedents`, `main`.`Dossier`.`jurisprudence`, `main`.`Dossier`.`dossiersLies`, `main`.`Dossier`.`dernierContactClient`, `main`.`Dossier`.`prochaineRelance`, `main`.`Dossier`.`frequenceRelance`, `main`.`Dossier`.`canalContact`, `main`.`Dossier`.`tags`, `main`.`Dossier`.`couleurEtiquette`, `main`.`Dossier`.`emoji`, `main`.`Dossier`.`createdAt`, `main`.`Dossier`.`updatedAt`, `main`.`Dossier`.`lastActivityAt` FROM `main`.`Dossier` WHERE (`main`.`Dossier`.`statut` IN (?,?) AND `main`.`Dossier`.`priorite` IN (?,?)) ORDER BY `main`.`Dossier`.`dateCreation` DESC LIMIT ? OFFSET ?",
+      "duration": 1,
+      "timestamp": "2026-01-20T23:38:42.993Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Client`.`id`, `main`.`Client`.`tenantId`, `main`.`Client`.`civilite`, `main`.`Client`.`firstName`, `main`.`Client`.`lastName`, `main`.`Client`.`nomNaissance`, `main`.`Client`.`prenomUsuel`, `main`.`Client`.`email`, `main`.`Client`.`emailSecondaire`, `main`.`Client`.`phone`, `main`.`Client`.`phoneSecondaire`, `main`.`Client`.`telephoneUrgence`, `main`.`Client`.`dateOfBirth`, `main`.`Client`.`lieuNaissance`, `main`.`Client`.`nationality`, `main`.`Client`.`nationaliteOrigine`, `main`.`Client`.`address`, `main`.`Client`.`codePostal`, `main`.`Client`.`ville`, `main`.`Client`.`pays`, `main`.`Client`.`adresseCorrespondance`, `main`.`Client`.`codePostalCorrespondance`, `main`.`Client`.`villeCorrespondance`, `main`.`Client`.`paysCorrespondance`, `main`.`Client`.`passportNumber`, `main`.`Client`.`passportExpiry`, `main`.`Client`.`passportCountry`, `main`.`Client`.`idCardNumber`, `main`.`Client`.`idCardExpiry`, `main`.`Client`.`titreSejourNumber`, `main`.`Client`.`titreSejourType`, `main`.`Client`.`titreSejourExpiry`, `main`.`Client`.`numeroOFII`, `main`.`Client`.`numeroAgrefe`, `main`.`Client`.`situationFamiliale`, `main`.`Client`.`nombreEnfants`, `main`.`Client`.`personneACharge`, `main`.`Client`.`profession`, `main`.`Client`.`employeur`, `main`.`Client`.`secteurActivite`, `main`.`Client`.`situationPro`, `main`.`Client`.`revenusAnnuels`, `main`.`Client`.`iban`, `main`.`Client`.`bic`, `main`.`Client`.`titulaireBancaire`, `main`.`Client`.`contactUrgenceNom`, `main`.`Client`.`contactUrgenceLien`, `main`.`Client`.`contactUrgenceTel`, `main`.`Client`.`languePrincipale`, `main`.`Client`.`languesSecondaires`, `main`.`Client`.`prefCommunication`, `main`.`Client`.`accepteNotifications`, `main`.`Client`.`accepteNewsletter`, `main`.`Client`.`status`, `main`.`Client`.`categorie`, `main`.`Client`.`source`, `main`.`Client`.`qualite`, `main`.`Client`.`scoreRisque`, `main`.`Client`.`tarifHoraire`, `main`.`Client`.`plafondHoraire`, `main`.`Client`.`modeFacturation`, `main`.`Client`.`delaiPaiement`, `main`.`Client`.`origineClient`, `main`.`Client`.`datePremiereVisite`, `main`.`Client`.`dateDernierContact`, `main`.`Client`.`frequenceContact`, `main`.`Client`.`satisfactionScore`, `main`.`Client`.`niveauConfidentialite`, `main`.`Client`.`consentementRGPD`, `main`.`Client`.`dateConsentementRGPD`, `main`.`Client`.`notes`, `main`.`Client`.`notesPrivees`, `main`.`Client`.`tags`, `main`.`Client`.`couleurEtiquette`, `main`.`Client`.`emoji`, `main`.`Client`.`dateArchivage`, `main`.`Client`.`raisonArchivage`, `main`.`Client`.`champsPersonnalises`, `main`.`Client`.`createdAt`, `main`.`Client`.`updatedAt`, `main`.`Client`.`lastActivityAt` FROM `main`.`Client` WHERE `main`.`Client`.`id` IN (?,?,?,?,?,?) LIMIT ? OFFSET ?",
+      "duration": 1,
+      "timestamp": "2026-01-20T23:38:42.995Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Tenant`.`id`, `main`.`Tenant`.`name`, `main`.`Tenant`.`subdomain`, `main`.`Tenant`.`domain`, `main`.`Tenant`.`planId`, `main`.`Tenant`.`status`, `main`.`Tenant`.`trialEndsAt`, `main`.`Tenant`.`billingEmail`, `main`.`Tenant`.`billingAddress`, `main`.`Tenant`.`vatNumber`, `main`.`Tenant`.`currentWorkspaces`, `main`.`Tenant`.`currentDossiers`, `main`.`Tenant`.`currentClients`, `main`.`Tenant`.`currentStorageGb`, `main`.`Tenant`.`currentUsers`, `main`.`Tenant`.`createdAt`, `main`.`Tenant`.`updatedAt` FROM `main`.`Tenant` WHERE `main`.`Tenant`.`id` IN (?,?,?,?) LIMIT ? OFFSET ?",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:42.995Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT COUNT(`main`.`Dossier`.`id`), `main`.`Dossier`.`statut` FROM `main`.`Dossier` WHERE 1=1 GROUP BY `main`.`Dossier`.`statut` LIMIT ? OFFSET ?",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:43.004Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT COUNT(*) FROM (SELECT `main`.`Plan`.`id` FROM `main`.`Plan` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:43.015Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT COUNT(*) FROM (SELECT `main`.`Dossier`.`id` FROM `main`.`Dossier` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`",
+      "duration": 26,
+      "timestamp": "2026-01-20T23:38:43.039Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT COUNT(*) FROM (SELECT `main`.`Facture`.`id` FROM `main`.`Facture` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`",
+      "duration": 27,
+      "timestamp": "2026-01-20T23:38:43.040Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT COUNT(*) FROM (SELECT `main`.`Client`.`id` FROM `main`.`Client` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`",
+      "duration": 27,
+      "timestamp": "2026-01-20T23:38:43.040Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT COUNT(*) FROM (SELECT `main`.`Tenant`.`id` FROM `main`.`Tenant` WHERE 1=1 LIMIT ? OFFSET ?) AS `sub`",
+      "duration": 27,
+      "timestamp": "2026-01-20T23:38:43.040Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Tenant`.`id`, `main`.`Tenant`.`name`, `main`.`Tenant`.`subdomain`, `main`.`Tenant`.`domain`, `main`.`Tenant`.`planId`, `main`.`Tenant`.`status`, `main`.`Tenant`.`trialEndsAt`, `main`.`Tenant`.`billingEmail`, `main`.`Tenant`.`billingAddress`, `main`.`Tenant`.`vatNumber`, `main`.`Tenant`.`currentWorkspaces`, `main`.`Tenant`.`currentDossiers`, `main`.`Tenant`.`currentClients`, `main`.`Tenant`.`currentStorageGb`, `main`.`Tenant`.`currentUsers`, `main`.`Tenant`.`createdAt`, `main`.`Tenant`.`updatedAt` FROM `main`.`Tenant` WHERE 1=1 LIMIT ? OFFSET ?",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:43.562Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Dossier`.`id`, `main`.`Dossier`.`tenantId`, `main`.`Dossier`.`numero`, `main`.`Dossier`.`clientId`, `main`.`Dossier`.`typeDossier`, `main`.`Dossier`.`articleCeseda`, `main`.`Dossier`.`categorieJuridique`, `main`.`Dossier`.`statut`, `main`.`Dossier`.`priorite`, `main`.`Dossier`.`phase`, `main`.`Dossier`.`dateCreation`, `main`.`Dossier`.`dateOuverture`, `main`.`Dossier`.`dateEcheance`, `main`.`Dossier`.`dateProchaineEtape`, `main`.`Dossier`.`dateCloture`, `main`.`Dossier`.`dateArchivage`, `main`.`Dossier`.`juridiction`, `main`.`Dossier`.`numeroJuridiction`, `main`.`Dossier`.`typeRecours`, `main`.`Dossier`.`instanceRecours`, `main`.`Dossier`.`responsableId`, `main`.`Dossier`.`collaborateurs`, `main`.`Dossier`.`avocatAdverse`, `main`.`Dossier`.`objet`, `main`.`Dossier`.`description`, `main`.`Dossier`.`contexteLegal`, `main`.`Dossier`.`notes`, `main`.`Dossier`.`notesPrivees`, `main`.`Dossier`.`honorairesEstimes`, `main`.`Dossier`.`honorairesReel`, `main`.`Dossier`.`avanceSurFrais`, `main`.`Dossier`.`fraisDossier`, `main`.`Dossier`.`tauxHoraire`, `main`.`Dossier`.`tempsEstime`, `main`.`Dossier`.`tempsReel`, `main`.`Dossier`.`modeFacturation`, `main`.`Dossier`.`niveauConfidentialite`, `main`.`Dossier`.`accessRestreint`, `main`.`Dossier`.`autorisationsAcces`, `main`.`Dossier`.`dureeConservation`, `main`.`Dossier`.`dateDestructionPrevue`, `main`.`Dossier`.`archivePhysique`, `main`.`Dossier`.`archiveNumerique`, `main`.`Dossier`.`etapesWorkflow`, `main`.`Dossier`.`checklistItems`, `main`.`Dossier`.`jalons`, `main`.`Dossier`.`aiAnalysis`, `main`.`Dossier`.`riskScore`, `main`.`Dossier`.`successProbability`, `main`.`Dossier`.`aiRecommendations`, `main`.`Dossier`.`aiSummary`, `main`.`Dossier`.`predictedOutcome`, `main`.`Dossier`.`tempsReponseJuridiction`, `main`.`Dossier`.`tauxReussite`, `main`.`Dossier`.`scoreComplexite`, `main`.`Dossier`.`dossiersPrecedents`, `main`.`Dossier`.`jurisprudence`, `main`.`Dossier`.`dossiersLies`, `main`.`Dossier`.`dernierContactClient`, `main`.`Dossier`.`prochaineRelance`, `main`.`Dossier`.`frequenceRelance`, `main`.`Dossier`.`canalContact`, `main`.`Dossier`.`tags`, `main`.`Dossier`.`couleurEtiquette`, `main`.`Dossier`.`emoji`, `main`.`Dossier`.`createdAt`, `main`.`Dossier`.`updatedAt`, `main`.`Dossier`.`lastActivityAt` FROM `main`.`Dossier` WHERE `main`.`Dossier`.`tenantId` IN (?,?,?,?,?,?) LIMIT ? OFFSET ?",
+      "duration": 1,
+      "timestamp": "2026-01-20T23:38:43.564Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Client`.`id`, `main`.`Client`.`tenantId`, `main`.`Client`.`civilite`, `main`.`Client`.`firstName`, `main`.`Client`.`lastName`, `main`.`Client`.`nomNaissance`, `main`.`Client`.`prenomUsuel`, `main`.`Client`.`email`, `main`.`Client`.`emailSecondaire`, `main`.`Client`.`phone`, `main`.`Client`.`phoneSecondaire`, `main`.`Client`.`telephoneUrgence`, `main`.`Client`.`dateOfBirth`, `main`.`Client`.`lieuNaissance`, `main`.`Client`.`nationality`, `main`.`Client`.`nationaliteOrigine`, `main`.`Client`.`address`, `main`.`Client`.`codePostal`, `main`.`Client`.`ville`, `main`.`Client`.`pays`, `main`.`Client`.`adresseCorrespondance`, `main`.`Client`.`codePostalCorrespondance`, `main`.`Client`.`villeCorrespondance`, `main`.`Client`.`paysCorrespondance`, `main`.`Client`.`passportNumber`, `main`.`Client`.`passportExpiry`, `main`.`Client`.`passportCountry`, `main`.`Client`.`idCardNumber`, `main`.`Client`.`idCardExpiry`, `main`.`Client`.`titreSejourNumber`, `main`.`Client`.`titreSejourType`, `main`.`Client`.`titreSejourExpiry`, `main`.`Client`.`numeroOFII`, `main`.`Client`.`numeroAgrefe`, `main`.`Client`.`situationFamiliale`, `main`.`Client`.`nombreEnfants`, `main`.`Client`.`personneACharge`, `main`.`Client`.`profession`, `main`.`Client`.`employeur`, `main`.`Client`.`secteurActivite`, `main`.`Client`.`situationPro`, `main`.`Client`.`revenusAnnuels`, `main`.`Client`.`iban`, `main`.`Client`.`bic`, `main`.`Client`.`titulaireBancaire`, `main`.`Client`.`contactUrgenceNom`, `main`.`Client`.`contactUrgenceLien`, `main`.`Client`.`contactUrgenceTel`, `main`.`Client`.`languePrincipale`, `main`.`Client`.`languesSecondaires`, `main`.`Client`.`prefCommunication`, `main`.`Client`.`accepteNotifications`, `main`.`Client`.`accepteNewsletter`, `main`.`Client`.`status`, `main`.`Client`.`categorie`, `main`.`Client`.`source`, `main`.`Client`.`qualite`, `main`.`Client`.`scoreRisque`, `main`.`Client`.`tarifHoraire`, `main`.`Client`.`plafondHoraire`, `main`.`Client`.`modeFacturation`, `main`.`Client`.`delaiPaiement`, `main`.`Client`.`origineClient`, `main`.`Client`.`datePremiereVisite`, `main`.`Client`.`dateDernierContact`, `main`.`Client`.`frequenceContact`, `main`.`Client`.`satisfactionScore`, `main`.`Client`.`niveauConfidentialite`, `main`.`Client`.`consentementRGPD`, `main`.`Client`.`dateConsentementRGPD`, `main`.`Client`.`notes`, `main`.`Client`.`notesPrivees`, `main`.`Client`.`tags`, `main`.`Client`.`couleurEtiquette`, `main`.`Client`.`emoji`, `main`.`Client`.`dateArchivage`, `main`.`Client`.`raisonArchivage`, `main`.`Client`.`champsPersonnalises`, `main`.`Client`.`createdAt`, `main`.`Client`.`updatedAt`, `main`.`Client`.`lastActivityAt` FROM `main`.`Client` WHERE `main`.`Client`.`tenantId` IN (?,?,?,?,?,?) LIMIT ? OFFSET ?",
+      "duration": 1,
+      "timestamp": "2026-01-20T23:38:43.566Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Tenant`.`id`, `main`.`Tenant`.`name`, `main`.`Tenant`.`subdomain`, `main`.`Tenant`.`domain`, `main`.`Tenant`.`planId`, `main`.`Tenant`.`status`, `main`.`Tenant`.`trialEndsAt`, `main`.`Tenant`.`billingEmail`, `main`.`Tenant`.`billingAddress`, `main`.`Tenant`.`vatNumber`, `main`.`Tenant`.`currentWorkspaces`, `main`.`Tenant`.`currentDossiers`, `main`.`Tenant`.`currentClients`, `main`.`Tenant`.`currentStorageGb`, `main`.`Tenant`.`currentUsers`, `main`.`Tenant`.`createdAt`, `main`.`Tenant`.`updatedAt` FROM `main`.`Tenant` WHERE 1=1 LIMIT ? OFFSET ?",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:43.582Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Dossier`.`id`, `main`.`Dossier`.`tenantId`, `main`.`Dossier`.`numero`, `main`.`Dossier`.`clientId`, `main`.`Dossier`.`typeDossier`, `main`.`Dossier`.`articleCeseda`, `main`.`Dossier`.`categorieJuridique`, `main`.`Dossier`.`statut`, `main`.`Dossier`.`priorite`, `main`.`Dossier`.`phase`, `main`.`Dossier`.`dateCreation`, `main`.`Dossier`.`dateOuverture`, `main`.`Dossier`.`dateEcheance`, `main`.`Dossier`.`dateProchaineEtape`, `main`.`Dossier`.`dateCloture`, `main`.`Dossier`.`dateArchivage`, `main`.`Dossier`.`juridiction`, `main`.`Dossier`.`numeroJuridiction`, `main`.`Dossier`.`typeRecours`, `main`.`Dossier`.`instanceRecours`, `main`.`Dossier`.`responsableId`, `main`.`Dossier`.`collaborateurs`, `main`.`Dossier`.`avocatAdverse`, `main`.`Dossier`.`objet`, `main`.`Dossier`.`description`, `main`.`Dossier`.`contexteLegal`, `main`.`Dossier`.`notes`, `main`.`Dossier`.`notesPrivees`, `main`.`Dossier`.`honorairesEstimes`, `main`.`Dossier`.`honorairesReel`, `main`.`Dossier`.`avanceSurFrais`, `main`.`Dossier`.`fraisDossier`, `main`.`Dossier`.`tauxHoraire`, `main`.`Dossier`.`tempsEstime`, `main`.`Dossier`.`tempsReel`, `main`.`Dossier`.`modeFacturation`, `main`.`Dossier`.`niveauConfidentialite`, `main`.`Dossier`.`accessRestreint`, `main`.`Dossier`.`autorisationsAcces`, `main`.`Dossier`.`dureeConservation`, `main`.`Dossier`.`dateDestructionPrevue`, `main`.`Dossier`.`archivePhysique`, `main`.`Dossier`.`archiveNumerique`, `main`.`Dossier`.`etapesWorkflow`, `main`.`Dossier`.`checklistItems`, `main`.`Dossier`.`jalons`, `main`.`Dossier`.`aiAnalysis`, `main`.`Dossier`.`riskScore`, `main`.`Dossier`.`successProbability`, `main`.`Dossier`.`aiRecommendations`, `main`.`Dossier`.`aiSummary`, `main`.`Dossier`.`predictedOutcome`, `main`.`Dossier`.`tempsReponseJuridiction`, `main`.`Dossier`.`tauxReussite`, `main`.`Dossier`.`scoreComplexite`, `main`.`Dossier`.`dossiersPrecedents`, `main`.`Dossier`.`jurisprudence`, `main`.`Dossier`.`dossiersLies`, `main`.`Dossier`.`dernierContactClient`, `main`.`Dossier`.`prochaineRelance`, `main`.`Dossier`.`frequenceRelance`, `main`.`Dossier`.`canalContact`, `main`.`Dossier`.`tags`, `main`.`Dossier`.`couleurEtiquette`, `main`.`Dossier`.`emoji`, `main`.`Dossier`.`createdAt`, `main`.`Dossier`.`updatedAt`, `main`.`Dossier`.`lastActivityAt` FROM `main`.`Dossier` WHERE `main`.`Dossier`.`tenantId` IN (?,?,?,?,?,?) LIMIT ? OFFSET ?",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:43.584Z",
+      "model": "unknown",
+      "operation": "READ"
+    },
+    {
+      "query": "SELECT `main`.`Client`.`id`, `main`.`Client`.`tenantId`, `main`.`Client`.`civilite`, `main`.`Client`.`firstName`, `main`.`Client`.`lastName`, `main`.`Client`.`nomNaissance`, `main`.`Client`.`prenomUsuel`, `main`.`Client`.`email`, `main`.`Client`.`emailSecondaire`, `main`.`Client`.`phone`, `main`.`Client`.`phoneSecondaire`, `main`.`Client`.`telephoneUrgence`, `main`.`Client`.`dateOfBirth`, `main`.`Client`.`lieuNaissance`, `main`.`Client`.`nationality`, `main`.`Client`.`nationaliteOrigine`, `main`.`Client`.`address`, `main`.`Client`.`codePostal`, `main`.`Client`.`ville`, `main`.`Client`.`pays`, `main`.`Client`.`adresseCorrespondance`, `main`.`Client`.`codePostalCorrespondance`, `main`.`Client`.`villeCorrespondance`, `main`.`Client`.`paysCorrespondance`, `main`.`Client`.`passportNumber`, `main`.`Client`.`passportExpiry`, `main`.`Client`.`passportCountry`, `main`.`Client`.`idCardNumber`, `main`.`Client`.`idCardExpiry`, `main`.`Client`.`titreSejourNumber`, `main`.`Client`.`titreSejourType`, `main`.`Client`.`titreSejourExpiry`, `main`.`Client`.`numeroOFII`, `main`.`Client`.`numeroAgrefe`, `main`.`Client`.`situationFamiliale`, `main`.`Client`.`nombreEnfants`, `main`.`Client`.`personneACharge`, `main`.`Client`.`profession`, `main`.`Client`.`employeur`, `main`.`Client`.`secteurActivite`, `main`.`Client`.`situationPro`, `main`.`Client`.`revenusAnnuels`, `main`.`Client`.`iban`, `main`.`Client`.`bic`, `main`.`Client`.`titulaireBancaire`, `main`.`Client`.`contactUrgenceNom`, `main`.`Client`.`contactUrgenceLien`, `main`.`Client`.`contactUrgenceTel`, `main`.`Client`.`languePrincipale`, `main`.`Client`.`languesSecondaires`, `main`.`Client`.`prefCommunication`, `main`.`Client`.`accepteNotifications`, `main`.`Client`.`accepteNewsletter`, `main`.`Client`.`status`, `main`.`Client`.`categorie`, `main`.`Client`.`source`, `main`.`Client`.`qualite`, `main`.`Client`.`scoreRisque`, `main`.`Client`.`tarifHoraire`, `main`.`Client`.`plafondHoraire`, `main`.`Client`.`modeFacturation`, `main`.`Client`.`delaiPaiement`, `main`.`Client`.`origineClient`, `main`.`Client`.`datePremiereVisite`, `main`.`Client`.`dateDernierContact`, `main`.`Client`.`frequenceContact`, `main`.`Client`.`satisfactionScore`, `main`.`Client`.`niveauConfidentialite`, `main`.`Client`.`consentementRGPD`, `main`.`Client`.`dateConsentementRGPD`, `main`.`Client`.`notes`, `main`.`Client`.`notesPrivees`, `main`.`Client`.`tags`, `main`.`Client`.`couleurEtiquette`, `main`.`Client`.`emoji`, `main`.`Client`.`dateArchivage`, `main`.`Client`.`raisonArchivage`, `main`.`Client`.`champsPersonnalises`, `main`.`Client`.`createdAt`, `main`.`Client`.`updatedAt`, `main`.`Client`.`lastActivityAt` FROM `main`.`Client` WHERE `main`.`Client`.`tenantId` IN (?,?,?,?,?,?) LIMIT ? OFFSET ?",
+      "duration": 0,
+      "timestamp": "2026-01-20T23:38:43.585Z",
+      "model": "unknown",
+      "operation": "READ"
+    }
+  ]
+}

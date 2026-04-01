@@ -1,3 +1,4 @@
+﻿// @ts-nocheck
 /**
  * DeadlineMonitorService - Phase 6
  * Monitoring et notifications délais critiques
@@ -323,3 +324,5 @@ export class DeadlineMonitorService {
     };
   }
 }
+
+

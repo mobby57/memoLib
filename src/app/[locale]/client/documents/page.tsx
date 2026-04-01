@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ interface Document {
   uploadedAt: string;
   description?: string;
   dossier?: {
-    numero: string;
+    numéro: string;
     typeDossier: string;
   };
 }
@@ -31,6 +31,7 @@ export default function DocumentsClient() {
   const [uploading, setUploading] = useState(false);
   const [filter, setFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -73,12 +74,12 @@ export default function DocumentsClient() {
 
       if (res.ok) {
         await fetchDocuments();
-        alert('Document televerse avec succes !');
+        setFeedback({ type: 'success', message: 'Document téléversé avec succès' });
       } else {
-        alert('Erreur lors du televersement');
+        setFeedback({ type: 'error', message: 'Erreur lors du téléversement' });
       }
     } catch (err) {
-      alert('Erreur de connexion');
+      setFeedback({ type: 'error', message: 'Erreur de connexion' });
     } finally {
       setUploading(false);
     }
@@ -101,9 +102,9 @@ export default function DocumentsClient() {
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.originalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           doc.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     if (filter === 'all') return matchesSearch;
-    
+
     return matchesSearch && doc.mimeType.includes(filter);
   });
 
@@ -135,7 +136,7 @@ export default function DocumentsClient() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Mes Documents
                 </h1>
-                <p className="text-gray-600 mt-1">Gerez tous vos documents juridiques</p>
+                <p className="text-gray-600 mt-1">Gérez tous vos documents juridiques</p>
               </div>
             </div>
             <div className="text-right">
@@ -147,6 +148,18 @@ export default function DocumentsClient() {
       </header>
 
       <main className="max-w-7xl mx-auto px-8 py-8">
+        {feedback && (
+          <div
+            className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
         {/* Upload Zone */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Ajouter un document</h2>
@@ -240,7 +253,7 @@ export default function DocumentsClient() {
               <span className="text-6xl mb-4 block"></span>
               <p className="text-gray-500 text-lg">
                 {searchTerm || filter !== 'all'
-                  ? 'Aucun document ne correspond a votre recherche'
+                  ? 'Aucun document ne correspond à votre recherche'
                   : 'Aucun document pour le moment'}
               </p>
             </div>
@@ -259,22 +272,22 @@ export default function DocumentsClient() {
                       href={`/api/client/documents/${doc.id}/download`}
                       className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                       download
-                      title="Telecharger"
+                      title="Télécharger"
                     >
                       ?
                     </a>
                   </div>
-                  
+
                   <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
                     {doc.originalName}
                   </h3>
-                  
+
                   {doc.description && (
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                       {doc.description}
                     </p>
                   )}
-                  
+
                   {doc.dossier && (
                     <div className="mb-3 pb-3 border-b border-gray-200">
                       <Link
@@ -285,7 +298,7 @@ export default function DocumentsClient() {
                       </Link>
                     </div>
                   )}
-                  
+
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span>{formatBytes(doc.sizeBytes)}</span>
                     <span>{new Date(doc.uploadedAt).toLocaleDateString('fr-FR')}</span>
@@ -306,7 +319,7 @@ export default function DocumentsClient() {
                 <li>- Privilegiez le format PDF pour les documents officiels</li>
                 <li>- Nommez vos fichiers de maniere claire et descriptive</li>
                 <li>- Assurez-vous que les documents sont lisibles et complets</li>
-                <li>- Les documents seront accessibles a votre avocat</li>
+                <li>- Les documents seront accessibles à votre avocat</li>
               </ul>
             </div>
           </div>

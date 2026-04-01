@@ -7,7 +7,6 @@
  */
 
 import { eventLogService } from '@/lib/services/event-log.service';
-import { EventType } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -31,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     // Query params
     const { searchParams } = new URL(request.url);
-    const eventType = searchParams.get('eventType') as EventType | undefined;
+    const eventType = searchParams.get('eventType') || undefined;
     const actorId = searchParams.get('actorId') || undefined;
     const startDate = searchParams.get('startDate')
       ? new Date(searchParams.get('startDate')!)

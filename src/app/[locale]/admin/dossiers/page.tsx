@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -27,7 +27,7 @@ interface Dossier {
   typeDossier: string
   objetDemande: string
   statut: 'BROUILLON' | 'EN_COURS' | 'EN_ATTENTE' | 'TERMINE' | 'REJETE' | 'ANNULE'
-  priorite: 'NORMALE' | 'HAUTE' | 'URGENTE' | 'CRITIQUE'
+  priorité: 'NORMALE' | 'HAUTE' | 'URGENTE' | 'CRITIQUE'
   dateCreation: string
   dateEcheance?: string
   client: {
@@ -37,7 +37,7 @@ interface Dossier {
   }
   _count?: {
     documents: number
-    echeances: number
+    échéances: number
   }
 }
 
@@ -77,7 +77,7 @@ export default function DossiersAvocatPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatut, setFilterStatut] = useState<string>('ALL')
   const [filterPriorite, setFilterPriorite] = useState<string>('ALL')
-  const [sortBy, setSortBy] = useState<'date' | 'echeance' | 'priorite'>('date')
+  const [sortBy, setSortBy] = useState<'date' | 'échéance' | 'priorité'>('date')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -118,7 +118,7 @@ export default function DossiersAvocatPage() {
       toast({
         variant: 'success',
         title: 'Dossier supprime',
-        description: 'Le dossier a ete supprime avec succes'
+        description: 'Le dossier a été supprime avec succès'
       })
       
       fetchDossiers()
@@ -141,20 +141,20 @@ export default function DossiersAvocatPage() {
         d.objetDemande.toLowerCase().includes(searchTerm.toLowerCase())
       
       const matchStatut = filterStatut === 'ALL' || d.statut === filterStatut
-      const matchPriorite = filterPriorite === 'ALL' || d.priorite === filterPriorite
+      const matchPriorite = filterPriorite === 'ALL' || d.priorité === filterPriorite
       
       return matchSearch && matchStatut && matchPriorite
     })
     .sort((a, b) => {
       if (sortBy === 'date') {
         return new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime()
-      } else if (sortBy === 'echeance') {
+      } else if (sortBy === 'échéance') {
         if (!a.dateEcheance) return 1
         if (!b.dateEcheance) return -1
         return new Date(a.dateEcheance).getTime() - new Date(b.dateEcheance).getTime()
       } else {
         const prioriteOrder = { CRITIQUE: 4, URGENTE: 3, HAUTE: 2, NORMALE: 1 }
-        return prioriteOrder[b.priorite] - prioriteOrder[a.priorite]
+        return prioriteOrder[b.priorité] - prioriteOrder[a.priorité]
       }
     })
 
@@ -201,7 +201,7 @@ export default function DossiersAvocatPage() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Rechercher par numero, client, objet..."
+                  placeholder="Rechercher par numéro, client, objet..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -224,14 +224,14 @@ export default function DossiersAvocatPage() {
               </select>
             </div>
 
-            {/* Filtre Priorite */}
+            {/* Filtre Priorité */}
             <div>
               <select
                 value={filterPriorite}
                 onChange={(e) => setFilterPriorite(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                <option value="ALL">Toutes priorites</option>
+                <option value="ALL">Toutes priorités</option>
                 <option value="CRITIQUE">Critique</option>
                 <option value="URGENTE">Urgente</option>
                 <option value="HAUTE">Haute</option>
@@ -251,20 +251,20 @@ export default function DossiersAvocatPage() {
               Par date
             </button>
             <button
-              onClick={() => setSortBy('echeance')}
+              onClick={() => setSortBy('échéance')}
               className={`px-4 py-2 rounded-lg ${
-                sortBy === 'echeance' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+                sortBy === 'échéance' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
               }`}
             >
-              Par echeance
+              Par échéance
             </button>
             <button
-              onClick={() => setSortBy('priorite')}
+              onClick={() => setSortBy('priorité')}
               className={`px-4 py-2 rounded-lg ${
-                sortBy === 'priorite' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+                sortBy === 'priorité' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
               }`}
             >
-              Par priorite
+              Par priorité
             </button>
           </div>
         </Card>
@@ -277,7 +277,7 @@ export default function DossiersAvocatPage() {
             <p className="text-gray-400 mt-2">
               {searchTerm || filterStatut !== 'ALL' || filterPriorite !== 'ALL'
                 ? 'Essayez de modifier vos filtres'
-                : 'Creez votre premier dossier pour commencer'}
+                : 'Créez votre premier dossier pour commencer'}
             </p>
           </Card>
         ) : (
@@ -298,8 +298,8 @@ export default function DossiersAvocatPage() {
                       <Badge variant={STATUT_COLORS[dossier.statut] as any}>
                         {dossier.statut.replace('_', ' ')}
                       </Badge>
-                      <Badge variant={PRIORITE_COLORS[dossier.priorite] as any}>
-                        {dossier.priorite}
+                      <Badge variant={PRIORITE_COLORS[dossier.priorité] as any}>
+                        {dossier.priorité}
                       </Badge>
                     </div>
 
@@ -319,7 +319,7 @@ export default function DossiersAvocatPage() {
                       {dossier.dateEcheance && (
                         <div className="flex items-center gap-2 text-orange-600">
                           <Clock size={16} />
-                          <span>echeance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
+                          <span>échéance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}</span>
                         </div>
                       )}
                     </div>
@@ -328,7 +328,7 @@ export default function DossiersAvocatPage() {
 
                     <div className="flex gap-4 mt-3 text-sm text-gray-500">
                       <span>{dossier._count?.documents || 0} document(s)</span>
-                      <span>{dossier._count?.echeances || 0} echeance(s)</span>
+                      <span>{dossier._count?.échéances || 0} échéance(s)</span>
                     </div>
                   </div>
 

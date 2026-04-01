@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MemoLib.Api.Data;
+using MemoLib.Api.Extensions;
 using System.Net.Mail;
 using System.Net;
 

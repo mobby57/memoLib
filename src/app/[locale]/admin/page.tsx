@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Dashboard Admin/Avocat - Gestion du cabinet
  * Niveau 2 : Gestion clients, dossiers, avec limites plan
  */
@@ -12,10 +12,19 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import AdminNavigation from '@/components/AdminNavigation';
+import AdminNavigation from '../../../components/AdminNavigation';
+
+type DashboardUser = {
+  name?: string | null;
+  role?: string;
+  tenantId?: string;
+  tenantPlan?: string;
+  tenantName?: string;
+};
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
+  const user = session?.user as DashboardUser | undefined;
   const router = useRouter();
   const [stats, setStats] = useState({
     clients: 0,
@@ -34,14 +43,14 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/login');
-    } else if (session?.user && session.user.role === 'SUPER_ADMIN') {
+    } else if (user?.role === 'SUPER_ADMIN') {
       router.push('/super-admin');
-    } else if (session?.user && session.user.role === 'CLIENT') {
+    } else if (user?.role === 'CLIENT') {
       router.push('/client');
-    } else if (session?.user?.role === 'ADMIN') {
+    } else if (user?.role === 'ADMIN') {
       fetchData();
     }
-  }, [session, status, router]);
+  }, [status, router, user?.role]);
 
   const fetchData = async () => {
     try {
@@ -61,7 +70,7 @@ export default function AdminDashboard() {
       }
 
       // Calculer les stats
-      if (session?.user?.tenantId) {
+      if (user?.tenantId) {
         setStats({
           clients: 0,
           dossiers: 0,
@@ -69,7 +78,7 @@ export default function AdminDashboard() {
           revenueTotal: 0,
           clientsLimit: 50,
           dossiersLimit: 100,
-          planName: session.user.tenantPlan || 'Basic',
+          planName: user.tenantPlan || 'Basic',
           aiLevel: 1,
         });
       }
@@ -95,7 +104,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <AdminNavigation />
-      
+
       {/* Header */}
       <header className="bg-white shadow-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-8 py-4">
@@ -108,13 +117,13 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">Cabinet {session?.user?.tenantName || 'Mon Cabinet'}</p>
+                <p className="text-sm text-gray-500">Cabinet {user?.tenantName || 'Mon Cabinet'}</p>
                 <p className="font-semibold text-gray-900">
                   Plan {stats.planName} - IA Niveau {stats.aiLevel}
                 </p>
               </div>
               <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                {session?.user?.name?.charAt(0).toUpperCase()}
+                {user?.name?.charAt(0).toUpperCase()}
               </div>
             </div>
           </div>
@@ -287,7 +296,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
-                          <span className="text-red-600 font-bold">{dossier.numero}</span>
+                          <span className="text-red-600 font-bold">{dossier.numéro}</span>
                           <h3 className="font-semibold text-gray-900">{dossier.typeDossier}</h3>
                           <span className="px-2 py-1 bg-red-500 text-white rounded text-xs font-semibold">
                             URGENT
@@ -333,7 +342,7 @@ export default function AdminDashboard() {
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-3 px-4 text-gray-600 font-semibold">Nom</th>
                     <th className="text-left py-3 px-4 text-gray-600 font-semibold">Email</th>
-                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Telephone</th>
+                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Téléphone</th>
                     <th className="text-center py-3 px-4 text-gray-600 font-semibold">Dossiers</th>
                     <th className="text-center py-3 px-4 text-gray-600 font-semibold">Portail</th>
                   </tr>
@@ -345,7 +354,7 @@ export default function AdminDashboard() {
                         {client.nom} {client.prenom}
                       </td>
                       <td className="py-4 px-4 text-gray-600">{client.email}</td>
-                      <td className="py-4 px-4 text-gray-600">{client.telephone}</td>
+                      <td className="py-4 px-4 text-gray-600">{client.téléphone}</td>
                       <td className="py-4 px-4 text-center">
                         <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
                           {client._count?.dossiers || 0}

@@ -7,6 +7,7 @@ using MemoLib.Api.Data;
 using MemoLib.Api.Models;
 using MemoLib.Api.Services;
 using MemoLib.Api.Validators;
+using MemoLib.Api.Authorization;
 
 namespace MemoLib.Api.Controllers;
 
@@ -20,6 +21,7 @@ public class AuthController : ControllerBase
     private readonly MemoLibDbContext _dbContext;
     private readonly BruteForceProtectionService _bruteForceProtection;
     private readonly EmailValidationService _emailValidation;
+    private readonly EmailVerificationService _emailVerification;
 
     public AuthController(
         JwtTokenService jwtService,
@@ -27,7 +29,8 @@ public class AuthController : ControllerBase
         ILogger<AuthController> logger,
         MemoLibDbContext dbContext,
         BruteForceProtectionService bruteForceProtection,
-        EmailValidationService emailValidation)
+        EmailValidationService emailValidation,
+        EmailVerificationService emailVerification)
     {
         _jwtService = jwtService;
         _passwordService = passwordService;
@@ -35,6 +38,7 @@ public class AuthController : ControllerBase
         _dbContext = dbContext;
         _bruteForceProtection = bruteForceProtection;
         _emailValidation = emailValidation;
+        _emailVerification = emailVerification;
     }
 
     private static UserDto MapToUserDto(User user) => new()
@@ -51,36 +55,53 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        
-        if (await _bruteForceProtection.IsLockedOutAsync(clientIp))
+        var emailForBrute = request.Email?.Trim().ToLowerInvariant();
+
+        if (await _bruteForceProtection.IsLockedOutAsync(clientIp, emailForBrute))
         {
-            return StatusCode(429, new { message = "Trop de tentatives. Réessayez plus tard." });
+            return StatusCode(429, new { message = "Trop de tentatives. Réessayez dans quelques minutes.", retryAfterMinutes = 5 });
         }
 
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
         {
-            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
+            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp, emailForBrute);
             return BadRequest(new { message = "Email et mot de passe requis" });
         }
 
         if (!_emailValidation.ValidateEmail(request.Email).IsValid)
         {
-            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
+            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp, emailForBrute);
             return BadRequest(new { message = "Format d'email invalide" });
         }
 
-        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var normalizedEmail = emailForBrute!;
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail);
 
         if (user == null || !_passwordService.VerifyPassword(request.Password, user.Password))
         {
-            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp);
+            await _bruteForceProtection.RecordFailedAttemptAsync(clientIp, normalizedEmail);
             _logger.LogWarning("Tentative de connexion échouée pour: {Email} depuis {IP}", normalizedEmail, clientIp);
             return Unauthorized(new { message = "Identifiants invalides" });
         }
 
-        await _bruteForceProtection.RecordSuccessfulLoginAsync(clientIp);
+        if (!user.IsEmailVerified)
+        {
+            return StatusCode(403, new { message = "Veuillez confirmer votre adresse email avant de vous connecter.", code = "EMAIL_NOT_VERIFIED" });
+        }
+
+        await _bruteForceProtection.RecordSuccessfulLoginAsync(clientIp, normalizedEmail);
         var authToken = _jwtService.GenerateToken(user);
+
+        // Stocker le refresh token en base pour révocation
+        _dbContext.RefreshTokens.Add(new Models.RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            Token = authToken.RefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            CreatedAt = DateTime.UtcNow
+        });
+        await _dbContext.SaveChangesAsync();
 
         var response = new LoginResponse
         {
@@ -110,7 +131,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Rafraîchit un JWT token via un refresh token
+    /// Rafraîchit un JWT token via un refresh token (avec révocation)
     /// </summary>
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshRequest request)
@@ -118,6 +139,15 @@ public class AuthController : ControllerBase
         if (request == null || string.IsNullOrWhiteSpace(request.RefreshToken))
         {
             return BadRequest(new { message = "Refresh token requis" });
+        }
+
+        // Vérifier que le token existe en base et est actif
+        var storedToken = await _dbContext.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == request.RefreshToken);
+
+        if (storedToken == null || storedToken.IsRevoked || storedToken.IsExpired)
+        {
+            return Unauthorized(new { message = "Refresh token invalide ou révoqué" });
         }
 
         if (!_jwtService.TryValidateRefreshToken(request.RefreshToken, out var principal) || principal == null)
@@ -150,6 +180,20 @@ public class AuthController : ControllerBase
 
         var authToken = _jwtService.GenerateToken(user);
 
+        // Révoquer l'ancien token et stocker le nouveau
+        storedToken.RevokedAt = DateTime.UtcNow;
+        storedToken.ReplacedByToken = authToken.RefreshToken;
+
+        _dbContext.RefreshTokens.Add(new Models.RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            Token = authToken.RefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            CreatedAt = DateTime.UtcNow
+        });
+        await _dbContext.SaveChangesAsync();
+
         var response = new RefreshResponse
         {
             Token = authToken.AccessToken,
@@ -159,6 +203,30 @@ public class AuthController : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Déconnecte l'utilisateur en révoquant tous ses refresh tokens
+    /// </summary>
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var activeTokens = await _dbContext.RefreshTokens
+            .Where(t => t.UserId == userId && t.RevokedAt == null)
+            .ToListAsync();
+
+        foreach (var token in activeTokens)
+            token.RevokedAt = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Logout: {Count} tokens révoqués pour {UserId}", activeTokens.Count, userId);
+        return Ok(new { message = "Déconnecté avec succès" });
     }
 
     /// <summary>
@@ -253,7 +321,7 @@ public class AuthController : ControllerBase
             Email = normalizedEmail,
             Password = hashedPasswordStr,
             Name = request.Name,
-            Role = request.Role ?? "AVOCAT",
+            Role = Roles.Agent,
             Phone = request.Phone,
             FirmName = request.FirmName,
             BarNumber = request.BarNumber,
@@ -275,13 +343,52 @@ public class AuthController : ControllerBase
 
         _logger.LogInformation("Nouvel utilisateur inscrit: {Email}", user.Email);
 
+        // Envoyer email de vérification
+        var token = await _emailVerification.CreateVerificationTokenAsync(user.Id);
+        var emailSent = await _emailVerification.SendVerificationEmailAsync(user.Email, token);
+
         return Ok(new RegisterResponse
         {
             Id = user.Id,
             Email = user.Email,
             Name = user.Name,
-            Role = user.Role ?? "AVOCAT"
+            Role = Roles.Agent,
+            Message = emailSent
+                ? "Un email de confirmation a été envoyé. Vérifiez votre boîte de réception."
+                : "Compte créé. SMTP non configuré — contactez l'administrateur pour activer votre compte."
         });
+    }
+
+    /// <summary>
+    /// Confirme l'adresse email via le token reçu par mail — redirige vers page HTML
+    /// </summary>
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return Redirect("/email-confirmed.html?status=error");
+
+        var user = await _emailVerification.ConfirmEmailAsync(token);
+        if (user == null)
+            return Redirect("/email-confirmed.html?status=error");
+
+        _logger.LogInformation("Email confirmé pour: {Email}", user.Email);
+        return Redirect("/email-confirmed.html?status=ok");
+    }
+
+    /// <summary>
+    /// Renvoie l'email de vérification
+    /// </summary>
+    [HttpPost("resend-verification")]
+    public async Task<IActionResult> ResendVerification([FromBody] ResendVerificationRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Email))
+            return BadRequest(new { message = "Email requis" });
+
+        await _emailVerification.ResendVerificationAsync(request.Email.Trim().ToLowerInvariant());
+
+        // Toujours retourner OK pour ne pas révéler si l'email existe
+        return Ok(new { message = "Si un compte non vérifié existe avec cet email, un nouveau lien a été envoyé." });
     }
 }
 

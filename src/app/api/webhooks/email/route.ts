@@ -8,8 +8,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // Vérifier le secret webhook
+    const expectedSecret = process.env.EMAIL_WEBHOOK_SECRET;
+    if (!expectedSecret) {
+      logger.error('EMAIL_WEBHOOK_SECRET non configure');
+      return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
+    }
+
     const webhookSecret = req.headers.get('x-webhook-secret');
-    if (webhookSecret !== process.env.EMAIL_WEBHOOK_SECRET) {
+    if (!webhookSecret || webhookSecret !== expectedSecret) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -40,7 +46,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: 'Internal error',
-        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

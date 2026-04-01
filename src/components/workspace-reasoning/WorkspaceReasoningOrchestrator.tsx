@@ -93,7 +93,7 @@ export function WorkspaceReasoningOrchestrator({
   // Statistiques du workspace
   const renderStats = () => {
     const facts = workspace.facts?.length || 0;
-    const contexts = workspace.contextHypotheses?.filter(c => c.certaintyLevel === 'CONFIRMED').length || 0;
+    const contexts = workspace.contexts?.filter(c => c.certaintyLevel === 'CONFIRMED').length || 0;
     const obligations = workspace.obligations?.length || 0;
     const blocking = workspace.missingElements?.filter(m => m.blocking && !m.resolved).length || 0;
     const risks = workspace.risks?.length || 0;
@@ -132,7 +132,7 @@ export function WorkspaceReasoningOrchestrator({
   // Metriques
   const renderMetrics = () => {
     const uncertainty = workspace.uncertaintyLevel;
-    const quality = workspace.reasoningQuality;
+    const quality = workspace.reasoningQuality ?? 0;
     
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -206,7 +206,13 @@ export function WorkspaceReasoningOrchestrator({
             {...commonProps}
             onContinue={() => onStateChange('CONTEXT_IDENTIFIED')}
             onAddFact={(fact) => {
-              const newFacts = [...(workspace.facts || []), fact];
+              const newFact = {
+                ...fact,
+                id: `manual-${Date.now()}`,
+                workspaceId: workspace.id,
+                createdAt: new Date(),
+              };
+              const newFacts = [...(workspace.facts || []), newFact];
               onUpdate({ facts: newFacts });
             }}
           />
@@ -217,14 +223,14 @@ export function WorkspaceReasoningOrchestrator({
           <ContextIdentifiedView
             {...commonProps}
             onConfirmContext={(contextId) => {
-              const updatedContexts = workspace.contextHypotheses?.map(c =>
+              const updatedContexts = workspace.contexts?.map(c =>
                 c.id === contextId ? { ...c, certaintyLevel: 'CONFIRMED' as const } : c
               );
-              onUpdate({ contextHypotheses: updatedContexts });
+              onUpdate({ contexts: updatedContexts });
             }}
             onRejectContext={(contextId) => {
-              const updatedContexts = workspace.contextHypotheses?.filter(c => c.id !== contextId);
-              onUpdate({ contextHypotheses: updatedContexts });
+              const updatedContexts = workspace.contexts?.filter(c => c.id !== contextId);
+              onUpdate({ contexts: updatedContexts });
             }}
             onContinue={() => onStateChange('OBLIGATIONS_DEDUCED')}
           />

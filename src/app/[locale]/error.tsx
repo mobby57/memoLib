@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -72,7 +72,7 @@ export default function Error({
 
           {/* Help text */}
           <p className="text-sm text-gray-500 mt-6">
-            Si le probleme persiste, contactez le support technique
+            Si le problème persiste, contactez le support technique
           </p>
         </div>
       </div>

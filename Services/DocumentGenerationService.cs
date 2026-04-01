@@ -5,7 +5,7 @@ namespace MemoLib.Api.Services;
 
 public class DocumentGenerationService
 {
-    public async Task<byte[]> GenerateContractAsync(string templateName, Client client, Case legalCase)
+    public Task<byte[]> GenerateContractAsync(string templateName, Client client, Case legalCase)
     {
         var template = GetTemplate(templateName);
         
@@ -19,10 +19,10 @@ public class DocumentGenerationService
             .Replace("{{DATE}}", DateTime.Now.ToString("dd/MM/yyyy"))
             .Replace("{{YEAR}}", DateTime.Now.Year.ToString());
 
-        return Encoding.UTF8.GetBytes(content);
+        return Task.FromResult(Encoding.UTF8.GetBytes(content));
     }
 
-    public async Task<byte[]> GenerateInvoicePdfAsync(Invoice invoice, Client client, List<TimeEntry> timeEntries)
+    public Task<byte[]> GenerateInvoicePdfAsync(Invoice invoice, Client client, List<TimeEntry> timeEntries)
     {
         var html = $@"
 <!DOCTYPE html>
@@ -79,7 +79,7 @@ public class DocumentGenerationService
 </body>
 </html>";
 
-        return Encoding.UTF8.GetBytes(html);
+        return Task.FromResult(Encoding.UTF8.GetBytes(html));
     }
 
     private string GetTemplate(string templateName)

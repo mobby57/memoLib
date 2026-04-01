@@ -67,8 +67,9 @@ export async function POST(req: NextRequest) {
     const contentType = contentTypes[format] || 'application/octet-stream';
     const extension = extensions[format] || 'bin';
     const filename = `legal-proof-${proofId}.${extension}`;
+    const responseBuffer = new Uint8Array(buffer as Buffer);
 
-    return new NextResponse(buffer, {
+    return new NextResponse(responseBuffer, {
       status: 200,
       headers: {
         'Content-Type': contentType,

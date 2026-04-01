@@ -59,17 +59,46 @@ export async function POST(req: Request) {
       },
     });
 
-    const admin = await prisma.user.upsert({
-      where: { email: 'admin@demo.com' },
-      update: {},
+    // Équipe complète du cabinet
+    const teamSeed = [
+      { email: 'avocat@demo.com', name: 'Me. Sarra Boudjellal', role: 'AVOCAT', phone: '+33 6 12 34 56 78' },
+      { email: 'associe@demo.com', name: 'Me. Pierre Durand', role: 'ASSOCIE', phone: '+33 6 12 34 56 79' },
+      { email: 'collaborateur@demo.com', name: 'Me. Julie Petit', role: 'COLLABORATEUR', phone: '+33 6 12 34 56 80' },
+      { email: 'stagiaire@demo.com', name: 'Lucas Bernard', role: 'STAGIAIRE', phone: '+33 6 12 34 56 81' },
+      { email: 'secretaire@demo.com', name: 'Marie Leroy', role: 'SECRETAIRE', phone: '+33 6 12 34 56 82' },
+      { email: 'comptable@demo.com', name: 'Anne Moreau', role: 'COMPTABLE', phone: '+33 6 12 34 56 83' },
+    ];
+
+    const teamMembers: { id: string }[] = [];
+    for (const m of teamSeed) {
+      const user = await prisma.user.upsert({
+        where: { email: m.email },
+        update: { role: m.role, name: m.name },
+        create: {
+          email: m.email,
+          password: hashedPassword,
+          name: m.name,
+          role: m.role,
+          tenantId: tenant.id,
+          phone: m.phone,
+          status: 'active',
+        },
+      });
+      teamMembers.push(user);
+    }
+
+    const admin = teamMembers[0]; // Avocat titulaire = admin
+
+    // Config email monitoring lié à Sarra
+    await prisma.tenantSettings.upsert({
+      where: { tenantId: tenant.id },
+      update: { emailEnabled: true, smtpUser: 'sarraboudjellal57@gmail.com' },
       create: {
-        email: 'admin@demo.com',
-        password: hashedPassword,
-        name: 'Admin Demo',
-        role: 'ADMIN',
         tenantId: tenant.id,
-        phone: '+33 6 12 34 56 78',
-        status: 'active',
+        emailEnabled: true,
+        smtpUser: 'sarraboudjellal57@gmail.com',
+        smtpHost: 'imap.gmail.com',
+        smtpPort: 993,
       },
     });
 
@@ -228,19 +257,21 @@ export async function POST(req: Request) {
     return NextResponse.json({
       status: 'ok',
       message: 'Demo data seeded',
+      monitoredEmail: 'sarraboudjellal57@gmail.com',
       accounts: {
-        admin: { email: 'admin@demo.com' },
+        team: teamSeed.map(m => ({ email: m.email, role: m.role, name: m.name })),
         clients: clients.map(c => ({ email: c.email })),
       },
       notes: {
         password: 'Use DEMO_DEFAULT_PASSWORD environment variable',
+        monitoring: 'Tous les comptes monitorent sarraboudjellal57@gmail.com',
       },
       summary: {
         tenant: tenant.name,
         plan: plan.displayName,
+        team: teamSeed.length,
         clients: clients.length,
         dossiers: dossiers.length,
-        documentsPerDossier: 1,
       },
     });
   } catch (error) {

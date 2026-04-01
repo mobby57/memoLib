@@ -1,0 +1,2353 @@
+{
+  "scanned_at": "2026-01-12T13:43:03.526128",
+  "files": [
+    {
+      "file_path": "./app.py",
+      "functions": [
+        {
+          "name": "index",
+          "line_number": 31,
+          "docstring": "Index\n\nDescription détaillée de la fonction.\n\nArgs:\n\nReturns:\n    Dict: Résultat de l'opération\n\nExample:\n    >>> index()\n    résultat_attendu",
+          "args": [],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "health",
+          "line_number": 116,
+          "docstring": "",
+          "args": [],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": false,
+          "needs_documentation": true
+        },
+        {
+          "name": "demo",
+          "line_number": 133,
+          "docstring": "",
+          "args": [],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": false,
+          "needs_documentation": true
+        },
+        {
+          "name": "test_redis_hybrid",
+          "line_number": 165,
+          "docstring": "Test du service Redis hybride (direct + REST API)",
+          "args": [],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "ceseda_hybrid_predict",
+          "line_number": 196,
+          "docstring": "Prédiction CESEDA avec stockage hybride",
+          "args": [],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "ceseda_vector_predict",
+          "line_number": 247,
+          "docstring": "API prédiction CESEDA avec IA vectorielle",
+          "args": [],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "ceseda_demo_vector",
+          "line_number": 271,
+          "docstring": "Démo IA vectorielle CESEDA",
+          "args": [],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "ceseda_semantic_predict",
+          "line_number": 290,
+          "docstring": "Prédiction CESEDA avec cache sémantique",
+          "args": [],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "ceseda_jurisprudence_semantic",
+          "line_number": 315,
+          "docstring": "Analyse jurisprudentielle sémantique",
+          "args": [],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        }
+      ],
+      "classes": [],
+      "analyzed_at": "2026-01-12T13:43:03.528689"
+    },
+    {
+      "file_path": "./ceseda_expert_ai.py",
+      "functions": [
+        {
+          "name": "__init__",
+          "line_number": 18,
+          "docstring": "Init  \n\nDescription détaillée de la fonction.\n\nArgs:\n\nReturns:\n    Dict: Résultat de l'opération\n\nExample:\n    >>> __init__()\n    résultat_attendu",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "predict_case_success",
+          "line_number": 37,
+          "docstring": "🎯 INNOVATION: Predict case success with 87% accuracy\nCompetitor advantage: NONE have this capability",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "case_data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "analyze_ceseda_case",
+          "line_number": 56,
+          "docstring": "Complete CESEDA case analysis",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "client_situation",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "generate_legal_document",
+          "line_number": 69,
+          "docstring": "Generate specialized CESEDA documents in 15 languages",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "doc_type",
+              "annotation": "str"
+            },
+            {
+              "name": "case_data",
+              "annotation": "Dict"
+            },
+            {
+              "name": "language",
+              "annotation": "str"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "_extract_case_factors",
+          "line_number": 79,
+          "docstring": "Extract key factors for prediction",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "case_data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_find_similar_precedents",
+          "line_number": 93,
+          "docstring": "Find similar cases in jurisprudence database",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "factors",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "List[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_calculate_success_probability",
+          "line_number": 110,
+          "docstring": "Calculate success probability based on similar cases and factors",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "similar_cases",
+              "annotation": "List[Dict]"
+            },
+            {
+              "name": "factors",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "float",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "_generate_strategy",
+          "line_number": 132,
+          "docstring": "Generate legal strategy based on prediction",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "probability",
+              "annotation": "float"
+            },
+            {
+              "name": "factors",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_predict_timeline",
+          "line_number": 141,
+          "docstring": "Predict case timeline",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "factors",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_estimate_costs",
+          "line_number": 151,
+          "docstring": "Estimate legal costs",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "factors",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_classify_case_type",
+          "line_number": 165,
+          "docstring": "Classify CESEDA case type",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "situation",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_assess_urgency",
+          "line_number": 196,
+          "docstring": "Assess case urgency",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "situation",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_list_required_documents",
+          "line_number": 205,
+          "docstring": "List required documents for case type",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "situation",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "List[str]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_recommend_strategy",
+          "line_number": 223,
+          "docstring": "Recommend legal strategy",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "situation",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_detect_language_needs",
+          "line_number": 234,
+          "docstring": "Detect client language needs",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "situation",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_load_jurisprudence",
+          "line_number": 243,
+          "docstring": "Load jurisprudence database",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_load_success_patterns",
+          "line_number": 251,
+          "docstring": "Load success patterns analysis",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_load_templates",
+          "line_number": 259,
+          "docstring": "Load multilingual legal templates",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_personalize_template",
+          "line_number": 330,
+          "docstring": "Personalize template with case data",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "template",
+              "annotation": "str"
+            },
+            {
+              "name": "case_data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        }
+      ],
+      "classes": [
+        {
+          "name": "CESEDAExpert",
+          "line_number": 15,
+          "docstring": "Proprietary AI for CESEDA legal analysis and prediction",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 18,
+              "docstring": "Init  \n\nDescription détaillée de la fonction.\n\nArgs:\n\nReturns:\n    Dict: Résultat de l'opération\n\nExample:\n    >>> __init__()\n    résultat_attendu",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "predict_case_success",
+              "line_number": 37,
+              "docstring": "🎯 INNOVATION: Predict case success with 87% accuracy\nCompetitor advantage: NONE have this capability",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "case_data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "analyze_ceseda_case",
+              "line_number": 56,
+              "docstring": "Complete CESEDA case analysis",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "client_situation",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "generate_legal_document",
+              "line_number": 69,
+              "docstring": "Generate specialized CESEDA documents in 15 languages",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "doc_type",
+                  "annotation": "str"
+                },
+                {
+                  "name": "case_data",
+                  "annotation": "Dict"
+                },
+                {
+                  "name": "language",
+                  "annotation": "str"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "_extract_case_factors",
+              "line_number": 79,
+              "docstring": "Extract key factors for prediction",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "case_data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_find_similar_precedents",
+              "line_number": 93,
+              "docstring": "Find similar cases in jurisprudence database",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "factors",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "List[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_calculate_success_probability",
+              "line_number": 110,
+              "docstring": "Calculate success probability based on similar cases and factors",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "similar_cases",
+                  "annotation": "List[Dict]"
+                },
+                {
+                  "name": "factors",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "float",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "_generate_strategy",
+              "line_number": 132,
+              "docstring": "Generate legal strategy based on prediction",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "probability",
+                  "annotation": "float"
+                },
+                {
+                  "name": "factors",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_predict_timeline",
+              "line_number": 141,
+              "docstring": "Predict case timeline",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "factors",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_estimate_costs",
+              "line_number": 151,
+              "docstring": "Estimate legal costs",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "factors",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_classify_case_type",
+              "line_number": 165,
+              "docstring": "Classify CESEDA case type",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "situation",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_assess_urgency",
+              "line_number": 196,
+              "docstring": "Assess case urgency",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "situation",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_list_required_documents",
+              "line_number": 205,
+              "docstring": "List required documents for case type",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "situation",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "List[str]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_recommend_strategy",
+              "line_number": 223,
+              "docstring": "Recommend legal strategy",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "situation",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_detect_language_needs",
+              "line_number": 234,
+              "docstring": "Detect client language needs",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "situation",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_load_jurisprudence",
+              "line_number": 243,
+              "docstring": "Load jurisprudence database",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_load_success_patterns",
+              "line_number": 251,
+              "docstring": "Load success patterns analysis",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_load_templates",
+              "line_number": 259,
+              "docstring": "Load multilingual legal templates",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_personalize_template",
+              "line_number": 330,
+              "docstring": "Personalize template with case data",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "template",
+                  "annotation": "str"
+                },
+                {
+                  "name": "case_data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            }
+          ],
+          "has_docstring": true,
+          "needs_documentation": false
+        }
+      ],
+      "analyzed_at": "2026-01-12T13:43:03.532008"
+    },
+    {
+      "file_path": "./src/backend/services/legal/billing_manager.py",
+      "functions": [
+        {
+          "name": "__init__",
+          "line_number": 14,
+          "docstring": "Init  \n\nDescription détaillée de la fonction.\n\nArgs:\n    data_dir (Any): Paramètre data_dir\n\nReturns:\n    Dict: Résultat de l'opération\n\nExample:\n    >>> __init__(data_dir)\n    résultat_attendu",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "data_dir",
+              "annotation": null
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "_ensure_data_dir",
+          "line_number": 34,
+          "docstring": "Créer le répertoire data s'il n'existe pas",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_load_time_entries",
+          "line_number": 47,
+          "docstring": "Charger les saisies de temps",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "List[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_save_time_entries",
+          "line_number": 55,
+          "docstring": "Sauvegarder les saisies de temps",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "entries",
+              "annotation": "List[Dict]"
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_load_invoices",
+          "line_number": 60,
+          "docstring": "Charger les factures",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "List[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_save_invoices",
+          "line_number": 68,
+          "docstring": "Sauvegarder les factures",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "invoices",
+              "annotation": "List[Dict]"
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "enregistrer_temps",
+          "line_number": 73,
+          "docstring": "Enregistrer une saisie de temps\n\nArgs:\n    case_id: ID du dossier\n    description: Description de la prestation\n    hours: Nombre d'heures\n    hourly_rate: Taux horaire en €\n    date: Date (défaut: aujourd'hui)\n\nReturns:\n    La saisie créée",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "case_id",
+              "annotation": "str"
+            },
+            {
+              "name": "description",
+              "annotation": "str"
+            },
+            {
+              "name": "hours",
+              "annotation": "float"
+            },
+            {
+              "name": "hourly_rate",
+              "annotation": "float"
+            },
+            {
+              "name": "date",
+              "annotation": "Optional[str]"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "lister_temps",
+          "line_number": 110,
+          "docstring": "Lister les saisies de temps\n\nArgs:\n    filters: Dict avec case_id, billed, date_debut, date_fin\n\nReturns:\n    Liste des saisies filtrées",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "filters",
+              "annotation": "Optional[Dict]"
+            }
+          ],
+          "return_type": "List[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "modifier_temps",
+          "line_number": 141,
+          "docstring": "Modifier une saisie de temps",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "entry_id",
+              "annotation": "int"
+            },
+            {
+              "name": "data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "Optional[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "supprimer_temps",
+          "line_number": 161,
+          "docstring": "Supprimer une saisie de temps",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "entry_id",
+              "annotation": "int"
+            }
+          ],
+          "return_type": "bool",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "generer_facture",
+          "line_number": 173,
+          "docstring": "Générer une facture à partir de saisies de temps\n\nArgs:\n    data: Dict contenant case_id, client_name, client_address, \n          time_entry_ids (liste des IDs de saisies à facturer)\n\nReturns:\n    La facture générée",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "lister_factures",
+          "line_number": 236,
+          "docstring": "Lister les factures\n\nArgs:\n    filters: Dict avec case_id, status, paid\n\nReturns:\n    Liste des factures filtrées",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "filters",
+              "annotation": "Optional[Dict]"
+            }
+          ],
+          "return_type": "List[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "get_facture",
+          "line_number": 264,
+          "docstring": "Récupérer une facture par son ID",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "invoice_id",
+              "annotation": "int"
+            }
+          ],
+          "return_type": "Optional[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "marquer_payee",
+          "line_number": 272,
+          "docstring": "Marquer une facture comme payée",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "invoice_id",
+              "annotation": "int"
+            },
+            {
+              "name": "payment_date",
+              "annotation": "Optional[str]"
+            }
+          ],
+          "return_type": "Optional[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "get_statistiques",
+          "line_number": 290,
+          "docstring": "Obtenir des statistiques de facturation\n\nArgs:\n    period: Dict avec date_debut et date_fin (optionnel)\n\nReturns:\n    Dict avec statistiques détaillées",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "period",
+              "annotation": "Optional[Dict]"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "get_top_clients",
+          "line_number": 347,
+          "docstring": "Obtenir les meilleurs clients par chiffre d'affaires\n\nArgs:\n    limit: Nombre maximum de clients à retourner\n\nReturns:\n    Liste des clients triés par CA décroissant",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "limit",
+              "annotation": "int"
+            }
+          ],
+          "return_type": "List[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        }
+      ],
+      "classes": [
+        {
+          "name": "BillingManager",
+          "line_number": 11,
+          "docstring": "Gestionnaire de facturation et suivi du temps",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 14,
+              "docstring": "Init  \n\nDescription détaillée de la fonction.\n\nArgs:\n    data_dir (Any): Paramètre data_dir\n\nReturns:\n    Dict: Résultat de l'opération\n\nExample:\n    >>> __init__(data_dir)\n    résultat_attendu",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "data_dir",
+                  "annotation": null
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "_ensure_data_dir",
+              "line_number": 34,
+              "docstring": "Créer le répertoire data s'il n'existe pas",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_load_time_entries",
+              "line_number": 47,
+              "docstring": "Charger les saisies de temps",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "List[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_save_time_entries",
+              "line_number": 55,
+              "docstring": "Sauvegarder les saisies de temps",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "entries",
+                  "annotation": "List[Dict]"
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_load_invoices",
+              "line_number": 60,
+              "docstring": "Charger les factures",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "List[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_save_invoices",
+              "line_number": 68,
+              "docstring": "Sauvegarder les factures",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "invoices",
+                  "annotation": "List[Dict]"
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "enregistrer_temps",
+              "line_number": 73,
+              "docstring": "Enregistrer une saisie de temps\n\nArgs:\n    case_id: ID du dossier\n    description: Description de la prestation\n    hours: Nombre d'heures\n    hourly_rate: Taux horaire en €\n    date: Date (défaut: aujourd'hui)\n\nReturns:\n    La saisie créée",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "case_id",
+                  "annotation": "str"
+                },
+                {
+                  "name": "description",
+                  "annotation": "str"
+                },
+                {
+                  "name": "hours",
+                  "annotation": "float"
+                },
+                {
+                  "name": "hourly_rate",
+                  "annotation": "float"
+                },
+                {
+                  "name": "date",
+                  "annotation": "Optional[str]"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "lister_temps",
+              "line_number": 110,
+              "docstring": "Lister les saisies de temps\n\nArgs:\n    filters: Dict avec case_id, billed, date_debut, date_fin\n\nReturns:\n    Liste des saisies filtrées",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "filters",
+                  "annotation": "Optional[Dict]"
+                }
+              ],
+              "return_type": "List[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "modifier_temps",
+              "line_number": 141,
+              "docstring": "Modifier une saisie de temps",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "entry_id",
+                  "annotation": "int"
+                },
+                {
+                  "name": "data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "Optional[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "supprimer_temps",
+              "line_number": 161,
+              "docstring": "Supprimer une saisie de temps",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "entry_id",
+                  "annotation": "int"
+                }
+              ],
+              "return_type": "bool",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "generer_facture",
+              "line_number": 173,
+              "docstring": "Générer une facture à partir de saisies de temps\n\nArgs:\n    data: Dict contenant case_id, client_name, client_address, \n          time_entry_ids (liste des IDs de saisies à facturer)\n\nReturns:\n    La facture générée",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "lister_factures",
+              "line_number": 236,
+              "docstring": "Lister les factures\n\nArgs:\n    filters: Dict avec case_id, status, paid\n\nReturns:\n    Liste des factures filtrées",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "filters",
+                  "annotation": "Optional[Dict]"
+                }
+              ],
+              "return_type": "List[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "get_facture",
+              "line_number": 264,
+              "docstring": "Récupérer une facture par son ID",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "invoice_id",
+                  "annotation": "int"
+                }
+              ],
+              "return_type": "Optional[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "marquer_payee",
+              "line_number": 272,
+              "docstring": "Marquer une facture comme payée",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "invoice_id",
+                  "annotation": "int"
+                },
+                {
+                  "name": "payment_date",
+                  "annotation": "Optional[str]"
+                }
+              ],
+              "return_type": "Optional[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "get_statistiques",
+              "line_number": 290,
+              "docstring": "Obtenir des statistiques de facturation\n\nArgs:\n    period: Dict avec date_debut et date_fin (optionnel)\n\nReturns:\n    Dict avec statistiques détaillées",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "period",
+                  "annotation": "Optional[Dict]"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "get_top_clients",
+              "line_number": 347,
+              "docstring": "Obtenir les meilleurs clients par chiffre d'affaires\n\nArgs:\n    limit: Nombre maximum de clients à retourner\n\nReturns:\n    Liste des clients triés par CA décroissant",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "limit",
+                  "annotation": "int"
+                }
+              ],
+              "return_type": "List[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            }
+          ],
+          "has_docstring": true,
+          "needs_documentation": true
+        }
+      ],
+      "analyzed_at": "2026-01-12T13:43:03.538480"
+    },
+    {
+      "file_path": "./src/backend/services/legal/compliance_manager.py",
+      "functions": [
+        {
+          "name": "__init__",
+          "line_number": 14,
+          "docstring": "",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "data_dir",
+              "annotation": null
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": false,
+          "needs_documentation": true
+        },
+        {
+          "name": "_ensure_data_dir",
+          "line_number": 20,
+          "docstring": "Créer le répertoire data s'il n'existe pas",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_load_chrono",
+          "line_number": 33,
+          "docstring": "Charger le registre chronologique",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "List[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_save_chrono",
+          "line_number": 41,
+          "docstring": "Sauvegarder le registre chronologique",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "entries",
+              "annotation": "List[Dict]"
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_load_conflicts",
+          "line_number": 46,
+          "docstring": "Charger le journal des conflits",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "List[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "_save_conflicts",
+          "line_number": 54,
+          "docstring": "Sauvegarder le journal des conflits",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "conflicts",
+              "annotation": "List[Dict]"
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "generer_numero_chrono",
+          "line_number": 59,
+          "docstring": "Générer un numéro chronologique unique\n\nArgs:\n    year: Année (défaut: année courante)\n\nReturns:\n    Numéro chronologique format YYYY-NNNN",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "year",
+              "annotation": "Optional[str]"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "enregistrer_chrono",
+          "line_number": 80,
+          "docstring": "Enregistrer une entrée au registre chronologique\n\nArgs:\n    data: Dict contenant type_document, objet, parties, notes\n\nReturns:\n    L'entrée enregistrée",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "lister_chrono",
+          "line_number": 112,
+          "docstring": "Lister les entrées du registre chronologique\n\nArgs:\n    filters: Dict avec type_document, date_debut, date_fin, search\n\nReturns:\n    Liste des entrées filtrées",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "filters",
+              "annotation": "Optional[Dict]"
+            }
+          ],
+          "return_type": "List[Dict]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "verifier_conflit",
+          "line_number": 147,
+          "docstring": "Vérifier les conflits d'intérêts potentiels\n\nArgs:\n    client_name: Nom du client potentiel\n    adverse_party: Partie adverse (optionnel)\n\nReturns:\n    Dict avec has_conflict, conflicts (liste), message",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "client_name",
+              "annotation": "str"
+            },
+            {
+              "name": "adverse_party",
+              "annotation": "Optional[str]"
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "get_statistiques_chrono",
+          "line_number": 221,
+          "docstring": "Obtenir des statistiques sur le registre chronologique",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "get_statistiques_conflits",
+          "line_number": 250,
+          "docstring": "Obtenir des statistiques sur les vérifications de conflits",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "Dict",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        },
+        {
+          "name": "exporter_registre",
+          "line_number": 266,
+          "docstring": "Exporter le registre chronologique\n\nArgs:\n    format: Format d'export (json, csv)\n    filters: Filtres à appliquer\n\nReturns:\n    Chemin du fichier exporté",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "format",
+              "annotation": "str"
+            },
+            {
+              "name": "filters",
+              "annotation": "Optional[Dict]"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": false
+        }
+      ],
+      "classes": [
+        {
+          "name": "ComplianceManager",
+          "line_number": 11,
+          "docstring": "Gestionnaire de conformité et registres juridiques",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 14,
+              "docstring": "",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "data_dir",
+                  "annotation": null
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": false,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_ensure_data_dir",
+              "line_number": 20,
+              "docstring": "Créer le répertoire data s'il n'existe pas",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_load_chrono",
+              "line_number": 33,
+              "docstring": "Charger le registre chronologique",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "List[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_save_chrono",
+              "line_number": 41,
+              "docstring": "Sauvegarder le registre chronologique",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "entries",
+                  "annotation": "List[Dict]"
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_load_conflicts",
+              "line_number": 46,
+              "docstring": "Charger le journal des conflits",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "List[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_save_conflicts",
+              "line_number": 54,
+              "docstring": "Sauvegarder le journal des conflits",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "conflicts",
+                  "annotation": "List[Dict]"
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "generer_numero_chrono",
+              "line_number": 59,
+              "docstring": "Générer un numéro chronologique unique\n\nArgs:\n    year: Année (défaut: année courante)\n\nReturns:\n    Numéro chronologique format YYYY-NNNN",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "year",
+                  "annotation": "Optional[str]"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "enregistrer_chrono",
+              "line_number": 80,
+              "docstring": "Enregistrer une entrée au registre chronologique\n\nArgs:\n    data: Dict contenant type_document, objet, parties, notes\n\nReturns:\n    L'entrée enregistrée",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "lister_chrono",
+              "line_number": 112,
+              "docstring": "Lister les entrées du registre chronologique\n\nArgs:\n    filters: Dict avec type_document, date_debut, date_fin, search\n\nReturns:\n    Liste des entrées filtrées",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "filters",
+                  "annotation": "Optional[Dict]"
+                }
+              ],
+              "return_type": "List[Dict]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "verifier_conflit",
+              "line_number": 147,
+              "docstring": "Vérifier les conflits d'intérêts potentiels\n\nArgs:\n    client_name: Nom du client potentiel\n    adverse_party: Partie adverse (optionnel)\n\nReturns:\n    Dict avec has_conflict, conflicts (liste), message",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "client_name",
+                  "annotation": "str"
+                },
+                {
+                  "name": "adverse_party",
+                  "annotation": "Optional[str]"
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "get_statistiques_chrono",
+              "line_number": 221,
+              "docstring": "Obtenir des statistiques sur le registre chronologique",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "get_statistiques_conflits",
+              "line_number": 250,
+              "docstring": "Obtenir des statistiques sur les vérifications de conflits",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "Dict",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            },
+            {
+              "name": "exporter_registre",
+              "line_number": 266,
+              "docstring": "Exporter le registre chronologique\n\nArgs:\n    format: Format d'export (json, csv)\n    filters: Filtres à appliquer\n\nReturns:\n    Chemin du fichier exporté",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "format",
+                  "annotation": "str"
+                },
+                {
+                  "name": "filters",
+                  "annotation": "Optional[Dict]"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": false,
+              "is_method": true
+            }
+          ],
+          "has_docstring": true,
+          "needs_documentation": false
+        }
+      ],
+      "analyzed_at": "2026-01-12T13:43:03.542118"
+    },
+    {
+      "file_path": "./src/backend/services/legal/advanced_templates.py",
+      "functions": [
+        {
+          "name": "__init__",
+          "line_number": 12,
+          "docstring": "",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "data_dir",
+              "annotation": null
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": false,
+          "needs_documentation": true
+        },
+        {
+          "name": "_ensure_data_dir",
+          "line_number": 17,
+          "docstring": "Créer les répertoires nécessaires",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": null,
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "generer_assignation",
+          "line_number": 25,
+          "docstring": "Générer une assignation",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "generer_conclusions",
+          "line_number": 70,
+          "docstring": "Générer des conclusions",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "generer_mise_en_demeure",
+          "line_number": 104,
+          "docstring": "Générer une mise en demeure",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "generer_requete",
+          "line_number": 140,
+          "docstring": "Générer une requête",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "data",
+              "annotation": "Dict"
+            }
+          ],
+          "return_type": "str",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "lister_templates",
+          "line_number": 170,
+          "docstring": "Lister tous les documents générés",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            }
+          ],
+          "return_type": "list",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        },
+        {
+          "name": "get_template",
+          "line_number": 190,
+          "docstring": "Récupérer le contenu d'un template",
+          "args": [
+            {
+              "name": "self",
+              "annotation": null
+            },
+            {
+              "name": "filename",
+              "annotation": "str"
+            }
+          ],
+          "return_type": "Optional[str]",
+          "is_async": false,
+          "has_docstring": true,
+          "needs_documentation": true
+        }
+      ],
+      "classes": [
+        {
+          "name": "TemplateGenerator",
+          "line_number": 9,
+          "docstring": "Générateur de documents juridiques types",
+          "methods": [
+            {
+              "name": "__init__",
+              "line_number": 12,
+              "docstring": "",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "data_dir",
+                  "annotation": null
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": false,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "_ensure_data_dir",
+              "line_number": 17,
+              "docstring": "Créer les répertoires nécessaires",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": null,
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "generer_assignation",
+              "line_number": 25,
+              "docstring": "Générer une assignation",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "generer_conclusions",
+              "line_number": 70,
+              "docstring": "Générer des conclusions",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "generer_mise_en_demeure",
+              "line_number": 104,
+              "docstring": "Générer une mise en demeure",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "generer_requete",
+              "line_number": 140,
+              "docstring": "Générer une requête",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "data",
+                  "annotation": "Dict"
+                }
+              ],
+              "return_type": "str",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "lister_templates",
+              "line_number": 170,
+              "docstring": "Lister tous les documents générés",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                }
+              ],
+              "return_type": "list",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            },
+            {
+              "name": "get_template",
+              "line_number": 190,
+              "docstring": "Récupérer le contenu d'un template",
+              "args": [
+                {
+                  "name": "self",
+                  "annotation": null
+                },
+                {
+                  "name": "filename",
+                  "annotation": "str"
+                }
+              ],
+              "return_type": "Optional[str]",
+              "is_async": false,
+              "has_docstring": true,
+              "needs_documentation": true,
+              "is_method": true
+            }
+          ],
+          "has_docstring": true,
+          "needs_documentation": true
+        }
+      ],
+      "analyzed_at": "2026-01-12T13:43:03.544677"
+    }
+  ],
+  "summary": {
+    "total_files": 5,
+    "total_functions": 65,
+    "total_classes": 4,
+    "undocumented_functions": 46,
+    "undocumented_classes": 2
+  }
+}

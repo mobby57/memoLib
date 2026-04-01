@@ -355,7 +355,7 @@ public class ClientOnboardingController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Erreur envoi email onboarding vers {Email}", email);
+            _logger.LogError(ex, "Erreur envoi email onboarding.");
         }
     }
 

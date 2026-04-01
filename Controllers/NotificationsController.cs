@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Data;
-using MemoLib.Api.Models;
+using System.Security.Claims;
 
 namespace MemoLib.Api.Controllers;
 
@@ -18,183 +18,69 @@ public class NotificationsController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetNotifications([FromQuery] bool? unreadOnly = false)
+    private Guid? GetUserId()
     {
-        if (!this.TryGetCurrentUserId(out var userId))
-            return Unauthorized();
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(claim, out var id) ? id : null;
+    }
 
-        var query = _context.Notifications
-            .Where(n => n.UserId == userId);
+    [HttpGet("unread")]
+    public async Task<IActionResult> GetUnread()
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
-        if (unreadOnly == true)
-        {
-            query = query.Where(n => !n.IsRead);
-        }
-
-        var notifications = await query
+        var notifications = await _context.Notifications
+            .Where(n => n.UserId == userId.Value && !n.IsRead)
             .OrderByDescending(n => n.CreatedAt)
             .Take(50)
             .ToListAsync();
 
-        return Ok(notifications);
+        return Ok(new { notifications, count = notifications.Count });
     }
 
-    [HttpPost("{id}/mark-read")]
+    [HttpGet("count")]
+    public async Task<IActionResult> GetCount()
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var count = await _context.Notifications
+            .CountAsync(n => n.UserId == userId.Value && !n.IsRead);
+
+        return Ok(new { count });
+    }
+
+    [HttpPost("{id}/read")]
     public async Task<IActionResult> MarkAsRead(Guid id)
     {
-        if (!this.TryGetCurrentUserId(out var userId))
-            return Unauthorized();
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
         var notification = await _context.Notifications
-            .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId);
+            .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId.Value);
 
-        if (notification == null)
-            return NotFound();
+        if (notification == null) return NotFound();
 
         notification.IsRead = true;
-
-        _context.AuditLogs.Add(new AuditLog
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Action = "NotificationRead",
-            Metadata = System.Text.Json.JsonSerializer.Serialize(new {
-                notificationId = id,
-                title = notification.Title
-            }),
-            OccurredAt = DateTime.UtcNow
-        });
-
         await _context.SaveChangesAsync();
 
         return Ok(new { message = "Notification marquée comme lue" });
     }
 
-    [HttpPost("{id}/resolve")]
-    public async Task<IActionResult> ResolveNotification(Guid id, [FromBody] ResolveRequest request)
+    [HttpPost("read-all")]
+    public async Task<IActionResult> MarkAllAsRead()
     {
-        if (!this.TryGetCurrentUserId(out var userId))
-            return Unauthorized();
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
 
-        var notification = await _context.Notifications
-            .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId);
+        var unread = await _context.Notifications
+            .Where(n => n.UserId == userId.Value && !n.IsRead)
+            .ToListAsync();
 
-        if (notification == null)
-            return NotFound();
-
-        notification.IsResolved = true;
-        notification.Resolution = request.Resolution;
-        notification.ResolvedAt = DateTime.UtcNow;
-        notification.IsRead = true;
-
-        _context.AuditLogs.Add(new AuditLog
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Action = "NotificationResolved",
-            Metadata = System.Text.Json.JsonSerializer.Serialize(new {
-                notificationId = id,
-                title = notification.Title,
-                resolution = request.Resolution,
-                action = request.Action
-            }),
-            OccurredAt = DateTime.UtcNow
-        });
-
+        foreach (var n in unread) n.IsRead = true;
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Notification résolue", resolution = request.Resolution, action = request.Action });
+        return Ok(new { message = "Toutes les notifications marquées comme lues" });
     }
-
-    [HttpPost("{id}/dismiss")]
-    public async Task<IActionResult> DismissNotification(Guid id, [FromBody] DismissRequest request)
-    {
-        if (!this.TryGetCurrentUserId(out var userId))
-            return Unauthorized();
-
-        var notification = await _context.Notifications
-            .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId);
-
-        if (notification == null)
-            return NotFound();
-
-        notification.IsResolved = true;
-        notification.Resolution = request.Reason ?? "Notification ignorée par l'utilisateur";
-        notification.ResolvedAt = DateTime.UtcNow;
-        notification.IsRead = true;
-
-        _context.AuditLogs.Add(new AuditLog
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Action = "NotificationDismissed",
-            Metadata = System.Text.Json.JsonSerializer.Serialize(new {
-                notificationId = id,
-                title = notification.Title,
-                reason = request.Reason
-            }),
-            OccurredAt = DateTime.UtcNow
-        });
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Notification ignorée" });
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteNotification(Guid id)
-    {
-        if (!this.TryGetCurrentUserId(out var userId))
-            return Unauthorized();
-
-        var notification = await _context.Notifications
-            .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId);
-
-        if (notification == null)
-            return NotFound();
-
-        _context.AuditLogs.Add(new AuditLog
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Action = "NotificationDeleted",
-            Metadata = System.Text.Json.JsonSerializer.Serialize(new {
-                notificationId = id,
-                title = notification.Title,
-                type = notification.Type,
-                wasResolved = notification.IsResolved
-            }),
-            OccurredAt = DateTime.UtcNow
-        });
-
-        _context.Notifications.Remove(notification);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Notification supprimée" });
-    }
-
-    [HttpGet("unread-count")]
-    public async Task<IActionResult> GetUnreadCount()
-    {
-        if (!this.TryGetCurrentUserId(out var userId))
-            return Unauthorized();
-
-        var count = await _context.Notifications
-            .Where(n => n.UserId == userId && !n.IsRead)
-            .CountAsync();
-
-        return Ok(new { count });
-    }
-}
-
-public class ResolveRequest
-{
-    public string Resolution { get; set; } = null!;
-    public string? Action { get; set; }
-}
-
-public class DismissRequest
-{
-    public string? Reason { get; set; }
 }

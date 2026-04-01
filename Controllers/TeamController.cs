@@ -152,6 +152,41 @@ public class TeamController : ControllerBase
         return Ok(new { message = "Membre retiré de l'équipe" });
     }
 
+    [HttpDelete("invitations/{invitationId}")]
+    public async Task<IActionResult> CancelInvitation(Guid invitationId)
+    {
+        if (!this.TryGetCurrentUserId(out var userId))
+            return Unauthorized();
+
+        if (!await _teamService.HasPermissionAsync(userId, Permission.MANAGE_USERS))
+            return Forbid();
+
+        var invitation = await _context.UserInvitations
+            .FirstOrDefaultAsync(i => i.Id == invitationId && i.InvitedByUserId == userId && !i.IsAccepted);
+
+        if (invitation == null)
+            return NotFound(new { message = "Invitation introuvable ou déjà acceptée" });
+
+        _context.AuditLogs.Add(new AuditLog
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Action = "TeamInvitationCanceled",
+            Metadata = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                invitationId,
+                invitation.Email,
+                role = invitation.Role.ToString()
+            }),
+            OccurredAt = DateTime.UtcNow
+        });
+
+        _context.UserInvitations.Remove(invitation);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Invitation annulée" });
+    }
+
     [HttpGet("permissions")]
     public async Task<IActionResult> GetMyPermissions()
     {

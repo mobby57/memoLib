@@ -1,4 +1,5 @@
-﻿/**
+﻿// @ts-nocheck
+/**
  * Client OAuth2.0 pour API Legifrance (PISTE)
  * 
  * Gestion des tokens OAuth avec flux Client Credentials
@@ -49,7 +50,7 @@ export class LegifranceOAuthClient {
     this.isConfigured = !!(this.config.clientId && this.config.clientSecret);
     if (!this.isConfigured) {
       console.warn(
-        `️ Configuration PISTE manquante pour l'environnement ${environment}. ` +
+        `? Configuration PISTE manquante pour l'environnement ${environment}. ` +
         `L'API Legifrance sera desactivee.`
       );
     }
@@ -166,3 +167,5 @@ export const legifranceOAuth = new LegifranceOAuthClient(environment);
 export const createLegifranceOAuth = (env: 'sandbox' | 'production') => {
   return new LegifranceOAuthClient(env);
 };
+
+

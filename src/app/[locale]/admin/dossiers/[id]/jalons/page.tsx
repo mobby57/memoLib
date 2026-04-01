@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -31,7 +31,7 @@ const dossierSchema = z.object({
     'REGROUPEMENT_FAMILIAL', 'ASILE', 'VISA', 'AUTRE'
   ]),
   objetDemande: z.string().min(10, 'Minimum 10 caracteres'),
-  priorite: z.enum(['NORMALE', 'HAUTE', 'URGENTE', 'CRITIQUE']),
+  priorité: z.enum(['NORMALE', 'HAUTE', 'URGENTE', 'CRITIQUE']),
   dateEcheance: z.string().optional(),
   statut: z.enum(['BROUILLON', 'EN_COURS', 'EN_ATTENTE', 'TERMINE', 'REJETE', 'ANNULE']).optional(),
   notes: z.string().optional(),
@@ -73,7 +73,7 @@ export default function NouveauDossierAvocatPage() {
   } = useForm<DossierFormData>({
     resolver: zodResolver(dossierSchema),
     defaultValues: {
-      priorite: 'NORMALE',
+      priorité: 'NORMALE',
       statut: 'EN_COURS',
     },
   })
@@ -127,7 +127,7 @@ export default function NouveauDossierAvocatPage() {
       toast({
         variant: 'success',
         title: 'Dossier cree',
-        description: `Dossier ${result.dossier.numeroDossier} cree avec succes`
+        description: `Dossier ${result.dossier.numeroDossier} cree avec succès`
       })
 
       router.push('/admin/dossiers')
@@ -171,12 +171,12 @@ export default function NouveauDossierAvocatPage() {
             Nouveau Dossier Client
           </h1>
           <p className="text-gray-600 mt-2">
-            Creer un nouveau dossier pour un client existant
+            Créer un nouveau dossier pour un client existant
           </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Selection Client */}
+          {/* Sélection Client */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <User className="text-blue-600" size={24} />
@@ -186,7 +186,7 @@ export default function NouveauDossierAvocatPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Selectionner un client *
+                  Sélectionner un client *
                 </label>
                 <select
                   {...register('clientId')}
@@ -209,7 +209,7 @@ export default function NouveauDossierAvocatPage() {
 
               {clientInfo && (
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm font-medium text-blue-900">Client selectionne:</p>
+                  <p className="text-sm font-medium text-blue-900">Client sélectionné:</p>
                   <p className="text-blue-700">
                     {clientInfo.firstName} {clientInfo.lastName} - {clientInfo.email}
                   </p>
@@ -247,13 +247,13 @@ export default function NouveauDossierAvocatPage() {
                 )}
               </div>
 
-              {/* Priorite */}
+              {/* Priorité */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Priorite *
+                  Priorité *
                 </label>
                 <select
-                  {...register('priorite')}
+                  {...register('priorité')}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="NORMALE">Normale</option>
@@ -261,8 +261,8 @@ export default function NouveauDossierAvocatPage() {
                   <option value="URGENTE">Urgente</option>
                   <option value="CRITIQUE">Critique</option>
                 </select>
-                {errors.priorite && (
-                  <p className="mt-1 text-sm text-red-600">{errors.priorite.message}</p>
+                {errors.priorité && (
+                  <p className="mt-1 text-sm text-red-600">{errors.priorité.message}</p>
                 )}
               </div>
 
@@ -281,10 +281,10 @@ export default function NouveauDossierAvocatPage() {
                 </select>
               </div>
 
-              {/* Date echeance */}
+              {/* Date échéance */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date d'echeance
+                  Date d'échéance
                 </label>
                 <input
                   type="date"
@@ -349,7 +349,7 @@ export default function NouveauDossierAvocatPage() {
               ) : (
                 <>
                   <Save size={20} />
-                  Creer le Dossier
+                  Créer le Dossier
                 </>
               )}
             </Button>

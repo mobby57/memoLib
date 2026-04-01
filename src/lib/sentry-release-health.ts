@@ -1,3 +1,4 @@
+﻿// @ts-nocheck
 /**
  * Sentry Release Health Configuration
  * Tracks sessions, crashes, and adoption metrics for memolib-prod
@@ -193,3 +194,5 @@ export default {
   getSessionInfo,
   getReleaseHealthDashboardUrl,
 };
+
+

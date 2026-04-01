@@ -38,52 +38,88 @@ public class EmailMonitorService : BackgroundService
         var password = _configuration["EmailMonitor:Password"];
         var intervalSeconds = _configuration.GetValue<int>("EmailMonitor:IntervalSeconds", 60);
         var batchSize = _configuration.GetValue<int>("EmailMonitor:BatchSize", 50);
+        var connectTimeout = _configuration.GetValue<int>("EmailMonitor:ConnectTimeoutSeconds", 10);
+        var maxRetries = _configuration.GetValue<int>("EmailMonitor:MaxRetries", 3);
 
         _logger.LogInformation($"Email monitor démarré: {username}@{host}:{port}");
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            try
+            var retryCount = 0;
+            var success = false;
+
+            while (retryCount < maxRetries && !success && !stoppingToken.IsCancellationRequested)
             {
-                if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password) || port <= 0)
+                try
                 {
-                    _logger.LogWarning("EmailMonitor activé mais configuration IMAP incomplète (host/port/username/password). Nouveau test au prochain cycle.");
-                    await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken);
-                    continue;
-                }
-
-                using var client = new ImapClient();
-                await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.SslOnConnect, stoppingToken);
-                await client.AuthenticateAsync(username, password, stoppingToken);
-
-                var inbox = client.Inbox;
-                await inbox.OpenAsync(FolderAccess.ReadWrite, stoppingToken);
-
-                // Optimisation: traiter seulement les emails récents non lus
-                var query = SearchQuery.And(SearchQuery.NotSeen, SearchQuery.DeliveredAfter(DateTime.UtcNow.AddDays(-7)));
-                var uids = await inbox.SearchAsync(query, stoppingToken);
-
-                // Traitement par batch pour éviter la surcharge
-                var batches = uids.Take(batchSize).Chunk(10);
-                foreach (var batch in batches)
-                {
-                    var tasks = batch.Select(async uid =>
+                    if (string.IsNullOrWhiteSpace(password))
                     {
-                        var message = await inbox.GetMessageAsync(uid, stoppingToken);
+                        _logger.LogWarning("EmailMonitor: Mot de passe IMAP manquant. Configurez-le avec: dotnet user-secrets set \"EmailMonitor:Password\" \"votre-mot-de-passe\"");
+                        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                        break;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(username) || port <= 0)
+                    {
+                        _logger.LogWarning("EmailMonitor: Configuration IMAP incomplète (host/port/username).");
+                        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                        break;
+                    }
+
+                    using var client = new ImapClient();
+                    client.Timeout = connectTimeout * 1000;
+                    await client.ConnectAsync(host, port, MailKit.Security.SecureSocketOptions.SslOnConnect, stoppingToken);
+                    await client.AuthenticateAsync(username, password, stoppingToken);
+
+                    var inbox = client.Inbox;
+                    await inbox.OpenAsync(FolderAccess.ReadWrite, stoppingToken);
+
+                    var query = SearchQuery.And(SearchQuery.NotSeen, SearchQuery.DeliveredAfter(DateTime.UtcNow.AddDays(-7)));
+                    var uids = await inbox.SearchAsync(query, stoppingToken);
+
+                    var messagesToProcess = new List<MimeMessage>();
+                    foreach (var uid in uids.Take(batchSize))
+                    {
+                        lock (client.SyncRoot)
+                        {
+                            var message = inbox.GetMessage(uid, stoppingToken);
+                            messagesToProcess.Add(message);
+                            inbox.AddFlags(uid, MessageFlags.Seen, true, stoppingToken);
+                        }
+                    }
+
+                    await client.DisconnectAsync(true, stoppingToken);
+                    success = true;
+
+                    // Traiter les messages APRÈS déconnexion IMAP
+                    foreach (var message in messagesToProcess)
+                    {
                         await ProcessEmailAsync(message, stoppingToken);
-                        await inbox.AddFlagsAsync(uid, MessageFlags.Seen, true, stoppingToken);
-                    });
-                    await Task.WhenAll(tasks);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    retryCount++;
+                    _logger.LogError(ex, $"Erreur monitoring email (tentative {retryCount}/{maxRetries})");
 
-                await client.DisconnectAsync(true, stoppingToken);
+                    if (retryCount < maxRetries)
+                    {
+                        var delay = TimeSpan.FromSeconds(Math.Pow(2, retryCount));
+                        _logger.LogInformation($"Retry dans {delay.TotalSeconds}s...");
+                        await Task.Delay(delay, stoppingToken);
+                    }
+                }
             }
-            catch (Exception ex)
+
+            if (!success)
             {
-                _logger.LogError(ex, "Erreur monitoring email");
+                _logger.LogWarning("EmailMonitor: Échec après {MaxRetries} tentatives, pause 5min", maxRetries);
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
-
-            await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken);
+            else
+            {
+                await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken);
+            }
         }
     }
 
@@ -92,11 +128,30 @@ public class EmailMonitorService : BackgroundService
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<MemoLibDbContext>();
         var organizer = scope.ServiceProvider.GetRequiredService<IntelligentWorkspaceOrganizerService>();
+        var signalService = scope.ServiceProvider.GetRequiredService<SignalCommandCenterService>();
+        var classifier = scope.ServiceProvider.GetRequiredService<EmailClassificationService>();
 
         var from = message.From.Mailboxes.FirstOrDefault()?.Address ?? "unknown@unknown.com";
         var subject = message.Subject ?? "";
         var body = message.TextBody ?? message.HtmlBody ?? "";
         var externalId = message.MessageId ?? $"EMAIL-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+
+        // R2: Vérification SPF/DKIM via headers Authentication-Results
+        var authResult = message.Headers["Authentication-Results"] ?? "";
+        var spfFail = authResult.Contains("spf=fail", StringComparison.OrdinalIgnoreCase)
+                   || authResult.Contains("spf=softfail", StringComparison.OrdinalIgnoreCase);
+        var dkimFail = authResult.Contains("dkim=fail", StringComparison.OrdinalIgnoreCase);
+
+        if (spfFail || dkimFail)
+        {
+            _logger.LogWarning("⚠️ Email suspect (SPF/DKIM fail): {From} | SPF={SpfFail} DKIM={DkimFail}", from, spfFail, dkimFail);
+            var rejectSpoofed = _configuration.GetValue<bool>("EmailMonitor:RejectSpoofedEmails");
+            if (rejectSpoofed)
+            {
+                _logger.LogWarning("🚫 Email rejeté (spoofing détecté): {From}", from);
+                return;
+            }
+        }
 
         // CONTRÔLE: Ignorer certains expéditeurs
         var blacklist = _configuration.GetSection("EmailMonitor:Blacklist").Get<string[]>() ?? Array.Empty<string>();
@@ -115,7 +170,7 @@ public class EmailMonitorService : BackgroundService
         }
 
         var checksum = ComputeSHA256(body);
-        var duplicate = await context.Events.FirstOrDefaultAsync(e => 
+        var duplicate = await context.Events.FirstOrDefaultAsync(e =>
             e.ExternalId == externalId || e.Checksum == checksum, cancellationToken);
 
         if (duplicate != null)
@@ -157,6 +212,20 @@ public class EmailMonitorService : BackgroundService
             ValidationFlags = string.IsNullOrWhiteSpace(from) ? "MISSING_SENDER" : null,
             RequiresAttention = string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(subject)
         };
+
+        // Classification automatique de l'email
+        try
+        {
+            var classification = await classifier.ClassifyAsync(from, subject, body);
+            evt.TextForEmbedding = $"[{classification.Category}] {subject} - {body}";
+            _logger.LogInformation("📊 Email classifié: {Category} (urgence: {Urgency}, priorité: {Priority})",
+                classification.Category, classification.Urgency, classification.SuggestedPriority);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Classification email échouée, fallback sans classification");
+            evt.TextForEmbedding = $"{subject} - {body}";
+        }
 
         context.Events.Add(evt);
 
@@ -200,7 +269,25 @@ public class EmailMonitorService : BackgroundService
 
         await context.SaveChangesAsync(cancellationToken);
 
+        await signalService.ForwardInboundToConfiguredRecipientAsync(
+            "email",
+            from,
+            BuildSignalRelayEmailText(subject, body));
+
         _logger.LogInformation($"✅ Email organisé intelligemment: {from} → Workspace {workspaceId}");
+    }
+
+    private static string BuildSignalRelayEmailText(string subject, string body)
+    {
+        var safeSubject = string.IsNullOrWhiteSpace(subject) ? "(sans objet)" : subject.Trim();
+        var safeBody = string.IsNullOrWhiteSpace(body) ? "(contenu vide)" : body.Trim();
+
+        if (safeBody.Length > 1200)
+        {
+            safeBody = safeBody[..1200] + "...";
+        }
+
+        return $"Objet: {safeSubject}\n\n{safeBody}";
     }
 
     private static string ComputeSHA256(string input)

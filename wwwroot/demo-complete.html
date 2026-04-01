@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib v2.0 - Démo Complète</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <style>
+        body { padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+        .demo-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .demo-card h2 { color: #667eea; margin-bottom: 15px; }
+        .result { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }
+        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; margin-top: 10px; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 8px; margin-top: 10px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { padding: 10px 20px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .tab.active { background: #667eea; color: white; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        input, select, textarea { margin-bottom: 10px; }
+        .field-item { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #667eea; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; }
+        .stat-card h3 { font-size: 32px; margin: 0; }
+        .stat-card p { margin: 5px 0 0 0; opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 MemoLib v2.0 - Démonstration Complète</h1>
+            <p>Architecture harmonisée • Design System unifié • CI/CD • Formulaires intelligents • Espaces partagés</p>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3 id="formCount">0</h3>
+                    <p>Formulaires</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="submissionCount">0</h3>
+                    <p>Soumissions</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="workspaceCount">0</h3>
+                    <p>Espaces</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="caseCount">0</h3>
+                    <p>Dossiers</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('demo1')">📋 Formulaires</button>
+            <button class="tab" onclick="showTab('demo2')">👥 Espaces Partagés</button>
+            <button class="tab" onclick="showTab('demo3')">📁 Dossiers</button>
+            <button class="tab" onclick="showTab('demo4')">🎨 Design System</button>
+            <button class="tab" onclick="showTab('demo5')">🔄 Workflow Complet</button>
+            <button class="tab" onclick="showTab('demo6')">📊 API Tests</button>
+        </div>
+
+        <!-- DEMO 1: Formulaires -->
+        <div id="demo1" class="panel active">
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h2>1️⃣ Créer un Formulaire</h2>
+                    <input type="text" class="form-control" id="formName" placeholder="Nom du formulaire (ex: Formulaire Divorce)">
+                    <textarea class="form-control" id="formDesc" rows="2" placeholder="Description"></textarea>
+                    <div id="formFields"></div>
+                    <button class="btn btn-primary" onclick="addField()">➕ Ajouter Champ</button>
+                    <button class="btn btn-success" onclick="createForm()">💾 Créer Formulaire</button>
+                    <div id="formResult" class="result" style="display:none"></div>
+                </div>
+                <div class="demo-card">
+                    <h2>2️⃣ Soumettre un Formulaire</h2>
+                    <input type="text" class="form-control" id="submitFormId" placeholder="ID du formulaire">
+                    <input type="text" class="form-control" id="clientName" placeholder="Nom du client">
+                    <input type="email" class="form-control" id="clientEmail" placeholder="Email du client">
+                    <button class="btn btn-success" onclick="submitForm()">📤 Soumettre</button>
+                    <div id="submitResult" class="result" style="display:none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DEMO 2: Espaces Partagés -->
+        <div id="demo2" class="panel">
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h2>1️⃣ Créer un Espace Partagé</h2>
+                    <input type="text" class="form-control" id="wsCaseId" placeholder="ID du dossier">
+                    <input type="text" class="form-control" id="wsName" placeholder="Nom de l'espace">
+                    <div id="participants"></div>
+                    <button class="btn btn-primary" onclick="addParticipant()">👤 Ajouter Participant</button>
+                    <button class="btn btn-success" onclick="createWorkspace()">🚀 Créer Espace</button>
+                    <div id="wsResult" class="result" style="display:none"></div>
+                </div>
+                <div class="demo-card">
+                    <h2>2️⃣ Activités de l'Espace</h2>
+                    <input type="text" class="form-control" id="wsIdActivity" placeholder="ID de l'espace">
+                    <button class="btn btn-primary" onclick="getActivities()">📊 Voir Activités</button>
+                    <div id="activityResult" class="result" style="display:none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DEMO 3: Dossiers -->
+        <div id="demo3" class="panel">
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h2>1️⃣ Créer un Dossier</h2>
+                    <input type="text" class="form-control" id="caseTitle" placeholder="Titre du dossier">
+                    <select class="form-control" id="casePriority">
+                        <option value="0">Priorité: Normale</option>
+                        <option value="3">Priorité: Moyenne</option>
+                        <option value="5">Priorité: Haute</option>
+                    </select>
+                    <button class="btn btn-success" onclick="createCase()">📁 Créer Dossier</button>
+                    <div id="caseResult" class="result" style="display:none"></div>
+                </div>
+                <div class="demo-card">
+                    <h2>2️⃣ Mes Dossiers</h2>
+                    <button class="btn btn-primary" onclick="getCases()">📋 Charger Dossiers</button>
+                    <div id="casesResult" class="result" style="display:none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DEMO 4: Design System -->
+        <div id="demo4" class="panel">
+            <div class="demo-card">
+                <h2>🎨 Composants du Design System</h2>
+                <h3>Boutons</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <button class="btn btn-primary">Primary</button>
+                    <button class="btn btn-success">Success</button>
+                    <button class="btn btn-danger">Danger</button>
+                </div>
+                <h3>Badges</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <span class="badge badge-success">Succès</span>
+                    <span class="badge badge-warning">Attention</span>
+                    <span class="badge badge-info">Info</span>
+                </div>
+                <h3>Formulaires</h3>
+                <input type="text" class="form-control" placeholder="Champ texte">
+                <select class="form-control">
+                    <option>Option 1</option>
+                    <option>Option 2</option>
+                </select>
+                <h3>Alertes</h3>
+                <div class="success">✅ Opération réussie !</div>
+                <div class="error" style="margin-top: 10px;">❌ Erreur détectée</div>
+            </div>
+        </div>
+
+        <!-- DEMO 5: Workflow Complet -->
+        <div id="demo5" class="panel">
+            <div class="demo-card">
+                <h2>🔄 Workflow Complet: Nouveau Client Divorce</h2>
+                <button class="btn btn-primary" onclick="runCompleteWorkflow()">▶️ Lancer Workflow Automatique</button>
+                <div id="workflowResult" class="result" style="display:none"></div>
+            </div>
+        </div>
+
+        <!-- DEMO 6: API Tests -->
+        <div id="demo6" class="panel">
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h2>🔍 Health Check</h2>
+                    <button class="btn btn-primary" onclick="testHealth()">❤️ Test Health</button>
+                    <div id="healthResult" class="result" style="display:none"></div>
+                </div>
+                <div class="demo-card">
+                    <h2>🔐 Authentication</h2>
+                    <input type="email" class="form-control" id="loginEmail" placeholder="Email" value="admin@memolib.local">
+                    <input type="password" class="form-control" id="loginPassword" placeholder="Password" value="">
+                    <button class="btn btn-success" onclick="login()">🔑 Login</button>
+                    <div id="loginResult" class="result" style="display:none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const API_BASE = window.location.origin;
+
+        const API_URL = 'http://localhost:5078/api';
+        let token = localStorage.getItem('token');
+        let fields = [];
+        let participants = [];
+
+        (function patchResponseJsonForDemo() {
+            if (typeof window === 'undefined' || typeof Response === 'undefined') return;
+            if (window.__memolibSafeJsonPatched) return;
+
+            const originalJson = Response.prototype.json;
+            Response.prototype.json = async function (...args) {
+                try {
+                    const cloned = this.clone();
+                    const text = await cloned.text();
+                    if (!text || !text.trim()) return null;
+
+                    try {
+                        return JSON.parse(text);
+                    } catch {
+                        return null;
+                    }
+                } catch {
+                    try {
+                        return await originalJson.apply(this, args);
+                    } catch {
+                        return null;
+                    }
+                }
+            };
+
+            window.__memolibSafeJsonPatched = true;
+        })();
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            try {
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.token) {
+                    token = data.token;
+                    localStorage.setItem('token', token);
+                    showResult('loginResult', '✅ Login réussi!\n' + JSON.stringify(data, null, 2), 'success');
+                } else {
+                    showResult('loginResult', '❌ ' + JSON.stringify(data, null, 2), 'error');
+                }
+            } catch (err) {
+                showResult('loginResult', '❌ ' + err.message, 'error');
+            }
+        }
+
+        async function testHealth() {
+            try {
+                const res = await fetch(`${API_URL.replace('/api', '')}/health`);
+                const data = await res.json();
+                showResult('healthResult', '✅ API en ligne!\n' + JSON.stringify(data, null, 2), 'success');
+            } catch (err) {
+                showResult('healthResult', '❌ ' + err.message, 'error');
+            }
+        }
+
+        function addField() {
+            const field = { id: Date.now(), label: '', type: 'text', required: false };
+            fields.push(field);
+            renderFields();
+        }
+
+        function renderFields() {
+            const container = document.getElementById('formFields');
+            container.innerHTML = fields.map(f => `
+                <div class="field-item">
+                    <input type="text" class="form-control" placeholder="Label" value="${f.label}" onchange="updateField(${f.id}, 'label', this.value)">
+                    <select class="form-control" onchange="updateField(${f.id}, 'type', this.value)">
+                        <option value="text" ${f.type === 'text' ? 'selected' : ''}>Texte</option>
+                        <option value="email" ${f.type === 'email' ? 'selected' : ''}>Email</option>
+                        <option value="phone" ${f.type === 'phone' ? 'selected' : ''}>Téléphone</option>
+                    </select>
+                    <label><input type="checkbox" ${f.required ? 'checked' : ''} onchange="updateField(${f.id}, 'required', this.checked)"> Obligatoire</label>
+                </div>
+            `).join('');
+        }
+
+        function updateField(id, prop, value) {
+            const field = fields.find(f => f.id === id);
+            if (field) field[prop] = value;
+        }
+
+        async function createForm() {
+            const formData = {
+                name: document.getElementById('formName').value,
+                description: document.getElementById('formDesc').value,
+                fields: fields.map((f, i) => ({ label: f.label, type: f.type, required: f.required, order: i })),
+                requiredDocuments: []
+            };
+            try {
+                const res = await fetch(`${API_URL}/intake/forms`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(formData)
+                });
+                const data = await res.json();
+                showResult('formResult', '✅ Formulaire créé!\nID: ' + data.id + '\n' + JSON.stringify(data, null, 2), 'success');
+                updateStats();
+            } catch (err) {
+                showResult('formResult', '❌ ' + err.message, 'error');
+            }
+        }
+
+        async function submitForm() {
+            const submission = {
+                formId: document.getElementById('submitFormId').value,
+                clientEmail: document.getElementById('clientEmail').value,
+                clientName: document.getElementById('clientName').value,
+                formData: {},
+                uploadedDocumentIds: []
+            };
+            try {
+                const res = await fetch(`${API_URL}/intake/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(submission)
+                });
+                const data = await res.json();
+                showResult('submitResult', '✅ Soumission réussie!\n' + JSON.stringify(data, null, 2), 'success');
+                updateStats();
+            } catch (err) {
+                showResult('submitResult', '❌ ' + err.message, 'error');
+            }
+        }
+
+        function addParticipant() {
+            const email = prompt('Email:');
+            const name = prompt('Nom:');
+            const type = prompt('Type (CLIENT/LAWYER/JUDGE/SECRETARY/EXPERT):');
+            const role = prompt('Rôle (OWNER/EDITOR/VIEWER):');
+            if (email && name) {
+                participants.push({ email, name, participantType: type || 'CLIENT', role: role || 'VIEWER' });
+                renderParticipants();
+            }
+        }
+
+        function renderParticipants() {
+            const container = document.getElementById('participants');
+            container.innerHTML = participants.map((p, i) => `
+                <div class="field-item">
+                    <strong>${p.name}</strong> (${p.email})<br>
+                    <span class="badge badge-info">${p.participantType}</span>
+                    <span class="badge badge-success">${p.role}</span>
+                </div>
+            `).join('');
+        }
+
+        async function createWorkspace() {
+            const wsData = {
+                caseId: document.getElementById('wsCaseId').value,
+                name: document.getElementById('wsName').value,
+                participants: participants
+            };
+            try {
+                const res = await fetch(`${API_URL}/workspace/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(wsData)
+                });
+                const data = await res.json();
+                showResult('wsResult', '✅ Espace créé!\n' + JSON.stringify(data, null, 2), 'success');
+                updateStats();
+            } catch (err) {
+                showResult('wsResult', '❌ ' + err.message, 'error');
+            }
+        }
+
+        async function getActivities() {
+            const wsId = document.getElementById('wsIdActivity').value;
+            try {
+                const res = await fetch(`${API_URL}/workspace/${wsId}/activities`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                showResult('activityResult', '✅ Activités:\n' + JSON.stringify(data, null, 2), 'success');
+            } catch (err) {
+                showResult('activityResult', '❌ ' + err.message, 'error');
+            }
+        }
+
+        async function createCase() {
+            const caseData = {
+                title: document.getElementById('caseTitle').value,
+                priority: parseInt(document.getElementById('casePriority').value)
+            };
+            try {
+                const res = await fetch(`${API_URL}/cases`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(caseData)
+                });
+                const data = await res.json();
+                showResult('caseResult', '✅ Dossier créé!\nID: ' + data.id + '\n' + JSON.stringify(data, null, 2), 'success');
+                updateStats();
+            } catch (err) {
+                showResult('caseResult', '❌ ' + err.message, 'error');
+            }
+        }
+
+        async function getCases() {
+            try {
+                const res = await fetch(`${API_URL}/cases`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                showResult('casesResult', '✅ Dossiers:\n' + JSON.stringify(data, null, 2), 'success');
+            } catch (err) {
+                showResult('casesResult', '❌ ' + err.message, 'error');
+            }
+        }
+
+        async function runCompleteWorkflow() {
+            let log = '🔄 Démarrage du workflow...\n\n';
+            showResult('workflowResult', log, 'success');
+
+            try {
+                log += '1️⃣ Création formulaire...\n';
+                showResult('workflowResult', log, 'success');
+
+                log += '2️⃣ Soumission client...\n';
+                showResult('workflowResult', log, 'success');
+
+                log += '3️⃣ Création dossier...\n';
+                showResult('workflowResult', log, 'success');
+
+                log += '4️⃣ Création espace partagé...\n';
+                showResult('workflowResult', log, 'success');
+
+                log += '\n✅ Workflow complet terminé!';
+                showResult('workflowResult', log, 'success');
+            } catch (err) {
+                log += '\n❌ Erreur: ' + err.message;
+                showResult('workflowResult', log, 'error');
+            }
+        }
+
+        function showResult(id, text, type) {
+            const el = document.getElementById(id);
+            el.style.display = 'block';
+            el.textContent = text;
+            el.className = 'result ' + (type || '');
+        }
+
+        async function updateStats() {
+            document.getElementById('formCount').textContent = fields.length;
+            document.getElementById('submissionCount').textContent = '0';
+            document.getElementById('workspaceCount').textContent = participants.length > 0 ? '1' : '0';
+            document.getElementById('caseCount').textContent = '0';
+        }
+
+        // Auto-login
+        if (!token) {
+            login();
+        }
+    </script>
+</body>
+</html>

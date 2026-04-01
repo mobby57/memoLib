@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -60,9 +60,9 @@ function checkPasswordStrength(password: string): PasswordStrength {
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  const token = searchParams.get('token');
-  const email = searchParams.get('email');
+
+  const token = searchParams?.get('token') ?? null;
+  const email = searchParams?.get('email') ?? null;
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -156,7 +156,7 @@ export default function ResetPasswordPage() {
               Lien invalide ou expire
             </h1>
             <p className="text-gray-300 mb-6">
-              Ce lien de reinitialisation n'est plus valide. Il a peut-etre expire ou a deja ete utilise.
+              Ce lien de reinitialisation n'est plus valide. Il a peut-etre expire ou a deja été utilise.
             </p>
             <Link
               href="/auth/forgot-password"
@@ -170,19 +170,19 @@ export default function ResetPasswordPage() {
     );
   }
 
-  // Verification en cours
+  // Vérification en cours
   if (tokenValid === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-400/30 border-t-blue-400 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-300">Verification du lien...</p>
+          <p className="text-gray-300">Vérification du lien...</p>
         </div>
       </div>
     );
   }
 
-  // Succes
+  // Succès
   if (success) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
@@ -195,7 +195,7 @@ export default function ResetPasswordPage() {
               Mot de passe modifie !
             </h1>
             <p className="text-gray-300 mb-6">
-              Votre mot de passe a ete reinitialise avec succes. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.
+              Votre mot de passe a été reinitialise avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.
             </p>
             <Link
               href="/auth/login"
@@ -218,7 +218,7 @@ export default function ResetPasswordPage() {
           className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-200 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour a la connexion
+          Retour à la connexion
         </Link>
 
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
@@ -231,7 +231,7 @@ export default function ResetPasswordPage() {
               Nouveau mot de passe
             </h1>
             <p className="text-gray-400">
-              Choisissez un mot de passe fort et securise pour votre compte.
+              Choisissez un mot de passe fort et sécurisé pour votre compte.
             </p>
           </div>
 
@@ -282,7 +282,7 @@ export default function ResetPasswordPage() {
                     </div>
                     <span className="text-xs text-gray-400">{passwordStrength.label}</span>
                   </div>
-                  
+
                   {/* Requirements */}
                   <div className="grid grid-cols-2 gap-1 text-xs">
                     <div className={`flex items-center gap-1 ${passwordStrength.requirements.length ? 'text-green-400' : 'text-gray-500'}`}>
@@ -334,7 +334,7 @@ export default function ResetPasswordPage() {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              
+
               {/* Indicateur de correspondance */}
               {confirmPassword && (
                 <div className={`flex items-center gap-1 mt-2 text-xs ${passwordsMatch ? 'text-green-400' : 'text-red-400'}`}>

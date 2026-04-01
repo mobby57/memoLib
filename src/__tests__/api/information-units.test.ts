@@ -2,6 +2,21 @@
 import { GET, POST, PATCH } from '@/app/api/information-units/route';
 import prisma from '@/lib/prisma';
 
+jest.mock('next-auth', () => ({
+  getServerSession: jest.fn(async () => ({
+    user: {
+      id: 'user-123',
+      role: 'ADMIN',
+      tenantId: 'tenant-123',
+      email: 'user@test.com',
+    },
+  })),
+}));
+
+jest.mock('@/app/api/auth/[...nextauth]/route', () => ({
+  authOptions: {},
+}));
+
 jest.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: {
@@ -42,11 +57,14 @@ describe('/api/information-units', () => {
       expect(data.total).toBe(1);
     });
 
-    it('should return 400 if tenantId missing', async () => {
+    it('should use tenantId from session if query tenantId is missing', async () => {
+      (prisma.informationUnit.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.informationUnit.count as jest.Mock).mockResolvedValue(0);
+
       const request = new NextRequest('http://localhost/api/information-units');
       const response = await GET(request);
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(200);
     });
   });
 

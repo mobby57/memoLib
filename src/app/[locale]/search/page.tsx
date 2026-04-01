@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -6,10 +6,10 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import SearchBar from '@/components/SearchBar';
-import { 
-  Filter, 
-  Calendar, 
-  Tag, 
+import {
+  Filter,
+  Calendar,
+  Tag,
   SlidersHorizontal,
   Download,
   Share2,
@@ -26,8 +26,8 @@ interface AdvancedFilters {
 
 function SearchContent() {
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get('q') || '';
-  
+  const initialQuery = searchParams?.get('q') || '';
+
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [filters, setFilters] = useState<AdvancedFilters>({});
   const [searchStats, setSearchStats] = useState({
@@ -54,7 +54,7 @@ function SearchContent() {
 
         {/* Barre de recherche principale */}
         <div className="mb-6">
-          <SearchBar 
+          <SearchBar
             placeholder="Rechercher dans toute l'application..."
             showFilters={true}
           />
@@ -77,7 +77,7 @@ function SearchContent() {
 
             {searchStats.totalResults > 0 && (
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                <span className="font-semibold">{searchStats.totalResults}</span> resultats
+                <span className="font-semibold">{searchStats.totalResults}</span> résultats
                 <span className="mx-2">-</span>
                 <span>{searchStats.executionTime}ms</span>
               </div>
@@ -100,13 +100,13 @@ function SearchContent() {
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
               Filtres avances
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Plage de dates */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Calendar className="w-4 h-4" />
-                  Periode
+                  Période
                 </label>
                 <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                   <option>Toutes les dates</option>

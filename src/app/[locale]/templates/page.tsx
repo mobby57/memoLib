@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -38,6 +38,7 @@ export default function TemplatesPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [previewValues, setPreviewValues] = useState<Record<string, any>>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handlePreview = (template: DocumentTemplate) => {
     setSelectedTemplate(template);
@@ -72,7 +73,7 @@ export default function TemplatesPage() {
     return acc;
   }, {} as Record<string, number>);
 
-  const getCategoryColor = (categorie: string) => {
+  const getCategoryColor = (catégorie: string) => {
     const colors: Record<string, string> = {
       contrat: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
       courrier: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
@@ -80,10 +81,10 @@ export default function TemplatesPage() {
       attestation: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
       autre: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
     };
-    return colors[categorie] || colors.autre;
+    return colors[catégorie] || colors.autre;
   };
 
-  const getCategoryLabel = (categorie: string) => {
+  const getCategoryLabel = (catégorie: string) => {
     const labels: Record<string, string> = {
       contrat: 'Contrat',
       courrier: 'Courrier',
@@ -91,7 +92,7 @@ export default function TemplatesPage() {
       attestation: 'Attestation',
       autre: 'Autre'
     };
-    return labels[categorie] || categorie;
+    return labels[catégorie] || catégorie;
   };
 
   return (
@@ -102,7 +103,7 @@ export default function TemplatesPage() {
           Templates de Documents
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Creez et gerez vos modeles de documents personnalisables
+          Créez et gérez vos modeles de documents personnalisables
         </p>
       </div>
 
@@ -133,6 +134,18 @@ export default function TemplatesPage() {
       </Alert>
 
       {/* Barre d'actions */}
+      {feedback && (
+        <div
+          className={`mb-4 rounded-lg border px-4 py-3 text-sm ${
+            feedback.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-700'
+              : 'border-red-200 bg-red-50 text-red-700'
+          }`}
+        >
+          {feedback.message}
+        </div>
+      )}
+
       <div className="flex items-center gap-4 mb-6">
         <Input
           type="text"
@@ -259,9 +272,10 @@ export default function TemplatesPage() {
                 Fermer
               </Button>
               <Button onClick={() => {
-                // Ici on pourrait copier dans le presse-papier ou telecharger
-                navigator.clipboard.writeText(renderTemplate(selectedTemplate.contenu, previewValues));
-                alert('Document copie dans le presse-papier !');
+                navigator.clipboard
+                  .writeText(renderTemplate(selectedTemplate.contenu, previewValues))
+                  .then(() => setFeedback({ type: 'success', message: 'Document copie dans le presse-papier !' }))
+                  .catch(() => setFeedback({ type: 'error', message: 'Impossible de copier le document' }));
               }}>
                 Copier le document
               </Button>

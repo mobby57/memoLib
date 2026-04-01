@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -75,10 +75,10 @@ export default function ProfileAdmin() {
       });
 
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Profil mis a jour avec succes !' });
+        setMessage({ type: 'success', text: 'Profil mis à jour avec succès !' });
       } else {
         const data = await res.json();
-        setMessage({ type: 'error', text: data.error || 'Erreur lors de la mise a jour' });
+        setMessage({ type: 'error', text: data.error || 'Erreur lors de la mise à jour' });
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Erreur reseau' });
@@ -114,7 +114,7 @@ export default function ProfileAdmin() {
       });
 
       if (res.ok) {
-        setMessage({ type: 'success', text: 'Mot de passe change avec succes !' });
+        setMessage({ type: 'success', text: 'Mot de passe change avec succès !' });
         setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
       } else {
         const data = await res.json();
@@ -190,7 +190,7 @@ export default function ProfileAdmin() {
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
             >
-              [Lock] Securite
+              [Lock] Sécurité
             </button>
           </div>
 
@@ -235,13 +235,13 @@ export default function ProfileAdmin() {
                     className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg bg-gray-100 cursor-not-allowed"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    L'email ne peut pas etre modifie. Contactez le support si necessaire.
+                    L'email ne peut pas etre modifie. Contactez le support si nécessaire.
                   </p>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Telephone
+                    Téléphone
                   </label>
                   <input
                     type="tel"
@@ -324,7 +324,7 @@ export default function ProfileAdmin() {
             </form>
           )}
 
-          {/* Securite */}
+          {/* Sécurité */}
           {activeTab === 'security' && (
             <form onSubmit={handlePasswordSubmit} className="p-8">
               <div className="max-w-md mx-auto">

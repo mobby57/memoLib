@@ -1,6 +1,6 @@
-﻿/**
+/**
  * Dashboard Client - Vue personnelle
- * Niveau 3 : Acces uniquement aux propres dossiers du client
+ * Niveau 3 : Accès uniquement aux propres dossiers du client
  */
 
 'use client';
@@ -19,6 +19,7 @@ export default function ClientDashboard() {
   const [dossiers, setDossiers] = useState<any[]>([]);
   const [factures, setFactures] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handlePayment = async (factureId: string) => {
     try {
@@ -39,11 +40,11 @@ export default function ClientDashboard() {
         // Rediriger vers Stripe Checkout
         window.location.href = url;
       } else {
-        alert('Session de paiement cr��e. ID: ' + sessionId);
+        setFeedback({ type: 'success', message: `Session de paiement créée (ID: ${sessionId})` });
       }
     } catch (error) {
       console.error('Erreur de paiement:', error);
-      alert("Erreur lors de l'initialisation du paiement. Veuillez r�essayer.");
+      setFeedback({ type: 'error', message: "Erreur lors de l'initialisation du paiement. Veuillez réessayer." });
     }
   };
 
@@ -118,6 +119,18 @@ export default function ClientDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-8 py-8">
+        {feedback && (
+          <div
+            className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
         {/* Boutons d'actions rapides */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Link
@@ -235,11 +248,11 @@ export default function ClientDashboard() {
                       </div>
                       <p className="text-gray-600 mb-2">{dossier.objet}</p>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span> Numero: {dossier.numero}</span>
+                        <span> Numéro: {dossier.numéro}</span>
                         {dossier.dateEcheance && (
                           <span>
                             {' '}
-                            echeance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}
+                            échéance: {new Date(dossier.dateEcheance).toLocaleDateString('fr-FR')}
                           </span>
                         )}
                         <span> {dossier._count?.documents || 0} documents</span>
@@ -273,10 +286,10 @@ export default function ClientDashboard() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Numero</th>
+                    <th className="text-left py-3 px-4 text-gray-600 font-semibold">Numéro</th>
                     <th className="text-left py-3 px-4 text-gray-600 font-semibold">Dossier</th>
                     <th className="text-right py-3 px-4 text-gray-600 font-semibold">Montant</th>
-                    <th className="text-center py-3 px-4 text-gray-600 font-semibold">echeance</th>
+                    <th className="text-center py-3 px-4 text-gray-600 font-semibold">échéance</th>
                     <th className="text-center py-3 px-4 text-gray-600 font-semibold">Statut</th>
                     <th className="text-right py-3 px-4 text-gray-600 font-semibold">Actions</th>
                   </tr>
@@ -284,7 +297,7 @@ export default function ClientDashboard() {
                 <tbody>
                   {factures.map(facture => (
                     <tr key={facture.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-4 px-4 font-medium text-gray-900">{facture.numero}</td>
+                      <td className="py-4 px-4 font-medium text-gray-900">{facture.numéro}</td>
                       <td className="py-4 px-4 text-gray-600">{facture.dossier?.typeDossier}</td>
                       <td className="py-4 px-4 text-right font-semibold text-gray-900">
                         {facture.montant.toFixed(2)} {facture.devise}
@@ -321,7 +334,7 @@ export default function ClientDashboard() {
                             href={`/api/client/factures/${facture.id}/download`}
                             className="px-3 py-1 bg-blue-500 text-white rounded text-sm font-semibold hover:bg-blue-600 inline-block"
                           >
-                            Telecharger
+                            Télécharger
                           </Link>
                         )}
                       </td>

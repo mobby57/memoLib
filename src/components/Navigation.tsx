@@ -126,6 +126,7 @@ const navigationItems: NavItem[] = [
 export function Navigation() {
   const { user, isAuthenticated } = useAuth();
   const pathname = usePathname();
+  const currentPath = pathname ?? '';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   if (!isAuthenticated || !user) {
@@ -139,9 +140,9 @@ export function Navigation() {
 
   const isActive = (href: string) => {
     if (href === '/dashboard' || href === '/client-dashboard' || href === '/super-admin') {
-      return pathname === href;
+      return currentPath === href;
     }
-    return pathname.startsWith(href);
+    return currentPath.startsWith(href);
   };
 
   return (

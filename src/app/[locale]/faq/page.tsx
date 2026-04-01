@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -26,31 +26,31 @@ interface FAQItem {
 const FAQ_DATA: FAQItem[] = [
   // ===== QUESTIONS GÉNÉRALES =====
   {
-    category: 'general',
+    category: 'général',
     question: "Qu'est-ce qu'memoLib exactement ?",
     answer:
       'memoLib est un logiciel de gestion de cabinet juridique spécialisé dans le droit des étrangers (CESEDA). Il combine la gestion de dossiers, clients, facturation avec un assistant intelligent qui vous aide dans vos tâches administratives : classification des emails, pré-rédaction de courriers, recherche de jurisprudence, et suivi des délais légaux (OQTF, recours, etc.).',
   },
   {
-    category: 'general',
+    category: 'général',
     question: "À qui s'adresse memoLib ?",
     answer:
       "Notre solution est conçue pour : les avocats indépendants spécialisés en droit des étrangers, les cabinets d'avocats de toutes tailles, les associations d'aide aux migrants, et toute structure juridique traitant des dossiers CESEDA (titres de séjour, OQTF, naturalisation, regroupement familial, asile, etc.).",
   },
   {
-    category: 'general',
+    category: 'général',
     question: 'Le système peut-il remplacer un avocat ou prendre des décisions juridiques ?',
     answer:
       'NON, absolument pas. Le système est un ASSISTANT, jamais un décideur. Conformément à notre charte éthique et aux règles du Barreau, toute action importante (envoi de courrier, dépôt de recours, conseil au client) nécessite une validation humaine obligatoire. Le système suggère, vous décidez.',
   },
   {
-    category: 'general',
+    category: 'général',
     question: 'Est-ce compatible avec ma pratique solo/indépendante ?',
     answer:
       "Oui, notre plan Solo à 49€/mois est spécialement conçu pour les avocats indépendants. Il inclut jusqu'à 20 clients, 50 dossiers, et toutes les fonctionnalités IA de base. Vous pouvez évoluer vers un plan supérieur au fur et à mesure de votre croissance.",
   },
   {
-    category: 'general',
+    category: 'général',
     question: 'Puis-je utiliser memoLib si je ne suis pas spécialisé en CESEDA ?',
     answer:
       'Oui, bien que notre IA soit optimisée pour le CESEDA, la plateforme gère tous types de dossiers juridiques : civil, pénal, commercial, administratif, social. Vous bénéficierez simplement de moins de suggestions automatisées dans ces domaines.',
@@ -58,31 +58,31 @@ const FAQ_DATA: FAQItem[] = [
 
   // ===== SÉCURITÉ & CONFIDENTIALITÉ =====
   {
-    category: 'securite',
+    category: 'sécurité',
     question: 'Mes données clients sont-elles sécurisées ?',
     answer:
       'Absolument. Nous appliquons une isolation stricte par cabinet (architecture multi-tenant), un chiffrement AES-256 des données sensibles, une authentification 2FA, et des sauvegardes quotidiennes. Vos données ne sont jamais partagées entre cabinets et restent sur des serveurs européens conformes RGPD.',
   },
   {
-    category: 'securite',
+    category: 'sécurité',
     question: 'Le secret professionnel est-il respecté ?',
     answer:
       "C'est notre priorité absolue. Chaque cabinet dispose de son propre espace isolé. Le moteur local (Ollama) peut traiter les données les plus sensibles sans qu'elles quittent votre environnement. Aucun collaborateur d'memoLib n'a accès au contenu de vos dossiers.",
   },
   {
-    category: 'securite',
+    category: 'sécurité',
     question: 'Le système transmet-il mes données à des tiers (OpenAI, Google, etc.) ?',
     answer:
       "Par défaut, nous utilisons un moteur local (Ollama) qui fonctionne entièrement sur notre infrastructure sans envoyer de données à l'extérieur. Pour les fonctionnalités avancées optionnelles, nous utilisons Cloudflare AI Workers avec des données anonymisées et chiffrées.",
   },
   {
-    category: 'securite',
+    category: 'sécurité',
     question: 'Comment puis-je supprimer toutes mes données ?',
     answer:
       'Vous pouvez demander la suppression complète de votre compte et de toutes vos données à tout moment en contactant support@memoLib.com. La suppression est effective sous 30 jours conformément au RGPD, avec un export préalable de vos données si souhaité.',
   },
   {
-    category: 'securite',
+    category: 'sécurité',
     question: 'Êtes-vous conforme aux règles du Barreau ?',
     answer:
       "Oui, nous avons conçu memoLib en collaboration avec des avocats pour respecter : le secret professionnel, l'indépendance de l'avocat, la validation humaine obligatoire, et la traçabilité des actions. Le système assiste mais ne décide jamais.",
@@ -134,43 +134,43 @@ const FAQ_DATA: FAQItem[] = [
 
   // ===== FONCTIONNALITÉS =====
   {
-    category: 'fonctionnalites',
+    category: 'fonctionnalités',
     question: 'Comment fonctionne la classification automatique des emails ?',
     answer:
       'Le système analyse automatiquement vos emails entrants et les classe par urgence, type de procédure (OQTF, titre de séjour, recours...), et client existant/nouveau. Il extrait les informations clés (dates, numéros de dossier, délais) et peut pré-remplir un dossier. Vous validez ou corrigez ensuite.',
   },
   {
-    category: 'fonctionnalites',
+    category: 'fonctionnalités',
     question: 'Le système peut-il rédiger des courriers à ma place ?',
     answer:
       'Le système peut PRÉ-RÉDIGER des courriers basés sur des modèles (accusés de réception, demandes de pièces, courriers préfecture). Vous devez TOUJOURS relire et valider avant envoi. Le système propose, vous disposez.',
   },
   {
-    category: 'fonctionnalites',
+    category: 'fonctionnalités',
     question: 'Comment sont gérés les délais OQTF et recours ?',
     answer:
       'Le système calcule automatiquement les délais légaux selon le type de procédure (48h, 15 jours, 30 jours, etc.), envoie des alertes par email et notification, affiche un calendrier des échéances, et vous notifie plusieurs jours avant chaque deadline critique.',
   },
   {
-    category: 'fonctionnalites',
+    category: 'fonctionnalités',
     question: 'Puis-je importer mes dossiers existants ?',
     answer:
       "Oui, nous proposons un import CSV/Excel pour vos clients et dossiers. Pour les gros volumes ou les migrations depuis d'autres logiciels (Jarvis, Secib, etc.), notre équipe peut vous accompagner avec un import assisté inclus dans le plan Enterprise.",
   },
   {
-    category: 'fonctionnalites',
+    category: 'fonctionnalités',
     question: 'La facturation est-elle intégrée ?',
     answer:
       "Oui, vous pouvez créer des factures directement liées à vos dossiers, gérer les honoraires, suivre les paiements, et exporter pour votre comptabilité. Nous ne gérons pas le paiement en ligne des clients (Stripe/PayPal) mais l'envoi de factures PDF.",
   },
   {
-    category: 'fonctionnalites',
+    category: 'fonctionnalités',
     question: "Puis-je accéder à l'application sur mobile ?",
     answer:
       "Oui, memoLib est une application web responsive accessible depuis n'importe quel navigateur (ordinateur, tablette, smartphone). Une application mobile native est en développement pour 2026.",
   },
   {
-    category: 'fonctionnalites',
+    category: 'fonctionnalités',
     question: "Existe-t-il une API pour intégrer d'autres outils ?",
     answer:
       "Oui, une API REST complète est disponible pour le plan Enterprise. Elle permet d'intégrer memoLib avec votre CRM, votre comptabilité, ou d'autres outils. Documentation disponible sur demande.",
@@ -236,31 +236,31 @@ const FAQ_DATA: FAQItem[] = [
 
   // ===== LÉGAL & CONFORMITÉ =====
   {
-    category: 'legal',
+    category: 'légal',
     question: 'Où sont hébergées mes données ?',
     answer:
       'Vos données sont hébergées exclusivement en Union Européenne (France/Allemagne) sur des serveurs conformes RGPD, ISO 27001. Nous utilisons Azure France Central et Cloudflare EU pour garantir la souveraineté des données.',
   },
   {
-    category: 'legal',
+    category: 'légal',
     question: "Êtes-vous certifiés pour l'hébergement de données de santé (HDS) ?",
     answer:
       'Non, nous ne sommes pas certifiés HDS. Si vos dossiers contiennent des données médicales sensibles (expertises, certificats médicaux détaillés), nous vous recommandons de les stocker séparément sur un hébergeur HDS agréé.',
   },
   {
-    category: 'legal',
+    category: 'légal',
     question: 'Comment gérez-vous le RGPD ?',
     answer:
       "Nous sommes pleinement conformes RGPD : consentement explicite, droit d'accès/rectification/suppression, portabilité des données, notification en cas de violation, DPO désigné. Notre politique de confidentialité détaille tous ces points.",
   },
   {
-    category: 'legal',
+    category: 'légal',
     question: 'Puis-je exporter toutes mes données ?',
     answer:
       "Oui, vous pouvez exporter vos données à tout moment en format standard (CSV, JSON, PDF). L'export inclut : clients, dossiers, documents, factures, historique. Accessible depuis Paramètres > Export des données.",
   },
   {
-    category: 'legal',
+    category: 'légal',
     question: "Qui est responsable en cas d'erreur du système ?",
     answer:
       "L'avocat reste TOUJOURS responsable de ses actes professionnels. Le système est un outil d'aide, pas un décideur. Toute suggestion doit être validée par un humain avant action. Nous déclinons toute responsabilité pour des décisions prises sans validation humaine.",
@@ -294,13 +294,13 @@ const FAQ_DATA: FAQItem[] = [
 ];
 
 const CATEGORIES = [
-  { id: 'general', label: 'Questions Générales', icon: HelpCircle },
-  { id: 'securite', label: 'Sécurité & Confidentialité', icon: Shield },
+  { id: 'général', label: 'Questions Générales', icon: HelpCircle },
+  { id: 'sécurité', label: 'Sécurité & Confidentialité', icon: Shield },
   { id: 'tarifs', label: 'Tarification & Paiement', icon: CreditCard },
-  { id: 'fonctionnalites', label: 'Fonctionnalités', icon: Bot },
+  { id: 'fonctionnalités', label: 'Fonctionnalités', icon: Bot },
   { id: 'institutions', label: 'Institutions & Cabinets', icon: Building2 },
   { id: 'support', label: 'Support & Assistance', icon: Phone },
-  { id: 'legal', label: 'Légal & Conformité', icon: Scale },
+  { id: 'légal', label: 'Légal & Conformité', icon: Scale },
   { id: 'technique', label: 'Technique', icon: FileText },
 ];
 
@@ -336,7 +336,7 @@ function FAQAccordion({
 }
 
 export default function FAQPage() {
-  const [activeCategory, setActiveCategory] = useState<string>('general');
+  const [activeCategory, setActiveCategory] = useState<string>('général');
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -384,7 +384,7 @@ export default function FAQPage() {
 
       <div className="max-w-6xl mx-auto py-12 px-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Categories */}
+          {/* Sidebar Catégories */}
           <div className="lg:w-64 flex-shrink-0">
             <div className="bg-white rounded-xl shadow-md p-4 sticky top-4">
               <h3 className="font-bold text-gray-900 mb-4 px-2">Catégories</h3>

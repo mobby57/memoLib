@@ -29,18 +29,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier tous les events (peut être lent sur large dataset)
-    const result = await eventLogService.verifyAllIntegrity(tenantId);
+    const corrupted = await eventLogService.verifyAllIntegrity(tenantId);
+    const totalEvents = await eventLogService.countEvents({ tenantId });
 
     return NextResponse.json({
       tenantId,
-      totalEvents: result.total,
-      corruptedEvents: result.corrupted.length,
-      corrupted: result.corrupted,
-      status: result.corrupted.length === 0 ? 'OK' : 'ISSUES_FOUND',
+      totalEvents,
+      corruptedEvents: corrupted.length,
+      corrupted,
+      status: corrupted.length === 0 ? 'OK' : 'ISSUES_FOUND',
       message:
-        result.corrupted.length === 0
+        corrupted.length === 0
           ? 'Tous les checksums sont valides'
-          : `${result.corrupted.length} event(s) avec checksum invalide`,
+          : `${corrupted.length} event(s) avec checksum invalide`,
     });
   } catch (error: any) {
     console.error('Error verifying all integrity:', error);

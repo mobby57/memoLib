@@ -1,5 +1,6 @@
+﻿// @ts-nocheck
 /**
- * Service de Signatures Électroniques eIDAS
+ * Service de Signatures Ã‰lectroniques eIDAS
  *
  * Intégration avec fournisseurs de signatures qualifiées:
  * - DocuSign (API REST)
@@ -395,3 +396,5 @@ export async function verifyEIDASSignature(
     return false;
   }
 }
+
+

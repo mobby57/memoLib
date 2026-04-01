@@ -1,12 +1,13 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 /**
  *  Dashboard de Gestion des Formulaires & Decisions
@@ -262,7 +263,7 @@ export default function FormsDashboardPage() {
                         </span>
                       </div>
                       <p className="text-sm text-orange-600 mt-1">
-                         echeance: {new Date(approval.dueDate).toLocaleDateString('fr-FR')}
+                         échéance: {new Date(approval.dueDate).toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                     <div className="flex gap-2">
@@ -358,7 +359,7 @@ export default function FormsDashboardPage() {
                   <h3 className="font-semibold mb-3">Delai Moyen d'Approbation</h3>
                   <div className="text-4xl font-bold">4.2 jours</div>
                   <p className="text-sm text-gray-600 mt-2">
-                    -15% vs mois precedent
+                    -15% vs mois précédent
                   </p>
                 </div>
               </div>
@@ -390,18 +391,18 @@ function formatStatus(status: string): string {
   return statuses[status] || status;
 }
 
-function getFormTypeBadge(type: string): 'default' | 'secondary' | 'outline' {
-  return type === 'strategic-decision' ? 'default' : 'secondary';
+function getFormTypeBadge(type: string): 'default' | 'info' {
+  return type === 'strategic-decision' ? 'default' : 'info';
 }
 
-function getStatusBadge(status: string): 'default' | 'secondary' | 'destructive' {
+function getStatusBadge(status: string): 'default' | 'info' | 'danger' {
   if (status === 'approved') return 'default';
-  if (status === 'rejected') return 'destructive';
-  return 'secondary';
+  if (status === 'rejected') return 'danger';
+  return 'info';
 }
 
-function getRiskBadge(level: string): 'default' | 'destructive' | 'secondary' {
-  if (level === 'critical') return 'destructive';
+function getRiskBadge(level: string): 'default' | 'danger' {
+  if (level === 'critical') return 'danger';
   return 'default';
 }
 

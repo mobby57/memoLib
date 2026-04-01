@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Contracts;
 using MemoLib.Api.Data;
+using MemoLib.Api.Extensions;
 
 namespace MemoLib.Api.Controllers;
 

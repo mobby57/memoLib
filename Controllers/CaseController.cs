@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using MemoLib.Api.Contracts;
 using MemoLib.Api.Data;
 using MemoLib.Api.Models;
+using MemoLib.Api.Authorization;
+using System.Security.Claims;
 
 namespace MemoLib.Api.Controllers;
 
@@ -29,21 +31,35 @@ public class CaseController : ControllerBase
         return System.Text.RegularExpressions.Regex.Replace(normalized, "\\s+", " ");
     }
 
+    [Authorize(Policy = Policies.ViewCases)]
     [HttpGet]
-    public async Task<IActionResult> ListCases()
+    public async Task<IActionResult> ListCases([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         if (!this.TryGetCurrentUserId(out var userId))
             return Unauthorized(new { message = "Utilisateur non authentifié" });
 
-        var cases = await _context.Cases
-            .Where(c => c.UserId == userId)
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var query = User.IsManagerOrAbove()
+            ? _context.Cases
+            : _context.Cases.Where(c => c.UserId == userId);
+
+        var totalCount = await query.CountAsync();
+
+        var cases = await query
             .OrderByDescending(c => c.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(c => new
             {
                 c.Id,
                 c.UserId,
                 c.ClientId,
                 c.Title,
+                c.Status,
+                c.Priority,
+                c.Tags,
                 c.CreatedAt,
                 FirstEvent = _context.CaseEvents
                     .Where(ce => ce.CaseId == c.Id)
@@ -54,9 +70,10 @@ public class CaseController : ControllerBase
             })
             .ToListAsync();
 
-        return Ok(cases);
+        return Ok(new { items = cases, page, pageSize, totalCount, totalPages = (int)Math.Ceiling((double)totalCount / pageSize) });
     }
 
+    [Authorize(Policy = Policies.ViewCases)]
     [HttpGet("{caseId}")]
     public async Task<IActionResult> GetCase(Guid caseId)
     {
@@ -64,14 +81,19 @@ public class CaseController : ControllerBase
             return Unauthorized(new { message = "Utilisateur non authentifié" });
 
         var c = await _context.Cases
-            .FirstOrDefaultAsync(c => c.Id == caseId && c.UserId == userId);
+            .FirstOrDefaultAsync(c => c.Id == caseId);
 
         if (c == null)
             return NotFound("Case not found.");
+            
+        // Vérifier les permissions d'accès
+        if (!c.UserId.HasValue || !User.CanAccessResource(c.UserId.Value))
+            return Forbid();
 
         return Ok(c);
     }
 
+    [Authorize(Policy = Policies.CreateCases)]
     [HttpPost]
     public async Task<IActionResult> CreateCase([FromBody] CreateCaseRequest request)
     {
@@ -181,6 +203,7 @@ public class CaseController : ControllerBase
         return Ok(events);
     }
 
+    [Authorize(Policy = Policies.DeleteCases)]
     [HttpPost("merge-duplicates")]
     public async Task<IActionResult> MergeDuplicateCases()
     {

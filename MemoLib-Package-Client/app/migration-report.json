@@ -1,0 +1,199 @@
+{
+  "timestamp": "2026-01-21T11:02:15.691Z",
+  "config": {
+    "sourcePostgresUrl": "postgresql://memolib:changeme@localhost:5432/memolib",
+    "targetSqlitePath": "./prisma/migrated.db",
+    "batchSize": 100,
+    "excludeModels": [],
+    "dryRun": true
+  },
+  "summary": {
+    "totalModels": 20,
+    "successCount": 0,
+    "errorCount": 20,
+    "totalRecords": 0,
+    "totalDuration": 0
+  },
+  "details": [
+    {
+      "modelName": "Plan",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    },
+    {
+      "modelName": "Tenant",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    },
+    {
+      "modelName": "TenantSettings",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle TenantSettings introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "User",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    },
+    {
+      "modelName": "Client",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    },
+    {
+      "modelName": "Dossier",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    },
+    {
+      "modelName": "Workspace",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    },
+    {
+      "modelName": "Facture",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    },
+    {
+      "modelName": "Document",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    },
+    {
+      "modelName": "RendezVous",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle RendezVous introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "Email",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    },
+    {
+      "modelName": "EmailClassification",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle EmailClassification introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "ChecklistItem",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle ChecklistItem introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "WorkspaceDocument",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle WorkspaceDocument introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "WorkspaceDraft",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle WorkspaceDraft introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "WorkspaceAlert",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle WorkspaceAlert introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "TimelineEvent",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle TimelineEvent introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "ClientWorkspace",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle ClientWorkspace introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "TenantMetrics",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "Modèle TenantMetrics introuvable dans Prisma"
+      ]
+    },
+    {
+      "modelName": "Jurisprudence",
+      "recordsCount": 0,
+      "success": false,
+      "duration": 0,
+      "errors": [
+        "\nInvalid `sourceModel.count()` invocation in\nC:\\Users\\moros\\Desktop\\iaPostemanage\\scripts\\migrate-postgres-to-sqlite.ts:130:46\n\n  127 }\n  128 \n  129 // Compter les enregistrements source\n→ 130 const totalRecords = await sourceModel.count(\nerror: Error validating datasource `db`: the URL must start with the protocol `file:`.\n  -->  schema.prisma:9\n   | \n 8 |   provider = \"sqlite\"\n 9 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+      ]
+    }
+  ]
+}

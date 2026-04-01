@@ -2,9 +2,41 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete, TTL_TIERS } from '@/lib/cache';
 import { logger } from '@/lib/logger';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
+}
+
+async function resolveTenantAccess(requestedTenantId: string | null): Promise<
+  | { tenantId: string; role: string }
+  | { error: NextResponse }
+> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return { error: NextResponse.json({ error: 'Non authentifie' }, { status: 401 }) };
+  }
+
+  const role = String((session.user as any).role || '').toUpperCase();
+  const sessionTenantId = (session.user as any).tenantId as string | undefined;
+
+  if (role === 'SUPER_ADMIN') {
+    if (!requestedTenantId) {
+      return { error: NextResponse.json({ error: 'tenantId requis' }, { status: 400 }) };
+    }
+    return { tenantId: requestedTenantId, role };
+  }
+
+  if (!sessionTenantId) {
+    return { error: NextResponse.json({ error: 'Tenant non trouve' }, { status: 403 }) };
+  }
+
+  if (requestedTenantId && requestedTenantId !== sessionTenantId) {
+    return { error: NextResponse.json({ error: 'Acces interdit' }, { status: 403 }) };
+  }
+
+  return { tenantId: sessionTenantId, role };
 }
 
 /**
@@ -15,13 +47,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: clientId } = await params;
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
+    const requestedTenantId = searchParams.get('tenantId');
     const includeDossiers = searchParams.get('includeDossiers') !== 'false';
     const includeFactures = searchParams.get('includeFactures') !== 'false';
 
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
-    }
+    const access = await resolveTenantAccess(requestedTenantId);
+    if ('error' in access) return access.error;
+    const { tenantId } = access;
 
     const cacheKey = `client:${tenantId}:${clientId}:full`;
 
@@ -73,7 +105,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           },
         });
       },
-      TTL_TIERS.WARM
+      'WARM'
     );
 
     if (!client) {
@@ -104,11 +136,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: clientId } = await params;
     const body = await request.json();
-    const { tenantId, ...updateData } = body;
+    const { tenantId: requestedTenantId, ...updateData } = body;
 
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
-    }
+    const access = await resolveTenantAccess(requestedTenantId ?? null);
+    if ('error' in access) return access.error;
+    const { tenantId } = access;
 
     // Vérifier que le client existe
     const existing = await prisma.client.findFirst({
@@ -161,11 +193,16 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: clientId } = await params;
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
+    const requestedTenantId = searchParams.get('tenantId');
     const hardDelete = searchParams.get('hard') === 'true';
 
-    if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId requis' }, { status: 400 });
+    const access = await resolveTenantAccess(requestedTenantId);
+    if ('error' in access) return access.error;
+    const { tenantId, role } = access;
+
+    // hardDelete réservé aux admins
+    if (hardDelete && !new Set(['ADMIN', 'SUPER_ADMIN']).has(role)) {
+      return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
     }
 
     // Vérifier que le client existe

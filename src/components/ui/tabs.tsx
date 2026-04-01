@@ -17,14 +17,24 @@ const TabsContext = React.createContext<TabsContextValue | undefined>(undefined)
 
 export interface TabsProps {
   defaultValue?: string;
+  defaultTab?: string;
   value?: string;
   onValueChange?: (value: string) => void;
+  variant?: 'default' | 'pills' | 'underline';
+  tabs?: Array<{
+    id: string;
+    label: string;
+    icon?: React.ReactNode;
+    badge?: number;
+    content: React.ReactNode;
+  }>;
   className?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
-export function Tabs({ defaultValue, value: controlledValue, onValueChange, className, children }: TabsProps) {
-  const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue || '');
+export function Tabs({ defaultValue, defaultTab, value: controlledValue, onValueChange, variant, tabs, className, children }: TabsProps) {
+  const initialTab = defaultValue || defaultTab || '';
+  const [uncontrolledValue, setUncontrolledValue] = React.useState(initialTab);
   const value = controlledValue ?? uncontrolledValue;
 
   const handleValueChange = React.useCallback(
@@ -39,7 +49,42 @@ export function Tabs({ defaultValue, value: controlledValue, onValueChange, clas
 
   return (
     <TabsContext.Provider value={{ value, onValueChange: handleValueChange }}>
-      <div className={cn('w-full', className)}>{children}</div>
+      <div className={cn('w-full', className)}>
+        {tabs && tabs.length > 0 ? (
+          <>
+            <TabsList
+              className={cn(
+                variant === 'underline' && 'h-auto rounded-none bg-transparent p-0 border-b border-slate-200 dark:border-slate-800',
+                variant === 'pills' && 'h-auto rounded-lg bg-slate-100 dark:bg-slate-900 p-1'
+              )}
+            >
+              {tabs.map(tab => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className={cn(
+                    variant === 'underline' && 'rounded-none border-b-2 border-transparent data-[active=true]:border-primary',
+                    'gap-2'
+                  )}
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                  {typeof tab.badge === 'number' && tab.badge > 0 && (
+                    <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1 text-xs">
+                      {tab.badge}
+                    </span>
+                  )}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {tabs.map(tab => (
+              <TabsContent key={tab.id} value={tab.id} className="mt-4">
+                {tab.content}
+              </TabsContent>
+            ))}
+          </>
+        ) : (children ?? null)}
+      </div>
     </TabsContext.Provider>
   );
 }
@@ -62,6 +107,7 @@ export function TabsTrigger({ value, className, children }: { value: string; cla
     <button
       type="button"
       role="tab"
+      data-active={isActive}
       aria-selected={isActive}
       onClick={() => context.onValueChange(value)}
       className={cn(

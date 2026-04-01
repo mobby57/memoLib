@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File
+from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
@@ -16,6 +16,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'services'))
 from email_service import EmailService
 from ai_service import AIService
 from voice_service import VoiceService
+
+# Import routers
+from routes.client_portal import router as client_portal_router
+from routes.triage import router as triage_router
+from routes.payments import (
+    router as payments_router,
+    verify_admin_access,
+    _admin_rate_limit_headers_from_request,
+)
 
 # Initialize FastAPI
 app = FastAPI(
@@ -39,6 +48,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register routers
+app.include_router(client_portal_router)
+app.include_router(triage_router)
+app.include_router(payments_router)
 
 # Security
 security = HTTPBearer()
@@ -301,6 +315,19 @@ async def update_voice_settings(
         return result
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+@app.get("/payment-checkout", include_in_schema=False)
+async def payment_checkout_page():
+    """Page statique de test checkout Stripe (US19)."""
+    return FileResponse("wwwroot/payment-checkout.html")
+
+
+@app.get("/payment-events-admin", include_in_schema=False)
+async def payment_events_admin_page(request: Request):
+    """Page admin de consultation des events paiement."""
+    verify_admin_access(request)
+    return FileResponse("wwwroot/payment-events-admin.html", headers=_admin_rate_limit_headers_from_request(request))
 
 if __name__ == "__main__":
     import uvicorn

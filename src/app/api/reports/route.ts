@@ -37,17 +37,18 @@ export async function POST(request: NextRequest) {
 
     // Generer le rapport
     const report = await generateReport(type, data, format);
+    const responseBuffer = new Uint8Array(report.buffer as Buffer);
 
     // Retourner le rapport selon le format
     if (format === 'pdf') {
-      return new Response(report.buffer, {
+      return new Response(responseBuffer, {
         headers: {
           'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="${report.filename}"`,
         },
       });
     } else if (format === 'csv') {
-      return new Response(report.buffer, {
+      return new Response(responseBuffer, {
         headers: {
           'Content-Type': 'text/csv; charset=utf-8',
           'Content-Disposition': `attachment; filename="${report.filename}"`,

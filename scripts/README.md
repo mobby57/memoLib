@@ -218,6 +218,41 @@ Profil backend uniquement (frontend ignoré):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\predeploy-fullstack.ps1 -FrontendProfile skip -SkipMigrations
+
+## 13) Série de démo interactive (toutes fonctions principales)
+
+Menu interactif pas-à-pas:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\demo-series-interactive.ps1 -BaseUrl "http://localhost:5078"
+```
+
+Mode présentation client (ordre optimisé + ouverture UI):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\demo-series-interactive.ps1 -BaseUrl "http://localhost:5078" -Profile Client -OpenUi
+```
+
+Exécution complète automatique:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\demo-series-interactive.ps1 -BaseUrl "http://localhost:5078" -RunAll -AutoStartApi
+```
+
+Exécution complète en mode client:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\demo-series-interactive.ps1 -BaseUrl "http://localhost:5078" -Profile Client -RunAll -AutoStartApi
+```
+
+Le parcours couvre notamment:
+
+- démo API rapide
+- démo E2E complète
+- scénario client + audit
+- passerelle SMS forwarded
+- webhook Vonage simulé
+- vérification inbox SMS authentifiée
 ```
 
 Logs frontend: `dist/predeploy-fullstack-frontend.log`

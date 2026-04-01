@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -10,12 +10,12 @@ import { Suspense } from 'react';
 // Documentation des codes d'erreur NextAuth
 const errorMessages: { [key: string]: string } = {
   Configuration: 'Erreur de configuration du serveur. Contactez l\'administrateur.',
-  AccessDenied: 'Acces refuse. Vous n\'avez pas les permissions necessaires.',
-  Verification: 'Le lien de verification est expire ou invalide.',
+  AccessDenied: 'Accès refuse. Vous n\'avez pas les permissions nécessaires.',
+  Vérification: 'Le lien de vérification est expire ou invalide.',
   OAuthSignin: 'Erreur lors de la connexion OAuth.',
   OAuthCallback: 'Erreur lors du callback OAuth.',
-  OAuthCreateAccount: 'Impossible de creer le compte OAuth.',
-  EmailCreateAccount: 'Impossible de creer le compte par email.',
+  OAuthCreateAccount: 'Impossible de créer le compte OAuth.',
+  EmailCreateAccount: 'Impossible de créer le compte par email.',
   Callback: 'Erreur lors du callback d\'authentification.',
   OAuthAccountNotLinked: 'Ce compte email existe deja avec un autre fournisseur.',
   EmailSignin: 'Erreur lors de l\'envoi de l\'email de connexion.',
@@ -78,21 +78,21 @@ function AuthErrorContent() {
               href="/auth/login"
               className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
             >
-              Retour a la connexion
+              Retour à la connexion
             </Link>
             
             <Link
               href="/"
               className="block w-full border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
             >
-              Retour a l'accueil
+              Retour à l'accueil
             </Link>
           </div>
 
-          {/* Aide supplementaire */}
+          {/* Aide supplémentaire */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <p className="text-sm text-gray-500">
-              Probleme persistant ?{' '}
+              Problème persistant ?{' '}
               <a
                 href="mailto:support@memoLib.fr"
                 className="text-blue-600 hover:underline font-medium"

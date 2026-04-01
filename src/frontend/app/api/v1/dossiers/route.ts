@@ -1,4 +1,5 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,6 +14,11 @@ export async function GET(req: NextRequest) {
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const guard = requireApiPermission(session, RBAC_PERMISSIONS.DOSSIERS_READ);
+    if (!guard.ok) {
+      return guard.response;
     }
 
     // Get user & tenant
@@ -31,6 +37,8 @@ export async function GET(req: NextRequest) {
     const clientId = searchParams.get('clientId');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
+    const sortBy = searchParams.get('sortBy') || 'dateCreation';
+    const sortOrder = (searchParams.get('sortOrder') || 'desc').toLowerCase();
 
     const skip = (page - 1) * limit;
 
@@ -39,6 +47,12 @@ export async function GET(req: NextRequest) {
     if (statut) where.statut = statut;
     if (clientId) where.clientId = clientId;
 
+    const allowedSortBy = ['dateCreation', 'updatedAt', 'priorite', 'statut'] as const;
+    const normalizedSortBy = allowedSortBy.includes(sortBy as (typeof allowedSortBy)[number])
+      ? (sortBy as (typeof allowedSortBy)[number])
+      : 'dateCreation';
+    const normalizedSortOrder: 'asc' | 'desc' = sortOrder === 'asc' ? 'asc' : 'desc';
+
     // Fetch dossiers
     const [dossiers, total] = await Promise.all([
       prisma.dossier.findMany({
@@ -46,7 +60,7 @@ export async function GET(req: NextRequest) {
         include: { client: true, legalDeadlines: { take: 1, orderBy: { dueDate: 'asc' } } },
         skip,
         take: limit,
-        orderBy: { dateCreation: 'desc' },
+        orderBy: { [normalizedSortBy]: normalizedSortOrder },
       }),
       prisma.dossier.count({ where }),
     ]);
@@ -71,6 +85,11 @@ export async function POST(req: NextRequest) {
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const guard = requireApiPermission(session, RBAC_PERMISSIONS.DOSSIERS_MANAGE);
+    if (!guard.ok) {
+      return guard.response;
     }
 
     // Get user

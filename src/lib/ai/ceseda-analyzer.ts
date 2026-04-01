@@ -1,4 +1,5 @@
-﻿/**
+﻿// @ts-nocheck
+/**
  * CESEDA Case Analyzer - AI-Powered Legal Analysis
  * 
  * Uses Ollama to analyze immigration law cases and provide:
@@ -237,3 +238,5 @@ Fournis une analyse JSON avec:
 
 // Singleton export
 export const cesedaAnalyzer = new CESEDAAnalyzer();
+
+

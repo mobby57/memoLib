@@ -24,6 +24,8 @@ import { checkWebhookRateLimit } from '@/lib/webhook-rate-limit';
 import { validateWebhookPayloadSafe } from '@/lib/webhook-schemas';
 import { checkPayloadSize } from '@/lib/webhook-size-limits';
 import * as Sentry from '@sentry/nextjs';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 
@@ -39,7 +41,27 @@ const retryPrismaOperation = async (fn: () => any, name: string, retries: number
   }
 };
 
+async function ensureAdminAccess() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  }
+
+  const role = String((session.user as any).role || '').toUpperCase();
+  const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
+  if (!allowedRoles.has(role)) {
+    return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+  }
+
+  return null;
+}
+
 export async function GET() {
+  const authError = await ensureAdminAccess();
+  if (authError) {
+    return authError;
+  }
+
   return NextResponse.json({
     endpoint: '/api/webhooks/test-multichannel/phase4',
     phase: 'Phase 4: Améliorations Importantes',
@@ -60,6 +82,11 @@ export async function POST(req: NextRequest) {
   let logger: any = null;
 
   try {
+    const authError = await ensureAdminAccess();
+    if (authError) {
+      return authError;
+    }
+
     // Step 1: Parse JSON
     payload = await req.json();
     channel = payload?.channel || 'UNKNOWN';

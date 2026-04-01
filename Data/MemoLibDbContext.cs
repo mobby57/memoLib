@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MemoLib.Api.Models;
+using System.Text.Json;
 
 namespace MemoLib.Api.Data;
 
@@ -7,6 +11,12 @@ public class MemoLibDbContext : DbContext
 {
     public MemoLibDbContext(DbContextOptions<MemoLibDbContext> options)
         : base(options) { }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(w =>
+            w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    }
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Source> Sources => Set<Source>();
@@ -28,13 +38,68 @@ public class MemoLibDbContext : DbContext
     public DbSet<UserInvitation> UserInvitations => Set<UserInvitation>();
     public DbSet<UserTeamMembership> UserTeamMemberships => Set<UserTeamMembership>();
     public DbSet<SatisfactionSurvey> SatisfactionSurveys => Set<SatisfactionSurvey>();
+    public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<ClientOnboardingTemplate> ClientOnboardingTemplates => Set<ClientOnboardingTemplate>();
     public DbSet<ClientOnboardingRequest> ClientOnboardingRequests => Set<ClientOnboardingRequest>();
+    public DbSet<RoleNotification> RoleNotifications => Set<RoleNotification>();
+    public DbSet<CaseNote> CaseNotes => Set<CaseNote>();
+    public DbSet<CaseTask> CaseTasks => Set<CaseTask>();
+    public DbSet<CaseDocument> CaseDocuments => Set<CaseDocument>();
+    public DbSet<PhoneCall> PhoneCalls => Set<PhoneCall>();
+    public DbSet<CustomForm> CustomForms => Set<CustomForm>();
+    public DbSet<FormSubmission> FormSubmissions => Set<FormSubmission>();
+    public DbSet<Automation> Automations => Set<Automation>();
+    public DbSet<Report> Reports => Set<Report>();
+    public DbSet<Integration> Integrations => Set<Integration>();
+    public DbSet<TeamMessage> TeamMessages => Set<TeamMessage>();
+    public DbSet<ExternalShare> ExternalShares => Set<ExternalShare>();
+    public DbSet<UserAutomationSettings> UserAutomationSettings => Set<UserAutomationSettings>();
+    public DbSet<PendingAction> PendingActions => Set<PendingAction>();
+    public DbSet<CaseCollaborator> CaseCollaborators => Set<CaseCollaborator>();
+    public DbSet<CaseActivity> CaseActivities => Set<CaseActivity>();
+    public DbSet<CaseComment> CaseComments => Set<CaseComment>();
+    public DbSet<TaskDependency> TaskDependencies => Set<TaskDependency>();
+    public DbSet<TaskChecklistItem> TaskChecklistItems => Set<TaskChecklistItem>();
+    public DbSet<TimeEntry> TimeEntries => Set<TimeEntry>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
+    public DbSet<Webhook> Webhooks => Set<Webhook>();
+    public DbSet<WebhookLog> WebhookLogs => Set<WebhookLog>();
+    public DbSet<CalendarEvent> CalendarEvents => Set<CalendarEvent>();
+    public DbSet<AdvancedTemplate> AdvancedTemplates => Set<AdvancedTemplate>();
+    public DbSet<DocumentSignature> DocumentSignatures => Set<DocumentSignature>();
+    public DbSet<SignatureRequest> SignatureRequests => Set<SignatureRequest>();
+    public DbSet<DynamicForm> DynamicForms => Set<DynamicForm>();
+    public DbSet<ClientIntakeForm> ClientIntakeForms => Set<ClientIntakeForm>();
+    public DbSet<ClientIntakeSubmission> ClientIntakeSubmissions => Set<ClientIntakeSubmission>();
+    public DbSet<SharedWorkspace> SharedWorkspaces => Set<SharedWorkspace>();
+    public DbSet<WorkspaceDocument> WorkspaceDocuments => Set<WorkspaceDocument>();
+    public DbSet<WorkspaceActivity> WorkspaceActivities => Set<WorkspaceActivity>();
+    public DbSet<SecretVault> SecretVaults => Set<SecretVault>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+    public DbSet<LegalDeadline> LegalDeadlines => Set<LegalDeadline>();
+    public DbSet<Hearing> Hearings => Set<Hearing>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        var jsonSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var stringListConverter = new ValueConverter<List<string>, string>(
+            value => JsonSerializer.Serialize(value ?? new List<string>(), jsonSerializerOptions),
+            value => JsonSerializer.Deserialize<List<string>>(value, jsonSerializerOptions) ?? new List<string>());
+
+        var stringListComparer = new ValueComparer<List<string>>(
+            (left, right) => JsonSerializer.Serialize(left ?? new List<string>(), jsonSerializerOptions) == JsonSerializer.Serialize(right ?? new List<string>(), jsonSerializerOptions),
+            value => JsonSerializer.Serialize(value ?? new List<string>(), jsonSerializerOptions).GetHashCode(),
+            value => value == null ? new List<string>() : value.ToList());
+
         modelBuilder.Entity<CaseEvent>()
             .HasKey(ce => new { ce.CaseId, ce.EventId });
+
+        modelBuilder.Entity<CaseDocument>()
+            .Property(d => d.Tags)
+            .HasConversion(stringListConverter)
+            .Metadata.SetValueComparer(stringListComparer);
 
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
@@ -86,6 +151,9 @@ public class MemoLibDbContext : DbContext
         modelBuilder.Entity<Answer>()
             .HasIndex(a => a.ResponseId);
 
+        modelBuilder.Entity<Tenant>()
+            .HasIndex(t => new { t.SectorId, t.IsActive });
+
         modelBuilder.Entity<ClientOnboardingTemplate>()
             .HasIndex(t => new { t.UserId, t.IsActive });
 
@@ -95,5 +163,232 @@ public class MemoLibDbContext : DbContext
 
         modelBuilder.Entity<ClientOnboardingRequest>()
             .HasIndex(r => new { r.OwnerUserId, r.Status, r.CreatedAt });
+
+        modelBuilder.Entity<Tenant>()
+            .HasIndex(t => t.SectorId)
+            .IsUnique();
+
+        modelBuilder.Entity<Tenant>()
+            .HasIndex(t => t.IsActive);
+
+        modelBuilder.Entity<RoleNotification>()
+            .HasIndex(n => new { n.UserId, n.IsRead, n.CreatedAt });
+
+        modelBuilder.Entity<CaseNote>()
+            .HasIndex(n => new { n.CaseId, n.CreatedAt });
+
+        modelBuilder.Entity<CaseTask>()
+            .HasIndex(t => new { t.CaseId, t.IsCompleted, t.DueDate });
+
+        modelBuilder.Entity<CaseDocument>()
+            .HasIndex(d => new { d.CaseId, d.Version });
+
+        modelBuilder.Entity<PhoneCall>()
+            .HasIndex(p => new { p.CaseId, p.StartTime });
+
+        modelBuilder.Entity<TimeEntry>()
+            .HasIndex(t => new { t.CaseId, t.UserId, t.StartTime });
+
+
+
+        modelBuilder.Entity<CalendarEvent>()
+            .HasIndex(e => new { e.UserId, e.StartTime });
+
+        modelBuilder.Entity<CustomForm>()
+            .HasIndex(f => new { f.UserId, f.IsActive });
+        modelBuilder.Entity<CustomForm>()
+            .Property(f => f.Fields)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<FormField>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<FormSubmission>()
+            .HasIndex(s => new { s.FormId, s.SubmittedAt });
+        modelBuilder.Entity<FormSubmission>()
+            .Property(s => s.Responses)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<Automation>()
+            .HasIndex(a => new { a.UserId, a.IsActive });
+        modelBuilder.Entity<Automation>()
+            .Property(a => a.TriggerConditions)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, jsonSerializerOptions) ?? new());
+        modelBuilder.Entity<Automation>()
+            .Property(a => a.ActionParams)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<Report>()
+            .HasIndex(r => new { r.UserId, r.GeneratedAt });
+        modelBuilder.Entity<Report>()
+            .Property(r => r.Filters)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<Integration>()
+            .HasIndex(i => new { i.UserId, i.Provider, i.IsActive });
+        modelBuilder.Entity<Integration>()
+            .Property(i => i.Settings)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<TeamMessage>()
+            .HasIndex(m => new { m.ToUserId, m.IsRead, m.SentAt });
+
+        modelBuilder.Entity<ExternalShare>()
+            .HasIndex(s => s.ShareToken)
+            .IsUnique();
+        modelBuilder.Entity<ExternalShare>()
+            .Property(s => s.DocumentIds)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<Guid>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<AdvancedTemplate>()
+            .Property(t => t.Variables)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<TemplateVariable>>(v, jsonSerializerOptions) ?? new());
+        modelBuilder.Entity<AdvancedTemplate>()
+            .Property(t => t.Conditions)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<TemplateCondition>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<DocumentSignature>()
+            .Property(s => s.SignatureRequests)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<SignatureRequest>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<DynamicForm>()
+            .Property(f => f.Fields)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<FormField>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<Models.FormSubmission>()
+            .Property(s => s.Data)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<ClientIntakeForm>()
+            .HasIndex(f => new { f.UserId, f.IsActive });
+        modelBuilder.Entity<ClientIntakeForm>()
+            .Property(f => f.Fields)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<IntakeFormField>>(v, jsonSerializerOptions) ?? new());
+        modelBuilder.Entity<ClientIntakeForm>()
+            .Property(f => f.RequiredDocuments)
+            .HasConversion(stringListConverter)
+            .Metadata.SetValueComparer(stringListComparer);
+
+        modelBuilder.Entity<ClientIntakeSubmission>()
+            .HasIndex(s => new { s.FormId, s.Status, s.SubmittedAt });
+        modelBuilder.Entity<ClientIntakeSubmission>()
+            .Property(s => s.FormData)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, jsonSerializerOptions) ?? new());
+        modelBuilder.Entity<ClientIntakeSubmission>()
+            .Property(s => s.UploadedDocumentIds)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<Guid>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<SharedWorkspace>()
+            .HasIndex(w => new { w.CaseId, w.IsActive });
+        modelBuilder.Entity<SharedWorkspace>()
+            .Property(w => w.Participants)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<List<WorkspaceParticipant>>(v, jsonSerializerOptions) ?? new());
+
+        modelBuilder.Entity<WorkspaceDocument>()
+            .HasIndex(d => new { d.WorkspaceId, d.UploadedAt });
+        modelBuilder.Entity<WorkspaceDocument>()
+            .Property(d => d.VisibleToRoles)
+            .HasConversion(stringListConverter)
+            .Metadata.SetValueComparer(stringListComparer);
+
+        modelBuilder.Entity<WorkspaceActivity>()
+            .HasIndex(a => new { a.WorkspaceId, a.OccurredAt });
+
+        modelBuilder.Entity<SecretVault>()
+            .HasIndex(s => new { s.UserId, s.Key })
+            .IsUnique();
+
+        modelBuilder.Entity<CaseCollaborator>()
+            .HasOne(c => c.User)
+            .WithMany()
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CaseCollaborator>()
+            .HasOne(c => c.AddedBy)
+            .WithMany()
+            .HasForeignKey(c => c.AddedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Case>()
+            .HasOne(c => c.Owner)
+            .WithMany(u => u.OwnedCases)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Case>()
+            .HasOne(c => c.AssignedTo)
+            .WithMany(u => u.AssignedCases)
+            .HasForeignKey(c => c.AssignedToUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TaskDependency>()
+            .HasOne(d => d.Task)
+            .WithMany(t => t.Dependencies)
+            .HasForeignKey(d => d.TaskId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TaskDependency>()
+            .HasOne(d => d.DependsOnTask)
+            .WithMany()
+            .HasForeignKey(d => d.DependsOnTaskId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(r => r.Token)
+            .IsUnique();
+
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(r => new { r.UserId, r.RevokedAt });
+
+        modelBuilder.Entity<EmailVerificationToken>()
+            .HasIndex(t => t.Token)
+            .IsUnique();
+
+        modelBuilder.Entity<EmailVerificationToken>()
+            .HasIndex(t => t.UserId);
+
+        modelBuilder.Entity<LegalDeadline>()
+            .HasIndex(d => new { d.CaseId, d.Deadline });
+
+        modelBuilder.Entity<LegalDeadline>()
+            .HasIndex(d => new { d.Status, d.Deadline });
+
+        modelBuilder.Entity<Hearing>()
+            .HasIndex(h => new { h.CaseId, h.Date });
+
+        modelBuilder.Entity<Hearing>()
+            .HasIndex(h => new { h.Status, h.Date });
+
+        base.OnModelCreating(modelBuilder);
     }
 }

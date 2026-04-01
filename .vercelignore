@@ -1,88 +1,92 @@
-# Dependencies
-node_modules
-node_modules_backup
-.pnp
-.pnp.js
-
-# Testing
-coverage
-__tests__
-*.test.ts
-*.test.tsx
-*.spec.ts
-*.spec.tsx
-
-# Build outputs (Vercel rebuilds from source)
+# Build artifacts & caches
 .next
-out
-dist
-build
-.turbo
-
-# Cache
-.cache
-*.cache
-.parcel-cache
-
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# OS
-.DS_Store
-*.pem
-Thumbs.db
-
-# Local env files (pulled from Vercel)
-.env*.local
-
-# Vercel
-.vercel
-
-# IDE
-.vscode
-.idea
-*.swp
-*.swo
-*~
-
-# Prisma
-prisma/dev.db
-prisma/dev.db-journal
+node_modules
 *.db
-*.db-journal
+*.db-shm
+*.db-wal
+coverage/
+test-results/
+playwright-report/
+.jest-cache/
+.open-next/
+.swc/
+.wrangler/
+out/
+dist/
+publish/
 
-# Scripts
-scripts/*.ps1
-scripts/*.sh
-scripts/*.bat
+# .NET (root level only)
+/bin/
+/obj/
+/Controllers/
+/Models/
+/Data/
+/Services/
+/Migrations/
+/Migrations_sqlite_backup/
+/Hubs/
+/Middleware/
+/Validators/
+/Exceptions/
+/Extensions/
+/Authorization/
+/Configuration/
+/Contracts/
+/Properties/
+Program.cs
+*.csproj
+*.csx
 
-# Documentation
+# Python backend
+/backend-python/
+/ai-service/
+/venv/
+/.venv/
+
+# Docker
+/docker/
+docker-compose*.yml
+compose*.yaml
+Dockerfile*
+
+# Scripts & tools
+/scripts/
+*.ps1
+*.bat
+/tampermonkey/
+/cloudflare-workers/
+/security/
+/analysis/
+/issues/
+/pull_requests/
+
+# Docs
+/docs/
 *.md
 !README.md
 
-# Git
-.git
-.gitignore
-.gitattributes
+# Logs & temp
+/logs/
+/memolib-logs/
+/artifacts/
+*.log
+.tmp_*
+*.tar
+*.tar.gz
+*.zip
 
-# Temporary files
-tmp
-temp
-*.tmp
-*.bak
-*.backup
+# Tests (root level only)
+/tests/
+*.http
 
-# Build artifacts
-build-*.txt
-*.txt
-!package.json
-
-# Test files
-test-*.ps1
-*.test.js
+# Other
+/marketing/
+/app-sentry-backup/
+/MemoLib-Package-Client/
+/frontend-node/
+/wwwroot/
+*.ipynb
+*.csv
+.zap/
+.devcontainer/
+.husky/

@@ -3,7 +3,25 @@
  * @jest-environment node
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
+
+let mockSecretCounter = 0;
+
+jest.mock('otplib', () => ({
+  authenticator: {
+    generateSecret: () => `JBSWY3DPEHPK3PXP${mockSecretCounter++}`,
+    keyuri: (email: string, issuer: string, secret: string) =>
+      `otpauth://totp/${issuer}:${encodeURIComponent(email)}?secret=${secret}&issuer=${issuer}`,
+    check: (token: string, secret: string) => Boolean(secret) && token === '123456',
+  },
+}));
+
+jest.mock('qrcode', () => ({
+  __esModule: true,
+  default: {
+    toDataURL: async () => `data:image/png;base64,${'A'.repeat(256)}`,
+  },
+}));
 
 import {
   generate2FASecret,

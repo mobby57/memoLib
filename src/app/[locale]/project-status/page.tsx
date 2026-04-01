@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -74,7 +74,7 @@ export default function ProjectStatusPage() {
             <StatusIndicator status={status.ai} label="Ollama + GPT" />
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="font-semibold mb-4"> Securite</h3>
+            <h3 className="font-semibold mb-4"> Sécurité</h3>
             <StatusIndicator status={status.security} label="Chiffrement E2E" />
           </div>
           <div className="bg-white p-6 rounded-lg shadow-sm border">
@@ -97,7 +97,7 @@ export default function ProjectStatusPage() {
             <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
               <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">[Check]</div>
               <div>
-                <div className="font-medium"> Expert Securite</div>
+                <div className="font-medium"> Expert Sécurité</div>
                 <div className="text-xs text-gray-600">RGPD conforme</div>
               </div>
             </div>
@@ -146,7 +146,7 @@ export default function ProjectStatusPage() {
           </a>
           <a href="/advanced-features" className="block bg-purple-600 text-white p-6 rounded-lg hover:bg-purple-700">
             <div className="text-xl font-semibold mb-2"> IA Avancee</div>
-            <div className="text-purple-100">Fonctionnalites innovantes</div>
+            <div className="text-purple-100">Fonctionnalités innovantes</div>
           </a>
           <a href="/dossiers" className="block bg-green-600 text-white p-6 rounded-lg hover:bg-green-700">
             <div className="text-xl font-semibold mb-2">? Dossiers</div>

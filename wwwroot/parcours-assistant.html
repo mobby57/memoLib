@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcours Assistant(e) - MemoLib</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 30px; text-align: center; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .section { background: white; border-radius: 15px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section h2 { color: #27ae60; margin-bottom: 20px; }
+        .triage-queue { display: grid; gap: 15px; }
+        .triage-item { background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 5px solid #f39c12; display: flex; justify-content: space-between; align-items: center; }
+        .triage-item.urgent { border-left-color: #e74c3c; }
+        .triage-item.normal { border-left-color: #27ae60; }
+        .priority-badge { padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: bold; color: white; }
+        .urgent { background: #e74c3c; }
+        .high { background: #f39c12; }
+        .normal { background: #27ae60; }
+        .btn { background: linear-gradient(45deg, #27ae60, #2ecc71); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4); }
+        .checklist { list-style: none; }
+        .checklist li { padding: 12px; margin-bottom: 10px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; }
+        .checklist li input[type="checkbox"] { margin-right: 15px; width: 20px; height: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-number { font-size: 2.5em; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 Parcours Assistant(e)</h1>
+        <p>Triage, organisation et passation des dossiers</p>
+    </div>
+
+    <div class="container">
+        <!-- Statistiques -->
+        <div class="section">
+            <h2>📊 Tableau de Bord</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingCount">0</div>
+                    <div>En attente de triage</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="processedToday">0</div>
+                    <div>Traités aujourd'hui</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgResponseTime">0min</div>
+                    <div>Temps moyen de réponse</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File de triage prioritaire -->
+        <div class="section">
+            <h2>🎯 File de Triage (US12)</h2>
+            <p style="margin-bottom: 20px; color: #666;">Nouveaux dossiers à traiter par ordre de priorité et SLA</p>
+            <div class="triage-queue">
+                <div class="triage-item urgent">
+                    <div>
+                        <span class="priority-badge urgent">URGENT</span>
+                        <strong style="display: block; margin: 10px 0;">Nouveau dossier - Divorce contentieux</strong>
+                        <div style="font-size: 0.9em; color: #666;">
+                            Client: Sophie Martin | Reçu: Il y a 15 min | SLA: 2h restantes
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn" onclick="startTriage('case1')">Traiter</button>
+                    </div>
+                </div>
+                <div class="triage-item">
+                    <div>
+                        <span class="priority-badge high">IMPORTANT</span>
+                        <strong style="display: block; margin: 10px 0;">Demande info - Litige locatif</strong>
+                        <div style="font-size: 0.9em; color: #666;">
+                            Client: Jean Dupont | Reçu: Il y a 1h | SLA: 23h restantes
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn" onclick="startTriage('case2')">Traiter</button>
+                    </div>
+                </div>
+                <div class="triage-item normal">
+                    <div>
+                        <span class="priority-badge normal">NORMAL</span>
+                        <strong style="display: block; margin: 10px 0;">Question générale - Succession</strong>
+                        <div style="font-size: 0.9em; color: #666;">
+                            Client: Marie Lefebvre | Reçu: Il y a 3h | SLA: 45h restantes
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn" onclick="startTriage('case3')">Traiter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checklist de passation (US13) -->
+        <div class="section">
+            <h2>✅ Checklist de Passation (US13)</h2>
+            <p style="margin-bottom: 20px; color: #666;">Vérifiez tous les points avant de transférer au juriste/avocat</p>
+            <form id="handoffForm">
+                <ul class="checklist">
+                    <li><input type="checkbox" required> Identité client vérifiée (nom, email, téléphone)</li>
+                    <li><input type="checkbox" required> Type de dossier identifié et catégorisé</li>
+                    <li><input type="checkbox" required> Urgence évaluée et SLA défini</li>
+                    <li><input type="checkbox" required> Documents reçus vérifiés et classés</li>
+                    <li><input type="checkbox" required> Première note de contexte rédigée</li>
+                    <li><input type="checkbox" required> Juriste/Avocat assigné sélectionné</li>
+                    <li><input type="checkbox" required> Client informé de la prise en charge</li>
+                </ul>
+                <div style="margin-top: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">Assigner à:</label>
+                    <select style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;">
+                        <option>Maître Sophie Martin (Droit de la famille)</option>
+                        <option>Maître Jean Dupont (Droit immobilier)</option>
+                        <option>Maître Claire Bernard (Droit du travail)</option>
+                    </select>
+                    <button type="submit" class="btn">Transférer au juriste</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="section">
+            <h2>⚡ Actions Rapides</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <button class="btn" onclick="window.open('/demo.html#ingest', '_blank')">Créer Nouveau Dossier</button>
+                <button class="btn" onclick="window.open('/demo.html#client', '_blank')">Ajouter Client</button>
+                <button class="btn" onclick="window.open('/demo.html#search', '_blank')">Rechercher Dossier</button>
+                <button class="btn" onclick="window.open('/demo.html#team', '_blank')">Voir l'Équipe</button>
+            </div>
+        </div>
+
+        <!-- Historique des passations -->
+        <div class="section">
+            <h2>📜 Historique des Passations</h2>
+            <div style="max-height: 400px; overflow-y: auto;">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <strong>Dossier Divorce Martin</strong> → Maître Sophie Martin
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        Passé il y a 2h | Temps de triage: 25 min | ✅ Checklist complète
+                    </div>
+                </div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <strong>Dossier Litige Dupont</strong> → Maître Jean Dupont
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        Passé il y a 4h | Temps de triage: 18 min | ✅ Checklist complète
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('handoffForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const checkboxes = document.querySelectorAll('#handoffForm input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            if (!allChecked) {
+                alert('❌ Veuillez cocher tous les points de la checklist avant de transférer');
+                return;
+            }
+            
+            alert('✅ Dossier transféré avec succès au juriste !');
+            window.location.reload();
+        });
+
+        function startTriage(caseId) {
+            alert(`Démarrage du triage pour ${caseId}`);
+        }
+
+        // Charger stats
+        document.getElementById('pendingCount').textContent = '3';
+        document.getElementById('processedToday').textContent = '12';
+        document.getElementById('avgResponseTime').textContent = '22min';
+    </script>
+</body>
+</html>

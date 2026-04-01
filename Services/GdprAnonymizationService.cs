@@ -11,7 +11,7 @@ public class GdprAnonymizationService
     private static readonly Regex NamePattern = new(@"\b[A-Z][a-z]+ [A-Z][a-z]+\b", RegexOptions.Compiled);
     private static readonly Regex AddressPattern = new(@"\d+[,\s]+[^,\n]+[,\s]+\d{5}[,\s]+[A-Za-z\s]+", RegexOptions.Compiled);
 
-    public AnonymizedData AnonymizeClientData(string originalText, string clientId = null)
+    public AnonymizedData AnonymizeClientData(string originalText, string? clientId = null)
     {
         var anonymized = originalText;
         var mappings = new Dictionary<string, string>();

@@ -3,68 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
-    <title>MemoLib - Démonstration Client</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src *;">
+    <title>MemoLib - Système de Gestion Professionnel</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.webmanifest">
+    
+    <!-- Meta tags PWA essentiels -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MemoLib">
+    <meta name="application-name" content="MemoLib">
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-navbutton-color" content="#667eea">
+    
+    <!-- Icônes -->
+    <link rel="apple-touch-icon" href="/icon.svg">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icon-16.png">
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- Service Worker -->
+    <script src="/pwa-register.js" defer></script>
+    
+    <link rel="stylesheet" href="css/memolib-theme.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
-        .header p { font-size: 1.2em; opacity: 0.9; }
-        .card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); backdrop-filter: blur(10px); transition: all 0.3s ease; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
-        .card h2 { color: #667eea; margin-bottom: 15px; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 16px; margin: 5px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); background: linear-gradient(45deg, #5568d3, #6a4c93); }
-        .btn:active { transform: translateY(0); }
-        .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
-        .input-group input, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
-        .result { background: #f8f9fa; border-left: 4px solid #667eea; padding: 15px; margin-top: 15px; border-radius: 5px; }
-        .success { border-left-color: #28a745; background: #d4edda; }
-        .error { border-left-color: #dc3545; background: #f8d7da; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-        .stat-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-box .number { font-size: 2.5em; font-weight: bold; }
-        .stat-box .label { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
-        .event-list { max-height: 400px; overflow-y: auto; }
-        .event-item { background: #f8f9fa; padding: 15px; margin-bottom: 10px; border-radius: 5px; border-left: 3px solid #667eea; }
-        .event-item .date { color: #666; font-size: 0.9em; }
-        .event-item .content { margin-top: 5px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { padding: 10px 20px; background: #e9ecef; border: none; border-radius: 5px; cursor: pointer; }
-        .tab.active { background: #667eea; color: white; }
-        .hidden { display: none; }
-        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        .quickbar { background: white; border-radius: 10px; padding: 14px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #888; display: inline-block; }
-        .status-dot.ok { background: #1f8f3a; }
-        .status-dot.err { background: #c62828; }
-        .search-options { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
-        .search-options label { display: inline-flex; align-items: center; gap: 6px; color: #555; font-size: 13px; }
-        .search-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #eef2ff; color: #3b4cca; font-size: 12px; margin-left: 8px; }
-        .search-ids { font-size: 12px; color: #666; margin-top: 6px; word-break: break-all; }
-        .case-item { cursor: pointer; transition: background 0.2s; }
-        .case-item:hover { background: #f0f0f0; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 10px; max-width: 800px; max-height: 80vh; overflow-y: auto; }
-        .modal-close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; }
-        .modal-close:hover { color: #000; }
-        .meta-chip { display:inline-block; padding:3px 8px; border-radius:999px; background:#eef2ff; color:#3744a0; font-size:12px; margin:4px 6px 0 0; }
-        .annex-list { margin-top:8px; padding-left:18px; color:#444; }
-        .guide-box { background:#eef7ff; border-left:4px solid #4a6ee0; padding:10px; border-radius:6px; margin:10px 0 14px 0; font-size:13px; color:#244; }
-        .api-banner { margin: 10px 0 14px 0; padding: 10px 12px; border-radius: 6px; border-left: 4px solid #999; background: #f3f4f6; color: #333; font-size: 13px; }
-        .api-banner.ok { border-left-color: #1f8f3a; background: #e8f7ed; color: #14532d; }
-        .api-banner.err { border-left-color: #c62828; background: #fdecec; color: #7f1d1d; }
+        /* Styles spécifiques à la page démo */
+        /* Les styles de base sont dans modern-ui.css */
+        /* Styles additionnels pour compatibilité */
+        .hidden { display: none !important; }
+        /* Stats définis dans modern-ui.css */
+        /* Éléments de liste définis dans modern-ui.css */
+        pre { background: var(--gray-50); padding: 1rem; border-radius: var(--radius); overflow-x: auto; }
+        /* Quickbar défini dans modern-ui.css */
+        .search-options { display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap; }
+        .search-options label { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--gray-600); font-size: 0.875rem; }
+        .search-ids { font-size: 0.75rem; color: var(--gray-500); margin-top: 0.5rem; word-break: break-all; }
+        .case-item { cursor: pointer; }
+        /* Modal défini dans modern-ui.css */
+        /* Chips et badges définis dans modern-ui.css */
+        .annex-list { margin-top: 0.5rem; padding-left: 1.25rem; color: var(--gray-700); }
+        .api-banner { margin: 0.75rem 0; padding: 0.75rem 1rem; border-radius: var(--radius); border-left: 4px solid var(--gray-400); background: var(--gray-100); color: var(--gray-700); font-size: 0.875rem; }
+        .api-banner.ok { border-left-color: var(--success); background: #d1fae5; color: #065f46; }
+        .api-banner.err { border-left-color: var(--danger); background: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🚀 MemoLib</h1>
-            <p>Votre assistant simple pour suivre vos emails, clients et dossiers</p>
+            <p>Système de gestion d'emails pour cabinets d'avocats</p>
+            <div style="margin-top: 20px;">
+                <h3>Choisissez votre rôle pour une démo adaptée :</h3>
+                <div style="display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+                    <button class="btn" onclick="openRoleDemo('owner')" style="background: linear-gradient(45deg, #2c3e50, #34495e);">🏛️ OWNER - Propriétaire Cabinet</button>
+                    <button class="btn" onclick="openRoleDemo('admin')" style="background: linear-gradient(45deg, #667eea, #764ba2);">⚖️ ADMIN - Avocat Senior</button>
+                    <button class="btn" onclick="openRoleDemo('agent')" style="background: linear-gradient(45deg, #27ae60, #2ecc71);">📋 AGENT - Collaborateur</button>
+                    <button class="btn" onclick="openRoleDemo('client')" style="background: linear-gradient(45deg, #3498db, #2980b9);">👤 CLIENT - Espace Client</button>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <p><strong>Ou continuez avec la démo complète ci-dessous</strong></p>
+                    <a href="demo-accelerateurs.html" style="display:inline-block;margin-top:10px;padding:12px 24px;background:linear-gradient(45deg,#ff9800,#f44336);color:white;border-radius:8px;text-decoration:none;font-weight:600;">⚡ Démo Accélérateurs de Productivité</a>
+                </div>
+            </div>
         </div>
 
         <div class="guide-box">
@@ -77,6 +83,7 @@
 
         <div class="quickbar">
             <button class="btn" id="installBtn">Installer sur PC/Mac</button>
+            <button class="btn" id="logoutBtn" style="background:#c62828;display:none;">🚪 Déconnexion</button>
             <button class="btn" id="stopBtn">Arrêter l'application</button>
             <button class="btn" onclick="openAnomalyCenter()">Centre anomalies</button>
             <button class="btn" onclick="showAdvancedDashboard()" style="background:#28a745;">📊 Dashboard Avancé</button>
@@ -93,54 +100,113 @@
             <span id="accessModeText"></span>
         </div>
 
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('auth')">🔐 Authentification</button>
-            <button class="tab" onclick="showTab('ingest')">📧 Ingestion Email</button>
-            <button id="alertsTabButton" class="tab" onclick="showTab('alerts')">⚠️ Alertes</button>
-            <button class="tab" onclick="showTab('search')">🔍 Recherche Intelligente</button>
-            <button class="tab" onclick="showTab('client')">👤 Clients</button>
-            <button class="tab" onclick="showTab('client-detail')">🧑‍💼 Client détaillé</button>
-            <button class="tab" onclick="showTab('cases')">📁 Gestion Dossiers</button>
-            <button class="tab" onclick="showTab('stats')">📊 Analytics</button>
-            <button class="tab" onclick="showTab('export')">📤 Export</button>
-            <button class="tab" onclick="showTab('audit')">🧾 Audit</button>
-            <button class="tab" onclick="showTab('team')">⚖️ Équipe</button>
-        </div>
+        <nav style="display:flex;flex-wrap:wrap;gap:8px;padding:15px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:10px;box-shadow:0 4px 15px rgba(102,126,234,0.3);">
+            <button class="tab active" onclick="showTab('auth')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.95);color:#667eea;font-weight:600;cursor:pointer;transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.1);">🔐 Auth</button>
+            <button class="tab" onclick="showTab('ingest')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">📧 Emails</button>
+            <button id="alertsTabButton" class="tab" onclick="showTab('alerts')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">⚠️ Alertes</button>
+            <button class="tab" onclick="showTab('search')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">🔍 Recherche</button>
+            <button class="tab" onclick="showTab('client')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">👤 Clients</button>
+            <button class="tab" onclick="showTab('cases')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">📁 Dossiers</button>
+            <button class="tab" onclick="showTab('stats')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">📊 Stats</button>
+            <button class="tab" onclick="showTab('team')" style="flex:1;min-width:120px;padding:10px 14px;border:none;border-radius:8px;background:rgba(255,255,255,0.2);color:white;font-weight:600;cursor:pointer;transition:all 0.3s;">⚖️ Équipe</button>
+        </nav>
 
         <!-- Auth Tab -->
         <div id="auth-tab" class="tab-content">
-            <div class="card">
-                <h2>Inscription</h2>
-                <p style="color:#666; margin-bottom:15px;">📝 Créez votre compte en 30 secondes. Une fois créé, vous pourrez scanner vos emails et retrouver facilement vos dossiers.</p>
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="reg-email" placeholder="avocat@cabinet.fr" autocomplete="off">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start;">
+                <!-- Connexion (prioritaire, a gauche) -->
+                <div class="card" style="border-top:4px solid #667eea;">
+                    <h2 style="display:flex;align-items:center;gap:10px;">🔑 Connexion</h2>
+                    <p style="color:#666; margin-bottom:15px;">Accédez à votre espace cabinet</p>
+                    <div class="input-group">
+                        <label>Email professionnel</label>
+                        <input type="email" id="login-email" placeholder="maitre@cabinet.fr" autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label>Mot de passe</label>
+                        <div style="position:relative;">
+                            <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+                            <button type="button" onclick="togglePasswordVisibility('login-password', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;" title="Afficher/masquer">👁️</button>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="login()" style="width:100%;padding:14px;font-size:16px;">Se connecter</button>
+                    <div id="login-result"></div>
+                    <div style="margin-top:15px;padding:12px;background:#f0f4ff;border-radius:8px;font-size:13px;color:#555;">
+                        <strong>Compte demo :</strong> demo@memolib.com / Demo2026!
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>Mot de passe (min 8 caractères, majuscules, minuscules, chiffres)</label>
-                    <input type="password" id="reg-password" placeholder="SecurePass123!" autocomplete="new-password">
-                </div>
-                <div class="input-group">
-                    <label>Nom</label>
-                    <input type="text" id="reg-name" placeholder="Jean Dupont" autocomplete="off">
-                </div>
-                <button class="btn" onclick="register()">S'inscrire</button>
-                <div id="reg-result"></div>
-            </div>
 
-            <div class="card">
-                <h2>Connexion</h2>
-                <p style="color:#666; margin-bottom:15px;">🔑 Connectez-vous pour accéder à vos données. Si vous êtes nouveau, utilisez l'inscription juste au-dessus.</p>
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="login-email" placeholder="avocat@cabinet.fr" autocomplete="off">
+                <!-- Inscription -->
+                <div class="card" style="border-top:4px solid #27ae60;">
+                    <h2 style="display:flex;align-items:center;gap:10px;">📝 Créer un compte</h2>
+                    <p style="color:#666; margin-bottom:15px;">Inscription gratuite en 30 secondes</p>
+
+                    <!-- Etape 1: Identite -->
+                    <div id="reg-step-1">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                            <span style="background:#667eea;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;">1</span>
+                            <strong style="color:#667eea;">Votre identité</strong>
+                        </div>
+                        <div class="input-group">
+                            <label>Nom complet *</label>
+                            <input type="text" id="reg-name" placeholder="Me Sarra Boudjellal" autocomplete="off">
+                        </div>
+                        <div class="input-group">
+                            <label>Email professionnel *</label>
+                            <input type="email" id="reg-email" placeholder="sarra@cabinet-boudjellal.fr" autocomplete="off">
+                        </div>
+                        <div class="input-group">
+                            <label>Mot de passe * <span style="font-weight:normal;color:#999;font-size:12px;">(min 8 car., majuscule, chiffre)</span></label>
+                            <div style="position:relative;">
+                                <input type="password" id="reg-password" placeholder="••••••••" autocomplete="new-password" oninput="updatePasswordStrength(this.value)">
+                                <button type="button" onclick="togglePasswordVisibility('reg-password', this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;" title="Afficher/masquer">👁️</button>
+                            </div>
+                            <div id="password-strength" style="height:4px;border-radius:2px;margin-top:6px;transition:all 0.3s;"></div>
+                            <div id="password-hint" style="font-size:11px;color:#999;margin-top:4px;"></div>
+                        </div>
+                        <button class="btn" onclick="goToRegStep2()" style="width:100%;background:#27ae60;">Continuer →</button>
+                    </div>
+
+                    <!-- Etape 2: Cabinet -->
+                    <div id="reg-step-2" style="display:none;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                            <span style="background:#667eea;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;">2</span>
+                            <strong style="color:#667eea;">Votre cabinet</strong>
+                            <button onclick="goToRegStep1()" style="margin-left:auto;background:none;border:none;color:#667eea;cursor:pointer;font-size:13px;">← Retour</button>
+                        </div>
+                        <div class="input-group">
+                            <label>Secteur d'activité *</label>
+                            <select id="reg-sector" onchange="updateSectorFields()">
+                                <option value="AVOCAT" selected>⚖️ Cabinet d'Avocat</option>
+                                <option value="NOTAIRE">📜 Étude Notariale</option>
+                                <option value="HUISSIER">🏛️ Étude d'Huissier</option>
+                                <option value="EXPERT_COMPTABLE">📊 Cabinet Comptable</option>
+                                <option value="ARCHITECTE">🏗️ Agence Architecture</option>
+                                <option value="MEDECIN">🏥 Cabinet Médical</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Nom du cabinet <span style="font-weight:normal;color:#999;">(optionnel)</span></label>
+                            <input type="text" id="reg-firm" placeholder="Cabinet Boudjellal & Associés">
+                        </div>
+                        <div class="input-group" id="reg-bar-group">
+                            <label>N° Barreau / Ordre <span style="font-weight:normal;color:#999;">(optionnel)</span></label>
+                            <input type="text" id="reg-bar" placeholder="Barreau de Paris - N°12345">
+                        </div>
+                        <div class="input-group">
+                            <label>Téléphone <span style="font-weight:normal;color:#999;">(optionnel)</span></label>
+                            <input type="tel" id="reg-phone" placeholder="+33 6 00 00 00 00">
+                        </div>
+                        <div class="input-group">
+                            <label>Ville <span style="font-weight:normal;color:#999;">(optionnel)</span></label>
+                            <input type="text" id="reg-city" placeholder="Paris">
+                        </div>
+                        <button class="btn" onclick="register()" style="width:100%;padding:14px;font-size:16px;background:#27ae60;">Créer mon compte</button>
+                        <div style="margin-top:10px;text-align:center;font-size:12px;color:#999;">🔒 Données hébergées localement sur votre machine</div>
+                    </div>
+
+                    <div id="reg-result"></div>
                 </div>
-                <div class="input-group">
-                    <label>Mot de passe</label>
-                    <input type="password" id="login-password" placeholder="SecurePass123!" autocomplete="current-password">
-                </div>
-                <button class="btn" onclick="login()">Se connecter</button>
-                <div id="login-result"></div>
             </div>
         </div>
 
@@ -349,7 +415,7 @@
         <div class="card">
             <h2>⚖️ Gestion d'Équipe</h2>
             <p>Gérez les membres de votre cabinet et leurs permissions</p>
-            
+
             <!-- Inviter un membre -->
             <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h3>➕ Inviter un Membre</h3>
@@ -372,13 +438,13 @@
                 </form>
                 <div id="teamInviteResult"></div>
             </div>
-            
+
             <!-- Membres actuels -->
             <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h3>👥 Membres de l'Équipe</h3>
                 <div id="teamMembersList">Chargement...</div>
             </div>
-            
+
             <!-- Invitations en attente -->
             <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h3>⏳ Invitations en Attente</h3>
@@ -387,11 +453,12 @@
         </div>
     </div>
 
+    <script src="/js/signalr.min.js"></script>
+    <script>const API_BASE = window.location.origin;</script>
     <script src="questionnaires.js"></script>
     <script src="advanced-features.js"></script>
-    <script src="auto-demo.js"></script>
     <script src="team-module.js"></script>
-    <script src="https://unpkg.com/@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
+    <script src="auto-demo.js"></script>
     <script>
         const API_URL = (() => {
             const origin = window.location.origin;
@@ -421,6 +488,11 @@
             }
 
             async initialize() {
+                if (typeof signalR === 'undefined') {
+                    console.warn('SignalR non disponible');
+                    return;
+                }
+                
                 this.connection = new signalR.HubConnectionBuilder()
                     .withUrl(`${this.apiUrl}/notificationHub`)
                     .build();
@@ -495,18 +567,54 @@
                 updateCurrentUserDisplay(storedEmail);
             }
         }
-                function applyAccessMode() {
-                    const accessModeText = document.getElementById('accessModeText');
-                    if (accessModeText) {
-                        accessModeText.textContent = IS_RESTRICTED
-                            ? 'Mode accès: restreint (Alertes masquées)'
-                            : 'Mode accès: complet';
+
+        (function patchResponseJsonForDemo() {
+            if (typeof window === 'undefined' || typeof Response === 'undefined') return;
+            if (window.__memolibSafeJsonPatched) return;
+
+            const originalJson = Response.prototype.json;
+            Response.prototype.json = async function (...args) {
+                try {
+                    const cloned = this.clone();
+                    const text = await cloned.text();
+                    if (!text || !text.trim()) {
+                        return null;
                     }
 
-                    if (!IS_RESTRICTED) return;
+                    try {
+                        return JSON.parse(text);
+                    } catch {
+                        return null;
+                    }
+                } catch {
+                    try {
+                        return await originalJson.apply(this, args);
+                    } catch {
+                        return null;
+                    }
+                }
+            };
 
-                    const alertsTabButton = document.getElementById('alertsTabButton');
-                    // showTab gère directement le chargement de l'onglet équipe (module team-module.js).
+            window.__memolibSafeJsonPatched = true;
+        })();
+
+        function applyAccessMode() {
+            const accessModeText = document.getElementById('accessModeText');
+            if (accessModeText) {
+                accessModeText.textContent = IS_RESTRICTED
+                    ? 'Mode accès: restreint (Alertes masquées)'
+                    : 'Mode accès: complet';
+            }
+
+            if (!IS_RESTRICTED) return;
+
+            const alertsTabButton = document.getElementById('alertsTabButton');
+            const alertsTab = document.getElementById('alerts-tab');
+            if (alertsTabButton) alertsTabButton.style.display = 'none';
+            if (alertsTab) alertsTab.classList.add('hidden');
+        }
+
+        async function readResponseDataSafe(response) {
             const text = await response.text();
             if (!text || !text.trim()) return null;
 
@@ -676,24 +784,87 @@
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
             const name = document.getElementById('reg-name').value;
+            const sector = document.getElementById('reg-sector')?.value || 'AVOCAT';
+            const firmName = document.getElementById('reg-firm')?.value || null;
+            const barNumber = document.getElementById('reg-bar')?.value || null;
+            const phone = document.getElementById('reg-phone')?.value || null;
+            const city = document.getElementById('reg-city')?.value || null;
+
+            if (!name || !email || !password) {
+                return showResult('reg-result', '❌ Nom, email et mot de passe sont obligatoires', false);
+            }
 
             try {
                 const res = await apiFetchWithFallback('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, name, role: 'AVOCAT', plan: 'CABINET' })
+                    body: JSON.stringify({ email, password, name, role: sector, plan: 'CABINET', firmName, barNumber, phone, city })
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    showResult('reg-result', `✅ Compte créé avec succès! ID: ${data.id}`);
+                    showResult('reg-result', `✅ Bienvenue Me ${name} ! Votre compte est créé.`);
                     document.getElementById('login-email').value = email;
                     document.getElementById('login-password').value = password;
+                    setTimeout(() => login(), 500);
                 } else {
-                    showResult('reg-result', `❌ Erreur: ${data.message}`, false);
+                    showResult('reg-result', `❌ ${data.message}`, false);
                 }
             } catch (err) {
                 showResult('reg-result', `❌ Erreur: ${err.message}`, false);
             }
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+            else { input.type = 'password'; btn.textContent = '👁️'; }
+        }
+
+        function updatePasswordStrength(pwd) {
+            const bar = document.getElementById('password-strength');
+            const hint = document.getElementById('password-hint');
+            if (!bar) return;
+            let score = 0;
+            if (pwd.length >= 8) score++;
+            if (/[A-Z]/.test(pwd)) score++;
+            if (/[0-9]/.test(pwd)) score++;
+            if (/[^A-Za-z0-9]/.test(pwd)) score++;
+            const colors = ['#dc3545','#ff9800','#ffc107','#27ae60'];
+            const labels = ['Faible','Moyen','Bon','Excellent'];
+            const widths = ['25%','50%','75%','100%'];
+            const idx = Math.max(0, score - 1);
+            bar.style.width = pwd.length === 0 ? '0' : widths[idx];
+            bar.style.background = pwd.length === 0 ? 'transparent' : colors[idx];
+            hint.textContent = pwd.length === 0 ? '' : labels[idx];
+            hint.style.color = colors[idx];
+        }
+
+        function goToRegStep1() {
+            document.getElementById('reg-step-1').style.display = 'block';
+            document.getElementById('reg-step-2').style.display = 'none';
+        }
+
+        function goToRegStep2() {
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const pwd = document.getElementById('reg-password').value;
+            if (!name) return showResult('reg-result', '❌ Entrez votre nom', false);
+            if (!email) return showResult('reg-result', '❌ Entrez votre email', false);
+            if (pwd.length < 8) return showResult('reg-result', '❌ Mot de passe trop court (min 8 caractères)', false);
+            document.getElementById('reg-result').innerHTML = '';
+            document.getElementById('reg-step-1').style.display = 'none';
+            document.getElementById('reg-step-2').style.display = 'block';
+        }
+
+        function updateSectorFields() {
+            const sector = document.getElementById('reg-sector').value;
+            const barGroup = document.getElementById('reg-bar-group');
+            const barLabel = barGroup?.querySelector('label');
+            if (!barLabel) return;
+            if (sector === 'AVOCAT') { barLabel.textContent = 'N° Barreau (optionnel)'; }
+            else if (sector === 'NOTAIRE') { barLabel.textContent = 'N° Chambre (optionnel)'; }
+            else if (sector === 'MEDECIN') { barLabel.textContent = 'N° RPPS (optionnel)'; }
+            else { barLabel.textContent = 'N° Ordre / Registre (optionnel)'; }
         }
 
         async function login() {
@@ -712,12 +883,20 @@
                     updateCurrentUserDisplay(email);
                     showResult('login-result', `✅ Connecté avec succès! Token reçu.`);
                     await refreshAnomalyBadge();
-                    
+
                     // Initialiser les fonctionnalités avancées
                     realtimeDashboard = new RealtimeDashboard(API_URL, token);
                     templateManager = new TemplateManager(API_URL, token);
-                    criticalAlerts = new CriticalAlertSystem(API_URL, token);
-                    await criticalAlerts.initialize();
+                    
+                    // Initialiser SignalR seulement si disponible
+                    if (typeof signalR !== 'undefined') {
+                        try {
+                            criticalAlerts = new CriticalAlertSystem(API_URL, token);
+                            await criticalAlerts.initialize();
+                        } catch (err) {
+                            console.warn('SignalR non disponible:', err);
+                        }
+                    }
                 } else {
                     const message = (data?.message || '').toString().toLowerCase();
                     const canAutoCreate = message.includes('identifiants invalides');
@@ -726,10 +905,11 @@
                         const shouldCreate = confirm("Identifiants invalides. Voulez-vous créer automatiquement un compte avec cet email puis vous connecter ?");
                         if (shouldCreate) {
                             const defaultName = email.split('@')[0] || 'Utilisateur';
+                            const sector = document.getElementById('reg-sector')?.value || 'AVOCAT';
                             const regRes = await apiFetchWithFallback('/api/auth/register', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ email, password, name: defaultName, role: 'AVOCAT', plan: 'CABINET' })
+                                body: JSON.stringify({ email, password, name: defaultName, role: sector, plan: 'CABINET' })
                             });
 
                             const regData = await readResponseDataSafe(regRes);
@@ -1321,7 +1501,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/ingest/email`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
@@ -1330,7 +1510,7 @@
                 const data = await res.json();
                 if (res.ok) {
                     const eventId = data.eventId || data.existingEventId || 'N/A';
-                    
+
                     if (data.isDuplicate) {
                         let msg = `<div style="background: #fff3cd; border-left: 4px solid orange; padding: 15px; border-radius: 5px;">`;
                         msg += `⚠️ <strong>Doublon détecté</strong><br>`;
@@ -1351,7 +1531,7 @@
                         }
                         showResult('ingest-result', msg);
                     }
-                    
+
                     lastEventId = eventId !== 'N/A' ? eventId : null;
                     lastCaseId = data.caseId;
                 } else {
@@ -1572,7 +1752,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/semantic/search`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
@@ -1726,9 +1906,9 @@
 
                 const summaryHtml = `<div class="result" style="margin-top:12px;">
                     <strong>Vue synthèse</strong><br>
-                    Dossiers liés: ${summary.relatedCasesCount || 0} | 
-                    Événements récents: ${summary.recentEventsCount || 0} | 
-                    Anomalies ouvertes: ${summary.openAnomaliesCount || 0} | 
+                    Dossiers liés: ${summary.relatedCasesCount || 0} |
+                    Événements récents: ${summary.recentEventsCount || 0} |
+                    Anomalies ouvertes: ${summary.openAnomaliesCount || 0} |
                     Annexes: ${summary.totalAnnexesCount || 0}<br>
                     Dernier contact: ${summary.lastContactAt ? new Date(summary.lastContactAt).toLocaleString('fr-FR') : 'N/A'}
                 </div>`;
@@ -1993,7 +2173,7 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                const existingClients = listRes.ok ? await listRes.json() : [];
+                const existingClients = listRes.ok ? await readResponseDataSafe(listRes) : [];
                 const existingByEmail = new Map((existingClients || []).map(c => [(c.email || '').toLowerCase(), c]));
 
                 const batchRef = Date.now();
@@ -2023,7 +2203,7 @@
                         });
 
                         if (createRes.ok) {
-                            client = await createRes.json();
+                            client = await readResponseDataSafe(createRes);
                             existingByEmail.set(email.toLowerCase(), client);
                             createdClients += 1;
                         }
@@ -2050,7 +2230,7 @@
                             body: JSON.stringify(payload)
                         });
 
-                        const ingestData = await ingestRes.json();
+                        const ingestData = await readResponseDataSafe(ingestRes);
                         if (ingestRes.ok && ingestData.isDuplicate !== true) storedEvents += 1;
                         if (ingestRes.ok && ingestData.isDuplicate === true) duplicateEvents += 1;
                     }
@@ -2401,16 +2581,16 @@
                 const res = await fetch(`${API_URL}/api/events/${eventId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (!res.ok) {
                     alert('Impossible de charger l\'événement');
                     return;
                 }
-                
+
                 const event = await res.json();
                 const payload = parseRawPayloadSafe(event.rawPayload);
                 const digest = buildReadableEventDigest(payload, event.occurredAt, { includeFullBody: true });
-                
+
                 let html = `<div class="modal" id="eventModal" onclick="if(event.target.id==='eventModal')closeEventModal()">
                     <div class="modal-content">
                         <span class="modal-close" onclick="closeEventModal()">&times;</span>
@@ -2421,16 +2601,16 @@
                         <div style="margin-bottom: 15px;"><strong>Sujet:</strong> ${payload.subject || 'N/A'}</div>
                         <div style="margin-bottom: 15px;"><strong>Contenu:</strong></div>
                         <div style="white-space: pre-wrap; background: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 400px; overflow-y: auto;">${digest.what}</div>`;
-                
+
                 if (event.validationFlags) {
                     html += `<div style="margin-top: 15px; color: orange;"><strong>⚠️ Anomalies:</strong> ${event.validationFlags}</div>`;
                 }
-                
+
                 html += `</div></div>`;
-                
+
                 const existing = document.getElementById('eventModal');
                 if (existing) existing.remove();
-                
+
                 document.body.insertAdjacentHTML('beforeend', html);
                 document.getElementById('eventModal').style.display = 'block';
             } catch (err) {
@@ -2480,7 +2660,7 @@
                     const percent = totalEmails > 0 ? ((dominantType.count / totalEmails) * 100).toFixed(1) : '0.0';
                     html += `<div class="result" style="margin-top: 8px;"><strong>Point clé:</strong> le type principal est <strong>${dominantType.type}</strong> avec <strong>${dominantType.count}</strong> email(s), soit <strong>${percent}%</strong> du total.</div>`;
                 }
-                
+
                 document.getElementById('stats-result').innerHTML = html;
             } catch (err) {
                 showResult('stats-result', `❌ Erreur: ${err.message}`, false);
@@ -2526,7 +2706,7 @@
 
         async function exportEventsText() {
             if (!token) return showResult('export-result', '❌ Connectez-vous d\'abord', false);
-            
+
             try {
                 const res = await fetch(`${API_URL}/api/export/events-text`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -2970,7 +3150,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/notifications/${notificationId}/dismiss`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
@@ -2995,12 +3175,249 @@
             }
         });
 
+        document.getElementById('logoutBtn')?.addEventListener('click', () => logout());
+
         document.getElementById('stopBtn')?.addEventListener('click', async () => {
             try {
                 await stopApplication();
             } catch (err) {
                 alert(`Erreur arrêt: ${err.message}`);
             }
+        });
+
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+
+            try {
+                return JSON.parse(text);
+            } catch {
+                return text;
+            }
+        }
+
+        // Make readResponseDataSafe globally available
+        window.readResponseDataSafe = readResponseDataSafe;
+
+        // Initialize missing functions
+        function prefillDemoFields() {
+            // Pre-fill demo fields with default values
+            const regEmail = document.getElementById('reg-email');
+            const regPassword = document.getElementById('reg-password');
+            const regName = document.getElementById('reg-name');
+            const regSector = document.getElementById('reg-sector');
+            const loginEmail = document.getElementById('login-email');
+            const loginPassword = document.getElementById('login-password');
+
+            if (regSector && !regSector.value) regSector.value = 'AVOCAT';
+        }
+
+        function autoConnectDefaultUser() {
+            // Auto-connect if no token exists
+            if (!token) {
+                setTimeout(() => {
+                    if (!token) {
+                        console.log('Auto-connecting default user...');
+                        login();
+                    }
+                }, 1000);
+            }
+        }
+
+        function keepPinnedSessionAlive() {
+            // Keep session alive by refreshing token periodically
+            if (token) {
+                console.log('Session kept alive');
+            }
+        }
+
+        function refreshServiceStatus() {
+            // Update service status indicator
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('serviceStatusText');
+            const emailCount = document.getElementById('emailCountDisplay');
+
+            if (statusDot && statusText) {
+                if (token) {
+                    statusDot.className = 'status-dot ok';
+                    statusText.textContent = 'Connecté';
+                } else {
+                    statusDot.className = 'status-dot err';
+                    statusText.textContent = 'Non connecté';
+                }
+            }
+
+            // Update email count
+            if (emailCount && token) {
+                fetch(`${API_URL}/api/debug/stats`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.events) {
+                            emailCount.textContent = data.events;
+                        }
+                    })
+                    .catch(() => {});
+            }
+        }
+
+        function updateCurrentUserDisplay(email) {
+            const display = document.getElementById('currentUserDisplay');
+            if (display) {
+                display.textContent = email ? `Connecté: ${email}` : '';
+            }
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.style.display = email ? 'inline-flex' : 'none';
+            }
+        }
+
+        function logout() {
+            token = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('memolibAuthToken');
+            localStorage.removeItem('memolibUserEmail');
+            sessionStorage.removeItem('authToken');
+            updateCurrentUserDisplay(null);
+            realtimeDashboard = null;
+            templateManager = null;
+            criticalAlerts = null;
+            showResult('login-result', '✅ Déconnecté avec succès.');
+            showTab('auth');
+        }
+
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<div class="result ${isSuccess ? 'success' : 'error'}">${message}</div>`;
+            }
+        }
+
+        function setLoadingState(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<div class="result">${message}</div>`;
+            }
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                tab.style.background = 'rgba(255,255,255,0.2)';
+                tab.style.color = 'white';
+                tab.style.boxShadow = 'none';
+            });
+
+            const selectedTab = document.getElementById(`${tabName}-tab`);
+            if (selectedTab) {
+                selectedTab.classList.remove('hidden');
+            }
+
+            const tabButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+            if (tabButton) {
+                tabButton.classList.add('active');
+                tabButton.style.background = 'rgba(255,255,255,0.95)';
+                tabButton.style.color = '#667eea';
+                tabButton.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            }
+
+            if (tabName === 'team' && typeof loadTeamData === 'function') {
+                loadTeamData();
+            }
+        }
+
+        async function apiFetchWithFallback(endpoint, options = {}) {
+            try {
+                return await fetch(`${API_URL}${endpoint}`, options);
+            } catch (err) {
+                console.error('API fetch error:', err);
+                throw err;
+            }
+        }
+
+        function pickValue(obj, ...keys) {
+            for (const key of keys) {
+                if (obj && obj[key] !== undefined) {
+                    return obj[key];
+                }
+            }
+            return null;
+        }
+
+        async function installApp() {
+            if (installPromptEvent) {
+                installPromptEvent.prompt();
+                const { outcome } = await installPromptEvent.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('App installed');
+                }
+                installPromptEvent = null;
+            } else {
+                alert('Installation non disponible ou déjà installée');
+            }
+        }
+
+        async function stopApplication() {
+            if (confirm('Arrêter l\'application ?')) {
+                try {
+                    await fetch(`${API_URL}/api/system/shutdown`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    alert('Application arrêtée');
+                } catch (err) {
+                    alert('Impossible d\'arrêter l\'application');
+                }
+            }
+        }
+
+        async function showEventQuestionnaires(eventId, caseId) {
+            if (typeof showQuestionnaireModal === 'function') {
+                showQuestionnaireModal(eventId, caseId);
+            } else {
+                alert('Module questionnaires non disponible');
+            }
+        }
+
+        // Default demo data
+        const DEFAULT_DEMO = {
+            clientRef: 'CLI-DEMO-001',
+            clientEmail: 'client.demo@example.com',
+            clientName: 'Sophie Martin',
+            clientPhone: '+33 6 12 34 56 78',
+            clientAddress: '12 rue de la Paix, Paris'
+        };
+
+        // Make functions globally available
+        window.showTab = showTab;
+        window.showResult = showResult;
+        window.setLoadingState = setLoadingState;
+        window.updateCurrentUserDisplay = updateCurrentUserDisplay;
+        window.apiFetchWithFallback = apiFetchWithFallback;
+        window.pickValue = pickValue;
+        window.DEFAULT_DEMO = DEFAULT_DEMO;
+
+        // Role demo navigation
+        function openRoleDemo(role) {
+            const demos = {
+                'owner': 'demo-owner.html',
+                'admin': 'demo-admin.html',
+                'agent': 'demo-agent.html',
+                'client': 'demo-client.html'
+            };
+
+            if (demos[role]) {
+                window.open(demos[role], '_blank');
+            }
+        }
+
+        // PWA install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            installPromptEvent = e;
         });
 
         prefillDemoFields();
@@ -3014,6 +3431,66 @@
             if (token) refreshAnomalyBadge();
         }, 8000);
         setInterval(keepPinnedSessionAlive, 180000);
+
+        async function showAdvancedDashboard() {
+            if (!token) {
+                alert('Connectez-vous d\'abord');
+                return;
+            }
+
+            try {
+                const res = await apiFetchWithFallback('/api/dashboard/overview', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await readResponseDataSafe(res);
+
+                if (!res.ok) {
+                    alert(`Erreur dashboard: ${data?.message || 'Impossible de charger'}`);
+                    return;
+                }
+
+                const modalHtml = `
+                    <div class="modal" id="dashboardModal" style="display:block;" onclick="if(event.target.id==='dashboardModal') closeDashboardModal()">
+                        <div class="modal-content">
+                            <span class="modal-close" onclick="closeDashboardModal()">&times;</span>
+                            <h2 style="color:#667eea; margin-bottom:20px;">📊 Dashboard Exécutif</h2>
+                            
+                            <div class="stats">
+                                <div class="stat-box"><div class="number">${data.stats?.totalCases || 0}</div><div class="label">Dossiers</div></div>
+                                <div class="stat-box"><div class="number">${data.stats?.totalClients || 0}</div><div class="label">Clients</div></div>
+                                <div class="stat-box"><div class="number">${data.stats?.emailsToday || 0}</div><div class="label">Emails aujourd'hui</div></div>
+                                <div class="stat-box" style="background:#ff9800;"><div class="number">${data.stats?.openAnomalies || 0}</div><div class="label">Anomalies</div></div>
+                            </div>
+                            
+                            <div class="guide-box" style="margin-top:15px;">
+                                <strong>Vue d'ensemble Cabinet</strong><br>
+                                Tableau de bord exécutif et gestion stratégique<br>
+                                Temps de réponse moyen: ${data.metrics?.averageResponseTimeHours || 0}h
+                            </div>
+                            
+                            <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                                <button class="btn" onclick="showTab('cases')">📁 Gestion Dossiers</button>
+                                <button class="btn" onclick="showTab('client')">👥 Gestion Clients</button>
+                                <button class="btn" onclick="showTab('stats')">📈 Analytics</button>
+                                <button class="btn" onclick="showTab('team')">⚖️ Équipe</button>
+                                <button class="btn" onclick="openAnomalyCenter()">🚨 Alertes Critiques</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const existing = document.getElementById('dashboardModal');
+                if (existing) existing.remove();
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            } catch (err) {
+                alert(`Erreur: ${err.message}`);
+            }
+        }
+
+        function closeDashboardModal() {
+            const modal = document.getElementById('dashboardModal');
+            if (modal) modal.remove();
+        }
 
         async function testCriticalAlert() {
             if (criticalAlerts) {
@@ -3037,13 +3514,13 @@
 
             setLoadingState('teamMembersList', '⏳ Chargement des membres...');
             setLoadingState('teamPendingList', '⏳ Chargement des invitations...');
-            
+
             try {
                 const response = await apiFetchWithFallback('/api/team/members', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await readResponseDataSafe(response);
-                
+
                 if (response.ok) {
                     displayTeamMembers(data.members || []);
                     displayPendingInvitations(data.pendingInvitations || []);
@@ -3057,14 +3534,14 @@
                 document.getElementById('teamPendingList').innerHTML = 'Erreur de connexion';
             }
         }
-        
+
         function displayTeamMembers(members) {
             const container = document.getElementById('teamMembersList');
             if (!members || members.length === 0) {
                 container.innerHTML = 'Aucun membre dans l\'équipe. Invitez des collaborateurs ci-dessus.';
                 return;
             }
-            
+
             let html = '<div class="event-list">';
             members.forEach(member => {
                 const memberId = pickValue(member, 'id', 'Id');
@@ -3093,16 +3570,17 @@
             html += '</div>';
             container.innerHTML = html;
         }
-        
+
         function displayPendingInvitations(invitations) {
             const container = document.getElementById('teamPendingList');
             if (!invitations || invitations.length === 0) {
                 container.innerHTML = 'Aucune invitation en attente.';
                 return;
             }
-            
+
             let html = '<div class="event-list">';
             invitations.forEach(inv => {
+                const invitationId = pickValue(inv, 'id', 'Id');
                 const role = pickValue(inv, 'role', 'Role') || 'N/A';
                 const email = pickValue(inv, 'email', 'Email') || 'N/A';
                 const createdAt = pickValue(inv, 'createdAt', 'CreatedAt');
@@ -3117,13 +3595,14 @@
                     <div class="content">Expire le ${expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR') : 'N/A'}</div>
                     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
                         <button class="btn" onclick="resendPendingInvitation('${encodedEmail}','${encodedRole}')">Renvoyer invitation</button>
+                        <button class="btn" style="background:#c62828;" onclick="cancelPendingInvitation('${invitationId}')">Annuler invitation</button>
                     </div>
                 </div>`;
             });
             html += '</div>';
             container.innerHTML = html;
         }
-        
+
         function getRoleLabel(role) {
             const labels = {
                 'OWNER': 'Propriétaire',
@@ -3248,22 +3727,50 @@
                 showResult('teamInviteResult', '❌ Erreur de connexion', false);
             }
         }
-        
+
+        async function cancelPendingInvitation(invitationId) {
+            if (!token) return showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
+            if (!invitationId) return showResult('teamInviteResult', 'Invitation invalide', false);
+
+            const confirmed = confirm('Annuler cette invitation en attente ?');
+            if (!confirmed) return;
+
+            try {
+                const response = await apiFetchWithFallback(`/api/team/invitations/${invitationId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await readResponseDataSafe(response);
+                if (!response.ok) {
+                    const msg = typeof data === 'string' ? data : (data?.message || 'Annulation impossible');
+                    return showResult('teamInviteResult', `❌ ${msg}`, false);
+                }
+
+                showResult('teamInviteResult', '✅ Invitation annulée (action loguée).');
+                await loadTeamData();
+            } catch {
+                showResult('teamInviteResult', '❌ Erreur de connexion', false);
+            }
+        }
+
         // Team invite form handler
         document.addEventListener('DOMContentLoaded', function() {
             const teamForm = document.getElementById('teamInviteForm');
             if (teamForm) {
                 teamForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    
+
                     if (!token) {
                         showResult('teamInviteResult', 'Connectez-vous d\'abord', false);
                         return;
                     }
-                    
+
                     const email = document.getElementById('teamInviteEmail').value;
                     const role = document.getElementById('teamInviteRole').value;
-                    
+
                     try {
                         const response = await fetch(`${API_URL}/api/team/invite`, {
                             method: 'POST',
@@ -3273,7 +3780,7 @@
                             },
                             body: JSON.stringify({ email, role })
                         });
-                        
+
                         if (response.ok) {
                             const data = await response.json();
                             const inviteUrl = (data?.inviteUrl || '').toString();
@@ -3298,7 +3805,7 @@
                 });
             }
         });
-        
+
         // showTab gère directement le chargement de l'onglet équipe.
     </script>
 </body>

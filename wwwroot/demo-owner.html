@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Espace Propriétaire</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h1>🏛️ MemoLib — Propriétaire</h1>
+                    <p>Tableau de bord exécutif de votre cabinet</p>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <span id="userDisplay" style="font-weight:600;color:var(--primary);"></span>
+                    <a href="demo.html" class="btn btn-secondary" style="text-decoration:none;">← Accueil</a>
+                    <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats globales -->
+        <div id="statsGrid" class="stats">
+            <div class="stat-box"><div class="number" id="sCases">-</div><div class="label">Dossiers</div></div>
+            <div class="stat-box stat-box-success"><div class="number" id="sClients">-</div><div class="label">Clients</div></div>
+            <div class="stat-box stat-box-info"><div class="number" id="sEmails">-</div><div class="label">Emails</div></div>
+            <div class="stat-box stat-box-warning"><div class="number" id="sAnomalies">-</div><div class="label">Anomalies</div></div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Activité récente -->
+            <div class="card">
+                <h2>📈 Activité Récente</h2>
+                <div id="recentActivity">Chargement...</div>
+            </div>
+
+            <!-- Équipe -->
+            <div class="card">
+                <h2>👥 Mon Équipe</h2>
+                <div id="teamList">Chargement...</div>
+                <div style="margin-top:1rem;">
+                    <h3 style="margin-bottom:0.5rem;">➕ Inviter un membre</h3>
+                    <div class="input-group"><label>Email</label><input type="email" id="invEmail" placeholder="avocat@cabinet.fr"></div>
+                    <div class="input-group">
+                        <label>Rôle</label>
+                        <select id="invRole">
+                            <option value="PARTNER">Associé</option>
+                            <option value="LAWYER">Avocat</option>
+                            <option value="PARALEGAL">Juriste</option>
+                            <option value="SECRETARY">Secrétaire</option>
+                            <option value="INTERN">Stagiaire</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="inviteMember()">Envoyer l'invitation</button>
+                    <div id="invResult"></div>
+                </div>
+            </div>
+
+            <!-- Dossiers par statut -->
+            <div class="card">
+                <h2>📁 Dossiers</h2>
+                <div id="casesList">Chargement...</div>
+            </div>
+
+            <!-- Clients -->
+            <div class="card">
+                <h2>👤 Clients Récents</h2>
+                <div id="clientsList">Chargement...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+        let token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+
+        if (!token) { window.location.href = 'demo.html'; }
+
+        document.getElementById('userDisplay').textContent = localStorage.getItem('memolibUserEmail') || '';
+
+        function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = 'demo.html'; }
+
+        async function api(path, opts = {}) {
+            opts.headers = { ...opts.headers, 'Authorization': `Bearer ${token}` };
+            return fetch(`${API}${path}`, opts);
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await api('/api/dashboard/overview');
+                if (!res.ok) return;
+                const d = await res.json();
+
+                document.getElementById('sCases').textContent = d.stats?.totalCases ?? 0;
+                document.getElementById('sClients').textContent = d.stats?.totalClients ?? 0;
+                document.getElementById('sEmails').textContent = d.stats?.totalEvents ?? 0;
+                document.getElementById('sAnomalies').textContent = d.stats?.eventsWithAnomalies ?? 0;
+
+                // Activité récente
+                const events = (d.recentEvents || []).slice(0, 8);
+                let html = '';
+                events.forEach(e => {
+                    html += `<div class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon email">📧</div>
+                        <div class="dashboard-activity-content">
+                            <strong>${e.subject || 'Email'}</strong>
+                            <div class="dashboard-activity-subtitle">De: ${e.from || 'N/A'}</div>
+                            <div class="dashboard-activity-time">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('recentActivity').innerHTML = html || '<p style="color:var(--text-secondary)">Aucune activité récente</p>';
+
+                // Dossiers
+                const cases = (d.cases || []).slice(0, 10);
+                let casesHtml = '<div class="event-list" style="max-height:300px;">';
+                cases.forEach(c => {
+                    casesHtml += `<div class="event-item">
+                        <strong>${c.title || 'Sans titre'}</strong>
+                        <div class="date">Client: ${c.clientId || 'N/A'} — ${new Date(c.createdAt).toLocaleDateString('fr-FR')}</div>
+                    </div>`;
+                });
+                casesHtml += '</div>';
+                document.getElementById('casesList').innerHTML = casesHtml;
+
+                // Clients
+                const clients = (d.clients || []).slice(0, 10);
+                let clHtml = '<div class="event-list" style="max-height:300px;">';
+                clients.forEach(cl => {
+                    clHtml += `<div class="event-item">
+                        <strong>${cl.name}</strong>
+                        <div class="date">📧 ${cl.email} — 📞 ${cl.phoneNumber || 'N/A'}</div>
+                        <div class="content">${cl.casesCount || 0} dossier(s)</div>
+                    </div>`;
+                });
+                clHtml += '</div>';
+                document.getElementById('clientsList').innerHTML = clHtml;
+            } catch (err) {
+                document.getElementById('recentActivity').innerHTML = `<p style="color:var(--danger)">Erreur: ${err.message}</p>`;
+            }
+        }
+
+        async function loadTeam() {
+            try {
+                const res = await api('/api/team/members');
+                if (!res.ok) { document.getElementById('teamList').innerHTML = 'Aucun membre'; return; }
+                const d = await res.json();
+                const members = d.members || [];
+                if (members.length === 0) { document.getElementById('teamList').innerHTML = '<p>Aucun membre. Invitez des collaborateurs.</p>'; return; }
+                let html = '';
+                members.forEach(m => {
+                    const u = m.user || {};
+                    html += `<div class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon case">👤</div>
+                        <div class="dashboard-activity-content">
+                            <strong>${u.name || 'N/A'}</strong>
+                            <div class="dashboard-activity-subtitle">${u.email || ''} — ${m.role || ''}</div>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('teamList').innerHTML = html;
+            } catch { document.getElementById('teamList').innerHTML = 'Erreur chargement équipe'; }
+        }
+
+        async function inviteMember() {
+            const email = document.getElementById('invEmail').value;
+            const role = document.getElementById('invRole').value;
+            if (!email) return;
+            try {
+                const res = await api('/api/team/invite', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, role })
+                });
+                const d = await res.json().catch(() => ({}));
+                if (res.ok) {
+                    document.getElementById('invResult').innerHTML = `<div class="result success">✅ Invitation envoyée à ${email}</div>`;
+                    loadTeam();
+                } else {
+                    document.getElementById('invResult').innerHTML = `<div class="result error">❌ ${d.message || 'Erreur'}</div>`;
+                }
+            } catch (err) {
+                document.getElementById('invResult').innerHTML = `<div class="result error">❌ ${err.message}</div>`;
+            }
+        }
+
+        loadDashboard();
+        loadTeam();
+    </script>
+</body>
+</html>

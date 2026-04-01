@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Formulaire Complet - Client remplit son dossier
  * Toutes informations + documents + listes deroulantes
  */
@@ -113,7 +113,7 @@ export default function NouveauDossierClient() {
   const [sexe, setSexe] = useState('');
 
   // Contact
-  const [telephone, setTelephone] = useState('');
+  const [téléphone, setTelephone] = useState('');
   const [telephoneSecondaire, setTelephoneSecondaire] = useState('');
   const [email, setEmail] = useState('');
   
@@ -212,7 +212,7 @@ export default function NouveauDossierClient() {
       const infosPersonnelles = {
         nom, prenom, nomNaissance, dateNaissance, lieuNaissance,
         paysNaissance, nationalite, autreNationalite, sexe,
-        telephone, telephoneSecondaire, email,
+        téléphone, telephoneSecondaire, email,
         adresse, codePostal, ville, pays, typeLogement, depuisQuand,
         situationFamiliale, nombreEnfants, enfantsEnFrance,
         conjointNom, conjointPrenom, conjointNationalite,
@@ -267,7 +267,7 @@ export default function NouveauDossierClient() {
           <div className="text-6xl mb-6"></div>
           <h2 className="text-3xl font-bold text-green-600 mb-4">Dossier Envoye !</h2>
           <p className="text-gray-600 mb-6">
-            Votre dossier a ete transmis a votre avocat. Vous serez contacte sous 48h.
+            Votre dossier a été transmis à votre avocat. Vous serez contacte sous 48h.
           </p>
           <div className="text-sm text-gray-500">Redirection en cours...</div>
         </div>
@@ -286,7 +286,7 @@ export default function NouveauDossierClient() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Nouveau Dossier
               </h1>
-              <p className="text-gray-600">Remplissez toutes les informations necessaires</p>
+              <p className="text-gray-600">Remplissez toutes les informations nécessaires</p>
             </div>
           </div>
           
@@ -327,7 +327,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Date d'echeance (si connue)
+                  Date d'échéance (si connue)
                 </label>
                 <input
                   type="date"
@@ -346,7 +346,7 @@ export default function NouveauDossierClient() {
                   onChange={(e) => setObjetDemande(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   rows={3}
-                  placeholder="Ex: Renouvellement titre de sejour salarie arrivant a echeance..."
+                  placeholder="Ex: Renouvellement titre de sejour salarie arrivant a échéance..."
                   required
                 />
               </div>
@@ -402,7 +402,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Nom de naissance (si different)
+                  Nom de naissance (si différent)
                 </label>
                 <input
                   type="text"
@@ -511,11 +511,11 @@ export default function NouveauDossierClient() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block font-semibold mb-2">
-                  Telephone principal <span className="text-red-500">*</span>
+                  Téléphone principal <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
-                  value={telephone}
+                  value={téléphone}
                   onChange={(e) => setTelephone(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   placeholder="06 12 34 56 78"
@@ -525,7 +525,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Telephone secondaire
+                  Téléphone secondaire
                 </label>
                 <input
                   type="tel"
@@ -810,7 +810,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Numero de securite sociale
+                  Numéro de sécurité sociale
                 </label>
                 <input
                   type="text"
@@ -866,7 +866,7 @@ export default function NouveauDossierClient() {
 
               <div>
                 <label className="block font-semibold mb-2">
-                  Numero de visa (si applicable)
+                  Numéro de visa (si applicable)
                 </label>
                 <input
                   type="text"
@@ -917,7 +917,7 @@ export default function NouveauDossierClient() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block font-semibold mb-2">
-                  Numero etranger (AGDREF)
+                  Numéro etranger (AGDREF)
                 </label>
                 <input
                   type="text"
@@ -1037,7 +1037,7 @@ export default function NouveauDossierClient() {
                     onChange={(e) => setProblemeSante(e.target.checked)}
                     className="w-5 h-5"
                   />
-                  <span className="font-semibold">Avez-vous des problemes de sante necessitant un traitement en France ?</span>
+                  <span className="font-semibold">Avez-vous des problèmes de sante necessitant un traitement en France ?</span>
                 </label>
               </div>
 
@@ -1064,7 +1064,7 @@ export default function NouveauDossierClient() {
                   onChange={(e) => setAutresInfos(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
                   rows={4}
-                  placeholder="Toute autre information qui pourrait etre utile a votre dossier..."
+                  placeholder="Toute autre information qui pourrait etre utile à votre dossier..."
                 />
               </div>
             </div>
@@ -1099,7 +1099,7 @@ export default function NouveauDossierClient() {
                   />
                   {documents[doc.type]?.length > 0 && (
                     <div className="mt-2 text-sm text-green-600">
-                       {documents[doc.type].length} fichier(s) selectionne(s)
+                       {documents[doc.type].length} fichier(s) sélectionné(s)
                     </div>
                   )}
                 </div>

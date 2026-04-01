@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -27,6 +27,7 @@ export default function MessagesClient() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -44,12 +45,12 @@ export default function MessagesClient() {
       if (res.ok) {
         const data = await res.json();
         setMessages(data.messages || []);
-        
+
         // Marquer comme lus
         const unreadIds = data.messages
           .filter((m: Message) => !m.read && m.senderRole !== 'CLIENT')
           .map((m: Message) => m.id);
-        
+
         if (unreadIds.length > 0) {
           await fetch('/api/client/messages/mark-read', {
             method: 'POST',
@@ -79,12 +80,13 @@ export default function MessagesClient() {
 
       if (res.ok) {
         setNewMessage('');
+        setFeedback({ type: 'success', message: 'Message envoyé avec succès' });
         await fetchMessages();
       } else {
-        alert('Erreur lors de l\'envoi du message');
+        setFeedback({ type: 'error', message: 'Erreur lors de l\'envoi du message' });
       }
     } catch (err) {
-      alert('Erreur de connexion');
+      setFeedback({ type: 'error', message: 'Erreur de connexion' });
     } finally {
       setSending(false);
     }
@@ -92,7 +94,7 @@ export default function MessagesClient() {
 
   const groupMessagesByDate = (messages: Message[]) => {
     const groups: { [key: string]: Message[] } = {};
-    
+
     messages.forEach(msg => {
       const date = new Date(msg.createdAt).toLocaleDateString('fr-FR');
       if (!groups[date]) {
@@ -100,7 +102,7 @@ export default function MessagesClient() {
       }
       groups[date].push(msg);
     });
-    
+
     return groups;
   };
 
@@ -150,6 +152,18 @@ export default function MessagesClient() {
 
       {/* Zone de messages */}
       <main className="flex-1 max-w-5xl mx-auto px-8 py-8 w-full flex flex-col">
+        {feedback && (
+          <div
+            className={`mb-4 rounded-lg border px-4 py-3 text-sm ${
+              feedback.type === 'success'
+                ? 'border-green-200 bg-green-50 text-green-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
         <div className="flex-1 bg-white rounded-xl shadow-lg mb-4 overflow-hidden flex flex-col">
           {/* Messages scrollables */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -174,7 +188,7 @@ export default function MessagesClient() {
                   {/* Messages du jour */}
                   {msgs.map((message) => {
                     const isFromClient = message.senderRole === 'CLIENT';
-                    
+
                     return (
                       <div
                         key={message.id}
@@ -200,11 +214,11 @@ export default function MessagesClient() {
                               </span>
                             </div>
                           )}
-                          
+
                           <p className={`${isFromClient ? 'text-white' : 'text-gray-800'} leading-relaxed`}>
                             {message.content}
                           </p>
-                          
+
                           {message.attachments && message.attachments.length > 0 && (
                             <div className="mt-3 space-y-2">
                               {message.attachments.map((att, idx) => (
@@ -220,7 +234,7 @@ export default function MessagesClient() {
                               ))}
                             </div>
                           )}
-                          
+
                           <p
                             className={`text-xs mt-2 ${
                               isFromClient ? 'text-blue-100' : 'text-gray-500'
@@ -287,7 +301,7 @@ export default function MessagesClient() {
               <ul className="text-sm text-yellow-700 space-y-1">
                 <li>- Les messages sont consultables par votre avocat et son equipe</li>
                 <li>- evitez de partager des informations sensibles (mots de passe, codes PIN)</li>
-                <li>- Pour les urgences, contactez directement votre cabinet par telephone</li>
+                <li>- Pour les urgences, contactez directement votre cabinet par téléphone</li>
                 <li>- Les messages sont archives et peuvent servir de preuve</li>
               </ul>
             </div>

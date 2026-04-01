@@ -14,7 +14,7 @@ export class AdvancedEncryption {
   async encryptDocument(data: Buffer, clientKey: string): Promise<EncryptedData> {
     const key = await this.deriveKey(clientKey);
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(this.algorithm, key, iv);
+    const cipher = crypto.createCipheriv(this.algorithm, key, iv) as crypto.CipherGCM;
 
     return {
       data: Buffer.concat([cipher.update(data), cipher.final()]),

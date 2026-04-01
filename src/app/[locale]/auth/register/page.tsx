@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -9,10 +9,10 @@ export const dynamic = 'force-dynamic';
  */
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  Scale, User, Mail, Lock, Building, Phone, 
+import {
+  Scale, User, Mail, Lock, Building, Phone,
   CheckCircle, AlertCircle, ArrowRight, Shield
 } from 'lucide-react'
 import { Button } from '@/components/forms/Button'
@@ -24,18 +24,18 @@ interface FormData {
   email: string
   password: string
   confirmPassword: string
-  telephone: string
-  
+  téléphone: string
+
   // Informations cabinet
   cabinetNom: string
   numeroBarreau: string
   adresse: string
   ville: string
   codePostal: string
-  
+
   // Choix du plan
   plan: 'SOLO' | 'CABINET' | 'ENTERPRISE'
-  
+
   // Acceptations
   cgu: boolean
   charteIA: boolean
@@ -70,18 +70,20 @@ const PLANS = [
 
 export default function RegisterPage() {
   const router = useRouter()
+  const params = useParams<{ locale?: string }>()
+  const locale = params?.locale || 'fr'
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  
+
   const [formData, setFormData] = useState<FormData>({
     prenom: '',
     nom: '',
     email: '',
     password: '',
     confirmPassword: '',
-    telephone: '',
+    téléphone: '',
     cabinetNom: '',
     numeroBarreau: '',
     adresse: '',
@@ -133,6 +135,18 @@ export default function RegisterPage() {
     return true
   }
 
+  const readResponseDataSafe = (raw: string) => {
+    if (!raw || !raw.trim()) {
+      return null
+    }
+
+    try {
+      return JSON.parse(raw)
+    } catch {
+      return null
+    }
+  }
+
   const handleSubmit = async () => {
     if (!validateStep3()) return
 
@@ -140,7 +154,7 @@ export default function RegisterPage() {
     setError('')
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`/${locale}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -149,19 +163,30 @@ export default function RegisterPage() {
         }),
       })
 
-      const data = await res.json()
+      const raw = await res.text()
+      const data = readResponseDataSafe(raw)
 
       if (!res.ok) {
-        throw new Error(data.error || 'Erreur lors de l\'inscription')
+        throw new Error(data?.error || 'Erreur lors de l\'inscription')
       }
 
       setSuccess(true)
       setTimeout(() => {
-        router.push('/auth/login?registered=true')
+        router.push(`/${locale}/auth/login?registered=true`)
       }, 2000)
 
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err: unknown) {
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setError('Service d’inscription indisponible. Réessayez dans quelques instants.')
+      } else if (err instanceof Error) {
+        if (err.message.includes('Unexpected end of JSON input') || err.message.includes('Unexpected token')) {
+          setError('Réponse serveur invalide. Réessayez dans quelques instants.')
+        } else {
+          setError(err.message)
+        }
+      } else {
+        setError('Erreur lors de l’inscription')
+      }
     } finally {
       setLoading(false)
     }
@@ -198,7 +223,7 @@ export default function RegisterPage() {
             <h1 className="text-2xl font-bold">memoLib</h1>
           </div>
           <p className="text-blue-100">Inscription Avocat - �tape {step}/3</p>
-          
+
           {/* Progress bar */}
           <div className="mt-4 flex gap-2">
             {[1, 2, 3].map((s) => (
@@ -276,8 +301,8 @@ export default function RegisterPage() {
                 </label>
                 <input
                   type="tel"
-                  value={formData.telephone}
-                  onChange={(e) => updateField('telephone', e.target.value)}
+                  value={formData.téléphone}
+                  onChange={(e) => updateField('téléphone', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   placeholder="06 12 34 56 78"
                 />
@@ -426,7 +451,7 @@ export default function RegisterPage() {
                   <div>
                     <span className="text-gray-500">Plan choisi:</span>
                     <p className="font-medium text-blue-600">
-                      {PLANS.find(p => p.id === formData.plan)?.name} - 
+                      {PLANS.find(p => p.id === formData.plan)?.name} -
                       {PLANS.find(p => p.id === formData.plan)?.price}�/mois
                     </p>
                   </div>

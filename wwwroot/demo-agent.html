@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Espace Collaborateur</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h1>📋 MemoLib — Collaborateur</h1>
+                    <p>Vos dossiers assignés et tâches du jour</p>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <span id="userDisplay" style="font-weight:600;color:var(--primary);"></span>
+                    <a href="demo.html" class="btn btn-secondary" style="text-decoration:none;">← Accueil</a>
+                    <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Actions rapides -->
+        <div class="parcours-quick-actions" style="margin-bottom:var(--space-xl);">
+            <div class="parcours-quick-action" onclick="showTab('emails')"><div class="icon">📧</div><div>Scanner Emails</div></div>
+            <div class="parcours-quick-action" onclick="showTab('cases')" style="background:linear-gradient(135deg,var(--success),var(--accent));"><div class="icon">📁</div><div>Mes Dossiers</div></div>
+            <div class="parcours-quick-action" onclick="showTab('clients')" style="background:linear-gradient(135deg,var(--warning),var(--secondary));"><div class="icon">👤</div><div>Clients</div></div>
+            <div class="parcours-quick-action" onclick="showTab('search')" style="background:linear-gradient(135deg,var(--info),#2563eb);"><div class="icon">🔍</div><div>Recherche</div></div>
+        </div>
+
+        <!-- Navigation -->
+        <nav style="display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:var(--space-xl);">
+            <button class="tab active" onclick="showTab('overview')">📊 Vue d'ensemble</button>
+            <button class="tab" onclick="showTab('emails')">📧 Emails</button>
+            <button class="tab" onclick="showTab('cases')">📁 Dossiers</button>
+            <button class="tab" onclick="showTab('clients')">👤 Clients</button>
+            <button class="tab" onclick="showTab('search')">🔍 Recherche</button>
+        </nav>
+
+        <!-- Vue d'ensemble -->
+        <div id="overview-tab" class="tab-content">
+            <div class="stats">
+                <div class="stat-box"><div class="number" id="sCases">-</div><div class="label">Mes Dossiers</div></div>
+                <div class="stat-box stat-box-info"><div class="number" id="sEmails">-</div><div class="label">Emails</div></div>
+                <div class="stat-box stat-box-warning"><div class="number" id="sAlerts">-</div><div class="label">À traiter</div></div>
+            </div>
+            <div class="card">
+                <h2>📨 Derniers Emails</h2>
+                <div id="lastEmails">Chargement...</div>
+            </div>
+        </div>
+
+        <!-- Emails -->
+        <div id="emails-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>📧 Scanner les Emails</h2>
+                <button class="btn" onclick="scanEmails()">🔄 Scanner maintenant</button>
+                <div id="scanResult" style="margin-top:1rem;"></div>
+            </div>
+            <div class="card">
+                <h2>📝 Ingérer un Email Test</h2>
+                <div class="input-group"><label>De</label><input type="email" id="testFrom" placeholder="client@example.com"></div>
+                <div class="input-group"><label>Sujet</label><input type="text" id="testSubject" placeholder="Demande d'information"></div>
+                <div class="input-group"><label>Message</label><textarea id="testBody" rows="4" placeholder="Contenu..."></textarea></div>
+                <button class="btn btn-success" onclick="ingestTest()">Ingérer</button>
+                <div id="ingestResult" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Dossiers -->
+        <div id="cases-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>📁 Mes Dossiers</h2>
+                <button class="btn" onclick="loadCases()">Actualiser</button>
+                <div id="casesResult" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Clients -->
+        <div id="clients-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>👤 Clients</h2>
+                <button class="btn" onclick="loadClients()">Actualiser</button>
+                <div id="clientsResult" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Recherche -->
+        <div id="search-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>🔍 Recherche</h2>
+                <div class="input-group"><label>Mots-clés</label><input type="text" id="searchText" placeholder="Rechercher..."></div>
+                <button class="btn" onclick="doSearch()">Rechercher</button>
+                <div id="searchResult" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+        let token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        if (!token) { window.location.href = 'demo.html'; }
+        document.getElementById('userDisplay').textContent = localStorage.getItem('memolibUserEmail') || '';
+
+        function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = 'demo.html'; }
+        function show(id, msg, ok=true) { document.getElementById(id).innerHTML = `<div class="result ${ok?'success':'error'}">${msg}</div>`; }
+
+        async function api(path, opts = {}) {
+            opts.headers = { ...opts.headers, 'Authorization': `Bearer ${token}` };
+            return fetch(`${API}${path}`, opts);
+        }
+
+        function showTab(name) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const tab = document.getElementById(`${name}-tab`);
+            if (tab) tab.classList.remove('hidden');
+            const btn = document.querySelector(`[onclick="showTab('${name}')"]`);
+            if (btn) btn.classList.add('active');
+        }
+
+        async function loadOverview() {
+            try {
+                const res = await api('/api/dashboard/overview');
+                if (!res.ok) return;
+                const d = await res.json();
+                document.getElementById('sCases').textContent = d.stats?.totalCases ?? 0;
+                document.getElementById('sEmails').textContent = d.stats?.totalEvents ?? 0;
+                document.getElementById('sAlerts').textContent = d.stats?.eventsWithAnomalies ?? 0;
+
+                let html = '';
+                (d.recentEvents || []).slice(0, 5).forEach(e => {
+                    html += `<div class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon email">📧</div>
+                        <div class="dashboard-activity-content">
+                            <strong>${e.subject || 'Email'}</strong>
+                            <div class="dashboard-activity-subtitle">De: ${e.from || 'N/A'}</div>
+                            <div class="dashboard-activity-time">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('lastEmails').innerHTML = html || '<p style="color:var(--text-secondary)">Aucun email</p>';
+            } catch {}
+        }
+
+        async function scanEmails() {
+            show('scanResult', '⏳ Scan en cours...');
+            try {
+                const res = await api('/api/email-scan/manual?previewLimit=50', { method: 'POST' });
+                const d = await res.json();
+                if (res.ok) show('scanResult', `✅ ${d.totalEmails ?? 0} emails, ${d.ingested ?? 0} ingérés`);
+                else show('scanResult', `❌ ${d.message || 'Erreur'}`, false);
+            } catch (err) { show('scanResult', `❌ ${err.message}`, false); }
+        }
+
+        async function ingestTest() {
+            const from = document.getElementById('testFrom').value;
+            const subject = document.getElementById('testSubject').value;
+            const body = document.getElementById('testBody').value;
+            if (!from || !subject) return show('ingestResult', '❌ Expéditeur et sujet requis', false);
+            try {
+                const res = await api('/api/ingest/email', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from, subject, body, externalId: `TEST-${Date.now()}`, occurredAt: new Date().toISOString() })
+                });
+                const d = await res.json();
+                if (res.ok) show('ingestResult', `✅ Email ingéré — Dossier: ${d.caseId || 'N/A'}`);
+                else show('ingestResult', `❌ ${d.message || 'Erreur'}`, false);
+            } catch (err) { show('ingestResult', `❌ ${err.message}`, false); }
+        }
+
+        async function loadCases() {
+            try {
+                const res = await api('/api/cases');
+                const data = await res.json();
+                let html = `<div class="result success">✅ ${data.length} dossier(s)</div><div class="event-list">`;
+                data.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(c => {
+                    html += `<div class="event-item"><strong>${c.title || 'Sans titre'}</strong><div class="date">${c.status || 'OPEN'} — ${new Date(c.createdAt).toLocaleDateString('fr-FR')}</div></div>`;
+                });
+                html += '</div>';
+                document.getElementById('casesResult').innerHTML = html;
+            } catch (err) { show('casesResult', `❌ ${err.message}`, false); }
+        }
+
+        async function loadClients() {
+            try {
+                const res = await api('/api/client');
+                const data = await res.json();
+                let html = `<div class="result success">✅ ${data.length} client(s)</div><div class="event-list">`;
+                data.forEach(c => {
+                    html += `<div class="event-item"><strong>${c.name}</strong><div class="date">📧 ${c.email}</div></div>`;
+                });
+                html += '</div>';
+                document.getElementById('clientsResult').innerHTML = html;
+            } catch (err) { show('clientsResult', `❌ ${err.message}`, false); }
+        }
+
+        async function doSearch() {
+            const text = document.getElementById('searchText').value;
+            try {
+                const res = await api('/api/search/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, limit: 30 }) });
+                const data = await res.json();
+                if (!Array.isArray(data)) return show('searchResult', '❌ Erreur', false);
+                let html = `<div class="result success">✅ ${data.length} résultat(s)</div><div class="event-list">`;
+                data.forEach(e => {
+                    let p = {}; try { p = JSON.parse(e.rawPayload || '{}'); } catch {}
+                    html += `<div class="event-item"><div class="date">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div><strong>${p.subject || 'N/A'}</strong><div class="content">De: ${p.from || 'N/A'}</div></div>`;
+                });
+                html += '</div>';
+                document.getElementById('searchResult').innerHTML = html;
+            } catch (err) { show('searchResult', `❌ ${err.message}`, false); }
+        }
+
+        loadOverview();
+    </script>
+</body>
+</html>

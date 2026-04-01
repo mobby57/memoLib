@@ -1,20 +1,162 @@
-# Secrets et identifiants
-appsettings.json
-appsettings.*.json
-!appsettings.Development.json.example
+# MemoLib - .gitignore
 
-# Base de données
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Database
 *.db
 *.db-shm
 *.db-wal
+memolib*.db
 
-# Build
-bin/
-obj/
-*.user
-*.suo
+## Secrets & Environment
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+.env.local
+.env.production
+.env.staging
+.env.security
+.env.infrastructure
+.env*.local
+prod-key.txt
 
-# IDE
-.vs/
+## Logs
+logs/
+*.log
+
+## Fichiers temporaires de diagnostic
+.tmp_*.log
+*.tmp_*.log
+memolib.db-shm
+memolib.db-wal
+
+## Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.next/
+.turbo/
+coverage/
+
+## Uploaded user files (RGPD - ne jamais committer)
+uploads/
+!uploads/.gitkeep
+.jest-cache/
+playwright-report/
+test-results/
+.tmp_*.json
+register_debug.json
+
+## Python
+venv/
+.venv/
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+# Python build artifacts (not src/lib/)
+/lib/
+/lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+PIPFILE.lock
+
+## OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+## IDE
 .vscode/
+.idea/
 *.swp
+*.swo
+*~
+
+## Publish
+publish/
+*.zip
+
+## Backup
+*.bak
+*.backup
+
+## Package manager lockfiles (npm only)
+pnpm-lock.yaml
+yarn.lock
+
+## Legacy/build artifacts (not part of main project)
+frontend-node/
+_build_check/
+MemoLib-Package-Client/app/frontend-node/
+MemoLib-Package-Client/app/_build_check/
+.vercel
+
+
+# Azure deployment secrets
+.azure-secrets.json
+
+.azure-demo-secrets.json
+
+# Artifacts & logs (never commit)
+artifacts/
+memolib-logs/
+memolib-fix.tar
+response.json
+egress2.json
+ingress2.json
+lint-output.txt
+test-full.txt
+test-output*.txt
+tsc-output.txt
+build-output.txt
+build_output.txt
+build_errors.txt
+api_output.log
+$($found
+$($ms
+$null

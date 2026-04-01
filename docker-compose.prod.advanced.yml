@@ -1,0 +1,384 @@
+version: '3.9'
+
+################################################################################
+# 🚀 MemoLib API - Production Stack (ADVANCED)
+# Full-stack production deployment avec monitoring, backup, et orchestration
+# Déploiement: docker-compose -f docker-compose.prod.advanced.yml up -d
+################################################################################
+
+services:
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │ 🔄 REVERSE PROXY & LOAD BALANCER (Traefik)                              │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  traefik:
+    image: traefik:v2.10
+    container_name: memolib-traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8000:8000"  # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/memolib/traefik/traefik.yml:/traefik.yml:ro
+      - /opt/memolib/traefik/acme.json:/acme.json
+    environment:
+      - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
+      - CF_API_KEY=${CLOUDFLARE_API_KEY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.memolib.space`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8000"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - memolib-network
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │ 📦 MAIN API APPLICATION                                                  │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  memolib:
+    image: 1ff76d985ba2
+    container_name: memolib-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    # 🌐 Networking & ports
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+
+    # 📋 Configuration des variables d'environnement
+    env_file:
+      - /opt/memolib/.env.prod
+    environment:
+      # Override spécifiques pour production
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};SSL Mode=Disable"
+      REDIS_CONNECTION_STRING: "redis:6379,abortConnect=false"
+      _JAVA_OPTIONS: "-Xmx512m -Xms256m"
+
+    # 🏥 Health check avancé
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - -H
+        - "User-Agent: Docker-HealthCheck"
+        - http://localhost:8080/api/health
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+    # 💾 Volumes persistants
+    volumes:
+      - /opt/memolib/logs:/app/logs
+      - /opt/memolib/data:/app/data
+      - /etc/localtime:/etc/localtime:ro
+
+    # 📊 Configuration avancée des logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        labels: "service=memolib,environment=production"
+        tag: "memolib.{{.Name}}.{{.ImageName}}"
+
+    # 🏷️ Métadonnées & Traefik
+    labels:
+      - "com.memolib.description=MemoLib API Production"
+      - "com.memolib.version=1.0.0"
+      - "traefik.enable=true"
+      - "traefik.http.routers.memolib.rule=Host(`api.memolib.space`,`memolib.space`)"
+      - "traefik.http.routers.memolib.entrypoints=websecure"
+      - "traefik.http.routers.memolib.tls.certresolver=letsencrypt"
+      - "traefik.http.services.memolib.loadbalancer.server.port=8080"
+      - "traefik.http.services.memolib.loadbalancer.healthcheck.path=/api/health"
+      - "traefik.http.services.memolib.loadbalancer.healthcheck.interval=30s"
+
+    # ⏱️ Gestion d'arrêt gracieux (30s pour finir les requêtes)
+    stop_grace_period: 30s
+
+    # 🔐 Sécurité
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+
+    # 📈 Limites des ressources
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '1.0'
+          memory: 1024M
+
+    networks:
+      - memolib-network
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │ 🗄️ DATABASE (PostgreSQL)                                                │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  postgres:
+    image: postgres:16-alpine
+    container_name: memolib-postgres
+    restart: unless-stopped
+
+    # 🔐 Credentials
+    environment:
+      POSTGRES_USER: ${DB_USER:-memolib}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-memolib}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=fr_FR.UTF-8"
+
+    # 🏥 Health check
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-memolib} -d ${DB_NAME:-memolib}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    # 💾 Persistence
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - /opt/memolib/postgres/backups:/backups
+      - /opt/memolib/postgres/init-scripts:/docker-entrypoint-initdb.d:ro
+
+    # 📋 Configuration PostgreSQL optimisée
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "maintenance_work_mem=64MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "default_statistics_target=100"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+      - "-c"
+      - "work_mem=1310kB"
+      - "-c"
+      - "min_wal_size=2GB"
+      - "-c"
+      - "max_wal_size=8GB"
+      - "-c"
+      - "log_statement=all"
+      - "-c"
+      - "log_duration=on"
+
+    # 📊 Logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=postgres,environment=production"
+
+    # 📈 Limites des ressources
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '1.0'
+          memory: 1024M
+
+    networks:
+      - memolib-network
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │ ⚡ CACHE LAYER (Redis)                                                   │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  redis:
+    image: redis:7-alpine
+    container_name: memolib-redis
+    restart: unless-stopped
+
+    # 🏥 Health check
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    # 💾 Persistence
+    volumes:
+      - redis_data:/data
+
+    # ⚙️ Configuration Redis optimisée
+    command:
+      - redis-server
+      - "--appendonly"
+      - "yes"
+      - "--maxmemory"
+      - "512mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+      - "--requirepass"
+      - "${REDIS_PASSWORD}"
+      - "--loglevel"
+      - "notice"
+
+    # 📊 Logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+        labels: "service=redis"
+
+    # 📈 Limites des ressources
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+    networks:
+      - memolib-network
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │ 📊 MONITORING (Prometheus)                                              │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: memolib-prometheus
+    restart: unless-stopped
+
+    volumes:
+      - /opt/memolib/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /opt/memolib/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
+
+    ports:
+      - "9090:9090"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+    networks:
+      - memolib-network
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │ 🔍 NODE EXPORTER (Système metrics)                                      │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: memolib-node-exporter
+    restart: unless-stopped
+
+    ports:
+      - "9100:9100"
+
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+
+    networks:
+      - memolib-network
+
+  # ┌─────────────────────────────────────────────────────────────────────────┐
+  # │ 🔄 AUTO-UPDATES (Watchtower)                                            │
+  # └─────────────────────────────────────────────────────────────────────────┘
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: memolib-watchtower
+    restart: unless-stopped
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_REMOVE_VOLUMES: "false"
+      WATCHTOWER_INCLUDE_RESTARTING: "true"
+      WATCHTOWER_SCHEDULE: "0 2 * * *"  # 2:00 AM daily
+
+    command:
+      - --label-enable
+      - --interval
+      - "86400"
+      - memolib-api
+
+    networks:
+      - memolib-network
+
+# ┌───────────────────────────────────────────────────────────────────────────┐
+# │ 🤖 NETWORKS & VOLUMES                                                      │
+# └───────────────────────────────────────────────────────────────────────────┘
+
+networks:
+  memolib-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-memolib
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local

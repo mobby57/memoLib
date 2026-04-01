@@ -48,9 +48,12 @@
     {
       "label": "Frontend: Type Check",
       "type": "shell",
-      "command": "NODE_OPTIONS=--max-old-space-size=16384 npx tsc --noEmit --incremental",
+      "command": "npx tsc --noEmit --incremental",
       "options": {
-        "cwd": "${workspaceFolder}/src/frontend"
+        "cwd": "${workspaceFolder}/src/frontend",
+        "env": {
+          "NODE_OPTIONS": "--max-old-space-size=16384"
+        }
       },
       "problemMatcher": "$tsc"
     },
@@ -68,7 +71,7 @@
     {
       "label": "Backend: Flask Dev",
       "type": "shell",
-      "command": "python -m flask run --debug --port 5000",
+      "command": "python -m flask --app backend-python/app.py run --debug --port 5000 --exclude-patterns \"*site-packages*;*WindowsApps*;*AppData*;*.venv*;*__pycache__*\"",
       "options": {
         "cwd": "${workspaceFolder}",
         "env": {
@@ -132,9 +135,12 @@
     {
       "label": "Pre-Commit: Full Check",
       "type": "shell",
-      "command": "npm run lint && NODE_OPTIONS=--max-old-space-size=16384 npx tsc --noEmit --incremental && npm run build",
+      "command": "npm run lint; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; npx tsc --noEmit --incremental; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; npm run build",
       "options": {
-        "cwd": "${workspaceFolder}/src/frontend"
+        "cwd": "${workspaceFolder}/src/frontend",
+        "env": {
+          "NODE_OPTIONS": "--max-old-space-size=16384"
+        }
       },
       "problemMatcher": ["$tsc", "$eslint-stylish"]
     },
@@ -228,6 +234,15 @@
       "label": "Clean: Workspace (Aggressive Apply)",
       "type": "shell",
       "command": "bash scripts/cleanup-workspace.sh --aggressive --apply",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Test Account Flow",
+      "type": "shell",
+      "command": "powershell -ExecutionPolicy Bypass -File scripts/test-account-flow.ps1",
       "options": {
         "cwd": "${workspaceFolder}"
       },

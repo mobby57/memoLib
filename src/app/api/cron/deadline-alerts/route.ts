@@ -5,9 +5,13 @@ import { logger } from '@/lib/logger';
 export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET || 'dev-secret';
+    const cronSecret = process.env.CRON_SECRET;
 
-    if (authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret && process.env.NODE_ENV !== 'development') {
+      return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
+    }
+
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 

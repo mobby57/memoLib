@@ -1,6 +1,15 @@
 ﻿// Types globaux pour l'application
 // Roles hierarchiques standardises
-export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'CLIENT';
+export type UserRole =
+  | 'SUPER_ADMIN'    // Plateforme entière
+  | 'ADMIN'          // Administrateur cabinet (alias AVOCAT)
+  | 'AVOCAT'         // Avocat titulaire / admin du cabinet
+  | 'ASSOCIE'        // Avocat associé (finances + analytics)
+  | 'COLLABORATEUR'  // Avocat collaborateur (dossiers assignés)
+  | 'STAGIAIRE'      // Élève-avocat (lecture + tâches)
+  | 'SECRETAIRE'     // Secrétaire juridique (agenda, emails, docs)
+  | 'COMPTABLE'      // Comptable (factures, paiements)
+  | 'CLIENT';        // Client du cabinet
 export type TenantPlan = 'BASIC' | 'PREMIUM' | 'ENTERPRISE';
 
 export interface User {
@@ -8,15 +17,15 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
-  
+
   // Tenant (null pour SUPER_ADMIN)
   tenantId?: string;
   tenantName?: string;
   tenantPlan?: TenantPlan;
-  
+
   // Client (pour role CLIENT uniquement)
   clientId?: string;
-  
+
   // Permissions calculees
   permissions: UserPermissions;
 }
@@ -51,21 +60,21 @@ export interface Dossier {
   id: string;
   tenantId: string;
   numero: string;
-  
+
   // Client
   clientId: string;
   client?: string; // Nom du client (pour affichage)
-  
+
   // Type et classification
   typeDossier: string;
   articleCeseda?: string;
   categorieJuridique?: string;
-  
+
   // Statut et priorite
   statut: 'nouveau' | 'en_cours' | 'urgent' | 'en_attente' | 'termine' | 'suspendu' | 'archive';
   priorite: 'basse' | 'normale' | 'haute' | 'critique';
   phase: 'instruction' | 'recours' | 'audience' | 'decision' | 'execution';
-  
+
   // Dates
   dateCreation: string | Date;
   dateOuverture?: string | Date;
@@ -74,26 +83,26 @@ export interface Dossier {
   dateProchaineEtape?: string | Date;
   dateCloture?: string | Date;
   dateArchivage?: string | Date;
-  
+
   // Juridiction et procedure
   juridiction?: string;
   numeroJuridiction?: string;
   typeRecours?: string;
   instanceRecours?: string;
-  
+
   // Affectation
   responsableId?: string;
   responsable?: string; // Nom pour affichage
   collaborateurs?: string[]; // IDs
   avocatAdverse?: string;
-  
+
   // Details
   objet?: string;
   description?: string;
   contexteLegal?: string;
   notes?: string;
   notesPrivees?: string;
-  
+
   // Financier
   honorairesEstimes?: number;
   honorairesReel?: number;
@@ -103,23 +112,23 @@ export interface Dossier {
   tempsEstime?: number; // heures
   tempsReel?: number; // heures
   modeFacturation?: 'forfait' | 'horaire' | 'resultat' | 'mixte';
-  
+
   // Confidentialite
   niveauConfidentialite: 'public' | 'normal' | 'confidentiel' | 'secret';
   accessRestreint: boolean;
   autorisationsAcces?: Record<string, string[]>;
-  
+
   // Archivage
   dureeConservation?: number; // annees
   dateDestructionPrevue?: string | Date;
   archivePhysique?: string;
   archiveNumerique?: string;
-  
+
   // Workflow
   etapesWorkflow?: WorkflowStep[];
   checklistItems?: ChecklistItem[];
   jalons?: Milestone[];
-  
+
   // IA
   prediction_ia?: number;
   aiAnalysis?: AIAnalysis;
@@ -128,32 +137,32 @@ export interface Dossier {
   aiRecommendations?: AIRecommendation[];
   aiSummary?: string;
   predictedOutcome?: string;
-  
+
   // Metriques
   tempsReponseJuridiction?: number;
   tauxReussite?: number;
   scoreComplexite?: number;
-  
+
   // References
   dossiersPrecedents?: string[];
   jurisprudence?: JurisprudenceRef[];
   dossiersLies?: string[];
-  
+
   // Communication
   dernierContactClient?: string | Date;
   prochaineRelance?: string | Date;
   frequenceRelance?: 'hebdomadaire' | 'mensuelle' | 'trimestrielle';
   canalContact?: 'email' | 'telephone' | 'courrier' | 'visio';
-  
+
   // Metadonnees
   tags?: string[];
   couleurEtiquette?: string;
   emoji?: string;
-  
+
   createdAt?: string | Date;
   updatedAt?: string | Date;
   lastActivityAt?: string | Date;
-  
+
   // Relations (pour les details)
   factures?: Facture[];
   documents?: Document[];
@@ -224,26 +233,26 @@ export interface TacheDossier {
   type: 'administrative' | 'juridique' | 'client' | 'interne';
   priorite: 'critique' | 'haute' | 'normale' | 'basse';
   statut: 'a_faire' | 'en_cours' | 'bloquee' | 'terminee' | 'annulee';
-  
+
   assigneA?: string;
   assigneNom?: string; // Pour affichage
-  
+
   dateEcheance?: string | Date;
   dateDebut?: string | Date;
   dateFin?: string | Date;
-  
+
   tempsEstime?: number; // minutes
   tempsReel?: number; // minutes
-  
+
   dependances?: string[]; // IDs taches
   sousCategorie?: string;
-  
+
   rappelEnvoye: boolean;
   rappelDate?: string | Date;
-  
+
   pieceJointes?: string[]; // References documents
   commentaires?: string[];
-  
+
   createdAt: string | Date;
   updatedAt: string | Date;
   completedAt?: string | Date;
@@ -257,28 +266,28 @@ export interface EvenementDossier {
   type: 'action' | 'decision' | 'courrier' | 'appel' | 'email' | 'reunion' | 'audience' | 'depot';
   titre: string;
   description?: string;
-  
+
   dateEvenement: string | Date;
   dateSaisie: string | Date;
-  
+
   auteur?: string;
   auteurNom?: string;
   participants?: Participant[];
-  
+
   importance: 'critique' | 'importante' | 'normale' | 'mineure';
   categorie?: 'procedure' | 'communication' | 'finance' | 'administratif';
-  
+
   localisation?: string;
   duree?: number; // minutes
-  
+
   documentsLies?: string[]; // IDs documents
   resultats?: string;
   suitesDonner?: string;
-  
+
   visible: boolean; // Visible par le client
-  
+
   metadata?: Record<string, any>;
-  
+
   createdAt: string | Date;
   updatedAt: string | Date;
 }
@@ -294,25 +303,25 @@ export interface Participant {
 export interface CommentaireDossier {
   id: string;
   dossierId: string;
-  
+
   auteurId: string;
   auteurNom: string;
   auteurAvatar?: string;
-  
+
   contenu: string;
   type: 'note' | 'analyse' | 'remarque' | 'question' | 'reponse';
-  
+
   important: boolean;
   prive: boolean;
-  
+
   reponseA?: string; // ID commentaire parent
   mentions?: string[]; // IDs users mentionnes
-  
+
   pieceJointes?: string[];
   tags?: string[];
-  
+
   modifie: boolean;
-  
+
   createdAt: string | Date;
   updatedAt: string | Date;
   editedAt?: string | Date;
@@ -322,28 +331,28 @@ export interface RendezVous {
   id: string;
   dossierId: string;
   dossier?: string; // Titre dossier pour affichage
-  
+
   titre: string;
   description?: string;
   type: 'consultation' | 'audience' | 'signature' | 'visio' | 'reunion' | 'expertise';
-  
+
   dateDebut: string | Date;
   dateFin: string | Date;
-  
+
   lieu?: string;
   lienVisio?: string;
-  
+
   participants?: Participant[];
   organisateur?: string;
-  
+
   statut: 'planifie' | 'confirme' | 'annule' | 'termine' | 'reporte';
-  
+
   rappelEnvoye: boolean;
   rappels?: RappelConfig[];
-  
+
   notes?: string;
   pieceJointes?: string[];
-  
+
   createdAt: string | Date;
   updatedAt: string | Date;
 }
@@ -393,13 +402,13 @@ export enum AIActionType {
   METADATA_EXTRACTION = 'METADATA_EXTRACTION',
   URGENCY_DETECTION = 'URGENCY_DETECTION',
   CLASSIFICATION = 'CLASSIFICATION',
-  
+
   // Niveau ORANGE (semi-automatique)
   FORM_GENERATION = 'FORM_GENERATION',
   DOCUMENT_REQUEST = 'DOCUMENT_REQUEST',
   DRAFT_GENERATION = 'DRAFT_GENERATION',
   ALERT_CREATION = 'ALERT_CREATION',
-  
+
   // Niveau RED (manuel uniquement)
   DOCUMENT_SEND = 'DOCUMENT_SEND',
   LEGAL_ADVICE = 'LEGAL_ADVICE', // INTERDIT a l'IA
@@ -460,11 +469,11 @@ export enum DocumentType {
   DOCUMENT_REQUEST = 'DOCUMENT_REQUEST',
   APPOINTMENT_CONFIRMATION = 'APPOINTMENT_CONFIRMATION',
   REMINDER = 'REMINDER',
-  
+
   // Necessitent validation (niveau ORANGE)
   SIMPLE_LETTER = 'SIMPLE_LETTER',
   CASE_SUMMARY = 'CASE_SUMMARY',
-  
+
   // Interdits a l'IA (niveau RED)
   LEGAL_PROCEEDING = 'LEGAL_PROCEEDING',
   LEGAL_CONCLUSION = 'LEGAL_CONCLUSION',
@@ -479,46 +488,46 @@ export interface AIAction {
   id: string;
   actionType: AIActionType;
   autonomyLevel: AutonomyLevel;
-  
+
   /** Niveau de confiance de l'IA (0-1) */
   confidence: number;
-  
+
   /** Validation requise ? */
   requiresValidation: boolean;
-  
+
   /** Niveau de validation requis */
   validationLevel: ValidationLevel;
-  
+
   /** Statut de validation actuel */
   validationStatus: ValidationStatus;
-  
+
   /** Contenu de l'action (JSON) */
   content: Record<string, any>;
-  
+
   /** Justification de l'action */
   rationale: string;
-  
+
   /** ID du dossier concerne */
   dossierId?: string;
-  
+
   /** ID du tenant */
   tenantId: string;
-  
+
   /** Cree par (IA) */
   createdBy: string;
-  
+
   /** Date de creation */
   createdAt: Date;
-  
+
   /** Valide par (humain) */
   validatedBy?: string;
-  
+
   /** Date de validation */
   validatedAt?: Date;
-  
+
   /** Commentaire de validation */
   validationComment?: string;
-  
+
   /** Metadonnees supplementaires */
   metadata?: Record<string, any>;
 }
@@ -546,23 +555,23 @@ export interface Alert {
   id: string;
   alertType: 'legal_deadline' | 'inconsistency' | 'blocked_case' | 'missing_document';
   severity: 'INFO' | 'WARNING' | 'ALERT' | 'CRITICAL';
-  
+
   dossierId: string;
   tenantId: string;
-  
+
   message: string;
   deadline?: Date;
   suggestedAction?: string;
-  
+
   /** Canaux de notification */
   notificationChannels: ('email' | 'push' | 'sms')[];
-  
+
   /** Lu ? */
   read: boolean;
-  
+
   /** Snoozed jusqu'a */
   snoozedUntil?: Date;
-  
+
   createdAt: Date;
   readAt?: Date;
 }
@@ -574,26 +583,26 @@ export interface DocumentDraft {
   id: string;
   documentType: DocumentType;
   status: 'DRAFT' | 'READY_TO_SEND' | 'SENT';
-  
+
   dossierId: string;
   tenantId: string;
-  
+
   /** Contenu du document (Markdown ou HTML) */
   content: string;
-  
+
   /** Zones necessitant attention */
   placeholders: {
     marker: string;
     reason: string;
     resolved: boolean;
   }[];
-  
+
   /** Niveau de validation requis */
   validationLevel: ValidationLevel;
-  
+
   /** Statut de validation */
   validationStatus: ValidationStatus;
-  
+
   /** Destinataire */
   recipient?: {
     name: string;
@@ -601,20 +610,20 @@ export interface DocumentDraft {
     address?: string;
     type: 'client' | 'court' | 'adverse' | 'other';
   };
-  
+
   /** Pieces jointes */
   attachments: {
     filename: string;
     path: string;
     size: number;
   }[];
-  
+
   createdBy: string;
   createdAt: Date;
-  
+
   validatedBy?: string;
   validatedAt?: Date;
-  
+
   sentBy?: string;
   sentAt?: Date;
 }
@@ -628,7 +637,7 @@ export interface CollectionForm {
   caseType: string;
   dossierId: string;
   tenantId: string;
-  
+
   questions: {
     id: string;
     type: 'text' | 'date' | 'file' | 'select' | 'number' | 'textarea';
@@ -638,17 +647,17 @@ export interface CollectionForm {
     validation?: string;
     options?: string[]; // Pour type 'select'
   }[];
-  
+
   estimatedTime: string;
-  
+
   /** Reponses (si formulaire complete) */
   responses?: Record<string, any>;
-  
+
   status: 'SENT' | 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED';
-  
+
   sentAt: Date;
   completedAt?: Date;
-  
+
   /** Relances */
   reminders: {
     sentAt: Date;
@@ -662,32 +671,32 @@ export interface CollectionForm {
 export interface AIMetrics {
   tenantId: string;
   period: string; // 'daily' | 'weekly' | 'monthly'
-  
+
   /** Taux de rejet des brouillons */
   draftRejectionRate: number;
-  
+
   /** Taux d'erreur de classification */
   classificationErrorRate: number;
-  
+
   /** Temps moyen de validation (heures) */
   avgValidationTime: number;
-  
+
   /** Nombre d'escalades non traitees */
   untreatedEscalations: number;
-  
+
   /** Actions par type */
   actionsByType: Record<AIActionType, number>;
-  
+
   /** Niveau de confiance moyen */
   avgConfidence: number;
-  
+
   calculatedAt: Date;
 }
 
 export interface Client {
   id: string;
   tenantId: string;
-  
+
   // Informations personnelles
   civilite?: 'M.' | 'Mme' | 'Autre';
   firstName: string;
@@ -696,7 +705,7 @@ export interface Client {
   prenom?: string; // Alias pour firstName (retrocompatibilite)
   nomNaissance?: string;
   prenomUsuel?: string;
-  
+
   // Contacts
   email: string;
   emailSecondaire?: string;
@@ -704,14 +713,14 @@ export interface Client {
   phone?: string; // Alias pour telephone
   phoneSecondaire?: string;
   telephoneUrgence?: string;
-  
+
   // Naissance et nationalite
   dateOfBirth?: string | Date;
   lieuNaissance?: string;
   nationality?: string;
   nationalite?: string; // Alias
   nationaliteOrigine?: string;
-  
+
   // Adresse principale
   address?: string;
   adresse?: string; // Alias
@@ -719,57 +728,57 @@ export interface Client {
   code_postal?: string; // Alias
   ville?: string;
   pays?: string;
-  
+
   // Adresse de correspondance
   adresseCorrespondance?: string;
   codePostalCorrespondance?: string;
   villeCorrespondance?: string;
   paysCorrespondance?: string;
-  
+
   // Documents d'identite
   passportNumber?: string;
   passportExpiry?: string | Date;
   passportCountry?: string;
-  
+
   idCardNumber?: string;
   idCardExpiry?: string | Date;
-  
+
   titreSejourNumber?: string;
   titreSejourType?: string;
   titreSejourExpiry?: string | Date;
-  
+
   numeroOFII?: string;
   numeroAgrefe?: string;
-  
+
   // Situation personnelle
   situationFamiliale?: 'celibataire' | 'marie' | 'pacse' | 'divorce' | 'veuf';
   nombreEnfants?: number;
   personneACharge?: number;
-  
+
   // Situation professionnelle
   profession?: string;
   employeur?: string;
   secteurActivite?: string;
   situationPro?: 'emploi_cdi' | 'emploi_cdd' | 'chomage' | 'etudiant' | 'retraite' | 'sans_emploi';
   revenusAnnuels?: number;
-  
+
   // Informations bancaires
   iban?: string;
   bic?: string;
   titulaireBancaire?: string;
-  
+
   // Contact d'urgence
   contactUrgenceNom?: string;
   contactUrgenceLien?: string;
   contactUrgenceTel?: string;
-  
+
   // Preferences de communication
   languePrincipale?: string;
   languesSecondaires?: string[];
   prefCommunication?: 'email' | 'telephone' | 'courrier' | 'sms';
   accepteNotifications?: boolean;
   accepteNewsletter?: boolean;
-  
+
   // Statut et classification
   status: 'actif' | 'inactif' | 'archive' | 'prospect';
   statut?: 'actif' | 'inactif' | 'archive'; // Alias
@@ -777,50 +786,50 @@ export interface Client {
   source?: string;
   qualite?: 'vip' | 'standard' | 'risque';
   scoreRisque?: number;
-  
+
   // Gestion financiere
   tarifHoraire?: number;
   plafondHoraire?: number;
   modeFacturation?: 'forfait' | 'horaire' | 'resultat';
   delaiPaiement?: number; // jours
-  
+
   // Suivi relationnel
   origineClient?: string;
   datePremiereVisite?: string | Date;
   dateDernierContact?: string | Date;
   frequenceContact?: 'hebdomadaire' | 'mensuelle' | 'trimestrielle';
   satisfactionScore?: number; // 1-5
-  
+
   // Confidentialite
   niveauConfidentialite?: 'public' | 'normal' | 'confidentiel';
   consentementRGPD?: boolean;
   dateConsentementRGPD?: string | Date;
-  
+
   // Metadonnees
   notes?: string;
   notesPrivees?: string;
   tags?: string[];
   couleurEtiquette?: string;
   emoji?: string;
-  
+
   // Archivage
   dateArchivage?: string | Date;
   raisonArchivage?: string;
-  
+
   // Champs personnalises
   champsPersonnalises?: Record<string, any>;
-  
+
   // Dates systeme
   created_at?: string | Date;
   createdAt?: string | Date;
   updatedAt?: string | Date;
   lastActivityAt?: string | Date;
-  
+
   // Relations (pour details)
   dossiers?: Dossier[];
   nombreDossiers?: number;
   dossiersActifs?: number;
-  
+
   // Stats
   chiffreAffaires?: number;
   honorairesTotaux?: number;

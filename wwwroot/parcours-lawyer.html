@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcours Avocat - MemoLib</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+</head>
+<body>
+    <div class="header">
+        <h1>⚖️ Parcours Avocat</h1>
+        <p>Votre journée type optimisée avec MemoLib</p>
+    </div>
+
+    <div class="container">
+        <!-- Alertes urgentes -->
+        <div id="urgentAlerts"></div>
+
+        <!-- Workflow journalier -->
+        <div class="section">
+            <h2>📅 Votre Journée Type</h2>
+            <div class="parcours-workflow">
+                <div class="parcours-workflow-step">
+                    <span class="parcours-time">9h00 - 9h30</span>
+                    <h3>1. Revue Matinale</h3>
+                    <p>Consultez vos nouveaux emails, dossiers urgents et échéances du jour.</p>
+                    <button class="btn btn-sm" onclick="window.open('/demo.html#alerts', '_blank')">Voir Alertes</button>
+                </div>
+
+                <div class="parcours-workflow-step">
+                    <span class="parcours-time">9h30 - 12h00</span>
+                    <h3>2. Traitement Dossiers</h3>
+                    <p>Travaillez sur vos dossiers prioritaires avec tous les documents centralisés.</p>
+                    <button class="btn btn-sm" onclick="window.open('/demo.html#cases', '_blank')">Mes Dossiers</button>
+                </div>
+
+                <div class="parcours-workflow-step">
+                    <span class="parcours-time">14h00 - 16h00</span>
+                    <h3>3. Rendez-vous Clients</h3>
+                    <p>Accédez rapidement à l'historique complet de chaque client avant les RDV.</p>
+                    <button class="btn btn-sm" onclick="window.open('/demo.html#client-detail', '_blank')">Fiches Clients</button>
+                </div>
+
+                <div class="parcours-workflow-step">
+                    <span class="parcours-time">16h00 - 18h00</span>
+                    <h3>4. Réponses & Suivi</h3>
+                    <p>Répondez aux emails clients avec templates intelligents et IA.</p>
+                    <button class="btn btn-sm" onclick="window.open('/demo.html#search', '_blank')">Recherche Rapide</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tâches du jour -->
+        <div class="section">
+            <h2>✅ Tâches du Jour</h2>
+            <ul class="parcours-task-list" id="taskList">
+                <li class="parcours-task-item urgent">
+                    <div>
+                        <strong>🔴 URGENT:</strong> Réponse mémoire Tribunal - Dossier Martin
+                        <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Échéance: Aujourd'hui 17h00</div>
+                    </div>
+                    <button class="btn btn-sm" onclick="openCase('martin')">Ouvrir</button>
+                </li>
+                <li class="parcours-task-item normal">
+                    <div>
+                        <strong>🟠 Important:</strong> Rendez-vous client Dubois
+                        <div style="font-size: 0.9em; color: #666; margin-top: 5px;">15h00 - Divorce contentieux</div>
+                    </div>
+                    <button class="btn btn-sm" onclick="openClient('dubois')">Préparer</button>
+                </li>
+                <li class="parcours-task-item low">
+                    <div>
+                        <strong>🟢 Normal:</strong> Relecture contrat Société Lefebvre
+                        <div style="font-size: 0.9em; color: #666; margin-top: 5px;">Échéance: Demain</div>
+                    </div>
+                    <button class="btn btn-sm" onclick="openCase('lefebvre')">Voir</button>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="section">
+            <h2>⚡ Actions Rapides</h2>
+            <div class="parcours-quick-actions">
+                <div class="parcours-quick-action" onclick="window.open('/demo.html#ingest', '_blank')">
+                    <div class="icon">📧</div>
+                    <div>Nouveau Email</div>
+                </div>
+                <div class="parcours-quick-action" onclick="window.open('/demo.html#cases', '_blank')">
+                    <div class="icon">📁</div>
+                    <div>Créer Dossier</div>
+                </div>
+                <div class="parcours-quick-action" onclick="window.open('/demo.html#search', '_blank')">
+                    <div class="icon">🔍</div>
+                    <div>Rechercher</div>
+                </div>
+                <div class="parcours-quick-action" onclick="window.open('/demo.html#client', '_blank')">
+                    <div class="icon">👤</div>
+                    <div>Nouveau Client</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dossiers récents -->
+        <div class="section">
+            <h2>📂 Dossiers Récents</h2>
+            <div id="recentCases">Chargement...</div>
+        </div>
+
+        <!-- Conseils du jour -->
+        <div class="section">
+            <h2>💡 Conseil du Jour</h2>
+            <div class="parcours-tip">
+                <strong>Utilisez la recherche sémantique IA</strong> pour retrouver rapidement des dossiers similaires et gagner du temps sur vos recherches juridiques.
+                <br><br>
+                <button class="btn" onclick="window.open('/demo.html#search', '_blank')">Essayer Maintenant</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5078';
+        const token = localStorage.getItem('authToken');
+
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+            try { return JSON.parse(text); } catch { return null; }
+        }
+
+        async function loadUrgentAlerts() {
+            if (!token) return;
+            try {
+                const response = await fetch(`${API_URL}/api/alerts/requires-attention`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await readResponseDataSafe(response);
+                    if ((data?.count || 0) > 0) {
+                        document.getElementById('urgentAlerts').innerHTML = `
+                            <div class="parcours-alert parcours-alert-urgent">
+                                <strong>⚠️ ${data?.count || 0} email(s) nécessitent votre attention immédiate</strong>
+                                <button class="btn btn-sm" style="margin-left: 15px;" onclick="window.open('/demo.html#alerts', '_blank')">Traiter Maintenant</button>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (err) {
+                console.error('Erreur chargement alertes:', err);
+            }
+        }
+
+        async function loadRecentCases() {
+            if (!token) {
+                document.getElementById('recentCases').innerHTML = '<p>Connectez-vous pour voir vos dossiers</p>';
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/api/cases`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const cases = await readResponseDataSafe(response);
+                    const casesList = Array.isArray(cases) ? cases : [];
+                    const recent = casesList.slice(0, 5);
+                    document.getElementById('recentCases').innerHTML = recent.map(c => `
+                        <div class="parcours-case-item" onclick="window.open('/demo.html#cases', '_blank')">
+                            <div>
+                                <strong>${c.title || 'Sans titre'}</strong>
+                                <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                                    Client: ${c.clientId || 'Non renseigné'} | Créé: ${new Date(c.createdAt).toLocaleDateString('fr-FR')}
+                                </div>
+                            </div>
+                            <button class="btn btn-sm">Ouvrir</button>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                document.getElementById('recentCases').innerHTML = '<p>Erreur de chargement</p>';
+            }
+        }
+
+        function openCase(caseId) {
+            window.open(`/demo.html#cases`, '_blank');
+        }
+
+        function openClient(clientId) {
+            window.open(`/demo.html#client-detail`, '_blank');
+        }
+
+        loadUrgentAlerts();
+        loadRecentCases();
+        setInterval(loadUrgentAlerts, 60000);
+    </script>
+</body>
+</html>

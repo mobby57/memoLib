@@ -4,8 +4,30 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+
+async function ensureAdminAccess() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+  }
+
+  const role = String((session.user as any).role || '').toUpperCase();
+  const allowedRoles = new Set(['ADMIN', 'SUPER_ADMIN']);
+  if (!allowedRoles.has(role)) {
+    return NextResponse.json({ error: 'Acces interdit' }, { status: 403 });
+  }
+
+  return null;
+}
 
 export async function GET() {
+  const authError = await ensureAdminAccess();
+  if (authError) {
+    return authError;
+  }
+
   return NextResponse.json({
     title: 'Phase 4 + Phase 5 Comprehensive Test Suite',
     description: 'Complete validation before Phase 6 production deployment',
@@ -39,6 +61,11 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const authError = await ensureAdminAccess();
+  if (authError) {
+    return authError;
+  }
+
   const body = await req.json();
   const testMode = body.testMode || 'summary';
 
