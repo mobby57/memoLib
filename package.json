@@ -86,7 +86,7 @@
     "db:health": "tsx scripts/db-health.ts",
     "db:benchmark": "tsx scripts/db-benchmark.ts",
     "benchmark:run": "node scripts/benchmark-suite.js",
-    "benchmark:quick": "cross-env BENCH_INCLUDE_DASHBOARD=0 BENCH_INCLUDE_HTTP=0 node scripts/benchmark-suite.js",
+    "benchmark:quick": "node scripts/benchmark-suite.js --quick",
     "db:backup": "tsx scripts/db-backup.ts",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css,scss}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css,scss}\"",

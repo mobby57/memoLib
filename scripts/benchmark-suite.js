@@ -20,6 +20,32 @@ function toBool(value, fallback) {
   return value === '1' || String(value).toLowerCase() === 'true';
 }
 
+function checkRuntimeReadiness() {
+  const reasons = [];
+  const nodeMajor = Number(process.version.replace(/^v/, '').split('.')[0] || 0);
+
+  if (nodeMajor !== 24) {
+    reasons.push(`Node 24.x required, current ${process.version}`);
+  }
+
+  try {
+    require.resolve('dotenv/config');
+  } catch {
+    reasons.push('Missing dependency: dotenv (run npm install with Node 24)');
+  }
+
+  try {
+    require.resolve('@prisma/client');
+  } catch {
+    reasons.push('Missing dependency: @prisma/client (run npm install with Node 24)');
+  }
+
+  return {
+    ok: reasons.length === 0,
+    reasons,
+  };
+}
+
 function runCommand(name, command, args) {
   return new Promise((resolve) => {
     const started = Date.now();
@@ -72,32 +98,79 @@ function runCommand(name, command, args) {
 }
 
 async function main() {
-  const includeDashboard = toBool(process.env.BENCH_INCLUDE_DASHBOARD, true);
-  const includeHttp = toBool(process.env.BENCH_INCLUDE_HTTP, false);
+  const isQuickMode = process.argv.includes('--quick');
+  const includeDashboard = isQuickMode
+    ? false
+    : toBool(process.env.BENCH_INCLUDE_DASHBOARD, true);
+  const includeHttp = isQuickMode
+    ? false
+    : toBool(process.env.BENCH_INCLUDE_HTTP, false);
+  const runtime = checkRuntimeReadiness();
 
   const stepsToRun = [
-    { name: 'Database health check', command: 'npm', args: ['run', 'db:health'] },
-    { name: 'Database benchmark', command: 'npm', args: ['run', 'db:benchmark'] },
+    { name: 'Database health check', command: 'npx', args: ['tsx', 'scripts/db-health.ts'] },
+    { name: 'Database benchmark', command: 'npx', args: ['tsx', 'scripts/db-benchmark.ts'] },
   ];
 
   if (includeDashboard) {
     stepsToRun.push({
       name: 'Database performance dashboard',
-      command: 'tsx',
-      args: ['scripts/database-performance-dashboard.ts'],
+      command: 'npx',
+      args: ['tsx', 'scripts/database-performance-dashboard.ts'],
     });
   }
 
   if (includeHttp) {
     stepsToRun.push({
       name: 'HTTP endpoint benchmark prep',
-      command: 'tsx',
-      args: ['scripts/test-http-endpoints.ts'],
+      command: 'npx',
+      args: ['tsx', 'scripts/test-http-endpoints.ts'],
     });
   }
 
   const allStarted = Date.now();
   const results = [];
+
+  if (!runtime.ok) {
+    console.log('\n[bench] Environment precheck failed');
+    runtime.reasons.forEach((reason) => console.log(`[bench] - ${reason}`));
+
+    if (isQuickMode) {
+      const allEnded = Date.now();
+      const report = {
+        generatedAt: new Date().toISOString(),
+        host: process.env.COMPUTERNAME || process.env.HOSTNAME || 'unknown',
+        nodeVersion: process.version,
+        cwd: process.cwd(),
+        mode: 'quick',
+        precheck: {
+          ok: false,
+          reasons: runtime.reasons,
+        },
+        steps: [],
+        totals: {
+          totalSteps: 0,
+          passed: 0,
+          failed: 0,
+          totalDurationMs: allEnded - allStarted,
+        },
+      };
+
+      const reportsDir = join(process.cwd(), 'reports', 'benchmark');
+      await mkdir(reportsDir, { recursive: true });
+
+      const stamp = new Date().toISOString().replace(/[.:]/g, '-');
+      const reportPath = join(reportsDir, `benchmark-${stamp}.json`);
+      const latestPath = join(reportsDir, 'latest.json');
+
+      await writeFile(reportPath, JSON.stringify(report, null, 2), 'utf-8');
+      await copyFile(reportPath, latestPath);
+
+      console.log('[bench] Quick mode: report generated with actionable precheck errors.');
+      console.log(`[bench] report: ${reportPath}`);
+      return;
+    }
+  }
 
   for (const step of stepsToRun) {
     const result = await runCommand(step.name, step.command, step.args);
@@ -137,6 +210,10 @@ async function main() {
   console.log(`[bench] report: ${reportPath}`);
 
   if (report.totals.failed > 0) {
+    process.exitCode = 1;
+  }
+
+  if (!runtime.ok && !isQuickMode) {
     process.exitCode = 1;
   }
 }
