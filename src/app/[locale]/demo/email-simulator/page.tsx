@@ -93,7 +93,10 @@ export default function EmailSimulatorPage() {
     try {
       const response = await fetch('/api/emails/incoming', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-demo-request': '1',
+        },
         body: JSON.stringify({
           from: fromEmail,
           to: toEmail,
