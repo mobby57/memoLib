@@ -1,0 +1,121 @@
+name: e2e-tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/e2e/**'
+      - 'playwright.config.ts'
+      - 'tests/e2e/playwright.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'prisma/**'
+      - '.github/workflows/e2e.yml'
+  workflow_dispatch:
+    inputs:
+      run_full:
+        description: 'Run full DB-backed E2E suite'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  e2e-smoke:
+    name: E2E Smoke (No DB)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke E2E
+        run: npx playwright test tests/e2e/homepage.spec.ts --config=playwright.config.ts --project=chromium --reporter=list
+
+      - name: Upload smoke report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-smoke
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+
+  e2e-full:
+    name: E2E Full (DB Backed)
+    needs: e2e-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.run_full == 'true' }}
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      RUN_ADVANCED_E2E: '1'
+    steps:
+      - name: Check required secrets
+        id: preflight
+        run: |
+          if [ -z "$DATABASE_URL" ] || [ -z "$NEXTAUTH_SECRET" ]; then
+            echo "run_full=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping full E2E: missing DATABASE_URL or NEXTAUTH_SECRET"
+          else
+            echo "run_full=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.preflight.outputs.run_full == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: steps.preflight.outputs.run_full == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.preflight.outputs.run_full == 'true'
+        run: npm ci
+
+      - name: Install Playwright browsers
+        if: steps.preflight.outputs.run_full == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Run full E2E (chromium)
+        if: steps.preflight.outputs.run_full == 'true'
+        run: npx playwright test --config=playwright.config.ts --project=chromium --reporter=list
+
+      - name: Upload full report
+        if: always() && steps.preflight.outputs.run_full == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-full
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
