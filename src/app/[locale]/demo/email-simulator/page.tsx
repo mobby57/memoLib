@@ -3,7 +3,19 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { AlertCircle, CheckCircle, Loader2, Mail, Send, User, Building } from 'lucide-react';
+import {
+  AlertCircle,
+  BarChart3,
+  Building,
+  CheckCircle,
+  Clock3,
+  Loader2,
+  Mail,
+  Paperclip,
+  PlayCircle,
+  Send,
+  User,
+} from 'lucide-react';
 
 const DEMO_STEPS = [
   { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
@@ -58,6 +70,76 @@ type SendResult = {
   urgency?: string;
 };
 
+type DemoAttachment = {
+  filename: string;
+  mimeType: string;
+  size: number;
+};
+
+type DemoScenario = {
+  id: string;
+  title: string;
+  clientEmail: string;
+  subject: string;
+  body: string;
+  attachments: DemoAttachment[];
+  targetUrgency: 'high' | 'medium';
+};
+
+const DEMO_SCENARIOS: DemoScenario[] = [
+  {
+    id: 'oqtf-urgent',
+    title: 'OQTF urgent avec délai',
+    clientEmail: 'sophie.dubois@email.com',
+    subject: 'URGENT - OQTF notifiée le 15/01/2026 - recours sous 30 jours',
+    body: `Bonjour Maître,\n\nJ'ai reçu une OQTF avec délai de départ volontaire de 30 jours.\nJe suis en France depuis 5 ans avec deux enfants scolarisés.\n\nPouvez-vous prendre mon dossier en urgence ?`,
+    targetUrgency: 'high',
+    attachments: [
+      { filename: 'oqtf-notification.pdf', mimeType: 'application/pdf', size: 284000 },
+      { filename: 'passeport-client.pdf', mimeType: 'application/pdf', size: 162000 },
+    ],
+  },
+  {
+    id: 'renewal-rdv',
+    title: 'Renouvellement titre de séjour',
+    clientEmail: 'mehdi.benamar@email.com',
+    subject: 'Demande de rendez-vous - renouvellement titre de séjour',
+    body: `Bonjour Maître,\n\nJe souhaite prendre rendez-vous cette semaine pour renouveler mon titre de séjour.\n\nMerci d'avance.`,
+    targetUrgency: 'medium',
+    attachments: [{ filename: 'ancien-titre-sejour.pdf', mimeType: 'application/pdf', size: 145000 }],
+  },
+  {
+    id: 'hearing-notice',
+    title: 'Convocation audience administrative',
+    clientEmail: 'nouveau.client@email.com',
+    subject: 'Convocation audience tribunal administratif le 03/05/2026',
+    body: `Bonjour Maître,\n\nJe viens de recevoir une convocation au tribunal administratif.\nL'audience est prévue le 03/05/2026.\n\nPouvez-vous préparer ma défense ?`,
+    targetUrgency: 'high',
+    attachments: [
+      { filename: 'convocation-tribunal.pdf', mimeType: 'application/pdf', size: 223000 },
+      { filename: 'decision-prefecture.pdf', mimeType: 'application/pdf', size: 304000 },
+    ],
+  },
+  {
+    id: 'invoice-dispute',
+    title: 'Contestations facture',
+    clientEmail: 'sophie.dubois@email.com',
+    subject: 'Contestations facture et demande d echelonnement',
+    body: `Bonjour Maître,\n\nJe souhaite contester une facture reçue et demander un échéancier.\nPouvez-vous m'aider à formuler la réponse ?`,
+    targetUrgency: 'medium',
+    attachments: [{ filename: 'facture-2026-0412.pdf', mimeType: 'application/pdf', size: 92000 }],
+  },
+  {
+    id: 'unknown-client',
+    title: 'Nouveau client non référencé',
+    clientEmail: 'nouveau.client@email.com',
+    subject: 'Première prise de contact - besoin accompagnement juridique',
+    body: `Bonjour,\n\nJe ne suis pas encore client du cabinet.\nJe souhaite être accompagné sur un dossier administratif complexe.\n\nMerci pour votre retour.`,
+    targetUrgency: 'medium',
+    attachments: [{ filename: 'resume-situation.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', size: 76000 }],
+  },
+];
+
 export default function EmailSimulatorPage() {
   const { locale } = useParams<{ locale: string }>();
   const withLocale = (path: string) => `/${locale}${path}`;
@@ -70,6 +152,16 @@ export default function EmailSimulatorPage() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<SendResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedScenarioId, setSelectedScenarioId] = useState(DEMO_SCENARIOS[0].id);
+  const [includeAttachments, setIncludeAttachments] = useState(true);
+  const [guidedStep, setGuidedStep] = useState(0);
+  const [runningGuidedDemo, setRunningGuidedDemo] = useState(false);
+  const [kpis, setKpis] = useState({
+    processedEmails: 42,
+    urgentDetected: 9,
+    avgProcessingSeconds: 138,
+    slaRespected: 94,
+  });
 
   useEffect(() => {
     setIsMounted(true);
@@ -80,7 +172,19 @@ export default function EmailSimulatorPage() {
     setBody(template.body);
   };
 
-  const sendEmail = async () => {
+  const selectedScenario = DEMO_SCENARIOS.find((scenario) => scenario.id === selectedScenarioId) || DEMO_SCENARIOS[0];
+
+  const applyScenario = (scenario: DemoScenario) => {
+    setSelectedScenarioId(scenario.id);
+    setFromEmail(scenario.clientEmail);
+    setSubject(scenario.subject);
+    setBody(scenario.body);
+    setError(null);
+  };
+
+  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const sendEmail = async (attachmentsOverride?: DemoAttachment[]) => {
     if (!fromEmail || !toEmail || !subject || !body) {
       setError('Tous les champs sont requis');
       return;
@@ -102,6 +206,11 @@ export default function EmailSimulatorPage() {
           to: toEmail,
           subject,
           body,
+          attachments: (attachmentsOverride || []).map((attachment) => ({
+            filename: attachment.filename,
+            mimeType: attachment.mimeType,
+            size: attachment.size,
+          })),
           messageId: `test-${Date.now()}@simulator.local`,
         }),
       });
@@ -109,6 +218,16 @@ export default function EmailSimulatorPage() {
       const data = await response.json();
       if (response.ok) {
         setResult(data);
+        setKpis((prev) => {
+          const nextProcessed = prev.processedEmails + 1;
+          const nextUrgent = prev.urgentDetected + (data.urgency === 'high' ? 1 : 0);
+          return {
+            processedEmails: nextProcessed,
+            urgentDetected: nextUrgent,
+            avgProcessingSeconds: Math.max(35, Math.round(prev.avgProcessingSeconds * 0.92)),
+            slaRespected: Math.min(99, prev.slaRespected + 1),
+          };
+        });
       } else {
         setError(data.error || "Erreur lors de l'envoi");
       }
@@ -117,6 +236,24 @@ export default function EmailSimulatorPage() {
     } finally {
       setSending(false);
     }
+  };
+
+  const runGuidedDemo = async () => {
+    if (runningGuidedDemo) return;
+
+    setRunningGuidedDemo(true);
+    setGuidedStep(1);
+    applyScenario(selectedScenario);
+
+    await wait(450);
+    setGuidedStep(2);
+    await wait(450);
+    setGuidedStep(3);
+
+    await sendEmail(includeAttachments ? selectedScenario.attachments : []);
+
+    setGuidedStep(4);
+    setRunningGuidedDemo(false);
   };
 
   if (!isMounted) {
@@ -170,6 +307,67 @@ export default function EmailSimulatorPage() {
             </h2>
 
             <div className="space-y-4">
+              <div className="rounded-lg border border-indigo-200 bg-indigo-50/70 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-indigo-900">Mode Démo Guidée</p>
+                  <button
+                    onClick={runGuidedDemo}
+                    disabled={sending || runningGuidedDemo}
+                    className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:bg-indigo-300"
+                  >
+                    <PlayCircle className="h-4 w-4" />
+                    {runningGuidedDemo ? 'Lecture en cours...' : 'Lancer la démo auto'}
+                  </button>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {[
+                    'Charger scénario',
+                    'Préparer classification',
+                    'Envoyer au moteur IA',
+                    'Afficher le résultat',
+                  ].map((label, index) => {
+                    const stepNumber = index + 1;
+                    const isActive = guidedStep === stepNumber && runningGuidedDemo;
+                    const isDone = guidedStep > stepNumber;
+
+                    return (
+                      <div
+                        key={label}
+                        className={`rounded-md border px-2 py-2 text-xs ${
+                          isDone
+                            ? 'border-green-300 bg-green-50 text-green-700'
+                            : isActive
+                              ? 'border-indigo-400 bg-indigo-100 text-indigo-800'
+                              : 'border-indigo-200 bg-white text-slate-600'
+                        }`}
+                      >
+                        {stepNumber}. {label}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Scénarios prêts à jouer</p>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {DEMO_SCENARIOS.map((scenario) => (
+                    <button
+                      key={scenario.id}
+                      onClick={() => applyScenario(scenario)}
+                      className={`rounded-md border px-3 py-2 text-left text-sm transition-colors ${
+                        selectedScenarioId === scenario.id
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="font-semibold">{scenario.title}</div>
+                      <div className="text-xs opacity-80">Urgence attendue: {scenario.targetUrgency === 'high' ? 'haute' : 'moyenne'}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   <User className="w-4 h-4 inline mr-1" />
@@ -226,6 +424,29 @@ export default function EmailSimulatorPage() {
                 suppressHydrationWarning
               />
 
+              <div className="rounded-lg border border-amber-200 bg-amber-50/70 p-3">
+                <label className="flex items-center gap-2 text-sm font-medium text-amber-900">
+                  <input
+                    type="checkbox"
+                    checked={includeAttachments}
+                    onChange={(event) => setIncludeAttachments(event.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <Paperclip className="h-4 w-4" />
+                  Inclure des pièces jointes simulées
+                </label>
+                {includeAttachments && (
+                  <div className="mt-2 space-y-1 text-xs text-amber-800">
+                    {selectedScenario.attachments.map((attachment) => (
+                      <div key={attachment.filename} className="flex items-center justify-between rounded bg-white/80 px-2 py-1">
+                        <span>{attachment.filename}</span>
+                        <span>{Math.round(attachment.size / 1024)} KB</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {error && (
                 <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2 text-red-700 dark:text-red-400">
                   <AlertCircle className="w-5 h-5" />
@@ -249,7 +470,7 @@ export default function EmailSimulatorPage() {
               )}
 
               <button
-                onClick={sendEmail}
+                onClick={() => sendEmail(includeAttachments ? selectedScenario.attachments : [])}
                 disabled={sending || !fromEmail || !toEmail || !subject || !body}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
                 suppressHydrationWarning
@@ -270,6 +491,30 @@ export default function EmailSimulatorPage() {
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" /> KPI Démo en direct
+            </h3>
+            <div className="mb-6 grid grid-cols-2 gap-3">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs text-slate-500">Emails traités</p>
+                <p className="text-2xl font-bold text-slate-800">{kpis.processedEmails}</p>
+              </div>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                <p className="text-xs text-red-500">Urgents détectés</p>
+                <p className="text-2xl font-bold text-red-700">{kpis.urgentDetected}</p>
+              </div>
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <p className="text-xs text-emerald-600">SLA respecté</p>
+                <p className="text-2xl font-bold text-emerald-700">{kpis.slaRespected}%</p>
+              </div>
+              <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3">
+                <p className="text-xs text-indigo-600">Temps moyen</p>
+                <p className="text-2xl font-bold text-indigo-700 flex items-center gap-1">
+                  <Clock3 className="h-4 w-4" /> {kpis.avgProcessingSeconds}s
+                </p>
+              </div>
+            </div>
+
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Templates d'emails</h3>
             <div className="space-y-3">
               {EMAIL_TEMPLATES.map((template, index) => (
