@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📧 Simulateur Email Client - MemoLib</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        h1 { color: #667eea; margin-bottom: 10px; font-size: 28px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: all 0.3s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        textarea { resize: vertical; min-height: 150px; font-family: inherit; }
+        .btn { padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-secondary { background: #f0f0f0; color: #333; margin-left: 10px; }
+        .btn-secondary:hover { background: #e0e0e0; }
+        .templates { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .template-card { padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .template-card:hover { border-color: #667eea; background: #f8f9ff; transform: translateY(-2px); }
+        .template-card h3 { font-size: 16px; color: #667eea; margin-bottom: 5px; }
+        .template-card p { font-size: 13px; color: #666; }
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .tips { background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; }
+        .tips h3 { color: #856404; margin-bottom: 10px; font-size: 16px; }
+        .tips ul { margin-left: 20px; color: #856404; }
+        .tips li { margin-bottom: 5px; }
+        .loading { display: none; text-align: center; padding: 20px; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .clients-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .client-option { padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .client-option:hover, .client-option.selected { border-color: #667eea; background: #f8f9ff; }
+        .client-option strong { display: block; color: #333; }
+        .client-option small { color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>📧 Simulateur d'Email Client</h1>
+            <p class="subtitle">Simulez des emails clients réalistes pour tester le tri et les actions avocat</p>
+            
+            <div id="alertContainer"></div>
+
+            <h2 style="margin-bottom: 15px;">📋 Templates d'emails</h2>
+            <div class="templates">
+                <div class="template-card" onclick="useTemplate('oqtf')">
+                    <h3>🚨 OQTF notifiée - recours urgent</h3>
+                    <p>URGENT - OQTF notifiée le 15/01/2026 - besoin de recours</p>
+                </div>
+                <div class="template-card" onclick="useTemplate('rdv')">
+                    <h3>📅 Demande de rendez-vous</h3>
+                    <p>Demande de rendez-vous - renouvellement titre de séjour</p>
+                </div>
+                <div class="template-card" onclick="useTemplate('pieces')">
+                    <h3>📎 Transmission de pièces</h3>
+                    <p>Dossier OQTF - envoi des pièces complémentaires</p>
+                </div>
+                <div class="template-card" onclick="useTemplate('famille')">
+                    <h3>👨‍👩‍👧 Regroupement familial</h3>
+                    <p>Demande de regroupement familial - conjoint et 2 enfants</p>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 15px;">✍️ Composer un email</h2>
+            
+            <div class="form-group">
+                <label>De (Client)</label>
+                <div class="clients-list">
+                    <div class="client-option selected" onclick="selectClient(this, 'Sophie Dubois (dossier OQTF)', 'sophie.dubois@email.com')">
+                        <strong>Sophie Dubois (dossier OQTF)</strong>
+                        <small>sophie.dubois@email.com</small>
+                    </div>
+                    <div class="client-option" onclick="selectClient(this, 'Marc Lefebvre', 'marc.lefebvre@gmail.com')">
+                        <strong>Marc Lefebvre</strong>
+                        <small>marc.lefebvre@gmail.com</small>
+                    </div>
+                    <div class="client-option" onclick="selectClient(this, 'Fatima Hassan', 'fatima.hassan@yahoo.fr')">
+                        <strong>Fatima Hassan</strong>
+                        <small>fatima.hassan@yahoo.fr</small>
+                    </div>
+                    <div class="client-option" onclick="selectClient(this, 'Ahmed Benali', 'ahmed.benali@hotmail.com')">
+                        <strong>Ahmed Benali</strong>
+                        <small>ahmed.benali@hotmail.com</small>
+                    </div>
+                </div>
+                <input type="text" id="fromName" value="Sophie Dubois (dossier OQTF)" placeholder="Nom du client">
+                <input type="email" id="fromEmail" value="sophie.dubois@email.com" placeholder="Email du client" style="margin-top: 10px;">
+            </div>
+
+            <div class="form-group">
+                <label>À (Avocat)</label>
+                <input type="text" id="toName" value="Maître Jean Dupont" placeholder="Nom de l'avocat">
+                <input type="email" id="toEmail" value="jean.dupont@cabinet-dupont.fr" placeholder="Email de l'avocat" style="margin-top: 10px;">
+            </div>
+
+            <div class="form-group">
+                <label>Objet</label>
+                <input type="text" id="subject" value="URGENT - OQTF notifiée le 15/01/2026 - besoin de recours" placeholder="Objet de l'email">
+            </div>
+
+            <div class="form-group">
+                <label>Message</label>
+                <textarea id="body" placeholder="Contenu de l'email">Bonjour Maître,
+
+J'ai reçu une OQTF le 15/01/2026 avec un délai de départ volontaire de 30 jours.
+
+Je suis en France depuis 5 ans avec mes deux enfants scolarisés.
+
+Merci pour votre aide.
+
+Cordialement,
+Sophie Dubois
+Tél: 06 12 34 56 78</textarea>
+            </div>
+
+            <div style="display: flex; align-items: center;">
+                <button class="btn btn-primary" onclick="sendEmail()">📤 Envoyer l'email</button>
+                <button class="btn btn-secondary" onclick="resetForm()">🔄 Réinitialiser</button>
+                <button class="btn btn-secondary" onclick="testRealMailbox()">📬 Tester la boîte réelle</button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px; color: #667eea;">Envoi en cours...</p>
+            </div>
+
+            <div class="loading" id="scanLoading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px; color: #667eea;">Scan de la boîte réelle en cours...</p>
+            </div>
+        </div>
+
+        <div class="card tips">
+            <h3>💡 Conseils pour des emails réalistes</h3>
+            <ul>
+                <li>Utilisez des mots-clés comme "URGENT", "OQTF", "recours", "titre de séjour"</li>
+                <li>Mentionnez des dates et délais précis (expiration, notification)</li>
+                <li>Incluez le contexte familial/professionnel (conjoint, enfants, emploi)</li>
+                <li>Ajoutez des coordonnées (téléphone, adresse)</li>
+                <li>Variez le ton (formel, inquiet, urgent, neutre)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let currentToken = null;
+        let currentAccountEmail = null;
+
+        const AUTH_CANDIDATES = [
+            {
+                email: 'sarraboudjellal57@gmail.com',
+                password: 'Demo2025!',
+                fullName: 'Sarra Boudjellal'
+            },
+            {
+                email: 'demo@memolib.com',
+                password: 'Demo123!',
+                fullName: 'Compte Demo'
+            }
+        ];
+
+        // Templates prédéfinis
+        const templates = {
+            oqtf: {
+                subject: "URGENT - OQTF notifiée le 15/01/2026 - besoin de recours",
+                body: `Bonjour Maître,
+
+J'ai reçu une OQTF le 15/01/2026 avec un délai de départ volontaire de 30 jours.
+
+Je suis en France depuis 5 ans avec mes deux enfants scolarisés.
+
+Merci pour votre aide.
+
+Cordialement,
+Sophie Dubois
+Tél: 06 12 34 56 78`
+            },
+            rdv: {
+                subject: "Demande de rendez-vous - renouvellement titre de séjour",
+                body: `Bonjour Maître,
+
+Je souhaite prendre rendez-vous cette semaine pour mon dossier de renouvellement de titre de séjour.
+
+Mon titre expire le 28 février 2026 et je souhaiterais faire le point sur les démarches à effectuer.
+
+Je travaille comme aide-soignante à l'hôpital Saint-Antoine depuis 5 ans.
+
+Merci d'avance pour votre retour.
+
+Cordialement,
+Sophie Dubois
+Tél: 06 12 34 56 78`
+            },
+            pieces: {
+                subject: "Dossier OQTF - envoi des pièces complémentaires",
+                body: `Bonjour Maître,
+
+Suite à notre rendez-vous du 10 janvier, je vous transmets les pièces complémentaires demandées :
+
+- Contrat de travail CDI (Carrefour)
+- 3 dernières fiches de paie
+- Certificats de scolarité des enfants
+- Justificatif de domicile (bail + quittance)
+- Attestation employeur
+
+Je reste à votre disposition pour tout complément.
+
+Cordialement,
+Sophie Dubois
+Tél: 06 12 34 56 78`
+            },
+            famille: {
+                subject: "Demande de regroupement familial - conjoint et 2 enfants",
+                body: `Bonjour Maître,
+
+Je souhaite entamer une procédure de regroupement familial pour faire venir mon épouse et mes deux enfants (7 et 10 ans) qui sont restés au Maroc.
+
+Je suis en France depuis 4 ans avec un titre de séjour salarié valable jusqu'en 2027. Je travaille comme chauffeur-livreur en CDI (salaire 2100€ net/mois).
+
+J'ai un appartement T3 de 65m² à Montreuil (93).
+
+Quelles sont les démarches à suivre et les délais ?
+
+Cordialement,
+Ahmed Benali
+Tél: 06 98 76 54 32
+Adresse: 42 avenue de la Résistance, 93100 Montreuil`
+            }
+        };
+
+        function selectClient(element, name, email) {
+            document.querySelectorAll('.client-option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('fromName').value = name;
+            document.getElementById('fromEmail').value = email;
+        }
+
+        function useTemplate(type) {
+            const template = templates[type];
+            document.getElementById('subject').value = template.subject;
+            document.getElementById('body').value = template.body;
+            showAlert('Template chargé avec succès !', 'info');
+        }
+
+        function resetForm() {
+            document.getElementById('subject').value = '';
+            document.getElementById('body').value = '';
+            showAlert('Formulaire réinitialisé', 'info');
+        }
+
+        async function sendEmail() {
+            const fromName = document.getElementById('fromName').value.trim();
+            const fromEmail = document.getElementById('fromEmail').value.trim();
+            const toEmail = document.getElementById('toEmail').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const body = document.getElementById('body').value.trim();
+
+            if (!fromEmail || !toEmail || !subject || !body) {
+                showAlert('❌ Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                // 1. Login ou utiliser token existant
+                if (!currentToken) {
+                    await login();
+                }
+
+                // 2. Injecter l'email dans le système
+                const response = await fetch(`${API_BASE}/api/ingest/email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({
+                        from: fromEmail,
+                        to: toEmail,
+                        subject: subject,
+                        body: body,
+                        receivedAt: new Date().toISOString()
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert(`✅ Email envoyé avec succès ! ID: ${result.id || 'N/A'}`, 'success');
+                    
+                    // Optionnel: réinitialiser le formulaire
+                    setTimeout(() => {
+                        if (confirm('Email envoyé ! Voulez-vous composer un nouvel email ?')) {
+                            resetForm();
+                        }
+                    }, 1500);
+                } else {
+                    const error = await response.text();
+                    showAlert(`❌ Erreur: ${error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Erreur de connexion: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        async function testRealMailbox() {
+            const scanLoading = document.getElementById('scanLoading');
+            scanLoading.style.display = 'block';
+
+            try {
+                if (!currentToken) {
+                    await login();
+                }
+
+                const response = await fetch(`${API_BASE}/api/email-scan/manual?previewLimit=100`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+
+                const payloadText = await response.text();
+                let payload = null;
+
+                if (payloadText && payloadText.trim()) {
+                    try {
+                        payload = JSON.parse(payloadText);
+                    } catch {
+                        payload = null;
+                    }
+                }
+
+                if (!response.ok) {
+                    const apiMessage = payload?.message || payload?.error || payloadText || `HTTP ${response.status}`;
+                    throw new Error(apiMessage);
+                }
+
+                const processedCount = payload?.processedCount ?? payload?.count ?? payload?.emailsProcessed ?? 0;
+                const previewCount = Array.isArray(payload?.linesPreview) ? payload.linesPreview.length : 0;
+
+                showAlert(
+                    `✅ Scan terminé avec ${currentAccountEmail}. Emails traités: ${processedCount}. Aperçu disponible: ${previewCount}.`,
+                    'success'
+                );
+            } catch (error) {
+                showAlert(`❌ Échec du scan de la boîte réelle: ${error.message}`, 'error');
+            } finally {
+                scanLoading.style.display = 'none';
+            }
+        }
+
+        async function tryLogin(account) {
+            const response = await fetch(`${API_BASE}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: account.email,
+                    password: account.password
+                })
+            });
+
+            if (!response.ok) {
+                return false;
+            }
+
+            const data = await response.json();
+            currentToken = data.token;
+            currentAccountEmail = account.email;
+            return true;
+        }
+
+        async function register(account) {
+            const response = await fetch(`${API_BASE}/api/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: account.email,
+                    password: account.password,
+                    fullName: account.fullName
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Impossible de créer le compte de test');
+            }
+        }
+
+        async function login() {
+            for (const account of AUTH_CANDIDATES) {
+                if (await tryLogin(account)) {
+                    return;
+                }
+
+                try {
+                    await register(account);
+                    if (await tryLogin(account)) {
+                        return;
+                    }
+                } catch {
+                    // Ignore et passe au compte suivant
+                }
+            }
+
+            throw new Error('Impossible de se connecter à l\'API');
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        }
+
+        // Auto-login au chargement
+        window.addEventListener('load', async () => {
+            try {
+                await login();
+                showAlert(`✅ Connecté à l'API MemoLib avec ${currentAccountEmail}`, 'success');
+            } catch (error) {
+                showAlert('⚠️ Assurez-vous que l\'API est démarrée (dotnet run)', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
