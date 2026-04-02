@@ -80,6 +80,36 @@ export async function POST(request: NextRequest) {
     const normalized = normalizeIncomingEmailPayload(parsedPayload.data, rawRequestBody);
     const { from, to, subject, body: emailBody, htmlBody, attachments, messageId } = normalized;
 
+    // Demo fallback: allow the simulator to work without a configured DB.
+    if (allowDemoBypass && !process.env.DATABASE_URL) {
+      const lowerSubject = (subject || '').toLowerCase();
+      const category =
+        lowerSubject.includes('rendez-vous') || lowerSubject.includes('rdv')
+          ? 'appointment-request'
+          : lowerSubject.includes('oqtf') || lowerSubject.includes('urgent')
+            ? 'client-urgent'
+            : 'general-inquiry';
+      const urgency =
+        lowerSubject.includes('urgent') || lowerSubject.includes('oqtf') ? 'high' : 'medium';
+
+      recordEmailIngestion({
+        outcome: 'success',
+        durationMs: Date.now() - startedAt,
+        category,
+        urgency,
+        hasAttachments: attachments.length > 0,
+      });
+
+      return NextResponse.json({
+        success: true,
+        emailId: `demo-${Date.now()}`,
+        workflowId: `demo-wf-${Date.now()}`,
+        category,
+        urgency,
+        message: 'Email recu et workflow declenche (mode demo offline)',
+      });
+    }
+
     // Trouver le tenant destinataire base sur l'email "to"
     const tenant = await prisma.tenant.findFirst({
       where: {
