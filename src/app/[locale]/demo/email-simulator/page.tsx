@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { AlertCircle, CheckCircle, Loader2, Mail, Send, User, Building } from 'lucide-react';
-import { API_ENDPOINTS } from '@/lib/api-config';
 
 const DEMO_STEPS = [
   { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
   { id: 2, label: 'Raisonnement dossier', href: '/demo/workspace-reasoning' },
-  { id: 3, label: 'Preuve légale', href: '/demo/légal-proof' },
+  { id: 3, label: 'Preuve légale', href: '/demo/legal-proof' },
 ];
 
 const TEST_CLIENTS = [
@@ -17,11 +17,21 @@ const TEST_CLIENTS = [
   { email: 'nouveau.client@email.com', name: 'Nouveau client (non enregistré)' },
 ];
 
-const TEST_LAWYERS = [
+const isDevOrStaging =
+  process.env.NODE_ENV === 'development' ||
+  process.env.NEXT_PUBLIC_APP_ENV === 'staging' ||
+  process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview';
+
+const TEST_LAWYERS = isDevOrStaging
+  ? [
+      { email: 'sarraboudjellal57@gmail.com', name: 'Me. Sarra Boudjellal (boite demo)' },
+      { email: 'avocat@demo.com', name: 'Me. Sarra Boudjellal (compte demo)' },
+    ]
+  : [
   { email: 'jean.dupont@cabinet-dupont.fr', name: 'Maître Jean Dupont' },
   { email: 'sophie.martin@cabinet-martin.fr', name: 'Maître Sophie Martin' },
   { email: 'pierre.rousseau@cabinet-rousseau.fr', name: 'Maître Pierre Rousseau' },
-];
+  ];
 
 const EMAIL_TEMPLATES = [
   {
@@ -49,6 +59,9 @@ type SendResult = {
 };
 
 export default function EmailSimulatorPage() {
+  const { locale } = useParams<{ locale: string }>();
+  const withLocale = (path: string) => `/${locale}${path}`;
+
   const [isMounted, setIsMounted] = useState(false);
   const [fromEmail, setFromEmail] = useState(TEST_CLIENTS[0].email);
   const [toEmail, setToEmail] = useState(TEST_LAWYERS[0].email);
@@ -78,7 +91,7 @@ export default function EmailSimulatorPage() {
     setResult(null);
 
     try {
-      const response = await fetch(API_ENDPOINTS.EMAIL_INGEST, {
+      const response = await fetch('/api/emails/incoming', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -118,7 +131,7 @@ export default function EmailSimulatorPage() {
               return (
                 <Link
                   key={step.id}
-                  href={step.href}
+                  href={withLocale(step.href)}
                   aria-current={isActive ? 'step' : undefined}
                   className={`rounded-md border px-3 py-2 text-sm transition-colors ${
                     isActive
@@ -286,7 +299,7 @@ export default function EmailSimulatorPage() {
 
         <div className="mt-8 text-center">
           <Link
-            href="/demo/workspace-reasoning"
+            href={withLocale('/demo/workspace-reasoning')}
             className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
             Étape suivante: Raisonnement dossier

@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Scale, FileCheck, Download, Eye, Shield, CheckCircle } from 'lucide-react';
 
 const DEMO_STEPS = [
   { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
   { id: 2, label: 'Raisonnement dossier', href: '/demo/workspace-reasoning' },
-  { id: 3, label: 'Preuve légale', href: '/demo/légal-proof' },
+  { id: 3, label: 'Preuve légale', href: '/demo/legal-proof' },
 ];
 
 const LEGAL_DOCUMENTS = [
@@ -45,6 +46,9 @@ const COMPLIANCE_CHECKS = [
 ];
 
 export default function LegalProofPage() {
+  const { locale } = useParams<{ locale: string }>();
+  const withLocale = (path: string) => `/${locale}${path}`;
+
   const [selectedDoc, setSelectedDoc] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -59,7 +63,7 @@ export default function LegalProofPage() {
               return (
                 <Link
                   key={step.id}
-                  href={step.href}
+                  href={withLocale(step.href)}
                   className={`rounded-md border px-3 py-2 text-sm transition-colors ${
                     isActive
                       ? 'border-green-500 bg-green-50 text-green-700'
