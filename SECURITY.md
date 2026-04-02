@@ -50,6 +50,28 @@ We will respond within **48 hours** and provide a timeline for a fix.
 - Security event logging
 - Automated vulnerability scanning (GitGuardian)
 
+## Secret Scanning Workflow
+
+Use these commands before committing:
+
+1. Fast local check on modified files
+   - `npm run security:scan:changed`
+
+2. Wider scan on source directories
+   - `npm run security:scan`
+
+3. Non-blocking diagnostic scan
+   - `npm run security:check`
+
+Notes:
+- `security:scan:changed` is the most reliable daily check when network or API rate-limits affect full scans.
+- Never hardcode passwords or API keys in scripts, tests, or docs.
+- Demo fallback credentials must come from environment variables, not from source code.
+
+Required environment variables for demo fallback login:
+- `MEMOLIB_DEMO_EMAIL`
+- `MEMOLIB_DEMO_PASSWORD`
+
 ### Dependencies
 - Automated dependency updates (Dependabot)
 - Regular security audits (`npm audit`)
@@ -139,4 +161,4 @@ Hall of Fame: (to be added)
 
 ---
 
-**Last Updated**: February 2026
+**Last Updated**: April 2026
