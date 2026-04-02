@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Espace Client</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+</head>
+<body>
+    <div class="container" style="max-width:900px;">
+        <header class="header" style="text-align:center;">
+            <h1>👤 MemoLib — Espace Client</h1>
+            <p>Suivez l'avancement de vos dossiers en toute transparence</p>
+            <div style="margin-top:1rem;display:flex;gap:8px;justify-content:center;">
+                <span id="userDisplay" style="font-weight:600;color:var(--primary);"></span>
+                <a href="demo.html" class="btn btn-secondary" style="text-decoration:none;">← Accueil</a>
+                <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
+            </div>
+        </header>
+
+        <!-- Bienvenue -->
+        <div class="client-welcome-card">
+            <h2>Bienvenue dans votre espace personnel</h2>
+            <p style="color:var(--text-secondary);margin-bottom:1.5rem;">Consultez vos dossiers, suivez leur avancement et communiquez avec votre avocat.</p>
+            <div class="client-step-guide">
+                <div class="client-step-card">
+                    <div class="client-step-number">1</div>
+                    <strong>Consultez</strong>
+                    <p style="color:var(--text-secondary);font-size:0.875rem;">Vos dossiers et leur statut</p>
+                </div>
+                <div class="client-step-card">
+                    <div class="client-step-number">2</div>
+                    <strong>Suivez</strong>
+                    <p style="color:var(--text-secondary);font-size:0.875rem;">La timeline des événements</p>
+                </div>
+                <div class="client-step-card">
+                    <div class="client-step-number">3</div>
+                    <strong>Communiquez</strong>
+                    <p style="color:var(--text-secondary);font-size:0.875rem;">Envoyez des messages à votre avocat</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mes dossiers -->
+        <div class="card">
+            <h2>📁 Mes Dossiers</h2>
+            <button class="btn" onclick="loadMyCases()">Actualiser</button>
+            <div id="myCases" style="margin-top:1rem;">Chargement...</div>
+        </div>
+
+        <!-- Envoyer un message -->
+        <div class="card">
+            <h2>✉️ Envoyer un Message</h2>
+            <p style="color:var(--text-secondary);margin-bottom:1rem;">Contactez votre avocat directement depuis cet espace.</p>
+            <div class="input-group"><label>Sujet</label><input type="text" id="msgSubject" placeholder="Objet de votre message"></div>
+            <div class="input-group"><label>Message</label><textarea id="msgBody" rows="5" placeholder="Votre message..."></textarea></div>
+            <button class="btn btn-success" onclick="sendMessage()">📤 Envoyer</button>
+            <div id="msgResult" style="margin-top:1rem;"></div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="card">
+            <h2>❓ Questions Fréquentes</h2>
+            <div class="client-faq-item" onclick="this.querySelector('.client-faq-answer').style.display=this.querySelector('.client-faq-answer').style.display==='block'?'none':'block'">
+                <strong>Comment suivre mon dossier ?</strong>
+                <div class="client-faq-answer">Cliquez sur "Mes Dossiers" ci-dessus. Chaque dossier affiche son statut actuel et la timeline des événements.</div>
+            </div>
+            <div class="client-faq-item" onclick="this.querySelector('.client-faq-answer').style.display=this.querySelector('.client-faq-answer').style.display==='block'?'none':'block'">
+                <strong>Comment contacter mon avocat ?</strong>
+                <div class="client-faq-answer">Utilisez le formulaire "Envoyer un Message" ci-dessus. Votre avocat recevra votre message directement.</div>
+            </div>
+            <div class="client-faq-item" onclick="this.querySelector('.client-faq-answer').style.display=this.querySelector('.client-faq-answer').style.display==='block'?'none':'block'">
+                <strong>Que signifient les statuts ?</strong>
+                <div class="client-faq-answer"><strong>OUVERT</strong> = Dossier en attente de traitement. <strong>EN COURS</strong> = Votre avocat travaille dessus. <strong>FERMÉ</strong> = Dossier clôturé.</div>
+            </div>
+            <div class="client-faq-item" onclick="this.querySelector('.client-faq-answer').style.display=this.querySelector('.client-faq-answer').style.display==='block'?'none':'block'">
+                <strong>Mes données sont-elles sécurisées ?</strong>
+                <div class="client-faq-answer">Oui. Toutes les communications sont chiffrées et vos données sont stockées de manière sécurisée conformément au RGPD.</div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="card" style="text-align:center;">
+            <h2>📞 Contact Direct</h2>
+            <div class="client-contact-methods">
+                <div class="client-contact-method"><div class="icon">📧</div><div>Email</div><div style="font-size:0.875rem;opacity:0.9;">contact@cabinet.fr</div></div>
+                <div class="client-contact-method" style="background:linear-gradient(135deg,var(--success),var(--accent));"><div class="icon">📞</div><div>Téléphone</div><div style="font-size:0.875rem;opacity:0.9;">01 23 45 67 89</div></div>
+                <div class="client-contact-method" style="background:linear-gradient(135deg,var(--warning),var(--secondary));"><div class="icon">🏢</div><div>Cabinet</div><div style="font-size:0.875rem;opacity:0.9;">12 rue du Palais, Paris</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+        let token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        if (!token) { window.location.href = 'demo.html'; }
+        document.getElementById('userDisplay').textContent = localStorage.getItem('memolibUserEmail') || '';
+
+        function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = 'demo.html'; }
+        function show(id, msg, ok=true) { document.getElementById(id).innerHTML = `<div class="result ${ok?'success':'error'}">${msg}</div>`; }
+
+        async function api(path, opts = {}) {
+            opts.headers = { ...opts.headers, 'Authorization': `Bearer ${token}` };
+            return fetch(`${API}${path}`, opts);
+        }
+
+        const STATUS_LABELS = { 'OPEN': 'Ouvert', 'IN_PROGRESS': 'En cours', 'CLOSED': 'Fermé', 'PENDING_DOCUMENTS': 'Documents requis' };
+        const STATUS_CLASS = { 'OPEN': 'client-status-open', 'IN_PROGRESS': 'client-status-progress', 'CLOSED': 'client-status-closed' };
+
+        async function loadMyCases() {
+            try {
+                const res = await api('/api/cases');
+                const data = await res.json();
+                if (!res.ok || !Array.isArray(data)) return show('myCases', '❌ Impossible de charger vos dossiers', false);
+                if (data.length === 0) return document.getElementById('myCases').innerHTML = '<p style="color:var(--text-secondary);">Aucun dossier pour le moment.</p>';
+
+                let html = '';
+                data.sort((a,b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)).forEach(c => {
+                    const status = c.status || 'OPEN';
+                    const statusLabel = STATUS_LABELS[status] || status;
+                    const statusClass = STATUS_CLASS[status] || 'client-status-open';
+                    html += `<div class="client-case-card" onclick="loadTimeline('${c.id}', '${(c.title||'').replace(/'/g,'')}')">
+                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                            <strong>${c.title || 'Dossier'}</strong>
+                            <span class="client-case-status ${statusClass}">${statusLabel}</span>
+                        </div>
+                        <div style="color:var(--text-secondary);font-size:0.875rem;margin-top:0.5rem;">
+                            Créé le ${new Date(c.createdAt).toLocaleDateString('fr-FR')}
+                            ${c.dueDate ? ` — Échéance: ${new Date(c.dueDate).toLocaleDateString('fr-FR')}` : ''}
+                        </div>
+                        <div style="color:var(--info);font-size:0.8rem;margin-top:0.25rem;">Cliquer pour voir la timeline →</div>
+                    </div>`;
+                });
+                document.getElementById('myCases').innerHTML = html;
+            } catch (err) { show('myCases', `❌ ${err.message}`, false); }
+        }
+
+        async function loadTimeline(caseId, title) {
+            try {
+                const res = await api(`/api/cases/${caseId}/timeline`);
+                const data = await res.json();
+                if (!res.ok) return;
+
+                let html = `<div class="result success" style="margin-bottom:1rem;">📁 Timeline: ${title || 'Dossier'}</div>`;
+                if (!Array.isArray(data) || data.length === 0) {
+                    html += '<p style="color:var(--text-secondary);">Aucun événement pour ce dossier.</p>';
+                } else {
+                    html += '<div class="client-timeline">';
+                    data.forEach(e => {
+                        let p = {}; try { p = JSON.parse(e.rawPayload || '{}'); } catch {}
+                        html += `<div class="client-timeline-item">
+                            <div style="font-weight:600;">${p.subject || 'Événement'}</div>
+                            <div style="color:var(--text-secondary);font-size:0.875rem;">De: ${p.from || 'N/A'} — ${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                html += `<button class="btn btn-secondary" onclick="loadMyCases()" style="margin-top:1rem;">← Retour aux dossiers</button>`;
+                document.getElementById('myCases').innerHTML = html;
+            } catch {}
+        }
+
+        async function sendMessage() {
+            const subject = document.getElementById('msgSubject').value;
+            const body = document.getElementById('msgBody').value;
+            if (!subject || !body) return show('msgResult', '❌ Sujet et message requis', false);
+            try {
+                const res = await api('/api/ingest/email', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        from: localStorage.getItem('memolibUserEmail') || 'client',
+                        subject: `[Client] ${subject}`,
+                        body,
+                        externalId: `CLIENT-MSG-${Date.now()}`,
+                        occurredAt: new Date().toISOString()
+                    })
+                });
+                if (res.ok) {
+                    show('msgResult', '✅ Message envoyé à votre avocat');
+                    document.getElementById('msgSubject').value = '';
+                    document.getElementById('msgBody').value = '';
+                } else { show('msgResult', '❌ Envoi impossible', false); }
+            } catch (err) { show('msgResult', `❌ ${err.message}`, false); }
+        }
+
+        loadMyCases();
+    </script>
+</body>
+</html>

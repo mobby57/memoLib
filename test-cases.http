@@ -1,0 +1,59 @@
+@baseUrl = http://localhost:5078
+
+### Auth login
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@memolib.local",
+  "password": "memolib2024!"
+}
+
+### 1. Ingest premier email
+POST {{baseUrl}}/api/ingest/email
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "externalId": "msg-001",
+  "from": "client@test.com",
+  "subject": "Incident production",
+  "body": "Machine arrêtée depuis 10h",
+  "occurredAt": "2026-02-10T08:30:00Z"
+}
+
+### 2. Ingest second email
+POST {{baseUrl}}/api/ingest/email
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "externalId": "msg-002",
+  "from": "client@test.com",
+  "subject": "Incident résolu",
+  "body": "Machine redémarrée à 14h",
+  "occurredAt": "2026-02-10T14:00:00Z"
+}
+
+### 3. Créer un case
+POST {{baseUrl}}/api/cases
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "title": "Incident machine production"
+}
+
+### 4. Attacher premier event au case
+# Remplacer {caseId} et {eventId} par les IDs retournés
+POST {{baseUrl}}/api/cases/{caseId}/events/{eventId}
+Authorization: Bearer {{login.response.body.$.token}}
+
+### 5. Attacher second event au case
+POST {{baseUrl}}/api/cases/{caseId}/events/{eventId}
+Authorization: Bearer {{login.response.body.$.token}}
+
+### 6. Voir la timeline du case
+GET {{baseUrl}}/api/cases/{caseId}/timeline
+Authorization: Bearer {{login.response.body.$.token}}

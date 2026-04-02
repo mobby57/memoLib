@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:5078
+
+### Auth login
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@memolib.local",
+  "password": "memolib2024!"
+}
+
+### 1. Ingest un email
+POST {{baseUrl}}/api/ingest/email
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "externalId": "msg-audit-001",
+  "from": "test@example.com",
+  "subject": "Test audit",
+  "body": "Test de traçabilité",
+  "occurredAt": "2026-02-11T20:00:00Z"
+}
+
+### 2. Créer un case
+POST {{baseUrl}}/api/cases
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "title": "Case pour test audit"
+}
+
+### 3. Attacher event au case (remplacer les IDs)
+POST {{baseUrl}}/api/cases/{caseId}/events/{eventId}
+Authorization: Bearer {{login.response.body.$.token}}
+
+### 4. Voir l'audit trail
+GET {{baseUrl}}/api/audit

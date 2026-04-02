@@ -1,0 +1,109 @@
+<!-- 
+  ========================================
+  META TAGS PWA - À AJOUTER DANS <head>
+  ========================================
+  Copiez ces lignes dans TOUS vos fichiers HTML
+-->
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="/manifest.webmanifest">
+
+<!-- Meta tags PWA essentiels -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MemoLib">
+<meta name="application-name" content="MemoLib">
+<meta name="theme-color" content="#667eea">
+<meta name="msapplication-TileColor" content="#667eea">
+<meta name="msapplication-navbutton-color" content="#667eea">
+
+<!-- Icônes Apple Touch -->
+<link rel="apple-touch-icon" href="/icon.svg">
+<link rel="apple-touch-icon" sizes="152x152" href="/icon-152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/icon-167.png">
+
+<!-- Icônes standards -->
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/icon-16.png">
+
+<!-- Microsoft Tiles -->
+<meta name="msapplication-TileImage" content="/icon-144.png">
+<meta name="msapplication-config" content="/browserconfig.xml">
+
+<!-- Open Graph (partage social) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="MemoLib - Gestion d'Emails Juridiques">
+<meta property="og:description" content="Système intelligent de gestion des communications par email pour cabinets d'avocats">
+<meta property="og:image" content="/icon-512.png">
+<meta property="og:url" content="https://votre-domaine.com">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MemoLib - Gestion d'Emails Juridiques">
+<meta name="twitter:description" content="Système intelligent de gestion des communications par email pour cabinets d'avocats">
+<meta name="twitter:image" content="/icon-512.png">
+
+<!-- Service Worker Registration -->
+<script src="/pwa-register.js" defer></script>
+
+<!-- Styles PWA additionnels -->
+<style>
+  /* Mode standalone PWA */
+  .pwa-standalone {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Indicateur offline */
+  body.offline::before {
+    content: "📡 Mode hors ligne";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #ff9800;
+    color: white;
+    text-align: center;
+    padding: 8px;
+    z-index: 10000;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* Bouton d'installation PWA */
+  .install-pwa-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    z-index: 9999;
+    display: none;
+  }
+
+  .install-pwa-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+  }
+
+  /* Afficher le bouton si PWA installable */
+  .pwa-installable .install-pwa-btn {
+    display: block;
+  }
+</style>
+
+<!-- Script pour afficher le bouton d'installation -->
+<script>
+  window.addEventListener('beforeinstallprompt', (e) => {
+    document.body.classList.add('pwa-installable');
+  });
+</script>

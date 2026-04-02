@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion d'Équipe - MemoLib</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ Gestion d'Équipe</h1>
+            <p>Gérez les membres de votre cabinet et leurs permissions</p>
+        </div>
+
+        <!-- Inviter un membre -->
+        <div class="team-section">
+            <h2>➕ Inviter un Membre</h2>
+            <form id="inviteForm">
+                <div class="team-form-group">
+                    <label>Email:</label>
+                    <input type="email" id="inviteEmail" class="team-form-control" required>
+                </div>
+                <div class="team-form-group">
+                    <label>Rôle:</label>
+                    <select id="inviteRole" class="team-form-control">
+                        <option value="PARTNER">Associé</option>
+                        <option value="LAWYER">Avocat</option>
+                        <option value="PARALEGAL">Juriste</option>
+                        <option value="SECRETARY">Secrétaire</option>
+                        <option value="INTERN">Stagiaire</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Envoyer Invitation</button>
+            </form>
+        </div>
+
+        <!-- Membres actuels -->
+        <div class="team-section">
+            <h2>👥 Membres de l'Équipe</h2>
+            <table class="team-table" id="membersTable">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Rejoint le</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- Invitations en attente -->
+        <div class="team-section">
+            <h2>⏳ Invitations en Attente</h2>
+            <table class="team-table" id="pendingTable">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Envoyée le</th>
+                        <th>Expire le</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal changement de rôle -->
+    <div id="roleModal" class="team-modal">
+        <div class="team-modal-content">
+            <div class="team-modal-header">
+                <span class="team-modal-title">Changer le Rôle</span>
+                <span class="team-modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="roleForm">
+                <div class="team-form-group">
+                    <label>Nouveau rôle:</label>
+                    <select id="newRole" class="team-form-control">
+                        <option value="PARTNER">Associé</option>
+                        <option value="LAWYER">Avocat</option>
+                        <option value="PARALEGAL">Juriste</option>
+                        <option value="SECRETARY">Secrétaire</option>
+                        <option value="INTERN">Stagiaire</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Confirmer</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let currentMemberId = null;
+
+        async function readResponseDataSafe(response) {
+            const text = await response.text();
+            if (!text || !text.trim()) return null;
+            try { return JSON.parse(text); } catch { return null; }
+        }
+
+        async function loadTeamData() {
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('memolibAuthToken');
+                if (!token) {
+                    document.querySelector('#membersTable tbody').innerHTML = '<tr><td colspan="5">Connectez-vous d\'abord dans l\'onglet principal</td></tr>';
+                    document.querySelector('#pendingTable tbody').innerHTML = '<tr><td colspan="5">Connectez-vous d\'abord dans l\'onglet principal</td></tr>';
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/team/members`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await readResponseDataSafe(response);
+                const payload = data || {};
+                displayMembers(payload.members || []);
+                displayPendingInvitations(payload.pendingInvitations || []);
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.querySelector('#membersTable tbody').innerHTML = '<tr><td colspan="5">Erreur de connexion à l\'API</td></tr>';
+                document.querySelector('#pendingTable tbody').innerHTML = '<tr><td colspan="5">Erreur de connexion à l\'API</td></tr>';
+            }
+        }
+
+        function displayMembers(members) {
+            const tbody = document.querySelector('#membersTable tbody');
+            if (!members || members.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Aucun membre dans l\'équipe. Invitez des collaborateurs ci-dessus.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = members.map(member => `
+                <tr>
+                    <td>${member.User?.Name || 'N/A'}</td>
+                    <td>${member.User?.Email || 'N/A'}</td>
+                    <td><span class="team-role-badge team-role-${(member.Role || '').toLowerCase()}">${getRoleLabel(member.Role)}</span></td>
+                    <td>${member.JoinedAt ? new Date(member.JoinedAt).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="changeRole('${member.Id}', '${member.Role}')">Changer Rôle</button>
+                        <button class="btn btn-danger btn-sm" onclick="removeMember('${member.Id}')">Retirer</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayPendingInvitations(invitations) {
+            const tbody = document.querySelector('#pendingTable tbody');
+            if (!invitations || invitations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Aucune invitation en attente.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = invitations.map(inv => `
+                <tr>
+                    <td>${inv.Email || 'N/A'}</td>
+                    <td><span class="team-role-badge team-role-${(inv.Role || '').toLowerCase()}">${getRoleLabel(inv.Role)}</span></td>
+                    <td>${inv.CreatedAt ? new Date(inv.CreatedAt).toLocaleDateString() : 'N/A'}</td>
+                    <td>${inv.ExpiresAt ? new Date(inv.ExpiresAt).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="cancelInvitation('${inv.Id}')">Annuler</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        document.getElementById('inviteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('inviteEmail').value;
+            const role = document.getElementById('inviteRole').value;
+
+            try {
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('memolibAuthToken');
+                if (!token) {
+                    alert('Connectez-vous d\'abord dans l\'onglet principal');
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/team/invite`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ email, role })
+                });
+
+                if (response.ok) {
+                    const data = await readResponseDataSafe(response);
+                    const payload = data || {};
+                    alert(`Invitation envoyée à ${email}\nLien: ${payload.inviteUrl || 'N/A'}`);
+                    document.getElementById('inviteForm').reset();
+                    loadTeamData();
+                } else {
+                    const errorData = (await readResponseDataSafe(response)) || {};
+                    alert(`Erreur: ${errorData.message || 'Impossible d\'envoyer l\'invitation'}`);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur de connexion');
+            }
+        });
+
+        function changeRole(memberId, currentRole) {
+            currentMemberId = memberId;
+            document.getElementById('newRole').value = currentRole;
+            document.getElementById('roleModal').classList.add('active');
+        }
+
+        document.getElementById('roleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newRole = document.getElementById('newRole').value;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE}/team/members/${currentMemberId}/role`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ role: newRole })
+                });
+
+                if (response.ok) {
+                    alert('Rôle mis à jour');
+                    closeModal();
+                    loadTeamData();
+                } else {
+                    alert('Erreur lors de la mise à jour');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        });
+
+        async function removeMember(memberId) {
+            if (!confirm('Êtes-vous sûr de vouloir retirer ce membre ?')) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE}/team/members/${memberId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    alert('Membre retiré');
+                    loadTeamData();
+                } else {
+                    alert('Erreur lors de la suppression');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        function getRoleLabel(role) {
+            const labels = {
+                'OWNER': 'Propriétaire',
+                'PARTNER': 'Associé',
+                'LAWYER': 'Avocat',
+                'PARALEGAL': 'Juriste',
+                'SECRETARY': 'Secrétaire',
+                'INTERN': 'Stagiaire'
+            };
+            return labels[role] || role;
+        }
+
+        function closeModal() {
+            document.getElementById('roleModal').classList.remove('active');
+        }
+
+        loadTeamData();
+    </script>
+</body>
+</html>

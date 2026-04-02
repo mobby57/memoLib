@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-01-27T13:53:03.182211",
+  "sql_injection": {
+    "tested": 12,
+    "blocked": 12
+  },
+  "xss": {
+    "tested": 5,
+    "blocked": 5
+  },
+  "auth": {
+    "tested": 8,
+    "weak": 8
+  },
+  "path_traversal": {
+    "tested": 7,
+    "blocked": 7
+  },
+  "nosql_injection": {
+    "tested": 6,
+    "blocked": 6
+  },
+  "command_injection": {
+    "tested": 7,
+    "blocked": 7
+  }
+}

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Paiements - Events</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --surface: #ffffff;
+      --ink: #10203a;
+      --muted: #5d6a82;
+      --line: #d9e1ef;
+      --accent: #0b7285;
+      --accent-2: #075985;
+      --good: #166534;
+      --warn: #92400e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 5% 5%, #dff7ff 0%, transparent 28%),
+        radial-gradient(circle at 95% 0%, #ecf7ff 0%, transparent 35%),
+        var(--bg);
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(4px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .header-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h1 { font-size: 1.25rem; }
+    .sub { color: var(--muted); font-size: 0.9rem; }
+
+    main {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 16px 24px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 8px 26px rgba(16, 32, 58, 0.08);
+    }
+
+    .filters {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(130px, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(11, 114, 133, 0.14);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      grid-column: span 2;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(130deg, var(--accent), var(--accent-2));
+      color: #fff;
+    }
+
+    .btn-muted {
+      background: #f1f5fb;
+      color: #30425f;
+      border: 1px solid #dbe5f5;
+    }
+
+    .btn-export {
+      background: linear-gradient(130deg, #166534, #15803d);
+      color: #fff;
+    }
+
+    .btn-export:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .meta {
+      padding: 10px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.86rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 62vh;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e8eef8;
+      text-align: left;
+      padding: 9px 10px;
+      vertical-align: top;
+      font-size: 0.85rem;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f8fbff;
+      color: #415372;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .paid { background: #ecfdf3; color: var(--good); border-color: #bbf7d0; }
+    .unpaid { background: #fff7ed; color: var(--warn); border-color: #fed7aa; }
+    .mono { font-family: Consolas, "Courier New", monospace; font-size: 0.78rem; }
+
+    .pager {
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--line);
+      background: #fcfdff;
+      gap: 10px;
+    }
+
+    .pager .btn-group { display: flex; gap: 6px; }
+
+    .status-box {
+      margin-top: 10px;
+      padding: 9px 11px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    .status-box.show { display: block; }
+    .status-ok { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
+    .status-err { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+
+    .lock-banner {
+      max-width: 1200px;
+      margin: 10px auto 0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid #fda4af;
+      background: #fff1f2;
+      color: #9f1239;
+      font-size: 0.86rem;
+      font-weight: 700;
+      display: none;
+    }
+
+    .lock-banner.show {
+      display: block;
+    }
+
+    @media (max-width: 1080px) {
+      .filters { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+      .actions { grid-column: span 3; }
+    }
+
+    @media (max-width: 680px) {
+      .filters { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+      .actions { grid-column: span 2; }
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px;
+    }
+
+    .stat-item {
+      flex: 1 1 140px;
+      background: #f4f8ff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.73rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .rate-chip {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .rate-ok {
+      background: #ecfdf3;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+
+    .rate-warn {
+      background: #fff7ed;
+      color: #9a3412;
+      border-color: #fdba74;
+    }
+
+    .rate-crit {
+      background: #fff1f2;
+      color: #be123c;
+      border-color: #fda4af;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-wrap">
+      <h1>Console Admin Paiements</h1>
+      <div class="sub">Recherche et audit des <span class="mono">payment_events</span></div>
+    </div>
+    <div id="rateLockBanner" class="lock-banner"></div>
+  </header>
+
+  <main>
+    <section class="card" id="statsCard" style="display:none">
+      <div class="stats-bar" id="statsBar"></div>
+    </section>
+
+    <section class="card">
+      <div class="filters">
+        <div>
+          <label for="fCase">Case Reference</label>
+          <input id="fCase" placeholder="CASE-2026-001" />
+        </div>
+        <div>
+          <label for="fProvider">Provider</label>
+          <select id="fProvider">
+            <option value="">Tous</option>
+            <option value="stripe">stripe</option>
+            <option value="mock">mock</option>
+          </select>
+        </div>
+        <div>
+          <label for="fStatus">Payment Status</label>
+          <select id="fStatus">
+            <option value="">Tous</option>
+            <option value="paid">paid</option>
+            <option value="unpaid">unpaid</option>
+            <option value="no_payment_required">no_payment_required</option>
+          </select>
+        </div>
+        <div>
+          <label for="fSource">Source</label>
+          <select id="fSource">
+            <option value="">Toutes</option>
+            <option value="stripe_webhook">stripe_webhook</option>
+            <option value="manual_confirm">manual_confirm</option>
+          </select>
+        </div>
+        <div>
+          <label for="fFrom">Created From</label>
+          <input id="fFrom" type="datetime-local" />
+        </div>
+        <div>
+          <label for="fTo">Created To</label>
+          <input id="fTo" type="datetime-local" />
+        </div>
+        <div>
+          <label for="fLimit">Limit</label>
+          <select id="fLimit">
+            <option>20</option>
+            <option selected>50</option>
+            <option>100</option>
+            <option>200</option>
+          </select>
+        </div>
+        <div>
+          <label for="fAdminKey">Admin Key (X-Admin-Key)</label>
+          <input id="fAdminKey" type="password" placeholder="********" />
+        </div>
+        <div class="actions">
+          <button id="btnSearch" class="btn-primary" onclick="loadEvents(true)">Rechercher</button>
+          <button class="btn-muted" onclick="resetFilters()">Reset</button>
+          <button id="btnExport" class="btn-export" onclick="downloadCsv()">&#8659; Export CSV</button>
+        </div>
+      </div>
+      <div class="meta">
+        <div id="resultMeta">Pret</div>
+        <div>Endpoint: <span class="mono">GET /api/payments/events</span></div>
+        <div id="rateMeta" class="mono rate-chip">Rate limit: --/--</div>
+        <div>
+          <button id="btnRetryNow" class="btn-muted" onclick="retryNow()">Reessayer maintenant</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Case</th>
+              <th>Provider</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Event ID</th>
+              <th>Session ID</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyEvents"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <div class="btn-group">
+          <button id="btnPrev" class="btn-muted" onclick="prevPage()">Precedent</button>
+          <button id="btnNext" class="btn-muted" onclick="nextPage()">Suivant</button>
+        </div>
+        <div id="pageMeta" class="sub">Offset: 0</div>
+      </div>
+      <div id="statusBox" class="status-box"></div>
+    </section>
+  </main>
+
+  <script>
+    let currentOffset = 0;
+    let currentTotal = 0;
+    let statsRefreshTimer = null;
+    let rateTicker = null;
+    let rateLimitState = null;
+    let isExportingCsv = false;
+    let wasRateBlocked = false;
+
+    function value(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    function dateToIsoLocal(v) {
+      if (!v) return '';
+      const d = new Date(v);
+      return Number.isNaN(d.getTime()) ? '' : d.toISOString();
+    }
+
+    function buildQuery(resetOffset) {
+      if (resetOffset) currentOffset = 0;
+      const limit = Number(value('fLimit') || '50');
+      const params = new URLSearchParams();
+      params.set('limit', String(limit));
+      params.set('offset', String(currentOffset));
+
+      const caseRef = value('fCase');
+      const provider = value('fProvider');
+      const paymentStatus = value('fStatus');
+      const source = value('fSource');
+      const createdFrom = dateToIsoLocal(value('fFrom'));
+      const createdTo = dateToIsoLocal(value('fTo'));
+
+      if (caseRef) params.set('case_reference', caseRef);
+      if (provider) params.set('provider', provider);
+      if (paymentStatus) params.set('payment_status', paymentStatus);
+      if (source) params.set('source', source);
+      if (createdFrom) params.set('created_from', createdFrom);
+      if (createdTo) params.set('created_to', createdTo);
+
+      return params;
+    }
+
+    function safe(v) {
+      if (v === null || v === undefined) return '—';
+      return String(v)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+    }
+
+    function pillClass(status) {
+      if (status === 'paid') return 'paid';
+      if (status === 'unpaid') return 'unpaid';
+      return '';
+    }
+
+    function setStatus(message, isError) {
+      const box = document.getElementById('statusBox');
+      box.textContent = message;
+      box.className = `status-box show ${isError ? 'status-err' : 'status-ok'}`;
+    }
+
+      function formatTimeHHMMSS(epochSeconds) {
+        const d = new Date(epochSeconds * 1000);
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        const ss = String(d.getSeconds()).padStart(2, '0');
+        return `${hh}:${mm}:${ss}`;
+      }
+
+    function getRetryMessageFromResponse(resp) {
+      if (!resp || !resp.headers) return null;
+      const retryAfter = Number(resp.headers.get('retry-after'));
+      if (Number.isFinite(retryAfter) && retryAfter > 0) {
+        return `Rate limit atteint. Reessayez dans ~${retryAfter}s.`;
+      }
+
+      const resetEpoch = Number(resp.headers.get('x-ratelimit-reset'));
+      if (Number.isFinite(resetEpoch) && resetEpoch > 0) {
+        const nowEpoch = Math.floor(Date.now() / 1000);
+        const secs = Math.max(0, resetEpoch - nowEpoch);
+        return `Rate limit atteint. Reessayez dans ~${secs}s.`;
+      }
+
+      return 'Rate limit atteint. Reessayez dans quelques instants.';
+    }
+
+    async function getApiErrorMessage(response, fallback) {
+      if (!response) return fallback;
+      if (response.status === 429) {
+        return getRetryMessageFromResponse(response);
+      }
+      const err = await response.json().catch(() => ({}));
+      return err.detail || fallback;
+    }
+
+    function getRetryMessageFromState() {
+      if (!rateLimitState) return 'Rate limit atteint. Reessayez dans quelques instants.';
+      const resetEpoch = rateLimitState.resetEpoch;
+      if (Number.isFinite(resetEpoch) && resetEpoch > 0) {
+        const nowEpoch = Math.floor(Date.now() / 1000);
+        const secs = Math.max(0, resetEpoch - nowEpoch);
+        return `Rate limit atteint. Reessayez dans ~${secs}s.`;
+      }
+      return 'Rate limit atteint. Reessayez dans quelques instants.';
+    }
+
+    function isRateBlockedNow() {
+      if (!rateLimitState) return false;
+      const { remainingNum, resetEpoch } = rateLimitState;
+      const nowEpoch = Math.floor(Date.now() / 1000);
+      return remainingNum <= 0 && !(Number.isFinite(resetEpoch) && nowEpoch >= resetEpoch);
+    }
+
+    function handleRateLimitTransition(isBlocked) {
+      if (!wasRateBlocked && isBlocked) {
+        setStatus('Quota API epuise: actions admin temporairement verrouillees.', true);
+      }
+      if (wasRateBlocked && !isBlocked) {
+        setStatus('Quota API retabli: reprise des actions admin.', false);
+        loadStats();
+      }
+      wasRateBlocked = isBlocked;
+    }
+
+    function renderRateLimitMeta() {
+      if (!rateLimitState) return;
+
+      const rateMeta = document.getElementById('rateMeta');
+      const exportBtn = document.getElementById('btnExport');
+      const searchBtn = document.getElementById('btnSearch');
+      const prevBtn = document.getElementById('btnPrev');
+      const nextBtn = document.getElementById('btnNext');
+      const retryBtn = document.getElementById('btnRetryNow');
+        const lockBanner = document.getElementById('rateLockBanner');
+      const { limitNum, remainingNum, resetEpoch } = rateLimitState;
+      const nowEpoch = Math.floor(Date.now() / 1000);
+
+      let suffix = '';
+      if (Number.isFinite(resetEpoch) && resetEpoch > 0) {
+        const secs = Math.max(0, resetEpoch - nowEpoch);
+        suffix = ` | reset ~${secs}s`;
+      }
+
+      rateMeta.textContent = `Rate limit: ${remainingNum}/${limitNum}${suffix}`;
+      rateMeta.className = 'mono rate-chip';
+
+      if (!Number.isFinite(limitNum) || limitNum <= 0 || !Number.isFinite(remainingNum)) {
+        return;
+      }
+
+      const ratio = remainingNum / limitNum;
+      if (ratio <= 0.2) {
+        rateMeta.classList.add('rate-crit');
+      } else if (ratio <= 0.5) {
+        rateMeta.classList.add('rate-warn');
+      } else {
+        rateMeta.classList.add('rate-ok');
+      }
+
+      const isBlocked = remainingNum <= 0 && !(Number.isFinite(resetEpoch) && nowEpoch >= resetEpoch);
+      if (exportBtn && !isExportingCsv) {
+        exportBtn.disabled = isBlocked;
+        exportBtn.title = isBlocked ? 'Quota API atteint, attendre le reset' : '';
+      }
+      if (searchBtn) {
+        searchBtn.disabled = isBlocked;
+        searchBtn.title = isBlocked ? 'Quota API atteint, attendre le reset' : '';
+      }
+      if (prevBtn) {
+        prevBtn.disabled = isBlocked;
+      }
+      if (nextBtn) {
+        nextBtn.disabled = isBlocked;
+      }
+      if (retryBtn) {
+        retryBtn.disabled = isBlocked;
+        retryBtn.title = isBlocked ? 'Attendre la fin du cooldown' : '';
+      }
+
+      handleRateLimitTransition(isBlocked);
+
+        if (lockBanner) {
+          if (isBlocked && Number.isFinite(resetEpoch) && resetEpoch > 0) {
+            const resetAt = formatTimeHHMMSS(resetEpoch);
+            const secs = Math.max(0, resetEpoch - nowEpoch);
+            lockBanner.textContent = `API verrouillee jusqu'a ${resetAt} (~${secs}s)`;
+            lockBanner.className = 'lock-banner show';
+          } else {
+            lockBanner.textContent = '';
+            lockBanner.className = 'lock-banner';
+          }
+        }
+    }
+
+    function updateRateLimitMetaFromResponse(resp) {
+      if (!resp || !resp.headers) return;
+      const limit = resp.headers.get('x-ratelimit-limit');
+      const remaining = resp.headers.get('x-ratelimit-remaining');
+      const reset = resp.headers.get('x-ratelimit-reset');
+      if (!limit || remaining === null) return;
+
+      const limitNum = Number(limit);
+      const remainingNum = Number(remaining);
+      const resetEpoch = Number(reset);
+
+      if (!Number.isFinite(limitNum) || limitNum <= 0 || !Number.isFinite(remainingNum)) {
+        return;
+      }
+
+      rateLimitState = {
+        limitNum,
+        remainingNum,
+        resetEpoch: Number.isFinite(resetEpoch) ? resetEpoch : NaN,
+      };
+      renderRateLimitMeta();
+    }
+
+    function renderRows(events) {
+      const tbody = document.getElementById('tbodyEvents');
+      if (!events.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="color:#6b7a93;text-align:center;padding:18px">Aucun evenement</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = events.map(ev => `
+        <tr>
+          <td class="mono">${safe(ev.id)}</td>
+          <td class="mono">${safe(ev.case_reference)}</td>
+          <td>${safe(ev.provider)}</td>
+          <td>${safe(ev.source)}</td>
+          <td><span class="pill ${pillClass(ev.payment_status)}">${safe(ev.payment_status)}</span></td>
+          <td class="mono">${safe(ev.provider_event_id || '—')}</td>
+          <td class="mono">${safe(ev.provider_session_id || '—')}</td>
+          <td class="mono">${safe(ev.created_at || '—')}</td>
+        </tr>
+      `).join('');
+    }
+
+    function buildStatsQuery() {
+      const params = new URLSearchParams();
+
+      const caseRef = value('fCase');
+      const provider = value('fProvider');
+      const paymentStatus = value('fStatus');
+      const source = value('fSource');
+      const createdFrom = dateToIsoLocal(value('fFrom'));
+      const createdTo = dateToIsoLocal(value('fTo'));
+
+      if (caseRef) params.set('case_reference', caseRef);
+      if (provider) params.set('provider', provider);
+      if (paymentStatus) params.set('payment_status', paymentStatus);
+      if (source) params.set('source', source);
+      if (createdFrom) params.set('created_from', createdFrom);
+      if (createdTo) params.set('created_to', createdTo);
+
+      return params;
+    }
+
+    function scheduleStatsRefresh() {
+      if (statsRefreshTimer) clearTimeout(statsRefreshTimer);
+      statsRefreshTimer = setTimeout(() => {
+        loadStats();
+      }, 250);
+    }
+
+    async function loadEvents(resetOffset) {
+      try {
+        if (isRateBlockedNow()) {
+          setStatus(getRetryMessageFromState(), true);
+          return;
+        }
+
+        const query = buildQuery(resetOffset);
+        const headers = {};
+        const adminKey = value('fAdminKey');
+        if (adminKey) {
+          headers['X-Admin-Key'] = adminKey;
+          localStorage.setItem('payment_admin_key', adminKey);
+        }
+
+        const response = await fetch(`/api/payments/events?${query.toString()}`, { headers });
+        updateRateLimitMetaFromResponse(response);
+        if (!response.ok) {
+          throw new Error(await getApiErrorMessage(response, `HTTP ${response.status}`));
+        }
+
+        const data = await response.json();
+        currentTotal = data.total;
+
+        renderRows(data.events || []);
+        document.getElementById('resultMeta').textContent = `Total: ${data.total} | Affiches: ${(data.events || []).length}`;
+        document.getElementById('pageMeta').textContent = `Offset: ${data.offset} | Limit: ${data.limit}`;
+        await loadStats();
+        setStatus('Chargement termine', false);
+      } catch (err) {
+        setStatus(err.message || 'Erreur de chargement', true);
+      }
+    }
+
+    function resetFilters() {
+      ['fCase', 'fProvider', 'fStatus', 'fSource', 'fFrom', 'fTo'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('fLimit').value = '50';
+      currentOffset = 0;
+      loadEvents(true);
+    }
+
+    function nextPage() {
+      const limit = Number(value('fLimit') || '50');
+      if (currentOffset + limit >= currentTotal) return;
+      currentOffset += limit;
+      loadEvents(false);
+    }
+
+    function retryNow() {
+      if (isRateBlockedNow()) {
+        setStatus(getRetryMessageFromState(), true);
+        return;
+      }
+      loadEvents(false);
+    }
+
+    function prevPage() {
+      const limit = Number(value('fLimit') || '50');
+      currentOffset = Math.max(0, currentOffset - limit);
+      loadEvents(false);
+    }
+
+    async function downloadCsv() {
+      const btn = document.getElementById('btnExport');
+      isExportingCsv = true;
+      btn.disabled = true;
+      btn.textContent = 'Export en cours...';
+      try {
+        if (isRateBlockedNow()) {
+          throw new Error(getRetryMessageFromState());
+        }
+
+        const params = new URLSearchParams();
+        params.set('limit', '5000');
+        params.set('offset', '0');
+
+        const caseRef = value('fCase');
+        const provider = value('fProvider');
+        const paymentStatus = value('fStatus');
+        const source = value('fSource');
+        const createdFrom = dateToIsoLocal(value('fFrom'));
+        const createdTo = dateToIsoLocal(value('fTo'));
+
+        if (caseRef) params.set('case_reference', caseRef);
+        if (provider) params.set('provider', provider);
+        if (paymentStatus) params.set('payment_status', paymentStatus);
+        if (source) params.set('source', source);
+        if (createdFrom) params.set('created_from', createdFrom);
+        if (createdTo) params.set('created_to', createdTo);
+
+        const headers = {};
+        const adminKey = value('fAdminKey');
+        if (adminKey) headers['X-Admin-Key'] = adminKey;
+
+        const response = await fetch(`/api/payments/events/export.csv?${params.toString()}`, { headers });
+        updateRateLimitMetaFromResponse(response);
+        if (!response.ok) {
+          throw new Error(await getApiErrorMessage(response, `HTTP ${response.status}`));
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'payment_events.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        setStatus('Export CSV telecharge', false);
+      } catch (err) {
+        setStatus(err.message || 'Erreur export CSV', true);
+      } finally {
+        isExportingCsv = false;
+        btn.disabled = false;
+        btn.innerHTML = '&#8659; Export CSV';
+        renderRateLimitMeta();
+      }
+    }
+
+    async function loadStats() {
+      const headers = {};
+      const adminKey = value('fAdminKey');
+      if (adminKey) headers['X-Admin-Key'] = adminKey;
+      try {
+        if (isRateBlockedNow()) {
+          return;
+        }
+
+        const statsQuery = buildStatsQuery();
+        const resp = await fetch(`/api/payments/events/stats?${statsQuery.toString()}`, { headers });
+        updateRateLimitMetaFromResponse(resp);
+        if (!resp.ok) {
+          if (resp.status === 429) {
+            setStatus(getRetryMessageFromResponse(resp), true);
+          }
+          return;
+        }
+        const s = await resp.json();
+
+        const byStatusHtml = Object.entries(s.by_status || {})
+          .map(([k, v]) => `<span class="pill ${pillClass(k)}">${safe(k)}: ${v}</span>`)
+          .join(' ');
+
+        const byProviderHtml = Object.entries(s.by_provider || {})
+          .map(([k, v]) => `${safe(k)}: ${v}`).join(' · ');
+
+        const bySourceHtml = Object.entries(s.by_source || {})
+          .map(([k, v]) => `${safe(k)}: ${v}`).join(' · ');
+
+        document.getElementById('statsBar').innerHTML = `
+          <div class="stat-item">
+            <span class="stat-label">Total evenements</span>
+            <span class="stat-value">${s.total}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Par statut</span>
+            <span class="stat-value mono" style="font-size:0.9rem">${byStatusHtml || '—'}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Par provider</span>
+            <span class="stat-value mono" style="font-size:0.9rem">${byProviderHtml || '—'}</span>
+            <span class="stat-sub">Par source: ${bySourceHtml || '—'}</span>
+          </div>
+        `;
+        document.getElementById('statsCard').style.display = '';
+      } catch (_) { /* silencieux */ }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedAdminKey = localStorage.getItem('payment_admin_key') || '';
+      if (savedAdminKey) {
+        document.getElementById('fAdminKey').value = savedAdminKey;
+      }
+
+      ['fCase', 'fProvider', 'fStatus', 'fSource', 'fFrom', 'fTo'].forEach(id => {
+        const el = document.getElementById(id);
+        el.addEventListener('change', scheduleStatsRefresh);
+        el.addEventListener('input', scheduleStatsRefresh);
+      });
+
+      const adminKeyInput = document.getElementById('fAdminKey');
+      adminKeyInput.addEventListener('input', () => {
+        const key = value('fAdminKey');
+        if (key) {
+          localStorage.setItem('payment_admin_key', key);
+        } else {
+          localStorage.removeItem('payment_admin_key');
+        }
+        scheduleStatsRefresh();
+      });
+
+      if (!rateTicker) {
+        rateTicker = setInterval(() => {
+          renderRateLimitMeta();
+        }, 1000);
+      }
+
+      loadEvents(true);
+    });
+  </script>
+</body>
+</html>

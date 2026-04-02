@@ -1,0 +1,73 @@
+### Test Rapide - Fonctionnalités Avancées MemoLib
+
+# Variables
+@baseUrl = http://localhost:5078
+@token = 
+
+### 1. Test de santé de l'API
+GET {{baseUrl}}/health
+
+### 2. Connexion utilisateur
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "sarraboudjellal57@gmail.com",
+  "password": "SecurePass123!"
+}
+
+### 3. Test Dashboard Metrics (nécessite token)
+GET {{baseUrl}}/api/dashboard/metrics
+Authorization: Bearer {{token}}
+
+### 4. Test Stats Temps Réel
+GET {{baseUrl}}/api/dashboard/realtime-stats
+Authorization: Bearer {{token}}
+
+### 5. Test Templates - Génération
+POST {{baseUrl}}/api/templates/generate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "clientContext": "Client urgent demande rendez-vous divorce",
+  "subject": "Demande de consultation divorce",
+  "caseType": "divorce"
+}
+
+### 6. Test Templates - Liste
+GET {{baseUrl}}/api/templates
+Authorization: Bearer {{token}}
+
+### 7. Test Questionnaires pour un événement
+GET {{baseUrl}}/api/questionnaire/for-event/EVENT_ID_HERE
+Authorization: Bearer {{token}}
+
+### 8. Test SignalR Hub (via navigateur)
+# Ouvrir http://localhost:5078/demo.html
+# Se connecter et vérifier les notifications temps réel
+
+### 9. Test Ingestion Email (pour déclencher notifications)
+POST {{baseUrl}}/api/ingest/email
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "from": "test@example.com",
+  "subject": "Test notification temps réel",
+  "body": "Test pour vérifier les notifications SignalR",
+  "externalId": "TEST-NOTIF-001",
+  "occurredAt": "2026-02-22T22:00:00Z"
+}
+
+### 10. Test Centre Anomalies
+GET {{baseUrl}}/api/alerts/center?limit=5
+Authorization: Bearer {{token}}
+
+### Notes de test:
+# 1. Démarrer l'API: dotnet run --urls "http://localhost:5078"
+# 2. Ouvrir http://localhost:5078/demo.html
+# 3. Se connecter avec les identifiants par défaut
+# 4. Tester le bouton "📊 Dashboard Avancé"
+# 5. Tester le bouton "📝 Réponse IA" sur un email
+# 6. Vérifier les notifications temps réel

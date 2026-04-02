@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib - Espace Avocat Senior</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h1>⚖️ MemoLib — Avocat Senior</h1>
+                    <p>Gestion complète de vos dossiers et clients</p>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <span id="userDisplay" style="font-weight:600;color:var(--primary);"></span>
+                    <a href="demo.html" class="btn btn-secondary" style="text-decoration:none;">← Accueil</a>
+                    <button class="btn btn-danger" onclick="logout()">Déconnexion</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav style="display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:var(--space-xl);">
+            <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="showTab('emails')">📧 Emails</button>
+            <button class="tab" onclick="showTab('cases')">📁 Dossiers</button>
+            <button class="tab" onclick="showTab('clients')">👤 Clients</button>
+            <button class="tab" onclick="showTab('search')">🔍 Recherche</button>
+            <button class="tab" onclick="showTab('alerts')">⚠️ Alertes</button>
+        </nav>
+
+        <!-- Dashboard -->
+        <div id="dashboard-tab" class="tab-content">
+            <div class="stats">
+                <div class="stat-box"><div class="number" id="sCases">-</div><div class="label">Dossiers</div></div>
+                <div class="stat-box stat-box-success"><div class="number" id="sClients">-</div><div class="label">Clients</div></div>
+                <div class="stat-box stat-box-info"><div class="number" id="sEmails">-</div><div class="label">Emails</div></div>
+                <div class="stat-box stat-box-warning"><div class="number" id="sAnomalies">-</div><div class="label">Anomalies</div></div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="card"><h2>📨 Emails Récents</h2><div id="recentEmails">Chargement...</div></div>
+                <div class="card"><h2>📁 Derniers Dossiers</h2><div id="recentCases">Chargement...</div></div>
+            </div>
+        </div>
+
+        <!-- Emails -->
+        <div id="emails-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>📧 Scanner les Emails</h2>
+                <p style="color:var(--text-secondary);margin-bottom:1rem;">Scannez votre boîte Gmail pour importer les nouveaux emails clients.</p>
+                <button class="btn" onclick="scanEmails()">🔄 Scanner maintenant</button>
+                <div id="scanResult" style="margin-top:1rem;"></div>
+            </div>
+            <div class="card">
+                <h2>✉️ Envoyer un Email</h2>
+                <div class="input-group"><label>Destinataire</label><input type="email" id="sendTo" placeholder="client@example.com"></div>
+                <div class="input-group"><label>Sujet</label><input type="text" id="sendSubject" placeholder="Objet du message"></div>
+                <div class="input-group"><label>Message</label><textarea id="sendBody" rows="5" placeholder="Votre message..."></textarea></div>
+                <button class="btn btn-success" onclick="sendEmail()">📤 Envoyer</button>
+                <div id="sendResult" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Dossiers -->
+        <div id="cases-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>📁 Mes Dossiers</h2>
+                <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+                    <button class="btn" onclick="loadCases()">Actualiser</button>
+                    <button class="btn btn-success" onclick="createCase()">➕ Nouveau dossier</button>
+                </div>
+                <div id="casesResult"></div>
+            </div>
+        </div>
+
+        <!-- Clients -->
+        <div id="clients-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>👤 Gestion Clients</h2>
+                <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+                    <button class="btn" onclick="loadClients()">Actualiser</button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                    <div class="input-group"><label>Nom</label><input type="text" id="clName" placeholder="Nom du client"></div>
+                    <div class="input-group"><label>Email</label><input type="email" id="clEmail" placeholder="client@example.com"></div>
+                    <div class="input-group"><label>Téléphone</label><input type="text" id="clPhone" placeholder="+33 6 00 00 00 00"></div>
+                    <div class="input-group"><label>Adresse</label><input type="text" id="clAddr" placeholder="Adresse"></div>
+                </div>
+                <button class="btn btn-success" onclick="createClient()">➕ Créer client</button>
+                <div id="clientsResult" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Recherche -->
+        <div id="search-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>🔍 Recherche Intelligente</h2>
+                <div class="input-group"><label>Mots-clés</label><input type="text" id="searchText" placeholder="Rechercher un email, client, dossier..."></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn" onclick="searchEvents()">🔍 Rechercher</button>
+                    <button class="btn btn-success" onclick="searchAll()">📧 Tous les emails</button>
+                    <button class="btn btn-warning" onclick="semanticSearch()">🧠 Recherche IA</button>
+                </div>
+                <div id="searchResult" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Alertes -->
+        <div id="alerts-tab" class="tab-content hidden">
+            <div class="card">
+                <h2>⚠️ Alertes & Anomalies</h2>
+                <button class="btn" onclick="loadAlerts()">Charger les alertes</button>
+                <div id="alertsResult" style="margin-top:1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+        let token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        if (!token) { window.location.href = 'demo.html'; }
+        document.getElementById('userDisplay').textContent = localStorage.getItem('memolibUserEmail') || '';
+
+        function logout() { localStorage.clear(); sessionStorage.clear(); window.location.href = 'demo.html'; }
+        function show(id, msg, ok=true) { document.getElementById(id).innerHTML = `<div class="result ${ok?'success':'error'}">${msg}</div>`; }
+
+        async function api(path, opts = {}) {
+            opts.headers = { ...opts.headers, 'Authorization': `Bearer ${token}` };
+            return fetch(`${API}${path}`, opts);
+        }
+
+        function showTab(name) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const tab = document.getElementById(`${name}-tab`);
+            if (tab) tab.classList.remove('hidden');
+            const btn = document.querySelector(`[onclick="showTab('${name}')"]`);
+            if (btn) btn.classList.add('active');
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await api('/api/dashboard/overview');
+                if (!res.ok) return;
+                const d = await res.json();
+                document.getElementById('sCases').textContent = d.stats?.totalCases ?? 0;
+                document.getElementById('sClients').textContent = d.stats?.totalClients ?? 0;
+                document.getElementById('sEmails').textContent = d.stats?.totalEvents ?? 0;
+                document.getElementById('sAnomalies').textContent = d.stats?.eventsWithAnomalies ?? 0;
+
+                let eHtml = '';
+                (d.recentEvents || []).slice(0, 6).forEach(e => {
+                    eHtml += `<div class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon email">📧</div>
+                        <div class="dashboard-activity-content">
+                            <strong>${e.subject || 'Email'}</strong>
+                            <div class="dashboard-activity-subtitle">De: ${e.from || 'N/A'}</div>
+                            <div class="dashboard-activity-time">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('recentEmails').innerHTML = eHtml || '<p style="color:var(--text-secondary)">Aucun email</p>';
+
+                let cHtml = '<div class="event-list" style="max-height:300px;">';
+                (d.cases || []).slice(0, 6).forEach(c => {
+                    cHtml += `<div class="event-item"><strong>${c.title || 'Sans titre'}</strong><div class="date">${new Date(c.createdAt).toLocaleDateString('fr-FR')}</div></div>`;
+                });
+                cHtml += '</div>';
+                document.getElementById('recentCases').innerHTML = cHtml;
+            } catch (err) { console.error(err); }
+        }
+
+        async function scanEmails() {
+            show('scanResult', '⏳ Scan en cours...');
+            try {
+                const res = await api('/api/email-scan/manual?previewLimit=50', { method: 'POST' });
+                const d = await res.json();
+                if (res.ok) {
+                    show('scanResult', `✅ Scan terminé — ${d.totalEmails ?? 0} emails, ${d.ingested ?? 0} ingérés, ${d.duplicates ?? 0} doublons`);
+                } else { show('scanResult', `❌ ${d.message || 'Erreur'}`, false); }
+            } catch (err) { show('scanResult', `❌ ${err.message}`, false); }
+        }
+
+        async function sendEmail() {
+            const to = document.getElementById('sendTo').value;
+            const subject = document.getElementById('sendSubject').value;
+            const body = document.getElementById('sendBody').value;
+            if (!to || !subject) return show('sendResult', '❌ Destinataire et sujet requis', false);
+            try {
+                const res = await api('/api/SecureEmail/send', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, subject, body })
+                });
+                if (res.ok) show('sendResult', `✅ Email envoyé à ${to}`);
+                else { const d = await res.json().catch(()=>({})); show('sendResult', `❌ ${d.message || 'Erreur'}`, false); }
+            } catch (err) { show('sendResult', `❌ ${err.message}`, false); }
+        }
+
+        async function loadCases() {
+            try {
+                const res = await api('/api/cases');
+                const data = await res.json();
+                if (!res.ok) return show('casesResult', '❌ Erreur', false);
+                let html = `<div class="result success">✅ ${data.length} dossier(s)</div><div class="event-list">`;
+                data.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(c => {
+                    html += `<div class="event-item"><strong>${c.title || 'Sans titre'}</strong><div class="date">Statut: ${c.status || 'OPEN'} — ${new Date(c.createdAt).toLocaleDateString('fr-FR')}</div></div>`;
+                });
+                html += '</div>';
+                document.getElementById('casesResult').innerHTML = html;
+            } catch (err) { show('casesResult', `❌ ${err.message}`, false); }
+        }
+
+        async function createCase() {
+            const title = prompt('Titre du dossier:');
+            if (!title) return;
+            try {
+                const res = await api('/api/cases', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title }) });
+                if (res.ok) { show('casesResult', `✅ Dossier "${title}" créé`); loadCases(); }
+                else { const d = await res.json().catch(()=>({})); show('casesResult', `❌ ${d.message || 'Erreur'}`, false); }
+            } catch (err) { show('casesResult', `❌ ${err.message}`, false); }
+        }
+
+        async function loadClients() {
+            try {
+                const res = await api('/api/client');
+                const data = await res.json();
+                if (!res.ok) return show('clientsResult', '❌ Erreur', false);
+                let html = `<div class="result success">✅ ${data.length} client(s)</div><div class="event-list">`;
+                data.forEach(c => {
+                    html += `<div class="event-item"><strong>${c.name}</strong><div class="date">📧 ${c.email} — 📞 ${c.phoneNumber || 'N/A'}</div><div class="content">🏠 ${c.address || 'N/A'}</div></div>`;
+                });
+                html += '</div>';
+                document.getElementById('clientsResult').innerHTML = html;
+            } catch (err) { show('clientsResult', `❌ ${err.message}`, false); }
+        }
+
+        async function createClient() {
+            const name = document.getElementById('clName').value;
+            const email = document.getElementById('clEmail').value;
+            const phoneNumber = document.getElementById('clPhone').value || null;
+            const address = document.getElementById('clAddr').value || null;
+            if (!name || !email) return show('clientsResult', '❌ Nom et email requis', false);
+            try {
+                const res = await api('/api/client', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, phoneNumber, address }) });
+                if (res.ok) { show('clientsResult', `✅ Client "${name}" créé`); loadClients(); }
+                else { const d = await res.json().catch(()=>({})); show('clientsResult', `❌ ${d.message || 'Erreur'}`, false); }
+            } catch (err) { show('clientsResult', `❌ ${err.message}`, false); }
+        }
+
+        async function searchEvents() {
+            const text = document.getElementById('searchText').value;
+            try {
+                const res = await api('/api/search/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, limit: 50 }) });
+                const data = await res.json();
+                if (!res.ok || !Array.isArray(data)) return show('searchResult', '❌ Erreur', false);
+                renderSearchResults(data, 'trouvé(s)');
+            } catch (err) { show('searchResult', `❌ ${err.message}`, false); }
+        }
+
+        async function searchAll() {
+            try {
+                const res = await api('/api/search/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: '', returnAll: true }) });
+                const data = await res.json();
+                if (Array.isArray(data)) renderSearchResults(data, 'au total');
+            } catch (err) { show('searchResult', `❌ ${err.message}`, false); }
+        }
+
+        async function semanticSearch() {
+            const query = document.getElementById('searchText').value;
+            if (!query) return show('searchResult', '❌ Entrez un texte', false);
+            try {
+                const res = await api('/api/semantic/search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query }) });
+                const data = await res.json();
+                if (res.ok && Array.isArray(data)) {
+                    let html = `<div class="result success">✅ ${data.length} résultat(s) IA</div><div class="event-list">`;
+                    data.forEach(e => {
+                        const pct = ((e.similarity || 0) * 100).toFixed(1);
+                        html += `<div class="event-item"><div class="date">Pertinence: ${pct}%</div><div class="content">${(e.textForEmbedding || e.text || '').substring(0, 300)}</div></div>`;
+                    });
+                    html += '</div>';
+                    document.getElementById('searchResult').innerHTML = html;
+                }
+            } catch (err) { show('searchResult', `❌ ${err.message}`, false); }
+        }
+
+        function renderSearchResults(data, label) {
+            let html = `<div class="result success">✅ ${data.length} email(s) ${label}</div><div class="event-list">`;
+            data.forEach(e => {
+                let p = {};
+                try { p = JSON.parse(e.rawPayload || '{}'); } catch {}
+                html += `<div class="event-item">
+                    <div class="date">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                    <strong>${p.subject || p.Subject || 'N/A'}</strong>
+                    <div class="content">De: ${p.from || p.From || 'N/A'}</div>
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('searchResult').innerHTML = html;
+        }
+
+        async function loadAlerts() {
+            try {
+                const res = await api('/api/alerts/requires-attention');
+                const data = await res.json();
+                if (!res.ok) return show('alertsResult', '❌ Erreur', false);
+                if ((data.count || 0) === 0) return show('alertsResult', '✅ Aucune anomalie à traiter');
+                let html = `<div class="result" style="border-color:var(--warning);background:#fff3cd;color:#92400e;">⚠️ ${data.count} email(s) nécessitent attention</div><div class="event-list">`;
+                (data.events || []).forEach(e => {
+                    let p = {};
+                    try { p = JSON.parse(e.rawPayload || '{}'); } catch {}
+                    html += `<div class="event-item" style="border-left-color:var(--warning);">
+                        <div class="date">${new Date(e.occurredAt).toLocaleString('fr-FR')}</div>
+                        <strong>De: ${p.from || 'Manquant'}</strong>
+                        <div class="content">Sujet: ${p.subject || 'Manquant'}</div>
+                        <div style="color:var(--warning);margin-top:0.5rem;">⚠️ ${e.validationFlags || 'Anomalie'}</div>
+                    </div>`;
+                });
+                html += '</div>';
+                document.getElementById('alertsResult').innerHTML = html;
+            } catch (err) { show('alertsResult', `❌ ${err.message}`, false); }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

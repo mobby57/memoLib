@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-04-01T20:36:04.737Z",
+  "host": "MOROADMIN",
+  "nodeVersion": "v20.19.5",
+  "cwd": "C:\\Users\\moros\\Desktop\\memolib",
+  "mode": "quick",
+  "precheck": {
+    "ok": false,
+    "reasons": [
+      "Node 24.x required, current v20.19.5",
+      "Missing dependency: dotenv (run npm install with Node 24)",
+      "Missing dependency: @prisma/client (run npm install with Node 24)"
+    ]
+  },
+  "steps": [],
+  "totals": {
+    "totalSteps": 0,
+    "passed": 0,
+    "failed": 0,
+    "totalDurationMs": 14
+  }
+}

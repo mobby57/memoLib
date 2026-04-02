@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoLib — Démo Accélérateurs de Productivité</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }
+        .hero h1 { font-size: 2rem; margin-bottom: 8px; }
+        .hero p { opacity: 0.9; font-size: 1.1rem; }
+        .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+        .step { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border-left: 5px solid #667eea; }
+        .step.active { border-left-color: #764ba2; box-shadow: 0 4px 20px rgba(102,126,234,0.2); }
+        .step.done { border-left-color: #27ae60; opacity: 0.85; }
+        .step h2 { font-size: 1.2rem; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .step p { color: #555; margin-bottom: 12px; font-size: 0.95rem; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-cat { background: #eef3ff; color: #3b5bdb; }
+        .badge-urg { background: #fff3cd; color: #856404; }
+        .badge-tag { background: #d4edda; color: #155724; }
+        .badge-pri { background: #f8d7da; color: #721c24; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; color: white; transition: all 0.2s; }
+        .btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+        .btn-primary { background: #667eea; }
+        .btn-success { background: #27ae60; }
+        .btn-orange { background: #ff9800; }
+        .btn-danger { background: #e74c3c; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .result-box { margin-top: 12px; padding: 16px; border-radius: 8px; font-size: 0.9rem; display: none; }
+        .result-box.show { display: block; }
+        .result-ok { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .result-err { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .result-info { background: #eef3ff; border: 1px solid #c3d4ff; color: #1a3a6e; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 12px 0; }
+        .kpi { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 16px; border-radius: 10px; text-align: center; }
+        .kpi .num { font-size: 1.8rem; font-weight: 700; }
+        .kpi .lbl { font-size: 0.8rem; opacity: 0.9; margin-top: 4px; }
+        .kpi.warn { background: linear-gradient(135deg, #ff9800, #f44336); }
+        .kpi.ok { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .email-card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 14px; margin: 8px 0; }
+        .email-card strong { color: #333; }
+        .classification-result { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .suggestion { padding: 10px 14px; background: #fff3cd; border-left: 4px solid #ff9800; border-radius: 0 8px 8px 0; margin: 4px 0; font-size: 0.9rem; }
+        .timeline { border-left: 3px solid #667eea; padding-left: 16px; margin: 12px 0; }
+        .timeline-item { margin-bottom: 10px; position: relative; }
+        .timeline-item::before { content: '●'; position: absolute; left: -22px; color: #667eea; font-size: 0.8rem; }
+        .timeline-item.done::before { content: '✅'; left: -24px; }
+        .login-row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; margin-bottom: 12px; }
+        .login-row label { font-size: 0.85rem; color: #555; }
+        .login-row input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; width: 220px; }
+        .progress-bar { height: 6px; background: #e9ecef; border-radius: 3px; margin: 20px 0; overflow: hidden; }
+        .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #667eea, #27ae60); border-radius: 3px; transition: width 0.5s; }
+        .back-link { display: inline-block; margin-top: 20px; color: #667eea; text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+        pre.json { background: #1a1a2e; color: #a5d6a7; padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 0.8rem; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>⚡ Accélérateurs de Productivité</h1>
+        <p>Scénario interactif : la matinée type d'un avocat avec MemoLib</p>
+        <div class="progress-bar" style="max-width:400px;margin:16px auto 0;"><div class="fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="container">
+
+        <!-- STEP 0: Connexion -->
+        <div class="step active" id="step0">
+            <h2>🔐 Étape 0 — Connexion</h2>
+            <p>Connectez-vous pour démarrer le scénario.</p>
+            <div class="login-row">
+                <div><label>Email</label><br><input type="email" id="d-email" value="admin@freetime.com"></div>
+                <div><label>Mot de passe</label><br><input type="password" id="d-pass" value="Admin123!"></div>
+                <button class="btn btn-primary" id="btnLogin" onclick="doLogin()">Se connecter</button>
+            </div>
+            <div class="result-box" id="res0"></div>
+        </div>
+
+        <!-- STEP 1: Briefing quotidien -->
+        <div class="step" id="step1" style="opacity:0.4;pointer-events:none;">
+            <h2>☀️ Étape 1 — Briefing du matin</h2>
+            <p>8h00 — L'avocat ouvre MemoLib. En un clic, il voit tout ce qui l'attend aujourd'hui.</p>
+            <button class="btn btn-success" id="btnBriefing" onclick="loadBriefing()">Charger mon briefing quotidien</button>
+            <div class="result-box" id="res1"></div>
+        </div>
+
+        <!-- STEP 2: Ingestion avec classification -->
+        <div class="step" id="step2" style="opacity:0.4;pointer-events:none;">
+            <h2>📧 Étape 2 — Réception d'un email client (classification auto)</h2>
+            <p>8h15 — Un email arrive. MemoLib le classe automatiquement : catégorie juridique, urgence, tags, priorité.</p>
+            <button class="btn btn-orange" id="btnIngest1" onclick="ingestDemo('urgent')">📩 Email URGENT — Divorce</button>
+            <button class="btn btn-primary" id="btnIngest2" onclick="ingestDemo('normal')" style="margin-left:8px;">📩 Email normal — Contrat</button>
+            <button class="btn btn-danger" id="btnIngest3" onclick="ingestDemo('penal')" style="margin-left:8px;">📩 Email PÉNAL — Garde à vue</button>
+            <div class="result-box" id="res2"></div>
+        </div>
+
+        <!-- STEP 3: Dashboard enrichi -->
+        <div class="step" id="step3" style="opacity:0.4;pointer-events:none;">
+            <h2>📊 Étape 3 — Dashboard temps réel</h2>
+            <p>8h30 — Le dashboard affiche les vraies métriques : tendance hebdo, top clients, temps de réponse.</p>
+            <button class="btn btn-primary" id="btnDashboard" onclick="loadDashboard()">Voir le dashboard</button>
+            <div class="result-box" id="res3"></div>
+        </div>
+
+        <!-- STEP 4: Résumé hebdo -->
+        <div class="step" id="step4" style="opacity:0.4;pointer-events:none;">
+            <h2>📈 Étape 4 — Résumé hebdomadaire</h2>
+            <p>L'avocat consulte sa productivité de la semaine : dossiers traités, heures facturées, revenus.</p>
+            <button class="btn btn-success" id="btnWeekly" onclick="loadWeekly()">Voir mon résumé hebdo</button>
+            <div class="result-box" id="res4"></div>
+        </div>
+
+        <!-- FIN -->
+        <div class="step" id="stepFinal" style="opacity:0.4;pointer-events:none;">
+            <h2>🎉 Scénario terminé</h2>
+            <p>Vous venez de vivre la matinée type d'un avocat avec les accélérateurs MemoLib.</p>
+            <div class="timeline">
+                <div class="timeline-item done">8h00 — Briefing quotidien : dossiers en retard, tâches du jour, suggestions</div>
+                <div class="timeline-item done">8h15 — Email reçu → classifié automatiquement (catégorie, urgence, tags, priorité)</div>
+                <div class="timeline-item done">8h30 — Dashboard avec vraies métriques (tendance, top clients, temps réponse)</div>
+                <div class="timeline-item done">8h45 — Résumé hebdo : dossiers, heures, revenus, taux de résolution</div>
+            </div>
+            <a href="demo.html" class="back-link">← Retour à l'interface complète</a>
+        </div>
+
+    </div>
+
+    <script>
+        const API = window.location.origin;
+        let token = null;
+        let currentStep = 0;
+
+        function show(id, html, cls = 'result-ok') {
+            const el = document.getElementById(id);
+            el.className = `result-box show ${cls}`;
+            el.innerHTML = html;
+        }
+
+        function unlock(stepNum) {
+            currentStep = stepNum;
+            const el = document.getElementById(`step${stepNum}`);
+            if (el) { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; el.classList.add('active'); }
+            // Mark previous as done
+            for (let i = 0; i < stepNum; i++) {
+                const prev = document.getElementById(`step${i}`);
+                if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
+            }
+            if (stepNum === 'Final') {
+                document.getElementById('stepFinal').style.opacity = '1';
+                document.getElementById('stepFinal').style.pointerEvents = 'auto';
+                document.getElementById('step4').classList.remove('active');
+                document.getElementById('step4').classList.add('done');
+            }
+            const pct = { 0: 0, 1: 25, 2: 50, 3: 75, 4: 90, 'Final': 100 };
+            document.getElementById('progressFill').style.width = (pct[stepNum] || 0) + '%';
+        }
+
+        async function doLogin() {
+            const email = document.getElementById('d-email').value;
+            const pass = document.getElementById('d-pass').value;
+            try {
+                const res = await fetch(`${API}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password: pass })
+                });
+                const data = await res.json();
+                if (res.ok && data.token) {
+                    token = data.token;
+                    show('res0', `✅ Connecté en tant que <strong>${email}</strong>. Passons au briefing !`);
+                    document.getElementById('btnLogin').disabled = true;
+                    unlock(1);
+                } else {
+                    show('res0', `❌ ${data.message || 'Échec connexion'}`, 'result-err');
+                }
+            } catch (e) { show('res0', `❌ ${e.message}`, 'result-err'); }
+        }
+
+        async function loadBriefing() {
+            show('res1', '⏳ Chargement du briefing...', 'result-info');
+            try {
+                const res = await fetch(`${API}/api/productivity/daily-briefing`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const d = await res.json();
+                if (!res.ok) throw new Error(d.message || 'Erreur');
+
+                let html = `<div class="kpi-grid">
+                    <div class="kpi"><div class="num">${d.workload?.totalActive || 0}</div><div class="lbl">Dossiers actifs</div></div>
+                    <div class="kpi warn"><div class="num">${d.overdueCases?.length || 0}</div><div class="lbl">En retard</div></div>
+                    <div class="kpi"><div class="num">${d.tasksDueToday?.length || 0}</div><div class="lbl">Tâches du jour</div></div>
+                    <div class="kpi"><div class="num">${d.emails?.today || 0}</div><div class="lbl">Emails aujourd'hui</div></div>
+                    <div class="kpi ok"><div class="num">${d.unreadNotifications || 0}</div><div class="lbl">Notifs non lues</div></div>
+                </div>`;
+
+                if (d.overdueCases?.length > 0) {
+                    html += `<strong>⚠️ Dossiers en retard :</strong>`;
+                    d.overdueCases.forEach(c => {
+                        html += `<div class="email-card"><strong>${c.title}</strong> — ${c.daysOverdue}j de retard (priorité ${c.priority})</div>`;
+                    });
+                }
+
+                if (d.upcomingDeadlines?.length > 0) {
+                    html += `<strong>📅 Échéances proches :</strong>`;
+                    d.upcomingDeadlines.forEach(c => {
+                        html += `<div class="email-card"><strong>${c.title}</strong> — échéance ${new Date(c.dueDate).toLocaleDateString('fr-FR')}</div>`;
+                    });
+                }
+
+                if (d.suggestions?.length > 0) {
+                    html += `<strong>💡 Suggestions :</strong>`;
+                    d.suggestions.forEach(s => { html += `<div class="suggestion">${s}</div>`; });
+                }
+
+                show('res1', html);
+                document.getElementById('btnBriefing').disabled = true;
+                unlock(2);
+            } catch (e) { show('res1', `❌ ${e.message}`, 'result-err'); }
+        }
+
+        const DEMO_EMAILS = {
+            urgent: {
+                from: 'sophie.martin@gmail.com',
+                subject: 'URGENT - Divorce et garde des enfants',
+                body: 'Bonjour Maître,\n\nJe vous contacte en urgence. Mon mari a quitté le domicile ce matin avec les enfants. Je souhaite engager une procédure de divorce et obtenir la garde. Pouvez-vous me recevoir aujourd\'hui ?\n\nCordialement,\nSophie Martin\nTél: 06 12 34 56 78\nAdresse: 15 rue de la Paix, Paris'
+            },
+            normal: {
+                from: 'pierre.dubois@entreprise.fr',
+                subject: 'Relecture contrat de cession de parts SARL',
+                body: 'Bonjour Maître,\n\nSuite à notre rendez-vous, je vous transmets le projet de contrat de cession de parts de ma SARL. Pourriez-vous le relire et me faire vos observations quand vous pourrez ?\n\nBien cordialement,\nPierre Dubois'
+            },
+            penal: {
+                from: 'jean.moreau@free.fr',
+                subject: 'Convocation garde à vue - besoin avocat immédiat',
+                body: 'Maître,\n\nMon fils vient d\'être placé en garde à vue au commissariat du 5ème. Il est convoqué pour une plainte d\'infraction. Nous avons besoin d\'un avocat immédiatement pour l\'assister.\n\nJean Moreau\n06 45 67 89 01'
+            }
+        };
+
+        async function ingestDemo(type) {
+            const email = DEMO_EMAILS[type];
+            show('res2', '⏳ Ingestion et classification en cours...', 'result-info');
+            try {
+                const res = await fetch(`${API}/api/ingest/email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        from: email.from,
+                        subject: email.subject,
+                        body: email.body,
+                        externalId: `DEMO-${type}-${Date.now()}`,
+                        occurredAt: new Date().toISOString()
+                    })
+                });
+                const d = await res.json();
+                if (!res.ok) throw new Error(d.message || 'Erreur');
+
+                let html = `<div class="email-card">
+                    <strong>De :</strong> ${email.from}<br>
+                    <strong>Sujet :</strong> ${email.subject}<br>
+                    <strong>Dossier :</strong> ${d.caseId} ${d.caseCreated ? '(nouveau)' : '(existant)'}
+                </div>`;
+
+                if (d.classification) {
+                    html += `<strong>🤖 Classification automatique :</strong>
+                    <div class="classification-result">
+                        <span class="badge badge-cat">📂 ${d.classification.category}</span>
+                        <span class="badge badge-urg">🔥 ${d.classification.urgency}</span>
+                        <span class="badge badge-pri">⚡ Priorité ${d.classification.suggestedPriority}/5</span>
+                        ${(d.classification.suggestedTags || []).map(t => `<span class="badge badge-tag">#${t}</span>`).join('')}
+                    </div>`;
+                    if (d.classification.aiSummary) {
+                        html += `<div class="suggestion">🧠 IA : ${d.classification.aiSummary}</div>`;
+                    }
+                } else {
+                    html += `<div class="suggestion">ℹ️ Classification par règles appliquée (OpenAI non configuré)</div>`;
+                }
+
+                if (d.isDuplicate) {
+                    html += `<div class="suggestion">⚠️ Doublon détecté — raison : ${d.duplicateReason}</div>`;
+                }
+
+                show('res2', html);
+                unlock(3);
+            } catch (e) { show('res2', `❌ ${e.message}`, 'result-err'); }
+        }
+
+        async function loadDashboard() {
+            show('res3', '⏳ Chargement du dashboard...', 'result-info');
+            try {
+                const res = await fetch(`${API}/api/dashboard/overview`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const d = await res.json();
+                if (!res.ok) throw new Error(d.message || 'Erreur');
+
+                const m = d.metrics || {};
+                let html = `<div class="kpi-grid">
+                    <div class="kpi"><div class="num">${m.totalCases || 0}</div><div class="lbl">Dossiers</div></div>
+                    <div class="kpi"><div class="num">${m.totalClients || 0}</div><div class="lbl">Clients</div></div>
+                    <div class="kpi"><div class="num">${m.emailsToday || 0}</div><div class="lbl">Emails aujourd'hui</div></div>
+                    <div class="kpi"><div class="num">${m.totalEvents || 0}</div><div class="lbl">Événements total</div></div>
+                    <div class="kpi warn"><div class="num">${m.openAnomalies || 0}</div><div class="lbl">Anomalies</div></div>
+                    <div class="kpi ok"><div class="num">${m.averageResponseTimeHours?.toFixed(1) || '0'}h</div><div class="lbl">Temps réponse moy.</div></div>
+                </div>`;
+
+                if (m.weeklyTrend?.length > 0) {
+                    html += `<strong>📈 Tendance hebdomadaire :</strong><div style="display:flex;gap:6px;margin:8px 0;align-items:end;height:60px;">`;
+                    const max = Math.max(...m.weeklyTrend.map(w => w.count), 1);
+                    m.weeklyTrend.forEach(w => {
+                        const h = Math.max((w.count / max) * 50, 4);
+                        const day = new Date(w.date).toLocaleDateString('fr-FR', { weekday: 'short' });
+                        html += `<div style="text-align:center;flex:1;"><div style="background:#667eea;height:${h}px;border-radius:4px 4px 0 0;margin:0 auto;width:30px;"></div><div style="font-size:0.7rem;color:#888;">${day}</div><div style="font-size:0.75rem;font-weight:600;">${w.count}</div></div>`;
+                    });
+                    html += `</div>`;
+                }
+
+                if (m.topClients?.length > 0) {
+                    html += `<strong>🏆 Top clients :</strong>`;
+                    m.topClients.forEach((c, i) => {
+                        html += `<div class="email-card">${i + 1}. <strong>${c.clientName}</strong> — ${c.caseCount} dossier(s)</div>`;
+                    });
+                }
+
+                show('res3', html);
+                document.getElementById('btnDashboard').disabled = true;
+                unlock(4);
+            } catch (e) { show('res3', `❌ ${e.message}`, 'result-err'); }
+        }
+
+        async function loadWeekly() {
+            show('res4', '⏳ Chargement du résumé hebdo...', 'result-info');
+            try {
+                const res = await fetch(`${API}/api/productivity/weekly-summary`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const d = await res.json();
+                if (!res.ok) throw new Error(d.message || 'Erreur');
+
+                let html = `<div class="kpi-grid">
+                    <div class="kpi"><div class="num">${d.casesCreated || 0}</div><div class="lbl">Dossiers créés</div></div>
+                    <div class="kpi ok"><div class="num">${d.casesClosed || 0}</div><div class="lbl">Dossiers fermés</div></div>
+                    <div class="kpi"><div class="num">${d.tasksCompleted || 0}</div><div class="lbl">Tâches terminées</div></div>
+                    <div class="kpi"><div class="num">${d.emailsReceived || 0}</div><div class="lbl">Emails reçus</div></div>
+                    <div class="kpi"><div class="num">${d.timeLoggedHours || 0}h</div><div class="lbl">Heures facturées</div></div>
+                    <div class="kpi ok"><div class="num">${d.revenueGenerated || 0}€</div><div class="lbl">Revenus</div></div>
+                </div>`;
+
+                html += `<div class="suggestion">📊 Taux de résolution : <strong>${d.efficiency}</strong></div>`;
+                html += `<div class="email-card"><strong>Période :</strong> ${new Date(d.period?.start).toLocaleDateString('fr-FR')} → ${new Date(d.period?.end).toLocaleDateString('fr-FR')}</div>`;
+
+                show('res4', html);
+                document.getElementById('btnWeekly').disabled = true;
+                unlock('Final');
+            } catch (e) { show('res4', `❌ ${e.message}`, 'result-err'); }
+        }
+    </script>
+</body>
+</html>

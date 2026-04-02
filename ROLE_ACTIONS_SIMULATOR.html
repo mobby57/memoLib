@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MemoLib - Simulateur Parcours par Rôle</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #fff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --ok: #166534;
+      --ok-soft: #dcfce7;
+      --warn: #92400e;
+      --warn-soft: #fef3c7;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, Segoe UI, Arial, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 1220px; margin: 0 auto; padding: 20px; }
+    h1 { margin: 0 0 6px; font-size: 28px; }
+    .sub { margin: 0 0 18px; color: var(--muted); }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px,1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    select,input { height: 40px; border: 1px solid var(--border); border-radius: 10px; background:#fff; padding: 0 10px; }
+
+    .kpis { display:flex; gap:8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .pill { border:1px solid var(--border); background:#fff; border-radius:999px; padding:5px 10px; font-size:12px; color:var(--muted); }
+
+    .layout {
+      display:grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 12px;
+    }
+
+    .panel { background: var(--card); border:1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .panel h2 { margin:0 0 10px; font-size:18px; }
+
+    .cards { display:grid; gap:8px; }
+    .card { border:1px solid var(--border); border-radius: 10px; padding: 10px; }
+    .title { font-weight: 600; margin-bottom: 6px; }
+    .meta { display:flex; gap:6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .tag { border:1px solid var(--border); border-radius: 999px; padding:2px 8px; font-size:12px; color:var(--muted); }
+    .ok { background: var(--ok-soft); color: var(--ok); border-color:#bbf7d0; }
+    .warn { background: var(--warn-soft); color: var(--warn); border-color:#fde68a; }
+
+    .actions { display:flex; gap:6px; flex-wrap: wrap; }
+    button,a.btn {
+      border:1px solid var(--border); border-radius:9px; background:#fff; color:var(--text);
+      font-size:12px; padding:7px 10px; text-decoration:none; cursor:pointer;
+    }
+    button.primary, a.primary { border-color:#bfdbfe; background:var(--accent-soft); color:var(--accent); }
+
+    .stepper { display:grid; gap:8px; }
+    .step { border:1px solid var(--border); border-radius:10px; padding:10px; }
+    .step.done { border-color:#bbf7d0; background:#f0fdf4; }
+    .step h4 { margin:0 0 4px; font-size:14px; }
+    .step p { margin:0; font-size:13px; color:var(--muted); }
+
+    .checklist { margin:8px 0 0 18px; }
+    .checklist li { margin-bottom: 4px; }
+
+    @media (max-width: 980px) {
+      .filters { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Simulateur des actions possibles par rôle</h1>
+    <p class="sub">Sélectionne un rôle et clique une action: tu vois immédiatement le flux de clics, les prérequis et l’écran cible.</p>
+
+    <div class="filters">
+      <select id="role"></select>
+      <select id="stage"></select>
+      <select id="coverage">
+        <option value="ALL">Couverture: toutes</option>
+        <option value="covered">✅ Couvertes</option>
+        <option value="gap">⚠️ Gaps dev</option>
+      </select>
+      <input id="q" type="text" placeholder="Rechercher action / Jira / écran" />
+    </div>
+
+    <div class="kpis">
+      <span class="pill" id="count">0 actions</span>
+      <span class="pill" id="covered">0 couvertes</span>
+      <span class="pill" id="gaps">0 gaps</span>
+    </div>
+
+    <div class="layout">
+      <section class="panel">
+        <h2>Actions disponibles</h2>
+        <div id="cards" class="cards"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Simulation de clic</h2>
+        <div id="simuEmpty" style="color:#64748b">Clique “Simuler” sur une action.</div>
+        <div id="simu" style="display:none">
+          <div id="simuHeader" style="margin-bottom:8px"></div>
+          <div id="steps" class="stepper"></div>
+          <h3 style="margin:10px 0 6px; font-size:15px">Checklist exécutable</h3>
+          <ul id="checklist" class="checklist"></ul>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const DATA = [
+      { role:'Client', stage:'Premier contact', action:'Créer une demande via formulaire intelligent', coverage:'covered', jira:'US1, US10', screen:'/fr', prereq:'Lien public ou portail', clicks:['Cliquer "Nouveau dossier"','Remplir formulaire + besoins','Ajouter pièces demandées','Valider envoi'], checklist:['Formulaire complet','Consentements validés','Pièces minimales jointes'] },
+      { role:'Client', stage:'Collecte pièces', action:'Déposer des documents guidés', coverage:'covered', jira:'US11', screen:'/fr/documents', prereq:'Dossier existant', clicks:['Ouvrir "Mes documents"','Voir checklist manquants','Uploader fichiers','Confirmer dépôt'], checklist:['Formats acceptés','Taille conforme','Version liée au dossier'] },
+      { role:'Assistant', stage:'Qualification', action:'Trier la file d’entrée par SLA', coverage:'covered', jira:'US12', screen:'/fr/messages', prereq:'Accès équipe', clicks:['Ouvrir inbox','Filtrer "Urgent"','Ouvrir dossier cible','Assigner juriste'], checklist:['Urgence évaluée','Assignation faite','Commentaire de contexte'] },
+      { role:'Assistant', stage:'Passation', action:'Valider checklist avant transfert', coverage:'covered', jira:'US13', screen:'/fr/dossiers', prereq:'Dossier qualifié', clicks:['Cliquer "Passer au juriste"','Contrôler champs obligatoires','Corriger manquants','Confirmer passation'], checklist:['Infos client complètes','Pièces obligatoires ok','Historique passation tracé'] },
+      { role:'Juriste', stage:'Analyse', action:'Travailler dans la vue 360 dossier', coverage:'covered', jira:'US14', screen:'/fr/dossiers', prereq:'Dossier assigné', clicks:['Ouvrir dossier','Consulter timeline','Créer note/tâche','Mettre statut à jour'], checklist:['Hypothèse juridique notée','Tâches planifiées','Statut cohérent'] },
+      { role:'Manager', stage:'Supervision', action:'Rééquilibrer la charge équipe', coverage:'covered', jira:'US15', screen:'/fr/dashboard', prereq:'Rôle manager', clicks:['Ouvrir dashboard','Voir charge par collaborateur','Identifier surcharge','Réassigner'], checklist:['Surcharge traitée','Réassignation tracée','SLA préservés'] },
+      { role:'Finance', stage:'Facturation', action:'Transformer temps en facture', coverage:'covered', jira:'US7, US16', screen:'/fr/factures', prereq:'Temps saisis', clicks:['Ouvrir factures','Générer brouillon','Valider montants','Émettre facture'], checklist:['Montant vérifié','Statut paiement défini','Export comptable prêt'] },
+      { role:'Compliance', stage:'Conformité', action:'Auditer les accès RGPD par rôle', coverage:'covered', jira:'US17', screen:'/fr/dashboard', prereq:'Rôle compliance', clicks:['Ouvrir audit','Filtrer par rôle','Exporter preuves','Lancer contrôle rétention'], checklist:['Logs complets','Aucun accès anormal','Export archivé'] },
+      { role:'Admin', stage:'Exploitation', action:'Relancer un connecteur défaillant', coverage:'covered', jira:'US18', screen:'/fr/messages', prereq:'Rôle admin', clicks:['Ouvrir monitoring','Identifier connecteur KO','Lancer retry','Vérifier reprise'], checklist:['Erreur comprise','Retry réussi','Flux de retour validé'] },
+      { role:'Client', stage:'Suivi', action:'Signer électroniquement depuis portail', coverage:'gap', jira:'US à créer', screen:'/fr/documents', prereq:'Demande de signature', clicks:['Ouvrir demande','Lire document','Signer','Valider'], checklist:['Signature horodatée','Preuve stockée','Notification envoyée'] },
+      { role:'Juriste', stage:'Stratégie', action:'Comparer scénarios d’action', coverage:'gap', jira:'US à créer', screen:'/fr/dossiers', prereq:'Dossier actif', clicks:['Ouvrir comparaison','Renseigner scénarios A/B','Analyser impacts','Choisir plan'], checklist:['Hypothèses explicites','Risques comparés','Décision tracée'] }
+    ];
+
+    const role = document.getElementById('role');
+    const stage = document.getElementById('stage');
+    const coverage = document.getElementById('coverage');
+    const q = document.getElementById('q');
+    const cards = document.getElementById('cards');
+    const count = document.getElementById('count');
+    const covered = document.getElementById('covered');
+    const gaps = document.getElementById('gaps');
+    const simu = document.getElementById('simu');
+    const simuEmpty = document.getElementById('simuEmpty');
+    const simuHeader = document.getElementById('simuHeader');
+    const steps = document.getElementById('steps');
+    const checklist = document.getElementById('checklist');
+
+    const uniq = (arr) => [...new Set(arr)].sort((a,b)=>a.localeCompare(b));
+
+    function fillSelect(el, values, title) {
+      el.innerHTML = `<option value="ALL">${title}</option>` + values.map(v=>`<option value="${v}">${v}</option>`).join('');
+    }
+
+    function filterData() {
+      const r = role.value;
+      const s = stage.value;
+      const c = coverage.value;
+      const query = q.value.trim().toLowerCase();
+      return DATA.filter(item => {
+        const okRole = r === 'ALL' || item.role === r;
+        const okStage = s === 'ALL' || item.stage === s;
+        const okCoverage = c === 'ALL' || item.coverage === c;
+        const blob = `${item.action} ${item.jira} ${item.screen}`.toLowerCase();
+        const okQ = !query || blob.includes(query);
+        return okRole && okStage && okCoverage && okQ;
+      });
+    }
+
+    function renderCards() {
+      const list = filterData();
+      const totalCovered = list.filter(x => x.coverage === 'covered').length;
+      const totalGap = list.filter(x => x.coverage === 'gap').length;
+
+      count.textContent = `${list.length} action(s)`;
+      covered.textContent = `${totalCovered} couvertes`;
+      gaps.textContent = `${totalGap} gaps`;
+
+      if (!list.length) {
+        cards.innerHTML = '<div style="color:#64748b">Aucune action avec ces filtres.</div>';
+        return;
+      }
+
+      cards.innerHTML = list.map((item, idx) => {
+        const status = item.coverage === 'covered' ? '<span class="tag ok">✅ Couvert</span>' : '<span class="tag warn">⚠️ Gap dev</span>';
+        return `
+          <article class="card">
+            <div class="title">${item.action}</div>
+            <div class="meta">
+              <span class="tag">${item.role}</span>
+              <span class="tag">${item.stage}</span>
+              <span class="tag">Jira: ${item.jira}</span>
+              <span class="tag">Écran: ${item.screen}</span>
+              ${status}
+            </div>
+            <div class="actions">
+              <button class="primary" data-sim="${idx}">Simuler</button>
+              <a class="btn" href="${item.screen}" target="_blank" rel="noreferrer">Ouvrir écran</a>
+              <button data-copy="${idx}">Copier checklist</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      cards.querySelectorAll('[data-sim]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = list[Number(btn.getAttribute('data-sim'))];
+          simulate(item);
+        });
+      });
+
+      cards.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const item = list[Number(btn.getAttribute('data-copy'))];
+          const text = `${item.role} / ${item.stage}\n${item.action}\n${item.checklist.map((x,i)=>`${i+1}. ${x}`).join('\n')}`;
+          await navigator.clipboard.writeText(text);
+          const old = btn.textContent;
+          btn.textContent = 'Copié ✓';
+          setTimeout(() => btn.textContent = old, 1000);
+        });
+      });
+    }
+
+    function simulate(item) {
+      simuEmpty.style.display = 'none';
+      simu.style.display = 'block';
+      simuHeader.innerHTML = `<strong>${item.role} · ${item.stage}</strong><br><span style="color:#64748b">${item.action}</span><br><span style="font-size:12px;color:#64748b">Prérequis: ${item.prereq}</span>`;
+      steps.innerHTML = item.clicks.map((step, i) => `<div class="step"><h4>Étape ${i+1}</h4><p>${step}</p></div>`).join('');
+      checklist.innerHTML = item.checklist.map(x => `<li>${x}</li>`).join('');
+    }
+
+    fillSelect(role, uniq(DATA.map(x=>x.role)), 'Tous les rôles');
+    fillSelect(stage, uniq(DATA.map(x=>x.stage)), 'Toutes les étapes');
+
+    [role, stage, coverage].forEach(el => el.addEventListener('change', renderCards));
+    q.addEventListener('input', renderCards);
+
+    renderCards();
+  </script>
+</body>
+</html>

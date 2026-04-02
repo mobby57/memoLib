@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paiement Stripe - MemoLib</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --text: #13213a;
+      --muted: #5f6c80;
+      --accent: #0f766e;
+      --accent-strong: #0b5e58;
+      --warn: #c2410c;
+      --ok: #166534;
+      --border: #d7dfec;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 0% 0%, #d9f7f3 0%, transparent 32%),
+        radial-gradient(circle at 100% 0%, #e6eefb 0%, transparent 40%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(3px);
+    }
+    header h1 { font-size: 1.25rem; }
+    header p { margin-top: 4px; color: var(--muted); font-size: 0.9rem; }
+
+    main {
+      width: min(980px, 95vw);
+      margin: 24px auto;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    h2 { font-size: 1.05rem; margin-bottom: 14px; }
+    .row { margin-bottom: 12px; }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    input, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #fff;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(140deg, var(--accent), var(--accent-strong));
+      transition: transform 140ms ease, opacity 140ms ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .note { color: var(--muted); font-size: 0.85rem; line-height: 1.5; }
+    .status {
+      margin-top: 10px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      display: none;
+    }
+    .status.show { display: block; }
+    .status.ok { background: #ecfdf3; color: var(--ok); border: 1px solid #bbf7d0; }
+    .status.warn { background: #fff7ed; color: var(--warn); border: 1px solid #fed7aa; }
+
+    .summary-list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .summary-list li {
+      padding: 10px;
+      background: #f8fbff;
+      border: 1px solid #e3ebf7;
+      border-radius: 9px;
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 820px) {
+      main { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Paiement de dossier (US19)</h1>
+    <p>Creation d'une session Stripe Checkout avec fallback mock local.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Regler un dossier</h2>
+
+      <div class="row">
+        <label for="caseReference">Reference dossier</label>
+        <input id="caseReference" type="text" placeholder="CASE-2026-001" value="CASE-2026-001" />
+      </div>
+
+      <div class="row">
+        <label for="amountEuros">Montant (EUR)</label>
+        <input id="amountEuros" type="number" min="1" max="20000" step="0.01" value="149.00" />
+      </div>
+
+      <div class="row">
+        <label for="customerEmail">Email client (optionnel)</label>
+        <input id="customerEmail" type="email" placeholder="client@example.com" />
+      </div>
+
+      <div class="row">
+        <label for="description">Description</label>
+        <input id="description" type="text" value="Honoraires juridiques MemoLib" />
+      </div>
+
+      <button class="btn" id="payBtn" onclick="startCheckout()">Payer avec Stripe</button>
+      <div class="status" id="status"></div>
+    </section>
+
+    <aside class="card">
+      <h2>Informations</h2>
+      <p class="note">En environnement local sans cle Stripe, l'API retourne une session <code>mock</code> et redirige vers l'URL de succes.</p>
+      <ul class="summary-list">
+        <li><strong>Endpoint:</strong> <code>POST /api/payments/checkout-session</code></li>
+        <li><strong>Webhook:</strong> <code>POST /api/payments/webhook</code></li>
+        <li><strong>Validation:</strong> montant 1.00€ min, signature Stripe si webhook secret configure</li>
+      </ul>
+    </aside>
+  </main>
+
+  <script>
+    function setStatus(message, kind) {
+      const node = document.getElementById('status');
+      node.className = `status show ${kind}`;
+      node.textContent = message;
+    }
+
+    async function startCheckout() {
+      const payBtn = document.getElementById('payBtn');
+      payBtn.disabled = true;
+      payBtn.textContent = 'Creation session...';
+
+      try {
+        const amountEuros = Number(document.getElementById('amountEuros').value || '0');
+        const payload = {
+          case_reference: document.getElementById('caseReference').value.trim(),
+          amount_cents: Math.round(amountEuros * 100),
+          currency: 'eur',
+          description: document.getElementById('description').value.trim() || 'Honoraires juridiques MemoLib',
+          success_url: `${window.location.origin}/payment/success`,
+          cancel_url: `${window.location.origin}/payment/cancel`,
+        };
+
+        const email = document.getElementById('customerEmail').value.trim();
+        if (email) {
+          payload.customer_email = email;
+        }
+
+        const response = await fetch('/api/payments/checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.detail || 'Erreur lors de la creation de session');
+        }
+
+        setStatus(`Session ${result.provider} creee: redirection vers la page de paiement...`, 'ok');
+        window.location.href = result.checkout_url;
+      } catch (error) {
+        setStatus(error.message || 'Erreur reseau', 'warn');
+      } finally {
+        payBtn.disabled = false;
+        payBtn.textContent = 'Payer avec Stripe';
+      }
+    }
+  </script>
+</body>
+</html>

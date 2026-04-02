@@ -1,0 +1,21 @@
+### Test ingestion d'un événement email
+POST http://localhost:5078/api/events
+Content-Type: application/json
+
+{
+  "sourceId": "00000000-0000-0000-0000-000000000001",
+  "externalId": "email-123",
+  "occurredAt": "2026-02-11T18:00:00Z",
+  "payload": "From: client@example.com\nSubject: Demande de rendez-vous\n\nBonjour, je souhaite prendre rendez-vous."
+}
+
+### Test déduplication (même payload)
+POST http://localhost:5078/api/events
+Content-Type: application/json
+
+{
+  "sourceId": "00000000-0000-0000-0000-000000000001",
+  "externalId": "email-124",
+  "occurredAt": "2026-02-11T18:05:00Z",
+  "payload": "From: client@example.com\nSubject: Demande de rendez-vous\n\nBonjour, je souhaite prendre rendez-vous."
+}

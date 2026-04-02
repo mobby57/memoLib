@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Coffre-Fort Sécurisé - MemoLib</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: border 0.3s; }
+        input:focus, select:focus { outline: none; border-color: #667eea; }
+        .btn { padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        .btn-secondary { background: #6c757d; color: white; margin-left: 10px; }
+        .btn-danger { background: #dc3545; color: white; }
+        .secrets-list { margin-top: 20px; }
+        .secret-item { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .secret-info { flex: 1; }
+        .secret-key { font-weight: 600; color: #667eea; }
+        .secret-category { font-size: 12px; color: #6c757d; margin-top: 5px; }
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .hidden { display: none; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: bold; }
+        .stat-label { font-size: 0.9em; opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Coffre-Fort Sécurisé</h1>
+            <p>Gérez tous vos mots de passe en toute sécurité</p>
+        </div>
+
+        <div id="alert" class="alert hidden"></div>
+
+        <div class="card">
+            <h2>➕ Ajouter un Secret</h2>
+            <form id="addSecretForm">
+                <div class="form-group">
+                    <label for="key">🔑 Clé (ex: EmailMonitor:Password, JWT:SecretKey)</label>
+                    <input type="text" id="key" required placeholder="EmailMonitor:Password">
+                </div>
+                <div class="form-group">
+                    <label for="value">🔒 Valeur (Mot de passe)</label>
+                    <input type="password" id="value" required placeholder="Votre mot de passe sécurisé">
+                </div>
+                <div class="form-group">
+                    <label for="category">📁 Catégorie</label>
+                    <select id="category">
+                        <option value="Email">Email</option>
+                        <option value="Database">Database</option>
+                        <option value="API">API</option>
+                        <option value="JWT">JWT</option>
+                        <option value="General">General</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>📋 Mes Secrets</h2>
+            <div class="stats" id="stats"></div>
+            <div class="secrets-list" id="secretsList"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5078/api';
+        let token = localStorage.getItem('token');
+
+        if (!token) {
+            alert('⚠️ Vous devez être connecté. Redirection vers la page de connexion...');
+            window.location.href = '/demo.html';
+        }
+
+        function showAlert(message, type = 'success') {
+            const alert = document.getElementById('alert');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.classList.remove('hidden');
+            setTimeout(() => alert.classList.add('hidden'), 5000);
+        }
+
+        async function loadSecrets() {
+            try {
+                const response = await fetch(`${API_BASE}/vault/list`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Erreur de chargement');
+
+                const secrets = await response.json();
+                displaySecrets(secrets);
+                updateStats(secrets);
+            } catch (error) {
+                showAlert('❌ Erreur: ' + error.message, 'error');
+            }
+        }
+
+        function displaySecrets(secrets) {
+            const list = document.getElementById('secretsList');
+            
+            if (secrets.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:#6c757d;">Aucun secret enregistré</p>';
+                return;
+            }
+
+            list.innerHTML = secrets.map(secret => `
+                <div class="secret-item">
+                    <div class="secret-info">
+                        <div class="secret-key">🔑 ${secret.key}</div>
+                        <div class="secret-category">📁 ${secret.category} • 🕒 ${new Date(secret.createdAt).toLocaleDateString('fr-FR')}</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteSecret('${secret.key}')">🗑️ Supprimer</button>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(secrets) {
+            const stats = document.getElementById('stats');
+            const categories = {};
+            secrets.forEach(s => categories[s.category] = (categories[s.category] || 0) + 1);
+
+            stats.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${secrets.length}</div>
+                    <div class="stat-label">Total Secrets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Object.keys(categories).length}</div>
+                    <div class="stat-label">Catégories</div>
+                </div>
+            `;
+        }
+
+        document.getElementById('addSecretForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                key: document.getElementById('key').value,
+                value: document.getElementById('value').value,
+                category: document.getElementById('category').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/vault/store`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Erreur de sauvegarde');
+
+                const result = await response.json();
+                showAlert('✅ ' + result.message);
+                e.target.reset();
+                loadSecrets();
+            } catch (error) {
+                showAlert('❌ Erreur: ' + error.message, 'error');
+            }
+        });
+
+        async function deleteSecret(key) {
+            if (!confirm(`Supprimer le secret "${key}" ?`)) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/vault/delete/${encodeURIComponent(key)}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Erreur de suppression');
+
+                showAlert('✅ Secret supprimé');
+                loadSecrets();
+            } catch (error) {
+                showAlert('❌ Erreur: ' + error.message, 'error');
+            }
+        }
+
+        loadSecrets();
+    </script>
+</body>
+</html>

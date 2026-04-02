@@ -1,0 +1,957 @@
+﻿[
+    {
+        "PR":  198,
+        "Title":  "fix(cf+ts): migrate to @opennextjs/cloudflare Workers mode + fix 13 TS errors",
+        "UpdatedAt":  "2026-03-30T13:49:28Z",
+        "FailCount":  7,
+        "Fails":  [
+                      "Build \u0026 Test",
+                      "Cloudflare Pages",
+                      "email-tests",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Quality Gate",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/198"
+    },
+    {
+        "PR":  197,
+        "Title":  "chore(deps): bump handlebars from 4.7.8 to 4.7.9 in /MemoLib-Package-Client/app",
+        "UpdatedAt":  "2026-03-29T23:09:09Z",
+        "FailCount":  4,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/197"
+    },
+    {
+        "PR":  196,
+        "Title":  "chore(deps-dev): bump brace-expansion from 1.1.12 to 1.1.13 in /MemoLib-Package-Client/app",
+        "UpdatedAt":  "2026-03-30T02:55:30Z",
+        "FailCount":  4,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/196"
+    },
+    {
+        "PR":  194,
+        "Title":  "chore(deps): bump nodemailer from 7.0.13 to 8.0.4 in /MemoLib-Package-Client/app",
+        "UpdatedAt":  "2026-03-27T07:37:59Z",
+        "FailCount":  4,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/194"
+    },
+    {
+        "PR":  193,
+        "Title":  "chore(deps): bump nodemailer from 7.0.13 to 8.0.4",
+        "UpdatedAt":  "2026-03-27T07:20:52Z",
+        "FailCount":  12,
+        "Fails":  [
+                      "Build \u0026 Test",
+                      "Cloudflare Pages",
+                      "email-tests",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Quality Gate",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/193"
+    },
+    {
+        "PR":  192,
+        "Title":  "chore(deps): bump handlebars from 4.7.8 to 4.7.9",
+        "UpdatedAt":  "2026-03-27T03:23:00Z",
+        "FailCount":  4,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/192"
+    },
+    {
+        "PR":  191,
+        "Title":  "fix(e2e): stabilize tasks and dossiers journeys",
+        "UpdatedAt":  "2026-03-27T18:39:06Z",
+        "FailCount":  6,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Quality Gate",
+                      "Security Scan",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/191"
+    },
+    {
+        "PR":  190,
+        "Title":  "chore(deps): bump picomatch from 2.3.1 to 2.3.2 in /MemoLib-Package-Client/app",
+        "UpdatedAt":  "2026-03-26T08:11:10Z",
+        "FailCount":  4,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/190"
+    },
+    {
+        "PR":  189,
+        "Title":  "chore(deps): bump pypdf from 6.9.1 to 6.9.2 in /ai-service",
+        "UpdatedAt":  "2026-03-25T21:18:22Z",
+        "FailCount":  4,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/189"
+    },
+    {
+        "PR":  187,
+        "Title":  "[Snyk] Fix for 7 vulnerabilities",
+        "UpdatedAt":  "2026-03-20T22:06:53Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/187"
+    },
+    {
+        "PR":  186,
+        "Title":  "chore(deps): bump mailparser from 3.9.3 to 3.9.4",
+        "UpdatedAt":  "2026-03-20T21:44:04Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/186"
+    },
+    {
+        "PR":  185,
+        "Title":  "chore(deps): bump mailparser from 3.9.3 to 3.9.4 in /MemoLib-Package-Client/app",
+        "UpdatedAt":  "2026-03-20T21:32:59Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/185"
+    },
+    {
+        "PR":  180,
+        "Title":  "[Snyk] Security upgrade pyasn1 from 0.4.8 to 0.6.3",
+        "UpdatedAt":  "2026-03-19T06:09:28Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/180"
+    },
+    {
+        "PR":  167,
+        "Title":  "Bump Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore from 9.0.3 to 9.0.14",
+        "UpdatedAt":  "2026-03-23T10:57:08Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/167"
+    },
+    {
+        "PR":  166,
+        "Title":  "Bump Microsoft.EntityFrameworkCore.SqlServer from 9.0.3 to 9.0.14",
+        "UpdatedAt":  "2026-03-23T10:13:00Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/166"
+    },
+    {
+        "PR":  165,
+        "Title":  "Bump Microsoft.EntityFrameworkCore.Sqlite from 9.0.3 to 9.0.14",
+        "UpdatedAt":  "2026-03-23T10:34:26Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/165"
+    },
+    {
+        "PR":  164,
+        "Title":  "Bump Microsoft.EntityFrameworkCore.Design from 9.0.3 to 9.0.14",
+        "UpdatedAt":  "2026-03-23T11:07:54Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/164"
+    },
+    {
+        "PR":  163,
+        "Title":  "Bump Microsoft.EntityFrameworkCore from 9.0.3 to 9.0.14",
+        "UpdatedAt":  "2026-03-23T10:28:54Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/163"
+    },
+    {
+        "PR":  162,
+        "Title":  "Bump Microsoft.AspNetCore.OpenApi from 9.0.1 to 9.0.14",
+        "UpdatedAt":  "2026-03-23T10:39:50Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/162"
+    },
+    {
+        "PR":  161,
+        "Title":  "Bump Microsoft.AspNetCore.Authentication.JwtBearer from 9.0.1 to 9.0.14",
+        "UpdatedAt":  "2026-03-23T10:52:00Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/161"
+    },
+    {
+        "PR":  160,
+        "Title":  "Bump MailKit from 4.9.0 to 4.15.1",
+        "UpdatedAt":  "2026-03-23T10:23:29Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/160"
+    },
+    {
+        "PR":  144,
+        "Title":  "Bump Serilog.AspNetCore from 8.0.3 to 10.0.0",
+        "UpdatedAt":  "2026-03-23T11:02:28Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/144"
+    },
+    {
+        "PR":  140,
+        "Title":  "Bump FluentValidation.AspNetCore from 11.3.0 to 11.3.1",
+        "UpdatedAt":  "2026-03-23T10:22:11Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/140"
+    },
+    {
+        "PR":  126,
+        "Title":  "chore(deps-npm)(deps): bump rollup from 4.57.1 to 4.59.0",
+        "UpdatedAt":  "2026-02-26T02:47:11Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/126"
+    },
+    {
+        "PR":  124,
+        "Title":  "chore(deps-npm)(deps): bump bn.js from 4.12.2 to 4.12.3",
+        "UpdatedAt":  "2026-02-25T03:51:14Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/124"
+    },
+    {
+        "PR":  122,
+        "Title":  "chore(deps-npm)(deps): bump ajv from 6.12.6 to 6.14.0",
+        "UpdatedAt":  "2026-02-22T17:27:19Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/122"
+    },
+    {
+        "PR":  119,
+        "Title":  "[Snyk] Security upgrade cryptography from 45.0.7 to 46.0.5",
+        "UpdatedAt":  "2026-02-15T16:00:25Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/119"
+    },
+    {
+        "PR":  118,
+        "Title":  "[Snyk] Security upgrade cryptography from 45.0.7 to 46.0.5",
+        "UpdatedAt":  "2026-02-14T15:27:32Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/118"
+    },
+    {
+        "PR":  117,
+        "Title":  "chore(deps): bump qs from 6.14.1 to 6.14.2 in /frontend-node",
+        "UpdatedAt":  "2026-02-14T13:25:43Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/117"
+    },
+    {
+        "PR":  116,
+        "Title":  "chore(deps-npm)(deps): bump qs from 6.14.1 to 6.14.2",
+        "UpdatedAt":  "2026-02-14T13:14:40Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/116"
+    },
+    {
+        "PR":  115,
+        "Title":  "[Snyk] Security upgrade axios from 1.13.3 to 1.13.5",
+        "UpdatedAt":  "2026-02-12T08:55:19Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/115"
+    },
+    {
+        "PR":  114,
+        "Title":  "chore(deps-npm)(deps-dev): bump axios from 1.13.4 to 1.13.5",
+        "UpdatedAt":  "2026-02-16T10:12:57Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/114"
+    },
+    {
+        "PR":  113,
+        "Title":  "chore(deps): bump axios from 1.13.3 to 1.13.5 in /frontend-node",
+        "UpdatedAt":  "2026-02-09T22:44:22Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/113"
+    },
+    {
+        "PR":  112,
+        "Title":  "chore(ci)(deps): bump github/codeql-action from 3 to 4",
+        "UpdatedAt":  "2026-02-26T02:22:52Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/112"
+    },
+    {
+        "PR":  111,
+        "Title":  "chore(ci)(deps): bump actions/checkout from 4 to 6",
+        "UpdatedAt":  "2026-02-26T02:10:23Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/111"
+    },
+    {
+        "PR":  109,
+        "Title":  "[Snyk] Security upgrade System.Text.Json from 8.0.0 to 8.0.4",
+        "UpdatedAt":  "2026-02-07T00:26:50Z",
+        "FailCount":  3,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/109"
+    },
+    {
+        "PR":  104,
+        "Title":  "chore(deps)(deps-dev): bump @next/bundle-analyzer from 15.5.9 to 16.1.6",
+        "UpdatedAt":  "2026-02-16T09:28:20Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/104"
+    },
+    {
+        "PR":  103,
+        "Title":  "chore(deps)(deps): bump preact from 10.28.2 to 10.28.3",
+        "UpdatedAt":  "2026-02-16T08:44:03Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/103"
+    },
+    {
+        "PR":  102,
+        "Title":  "chore(deps)(deps-dev): bump @types/node from 25.1.0 to 25.2.0",
+        "UpdatedAt":  "2026-02-16T10:01:35Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/102"
+    },
+    {
+        "PR":  101,
+        "Title":  "chore(deps)(deps): bump electron-to-chromium from 1.5.282 to 1.5.283",
+        "UpdatedAt":  "2026-02-16T09:05:57Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/101"
+    },
+    {
+        "PR":  100,
+        "Title":  "chore(deps)(deps-dev): bump @babel/preset-env from 7.28.6 to 7.29.0",
+        "UpdatedAt":  "2026-02-16T08:54:52Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/100"
+    },
+    {
+        "PR":  99,
+        "Title":  "chore(deps)(deps-dev): bump get-tsconfig from 4.13.0 to 4.13.1",
+        "UpdatedAt":  "2026-02-16T08:32:57Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/99"
+    },
+    {
+        "PR":  98,
+        "Title":  "chore(deps)(deps): bump @babel/core from 7.28.6 to 7.29.0",
+        "UpdatedAt":  "2026-02-16T09:17:11Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/98"
+    },
+    {
+        "PR":  95,
+        "Title":  "chore(ci)(deps): bump slackapi/slack-github-action from 1 to 2",
+        "UpdatedAt":  "2026-02-26T02:35:01Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/95"
+    },
+    {
+        "PR":  94,
+        "Title":  "chore: update deployment workflows and add Vercel secrets check; enhance global styles and navigation component",
+        "UpdatedAt":  "2026-01-31T14:16:37Z",
+        "FailCount":  3,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/94"
+    },
+    {
+        "PR":  73,
+        "Title":  "CI + Playwright + Prisma stubs (demo-safe)",
+        "UpdatedAt":  "2026-02-01T19:59:09Z",
+        "FailCount":  6,
+        "Fails":  [
+                      "build-test",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô iapostemanager-wldw",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Workers Builds: iapostemanager"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/73"
+    },
+    {
+        "PR":  58,
+        "Title":  "chore(deps): bump python-multipart from 0.0.9 to 0.0.22 in /ai-service",
+        "UpdatedAt":  "2026-02-01T19:59:09Z",
+        "FailCount":  6,
+        "Fails":  [
+                      "Build AI Service",
+                      "­ƒöì Lint \u0026 Type Check",
+                      "Vercel ÔÇô iapostemanager",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô iapostemanager-wldw",
+                      "Workers Builds: iapostemanager"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/58"
+    },
+    {
+        "PR":  53,
+        "Title":  "chore(deps)(deps-dev): bump tailwindcss from 3.4.19 to 4.1.18",
+        "UpdatedAt":  "2026-02-16T09:39:00Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/53"
+    },
+    {
+        "PR":  49,
+        "Title":  "chore(deps)(deps-dev): bump cross-env from 7.0.3 to 10.1.0",
+        "UpdatedAt":  "2026-02-16T09:50:08Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/49"
+    },
+    {
+        "PR":  45,
+        "Title":  "Update VSCode settings and add extension recommendations",
+        "UpdatedAt":  "2026-02-01T19:59:09Z",
+        "FailCount":  2,
+        "Fails":  [
+                      "Build and Deploy Job",
+                      "Vercel"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/45"
+    },
+    {
+        "PR":  35,
+        "Title":  "chore(deps)(deps): bump @types/socket.io from 3.0.1 to 3.0.2",
+        "UpdatedAt":  "2026-02-16T08:20:39Z",
+        "FailCount":  9,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "netlify/bright-dodol-d4bf9b/deploy-preview",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/35"
+    },
+    {
+        "PR":  32,
+        "Title":  "chore(deps-dev): bump rollup from 2.28.2 to 2.79.2 in /node_modules_backup/uuid",
+        "UpdatedAt":  "2026-02-01T19:59:09Z",
+        "FailCount":  4,
+        "Fails":  [
+                      "OWASP ZAP Baseline Scan",
+                      "scan-and-fix",
+                      "security-audit",
+                      "Workers Builds: iapostemanager"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/32"
+    },
+    {
+        "PR":  22,
+        "Title":  "chore(ci)(deps): bump actions/setup-node from 4 to 6",
+        "UpdatedAt":  "2026-02-26T01:32:39Z",
+        "FailCount":  8,
+        "Fails":  [
+                      "Cloudflare Pages",
+                      "Vercel ÔÇô iapostemanager-mfq1",
+                      "Vercel ÔÇô memolib",
+                      "Vercel ÔÇô memo-lib",
+                      "Vercel ÔÇô memo-lib-nak6",
+                      "Vercel ÔÇô memo-lib-t22u",
+                      "Workers Builds: iapostemanager",
+                      "Workers Builds: memolib"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/22"
+    },
+    {
+        "PR":  16,
+        "Title":  "chore(deps): bump aiohttp from 3.9.1 to 3.13.3 in /pythonanywhere_deploy",
+        "UpdatedAt":  "2026-02-01T19:59:09Z",
+        "FailCount":  7,
+        "Fails":  [
+                      "Backend Tests",
+                      "Docker Build",
+                      "Frontend Tests",
+                      "Security Scan",
+                      "test",
+                      "test-backend",
+                      "test-frontend"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/16"
+    },
+    {
+        "PR":  9,
+        "Title":  "chore(deps): bump requests from 2.31.0 to 2.32.4",
+        "UpdatedAt":  "2026-02-01T19:59:09Z",
+        "FailCount":  7,
+        "Fails":  [
+                      "Backend Tests",
+                      "Docker Build",
+                      "Frontend Tests",
+                      "Security Scan",
+                      "test",
+                      "test-backend",
+                      "test-frontend"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/9"
+    },
+    {
+        "PR":  8,
+        "Title":  "chore(deps): bump cryptography from 41.0.7 to 44.0.1",
+        "UpdatedAt":  "2026-02-01T19:59:09Z",
+        "FailCount":  7,
+        "Fails":  [
+                      "Backend Tests",
+                      "Docker Build",
+                      "Frontend Tests",
+                      "Security Scan",
+                      "test",
+                      "test-backend",
+                      "test-frontend"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/8"
+    },
+    {
+        "PR":  7,
+        "Title":  "chore(deps): bump flask-cors from 4.0.0 to 6.0.0",
+        "UpdatedAt":  "2026-02-01T19:59:09Z",
+        "FailCount":  7,
+        "Fails":  [
+                      "Backend Tests",
+                      "Docker Build",
+                      "Frontend Tests",
+                      "Security Scan",
+                      "test",
+                      "test-backend",
+                      "test-frontend"
+                  ],
+        "Url":  "https://github.com/mobby57/memoLib/pull/7"
+    }
+]

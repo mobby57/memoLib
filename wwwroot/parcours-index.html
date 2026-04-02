@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choisissez Votre Parcours - MemoLib</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        
+        .header { text-align: center; padding: 50px 20px; color: white; }
+        .header h1 { font-size: 3em; margin-bottom: 15px; }
+        .header p { font-size: 1.3em; opacity: 0.9; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        .roles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-top: 40px; }
+        
+        .role-card { background: white; border-radius: 20px; padding: 35px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit; display: block; }
+        .role-card:hover { transform: translateY(-10px); box-shadow: 0 15px 50px rgba(0,0,0,0.3); }
+        
+        .role-icon { font-size: 4em; margin-bottom: 20px; text-align: center; }
+        .role-title { font-size: 1.8em; font-weight: bold; margin-bottom: 15px; text-align: center; }
+        .role-description { color: #666; line-height: 1.6; margin-bottom: 20px; }
+        .role-features { list-style: none; margin-bottom: 20px; }
+        .role-features li { padding: 8px 0; padding-left: 25px; position: relative; color: #555; }
+        .role-features li::before { content: '✓'; position: absolute; left: 0; color: #27ae60; font-weight: bold; }
+        
+        .role-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 0.85em; font-weight: bold; margin-top: 10px; }
+        .badge-strategic { background: #2c3e50; color: white; }
+        .badge-operational { background: #667eea; color: white; }
+        .badge-support { background: #27ae60; color: white; }
+        .badge-finance { background: #8e44ad; color: white; }
+        .badge-compliance { background: #c0392b; color: white; }
+        .badge-client { background: #3498db; color: white; }
+        
+        .category-section { margin-bottom: 50px; }
+        .category-title { color: white; font-size: 2em; margin-bottom: 25px; text-align: center; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Choisissez Votre Parcours</h1>
+        <p>Accédez à l'interface adaptée à votre rôle</p>
+    </div>
+
+    <div class="container">
+        <!-- Rôles Stratégiques -->
+        <div class="category-section">
+            <h2 class="category-title">👔 Rôles Stratégiques & Direction</h2>
+            <div class="roles-grid">
+                <a href="/parcours-owner.html" class="role-card">
+                    <div class="role-icon">🏛️</div>
+                    <div class="role-title">Propriétaire Cabinet</div>
+                    <div class="role-description">
+                        Configuration stratégique, gestion d'équipe et pilotage global du cabinet
+                    </div>
+                    <ul class="role-features">
+                        <li>Configuration initiale complète</li>
+                        <li>Gestion équipe et permissions</li>
+                        <li>Dashboard direction</li>
+                        <li>Monitoring et optimisation</li>
+                    </ul>
+                    <span class="role-badge badge-strategic">STRATÉGIQUE</span>
+                </a>
+
+                <a href="/parcours-manager.html" class="role-card">
+                    <div class="role-icon">👔</div>
+                    <div class="role-title">Responsable Équipe</div>
+                    <div class="role-description">
+                        Pilotage de la charge de travail et performance de l'équipe
+                    </div>
+                    <ul class="role-features">
+                        <li>Charge par collaborateur (US15)</li>
+                        <li>Détection surcharge</li>
+                        <li>Réaffectation dossiers</li>
+                        <li>KPIs performance équipe</li>
+                    </ul>
+                    <span class="role-badge badge-strategic">MANAGEMENT</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Rôles Opérationnels -->
+        <div class="category-section">
+            <h2 class="category-title">⚖️ Rôles Opérationnels Juridiques</h2>
+            <div class="roles-grid">
+                <a href="/parcours-lawyer.html" class="role-card">
+                    <div class="role-icon">⚖️</div>
+                    <div class="role-title">Avocat / Juriste</div>
+                    <div class="role-description">
+                        Workflow quotidien optimisé avec vue 360° des dossiers (US14)
+                    </div>
+                    <ul class="role-features">
+                        <li>Journée type structurée</li>
+                        <li>Tâches prioritaires</li>
+                        <li>Vue 360 dossier consolidée</li>
+                        <li>Recherche intelligente</li>
+                    </ul>
+                    <span class="role-badge badge-operational">OPÉRATIONNEL</span>
+                </a>
+
+                <a href="/parcours-assistant.html" class="role-card">
+                    <div class="role-icon">📋</div>
+                    <div class="role-title">Assistant(e) / Secrétaire</div>
+                    <div class="role-description">
+                        Triage prioritaire et passation standardisée (US12, US13)
+                    </div>
+                    <ul class="role-features">
+                        <li>File de triage par SLA</li>
+                        <li>Checklist passation obligatoire</li>
+                        <li>Assignation rapide</li>
+                        <li>Historique traçable</li>
+                    </ul>
+                    <span class="role-badge badge-support">SUPPORT</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Rôles Fonctions Support -->
+        <div class="category-section">
+            <h2 class="category-title">💼 Fonctions Support & Transverses</h2>
+            <div class="roles-grid">
+                <a href="/parcours-finance.html" class="role-card">
+                    <div class="role-icon">💰</div>
+                    <div class="role-title">Finance / Comptabilité</div>
+                    <div class="role-description">
+                        Pipeline facturation et suivi paiements (US16)
+                    </div>
+                    <ul class="role-features">
+                        <li>Pipeline Dossier → Facture → Paiement</li>
+                        <li>Alertes factures en retard</li>
+                        <li>Export comptable</li>
+                        <li>KPIs financiers</li>
+                    </ul>
+                    <span class="role-badge badge-finance">FINANCE</span>
+                </a>
+
+                <a href="/parcours-compliance.html" class="role-card">
+                    <div class="role-icon">🛡️</div>
+                    <div class="role-title">Conformité RGPD</div>
+                    <div class="role-description">
+                        Gouvernance données et conformité réglementaire (US17)
+                    </div>
+                    <ul class="role-features">
+                        <li>Politique rétention configurable</li>
+                        <li>Journal accès par rôle</li>
+                        <li>Demandes RGPD</li>
+                        <li>Export preuve conformité</li>
+                    </ul>
+                    <span class="role-badge badge-compliance">CONFORMITÉ</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Rôle Client -->
+        <div class="category-section">
+            <h2 class="category-title">👥 Espace Client</h2>
+            <div class="roles-grid">
+                <a href="/parcours-client.html" class="role-card">
+                    <div class="role-icon">👤</div>
+                    <div class="role-title">Client</div>
+                    <div class="role-description">
+                        Portail self-service avec suivi dossier en temps réel (US10, US11)
+                    </div>
+                    <ul class="role-features">
+                        <li>Suivi avancement dossier</li>
+                        <li>Upload documents guidé</li>
+                        <li>Timeline client filtrée</li>
+                        <li>Communication directe avocat</li>
+                    </ul>
+                    <span class="role-badge badge-client">CLIENT</span>
+                </a>
+
+                <a href="/demo.html" class="role-card" style="border: 3px solid #667eea;">
+                    <div class="role-icon">🎯</div>
+                    <div class="role-title">Interface Complète</div>
+                    <div class="role-description">
+                        Accès à toutes les fonctionnalités sans restriction de rôle
+                    </div>
+                    <ul class="role-features">
+                        <li>Tous les onglets disponibles</li>
+                        <li>Mode démo complet</li>
+                        <li>Idéal pour découverte</li>
+                        <li>Accès multi-rôles</li>
+                    </ul>
+                    <span class="role-badge badge-operational">DÉMO COMPLÈTE</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Retour accueil -->
+        <div style="text-align: center; margin-top: 50px; padding-bottom: 50px;">
+            <a href="/index.html" style="color: white; text-decoration: none; font-size: 1.2em; padding: 15px 40px; background: rgba(255,255,255,0.2); border-radius: 30px; display: inline-block; transition: all 0.3s;">
+                ← Retour à l'accueil
+            </a>
+        </div>
+    </div>
+</body>
+</html>

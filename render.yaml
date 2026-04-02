@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: memolib-api
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+      - key: JwtSettings__SecretKey
+        generateValue: true
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: EmailMonitor__Enabled
+        value: false

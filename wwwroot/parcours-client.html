@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Client - MemoLib</title>
+    <link rel="stylesheet" href="css/memolib-theme.css">
+</head>
+<body>
+    <div class="header">
+        <h1>👤 Espace Client</h1>
+        <p>Suivez vos dossiers et communiquez avec votre avocat</p>
+    </div>
+
+    <div class="container">
+        <!-- Message de bienvenue -->
+        <div class="client-welcome-card">
+            <h2>Bienvenue sur votre espace personnel</h2>
+            <p>Accédez à tous vos dossiers juridiques en un seul endroit, 24h/24 et 7j/7</p>
+        </div>
+
+        <!-- Guide de démarrage -->
+        <div class="section">
+            <h2>🚀 Comment ça marche ?</h2>
+            <div class="client-step-guide">
+                <div class="client-step-card">
+                    <div class="client-step-number">1</div>
+                    <h3>Créez votre demande</h3>
+                    <p>Décrivez votre situation juridique en quelques clics</p>
+                </div>
+                <div class="client-step-card">
+                    <div class="client-step-number">2</div>
+                    <h3>Votre avocat analyse</h3>
+                    <p>Un avocat expert prend en charge votre dossier sous 24h</p>
+                </div>
+                <div class="client-step-card">
+                    <div class="client-step-number">3</div>
+                    <h3>Suivez l'avancement</h3>
+                    <p>Recevez des notifications à chaque étape importante</p>
+                </div>
+                <div class="client-step-card">
+                    <div class="client-step-number">4</div>
+                    <h3>Communiquez facilement</h3>
+                    <p>Échangez avec votre avocat par email ou messagerie sécurisée</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nouvelle demande -->
+        <div class="section">
+            <h2>📝 Nouvelle Demande Juridique</h2>
+            <form id="newRequestForm">
+                <div class="input-group">
+                    <label>Type de demande *</label>
+                    <select id="requestType" required>
+                        <option value="">-- Sélectionnez --</option>
+                        <option value="divorce">Divorce / Séparation</option>
+                        <option value="travail">Droit du travail</option>
+                        <option value="immobilier">Immobilier / Bail</option>
+                        <option value="succession">Succession</option>
+                        <option value="penal">Droit pénal</option>
+                        <option value="contrat">Contrats / Commercial</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Objet de votre demande *</label>
+                    <input type="text" id="requestSubject" placeholder="Ex: Contestation licenciement abusif" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Description détaillée *</label>
+                    <textarea id="requestDescription" placeholder="Décrivez votre situation le plus précisément possible..." required></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Urgence</label>
+                    <select id="requestUrgency">
+                        <option value="normal">Normal (réponse sous 48h)</option>
+                        <option value="urgent">Urgent (réponse sous 24h)</option>
+                        <option value="critical">Très urgent (réponse immédiate)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Pièces jointes (optionnel)</label>
+                    <input type="file" id="requestFiles" multiple>
+                    <small style="color: #666;">Formats acceptés: PDF, JPG, PNG, DOC, DOCX (max 10 Mo par fichier)</small>
+                </div>
+
+                <button type="submit" class="btn">Envoyer ma demande</button>
+            </form>
+        </div>
+
+        <!-- Mes dossiers -->
+        <div class="section">
+            <h2>📁 Mes Dossiers en Cours</h2>
+            <div id="myCases">
+                <div class="client-case-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>Divorce contentieux</h3>
+                        <span class="client-case-status client-status-progress">En cours</span>
+                    </div>
+                    <p><strong>Avocat:</strong> Maître Sophie Martin</p>
+                    <p><strong>Ouvert le:</strong> 15 janvier 2025</p>
+                    <p><strong>Dernière mise à jour:</strong> Il y a 2 jours</p>
+                    <div style="margin-top: 15px;">
+                        <button class="btn" onclick="viewCaseDetails('case1')">Voir le détail</button>
+                        <button class="btn btn-secondary" onclick="contactLawyer('case1')">Contacter l'avocat</button>
+                    </div>
+                </div>
+
+                <div class="client-case-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>Litige locatif</h3>
+                        <span class="client-case-status client-status-open">Nouveau</span>
+                    </div>
+                    <p><strong>Avocat:</strong> Maître Jean Dupont</p>
+                    <p><strong>Ouvert le:</strong> 20 février 2025</p>
+                    <p><strong>Dernière mise à jour:</strong> Aujourd'hui</p>
+                    <div style="margin-top: 15px;">
+                        <button class="btn" onclick="viewCaseDetails('case2')">Voir le détail</button>
+                        <button class="btn btn-secondary" onclick="contactLawyer('case2')">Contacter l'avocat</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline d'un dossier -->
+        <div class="section">
+            <h2>📅 Historique du Dossier: Divorce contentieux</h2>
+            <div class="client-timeline">
+                <div class="client-timeline-item">
+                    <strong>27 février 2025 - 14h30</strong>
+                    <p>Maître Martin a déposé la requête au tribunal</p>
+                </div>
+                <div class="client-timeline-item">
+                    <strong>25 février 2025 - 10h00</strong>
+                    <p>Rendez-vous téléphonique - Préparation de la stratégie</p>
+                </div>
+                <div class="client-timeline-item">
+                    <strong>20 février 2025 - 16h45</strong>
+                    <p>Réception de vos documents justificatifs</p>
+                </div>
+                <div class="client-timeline-item">
+                    <strong>15 janvier 2025 - 09h00</strong>
+                    <p>Ouverture du dossier - Premier contact</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="section">
+            <h2>❓ Questions Fréquentes</h2>
+            <div class="client-faq-item" onclick="toggleFaq(this)">
+                <strong>Comment suivre l'avancement de mon dossier ?</strong>
+                <div class="client-faq-answer">
+                    Connectez-vous à votre espace client pour consulter en temps réel l'état de vos dossiers. Vous recevez également des notifications par email à chaque étape importante.
+                </div>
+            </div>
+            <div class="client-faq-item" onclick="toggleFaq(this)">
+                <strong>Combien de temps pour obtenir une réponse ?</strong>
+                <div class="client-faq-answer">
+                    Pour une demande normale, vous recevrez une première réponse sous 48h. Pour les demandes urgentes, sous 24h. Les cas très urgents sont traités immédiatement.
+                </div>
+            </div>
+            <div class="client-faq-item" onclick="toggleFaq(this)">
+                <strong>Comment contacter mon avocat ?</strong>
+                <div class="client-faq-answer">
+                    Vous pouvez contacter votre avocat via la messagerie sécurisée de votre espace client, par email, ou par téléphone aux horaires indiqués dans votre dossier.
+                </div>
+            </div>
+            <div class="client-faq-item" onclick="toggleFaq(this)">
+                <strong>Mes données sont-elles sécurisées ?</strong>
+                <div class="client-faq-answer">
+                    Oui, toutes vos données sont chiffrées et stockées de manière sécurisée. Nous sommes conformes RGPD et respectons le secret professionnel de l'avocat.
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="section">
+            <h2>📞 Nous Contacter</h2>
+            <div class="client-contact-methods">
+                <div class="client-contact-method">
+                    <div class="icon">📧</div>
+                    <div><strong>Email</strong></div>
+                    <div>contact@cabinet-avocat.fr</div>
+                </div>
+                <div class="client-contact-method">
+                    <div class="icon">📱</div>
+                    <div><strong>Téléphone</strong></div>
+                    <div>01 23 45 67 89</div>
+                </div>
+                <div class="client-contact-method">
+                    <div class="icon">💬</div>
+                    <div><strong>Chat en ligne</strong></div>
+                    <div>Lun-Ven 9h-18h</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        document.getElementById('newRequestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                type: document.getElementById('requestType').value,
+                subject: document.getElementById('requestSubject').value,
+                description: document.getElementById('requestDescription').value,
+                urgency: document.getElementById('requestUrgency').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/ingest/email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        from: 'client@example.com',
+                        subject: `[${formData.type.toUpperCase()}] ${formData.subject}`,
+                        body: `Urgence: ${formData.urgency}\n\n${formData.description}`,
+                        externalId: `CLIENT-${Date.now()}`
+                    })
+                });
+
+                if (response.ok) {
+                    alert('✅ Votre demande a été envoyée avec succès ! Un avocat vous contactera sous 24-48h.');
+                    document.getElementById('newRequestForm').reset();
+                } else {
+                    alert('❌ Erreur lors de l\'envoi. Veuillez réessayer.');
+                }
+            } catch (err) {
+                alert('❌ Erreur de connexion. Veuillez réessayer.');
+            }
+        });
+
+        function toggleFaq(element) {
+            const answer = element.querySelector('.client-faq-answer');
+            answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function viewCaseDetails(caseId) {
+            alert(`Détails du dossier ${caseId} - Fonctionnalité en développement`);
+        }
+
+        function contactLawyer(caseId) {
+            alert(`Contacter l'avocat pour le dossier ${caseId} - Fonctionnalité en développement`);
+        }
+    </script>
+</body>
+</html>

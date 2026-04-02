@@ -1,0 +1,222 @@
+### Variables
+@baseUrl = http://localhost:5078
+@token = YOUR_JWT_TOKEN_HERE
+@caseId = YOUR_CASE_ID_HERE
+@eventId = YOUR_EVENT_ID_HERE
+
+### ============================================
+### CASE MANAGEMENT - Status Workflow
+### ============================================
+
+### Update case status to IN_PROGRESS
+PATCH {{baseUrl}}/api/cases/{{caseId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS"
+}
+
+### Update case status to CLOSED
+PATCH {{baseUrl}}/api/cases/{{caseId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "CLOSED"
+}
+
+### ============================================
+### CASE MANAGEMENT - Assignment
+### ============================================
+
+### Assign case to user
+PATCH {{baseUrl}}/api/cases/{{caseId}}/assign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "assignedToUserId": "00000000-0000-0000-0000-000000000000"
+}
+
+### Unassign case
+PATCH {{baseUrl}}/api/cases/{{caseId}}/assign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "assignedToUserId": null
+}
+
+### ============================================
+### CASE MANAGEMENT - Tags
+### ============================================
+
+### Add tags to case
+PATCH {{baseUrl}}/api/cases/{{caseId}}/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tags": ["urgent", "famille", "divorce"]
+}
+
+### ============================================
+### CASE MANAGEMENT - Priority
+### ============================================
+
+### Set priority and due date
+PATCH {{baseUrl}}/api/cases/{{caseId}}/priority
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "priority": 4,
+  "dueDate": "2025-12-31T23:59:59Z"
+}
+
+### ============================================
+### CASE MANAGEMENT - Filters
+### ============================================
+
+### Filter by status
+GET {{baseUrl}}/api/cases/filter?status=OPEN
+Authorization: Bearer {{token}}
+
+### Filter by tag
+GET {{baseUrl}}/api/cases/filter?tag=urgent
+Authorization: Bearer {{token}}
+
+### Filter by priority
+GET {{baseUrl}}/api/cases/filter?priority=4
+Authorization: Bearer {{token}}
+
+### Combined filters
+GET {{baseUrl}}/api/cases/filter?status=IN_PROGRESS&tag=famille&priority=3
+Authorization: Bearer {{token}}
+
+### ============================================
+### EMAIL - Templates
+### ============================================
+
+### Create email template
+POST {{baseUrl}}/api/email/templates
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Réponse standard",
+  "subject": "Re: Votre dossier",
+  "body": "Bonjour,\n\nNous avons bien reçu votre demande et nous vous confirmons que votre dossier est en cours de traitement.\n\nCordialement,\nVotre cabinet"
+}
+
+### List email templates
+GET {{baseUrl}}/api/email/templates
+Authorization: Bearer {{token}}
+
+### ============================================
+### EMAIL - Send
+### ============================================
+
+### Send email
+POST {{baseUrl}}/api/email/send
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "to": "client@example.com",
+  "subject": "Mise à jour de votre dossier",
+  "body": "Bonjour,\n\nVotre dossier avance bien. Nous vous tiendrons informé.\n\nCordialement"
+}
+
+### ============================================
+### ATTACHMENTS
+### ============================================
+
+### Upload attachment (use multipart/form-data in Postman)
+# POST {{baseUrl}}/api/attachment/upload/{{eventId}}
+# Authorization: Bearer {{token}}
+# Content-Type: multipart/form-data
+# file: [select file]
+
+### List attachments for event
+GET {{baseUrl}}/api/attachment/event/{{eventId}}
+Authorization: Bearer {{token}}
+
+### Download attachment
+# GET {{baseUrl}}/api/attachment/{attachmentId}
+# Authorization: Bearer {{token}}
+
+### ============================================
+### COMPLETE WORKFLOW EXAMPLE
+### ============================================
+
+### 1. Login first
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "sarraboudjellal57@gmail.com",
+  "password": "SecurePass123!"
+}
+
+### 2. Create a case
+POST {{baseUrl}}/api/cases
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Dossier Test Complet"
+}
+
+### 3. Set priority
+PATCH {{baseUrl}}/api/cases/{{caseId}}/priority
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "priority": 5,
+  "dueDate": "2025-06-30T23:59:59Z"
+}
+
+### 4. Add tags
+PATCH {{baseUrl}}/api/cases/{{caseId}}/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tags": ["test", "urgent", "demo"]
+}
+
+### 5. Change status
+PATCH {{baseUrl}}/api/cases/{{caseId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS"
+}
+
+### 6. Send email to client
+POST {{baseUrl}}/api/email/send
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "to": "client@example.com",
+  "subject": "Votre dossier est en cours",
+  "body": "Bonjour,\n\nNous vous informons que votre dossier est maintenant en cours de traitement.\n\nCordialement"
+}
+
+### 7. Close case
+PATCH {{baseUrl}}/api/cases/{{caseId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "CLOSED"
+}
+
+### 8. Filter closed cases
+GET {{baseUrl}}/api/cases/filter?status=CLOSED
+Authorization: Bearer {{token}}

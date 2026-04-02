@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MemoLib - Parcours & actions par rôle</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --ok: #166534;
+      --ok-soft: #dcfce7;
+      --warn: #92400e;
+      --warn-soft: #fef3c7;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    .subtitle { margin: 0 0 20px; color: var(--muted); }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    select, input {
+      width: 100%;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 0 12px;
+      font-size: 14px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(320px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      font-size: 12px;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+    }
+
+    .tag.ok { background: var(--ok-soft); color: var(--ok); border-color: #bbf7d0; }
+    .tag.warn { background: var(--warn-soft); color: var(--warn); border-color: #fde68a; }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    button.primary {
+      border-color: #bfdbfe;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .panel {
+      margin-top: 16px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .panel ul { margin: 8px 0 0 18px; }
+    .empty { color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .toolbar { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Parcours utilisateur interactif (par rôle)</h1>
+    <p class="subtitle">Clique un rôle, une étape et vois immédiatement les actions possibles, le niveau de couverture et les stories Jira liées.</p>
+
+    <div class="toolbar">
+      <select id="roleFilter"></select>
+      <select id="stepFilter"></select>
+      <input id="search" type="text" placeholder="Rechercher une action..." />
+    </div>
+
+    <div class="stats">
+      <span class="pill" id="countPill">0 actions</span>
+      <span class="pill">✅ Couvert = déjà prévu au backlog</span>
+      <span class="pill">⚠️ Gap = dev manquant</span>
+    </div>
+
+    <div class="grid" id="cards"></div>
+
+    <div class="panel" id="detailPanel">
+      <h2>Guide d'action</h2>
+      <div id="detailBody" class="empty">Clique sur “Voir le flux” dans une carte pour afficher le détail opérationnel (qui clique quoi, et ensuite quoi).</div>
+    </div>
+  </div>
+
+  <script>
+    const DATA = [
+      {
+        role: 'Client',
+        step: 'Premier contact',
+        action: 'Soumettre une demande via formulaire intelligent',
+        status: 'covered',
+        jira: 'US1, US10',
+        flow: [
+          'Client clique “Nouveau dossier / demande”.',
+          'Remplit formulaire guidé + pièces demandées.',
+          'Système crée un événement centralisé et un pré-dossier.',
+          'Assistant reçoit la tâche de qualification.'
+        ]
+      },
+      {
+        role: 'Client',
+        step: 'Collecte des pièces',
+        action: 'Uploader des documents avec checklist',
+        status: 'covered',
+        jira: 'US11',
+        flow: [
+          'Client clique “Déposer mes pièces”.',
+          'Checklist affiche les documents obligatoires/manquants.',
+          'Validation format/taille puis confirmation de réception.',
+          'Document versionné et visible dans le dossier.'
+        ]
+      },
+      {
+        role: 'Assistant',
+        step: 'Qualification',
+        action: 'Trier les nouvelles demandes par urgence/SLA',
+        status: 'covered',
+        jira: 'US12',
+        flow: [
+          'Assistant ouvre la file de tri.',
+          'Clique filtre “Urgent / retard SLA”.',
+          'Assigne le dossier au juriste concerné.',
+          'Ajoute note de contexte de passation.'
+        ]
+      },
+      {
+        role: 'Assistant',
+        step: 'Passation',
+        action: 'Valider checklist avant transfert juriste',
+        status: 'covered',
+        jira: 'US13',
+        flow: [
+          'Assistant clique “Passer au juriste”.',
+          'Le système bloque si champs/pièces obligatoires manquants.',
+          'Une fois complet, transfert avec journal d’audit.',
+          'Juriste reçoit dossier prêt à traiter.'
+        ]
+      },
+      {
+        role: 'Juriste',
+        step: 'Analyse',
+        action: 'Utiliser vue 360 (messages + docs + notes + tâches)',
+        status: 'covered',
+        jira: 'US14',
+        flow: [
+          'Juriste clique le dossier.',
+          'Vue unique affiche timeline, documents, notes et tâches.',
+          'Crée directement actions (note, tâche, message).',
+          'Met à jour statut dossier.'
+        ]
+      },
+      {
+        role: 'Juriste',
+        step: 'Exécution',
+        action: 'Déclencher actions automatiques sur événements',
+        status: 'covered',
+        jira: 'US8',
+        flow: [
+          'Juriste active une règle “si/alors”.',
+          'À réception d’un événement, assignation/notification auto.',
+          'Journal d’exécution consultable.',
+          'Moins de tâches manuelles répétitives.'
+        ]
+      },
+      {
+        role: 'Manager',
+        step: 'Supervision',
+        action: 'Piloter la charge par collaborateur',
+        status: 'covered',
+        jira: 'US15',
+        flow: [
+          'Manager ouvre la vue charge équipe.',
+          'Identifie surcharge/retard par personne.',
+          'Réaffecte depuis l’interface.',
+          'Le système trace la décision.'
+        ]
+      },
+      {
+        role: 'Finance',
+        step: 'Facturation',
+        action: 'Passer de temps saisi à facture émise',
+        status: 'covered',
+        jira: 'US7, US16',
+        flow: [
+          'Finance clique “Préparer facture”.',
+          'Contrôle temps, items et totaux.',
+          'Émet la facture et suit le paiement.',
+          'Exporte en comptabilité.'
+        ]
+      },
+      {
+        role: 'Compliance',
+        step: 'Conformité',
+        action: 'Appliquer rétention et audit RGPD par rôle',
+        status: 'covered',
+        jira: 'US17',
+        flow: [
+          'Compliance configure règles de rétention.',
+          'Consulte journal d’accès par rôle/dossier.',
+          'Exporte preuve de conformité.',
+          'Lance contrôle périodique.'
+        ]
+      },
+      {
+        role: 'Admin',
+        step: 'Exploitation',
+        action: 'Surveiller état des connecteurs et relancer',
+        status: 'covered',
+        jira: 'US18',
+        flow: [
+          'Admin ouvre monitoring des intégrations.',
+          'Repère connecteur en erreur.',
+          'Clique relance/retry sécurisé.',
+          'Vérifie reprise des flux entrants.'
+        ]
+      },
+      {
+        role: 'Client',
+        step: 'Suivi',
+        action: 'Signer électroniquement un document sans quitter le portail',
+        status: 'gap',
+        jira: 'À créer (S3+)',
+        flow: [
+          'Client reçoit une demande de signature.',
+          'Clique lien sécurisé, visualise doc, signe.',
+          'Le système versionne et journalise la signature.',
+          'Notification envoyée au juriste.'
+        ]
+      },
+      {
+        role: 'Juriste',
+        step: 'Stratégie',
+        action: 'Comparer des scénarios d’action sur le même dossier',
+        status: 'gap',
+        jira: 'À créer (S3+)',
+        flow: [
+          'Juriste clique “Comparer scénarios”.',
+          'Renseigne hypothèses A/B.',
+          'Visualise impacts délais/risques/coûts.',
+          'Valide le plan retenu.'
+        ]
+      }
+    ];
+
+    const roleFilter = document.getElementById('roleFilter');
+    const stepFilter = document.getElementById('stepFilter');
+    const search = document.getElementById('search');
+    const cards = document.getElementById('cards');
+    const countPill = document.getElementById('countPill');
+    const detailBody = document.getElementById('detailBody');
+
+    function setOptions(el, values, label) {
+      el.innerHTML = '';
+      const all = document.createElement('option');
+      all.value = 'ALL';
+      all.textContent = label;
+      el.appendChild(all);
+      values.forEach((value) => {
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = value;
+        el.appendChild(opt);
+      });
+    }
+
+    function uniq(list) {
+      return [...new Set(list)].sort((a, b) => a.localeCompare(b));
+    }
+
+    function badge(status) {
+      if (status === 'covered') return '<span class="tag ok">✅ Couvert</span>';
+      return '<span class="tag warn">⚠️ Gap dev</span>';
+    }
+
+    function render() {
+      const role = roleFilter.value;
+      const step = stepFilter.value;
+      const q = search.value.trim().toLowerCase();
+
+      const filtered = DATA.filter((item) => {
+        const roleOk = role === 'ALL' || item.role === role;
+        const stepOk = step === 'ALL' || item.step === step;
+        const queryOk = !q || item.action.toLowerCase().includes(q) || item.jira.toLowerCase().includes(q);
+        return roleOk && stepOk && queryOk;
+      });
+
+      countPill.textContent = `${filtered.length} action(s)`;
+
+      if (!filtered.length) {
+        cards.innerHTML = '<div class="empty">Aucune action pour ce filtre.</div>';
+        return;
+      }
+
+      cards.innerHTML = filtered.map((item, idx) => `
+        <article class="card">
+          <h3>${item.action}</h3>
+          <div class="meta">
+            <span class="tag">Rôle: ${item.role}</span>
+            <span class="tag">Étape: ${item.step}</span>
+            <span class="tag">Jira: ${item.jira}</span>
+            ${badge(item.status)}
+          </div>
+          <div class="actions">
+            <button class="primary" data-view="${idx}">Voir le flux</button>
+            <button data-copy="${idx}">Copier check-list</button>
+          </div>
+        </article>
+      `).join('');
+
+      cards.querySelectorAll('[data-view]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const item = filtered[Number(btn.getAttribute('data-view'))];
+          detailBody.innerHTML = `
+            <strong>${item.role} · ${item.step}</strong><br />
+            <span style="color:#64748b">${item.action}</span>
+            <ul>${item.flow.map((f) => `<li>${f}</li>`).join('')}</ul>
+          `;
+        });
+      });
+
+      cards.querySelectorAll('[data-copy]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const item = filtered[Number(btn.getAttribute('data-copy'))];
+          const text = `${item.role} / ${item.step} - ${item.action}\n${item.flow.map((f, i) => `${i + 1}. ${f}`).join('\n')}`;
+          await navigator.clipboard.writeText(text);
+          btn.textContent = 'Copié ✓';
+          setTimeout(() => (btn.textContent = 'Copier check-list'), 1000);
+        });
+      });
+    }
+
+    setOptions(roleFilter, uniq(DATA.map((d) => d.role)), 'Tous les rôles');
+    setOptions(stepFilter, uniq(DATA.map((d) => d.step)), 'Toutes les étapes');
+
+    roleFilter.addEventListener('change', render);
+    stepFilter.addEventListener('change', render);
+    search.addEventListener('input', render);
+
+    render();
+  </script>
+</body>
+</html>
