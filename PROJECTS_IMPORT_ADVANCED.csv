@@ -1,0 +1,13 @@
+Title,Description,Status,Priority,Estimate,Risk,Owner,Sprint,Labels,Dependencies,AcceptanceCriteria
+"BL-001 Stabiliser le parcours email simulateur","Valider le flux complet compose -> ingest -> confirmation.","Backlog","P0","3","Moyen","Unassigned","Sprint 1","p0,email,ux","none","Envoi OK; Scan manuel lisible; 0 erreur JS sur parcours principal"
+"BL-002 Normaliser les erreurs API critiques","Uniformiser le format d'erreur pour login, ingest, scan.","Backlog","P0","5","Moyen","Unassigned","Sprint 1","p0,api,tests","BL-001","Schema unique applique; Tests de contrat verts"
+"BL-003 Verrouiller gates qualite pre-merge","Rendre obligatoires lint, typecheck et tests critiques.","Backlog","P0","3","Faible","Unassigned","Sprint 1","p0,infra,tests","none","Merge bloque si checks KO; Doc dev a jour"
+"BL-004 Hygiene secrets et conformite minimale","Retirer secrets hardcodes et renforcer hygiene pre-commit.","Backlog","P0","5","Eleve","Unassigned","Sprint 1","p0,security","none","0 secret detecte; Workflow documente"
+"BL-005 Idempotence ingestion email","Eviter les doublons lors de retry ou rescan.","Backlog","P1","8","Eleve","Unassigned","Sprint 2","p1,email,api","BL-002","Aucun evenement duplique sur double soumission"
+"BL-006 Tableau de bord ingestion","Suivre volume, erreurs, latence, succes ingestion.","Backlog","P1","5","Moyen","Unassigned","Sprint 2","p1,email,ux","BL-005","Stats visibles rapidement; Seuils d'alerte actifs"
+"BL-007 Score de confiance et justification","Expliquer chaque classification urgent/normal.","Backlog","P1","8","Moyen","Unassigned","Sprint 2","p1,legal,ux","BL-002","Chaque classement affiche rationale"
+"BL-008 Inbox priorisee avocat","Trier les emails par urgence legale et echeance.","Backlog","P1","8","Moyen","Unassigned","Sprint 3","p1,ux,legal","BL-007","Top urgences visible immediatement"
+"BL-009 Actions rapides depuis email","Creer dossier, demander pieces, planifier rappel en un clic.","Backlog","P1","5","Moyen","Unassigned","Sprint 3","p1,ux","BL-008","Temps de traitement reduit de 30%"
+"BL-010 Historique unifie par dossier","Afficher timeline emails + actions + statuts.","Backlog","P2","5","Faible","Unassigned","Sprint 3","p2,ux,api","BL-009","Timeline complete consultable"
+"BL-011 SLO et monitoring service","Definir et monitorer latence, erreurs, succes ingestion.","Backlog","P1","5","Moyen","Unassigned","Sprint 4","p1,infra","BL-006","Dashboard SLO actif; Alertes en place"
+"BL-012 Playbook incident","Procedure standard incident ingestion/securite.","Backlog","P2","3","Faible","Unassigned","Sprint 4","p2,ops,security","BL-011","Runbook teste sur exercice"
