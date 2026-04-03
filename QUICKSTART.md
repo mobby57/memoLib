@@ -164,7 +164,7 @@ Voir [docs/ENVIRONMENT_VARIABLES.md](docs/ENVIRONMENT_VARIABLES.md) pour la list
 
 1. **Créer une branche**
    ```bash
-   git checkout -b feature/ma-fonctionnalite
+   git switch -c feature/ma-fonctionnalite
    ```
 
 2. **Développer**

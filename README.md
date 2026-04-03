@@ -536,7 +536,7 @@ Pour toute question, consultez la documentation ou ouvrez une issue sur GitHub.
 Les contributions sont les bienvenues !
 
 1. Fork le projet
-2. Créez une branche (`git checkout -b feature/AmazingFeature`)
+2. Créez une branche (`git switch -c feature/AmazingFeature`)
 3. Commit vos changements (`git commit -m 'Add AmazingFeature'`)
 4. Push vers la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrez une Pull Request

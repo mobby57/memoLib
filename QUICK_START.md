@@ -42,19 +42,31 @@ var(--border-radius-md) /* 8px */
 
 ```bash
 # Feature
-git checkout develop
-git checkout -b feature/ma-feature
+git switch develop
+git switch -c feature/ma-feature
 git commit -m "feat: description"
 git push origin feature/ma-feature
 
 # Bugfix
-git checkout -b bugfix/mon-fix
+git switch -c bugfix/mon-fix
 git commit -m "fix: description"
 
 # Hotfix
-git checkout main
-git checkout -b hotfix/urgent
+git switch main
+git switch -c hotfix/urgent
 git commit -m "hotfix: description"
+```
+
+### Règle durable
+
+- Utiliser `git switch -c <branche>` pour créer une branche.
+- Eviter `git checkout -b` et ne jamais utiliser `-f` lors d'un changement de branche sauf cas de récupération explicite.
+
+Option recommandée (alias):
+
+```bash
+git config --global alias.nb "switch -c"
+# usage: git nb feature/ma-feature
 ```
 
 ## 🔄 CI/CD
