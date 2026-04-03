@@ -1,6 +1,14 @@
 name: codeql-analyze
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'prisma/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/codeql-analysis.yml'
   pull_request:
     branches: [main]
     paths:
@@ -8,10 +16,10 @@ on:
       - 'prisma/**'
       - 'package.json'
       - 'package-lock.json'
-      - '.github/workflows/codeql.yml'
+      - '.github/workflows/codeql-analysis.yml'
   workflow_dispatch:
   schedule:
-    - cron: '0 6 * * 1' # Weekly on Monday
+    - cron: '0 6 * * 1'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -31,26 +39,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [javascript, python]
+        language: [javascript-typescript]
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        if: matrix.language == 'javascript'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Initialize CodeQL
-        id: init-codeql
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
+          queries: security-extended
 
       - name: Autobuild
-        id: autobuild
         uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL Analysis
-        id: analyze-codeql
         uses: github/codeql-action/analyze@v3
