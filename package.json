@@ -155,6 +155,7 @@
     "demo:script": "tsx scripts/demo-script.ts",
     "demo:run": "npm run dev",
     "demo:all": "tsx scripts/demo-all-features.ts",
+    "api:start:local": "powershell -ExecutionPolicy Bypass -File ./scripts/start-api-local.ps1",
     "api:e2e:onboarding": "powershell -ExecutionPolicy Bypass -File ./scripts/e2e-onboarding.ps1",
     "api:e2e:onboarding:base": "powershell -ExecutionPolicy Bypass -Command \"param([string]$u='http://localhost:8091'); & ./scripts/e2e-onboarding.ps1 -BaseUrl $u\"",
     "demo:cycle": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-cycle-complet.ps1",

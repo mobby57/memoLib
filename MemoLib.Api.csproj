@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <UserSecretsId>64947a3c-8944-49c9-8f26-f2d52ebe7ca0</UserSecretsId>
   </PropertyGroup>
 
@@ -39,9 +40,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="tests_backup\**" />
-    <Compile Remove="Migrations_sqlite_backup\**" />
-    <Compile Remove="tests\**" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Middleware\**\*.cs" />
+    <Compile Include="Models\**\*.cs" />
+    <Compile Include="Services\**\*.cs" />
+    <Compile Include="Validators\**\*.cs" />
+    <Compile Include="Migrations\**\*.cs" />
+
+    <Compile Include="MemoLib.Api-cleanpush\Data\**\*.cs" />
+    <Compile Include="MemoLib.Api-cleanpush\Contracts\**\*.cs" />
+    <Compile Include="MemoLib.Api-cleanpush\Authorization\**\*.cs" />
+    <Compile Include="MemoLib.Api-cleanpush\Hubs\**\*.cs" />
+    <Compile Include="MemoLib.Api-cleanpush\Exceptions\**\*.cs" />
   </ItemGroup>
 
 </Project>
