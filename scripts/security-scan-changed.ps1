@@ -4,7 +4,20 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
 try {
-  $tracked = @(git diff --name-only --diff-filter=ACMR HEAD)
+  # Vérifier que ggshield est installé
+  if (-not (Get-Command 'ggshield' -ErrorAction SilentlyContinue)) {
+    Write-Warning '[security-scan-changed] ggshield non installe. Installer via: pip install ggshield'
+    exit 1
+  }
+
+  # Gérer le cas d'un repo sans commit (HEAD inexistant)
+  $hasHead = git rev-parse --verify HEAD 2>$null
+  if ($LASTEXITCODE -eq 0) {
+    $tracked = @(git diff --name-only --diff-filter=ACMR HEAD)
+  } else {
+    # Repo sans commit : tous les fichiers stagés
+    $tracked = @(git diff --name-only --cached)
+  }
   $untracked = @(git ls-files --others --exclude-standard)
 
   $paths = @($tracked + $untracked | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique)
@@ -15,9 +28,9 @@ try {
   }
 
   $existingFiles = @()
-  foreach ($path in $paths) {
-    if (Test-Path -LiteralPath $path -PathType Leaf) {
-      $existingFiles += $path
+  foreach ($p in $paths) {
+    if (Test-Path -LiteralPath $p -PathType Leaf) {
+      $existingFiles += $p
     }
   }
 
@@ -27,7 +40,8 @@ try {
   }
 
   Write-Host "[security-scan-changed] Scan de $($existingFiles.Count) fichier(s)..."
-  & ggshield secret scan path @existingFiles --yes --use-gitignore
+  # Utiliser $existingFiles (pas @existingFiles) pour éviter le splatting PowerShell
+  & ggshield secret scan path $existingFiles --yes --use-gitignore
 
   if ($LASTEXITCODE -ne 0) {
     throw "ggshield a retourne le code $LASTEXITCODE"

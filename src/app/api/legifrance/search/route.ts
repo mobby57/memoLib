@@ -1,45 +1,66 @@
-﻿/**
+/**
  * API Routes Legifrance pour Next.js
- * 
- * Endpoints pour exposer les fonctionnalites Legifrance
- * avec authentification et isolation tenant
+ *
+ * Recherche unifiee: depots GitHub locaux + API PISTE
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { legifranceApi } from '@/lib/legifrance/api-client';
+import { unifiedSearch } from '@/lib/legifrance/unified-search';
+import { syncAllSources, getSourcesStatus } from '@/lib/legifrance/git-sources';
+import { listAvailableCodes } from '@/lib/legifrance/code-parser';
 import { logger } from '@/lib/logger';
 
-/**
- * POST /api/legifrance/search
- * Recherche generique dans Legifrance
- */
 export async function POST(req: NextRequest) {
   try {
-    // Authentification
     const session: any = await getServerSession(authOptions as any);
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Non authentifie' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
-    const tenantId = (session.user as any).tenantId;
-
-    // Parse body
     const body = await req.json();
     const { action, params } = body;
 
-    logger.info(`Requete Legifrance: ${action}`, { userId, tenantId, action });
+    logger.info(`Requete Legifrance: ${action}`, { userId, action });
 
     let result;
 
     switch (action) {
       // ============================================
-      // RECHERCHE CESEDA
+      // RECHERCHE UNIFIEE (local + API)
+      // ============================================
+
+      case 'unified-search':
+        result = await unifiedSearch(params.query, {
+          codes: params.codes,
+          includeConstitution: params.includeConstitution ?? true,
+          includeApi: params.includeApi ?? true,
+          apiFond: params.apiFond,
+          maxLocal: params.maxLocal,
+          maxApi: params.maxApi,
+        });
+        break;
+
+      // ============================================
+      // GESTION DES SOURCES GIT
+      // ============================================
+
+      case 'sync-sources':
+        result = syncAllSources();
+        break;
+
+      case 'sources-status':
+        result = {
+          sources: getSourcesStatus(),
+          codes: listAvailableCodes(),
+        };
+        break;
+
+      // ============================================
+      // RECHERCHE CESEDA (API PISTE)
       // ============================================
 
       case 'search-ceseda':
@@ -47,13 +68,11 @@ export async function POST(req: NextRequest) {
         break;
 
       case 'get-ceseda-article':
-        const { numeroArticle, date } = params;
-        result = await legifranceApi.getCesedaArticle(numeroArticle, date);
+        result = await legifranceApi.getCesedaArticle(params.numeroArticle, params.date);
         break;
 
       case 'search-ceseda-keywords':
-        const { keywords, options } = params;
-        result = await legifranceApi.searchCesedaByKeywords(keywords, options);
+        result = await legifranceApi.searchCesedaByKeywords(params.keywords, params.options);
         break;
 
       // ============================================
@@ -102,23 +121,16 @@ export async function POST(req: NextRequest) {
 
       case 'ping':
         const isAvailable = await legifranceApi.ping();
-        result = { available: isAvailable, environment: legifranceApi.getEnvironment() };
+        result = {
+          available: isAvailable,
+          environment: legifranceApi.getEnvironment(),
+          localSources: getSourcesStatus().map((s) => ({ name: s.name, available: s.available })),
+        };
         break;
 
       default:
-        return NextResponse.json(
-          { error: `Action non supportee: ${action}` },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: `Action non supportee: ${action}` }, { status: 400 });
     }
-
-    // Log succes
-    logger.info(`Legifrance ${action} reussi`, {
-      userId,
-      tenantId,
-      action,
-      resultCount: (result as any)?.totalResultNumber || (result as any)?.results?.length || 1,
-    });
 
     return NextResponse.json({
       success: true,
@@ -126,43 +138,43 @@ export async function POST(req: NextRequest) {
       data: result,
       environment: legifranceApi.getEnvironment(),
     });
-
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-    
     logger.error('Erreur API Legifrance', error);
 
     return NextResponse.json(
-      {
-        success: false,
-        error: errorMessage,
-        environment: legifranceApi.getEnvironment(),
-      },
+      { success: false, error: errorMessage },
       { status: 500 }
     );
   }
 }
 
-/**
- * GET /api/legifrance/search
- * Health check et info environnement
- */
 export async function GET(req: NextRequest) {
   try {
     const session: any = await getServerSession(authOptions as any);
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Non authentifie' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
     }
 
-    const isAvailable = await legifranceApi.ping();
+    const isAvailable = await legifranceApi.ping().catch(() => false);
+    const localStatus = getSourcesStatus();
+    const codes = listAvailableCodes();
 
     return NextResponse.json({
-      available: isAvailable,
-      environment: legifranceApi.getEnvironment(),
+      api: { available: isAvailable, environment: legifranceApi.getEnvironment() },
+      local: {
+        sources: localStatus.map((s) => ({
+          name: s.name,
+          description: s.description,
+          available: s.available,
+          commitHash: s.commitHash,
+        })),
+        codesCount: codes.length,
+      },
       endpoints: [
+        'unified-search',
+        'sync-sources',
+        'sources-status',
         'search-ceseda',
         'get-ceseda-article',
         'search-ceseda-keywords',
@@ -178,10 +190,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      {
-        available: false,
-        error: error instanceof Error ? error.message : 'Erreur inconnue',
-      },
+      { available: false, error: error instanceof Error ? error.message : 'Erreur inconnue' },
       { status: 500 }
     );
   }

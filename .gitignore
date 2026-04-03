@@ -182,3 +182,6 @@ MemoLib.Api-cleanpush/**
 !MemoLib.Api-cleanpush/backend-python/requirements.txt
 !MemoLib.Api-cleanpush/environment.yml
 !MemoLib.Api-cleanpush/requirements-python.txt
+
+# Legifrance local git repos (cloned via legifrance:sync)
+data/legifrance/

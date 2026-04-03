@@ -120,6 +120,8 @@
     "gmail:auth": "node scripts/gmail-auth.js",
     "ai:test": "tsx scripts/ai-test.ts",
     "ai:test:ceseda": "tsx scripts/ai-test-ceseda.ts",
+    "legifrance:sync": "tsx scripts/sync-legifrance.ts",
+    "legifrance:test": "tsx scripts/test-legifrance.ts",
     "seed:demo": "tsx prisma/seeds/demo-workspaces.ts",
     "prisma:studio": "prisma studio",
     "prisma:push": "prisma db push",
