@@ -60,7 +60,7 @@ export async function POST(request: Request) {
 
     // Optionnel: Envoyer un email de confirmation + notification admin
     // await sendDemoConfirmationEmail({ to: email, date: dateSouhaitee, heure: heureSouhaitee });
-    // await sendDemoNotificationEmail({ to: 'sales@memoLib.com', ... });
+    // await sendDemoNotificationEmail({ to: 'sales@memoLib.space', ... });
 
     // Optionnel: Créer un evenement dans Google Calendar / Calendly
     // await createCalendarEvent({ ... });

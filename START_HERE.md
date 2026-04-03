@@ -23,7 +23,7 @@ http://localhost:5078/demo.html
 
 ### Compte de Test
 ```
-Email:        admin@freetime.com
+Email:        admin@memolib.local
 Mot de passe: Admin123!
 ```
 
@@ -133,7 +133,7 @@ dotnet user-secrets set "EmailMonitor:Password" "votre-mot-de-passe-app"
 
 ### 2. Se connecter
 ```
-Email: admin@freetime.com
+Email: admin@memolib.local
 Mot de passe: Admin123!
 ```
 
@@ -208,7 +208,7 @@ Ctrl+C
 - [x] Validation effectuée (93%)
 - [ ] Application démarrée (`.\GO.ps1`)
 - [ ] Interface testée (http://localhost:5078/demo.html)
-- [ ] Connexion réussie (admin@freetime.com)
+- [ ] Connexion réussie (admin@memolib.local)
 
 ---
 

@@ -211,7 +211,7 @@ Pour améliorer le parcours démo:
 
 Questions ou problèmes?
 
-- 📧 Email: support@memolib.com
+- 📧 Email: support@memolib.space
 - 📚 Documentation: `/docs`
 - 🐛 Issues: GitHub Issues
 

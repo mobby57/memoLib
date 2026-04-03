@@ -218,7 +218,7 @@ const CONFIG = {
 
 - **Documentation complète** : [TAMPERMONKEY_STRATEGY.md](../TAMPERMONKEY_STRATEGY.md)
 - **Issues** : GitHub Issues
-- **Email** : support@memolib.com
+- **Email** : support@memolib.space
 
 ---
 

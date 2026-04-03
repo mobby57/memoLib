@@ -553,7 +553,7 @@ Développé pour les cabinets d'avocats et professionnels du droit.
 
 ## 📞 Support
 
-- 📧 **Email**: support@memolib.com
+- 📧 **Email**: support@memolib.space
 - 📚 **Documentation**: Voir les fichiers `.md` dans le projet
 - 🐛 **Issues**: [GitHub Issues](https://github.com/VOTRE_USERNAME/MemoLib/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/VOTRE_USERNAME/MemoLib/discussions)

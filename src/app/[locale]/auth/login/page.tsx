@@ -302,7 +302,7 @@ export default function LoginPage() {
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
                   <p className="font-bold text-purple-900">{`\uD83D\uDC51 Super Admin`}</p>
                   <p className="text-purple-700 mt-1 font-mono text-xs">
-                    superadmin@memoLib.com | SuperAdmin2026!
+                    superadmin@memoLib.space | SuperAdmin2026!
                   </p>
                 </div>
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">

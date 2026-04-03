@@ -1,4 +1,4 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 /**
  * Service d'envoi d'emails
  * Compatible avec: Resend, SendGrid, Nodemailer SMTP
@@ -76,7 +76,7 @@ interface SendResult {
  */
 export async function sendEmail(options: EmailOptions): Promise<SendResult> {
   const transporter = getTransporter();
-  const fromAddress = options.from || process.env.EMAIL_FROM || 'noreply@memoLib.com';
+  const fromAddress = options.from || process.env.EMAIL_FROM || 'noreply@memoLib.space';
 
   // Mode test si pas de transporteur
   if (!transporter) {

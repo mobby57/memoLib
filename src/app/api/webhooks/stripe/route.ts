@@ -151,7 +151,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       const { Resend } = await import('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
-        from: process.env.EMAIL_FROM || 'billing@memoLib.com',
+        from: process.env.EMAIL_FROM || 'billing@memoLib.space',
         to: tenant.owner.email,
         subject: '?? Action requise : �chec de paiement - memoLib',
         html: `

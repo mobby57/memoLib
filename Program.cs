@@ -459,7 +459,7 @@ using (var scope = app.Services.CreateScope())
         var userWithPassword = new User
         {
             Id = Guid.NewGuid(),
-            Email = "admin@freetime.com",
+            Email = "admin@memolib.local",
             Password = passwordService.HashPassword("Admin123!"),
             Role = Roles.Owner,
             Name = "Admin",
@@ -479,7 +479,7 @@ using (var scope = app.Services.CreateScope())
 
         Log.Information("✅ Utilisateurs créés:");
         Log.Information("   - admin@memolib.local (sans mot de passe)");
-        Log.Information("   - admin@freetime.com (mot de passe: Admin123!)");
+        Log.Information("   - admin@memolib.local (mot de passe: Admin123!)");
     }
 
     // Seed questionnaires par défaut

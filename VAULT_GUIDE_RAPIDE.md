@@ -11,7 +11,7 @@ Le coffre-fort sécurisé centralise tous vos mots de passe (Gmail, bases de don
 #### 1. Première Connexion
 ```
 URL: http://localhost:5078/vault.html
-Email: admin@freetime.com
+Email: admin@memolib.local
 Password: Admin123!
 ```
 

@@ -481,7 +481,7 @@ export class GDPRCompliance {
     ): Promise<string> {
         // Upload to S3, CloudFlare R2, etc.
         // For now, return mock URL
-        return `https://exports.memolib.com/${filename}`;
+        return `https://exports.memoLib.space/${filename}`;
     }
 
     /**

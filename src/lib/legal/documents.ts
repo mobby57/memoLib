@@ -47,8 +47,8 @@ export class LegalDocumentGenerator {
     private companyName = 'MemoLib';
     private companyEntity = 'MemoLib Inc.';
     private companyAddress = '123 Tech Street, San Francisco, CA 94105, USA';
-    private contactEmail = 'legal@memolib.com';
-    private dpoEmail = 'privacy@memolib.com';
+    private contactEmail = 'legal@memoLib.space';
+    private dpoEmail = 'privacy@memoLib.space';
 
     /**
      * Generate Terms of Service

@@ -3,7 +3,7 @@
 
 import type { Metadata } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memoLib.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memoLib.space';
 
 export const SITE_NAME = 'memoLib';
 export const SITE_DESCRIPTION =

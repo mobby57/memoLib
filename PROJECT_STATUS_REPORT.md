@@ -176,7 +176,7 @@ dotnet run
 
 ### Comptes de Test
 ```
-Email: admin@freetime.com
+Email: admin@memolib.local
 Mot de passe: Admin123!
 Rôle: Owner (tous les droits)
 ```

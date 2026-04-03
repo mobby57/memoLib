@@ -233,7 +233,7 @@ export default function PrivacyPage() {
                 <div className="mt-8 text-center text-sm text-gray-600">
                     <p>
                         Questions about your data rights?{' '}
-                        <a href="mailto:privacy@memolib.com" className="text-blue-600 hover:underline">
+                        <a href="mailto:privacy@memoLib.space" className="text-blue-600 hover:underline">
                             Contact our Data Protection Officer
                         </a>
                     </p>

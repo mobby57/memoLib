@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     // await prisma.contactRequest.create({ data: { ... } });
 
     // Optionnel: Envoyer un email de notification
-    // await sendNotificationEmail({ to: 'admin@memoLib.com', ... });
+    // await sendNotificationEmail({ to: 'admin@memoLib.space', ... });
 
     return NextResponse.json({
       success: true,

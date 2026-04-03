@@ -80,7 +80,7 @@ http://localhost:5078/demo.html
 
 ### 4. Se connecter
 ```
-Email: admin@freetime.com
+Email: admin@memolib.local
 Mot de passe: Admin123!
 ```
 

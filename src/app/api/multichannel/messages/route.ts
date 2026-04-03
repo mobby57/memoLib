@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
         const resend = new Resend(process.env.RESEND_API_KEY);
 
         await resend.emails.send({
-          from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
+          from: process.env.EMAIL_FROM || 'noreply@memoLib.space',
           to: recipient,
           subject: subject || 'Message de memoLib',
           html: `<p>${messageBody}</p>`,
