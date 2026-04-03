@@ -80,6 +80,24 @@ export async function POST(request: NextRequest) {
     const normalized = normalizeIncomingEmailPayload(parsedPayload.data, rawRequestBody);
     const { from, to, subject, body: emailBody, htmlBody, attachments, messageId } = normalized;
 
+    // P0: Verify email authentication headers (DKIM/SPF/DMARC)
+    const authResults = normalized.rawHeaders?.['authentication-results']
+      || normalized.rawHeaders?.['Authentication-Results']
+      || (parsedPayload.data as any).authenticationResults
+      || '';
+    const authResultsStr = typeof authResults === 'string' ? authResults : JSON.stringify(authResults);
+    const dkimPass = /dkim=pass/i.test(authResultsStr);
+    const spfPass = /spf=pass/i.test(authResultsStr);
+    const dmarcPass = /dmarc=pass/i.test(authResultsStr);
+    const emailAuthScore = [dkimPass, spfPass, dmarcPass].filter(Boolean).length;
+
+    if (emailAuthScore === 0 && authResultsStr.length > 0) {
+      logger.warn('[EMAIL] Email authentication failed (DKIM/SPF/DMARC all failed)', {
+        from,
+        authResults: authResultsStr.slice(0, 500),
+      });
+    }
+
     // Demo fallback: allow the simulator to work without a configured DB.
     if (allowDemoBypass && !process.env.DATABASE_URL) {
       const lowerSubject = (subject || '').toLowerCase();
@@ -334,6 +352,7 @@ export async function POST(request: NextRequest) {
           clientId: resolvedClientId,
           dossierId: linkedDossierId,
           hasAttachments: attachments && attachments.length > 0,
+          emailAuth: { dkim: dkimPass, spf: spfPass, dmarc: dmarcPass, score: emailAuthScore },
         },
       });
 

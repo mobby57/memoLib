@@ -52,7 +52,9 @@ async function handleOAuthSignIn(user: any, providerName: string) {
   }
 }
 
-const isDemoMode = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true';
+const isDemoMode =
+  process.env.NODE_ENV !== 'production' &&
+  (process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true');
 
 const demoUsers: Record<string, any> = {
   'admin@memolib.fr': { id: 'demo-admin-1', email: 'admin@memolib.fr', name: 'Admin Demo', role: 'SUPER_ADMIN', password: process.env.DEMO_ADMIN_PASSWORD || 'demo123', tenantId: 'demo-tenant-1', tenantName: 'Cabinet Demo', tenantPlan: 'enterprise', clientId: null },

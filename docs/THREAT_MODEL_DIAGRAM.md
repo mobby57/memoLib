@@ -453,12 +453,12 @@ flowchart LR
 
 ### P0 - Critique (avant go-live)
 
-| # | Gap | Composant | Remediation | Effort |
+| # | Gap | Composant | Remediation | Statut |
 |---|---|---|---|---|
-| 1 | Demo mode actif en prod | Auth | Kill switch `DEMO_MODE !== 'true'` en prod | 1h |
-| 2 | PII non masquees dans logs | Logger | Filtre PII automatique dans structured-logger | 4h |
-| 3 | Pas de verification DKIM/SPF emails | Ingestion | Valider headers auth email entrant | 4h |
-| 4 | Pas de limite upload fichiers | API | Max 10MB + whitelist MIME types | 2h |
+| 1 | Demo mode actif en prod | Auth | Kill switch `NODE_ENV !== 'production'` | ✅ FAIT |
+| 2 | PII non masquees dans logs | Logger | Filtre PII `redactPII()` dans structured-logger | ✅ FAIT |
+| 3 | Pas de verification DKIM/SPF emails | Ingestion | Validation headers auth + log warning | ✅ FAIT |
+| 4 | Pas de limite upload fichiers | API | Max 10MB + whitelist MIME types | ✅ DEJA EN PLACE |
 
 ### P1 - Haut (sprint suivant)
 

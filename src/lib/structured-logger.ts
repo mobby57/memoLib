@@ -43,6 +43,32 @@ export interface WebhookLogContext {
 /**
  * Structured Logger for webhook operations
  */
+const PII_KEYS = [
+  'password', 'token', 'secret', 'apikey', 'api_key', 'authorization',
+  'ssn', 'passport', 'creditcard', 'credit_card',
+  'phone', 'telephone', 'mobile', 'address', 'adresse', 'domicile',
+  'dateNaissance', 'birthdate', 'lieuNaissance', 'birthplace',
+  'nom', 'prenom', 'firstname', 'lastname', 'fullname',
+  'numeroSecuriteSociale', 'nationalite', 'nationality',
+];
+
+function redactPII(data: Record<string, any> | undefined): Record<string, any> | undefined {
+  if (!data) return data;
+  const redacted = { ...data };
+  for (const key of Object.keys(redacted)) {
+    const lower = key.toLowerCase();
+    if (PII_KEYS.some(p => lower.includes(p))) {
+      redacted[key] = '[REDACTED]';
+    } else if (lower.includes('email') && typeof redacted[key] === 'string') {
+      const [, domain] = (redacted[key] as string).split('@');
+      redacted[key] = `***@${domain || 'redacted'}`;
+    } else if (typeof redacted[key] === 'object' && redacted[key] !== null && !Array.isArray(redacted[key])) {
+      redacted[key] = redactPII(redacted[key]);
+    }
+  }
+  return redacted;
+}
+
 export class StructuredLogger {
   private context: WebhookLogContext;
   private logs: StructuredLogEntry[] = [];
@@ -71,14 +97,14 @@ export class StructuredLogger {
       action,
       duration: Math.round(duration * 100) / 100,
       message,
-      data,
+      data: redactPII(data),
     };
 
     if (error) {
       entry.error = {
         code: (error as any).code || 'UNKNOWN',
         message: error.message,
-        stack: error.stack,
+        stack: process.env.NODE_ENV === 'production' ? undefined : error.stack,
       };
     }
 
