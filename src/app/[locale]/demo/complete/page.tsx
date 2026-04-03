@@ -13,6 +13,7 @@ import {
   Mail,
   PlayCircle,
   Rocket,
+  Scale,
   Shield,
   Sparkles,
   Timer,
@@ -74,6 +75,17 @@ const DEMO_STEPS: DemoStep[] = [
     href: '/demo/legal-proof',
     tool: 'Génération documentaire + checks conformité',
     expectedResult: 'Le dossier est prêt avec des documents exploitables et un niveau de risque visible.',
+  },
+  {
+    id: 'legifrance',
+    title: 'Consulter les textes de loi applicables',
+    duration: '2 min',
+    why: 'Avoir les articles CESEDA, délais légaux et jurisprudence sans quitter MemoLib.',
+    action:
+      'Sélectionnez un type de dossier (OQTF, asile...) et observez les articles, délais et mots-clés jurisprudentiels qui s\'affichent automatiquement.',
+    href: '/demo/legifrance',
+    tool: 'Légifrance intégré (dépôts GitHub + API PISTE)',
+    expectedResult: 'Les textes applicables sont affichés contextuellement, avec liens vers legifrance.gouv.fr.',
   },
 ];
 
@@ -278,6 +290,13 @@ export default function DemoCompletePage() {
             >
               <FileText className="w-4 h-4" />
               Vérifier les preuves
+            </Link>
+            <Link
+              href={withLocale('/demo/legifrance')}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <Scale className="w-4 h-4" />
+              Recherche Légifrance
             </Link>
           </div>
 

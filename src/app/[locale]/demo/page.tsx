@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Mail, Brain, Scale, ArrowRight, Play, Zap, Compass } from 'lucide-react';
+import { Mail, Brain, Scale, ArrowRight, Play, Zap, Compass, BookOpen } from 'lucide-react';
 
 const DEMO_FEATURES = [
   {
@@ -39,6 +39,15 @@ const DEMO_FEATURES = [
     icon: Scale,
     href: '/demo/legal-proof',
     color: 'green',
+    duration: '2 min',
+  },
+  {
+    id: 4,
+    title: 'Recherche Légifrance',
+    description: 'Articles CESEDA, délais légaux et jurisprudence affichés automatiquement selon le dossier',
+    icon: BookOpen,
+    href: '/demo/legifrance',
+    color: 'indigo',
     duration: '2 min',
   },
 ];
