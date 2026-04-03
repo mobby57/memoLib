@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, X, FileText, Users, FolderOpen, Mail, Filter, Clock, TrendingUp } from 'lucide-react';
+import { Search, X, FileText, Users, FolderOpen, Mail, Filter, Clock, TrendingUp, Scale } from 'lucide-react';
 
 interface SearchResult {
   id: string;
@@ -27,25 +27,28 @@ interface SearchResponse {
   executionTime: number;
 }
 
-const typeIcons = {
+const typeIcons: Record<string, any> = {
   dossier: FolderOpen,
   client: Users,
   document: FileText,
   email: Mail,
+  legifrance: Scale,
 };
 
-const typeColors = {
+const typeColors: Record<string, string> = {
   dossier: 'text-blue-600 bg-blue-50',
   client: 'text-green-600 bg-green-50',
   document: 'text-purple-600 bg-purple-50',
   email: 'text-orange-600 bg-orange-50',
+  legifrance: 'text-indigo-600 bg-indigo-50',
 };
 
-const typeLabels = {
+const typeLabels: Record<string, string> = {
   dossier: 'Dossier',
   client: 'Client',
   document: 'Document',
   email: 'Email',
+  legifrance: 'Legifrance',
 };
 
 export default function GlobalSearch({ onClose }: { onClose?: () => void }) {
@@ -92,10 +95,55 @@ export default function GlobalSearch({ onClose }: { onClose?: () => void }) {
         limit: '20',
       });
 
-      const response = await fetch(`/api/search?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setResults(data);
+      if (selectedFilter === 'legifrance') {
+        const lfResponse = await fetch('/api/legifrance/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'unified-search', params: { query, maxLocal: 15, maxApi: 5 } }),
+        });
+        if (lfResponse.ok) {
+          const lfData = await lfResponse.json();
+          const lfResults: SearchResult[] = [];
+          for (const r of lfData.data?.localResults || []) {
+            lfResults.push({
+              id: r.article.id,
+              type: 'legifrance' as any,
+              title: `${r.article.code} — Art. ${r.article.numero}`,
+              description: r.highlight,
+              relevanceScore: r.score * 10,
+              metadata: { code: r.article.code },
+              highlights: [r.highlight],
+              url: `https://www.legifrance.gouv.fr/search/all?query=${encodeURIComponent(r.article.code + ' ' + r.article.numero)}`,
+              createdAt: new Date().toISOString(),
+            });
+          }
+          for (const r of lfData.data?.apiResults || []) {
+            lfResults.push({
+              id: r.id,
+              type: 'legifrance' as any,
+              title: r.title,
+              description: r.snippet || '',
+              relevanceScore: 50,
+              metadata: { source: 'API PISTE' },
+              highlights: r.snippet ? [r.snippet] : [],
+              url: r.url || '#',
+              createdAt: new Date().toISOString(),
+            });
+          }
+          setResults({
+            results: lfResults,
+            totalCount: lfResults.length,
+            suggestions: [],
+            facets: { byType: { legifrance: lfResults.length }, byStatus: {}, byDate: {} },
+            executionTime: lfData.data?.timing?.localMs + lfData.data?.timing?.apiMs || 0,
+          });
+        }
+      } else {
+        const response = await fetch(`/api/search?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          setResults(data);
+        }
       }
     } catch (error) {
       console.error('Erreur de recherche:', error);
@@ -166,7 +214,7 @@ export default function GlobalSearch({ onClose }: { onClose?: () => void }) {
           {/* Filters */}
           {showFilters && (
             <div className="flex gap-2 mt-3 flex-wrap">
-              {['all', 'dossiers', 'clients', 'documents', 'emails'].map((filter) => (
+              {['all', 'dossiers', 'clients', 'documents', 'emails', 'legifrance'].map((filter) => (
                 <button
                   key={filter}
                   onClick={() => setSelectedFilter(filter)}

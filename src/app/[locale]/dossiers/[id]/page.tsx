@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/forms/Button'
 import { EtapeTypeDossier } from '@/components/dossiers/EtapeTypeDossier'
 import { CesedaSpecificFields } from '@/components/dossiers/CesedaSpecificFields'
+import { LegifrancePanel } from '@/components/legifrance/LegifrancePanel'
 
 // Schema de validation Zod
 const dossierSchema = z.object({
@@ -400,7 +401,10 @@ export default function NouveauDossierAvance() {
 
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
-            <Card className="p-8 shadow-xl">
+            <div className="flex gap-6">
+              {/* Formulaire principal */}
+              <div className="flex-1">
+                <Card className="p-8 shadow-xl">
               {/* Contenu de l'etape */}
               {etapeActive === 0 && <EtapeTypeDossier />}
               {etapeActive === 1 && <CesedaSpecificFields />}
@@ -447,6 +451,18 @@ export default function NouveauDossierAvance() {
                 )}
               </div>
             </Card>
+              </div>
+
+              {/* Panneau Legifrance lateral */}
+              <div className="w-80 flex-shrink-0 hidden lg:block">
+                <div className="sticky top-8">
+                  <LegifrancePanel
+                    typeDossier={typeDossierSelectionne}
+                    fondement={methods.watch('metadata.titreSejour.fondement')}
+                  />
+                </div>
+              </div>
+            </div>
           </form>
         </FormProvider>
 
