@@ -3,6 +3,7 @@ const path = require('path');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: path.join(__dirname),
+  productionBrowserSourceMaps: false,
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -19,7 +20,12 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  webpack: (config) => {
+  webpack: (config, { dev, isServer }) => {
+    // Empêche l'exposition des sourcemaps en production pour le bundle navigateur.
+    if (!dev && !isServer) {
+      config.devtool = false;
+    }
+
     config.ignoreWarnings = [
       ...(config.ignoreWarnings ?? []),
       {
