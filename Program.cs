@@ -282,12 +282,14 @@ builder.Services.AddScoped<VaultService>();
 builder.Services.AddScoped<PdfExportService>();
 builder.Services.AddScoped<ExcelExportService>();
 builder.Services.AddScoped<EmailClassificationService>();
+builder.Services.AddScoped<IPipelineWorkflowStore, PipelineWorkflowStore>();
 builder.Services.AddScoped<CustomReportBuilderService>();
 builder.Services.AddScoped<RedisCacheService>();
 builder.Services.AddScoped<IEmailAdapter, MailKitEmailAdapter>();
 builder.Services.AddScoped<IDocuSignService, DocuSignService>();
 builder.Services.AddScoped<ILegalDatabaseService, LegalDatabaseService>();
 builder.Services.AddScoped<IOpenAIService, OpenAIService>();
+builder.Services.AddScoped<ISemanticKernelService, SemanticKernelService>();
 builder.Services.AddScoped<INotificationChannelService, NotificationChannelService>();
 builder.Services.AddScoped<LegalDeadlineService>();
 builder.Services.AddScoped<HearingService>();
@@ -412,9 +414,11 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 var app = builder.Build();
 var disableHttpsRedirection = builder.Configuration.GetValue<bool>("DisableHttpsRedirection");
+var skipDatabaseInitialization = builder.Configuration.GetValue<bool>("SkipDatabaseInitialization");
 
-using (var scope = app.Services.CreateScope())
+if (!skipDatabaseInitialization)
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<MemoLibDbContext>();
 
     if (useSqlServer)
@@ -492,6 +496,10 @@ using (var scope = app.Services.CreateScope())
     {
         Log.Warning(ex, "⚠️ Seed questionnaires ignoré (tables potentiellement absentes)");
     }
+}
+else
+{
+    Log.Warning("⚠️ SkipDatabaseInitialization=true: DB bootstrap skipped");
 }
 
 // Swagger UI
@@ -580,7 +588,11 @@ app.MapPost("/api/system/stop", (HttpContext http, IHostApplicationLifetime life
 
 var pipeline = app.MapGroup("/api/pipeline").WithTags("Pipeline");
 
-pipeline.MapPost("/analyze", (AnalyzeEmailRequest request) =>
+pipeline.MapPost("/analyze", async (
+    AnalyzeEmailRequest request,
+    ISemanticKernelService semanticKernelService,
+    ILogger<Program> logger,
+    CancellationToken cancellationToken) =>
 {
     if (string.IsNullOrWhiteSpace(request.TenantId) ||
         string.IsNullOrWhiteSpace(request.EmailId) ||
@@ -590,51 +602,96 @@ pipeline.MapPost("/analyze", (AnalyzeEmailRequest request) =>
     }
 
     var combined = $"{request.Subject} {request.Body}".ToLowerInvariant();
-    var category = combined.Contains("oqtf") ? "CONTENTIEUX_OQTF"
+    var fallbackCategory = combined.Contains("oqtf") ? "CONTENTIEUX_OQTF"
         : combined.Contains("naturalisation") ? "NATURALISATION"
         : combined.Contains("titre de séjour") || combined.Contains("titre de sejour") ? "TITRE_SEJOUR"
         : "GENERAL";
 
-    var urgency = combined.Contains("urgent") || combined.Contains("délai") || combined.Contains("delai")
+    var fallbackUrgency = combined.Contains("urgent") || combined.Contains("délai") || combined.Contains("delai")
         ? "high"
         : "medium";
+
+    var category = fallbackCategory;
+    var urgency = fallbackUrgency;
+    var confidence = fallbackCategory == "GENERAL" ? 0.62m : 0.84m;
+    List<string> suggestedActions = ["ouvrir_dossier", "assigner_reviewer"];
+    string? summaryFromSK = null;
+
+    if (await semanticKernelService.IsAvailableAsync(cancellationToken))
+    {
+        var skAnalysis = await semanticKernelService.AnalyzeEmailAsync(
+            request.Subject,
+            request.Body,
+            cancellationToken);
+
+        if (skAnalysis is not null)
+        {
+            category = string.IsNullOrWhiteSpace(skAnalysis.TypeDossier)
+                ? fallbackCategory
+                : skAnalysis.TypeDossier;
+            urgency = string.IsNullOrWhiteSpace(skAnalysis.Urgency)
+                ? fallbackUrgency
+                : skAnalysis.Urgency;
+            confidence = skAnalysis.Confidence <= 0 ? confidence : skAnalysis.Confidence;
+            summaryFromSK = skAnalysis.Summary;
+
+            if (skAnalysis.SuggestedActions.Count > 0)
+            {
+                suggestedActions = skAnalysis.SuggestedActions;
+            }
+        }
+        else
+        {
+            logger.LogDebug("Semantic Kernel unavailable for analysis, using local fallback");
+        }
+    }
 
     var response = new AnalyzeEmailResponse
     {
         EmailId = request.EmailId,
         Category = category,
         Urgency = urgency,
-        Confidence = category == "GENERAL" ? 0.62m : 0.84m,
-        Summary = string.IsNullOrWhiteSpace(request.Body)
+        Confidence = confidence,
+        Summary = !string.IsNullOrWhiteSpace(summaryFromSK)
+            ? summaryFromSK
+            : string.IsNullOrWhiteSpace(request.Body)
             ? request.Subject
             : request.Body.Length > 160 ? request.Body[..160] + "..." : request.Body,
-        SuggestedActions =
-        {
-            "ouvrir_dossier",
-            "assigner_reviewer"
-        },
+        SuggestedActions = suggestedActions,
         RequiresHumanReview = true,
     };
 
     return Results.Ok(response);
 });
 
-pipeline.MapPost("/workflows/start", (StartWorkflowRequest request) =>
+pipeline.MapPost("/workflows/start", async (
+    StartWorkflowRequest request,
+    IPipelineWorkflowStore workflowStore,
+    CancellationToken cancellationToken) =>
 {
     if (string.IsNullOrWhiteSpace(request.TenantId) || string.IsNullOrWhiteSpace(request.EmailId))
     {
         return Results.BadRequest(new { error = "tenantId et emailId sont requis" });
     }
 
+    var execution = await workflowStore.StartExecutionAsync(
+        request.TenantId,
+        request.EmailId,
+        request.WorkflowName,
+        cancellationToken);
+
     return Results.Ok(new StartWorkflowResponse
     {
-        ExecutionId = Guid.NewGuid().ToString("N"),
-        State = "RECEIVED",
-        StartedAtUtc = DateTime.UtcNow,
+        ExecutionId = execution.ExecutionId,
+        State = execution.State,
+        StartedAtUtc = execution.StartedAtUtc,
     });
 });
 
-pipeline.MapPost("/reviews", (ReviewDecisionRequest request) =>
+pipeline.MapPost("/reviews", async (
+    ReviewDecisionRequest request,
+    IPipelineWorkflowStore workflowStore,
+    CancellationToken cancellationToken) =>
 {
     if (string.IsNullOrWhiteSpace(request.TenantId) ||
         string.IsNullOrWhiteSpace(request.ExecutionId) ||
@@ -650,13 +707,69 @@ pipeline.MapPost("/reviews", (ReviewDecisionRequest request) =>
         return Results.BadRequest(new { error = "decision doit être APPROVE ou REJECT" });
     }
 
+    var result = await workflowStore.ApplyReviewAsync(
+        request.TenantId,
+        request.ExecutionId,
+        normalizedDecision,
+        request.ReviewedByUserId,
+        request.Notes,
+        cancellationToken);
+
+    if (result is null)
+    {
+        return Results.NotFound(new { error = "execution introuvable" });
+    }
+
     return Results.Ok(new ReviewDecisionResponse
     {
-        ExecutionId = request.ExecutionId,
-        PreviousState = "READY_FOR_REVIEW",
-        NewState = normalizedDecision == "APPROVE" ? "APPROVED" : "REJECTED",
-        DossierUpdated = normalizedDecision == "APPROVE",
-        DossierId = normalizedDecision == "APPROVE" ? Guid.NewGuid().ToString("N") : null,
+        ExecutionId = result.ExecutionId,
+        PreviousState = result.PreviousState,
+        NewState = result.NewState,
+        DossierUpdated = result.DossierUpdated,
+        DossierId = result.DossierId,
+    });
+});
+
+pipeline.MapGet("/workflows/{executionId}", async (
+    string executionId,
+    string tenantId,
+    IPipelineWorkflowStore workflowStore,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(tenantId))
+    {
+        return Results.BadRequest(new { error = "tenantId est requis" });
+    }
+
+    var execution = await workflowStore.GetExecutionAsync(tenantId, executionId, cancellationToken);
+    if (execution is null)
+    {
+        return Results.NotFound(new { error = "execution introuvable" });
+    }
+
+    var transitions = await workflowStore.GetTransitionsAsync(tenantId, executionId, cancellationToken);
+
+    return Results.Ok(new WorkflowExecutionDetailsResponse
+    {
+        ExecutionId = execution.ExecutionId,
+        TenantId = execution.TenantId,
+        EmailId = execution.EmailId,
+        WorkflowName = execution.WorkflowName,
+        State = execution.State,
+        StartedAtUtc = execution.StartedAtUtc,
+        EndedAtUtc = execution.EndedAtUtc,
+        DossierId = execution.RelatedCaseId,
+        Transitions = transitions.Select(t => new WorkflowTransitionItem
+        {
+            TransitionId = t.TransitionId,
+            FromState = t.FromState,
+            ToState = t.ToState,
+            Reason = t.Reason,
+            ActorType = t.ActorType,
+            ActorId = t.ActorId,
+            Notes = t.Notes,
+            CreatedAtUtc = t.CreatedAtUtc,
+        }).ToList(),
     });
 });
 

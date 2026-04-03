@@ -52,6 +52,7 @@
     <Compile Include="MemoLib.Api-cleanpush\Authorization\**\*.cs" />
     <Compile Include="MemoLib.Api-cleanpush\Hubs\**\*.cs" />
     <Compile Include="MemoLib.Api-cleanpush\Exceptions\**\*.cs" />
+    <Compile Include="MemoLib.Api\Contracts\PipelineContracts.cs" />
   </ItemGroup>
 
 </Project>

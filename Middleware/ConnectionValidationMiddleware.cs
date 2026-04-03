@@ -16,6 +16,16 @@ public class ConnectionValidationMiddleware
 
     public async Task InvokeAsync(HttpContext context, MemoLibDbContext db)
     {
+        var disableValidation =
+            string.Equals(Environment.GetEnvironmentVariable("DisableConnectionValidation"), "true", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(context.RequestServices.GetService<IConfiguration>()?["DisableConnectionValidation"], "true", StringComparison.OrdinalIgnoreCase);
+
+        if (disableValidation)
+        {
+            await _next(context);
+            return;
+        }
+
         // Skip health check endpoints
         if (context.Request.Path.StartsWithSegments("/health"))
         {
