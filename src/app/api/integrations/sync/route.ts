@@ -1,7 +1,7 @@
 import { ExternalCalendarBridge } from '@/lib/oauth/calendar-bridge';
 import type { OAuthProvider } from '@/lib/oauth/oauth-service';
 import { oauthTokenService } from '@/lib/oauth/token-service';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';

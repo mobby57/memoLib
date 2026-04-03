@@ -1,10 +1,10 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getBlobServiceClient } from '@/lib/azure/clients';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 
 async function ensureAdminAccess() {
   const session = await getServerSession(authOptions);

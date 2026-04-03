@@ -1,38 +1,38 @@
-ï»¿/**
- * ðŸ›¡ï¸ Admin Cost Management API
+/**
+ * ??? Admin Cost Management API
  *
- * Permet Ã  l'admin de :
- * - Voir les coÃ»ts IA de tous les tenants
+ * Permet à l'admin de :
+ * - Voir les coûts IA de tous les tenants
  * - Ajuster les limites de budget
- * - Facturer les surcoÃ»ts
+ * - Facturer les surcoûts
  */
 
 import { authOptions } from '@/lib/auth';
 import { MONTHLY_COST_LIMITS } from '@/lib/billing/cost-guard';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
-// GET - Liste tous les tenants avec leurs coÃ»ts
+// GET - Liste tous les tenants avec leurs coûts
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
-      return NextResponse.json({ error: 'AccÃ¨s refusÃ©' }, { status: 403 });
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
     const month = parseInt(searchParams.get('month') || String(new Date().getMonth() + 1));
     const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()));
 
-    // DÃ©but et fin du mois
+    // Début et fin du mois
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
-    // RÃ©cupÃ©rer tous les tenants avec leurs coÃ»ts
+    // Récupérer tous les tenants avec leurs coûts
     const tenants = await prisma.tenant.findMany({
       include: {
         plan: true,
@@ -47,10 +47,10 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Calculer les coÃ»ts par tenant
+    // Calculer les coûts par tenant
     const tenantsWithCosts = await Promise.all(
       tenants.map(async tenant => {
-        // CoÃ»ts IA du mois
+        // Coûts IA du mois
         let aiCost = 0;
         let aiTokens = 0;
         try {
@@ -101,19 +101,19 @@ export async function GET(request: NextRequest) {
             status:
               usagePercentage >= 100 ? 'exceeded' : usagePercentage >= 80 ? 'warning' : 'normal',
           },
-          // Montant facturable pour surcoÃ»t
+          // Montant facturable pour surcoût
           billableOverage:
             overage > 0
               ? {
                   amount: parseFloat((overage * 1.5).toFixed(2)), // Majoration 50%
-                  description: `SurcoÃ»t IA - ${aiTokens} tokens au-delÃ  du forfait`,
+                  description: `Surcoût IA - ${aiTokens} tokens au-delà du forfait`,
                 }
               : null,
         };
       })
     );
 
-    // Trier par coÃ»t dÃ©croissant
+    // Trier par coût décroissant
     tenantsWithCosts.sort((a, b) => b.aiCosts.current - a.aiCosts.current);
 
     // Stats globales
@@ -139,14 +139,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Actions admin (ajuster limites, crÃ©er facture surcoÃ»t)
+// POST - Actions admin (ajuster limites, créer facture surcoût)
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     const userRole = (session?.user as { role?: string })?.role;
 
     if (!session?.user || (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN')) {
-      return NextResponse.json({ error: 'AccÃ¨s refusÃ©' }, { status: 403 });
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -158,19 +158,19 @@ export async function POST(request: NextRequest) {
         return await adjustBudgetLimit(tenantId, data.newLimit);
 
       case 'create_overage_invoice':
-        // CrÃ©er une facture pour le surcoÃ»t
+        // Créer une facture pour le surcoût
         return await createOverageInvoice(tenantId, data);
 
       case 'reset_usage':
-        // Remettre Ã  zÃ©ro les compteurs (dÃ©but de mois)
+        // Remettre à zéro les compteurs (début de mois)
         return await resetMonthlyUsage(tenantId);
 
       case 'block_ai':
-        // Bloquer l'accÃ¨s IA pour un tenant
+        // Bloquer l'accès IA pour un tenant
         return await toggleAIAccess(tenantId, false);
 
       case 'unblock_ai':
-        // DÃ©bloquer l'accÃ¨s IA
+        // Débloquer l'accès IA
         return await toggleAIAccess(tenantId, true);
 
       default:
@@ -189,7 +189,7 @@ async function adjustBudgetLimit(tenantId: string, newLimit: number) {
     where: { tenantId },
     update: {
       // On utilise un champ JSON pour les overrides
-      // @ts-ignore - Extension du modÃ¨le
+      // @ts-ignore - Extension du modèle
     },
     create: {
       tenantId,
@@ -200,17 +200,17 @@ async function adjustBudgetLimit(tenantId: string, newLimit: number) {
   });
 
   // Pour l'instant, on log l'action
-  logger.info(`Budget limit adjusted`, { tenantId, newLimit: `${newLimit}â‚¬` });
+  logger.info(`Budget limit adjusted`, { tenantId, newLimit: `${newLimit}€` });
 
   return NextResponse.json({
     success: true,
-    message: `Limite ajustÃ©e Ã  ${newLimit}â‚¬/mois`,
+    message: `Limite ajustée à ${newLimit}€/mois`,
     tenantId,
     newLimit,
   });
 }
 
-// CrÃ©er une facture de surcoÃ»t
+// Créer une facture de surcoût
 async function createOverageInvoice(
   tenantId: string,
   data: {
@@ -225,14 +225,14 @@ async function createOverageInvoice(
   });
 
   if (!tenant) {
-    return NextResponse.json({ error: 'Tenant non trouvÃ©' }, { status: 404 });
+    return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 404 });
   }
 
-  // GÃ©nÃ©rer numÃ©ro de facture
+  // Générer numéro de facture
   const invoiceCount = await prisma.invoice.count();
   const invoiceNumber = `INV-${data.period.year}-${String(invoiceCount + 1).padStart(4, '0')}-OVR`;
 
-  // CrÃ©er la facture
+  // Créer la facture
   const invoice = await prisma.invoice.create({
     data: {
       subscriptionId: tenant.subscription?.id || '',
@@ -246,7 +246,7 @@ async function createOverageInvoice(
       description: data.description,
       lineItems: [
         {
-          description: `SurcoÃ»t utilisation IA - ${data.period.month}/${data.period.year}`,
+          description: `Surcoût utilisation IA - ${data.period.month}/${data.period.year}`,
           quantity: 1,
           unitPrice: data.amount,
           total: data.amount,
@@ -257,7 +257,7 @@ async function createOverageInvoice(
 
   return NextResponse.json({
     success: true,
-    message: 'Facture de surcoÃ»t crÃ©Ã©e',
+    message: 'Facture de surcoût créée',
     invoice: {
       id: invoice.id,
       number: invoiceNumber,
@@ -267,9 +267,9 @@ async function createOverageInvoice(
   });
 }
 
-// Remettre Ã  zÃ©ro l'usage mensuel
+// Remettre à zéro l'usage mensuel
 async function resetMonthlyUsage(tenantId: string) {
-  // Archiver les logs du mois prÃ©cÃ©dent dans AIMonthlySummary
+  // Archiver les logs du mois précédent dans AIMonthlySummary
   const now = new Date();
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -284,7 +284,7 @@ async function resetMonthlyUsage(tenantId: string) {
       _count: true,
     });
 
-    // CrÃ©er le rÃ©sumÃ© mensuel
+    // Créer le résumé mensuel
     await prisma.aIMonthlySummary.upsert({
       where: {
         tenantId_year_month: {
@@ -310,7 +310,7 @@ async function resetMonthlyUsage(tenantId: string) {
 
     return NextResponse.json({
       success: true,
-      message: 'Usage archivÃ© et reset effectuÃ©',
+      message: 'Usage archivé et reset effectué',
       archived: {
         month: lastMonth.getMonth() + 1,
         year: lastMonth.getFullYear(),
@@ -329,7 +329,7 @@ async function resetMonthlyUsage(tenantId: string) {
   }
 }
 
-// Activer/DÃ©sactiver l'accÃ¨s IA
+// Activer/Désactiver l'accès IA
 async function toggleAIAccess(tenantId: string, enabled: boolean) {
   await prisma.tenantSettings.upsert({
     where: { tenantId },
@@ -346,7 +346,7 @@ async function toggleAIAccess(tenantId: string, enabled: boolean) {
 
   return NextResponse.json({
     success: true,
-    message: enabled ? 'AccÃ¨s IA rÃ©activÃ©' : 'AccÃ¨s IA bloquÃ©',
+    message: enabled ? 'Accès IA réactivé' : 'Accès IA bloqué',
     tenantId,
     aiEnabled: enabled,
   });

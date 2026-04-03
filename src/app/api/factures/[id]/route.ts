@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { prisma } from '@/lib/prisma';
 import { cacheGet, cacheSet, cacheDelete, cacheInvalidatePattern, CACHE_TTL } from '@/lib/cache';
 import { logger } from '@/lib/logger';

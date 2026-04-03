@@ -1,7 +1,7 @@
-﻿import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import fs from 'fs';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 

@@ -1,6 +1,6 @@
 import { legalProofService } from '@/lib/services/legal-proof.service';
 import { ProofFormat } from '@/types/legal-proof';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**

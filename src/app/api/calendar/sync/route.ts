@@ -1,6 +1,6 @@
 import { calendarService, type CalendarProvider } from '@/lib/calendar/calendar-service';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';

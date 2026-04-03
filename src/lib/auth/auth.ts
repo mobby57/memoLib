@@ -71,7 +71,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma) as any,
   providers: [
     ...(process.env.AZURE_CLIENT_ID && process.env.AZURE_CLIENT_SECRET && process.env.AZURE_TENANT_ID
-      ? [AzureAD({ clientId: process.env.AZURE_CLIENT_ID, clientSecret: process.env.AZURE_CLIENT_SECRET, tenantId: process.env.AZURE_TENANT_ID })]
+      ? [AzureAD({ clientId: process.env.AZURE_CLIENT_ID, clientSecret: process.env.AZURE_CLIENT_SECRET, issuer: `https://login.microsoftonline.com/${process.env.AZURE_TENANT_ID}/v2.0` })]
       : []),
     ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
       ? [GitHub({ clientId: process.env.GITHUB_CLIENT_ID, clientSecret: process.env.GITHUB_CLIENT_SECRET })]
@@ -85,8 +85,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const email = credentials?.email as string;
-        const password = credentials?.password as string;
+        const email = typeof credentials?.email === 'string' ? credentials.email : null;
+        const password = typeof credentials?.password === 'string' ? credentials.password : null;
         if (!email || !password) throw new Error('Identifiants requis');
 
         if (isDemoMode) {

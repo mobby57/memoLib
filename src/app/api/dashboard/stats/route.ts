@@ -1,50 +1,46 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from '@/lib/auth/server-session';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
-    const tenantId = session.user.tenantId;
+    const tenantId = (session.user as any).tenantId;
 
-    const totalDossiers = await prisma.dossier.count({
-      where: { tenantId },
-    });
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 400 });
+    }
 
-    const dossiersActifs = await prisma.dossier.count({
-      where: { tenantId, statut: 'EN_COURS' },
-    });
+    const [
+      totalDossiers,
+      dossiersActifs,
+      dossiersEnAttente,
+      dossiersTermines,
+      dossiersArchives,
+      facturesEnAttente,
+      revenusData,
+    ] = await Promise.all([
+      prisma.dossier.count({ where: { tenantId } }),
+      prisma.dossier.count({ where: { tenantId, statut: 'en_cours' } }),
+      prisma.dossier.count({ where: { tenantId, statut: 'nouveau' } }),
+      prisma.dossier.count({ where: { tenantId, statut: 'clos' } }),
+      prisma.dossier.count({ where: { tenantId, statut: 'archive' } }),
+      prisma.facture.count({ where: { tenantId, statut: 'brouillon' } }),
+      prisma.facture.aggregate({
+        where: { tenantId, statut: 'payee' },
+        _sum: { montantTTC: true },
+      }),
+    ]);
 
-    const dossiersEnAttente = await prisma.dossier.count({
-      where: { tenantId, statut: 'EN_ATTENTE' },
-    });
+    const revenus = revenusData._sum?.montantTTC || 0;
 
-    const dossiersTermines = await prisma.dossier.count({
-      where: { tenantId, statut: 'TERMINE' },
-    });
-
-    const dossiersArchives = await prisma.dossier.count({
-      where: { tenantId, statut: 'ARCHIVE' },
-    });
-
-    const facturesEnAttente = await prisma.facture.count({
-      where: { tenantId, statut: 'EN_ATTENTE' },
-    });
-
-    const revenusData = await prisma.facture.aggregate({
-      where: { tenantId, statut: 'PAYEE' },
-      _sum: { montant: true },
-    });
-
-    const revenus = revenusData._sum?.montant || 0;
-
-    const stats = {
+    return NextResponse.json({
       totalDossiers,
       dossiersActifs,
       dossiersEnAttente,
@@ -57,9 +53,7 @@ export async function GET(request: NextRequest) {
         factures: 3,
         revenus: 12,
       },
-    };
-
-    return NextResponse.json(stats);
+    });
   } catch (error) {
     logger.error('Erreur API dashboard stats', { error });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

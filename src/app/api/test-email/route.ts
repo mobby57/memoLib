@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { emailMonitor } from '@/lib/email/email-monitor-service';
 

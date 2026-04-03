@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete } from '@/lib/cache';
@@ -11,7 +11,6 @@ interface RouteParams {
 
 /**
  * GET /api/dossiers/[id]
- * Récupère un dossier spécifique par son ID
  */
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
@@ -39,25 +38,24 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
                 lastName: true,
                 email: true,
                 phone: true,
-                type: true,
               },
             },
             documents: {
               orderBy: { createdAt: 'desc' },
               take: 50,
             },
-            delais: {
-              orderBy: { dateEcheance: 'asc' },
+            emails: {
+              orderBy: { receivedAt: 'desc' },
+              take: 20,
             },
-            evenements: {
-              orderBy: { dateEvenement: 'desc' },
-              take: 50,
+            legalDeadlines: {
+              orderBy: { dueDate: 'asc' },
             },
             _count: {
               select: {
                 documents: true,
-                delais: true,
-                evenements: true,
+                emails: true,
+                legalDeadlines: true,
               },
             },
           },
@@ -81,7 +79,6 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 /**
  * PATCH /api/dossiers/[id]
- * Met à jour un dossier existant
  */
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
@@ -98,7 +95,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const body = await request.json();
     const { tenantId: _ignoredTenantId, ...updateData } = body;
 
-    // Vérifier que le dossier existe
     const existing = await prisma.dossier.findFirst({
       where: { id: dossierId, tenantId },
     });
@@ -107,13 +103,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Dossier non trouvé' }, { status: 404 });
     }
 
-    // Mettre à jour le dossier
     const dossier = await prisma.dossier.update({
       where: { id: dossierId },
-      data: {
-        ...updateData,
-        updatedAt: new Date(),
-      },
+      data: updateData,
       include: {
         client: {
           select: {
@@ -126,21 +118,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    // Créer un événement de modification
-    await prisma.evenement.create({
-      data: {
-        tenantId,
-        dossierId,
-        clientId: dossier.clientId,
-        type: 'action',
-        categorie: 'modification_dossier',
-        titre: 'Dossier modifié',
-        description: `Le dossier ${dossier.numero} a été modifié`,
-        dateEvenement: new Date(),
-      },
-    });
-
-    // Invalider le cache
     await cacheDelete(`dossier:${tenantId}:${dossierId}`);
 
     return NextResponse.json({ dossier, message: 'Dossier mis à jour' });
@@ -154,7 +131,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
 /**
  * DELETE /api/dossiers/[id]
- * Supprime un dossier (soft delete via archivage)
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
@@ -175,7 +151,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
-    // Vérifier que le dossier existe
     const existing = await prisma.dossier.findFirst({
       where: { id: dossierId, tenantId },
     });
@@ -185,36 +160,16 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     if (hardDelete) {
-      // Suppression définitive (admin uniquement)
       await prisma.dossier.delete({
         where: { id: dossierId },
       });
     } else {
-      // Soft delete : archivage
       await prisma.dossier.update({
         where: { id: dossierId },
-        data: {
-          status: 'archive',
-          updatedAt: new Date(),
-        },
-      });
-
-      // Créer un événement d'archivage
-      await prisma.evenement.create({
-        data: {
-          tenantId,
-          dossierId,
-          clientId: existing.clientId,
-          type: 'action',
-          categorie: 'archivage_dossier',
-          titre: 'Dossier archivé',
-          description: `Le dossier ${existing.numero} a été archivé`,
-          dateEvenement: new Date(),
-        },
+        data: { statut: 'archive' },
       });
     }
 
-    // Invalider le cache
     await cacheDelete(`dossier:${tenantId}:${dossierId}`);
 
     return NextResponse.json({

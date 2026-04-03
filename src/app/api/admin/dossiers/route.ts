@@ -1,6 +1,6 @@
-﻿import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**

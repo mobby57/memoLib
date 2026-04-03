@@ -7,7 +7,7 @@
  */
 
 import { eventLogService } from '@/lib/services/event-log.service';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {

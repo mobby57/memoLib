@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 
-jest.mock('next-auth', () => ({
+jest.mock('@/lib/auth/server-session', () => ({
   getServerSession: jest.fn(),
 }));
 
@@ -31,7 +31,7 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { requireApiPermission } from '@/lib/auth/rbac';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { runBlackbox } from '@/lib/blackbox/engine';

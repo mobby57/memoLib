@@ -174,13 +174,16 @@ export default function DashboardPage() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const baseUrl = `/api/tenant/${user?.tenantId}`;
-
       // D�MO MODE: Utiliser les donn�es mock�es directement pour rapidit�
-      const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || !user?.tenantId;
-
       let statsData;
-      if (isDemoMode) {
+      try {
+        const statsResponse = await fetch('/api/dashboard/stats');
+        if (statsResponse.ok) {
+          statsData = await statsResponse.json();
+        } else {
+          throw new Error('API error');
+        }
+      } catch {
         // Donn�es de d�mo - Z�RO latence
         statsData = {
           totalDossiers: 24,
@@ -191,23 +194,6 @@ export default function DashboardPage() {
           revenus: 12500,
           trends: { dossiers: 8, factures: 12, revenus: 15 },
         };
-      } else {
-        // API spécifique au tenant pour les admins
-        const statsResponse = await fetch(`${baseUrl}/dashboard/stats`);
-        if (statsResponse.ok) {
-          statsData = await statsResponse.json();
-        } else {
-          // Fallback demo data
-          statsData = {
-            totalDossiers: 24,
-            dossiersActifs: 18,
-            dossiersEnAttente: 4,
-            dossiersTermines: 2,
-            facturesEnAttente: 5,
-            revenus: 12500,
-            trends: { dossiers: 8, factures: 12, revenus: 15 },
-          };
-        }
       }
 
       setStats({
@@ -229,14 +215,14 @@ export default function DashboardPage() {
       calculateMetrics(statsData);
 
       // Charger les donnees mensuelles
-      const monthlyResponse = await fetch(`${baseUrl}/dashboard/monthly-data`);
+      const monthlyResponse = await fetch('/api/dashboard/monthly-data');
       if (monthlyResponse.ok) {
         const monthlyDataResult = await monthlyResponse.json();
         setMonthlyData(monthlyDataResult);
       }
 
       // Charger les activités recentes
-      const activitiesResponse = await fetch(`${baseUrl}/dashboard/recent-activities`);
+      const activitiesResponse = await fetch('/api/dashboard/recent-activities');
       if (activitiesResponse.ok) {
         const activitiesData = await activitiesResponse.json();
         setRecentActivities(activitiesData);

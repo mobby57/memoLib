@@ -1,6 +1,6 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getEmailIngestionMetricsSnapshot, resetEmailIngestionMetrics } from '@/lib/email/ingestion-metrics';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function requireAdmin() {

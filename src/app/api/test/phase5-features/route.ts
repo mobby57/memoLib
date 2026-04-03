@@ -14,7 +14,7 @@ import { calculateBackoffDelay, retryWithBackoff } from '@/lib/retry-logic';
 import { getAlertsStatus, getMetricsSnapshot } from '@/lib/sentry-metrics-dashboard';
 import { createLoggerContext, StructuredLogger } from '@/lib/structured-logger';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 async function ensureAdminAccess() {

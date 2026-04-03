@@ -1,4 +1,4 @@
-ï»¿/**
+/**
  * API Stats Multi-Canal
  * Statistiques et analytics pour tous les canaux
  */
@@ -6,25 +6,25 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/multichannel/stats
- * RÃ©cupÃ©rer les statistiques multi-canal
+ * Récupérer les statistiques multi-canal
  */
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisÃ©' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     const user = session.user as any;
     const tenantId = user.tenantId;
 
     if (!tenantId && user.role !== 'SUPER_ADMIN') {
-      return NextResponse.json({ error: 'Tenant non trouvÃ©' }, { status: 403 });
+      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 403 });
     }
 
     const url = new URL(request.url);
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
         processedAt: { not: null },
       },
       _avg: {
-        // Calculer via raw query si nÃ©cessaire
+        // Calculer via raw query si nécessaire
       },
     });
 
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
       take: 10,
     });
 
-    // Messages non traitÃ©s
+    // Messages non traités
     const pendingMessages = await prisma.channelMessage.count({
       where: {
         tenantId,

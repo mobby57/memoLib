@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 
 const APP_VERSION = process.env.APP_VERSION || process.env.NEXT_PUBLIC_APP_VERSION || '0.0.0-dev';
 const APP_COMMIT_SHA = process.env.APP_COMMIT_SHA || 'local-dev';
@@ -29,21 +31,72 @@ function assertEqual(label, actual, expected) {
   }
 }
 
-async function main() {
-  const server = spawn(
-    process.platform === 'win32' ? 'npm.cmd' : 'npm',
-    ['run', 'start:prod'],
-    {
-      env: {
-        ...process.env,
-        APP_VERSION,
-        NEXT_PUBLIC_APP_VERSION: APP_VERSION,
-        APP_COMMIT_SHA,
-        NODE_ENV: 'production',
-      },
+function runCommand(command, args, env) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      env,
       stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    child.stdout.on('data', (data) => process.stdout.write(data));
+    child.stderr.on('data', (data) => process.stderr.write(data));
+    child.on('error', reject);
+    child.on('exit', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`Command failed (${command} ${args.join(' ')}), exit code=${code}`));
+    });
+  });
+}
+
+async function ensureProductionBuild(env) {
+  const buildIdPath = join(process.cwd(), '.next', 'BUILD_ID');
+  if (existsSync(buildIdPath)) {
+    return;
+  }
+
+  console.log('[contract] Missing production build. Running build:frontend...');
+  if (process.platform === 'win32') {
+    await runCommand('cmd.exe', ['/d', '/s', '/c', 'npm run build:frontend'], env);
+    return;
+  }
+  await runCommand('npm', ['run', 'build:frontend'], env);
+}
+
+async function main() {
+  const commandEnv = {
+    ...process.env,
+    APP_VERSION,
+    NEXT_PUBLIC_APP_VERSION: APP_VERSION,
+    APP_COMMIT_SHA,
+    NODE_ENV: 'production',
+  };
+
+  await ensureProductionBuild(commandEnv);
+
+  const command = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+  const args =
+    process.platform === 'win32'
+      ? ['/d', '/s', '/c', 'npm run start:prod']
+      : ['run', 'start:prod'];
+
+  const server = spawn(command, args, {
+    env: commandEnv,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  const stopServer = () => {
+    if (server.killed) {
+      return;
     }
-  );
+    if (process.platform === 'win32') {
+      server.kill();
+      return;
+    }
+    server.kill('SIGTERM');
+  };
 
   server.stdout.on('data', (data) => process.stdout.write(data));
   server.stderr.on('data', (data) => process.stderr.write(data));
@@ -60,7 +113,7 @@ async function main() {
       apiVersion: payload.apiVersion,
     });
   } finally {
-    server.kill('SIGTERM');
+    stopServer();
   }
 }
 

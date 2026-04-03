@@ -8,7 +8,7 @@ import { logger } from '@/lib/logger';
 import { auditService } from '@/lib/multichannel/audit-service';
 import { multiChannelService } from '@/lib/multichannel/channel-service';
 import { ChannelType } from '@/lib/multichannel/types';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**

@@ -1,6 +1,6 @@
 import type { OAuthProvider } from '@/lib/oauth/oauth-service';
 import { oauthTokenService } from '@/lib/oauth/token-service';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 
 /**
  * Middleware to ensure OAuth token is valid

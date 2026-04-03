@@ -1,13 +1,13 @@
-ï»¿/**
+/**
  * API RGPD - Consentement et droits des clients
- * Export donnÃ©es, suppression, gestion consentements
+ * Export données, suppression, gestion consentements
  */
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { auditService } from '@/lib/multichannel/audit-service';
 import { ChannelType } from '@/lib/multichannel/types';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisÃ©' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     const url = new URL(request.url);
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'clientId requis' }, { status: 400 });
     }
 
-    // Exporter les donnÃ©es
+    // Exporter les données
     const exportData = await auditService.exportClientData(clientId);
 
     return NextResponse.json({
@@ -88,20 +88,20 @@ export async function POST(request: NextRequest) {
 
 /**
  * DELETE /api/multichannel/rgpd
- * Droit Ã  l'oubli - supprimer les donnÃ©es d'un client
+ * Droit à l'oubli - supprimer les données d'un client
  */
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisÃ©' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     const user = session.user as any;
 
     // Seuls les admins peuvent supprimer
     if (!['SUPER_ADMIN', 'ADMIN'].includes(user.role)) {
-      return NextResponse.json({ error: 'Permission refusÃ©e' }, { status: 403 });
+      return NextResponse.json({ error: 'Permission refusée' }, { status: 403 });
     }
 
     const url = new URL(request.url);

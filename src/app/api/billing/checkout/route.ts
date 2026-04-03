@@ -1,11 +1,11 @@
-﻿/**
+/**
  * API Checkout Stripe
  * Cree une session de paiement pour s'abonner a un plan
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { createCheckoutSession } from '@/lib/billing/stripe-client';
 import { prisma } from '@/lib/prisma';

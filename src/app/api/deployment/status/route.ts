@@ -6,7 +6,7 @@
 
 import DeploymentGuide from '@/config/deployment-guide';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 async function ensureAdminAccess() {

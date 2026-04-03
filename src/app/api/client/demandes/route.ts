@@ -1,5 +1,5 @@
-ï»¿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from '@/lib/auth/server-session';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         select: { id: true, email: true },
       });
 
-      // CrÃ©er notifications pour chaque avocat
+      // Créer notifications pour chaque avocat
       for (const avocat of avocats) {
         await prisma.notification.create({
           data: {
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    logger.error('Erreur crÃ©ation demande client', error instanceof Error ? error : undefined, {
+    logger.error('Erreur création demande client', error instanceof Error ? error : undefined, {
       route: '/api/client/demandes',
     });
     return NextResponse.json(
@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ demandes });
   } catch (error) {
-    logger.error('Erreur rÃ©cupÃ©ration demandes', error instanceof Error ? error : undefined, {
+    logger.error('Erreur récupération demandes', error instanceof Error ? error : undefined, {
       route: '/api/client/demandes',
     });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

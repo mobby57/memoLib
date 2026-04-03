@@ -1,6 +1,6 @@
-﻿// @ts-nocheck
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { logger } from '@/lib/logger';
 import { PrismaClient } from '@prisma/client';
 

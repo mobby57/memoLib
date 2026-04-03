@@ -3,7 +3,7 @@ import { POST as canonicalWebhookPost } from '@/app/api/payments/webhook/route';
 import { requireApiPermission, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 import { prisma } from '@/lib/prisma';
 import { stripe } from '@/lib/stripe/config';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 const hasStripeSecret = Boolean(process.env.STRIPE_SECRET_KEY);

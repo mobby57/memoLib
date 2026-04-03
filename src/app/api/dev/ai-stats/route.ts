@@ -1,5 +1,5 @@
-﻿import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger, LogCategory } from '@/lib/dev/advanced-logger';
 

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import SearchAnalytics from '@/components/SearchAnalytics';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { redirect } from 'next/navigation';
 

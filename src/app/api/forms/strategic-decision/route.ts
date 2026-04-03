@@ -1,10 +1,10 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 
 /**
- * 🎯 API: Soumission de decision strategique
+ * ?? API: Soumission de decision strategique
  */
 
 export async function POST(request: NextRequest) {

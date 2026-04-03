@@ -1,9 +1,9 @@
-ï»¿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 
 async function resolveTenantAccess(requestedTenantId: string | null): Promise<
   | { tenantId: string; role: string; userId: string }
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - CrÃ©er une InformationUnit
+// POST - Créer une InformationUnit
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       return NextResponse.json(
-        { error: 'Information dÃ©jÃ  enregistrÃ©e', unit: existing },
+        { error: 'Information déjà enregistrée', unit: existing },
         { status: 409 }
       );
     }
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
         unitId: unit.id,
         toStatus: 'RECEIVED',
         changedBy: effectiveChangedBy,
-        reason: 'CrÃ©ation initiale',
+        reason: 'Création initiale',
       },
     });
 
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PATCH - Mettre Ã  jour le statut
+// PATCH - Mettre à jour le statut
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
@@ -156,7 +156,7 @@ export async function PATCH(request: NextRequest) {
 
     const unit = await prisma.informationUnit.findUnique({ where: { id: unitId } });
     if (!unit) {
-      return NextResponse.json({ error: 'InformationUnit non trouvÃ©e' }, { status: 404 });
+      return NextResponse.json({ error: 'InformationUnit non trouvée' }, { status: 404 });
     }
 
     const access = await resolveTenantAccess(unit.tenantId);

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Test API Endpoint - CESEDA Case Analysis
  *
  * Example endpoint demonstrating:
@@ -14,7 +14,7 @@ import { cesedaAnalyzer } from '@/lib/ai/ceseda-analyzer';
 import { logger, logIAUsage } from '@/lib/logger';
 import { anonymizeForAI } from '@/lib/utils/rgpd-helpers';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 async function handler(req: NextRequest, context: any) {

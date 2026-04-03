@@ -1,13 +1,13 @@
-ï»¿/**
+/**
 import { logger } from '@/lib/logger';
- * API Endpoint - Dashboard des coÃ»ts IA
+ * API Endpoint - Dashboard des coûts IA
  * GET /api/billing/ai-costs
  * 
- * Permet aux tenants de surveiller leurs dÃ©penses IA
+ * Permet aux tenants de surveiller leurs dépenses IA
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import { 
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Non autorisÃ©' },
+        { error: 'Non autorisé' },
         { status: 401 }
       );
     }
@@ -32,15 +32,15 @@ export async function GET(request: NextRequest) {
     
     if (!tenantId) {
       return NextResponse.json(
-        { error: 'Tenant non trouvÃ©' },
+        { error: 'Tenant non trouvé' },
         { status: 404 }
       );
     }
 
-    // RÃ©cupÃ©rer le dashboard des coÃ»ts
+    // Récupérer le dashboard des coûts
     const dashboard = await getCostDashboard(tenantId);
     
-    // VÃ©rifier la rentabilitÃ© (admin seulement)
+    // Vérifier la rentabilité (admin seulement)
     let profitability: Awaited<ReturnType<typeof checkTenantProfitability>> | null = null;
     const userRole = (session.user as { role?: string }).role;
     if (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN') {

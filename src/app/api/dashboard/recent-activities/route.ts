@@ -1,28 +1,29 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non autoris�' }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
     const userRole = (session.user as any).role;
     const tenantId = (session.user as any).tenantId;
+    const clientId = (session.user as any).clientId;
 
     const activities: any[] = [];
 
-    // R�cup�rer les dossiers r�cents
-    let dossiersWhere: any = {};
-    if (userRole === 'CLIENT') {
-      dossiersWhere = { clientId: userId };
-    } else if (userRole === 'AVOCAT' && tenantId) {
-      dossiersWhere = { tenantId };
+    // Dossiers recents
+    const dossiersWhere: any = {};
+    if (userRole === 'CLIENT' && clientId) {
+      dossiersWhere.clientId = clientId;
+    } else if (tenantId) {
+      dossiersWhere.tenantId = tenantId;
     }
 
     const recentDossiers = await prisma.dossier.findMany({
@@ -42,23 +43,17 @@ export async function GET(request: NextRequest) {
         type: 'dossier',
         title: `${dossier.numero} - ${dossier.client?.firstName} ${dossier.client?.lastName}`,
         date: dossier.createdAt.toISOString(),
-        status: dossier.statut === 'EN_COURS' ? 'info' : 
-                dossier.statut === 'TERMINE' ? 'success' : 'warning',
+        status: dossier.statut === 'en_cours' ? 'info' :
+                dossier.statut === 'clos' ? 'success' : 'warning',
       });
     }
 
-    // R�cup�rer les factures r�centes
-    let facturesWhere: any = {};
-    if (userRole === 'CLIENT') {
-      const clientDossiers = await prisma.dossier.findMany({
-        where: { clientId: userId },
-        select: { id: true },
-      });
-      facturesWhere = {
-        dossierId: { in: clientDossiers.map(d => d.id) },
-      };
-    } else if (userRole === 'AVOCAT' && tenantId) {
-      facturesWhere = { tenantId };
+    // Factures recentes
+    const facturesWhere: any = {};
+    if (userRole === 'CLIENT' && clientId) {
+      facturesWhere.clientId = clientId;
+    } else if (tenantId) {
+      facturesWhere.tenantId = tenantId;
     }
 
     const recentFactures = await prisma.facture.findMany({
@@ -71,15 +66,15 @@ export async function GET(request: NextRequest) {
       activities.push({
         id: `facture-${facture.id}`,
         type: 'facture',
-        title: `Facture #${facture.numero} - ${facture.montant}�`,
+        title: `Facture #${facture.numero} - ${facture.montantTTC}\u20AC`,
         date: facture.createdAt.toISOString(),
-        status: facture.statut === 'PAYEE' ? 'success' : 
-                facture.statut === 'EN_ATTENTE' ? 'warning' : 'info',
+        status: facture.statut === 'payee' ? 'success' :
+                facture.statut === 'brouillon' ? 'warning' : 'info',
       });
     }
 
-    // R�cup�rer les clients r�cents (seulement pour avocats)
-    if (userRole === 'AVOCAT' && tenantId) {
+    // Clients recents (staff only)
+    if (userRole !== 'CLIENT' && tenantId) {
       const recentClients = await prisma.client.findMany({
         where: { tenantId },
         orderBy: { createdAt: 'desc' },
@@ -97,18 +92,11 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Trier toutes les activit�s par date d�croissante
     activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    // Limiter � 5 activit�s
-    const finalActivities = activities.slice(0, 5);
-
-    return NextResponse.json(finalActivities);
+    return NextResponse.json(activities.slice(0, 5));
   } catch (error) {
-    logger.error('Erreur lors de la r�cup�ration des activit�s r�centes:', { error });
-    return NextResponse.json(
-      { error: 'Erreur serveur' },
-      { status: 500 }
-    );
+    logger.error('Erreur recuperation activites recentes', { error });
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

@@ -1,11 +1,11 @@
-﻿/**
+/**
  * API Route: Creer une issue GitHub pour le compte de l'utilisateur
  * POST /api/github/issues/create
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createIssueAsUser } from '@/lib/github/user-actions';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 

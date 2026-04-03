@@ -1,7 +1,7 @@
-import type { NextAuthOptions } from 'next-auth';
+import type { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthConfig = {
     session: {
         strategy: 'jwt',
     },
@@ -13,13 +13,15 @@ export const authOptions: NextAuthOptions = {
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials) {
-                if (!credentials?.email) {
+                const email = typeof credentials?.email === 'string' ? credentials.email : null;
+
+                if (!email) {
                     return null;
                 }
 
                 return {
-                    id: credentials.email,
-                    email: credentials.email,
+                    id: email,
+                    email,
                 };
             },
         }),

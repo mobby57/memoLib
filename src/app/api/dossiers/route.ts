@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete, cacheInvalidatePattern } from '@/lib/cache';
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const tenantId = sessionTenantId;
     const dossierId = searchParams.get('id');
     const clientId = searchParams.get('clientId');
-    const status = searchParams.get('status');
+    const statut = searchParams.get('status') || searchParams.get('statut');
     const limit = Math.max(1, parseInt(searchParams.get('limit') || '50', 10) || 50);
     const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10) || 0);
 
@@ -49,9 +49,9 @@ export async function GET(request: NextRequest) {
             include: {
               client: true,
               documents: { take: 10, orderBy: { createdAt: 'desc' } },
-              delais: { where: { status: 'actif' }, orderBy: { dateEcheance: 'asc' } },
-              evenements: { take: 20, orderBy: { dateEvenement: 'desc' } },
-              _count: { select: { documents: true, delais: true, evenements: true } },
+              emails: { take: 10, orderBy: { receivedAt: 'desc' } },
+              legalDeadlines: { where: { status: 'PENDING' }, orderBy: { dueDate: 'asc' } },
+              _count: { select: { documents: true, emails: true, legalDeadlines: true } },
             },
           });
         },
@@ -62,21 +62,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ dossier });
     }
 
-    const cacheKey = `dossiers:${tenantId}:${clientId || 'all'}:${status || 'all'}:${limit}:${offset}`;
+    const cacheKey = `dossiers:${tenantId}:${clientId || 'all'}:${statut || 'all'}:${limit}:${offset}`;
 
     const result = await cacheThrough(
       cacheKey,
       async () => {
         const where: Record<string, unknown> = { tenantId };
         if (clientId) where.clientId = clientId;
-        if (status) where.status = status;
+        if (statut) where.statut = statut;
 
         const [dossiers, total] = await Promise.all([
           prisma.dossier.findMany({
             where,
             include: {
               client: { select: { firstName: true, lastName: true, email: true } },
-              _count: { select: { documents: true, delais: true } },
+              _count: { select: { documents: true, emails: true, legalDeadlines: true } },
             },
             orderBy: { createdAt: 'desc' },
             take: limit,
@@ -120,57 +120,46 @@ export async function POST(request: NextRequest) {
     const {
       tenantId: _ignoredTenantId,
       clientId,
-      titre,
+      objet,
       description,
-      type,
-      domaine,
+      typeDossier,
+      articleCeseda,
+      categorieJuridique,
       juridiction,
-      numeroRG,
+      typeRecours,
       priorite,
     } = body;
 
     const tenantId = sessionTenantId;
 
-    if (!clientId || !titre || !type) {
+    if (!clientId || !objet || !typeDossier) {
       return NextResponse.json(
-        { error: 'clientId, titre et type requis' },
+        { error: 'clientId, objet et typeDossier requis' },
         { status: 400 }
       );
     }
 
-    const client = await prisma.client.findFirst({ where: { id: clientId, tenantId } });
+    const client = await prisma.client.findFirst({ where: { id: clientId as string, tenantId } });
     if (!client) return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
 
     const count = await prisma.dossier.count({ where: { tenantId } });
     const numero = `DOS-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
-    const [dossier] = await prisma.$transaction([
-      prisma.dossier.create({
-        data: {
-          tenantId,
-          clientId,
-          numero,
-          titre,
-          description,
-          type,
-          domaine,
-          juridiction,
-          numeroRG,
-          priorite: priorite || 'normale',
-        },
-      }),
-      prisma.evenement.create({
-        data: {
-          tenantId,
-          clientId,
-          type: 'action',
-          categorie: 'ouverture_dossier',
-          titre: 'Ouverture du dossier',
-          description: `Dossier ${numero} créé`,
-          dateEvenement: new Date(),
-        },
-      }),
-    ]);
+    const dossier = await prisma.dossier.create({
+      data: {
+        tenantId,
+        clientId: clientId as string,
+        numero,
+        objet: objet as string,
+        description: description as string | undefined,
+        typeDossier: typeDossier as string,
+        articleCeseda: articleCeseda as string | undefined,
+        categorieJuridique: categorieJuridique as string | undefined,
+        juridiction: juridiction as string | undefined,
+        typeRecours: typeRecours as string | undefined,
+        priorite: (priorite as string) || 'normale',
+      },
+    });
 
     // Invalider le cache
     await cacheInvalidatePattern(`dossiers:${tenantId}:*`);
@@ -210,12 +199,13 @@ export async function PATCH(request: NextRequest) {
     const {
       dossierId,
       tenantId: _ignoredTenantId,
-      titre,
+      objet,
       description,
-      status,
+      statut,
       priorite,
+      phase,
       juridiction,
-      numeroRG,
+      typeRecours,
       dateCloture,
     } = body;
 
@@ -224,16 +214,17 @@ export async function PATCH(request: NextRequest) {
     if (!dossierId)
       return NextResponse.json({ error: 'dossierId requis' }, { status: 400 });
 
-    const existing = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
+    const existing = await prisma.dossier.findFirst({ where: { id: dossierId as string, tenantId } });
     if (!existing) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
 
     const updateData: Record<string, unknown> = {};
-    if (titre !== undefined) updateData.titre = titre;
+    if (objet !== undefined) updateData.objet = objet;
     if (description !== undefined) updateData.description = description;
-    if (status !== undefined) updateData.status = status;
+    if (statut !== undefined) updateData.statut = statut;
     if (priorite !== undefined) updateData.priorite = priorite;
+    if (phase !== undefined) updateData.phase = phase;
     if (juridiction !== undefined) updateData.juridiction = juridiction;
-    if (numeroRG !== undefined) updateData.numeroRG = numeroRG;
+    if (typeRecours !== undefined) updateData.typeRecours = typeRecours;
     if (dateCloture !== undefined) {
       const parsed =
         typeof dateCloture === 'string' && dateCloture.trim().length > 0
@@ -244,7 +235,7 @@ export async function PATCH(request: NextRequest) {
       updateData.dateCloture = parsed;
     }
 
-    const dossier = await prisma.dossier.update({ where: { id: dossierId }, data: updateData });
+    const dossier = await prisma.dossier.update({ where: { id: dossierId as string }, data: updateData });
 
     // Invalider le cache
     await Promise.all([

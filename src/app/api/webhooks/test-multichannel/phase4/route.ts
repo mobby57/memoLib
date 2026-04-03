@@ -25,7 +25,7 @@ import { validateWebhookPayloadSafe } from '@/lib/webhook-schemas';
 import { checkPayloadSize } from '@/lib/webhook-size-limits';
 import * as Sentry from '@sentry/nextjs';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 

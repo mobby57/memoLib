@@ -1,7 +1,7 @@
 import { extractWebhookFields } from '@/lib/webhook-field-extraction';
 import { validateWebhookPayloadSafe } from '@/lib/webhook-schemas';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 async function ensureAdminAccess() {

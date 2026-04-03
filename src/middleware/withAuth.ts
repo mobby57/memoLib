@@ -5,7 +5,7 @@
 
 import { authOptions } from '@/lib/auth';
 import { buildRbacContext, resolveGroupsFromRole } from '@/lib/auth/rbac';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 export interface AuthenticatedUser {

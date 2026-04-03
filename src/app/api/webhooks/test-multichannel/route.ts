@@ -2,7 +2,7 @@ import { checkDuplicate, computeChecksum, storeChannelMessage } from '@/lib/dedu
 import { captureWebhookHealth, trackMetric } from '@/lib/sentry-release-health';
 import * as Sentry from '@sentry/nextjs';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 

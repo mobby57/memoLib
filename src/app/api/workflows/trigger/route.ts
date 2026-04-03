@@ -1,8 +1,8 @@
-﻿import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { createContextualNotification } from '@/lib/workflows/notification-engine';
 import { ALL_WORKFLOWS, executeWorkflow } from '@/lib/workflows/workflow-engine';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**

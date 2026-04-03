@@ -1,9 +1,9 @@
-ï»¿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 
 async function resolveTenantAccess(requestedTenantId: string | null): Promise<
   | { tenantId: string; role: string; userId: string; userEmail: string }
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - CrÃ©er un log d'audit
+// POST - Créer un log d'audit
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     const effectiveUserEmail = access.userEmail;
     const effectiveRole = access.role;
 
-    // RÃ©cupÃ©rer le dernier log pour la chaÃ®ne
+    // Récupérer le dernier log pour la chaîne
     const lastLog = await prisma.auditLog.findFirst({
       where: { tenantId: effectiveTenantId },
       orderBy: { timestamp: 'desc' },

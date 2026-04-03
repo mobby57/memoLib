@@ -138,33 +138,36 @@ export function withTenantIsolation(
 
 /**
  * Check if user has required role
+ * SECURITY: Both role match AND group membership are required
  */
 export function requireRole(
   context: TenantContext,
   allowedRoles: string[]
 ): boolean {
+  if (!context.groups || context.groups.length === 0) return false;
   const allowedGroups: string[] = Array.from(new Set(allowedRoles.flatMap(role => resolveGroupsFromRole(role))));
-  return (
-    allowedRoles.some(role => context.role === String(role || '').trim().toUpperCase()) ||
-    context.groups.some(group => allowedGroups.includes(group))
-  );
+  const roleMatch = allowedRoles.some(role => context.role === String(role || '').trim().toUpperCase());
+  const groupMatch = context.groups.some(group => allowedGroups.includes(group));
+  return roleMatch && groupMatch;
 }
 
 /**
  * Helper to build tenant-scoped Prisma where clause
+ * SECURITY: Non-admin users can NEVER override tenantId via additionalWhere
  */
 export function tenantWhere<T extends { tenantId?: string }>(
   context: TenantContext,
   additionalWhere?: Partial<T>
 ): T {
-  // Super Admin can query all tenants if no tenantId specified
-  if (context.groups.includes('platform-admin') && !additionalWhere?.tenantId) {
+  // Super Admin can query all tenants
+  if (context.groups.includes('platform-admin')) {
     return { ...additionalWhere } as T;
   }
 
-  // All other users are scoped to their tenant
+  // All other users: force tenantId from context (NEVER from additionalWhere)
+  const { tenantId: _ignored, ...rest } = (additionalWhere || {}) as any;
   return {
+    ...rest,
     tenantId: context.tenantId,
-    ...additionalWhere,
   } as T;
 }

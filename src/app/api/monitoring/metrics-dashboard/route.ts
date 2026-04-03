@@ -16,7 +16,7 @@ import { withCompression } from '@/lib/compression';
 import { getCacheStats, getOrCompute } from '@/lib/response-cache';
 import { getAlertsStatus, getMetricsComparison, getMetricsSnapshot } from '@/lib/sentry-metrics-dashboard';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextResponse } from 'next/server';
 
 export const revalidate = 60; // ISR - revalidate every 60 seconds

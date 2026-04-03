@@ -1,5 +1,5 @@
-ï»¿import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
@@ -64,7 +64,7 @@ export async function GET() {
 
 async function checkDatabase(): Promise<{ healthy: boolean; message: string }> {
   try {
-    // VÃ©rifier connexion Prisma avec une requÃªte simple
+    // Vérifier connexion Prisma avec une requête simple
     await prisma.$queryRaw`SELECT 1`;
     return { healthy: true, message: 'Database OK' };
   } catch (error) {

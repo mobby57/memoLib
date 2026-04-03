@@ -1,8 +1,8 @@
-ï»¿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { randomUUID } from 'crypto';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Configuration
@@ -89,24 +89,24 @@ export async function POST(request: NextRequest) {
     const crypto = await import('crypto');
     const hash = crypto.createHash('sha256').update(buffer).digest('hex');
 
-    // Sauvegarder le fichier localement si pas de Vercel Blob configurÃ©
+    // Sauvegarder le fichier localement si pas de Vercel Blob configuré
     let fileUrl: string | null = null;
 
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      // Vercel Blob configurÃ© - utiliser pour stockage cloud
+      // Vercel Blob configuré - utiliser pour stockage cloud
       try {
         const { put } = await import('@vercel/blob');
         const blob = await put(`documents/${uniqueId}/${file.name}`, buffer, {
           access: 'public',
         });
         fileUrl = blob.url;
-        logger.info('[UPLOAD] Fichier stockÃ© sur Vercel Blob', { url: fileUrl });
+        logger.info('[UPLOAD] Fichier stocké sur Vercel Blob', { url: fileUrl });
       } catch (blobError) {
         logger.warn('[UPLOAD] Erreur Vercel Blob, fallback local', { error: blobError });
       }
     }
 
-    // Fallback: stockage local (si pas de Vercel Blob configurÃ©)
+    // Fallback: stockage local (si pas de Vercel Blob configuré)
     if (!fileUrl) {
       try {
         const fs = await import('fs/promises');
@@ -116,13 +116,13 @@ export async function POST(request: NextRequest) {
         const filePath = path.join(uploadDir, file.name);
         await fs.writeFile(filePath, buffer);
         fileUrl = `/uploads/${uniqueId}/${file.name}`;
-        logger.info('[UPLOAD] Fichier stockÃ© localement', { path: filePath });
+        logger.info('[UPLOAD] Fichier stocké localement', { path: filePath });
       } catch (fsError) {
         logger.warn('[UPLOAD] Impossible de sauvegarder localement', { error: fsError });
       }
     }
 
-    // Sauvegarder les mÃ©tadonnÃ©es en base
+    // Sauvegarder les métadonnées en base
     const document = await prisma.document.create({
       data: {
         id: uniqueId,

@@ -4,7 +4,7 @@
  */
 
 import { authOptions } from '@/lib/auth/authOptions';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest } from 'next/server';
 
 // Store des connexions SSE actives par utilisateur

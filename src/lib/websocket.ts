@@ -9,7 +9,7 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 import { NextApiRequest } from 'next';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from '@/lib/auth/server-session';
 import type { Session } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 

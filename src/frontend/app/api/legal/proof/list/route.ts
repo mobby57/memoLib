@@ -6,7 +6,7 @@
  */
 
 import { legalProofService } from '@/lib/services/legal-proof.service';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {

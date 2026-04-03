@@ -1,11 +1,11 @@
-﻿/**
+/**
  * API Route: Obtenir les informations du compte GitHub de l'utilisateur
  * GET /api/github/user
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getGitHubUserInfo, isGitHubAuthorized } from '@/lib/github/user-client';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(req: NextRequest) {

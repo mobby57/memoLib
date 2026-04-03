@@ -1,4 +1,4 @@
-﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import {
   getEmptySearches,
@@ -7,7 +7,7 @@ import {
   getSearchTrends,
   getUserRecentSearches,
 } from '@/lib/services/searchAnalytics';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {

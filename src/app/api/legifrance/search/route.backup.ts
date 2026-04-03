@@ -1,4 +1,4 @@
-﻿/**
+/**
  * API Routes Legifrance pour Next.js
  * 
  * Endpoints pour exposer les fonctionnalites Legifrance
@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { legifranceApi } from '@/lib/legifrance/api-client';
 import { logger } from '@/lib/logger';

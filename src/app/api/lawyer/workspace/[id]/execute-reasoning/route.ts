@@ -16,7 +16,7 @@ import {
   executeReasoning,
 } from '@/lib/reasoning/reasoning-service';
 import { WorkspaceState } from '@/types/workspace-reasoning';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface ExecuteReasoningBody {

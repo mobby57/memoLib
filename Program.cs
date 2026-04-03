@@ -16,6 +16,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Serilog;
 using Microsoft.OpenApi.Models;
+using MemoLib.Api.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -576,6 +577,126 @@ app.MapPost("/api/system/stop", (HttpContext http, IHostApplicationLifetime life
 
     return Results.Ok(new { message = "Arrêt demandé" });
 });
+
+var pipeline = app.MapGroup("/api/pipeline").WithTags("Pipeline");
+
+pipeline.MapPost("/analyze", (AnalyzeEmailRequest request) =>
+{
+    if (string.IsNullOrWhiteSpace(request.TenantId) ||
+        string.IsNullOrWhiteSpace(request.EmailId) ||
+        string.IsNullOrWhiteSpace(request.Subject))
+    {
+        return Results.BadRequest(new { error = "tenantId, emailId et subject sont requis" });
+    }
+
+    var combined = $"{request.Subject} {request.Body}".ToLowerInvariant();
+    var category = combined.Contains("oqtf") ? "CONTENTIEUX_OQTF"
+        : combined.Contains("naturalisation") ? "NATURALISATION"
+        : combined.Contains("titre de séjour") || combined.Contains("titre de sejour") ? "TITRE_SEJOUR"
+        : "GENERAL";
+
+    var urgency = combined.Contains("urgent") || combined.Contains("délai") || combined.Contains("delai")
+        ? "high"
+        : "medium";
+
+    var response = new AnalyzeEmailResponse
+    {
+        EmailId = request.EmailId,
+        Category = category,
+        Urgency = urgency,
+        Confidence = category == "GENERAL" ? 0.62m : 0.84m,
+        Summary = string.IsNullOrWhiteSpace(request.Body)
+            ? request.Subject
+            : request.Body.Length > 160 ? request.Body[..160] + "..." : request.Body,
+        SuggestedActions =
+        {
+            "ouvrir_dossier",
+            "assigner_reviewer"
+        },
+        RequiresHumanReview = true,
+    };
+
+    return Results.Ok(response);
+});
+
+pipeline.MapPost("/workflows/start", (StartWorkflowRequest request) =>
+{
+    if (string.IsNullOrWhiteSpace(request.TenantId) || string.IsNullOrWhiteSpace(request.EmailId))
+    {
+        return Results.BadRequest(new { error = "tenantId et emailId sont requis" });
+    }
+
+    return Results.Ok(new StartWorkflowResponse
+    {
+        ExecutionId = Guid.NewGuid().ToString("N"),
+        State = "RECEIVED",
+        StartedAtUtc = DateTime.UtcNow,
+    });
+});
+
+pipeline.MapPost("/reviews", (ReviewDecisionRequest request) =>
+{
+    if (string.IsNullOrWhiteSpace(request.TenantId) ||
+        string.IsNullOrWhiteSpace(request.ExecutionId) ||
+        string.IsNullOrWhiteSpace(request.Decision) ||
+        string.IsNullOrWhiteSpace(request.ReviewedByUserId))
+    {
+        return Results.BadRequest(new { error = "tenantId, executionId, decision et reviewedByUserId sont requis" });
+    }
+
+    var normalizedDecision = request.Decision.Trim().ToUpperInvariant();
+    if (normalizedDecision is not ("APPROVE" or "REJECT"))
+    {
+        return Results.BadRequest(new { error = "decision doit être APPROVE ou REJECT" });
+    }
+
+    return Results.Ok(new ReviewDecisionResponse
+    {
+        ExecutionId = request.ExecutionId,
+        PreviousState = "READY_FOR_REVIEW",
+        NewState = normalizedDecision == "APPROVE" ? "APPROVED" : "REJECTED",
+        DossierUpdated = normalizedDecision == "APPROVE",
+        DossierId = normalizedDecision == "APPROVE" ? Guid.NewGuid().ToString("N") : null,
+    });
+});
+
+pipeline.MapPost("/search", (SearchGlobalRequest request) =>
+{
+    if (string.IsNullOrWhiteSpace(request.TenantId) || string.IsNullOrWhiteSpace(request.Query))
+    {
+        return Results.BadRequest(new { error = "tenantId et query sont requis" });
+    }
+
+    var items = new List<SearchResultItem>
+    {
+        new()
+        {
+            SourceType = "email",
+            SourceId = Guid.NewGuid().ToString("N"),
+            Title = "Email: " + request.Query,
+            Snippet = "Résultat simulé pour démarrer l'intégration search.",
+            Score = 0.88m,
+        },
+        new()
+        {
+            SourceType = "dossier",
+            SourceId = Guid.NewGuid().ToString("N"),
+            Title = "Dossier lié à " + request.Query,
+            Snippet = "Résultat simulé de dossier pour le tenant demandé.",
+            Score = 0.79m,
+        },
+    };
+
+    var limit = request.Limit <= 0 ? 20 : Math.Min(request.Limit, 100);
+    var sliced = items.Take(limit).ToList();
+
+    return Results.Ok(new SearchGlobalResponse
+    {
+        Items = sliced,
+        Count = sliced.Count,
+    });
+});
+
 app.MapControllers();
 app.MapHub<MemoLib.Api.Hubs.NotificationHub>("/notificationHub");
 app.MapHub<MemoLib.Api.Hubs.RealtimeHub>("/realtimeHub");

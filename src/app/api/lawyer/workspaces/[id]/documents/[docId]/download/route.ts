@@ -8,7 +8,7 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
 

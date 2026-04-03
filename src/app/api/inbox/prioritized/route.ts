@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from '@/lib/auth/server-session';
 import { authOptions } from '@/lib/auth/authOptions';
 
 export async function GET(request: NextRequest) {
