@@ -85,7 +85,7 @@ export async function authMiddleware(
 export function hasRole(user: AuthResult['user'], roles: string[]): boolean {
   if (!user?.role) return false;
   const userContext = buildRbacContext({ role: user.role });
-  const allowedGroups = Array.from(new Set(roles.flatMap(role => resolveGroupsFromRole(role))));
+  const allowedGroups: string[] = Array.from(new Set(roles.flatMap(role => resolveGroupsFromRole(role))));
 
   return (
     roles.some(role => userContext.role === String(role || '').trim().toUpperCase()) ||

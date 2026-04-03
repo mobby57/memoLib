@@ -93,7 +93,7 @@ export function withRole(allowedRoles: string[]) {
         }
 
         const userContext = buildRbacContext({ role: (session.user as { role?: string }).role });
-        const allowedGroups = Array.from(
+        const allowedGroups: string[] = Array.from(
           new Set(allowedRoles.flatMap(role => resolveGroupsFromRole(role)))
         );
         const isAllowed =

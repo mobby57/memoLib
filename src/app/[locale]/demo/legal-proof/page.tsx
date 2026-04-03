@@ -46,7 +46,8 @@ const COMPLIANCE_CHECKS = [
 ];
 
 export default function LegalProofPage() {
-  const { locale } = useParams<{ locale: string }>();
+  const params = useParams<{ locale?: string }>();
+  const locale = params?.locale ?? 'fr';
   const withLocale = (path: string) => `/${locale}${path}`;
 
   const [selectedDoc, setSelectedDoc] = useState<number | null>(null);

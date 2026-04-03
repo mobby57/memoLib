@@ -50,7 +50,8 @@ const STATS = [
 ];
 
 export default function DemoHomePage() {
-  const { locale } = useParams<{ locale: string }>();
+  const params = useParams<{ locale?: string }>();
+  const locale = params?.locale ?? 'fr';
   const withLocale = (path: string) => `/${locale}${path}`;
 
   return (

@@ -18,6 +18,15 @@ export const runtime = 'edge';
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // Backward-compatibility: normalize accented demo slug to canonical ASCII slug.
+  if (
+    /\/demo\/(?:l%C3%A9gal-proof|légal-proof)$/i.test(pathname)
+  ) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = pathname.replace(/(?:l%C3%A9gal-proof|légal-proof)$/i, 'legal-proof');
+    return NextResponse.redirect(redirectUrl);
+  }
+
   if (
     pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||

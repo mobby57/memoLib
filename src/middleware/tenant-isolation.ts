@@ -143,7 +143,7 @@ export function requireRole(
   context: TenantContext,
   allowedRoles: string[]
 ): boolean {
-  const allowedGroups = Array.from(new Set(allowedRoles.flatMap(role => resolveGroupsFromRole(role))));
+  const allowedGroups: string[] = Array.from(new Set(allowedRoles.flatMap(role => resolveGroupsFromRole(role))));
   return (
     allowedRoles.some(role => context.role === String(role || '').trim().toUpperCase()) ||
     context.groups.some(group => allowedGroups.includes(group))

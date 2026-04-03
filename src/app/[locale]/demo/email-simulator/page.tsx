@@ -141,7 +141,8 @@ const DEMO_SCENARIOS: DemoScenario[] = [
 ];
 
 export default function EmailSimulatorPage() {
-  const { locale } = useParams<{ locale: string }>();
+  const params = useParams<{ locale?: string }>();
+  const locale = params?.locale ?? 'fr';
   const withLocale = (path: string) => `/${locale}${path}`;
 
   const [isMounted, setIsMounted] = useState(false);

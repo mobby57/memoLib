@@ -28,8 +28,7 @@ module.exports = {
   modulePathIgnorePatterns: [
     '<rootDir>/MemoLib.Api/',
     '<rootDir>/MemoLib.Api-cleanpush/',
-    '<rootDir>/memolib-web/',
-    '<rootDir>/freetime/'
+    '<rootDir>/memolib-web/'
   ],
   collectCoverageFrom: [
     'wwwroot/**/*.js',
@@ -72,7 +71,6 @@ module.exports = {
     '/MemoLib.Api/',
     '/MemoLib.Api-cleanpush/',
     '/memolib-web/',
-    '/freetime/',
     '/__tests__/e2e/',
     '/tests/e2e/',
     '\\.e2e\\.test\\.',

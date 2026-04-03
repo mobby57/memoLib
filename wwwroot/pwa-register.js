@@ -2,14 +2,54 @@
 (function() {
   'use strict';
 
+  function isServiceWorkerRegistrationAllowed() {
+    const protocol = window.location.protocol;
+    const isHttpLike = protocol === 'https:' || protocol === 'http:';
+    const hostname = window.location.hostname;
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+
+    if (!isHttpLike) {
+      console.info('Service Worker ignore: protocole non compatible', { protocol });
+      return false;
+    }
+
+    if (protocol !== 'https:' && !(protocol === 'http:' && isLocalhost)) {
+      console.info('Service Worker ignore: origine non securisee pour Service Worker', {
+        protocol,
+        hostname,
+      });
+      return false;
+    }
+
+    if (!window.isSecureContext) {
+      console.info('Service Worker ignore: contexte non securise');
+      return false;
+    }
+
+    if (document.visibilityState === 'prerender' || document.readyState === 'uninitialized') {
+      console.info('Service Worker ignore: document non actif');
+      return false;
+    }
+
+    return true;
+  }
+
   // Vérifier si les Service Workers sont supportés
   if (!('serviceWorker' in navigator)) {
     console.warn('Service Workers non supportés par ce navigateur');
     return;
   }
 
+  if (!isServiceWorkerRegistrationAllowed()) {
+    return;
+  }
+
   // Enregistrer le Service Worker au chargement de la page
   window.addEventListener('load', async () => {
+    if (!isServiceWorkerRegistrationAllowed()) {
+      return;
+    }
+
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
         scope: '/'
@@ -47,6 +87,11 @@
       });
 
     } catch (error) {
+      if (error && (error.name === 'InvalidStateError' || String(error).includes('InvalidStateError'))) {
+        console.info('Service Worker ignore: document dans un etat invalide pour l enregistrement');
+        return;
+      }
+
       console.error('❌ Erreur enregistrement Service Worker:', error);
     }
   });

@@ -85,7 +85,8 @@ const QUICK_WINS = [
 ];
 
 export default function DemoCompletePage() {
-  const { locale } = useParams<{ locale: string }>();
+  const params = useParams<{ locale?: string }>();
+  const locale = params?.locale ?? 'fr';
   const withLocale = (path: string) => `/${locale}${path}`;
 
   const [currentIndex, setCurrentIndex] = useState(0);
