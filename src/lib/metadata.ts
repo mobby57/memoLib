@@ -5,9 +5,9 @@ import type { Metadata } from 'next';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memoLib.space';
 
-export const SITE_NAME = 'memoLib';
+export const SITE_NAME = 'MemoLib';
 export const SITE_DESCRIPTION =
-  'Systeme intelligent de gestion des dossiers juridiques pour cabinets d\'avocats. Multi-tenant, securise et optimise par IA.';
+  'MemoLib transforme vos emails clients en dossiers structurés. Tri automatique, calcul des délais OQTF, alertes échéances. Le logiciel tout-en-un pour cabinets d\'avocats.';
 export const SUPPORTED_LOCALES = ['fr', 'en'] as const;
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
@@ -29,19 +29,22 @@ export function getBaseUrl(): string {
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: 'memoLib - Gestion Juridique Intelligente',
+    default: 'MemoLib — Logiciel de gestion pour cabinets d\'avocats',
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    'gestion juridique',
-    'cabinet avocat',
+    'logiciel avocat',
+    'gestion cabinet avocat',
+    'logiciel juridique',
+    'gestion emails avocat',
     'dossiers juridiques',
-    'IA',
-    'intelligence artificielle',
-    'multi-tenant',
+    'OQTF délais',
+    'droit des étrangers',
+    'CESEDA',
     'SaaS juridique',
     'facturation avocat',
+    'legaltech france',
   ],
   authors: [{ name: 'memoLib Team' }],
   creator: SITE_NAME,
@@ -62,7 +65,7 @@ export const defaultMetadata: Metadata = {
     locale: 'fr_FR',
     url: BASE_URL,
     siteName: SITE_NAME,
-    title: 'memoLib - Gestion Juridique Intelligente',
+    title: 'MemoLib — Logiciel de gestion pour cabinets d\'avocats',
     description: SITE_DESCRIPTION,
     images: [
       {
@@ -75,10 +78,10 @@ export const defaultMetadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'memoLib - Gestion Juridique Intelligente',
+    title: 'MemoLib — Logiciel de gestion pour cabinets d\'avocats',
     description: SITE_DESCRIPTION,
     images: [`${BASE_URL}/og-image.png`],
-    creator: '@memoLib',
+    creator: '@memoLib_space',
   },
   icons: {
     icon: [

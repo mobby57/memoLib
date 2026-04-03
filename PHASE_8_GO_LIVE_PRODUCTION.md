@@ -64,7 +64,7 @@ az backup job start \
 
 # 2. Vérifier pipeline CI/CD
 # Push code vers main branch
-git checkout main
+git switch main
 git pull origin main
 git log --oneline -5  # Vérifier derniers commits
 

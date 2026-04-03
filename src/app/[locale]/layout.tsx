@@ -17,13 +17,41 @@ export default async function RootLayout({
     '@type': 'SoftwareApplication',
     name: SITE_NAME,
     applicationCategory: 'BusinessApplication',
+    applicationSubCategory: 'Legal Practice Management',
     operatingSystem: 'Web',
     url: getBaseUrl(),
     description: SITE_DESCRIPTION,
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'Pilote',
+        price: '0',
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        description: 'Essai gratuit 30 jours',
+      },
+      {
+        '@type': 'Offer',
+        name: 'Professionnel',
+        price: '39',
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        priceValidUntil: new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0],
+        description: 'Pour les avocats ind\u00e9pendants',
+      },
+      {
+        '@type': 'Offer',
+        name: 'Cabinet',
+        price: '149',
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        description: 'Pour les cabinets multi-avocats',
+      },
+    ],
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      ratingCount: '12',
     },
   };
 

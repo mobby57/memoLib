@@ -3,7 +3,7 @@
 
 import { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memolib.vercel.app';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memolib.space';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // Routes statiques principales
@@ -15,58 +15,46 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${BASE_URL}/login`,
+      url: `${BASE_URL}/pricing`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/dashboard`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/workspaces`,
+      url: `${BASE_URL}/auth/register`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/auth/login`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/dossiers`,
+      url: `${BASE_URL}/demo`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/clients`,
+      url: `${BASE_URL}/contact`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
-      url: `${BASE_URL}/factures`,
+      url: `${BASE_URL}/faq`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/documents`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/calendrier`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
-      url: `${BASE_URL}/settings`,
+      url: `${BASE_URL}/privacy`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
+      changeFrequency: 'yearly',
+      priority: 0.3,
     },
   ];
 

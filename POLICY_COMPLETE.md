@@ -752,7 +752,7 @@ public string TitleEn { get; set; }
 ### Comment Contribuer
 
 1. Fork le repo
-2. Créer une branche (`git checkout -b feature/AmazingFeature`)
+2. Créer une branche (`git switch -c feature/AmazingFeature`)
 3. Commit (`git commit -m 'feat: Add AmazingFeature'`)
 4. Push (`git push origin feature/AmazingFeature`)
 5. Ouvrir une Pull Request
