@@ -89,8 +89,17 @@ export class HybridAIClient {
     systemPrompt?: string
   ): Promise<AIResponse> {
     const startTime = Date.now();
-    const estimatedTokens = Math.ceil((prompt.length + (systemPrompt?.length || 0)) / 4);
-    const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
+
+    // Prompt guard: injection detection + PII redaction
+    const { sanitizeForAI } = await import('./prompt-guard');
+    const guard = sanitizeForAI(prompt);
+    if (guard.blocked) {
+      throw new Error('Prompt injection detected — request blocked');
+    }
+    const safePrompt = guard.sanitized;
+
+    const estimatedTokens = Math.ceil((safePrompt.length + (systemPrompt?.length || 0)) / 4);
+    const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${safePrompt}` : safePrompt;
     
     // ??? ETAPE 0: Verifier le cache IA
     const cached = await getCachedResponse(fullPrompt, 'auto');

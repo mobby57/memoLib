@@ -93,12 +93,15 @@ export async function analyzeEmail(emailContent: {
  */
 async function callOllamaForEmailAnalysis(email: any): Promise<any> {
   try {
+    const { sanitizeEmailForAI } = await import('@/lib/ai/prompt-guard');
+    const safe = sanitizeEmailForAI(email.subject || '', email.body || '');
+
     const prompt = `Analyse cet email professionnel et fournis:
 
-SUJET: ${email.subject}
+SUJET: ${safe.subject}
 DE: ${email.from}
 CORPS:
-${email.body}
+${safe.body}
 
 Analyse requise:
 1. Categorie (client-urgent, new-case, deadline-reminder, invoice, legal-question, etc.)

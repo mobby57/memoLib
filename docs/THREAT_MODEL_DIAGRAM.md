@@ -462,14 +462,14 @@ flowchart LR
 
 ### P1 - Haut (sprint suivant)
 
-| # | Gap | Composant | Remediation | Effort |
+| # | Gap | Composant | Remediation | Statut |
 |---|---|---|---|---|
-| 5 | Prompt injection IA non protege | IA Service | Sanitize + allowlist prompts | 8h |
-| 6 | PII envoyees vers IA | IA Service | Redaction PII pre-traitement | 8h |
-| 7 | Tests cross-tenant insuffisants | Tests | Suite de tests isolation automatisee | 8h |
-| 8 | Pas de quota email ingestion | Ingestion | Rate limit par source + circuit breaker | 4h |
-| 9 | Raw SQL queries non auditees | Database | Audit + migration vers Prisma pur | 4h |
-| 10 | State param OAuth non valide | Auth | Validation PKCE + state | 2h |
+| 5 | Prompt injection IA non protege | IA Service | `prompt-guard.ts` sanitize + block | ✅ FAIT |
+| 6 | PII envoyees vers IA | IA Service | Redaction PII pre-traitement (phone, email, SSN, IBAN, adresse) | ✅ FAIT |
+| 7 | Tests cross-tenant insuffisants | Tests | Suite de tests isolation automatisee | ⏳ |
+| 8 | Pas de quota email ingestion | Ingestion | Rate limit par source + circuit breaker | ⏳ |
+| 9 | Raw SQL queries non auditees | Database | Audit + migration vers Prisma pur | ⏳ |
+| 10 | State param OAuth non valide | Auth | Validation PKCE + state | ⏳ |
 
 ### P2 - Moyen (backlog)
 

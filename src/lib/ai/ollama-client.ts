@@ -27,10 +27,13 @@ export class OllamaClient {
   }
 
   async analyzeEmail(subject: string, body: string): Promise<EmailAnalysis> {
+    const { sanitizeEmailForAI } = await import('./prompt-guard');
+    const safe = sanitizeEmailForAI(subject, body);
+
     const prompt = `Analyse cet email juridique et retourne UNIQUEMENT un JSON valide :
 
-Objet: ${subject}
-Corps: ${body}
+Objet: ${safe.subject}
+Corps: ${safe.body}
 
 Format attendu:
 {
@@ -58,13 +61,19 @@ Format attendu:
     }
   }
 
-  async generate(prompt: string): Promise<string> {
+  async generate(prompt: string, systemPrompt?: string): Promise<string> {
+    const { sanitizeForAI } = await import('./prompt-guard');
+    const guard = sanitizeForAI(prompt);
+    if (guard.blocked) {
+      throw new Error('Prompt injection detected — request blocked');
+    }
+
     const response = await fetch(`${this.baseUrl}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: this.model,
-        prompt,
+        prompt: guard.sanitized,
         stream: false,
         options: { temperature: 0.1 },
       }),

@@ -64,10 +64,13 @@ Analyse les cas d'immigration avec precision juridique.
 Fournis toujours des recommandations conformes au CESEDA.
 Reponds UNIQUEMENT en JSON valide.`;
 
+      const { sanitizeForAI } = await import('@/lib/ai/prompt-guard');
+      const safeSituation = sanitizeForAI(params.clientSituation);
+
       const userPrompt = `Analyse ce dossier CESEDA:
 
 Type: ${params.caseType}
-Situation: ${params.clientSituation}
+Situation: ${safeSituation.sanitized}
 Documents disponibles: ${params.documents.join(', ')}
 ${params.notificationDate ? `Date de notification: ${params.notificationDate.toISOString()}` : ''}
 

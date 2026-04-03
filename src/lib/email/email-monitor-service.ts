@@ -2,6 +2,7 @@
 import { prisma } from '@/lib/prisma';
 import { simpleParser } from 'mailparser';
 import { ollama } from '@/lib/ai/ollama-client';
+import { semanticKernelClient } from '@/lib/ai/semantic-kernel-client';
 import { normalizeIncomingEmailPayload } from '@/lib/email/ingestion';
 
 interface EmailClassification {
@@ -16,15 +17,35 @@ interface EmailClassification {
 export class EmailMonitorService {
   // Classification IA avec fallback mots-clés
   private async classifyEmail(subject: string, body: string): Promise<EmailClassification> {
+    const emailMatch = body.match(/[\w.-]+@[\w.-]+\.\w+/);
+    const dossierMatch = (subject + body).match(/(?:dos-|#)(\d{4,})/i);
+
+    // 1) Semantic Kernel prioritaire quand configure
+    const useSemanticKernel = await semanticKernelClient.isAvailable();
+    if (useSemanticKernel) {
+      try {
+        const analysis = await semanticKernelClient.analyzeEmail(subject, body);
+
+        return {
+          clientEmail: emailMatch?.[0],
+          clientName: analysis.clientName,
+          dossierNumero: analysis.entities?.references?.[0] || dossierMatch?.[1],
+          typeDossier: analysis.typeDossier,
+          urgency: analysis.urgency,
+          shouldCreateDossier: !dossierMatch && analysis.typeDossier !== 'GENERAL',
+        };
+      } catch {
+        console.log('Semantic Kernel fallback to Ollama');
+      }
+    }
+
+    // 2) Ollama si disponible
     // Tenter classification IA
     const useAI = await ollama.isAvailable();
 
     if (useAI) {
       try {
         const analysis = await ollama.analyzeEmail(subject, body);
-
-        const emailMatch = body.match(/[\w.-]+@[\w.-]+\.\w+/);
-        const dossierMatch = (subject + body).match(/(?:dos-|#)(\d{4,})/i);
 
         return {
           clientEmail: emailMatch?.[0],
@@ -39,6 +60,7 @@ export class EmailMonitorService {
       }
     }
 
+    // 3) Fallback deterministic
     // Fallback: classification par mots-clés
     return this.classifyByKeywords(subject, body);
   }

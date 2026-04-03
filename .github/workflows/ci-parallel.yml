@@ -1,0 +1,179 @@
+name: ci-parallel
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '24'
+  DOTNET_VERSION: '9.0.x'
+
+jobs:
+  prepare:
+    name: Prepare Metadata
+    runs-on: ubuntu-latest
+    outputs:
+      app_version: ${{ steps.version.outputs.app_version }}
+      commit_sha: ${{ steps.version.outputs.commit_sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute app version and commit
+        id: version
+        shell: bash
+        run: |
+          APP_VERSION=$(node -p "require('./package.json').version")
+          echo "app_version=$APP_VERSION" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+  frontend-lint:
+    name: Frontend Lint
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  frontend-typecheck:
+    name: Frontend Typecheck
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run type-check
+
+  frontend-tests:
+    name: Frontend Integration Tests
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Integration tests
+        run: npm run test:integration
+
+  frontend-build:
+    name: Frontend Build
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      APP_VERSION: ${{ needs.prepare.outputs.app_version }}
+      NEXT_PUBLIC_APP_VERSION: ${{ needs.prepare.outputs.app_version }}
+      APP_COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build:frontend
+
+  backend-build:
+    name: Backend Build
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build backend
+        run: dotnet build MemoLib.Api.csproj -c Release --nologo
+
+  contract-version-handshake:
+    name: Contract Version Handshake
+    needs: [frontend-build, backend-build, frontend-lint, frontend-typecheck, frontend-tests, prepare]
+    runs-on: ubuntu-latest
+    env:
+      APP_VERSION: ${{ needs.prepare.outputs.app_version }}
+      NEXT_PUBLIC_APP_VERSION: ${{ needs.prepare.outputs.app_version }}
+      APP_COMMIT_SHA: ${{ needs.prepare.outputs.commit_sha }}
+      API_VERSION: v1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build:frontend
+
+      - name: Validate version handshake
+        run: npm run ci:contract
+
+  # Deployment jobs can run simultaneously after checks are green.
+  # Keep these disabled until secrets and target environments are configured.
+  # deploy-frontend-preview:
+  #   needs: contract-version-handshake
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: echo "Deploy frontend preview here"
+  #
+  # deploy-backend-preview:
+  #   needs: contract-version-handshake
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - run: echo "Deploy backend preview here"

@@ -1,29 +1,33 @@
-import { promises as fs } from 'fs';
 import { NextResponse } from 'next/server';
-import path from 'path';
+import { getVersionManifest } from '@/lib/version-manifest';
 
 export async function GET() {
-  try {
-    const pkgPath = path.join(process.cwd(), 'package.json');
-    const raw = await fs.readFile(pkgPath, 'utf-8');
-    const pkg = JSON.parse(raw);
+  const manifest = getVersionManifest();
+  const env = process.env.NODE_ENV || 'production';
+  const previewProtected = process.env.PREVIEW_PROTECT === 'true';
 
-    const commit = process.env.NEXT_PUBLIC_BUILD_COMMIT || null;
-    const env = process.env.NODE_ENV || 'production';
-    const previewProtected = process.env.PREVIEW_PROTECT === 'true';
+  return NextResponse.json(
+    {
+      // Backward-compatible fields
+      name: 'memolib',
+      version: manifest.appVersion,
+      commit: manifest.commitSha,
+      timestamp: manifest.buildTimeUtc,
+      env,
+      previewProtected,
 
-    return NextResponse.json(
-      {
-        name: pkg.name || 'app',
-        version: pkg.version || null,
-        commit,
-        env,
-        previewProtected,
-        timestamp: new Date().toISOString(),
+      // Contract fields for automated sync checks
+      appVersion: manifest.appVersion,
+      commitSha: manifest.commitSha,
+      apiVersion: manifest.apiVersion,
+      status: 'ok',
+    },
+    {
+      status: 200,
+      headers: {
+        'x-app-version': manifest.appVersion,
+        'x-commit-sha': manifest.commitSha,
       },
-      { status: 200 }
-    );
-  } catch (e) {
-    return NextResponse.json({ error: 'version_unavailable' }, { status: 500 });
-  }
+    }
+  );
 }
