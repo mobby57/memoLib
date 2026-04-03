@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+set -eu
+
+echo '[pre-commit] Validation integration MemoLib...'
+
+if ! command -v npm >/dev/null 2>&1; then
+  echo '[pre-commit] ERREUR: npm est introuvable dans le PATH.'
+  exit 1
+fi
+
+npm run validate:integration
+
+echo '[pre-commit] OK: integration validee.'
