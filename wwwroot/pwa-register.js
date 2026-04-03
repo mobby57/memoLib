@@ -2,6 +2,25 @@
 (function() {
   'use strict';
 
+  let swRegistrationAttempted = false;
+  let swDeferredListenersAttached = false;
+
+  function isLikelyEmbeddedWebView() {
+    const ua = navigator.userAgent || '';
+    const hasIOSWebKit = /AppleWebKit/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+    const isSafari = /Safari/i.test(ua);
+    const isAndroid = /Android/i.test(ua);
+
+    const isIOSWebView = isIOS && hasIOSWebKit && !isSafari;
+    const isAndroidWebView = isAndroid && (/; wv\)/i.test(ua) || /Version\/\d+\.\d+\s+Chrome\//i.test(ua));
+    const isElectron = /Electron/i.test(ua);
+    const isTeams = /Teams/i.test(ua);
+    const isVSCodeWebView = /vscode-webview/i.test(ua);
+
+    return isIOSWebView || isAndroidWebView || isElectron || isTeams || isVSCodeWebView;
+  }
+
   function isServiceWorkerRegistrationAllowed() {
     const protocol = window.location.protocol;
     const isHttpLike = protocol === 'https:' || protocol === 'http:';
@@ -26,6 +45,11 @@
       return false;
     }
 
+    if (isLikelyEmbeddedWebView()) {
+      console.info('Service Worker ignore: webview detectee (mode no-sw)');
+      return false;
+    }
+
     if (document.visibilityState === 'prerender' || document.readyState === 'uninitialized') {
       console.info('Service Worker ignore: document non actif');
       return false;
@@ -34,21 +58,60 @@
     return true;
   }
 
-  // Vérifier si les Service Workers sont supportés
-  if (!('serviceWorker' in navigator)) {
-    console.warn('Service Workers non supportés par ce navigateur');
-    return;
+  function isDocumentActiveForServiceWorker() {
+    const isVisible = document.visibilityState === 'visible';
+    const isPrerendering = 'prerendering' in document && document.prerendering;
+
+    if (!isVisible || isPrerendering) {
+      return false;
+    }
+
+    return true;
   }
 
-  if (!isServiceWorkerRegistrationAllowed()) {
-    return;
+  function shouldAttemptServiceWorkerRegistration() {
+    if (swRegistrationAttempted) {
+      return false;
+    }
+
+    return isServiceWorkerRegistrationAllowed() && isDocumentActiveForServiceWorker();
   }
 
-  // Enregistrer le Service Worker au chargement de la page
-  window.addEventListener('load', async () => {
-    if (!isServiceWorkerRegistrationAllowed()) {
+  function scheduleServiceWorkerRegistrationRetry() {
+    if (swDeferredListenersAttached) {
       return;
     }
+
+    swDeferredListenersAttached = true;
+
+    const retry = () => {
+      if (!shouldAttemptServiceWorkerRegistration()) {
+        return;
+      }
+
+      document.removeEventListener('visibilitychange', retry);
+      window.removeEventListener('pageshow', retry);
+      window.removeEventListener('focus', retry);
+      swDeferredListenersAttached = false;
+
+      registerServiceWorker();
+    };
+
+    document.addEventListener('visibilitychange', retry);
+    window.addEventListener('pageshow', retry);
+    window.addEventListener('focus', retry);
+  }
+
+  async function registerServiceWorker() {
+    if (!shouldAttemptServiceWorkerRegistration()) {
+      if (!swRegistrationAttempted) {
+        console.info('Service Worker reporte: document non actif, nouvelle tentative a la reprise');
+        scheduleServiceWorkerRegistrationRetry();
+      }
+      return;
+    }
+
+    swRegistrationAttempted = true;
 
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
@@ -65,7 +128,11 @@
       // Gérer les mises à jour du Service Worker
       registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
-        
+
+        if (!newWorker) {
+          return;
+        }
+
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             // Nouvelle version disponible
@@ -85,15 +152,35 @@
           window.location.reload();
         }
       });
-
     } catch (error) {
       if (error && (error.name === 'InvalidStateError' || String(error).includes('InvalidStateError'))) {
-        console.info('Service Worker ignore: document dans un etat invalide pour l enregistrement');
+        swRegistrationAttempted = false;
+        console.info('Service Worker reporte: document dans un etat invalide, nouvelle tentative differree');
+        scheduleServiceWorkerRegistrationRetry();
         return;
       }
 
       console.error('❌ Erreur enregistrement Service Worker:', error);
     }
+  }
+
+  // Vérifier si les Service Workers sont supportés
+  if (!('serviceWorker' in navigator)) {
+    console.warn('Service Workers non supportés par ce navigateur');
+    return;
+  }
+
+  if (!isServiceWorkerRegistrationAllowed()) {
+    return;
+  }
+
+  // Enregistrer le Service Worker au chargement de la page
+  window.addEventListener('load', () => {
+    if (!isServiceWorkerRegistrationAllowed()) {
+      return;
+    }
+
+    registerServiceWorker();
   });
 
   // Gestion de l'installation PWA
