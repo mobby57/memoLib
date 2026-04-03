@@ -169,6 +169,33 @@ public class PipelineEndpointsIntegrationTests : IClassFixture<PipelineApiFactor
         Assert.Equal("APPROVED", details.Transitions[^1].ToState);
         Assert.Equal("human", details.Transitions[^1].ActorType);
     }
+
+    [Fact]
+    public async Task WorkflowList_ReturnsPagedExecutions_ForTenant()
+    {
+        for (var i = 0; i < 2; i++)
+        {
+            var startPayload = new StartWorkflowRequest
+            {
+                TenantId = TenantId,
+                EmailId = Guid.NewGuid().ToString("N"),
+                WorkflowName = "email-triage",
+            };
+
+            var startResponse = await _client.PostAsJsonAsync("/api/pipeline/workflows/start", startPayload);
+            startResponse.EnsureSuccessStatusCode();
+        }
+
+        var listResponse = await _client.GetAsync($"/api/pipeline/workflows?tenantId={TenantId}&limit=1&offset=0");
+        listResponse.EnsureSuccessStatusCode();
+
+        var list = await listResponse.Content.ReadFromJsonAsync<WorkflowExecutionListResponse>();
+        Assert.NotNull(list);
+        Assert.Equal(1, list!.Count);
+        Assert.True(list.HasMore);
+        Assert.Single(list.Items);
+        Assert.Equal("email-triage", list.Items[0].WorkflowName);
+    }
 }
 
 public sealed class PipelineApiFactory : WebApplicationFactory<Program>

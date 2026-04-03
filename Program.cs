@@ -773,6 +773,55 @@ pipeline.MapGet("/workflows/{executionId}", async (
     });
 });
 
+pipeline.MapGet("/workflows", async (
+    string tenantId,
+    int? limit,
+    int? offset,
+    IPipelineWorkflowStore workflowStore,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(tenantId))
+    {
+        return Results.BadRequest(new { error = "tenantId est requis" });
+    }
+
+    var take = limit.GetValueOrDefault(20);
+    if (take <= 0)
+    {
+        take = 20;
+    }
+    if (take > 100)
+    {
+        take = 100;
+    }
+
+    var skip = offset.GetValueOrDefault(0);
+    if (skip < 0)
+    {
+        skip = 0;
+    }
+
+    var executions = await workflowStore.ListExecutionsAsync(tenantId, take + 1, skip, cancellationToken);
+    var hasMore = executions.Count > take;
+    var page = hasMore ? executions.Take(take).ToList() : executions.ToList();
+
+    return Results.Ok(new WorkflowExecutionListResponse
+    {
+        Count = page.Count,
+        HasMore = hasMore,
+        Items = page.Select(execution => new WorkflowExecutionSummaryItem
+        {
+            ExecutionId = execution.ExecutionId,
+            EmailId = execution.EmailId,
+            WorkflowName = execution.WorkflowName,
+            State = execution.State,
+            StartedAtUtc = execution.StartedAtUtc,
+            EndedAtUtc = execution.EndedAtUtc,
+            DossierId = execution.RelatedCaseId,
+        }).ToList(),
+    });
+});
+
 pipeline.MapPost("/search", (SearchGlobalRequest request) =>
 {
     if (string.IsNullOrWhiteSpace(request.TenantId) || string.IsNullOrWhiteSpace(request.Query))
