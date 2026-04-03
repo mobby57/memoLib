@@ -123,21 +123,23 @@ Gaps:
 
 ## 4. Verdict review
 
-Verdict global: VALIDE AVEC RESERVES (go review).
+Verdict global: VALIDE POUR REVIEW FINALE (P0 integres).
 
 Motif:
 
 - Les diagrammes sont coherents et exploitables pour revue architecture.
 - Le threat model de haut niveau est couvert.
-- Des precisions de controle securite sont encore necessaires avant go-live.
+- Les controles P0 ont ete integres dans la source canonique (trust boundaries, anti-malware, fail-closed, hash signe, KMS).
 
 ## 5. Actions P0 avant approbation finale
 
-1. Ajouter les trust boundaries directement dans les diagrammes (externes vs internes, data plane vs control plane).
-2. Ajouter un noeud explicite de secrets management et KMS dans l'architecture logique.
-3. Ajouter une etape de malware scan et content policy avant OCR/IA.
-4. Ajouter une contrainte fail-closed: pas de dispatch si audit/EventLog indisponible.
-5. Ajouter l'evidence d'integrite du message valide (hash signe pre-dispatch).
+Statut: COMPLETEES dans `docs/WORKFLOW_COMMUNICATION.md`.
+
+1. Trust boundaries explicites (Externe vs Interne MemoLib).
+2. Noeud explicite `Secrets Manager + KMS` ajoute.
+3. Etape `anti-malware + content policy` ajoutee en amont OCR/IA.
+4. Gate fail-closed ajoute: blocage dispatch si EventLog indisponible.
+5. Evidence d'integrite ajoutee: `CONTENT_HASH_SIGNED` pre-dispatch.
 
 ## 6. Actions P1 recommandees
 
@@ -147,5 +149,5 @@ Motif:
 
 ## 7. Decision de passage en review
 
-Decision: OUI, le package diagrammes peut partir en review threat model.
-Condition: suivi des actions P0 avant validation finale de production.
+Decision: OUI, le package diagrammes peut partir en review threat model finale.
+Condition: suivre les actions P1 pour renforcer encore la posture avant go-live.

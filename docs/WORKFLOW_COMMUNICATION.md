@@ -40,16 +40,28 @@ Le flux couvre de bout en bout:
 
 ```mermaid
 flowchart TD
-    A["Reception multicanal\n(email, pieces jointes, notes)"]
-    B["Pre-traitement\nOCR, extraction metadonnees, dedup"]
-    C["Analyse IA\nclassification + urgence + action + confiance"]
-    D["Moteur de templates\nselection + personnalisation + controles"]
-    E["Validation humaine\nvalider, modifier, rejeter, escalader"]
-    F["Diffusion\nemail, notification interne, partenaires"]
-    G["Historique immuable\nEventLog, audit, KPI"]
+    subgraph EXT["Trust Boundary - Externe"]
+        A["Reception multicanal\n(email, pieces jointes, notes)"]
+    end
+
+    subgraph INT["Trust Boundary - Interne MemoLib"]
+        S["Controle contenu\nanti-malware + content policy"]
+        B["Pre-traitement\nOCR, extraction metadonnees, dedup"]
+        C["Analyse IA\nclassification + urgence + action + confiance"]
+        D["Moteur de templates\nselection + personnalisation + controles"]
+        E["Validation humaine\nvalider, modifier, rejeter, escalader"]
+        X["Gate fail-closed\nEventLog writable + hash signe"]
+        F["Diffusion\nemail, notification interne, partenaires"]
+        G["Historique immuable\nEventLog, audit, KPI"]
+        K["Secrets Manager + KMS\ncles, signatures, chiffrement"]
+    end
+
     H["Boucle d'amelioration\nfeedback utilisateur vers IA/templates"]
 
-    A --> B --> C --> D --> E --> F --> G --> H --> C
+    A --> S --> B --> C --> D --> E --> X --> F --> G --> H --> C
+    K -.-> D
+    K -.-> F
+    K -.-> G
 ```
 
 ---
@@ -193,17 +205,40 @@ Exemples d'evenements:
 
 ```mermaid
 flowchart LR
-    IN[Connecteurs Ingestion] --> PRE[Preprocessor/OCR]
-    PRE --> AI[Service IA]
-    AI --> TMP[Moteur Templates]
-    TMP --> REV[Console Validation]
-    REV --> DSP[Service Diffusion]
-    DSP --> CH[Email/Notif Providers]
-    PRE --> EV[(EventLog)]
+    subgraph EXT["Trust Boundary - Externe"]
+        IN[Connecteurs Ingestion]
+        CH[Email/Notif Providers]
+    end
+
+    subgraph INT["Trust Boundary - Interne MemoLib"]
+        SCAN[Scanner anti-malware + content policy]
+        PRE[Preprocessor/OCR]
+        AI[Service IA]
+        TMP[Moteur Templates]
+        REV[Console Validation]
+        HASH[Service Integrite\nhash signe pre-dispatch]
+        GATE[Gate fail-closed\nEventLog writable requis]
+        DSP[Service Diffusion]
+        KMS[Secrets Manager + KMS]
+        EV[(EventLog)]
+    end
+
+    IN --> SCAN --> PRE
+    PRE --> AI
+    AI --> TMP
+    TMP --> REV
+    REV --> HASH --> GATE --> DSP --> CH
+    SCAN --> EV
+    PRE --> EV
     AI --> EV
     TMP --> EV
     REV --> EV
+    HASH --> EV
     DSP --> EV
+    KMS -.-> AI
+    KMS -.-> HASH
+    KMS -.-> DSP
+    KMS -.-> EV
     EV --> OBS[Dashboards KPI + Audit]
 ```
 
@@ -345,13 +380,17 @@ Codes fonctionnels recommandes:
 sequenceDiagram
     participant Inbox as Boite Mail
     participant Ingest as Service Ingestion
+    participant Scan as Malware/Policy
     participant AI as Service IA
     participant Tpl as Moteur Template
     participant User as Avocat
+    participant Hash as Integrite/Signature
     participant Dispatch as Service Diffusion
     participant Log as EventLog
 
     Inbox->>Ingest: Message recu + PJ
+    Ingest->>Scan: verifier payload + PJ
+    Scan->>Log: CONTENT_SCAN_PASSED
     Ingest->>Log: COMMUNICATION_RECEIVED
     Ingest->>AI: analyze(communicationId)
     AI-->>Ingest: category=CONVOCATION, urgency=HIGH, confidence=0.91
@@ -360,9 +399,17 @@ sequenceDiagram
     Tpl-->>User: Sujet/Corps pre-remplis + checklist legale
     User->>User: Modifier delai de reponse + valider
     User->>Log: USER_VALIDATED
-    User->>Dispatch: dispatch(communicationId)
-    Dispatch-->>Dispatch: Retry policy + ACK destinataires
-    Dispatch->>Log: DISPATCH_SUCCEEDED
+    User->>Hash: signer hash du contenu valide
+    Hash->>Log: CONTENT_HASH_SIGNED
+    User->>Dispatch: dispatch(communicationId, signature)
+    Dispatch->>Log: verify EVENTLOG_WRITABLE
+    alt EventLog indisponible
+        Dispatch-->>User: ECHEC_FAIL_CLOSED (envoi bloque)
+        Dispatch->>Log: DISPATCH_BLOCKED_FAIL_CLOSED
+    else EventLog disponible
+        Dispatch-->>Dispatch: Retry policy + ACK destinataires
+        Dispatch->>Log: DISPATCH_SUCCEEDED
+    end
 ```
 
 Resultat attendu:
