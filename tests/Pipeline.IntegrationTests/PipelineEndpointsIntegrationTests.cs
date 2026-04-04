@@ -196,6 +196,45 @@ public class PipelineEndpointsIntegrationTests : IClassFixture<PipelineApiFactor
         Assert.Single(list.Items);
         Assert.Equal("email-triage", list.Items[0].WorkflowName);
     }
+
+    [Fact]
+    public async Task Review_SecondAttempt_ReturnsConflict()
+    {
+        var startPayload = new StartWorkflowRequest
+        {
+            TenantId = TenantId,
+            EmailId = Guid.NewGuid().ToString("N"),
+            WorkflowName = "email-triage",
+        };
+
+        var startResponse = await _client.PostAsJsonAsync("/api/pipeline/workflows/start", startPayload);
+        startResponse.EnsureSuccessStatusCode();
+        var started = await startResponse.Content.ReadFromJsonAsync<StartWorkflowResponse>();
+
+        var firstReviewPayload = new ReviewDecisionRequest
+        {
+            TenantId = TenantId,
+            EmailId = startPayload.EmailId,
+            ExecutionId = started!.ExecutionId,
+            Decision = "APPROVE",
+            ReviewedByUserId = Guid.NewGuid().ToString("N"),
+        };
+
+        var firstReviewResponse = await _client.PostAsJsonAsync("/api/pipeline/reviews", firstReviewPayload);
+        firstReviewResponse.EnsureSuccessStatusCode();
+
+        var secondReviewPayload = new ReviewDecisionRequest
+        {
+            TenantId = TenantId,
+            EmailId = startPayload.EmailId,
+            ExecutionId = started.ExecutionId,
+            Decision = "REJECT",
+            ReviewedByUserId = Guid.NewGuid().ToString("N"),
+        };
+
+        var secondReviewResponse = await _client.PostAsJsonAsync("/api/pipeline/reviews", secondReviewPayload);
+        Assert.Equal(HttpStatusCode.Conflict, secondReviewResponse.StatusCode);
+    }
 }
 
 public sealed class PipelineApiFactory : WebApplicationFactory<Program>

@@ -174,11 +174,26 @@ ORDER BY created_at_utc ASC;";
         var dossierId = normalizedDecision == "APPROVE" ? Guid.NewGuid().ToString("N") : null;
         var now = DateTime.UtcNow;
 
+        if (current.State is "APPROVED" or "REJECTED")
+        {
+            return new PipelineReviewResult
+            {
+                ExecutionId = executionId,
+                PreviousState = current.State,
+                NewState = current.State,
+                DossierUpdated = !string.IsNullOrWhiteSpace(current.RelatedCaseId),
+                DossierId = current.RelatedCaseId,
+                Applied = false,
+                ConflictReason = "execution-already-finalized",
+            };
+        }
+
         using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
 
         using var transaction = connection.BeginTransaction();
 
+        int rowsUpdated;
         using (var update = connection.CreateCommand())
         {
             update.CommandText = @"
@@ -187,7 +202,9 @@ SET state = $state,
     ended_at_utc = CASE WHEN $newState IN ('APPROVED','REJECTED') THEN $now ELSE ended_at_utc END,
     related_case_id = $relatedCaseId,
     updated_at_utc = $now
-WHERE tenant_id = $tenantId AND execution_id = $executionId;";
+WHERE tenant_id = $tenantId
+  AND execution_id = $executionId
+  AND state NOT IN ('APPROVED', 'REJECTED');";
             update.Parameters.AddWithValue("$state", newState);
             update.Parameters.AddWithValue("$newState", newState);
             update.Parameters.AddWithValue("$now", now.ToString("O"));
@@ -195,7 +212,24 @@ WHERE tenant_id = $tenantId AND execution_id = $executionId;";
             update.Parameters.AddWithValue("$tenantId", tenantId);
             update.Parameters.AddWithValue("$executionId", executionId);
 
-            await update.ExecuteNonQueryAsync(cancellationToken);
+            rowsUpdated = await update.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        if (rowsUpdated == 0)
+        {
+            transaction.Rollback();
+
+            var latest = await GetExecutionAsync(tenantId, executionId, cancellationToken);
+            return new PipelineReviewResult
+            {
+                ExecutionId = executionId,
+                PreviousState = latest?.State ?? current.State,
+                NewState = latest?.State ?? current.State,
+                DossierUpdated = !string.IsNullOrWhiteSpace(latest?.RelatedCaseId),
+                DossierId = latest?.RelatedCaseId,
+                Applied = false,
+                ConflictReason = "execution-already-finalized",
+            };
         }
 
         await InsertTransitionAsync(connection, new PipelineTransitionRecord
@@ -221,6 +255,7 @@ WHERE tenant_id = $tenantId AND execution_id = $executionId;";
             NewState = newState,
             DossierUpdated = dossierId is not null,
             DossierId = dossierId,
+            Applied = true,
         };
     }
 
@@ -387,4 +422,6 @@ public class PipelineReviewResult
     public string NewState { get; set; } = null!;
     public bool DossierUpdated { get; set; }
     public string? DossierId { get; set; }
+    public bool Applied { get; set; }
+    public string? ConflictReason { get; set; }
 }

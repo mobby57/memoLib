@@ -720,6 +720,16 @@ pipeline.MapPost("/reviews", async (
         return Results.NotFound(new { error = "execution introuvable" });
     }
 
+    if (!result.Applied)
+    {
+        return Results.Conflict(new
+        {
+            error = "execution deja finalisee",
+            reason = result.ConflictReason,
+            currentState = result.NewState,
+        });
+    }
+
     return Results.Ok(new ReviewDecisionResponse
     {
         ExecutionId = result.ExecutionId,
