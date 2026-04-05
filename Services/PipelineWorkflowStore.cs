@@ -6,6 +6,7 @@ public interface IPipelineWorkflowStore
 {
     Task<PipelineExecutionRecord> StartExecutionAsync(string tenantId, string emailId, string workflowName, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<PipelineExecutionRecord>> ListExecutionsAsync(string tenantId, int limit, int offset, CancellationToken cancellationToken = default);
+    Task<PipelineMetricsRecord> GetMetricsAsync(string tenantId, int days, CancellationToken cancellationToken = default);
     Task<PipelineExecutionRecord?> GetExecutionAsync(string tenantId, string executionId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<PipelineTransitionRecord>> GetTransitionsAsync(string tenantId, string executionId, CancellationToken cancellationToken = default);
     Task<PipelineReviewResult?> ApplyReviewAsync(
@@ -124,6 +125,62 @@ LIMIT $limit OFFSET $offset;";
 
         return executions;
     }
+
+        public async Task<PipelineMetricsRecord> GetMetricsAsync(string tenantId, int days, CancellationToken cancellationToken = default)
+        {
+                await EnsureTablesAsync(cancellationToken);
+
+                var safeDays = Math.Clamp(days, 1, 365);
+                var windowStartUtc = DateTime.UtcNow.AddDays(-safeDays);
+                var windowStartIso = windowStartUtc.ToString("O");
+
+                using var connection = new SqliteConnection(_connectionString);
+                await connection.OpenAsync(cancellationToken);
+
+                const string sql = @"
+SELECT
+    COUNT(*) AS total_count,
+    SUM(CASE WHEN state = 'RECEIVED' THEN 1 ELSE 0 END) AS pending_count,
+    SUM(CASE WHEN state = 'APPROVED' THEN 1 ELSE 0 END) AS approved_count,
+    SUM(CASE WHEN state = 'REJECTED' THEN 1 ELSE 0 END) AS rejected_count,
+    AVG(CASE
+        WHEN ended_at_utc IS NOT NULL THEN (julianday(ended_at_utc) - julianday(started_at_utc)) * 86400.0
+        ELSE NULL
+    END) AS avg_decision_seconds
+FROM workflow_executions
+WHERE tenant_id = $tenantId
+    AND started_at_utc >= $windowStartUtc;";
+
+                using var command = connection.CreateCommand();
+                command.CommandText = sql;
+                command.Parameters.AddWithValue("$tenantId", tenantId);
+                command.Parameters.AddWithValue("$windowStartUtc", windowStartIso);
+
+                using var reader = await command.ExecuteReaderAsync(cancellationToken);
+                await reader.ReadAsync(cancellationToken);
+
+                var total = reader.IsDBNull(0) ? 0 : reader.GetInt32(0);
+                var pending = reader.IsDBNull(1) ? 0 : reader.GetInt32(1);
+                var approved = reader.IsDBNull(2) ? 0 : reader.GetInt32(2);
+                var rejected = reader.IsDBNull(3) ? 0 : reader.GetInt32(3);
+                var avgDecisionSeconds = reader.IsDBNull(4) ? 0d : reader.GetDouble(4);
+
+                var finalized = approved + rejected;
+                var approvalRate = finalized == 0 ? 0m : Math.Round((decimal)approved / finalized, 4);
+
+                return new PipelineMetricsRecord
+                {
+                        TenantId = tenantId,
+                        Days = safeDays,
+                        WindowStartUtc = windowStartUtc,
+                        TotalExecutions = total,
+                        PendingExecutions = pending,
+                        ApprovedExecutions = approved,
+                        RejectedExecutions = rejected,
+                        ApprovalRate = approvalRate,
+                        AverageDecisionSeconds = Math.Round(avgDecisionSeconds, 2),
+                };
+        }
 
     public async Task<IReadOnlyList<PipelineTransitionRecord>> GetTransitionsAsync(string tenantId, string executionId, CancellationToken cancellationToken = default)
     {
@@ -424,4 +481,17 @@ public class PipelineReviewResult
     public string? DossierId { get; set; }
     public bool Applied { get; set; }
     public string? ConflictReason { get; set; }
+}
+
+public class PipelineMetricsRecord
+{
+    public string TenantId { get; set; } = null!;
+    public int Days { get; set; }
+    public DateTime WindowStartUtc { get; set; }
+    public int TotalExecutions { get; set; }
+    public int PendingExecutions { get; set; }
+    public int ApprovedExecutions { get; set; }
+    public int RejectedExecutions { get; set; }
+    public decimal ApprovalRate { get; set; }
+    public double AverageDecisionSeconds { get; set; }
 }

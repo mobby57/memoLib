@@ -235,6 +235,63 @@ public class PipelineEndpointsIntegrationTests : IClassFixture<PipelineApiFactor
         var secondReviewResponse = await _client.PostAsJsonAsync("/api/pipeline/reviews", secondReviewPayload);
         Assert.Equal(HttpStatusCode.Conflict, secondReviewResponse.StatusCode);
     }
+
+    [Fact]
+    public async Task Metrics_ReturnsExpectedAggregates_ForTenantWindow()
+    {
+        var metricsTenantId = Guid.NewGuid().ToString("N");
+
+        async Task<string> StartAsync()
+        {
+            var startPayload = new StartWorkflowRequest
+            {
+                TenantId = metricsTenantId,
+                EmailId = Guid.NewGuid().ToString("N"),
+                WorkflowName = "email-triage",
+            };
+
+            var startResponse = await _client.PostAsJsonAsync("/api/pipeline/workflows/start", startPayload);
+            startResponse.EnsureSuccessStatusCode();
+            var started = await startResponse.Content.ReadFromJsonAsync<StartWorkflowResponse>();
+            return started!.ExecutionId;
+        }
+
+        var approveExecutionId = await StartAsync();
+        var rejectExecutionId = await StartAsync();
+        _ = await StartAsync(); // remains pending
+
+        var approveResponse = await _client.PostAsJsonAsync("/api/pipeline/reviews", new ReviewDecisionRequest
+        {
+            TenantId = metricsTenantId,
+            EmailId = Guid.NewGuid().ToString("N"),
+            ExecutionId = approveExecutionId,
+            Decision = "APPROVE",
+            ReviewedByUserId = Guid.NewGuid().ToString("N"),
+        });
+        approveResponse.EnsureSuccessStatusCode();
+
+        var rejectResponse = await _client.PostAsJsonAsync("/api/pipeline/reviews", new ReviewDecisionRequest
+        {
+            TenantId = metricsTenantId,
+            EmailId = Guid.NewGuid().ToString("N"),
+            ExecutionId = rejectExecutionId,
+            Decision = "REJECT",
+            ReviewedByUserId = Guid.NewGuid().ToString("N"),
+        });
+        rejectResponse.EnsureSuccessStatusCode();
+
+        var metricsResponse = await _client.GetAsync($"/api/pipeline/metrics?tenantId={metricsTenantId}&days=30");
+        metricsResponse.EnsureSuccessStatusCode();
+
+        var metrics = await metricsResponse.Content.ReadFromJsonAsync<PipelineMetricsResponse>();
+        Assert.NotNull(metrics);
+        Assert.Equal(metricsTenantId, metrics!.TenantId);
+        Assert.True(metrics.TotalExecutions >= 3);
+        Assert.True(metrics.PendingExecutions >= 1);
+        Assert.True(metrics.ApprovedExecutions >= 1);
+        Assert.True(metrics.RejectedExecutions >= 1);
+        Assert.Equal(0.5m, metrics.ApprovalRate);
+    }
 }
 
 public sealed class PipelineApiFactory : WebApplicationFactory<Program>

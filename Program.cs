@@ -832,6 +832,33 @@ pipeline.MapGet("/workflows", async (
     });
 });
 
+pipeline.MapGet("/metrics", async (
+    string tenantId,
+    int? days,
+    IPipelineWorkflowStore workflowStore,
+    CancellationToken cancellationToken) =>
+{
+    if (string.IsNullOrWhiteSpace(tenantId))
+    {
+        return Results.BadRequest(new { error = "tenantId est requis" });
+    }
+
+    var metrics = await workflowStore.GetMetricsAsync(tenantId, days.GetValueOrDefault(30), cancellationToken);
+
+    return Results.Ok(new PipelineMetricsResponse
+    {
+        TenantId = metrics.TenantId,
+        Days = metrics.Days,
+        WindowStartUtc = metrics.WindowStartUtc,
+        TotalExecutions = metrics.TotalExecutions,
+        PendingExecutions = metrics.PendingExecutions,
+        ApprovedExecutions = metrics.ApprovedExecutions,
+        RejectedExecutions = metrics.RejectedExecutions,
+        ApprovalRate = metrics.ApprovalRate,
+        AverageDecisionSeconds = metrics.AverageDecisionSeconds,
+    });
+});
+
 pipeline.MapPost("/search", (SearchGlobalRequest request) =>
 {
     if (string.IsNullOrWhiteSpace(request.TenantId) || string.IsNullOrWhiteSpace(request.Query))
