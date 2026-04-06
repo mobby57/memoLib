@@ -411,6 +411,11 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 var app = builder.Build();
 var disableHttpsRedirection = builder.Configuration.GetValue<bool>("DisableHttpsRedirection");
+if (app.Environment.IsProduction() && disableHttpsRedirection)
+{
+    Log.Warning("⚠️ SECURITY: DisableHttpsRedirection=true ignoré en production. HTTPS forcé.");
+    disableHttpsRedirection = false;
+}
 
 using (var scope = app.Services.CreateScope())
 {
