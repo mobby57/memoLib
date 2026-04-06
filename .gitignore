@@ -164,3 +164,8 @@ api_output.log
 $($found
 $($ms
 $null
+
+# OAuth/Gmail local secrets (never commit)
+credentials.json
+token.json
+client_secret_*.json
