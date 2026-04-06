@@ -1,58 +1,97 @@
-# 🚀 MemoLib - Système de Gestion d'Emails pour Cabinets d'Avocats
+# ⚖️ MemoLib AI - Assistant Juridique Intelligent
 
-[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688)](https://fastapi.tiangolo.com/)
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen)]()
-[![Tests](https://img.shields.io/badge/tests-100%25%20passing-success)](VALIDATION-100-PERCENT.md)
 
-## 🎯 Qu'est-ce que MemoLib ?
+## 🎯 Qu'est-ce que MemoLib AI ?
 
-**MemoLib** est un système intelligent de gestion des communications par email spécialement conçu pour les **cabinets d'avocats** et professionnels du droit.
+**MemoLib AI** est un assistant juridique intelligent propulsé par l'IA, conçu pour les **avocats, juges, juristes et secrétaires juridiques**. Il automatise l'analyse documentaire, l'extraction de clauses et la classification des affaires.
 
-### 💡 Le Problème
+## 💡 Fonctionnalités Principales
 
-Les cabinets d'avocats reçoivent des dizaines d'emails clients par jour. Gérer manuellement ces communications est:
-- ⏰ **Chronophage** - Tri, classement, extraction d'infos
-- 🔍 **Risqué** - Emails perdus, oubliés ou mal classés
-- 📊 **Inefficace** - Pas de vue d'ensemble, pas de statistiques
-- 👥 **Isolé** - Difficile de collaborer en équipe
+- **📄 Analyse de documents juridiques** — Analyse automatique de contrats, jugements et actes
+- **🔍 Extraction de clauses** — Identification et extraction des clauses clés (obligations, pénalités, délais)
+- **⚖️ Classification des affaires** — Catégorisation intelligente selon le type de litige
+- **🔮 Prédiction de résultats** — Estimation de l'issue d'une affaire basée sur les précédents
+- **🚀 Déploiement flexible** — Disponible via API REST ou outil standalone
 
-### ✨ La Solution MemoLib
+## ⚡ Cas d'Utilisation
 
-MemoLib automatise **tout le workflow** de gestion des emails clients:
+- ⚖️ **Avocats** — Analyse rapide de contrats et extraction des points clés
+- 👩‍⚖️ **Juges** — Recherche de précédents et classification de jurisprudence
+- 📋 **Juristes** — Vérification de conformité et détection d'anomalies contractuelles
+- 🗂️ **Secrétaires juridiques** — Tri et classification automatique des dossiers
 
-1. **📧 Réception Automatique**
-   - Connecté à votre Gmail via IMAP
-   - Scan automatique toutes les 60 secondes
-   - Détection des nouveaux emails clients
+## 🚀 Démarrage Rapide
 
-2. **🤖 Extraction Intelligente**
-   - Détecte automatiquement le nom du client
-   - Extrait téléphone, adresse, email
-   - Identifie les doublons
+### Installation
 
-3. **📁 Création de Dossiers**
-   - Créez un dossier en 1 clic depuis l'email
-   - Infos client pré-remplies automatiquement
-   - Historique complet des échanges
+```bash
+git clone https://github.com/mobby57/memoLib.git
+cd memoLib
+```
 
-4. **⚙️ Workflow Complet**
-   - Statuts: OUVERT → EN COURS → FERMÉ
-   - Tags personnalisables (urgent, famille, divorce...)
-   - Priorités et échéances
-   - Attribution à des avocats
+### API FastAPI (analyse de documents)
 
-5. **🔔 Notifications Automatiques**
-   - Nouvel email reçu
-   - Changement de statut
-   - Échéance approchant
-   - Commentaires d'équipe
+```bash
+cd api
+pip install -r requirements.txt
+uvicorn main:app --reload
+# → http://localhost:8000/docs
+```
 
-6. **📊 Analytics & Reporting**
-   - Dashboard avec statistiques
-   - Emails par jour/semaine/mois
-   - Temps de réponse moyen
-   - Dossiers par statut
+### Démonstration interactive (Streamlit)
+
+```bash
+cd demo
+pip install -r requirements.txt
+streamlit run app.py
+# → http://localhost:8501
+```
+
+### Exemple rapide
+
+```python
+from examples.contract_analysis import ContractAnalyzer
+
+analyzer = ContractAnalyzer()
+result = analyzer.analyze("contrat.pdf")
+
+print(result["clauses"])
+print(result["summary"])
+```
+
+## 📂 Structure du Projet
+
+```
+memoLib/
+├── api/                   # 🌐 API FastAPI (analyse juridique)
+│   ├── main.py            # Endpoints: upload, analyze, classify
+│   └── requirements.txt
+├── demo/                  # 🖥️  Application Streamlit interactive
+│   ├── app.py             # Interface visuelle de démonstration
+│   └── requirements.txt
+├── examples/              # 📊 Scripts d'exemples métier
+│   ├── contract_analysis.py   # Extraction de clauses contractuelles
+│   └── case_prediction.py     # Prédiction d'issue d'affaire
+├── docs/                  # 📚 Documentation détaillée
+├── src/                   # 💻 Code source principal (Next.js + FastAPI)
+│   ├── frontend/          # Interface web (Next.js)
+│   └── backend/           # Services backend
+├── backend-python/        # 🐍 Backend Flask (dev)
+└── prisma/                # 🗄️  Schéma base de données
+```
+
+## 🌐 API Reference
+
+| Endpoint | Méthode | Description |
+|----------|---------|-------------|
+| `/analyze` | POST | Analyse un document juridique (PDF/texte) |
+| `/extract-clauses` | POST | Extrait les clauses d'un contrat |
+| `/classify` | POST | Classifie le type de document/affaire |
+| `/health` | GET | Statut de l'API |
 
 ### 🎯 Pour Qui ?
 
