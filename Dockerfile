@@ -27,11 +27,18 @@ COPY --from=publish /app/publish .
 # Create directory for database
 RUN mkdir -p /app/data
 
+# Créer utilisateur non-root
+RUN addgroup --system --gid 1001 memolib && \
+    adduser --system --uid 1001 --ingroup memolib memolib && \
+    chown -R memolib:memolib /app /app/data
+
 # Environment variables
 ENV ASPNETCORE_URLS=http://+:5078
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ConnectionStrings__Default="Data Source=/app/data/memolib.db"
-ENV DisableHttpsRedirection=true
+ENV DisableHttpsRedirection=false
+
+USER memolib
 
 # Expose port
 EXPOSE 5078

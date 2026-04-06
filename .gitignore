@@ -140,6 +140,10 @@ MemoLib-Package-Client/app/_build_check/
 # Azure deployment secrets
 .azure-secrets.json
 
+# Copies contenant des secrets - NE JAMAIS COMMITTER
+MemoLib-Package-Client/
+MemoLib.Api-cleanpush/
+
 .azure-demo-secrets.json
 
 # Artifacts & logs (never commit)
