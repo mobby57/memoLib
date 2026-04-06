@@ -41,14 +41,14 @@ class IntegratedEmailMonitor {
     const content = fs.readFileSync(CREDENTIALS_PATH, 'utf-8');
     const keys = JSON.parse(content);
     const key = keys.installed || keys.web;
-    
+
     const payload = JSON.stringify({
       type: 'authorized_user',
       client_id: key.client_id,
       client_secret: key.client_secret,
       refresh_token: client.credentials.refresh_token,
     });
-    
+
     fs.writeFileSync(TOKEN_PATH, payload);
   }
 
@@ -69,10 +69,10 @@ class IntegratedEmailMonitor {
     }
 
     this.gmail = google.gmail({ version: 'v1', auth: this.auth });
-    
+
     // Connecter le service Prisma
     await this.emailService.connect();
-    
+
     console.log('✅ Authentifié avec succès!\n');
   }
 
@@ -146,7 +146,8 @@ class IntegratedEmailMonitor {
       const subject = headers.find((h: any) => h.name === 'Subject')?.value || '(pas de sujet)';
       const from = headers.find((h: any) => h.name === 'From')?.value || 'Inconnu';
       const to = headers.find((h: any) => h.name === 'To')?.value || 'Inconnu';
-      const dateStr = headers.find((h: any) => h.name === 'Date')?.value || new Date().toISOString();
+      const dateStr =
+        headers.find((h: any) => h.name === 'Date')?.value || new Date().toISOString();
       const receivedDate = new Date(dateStr);
 
       console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
@@ -164,7 +165,7 @@ class IntegratedEmailMonitor {
       // Pièces jointes
       const parts = this.getAllParts(message.data.payload);
       const attachments = parts.filter((part: any) => part.filename && part.filename.length > 0);
-      
+
       if (attachments.length > 0) {
         console.log(`📎 Pièces jointes: ${attachments.length}`);
         attachments.forEach((att: any, i: number) => {
@@ -177,7 +178,7 @@ class IntegratedEmailMonitor {
       const classification = this.classifyEmail({
         subject,
         from: { text: from },
-        text: bodyText
+        text: bodyText,
       });
 
       console.log(`🏷️  Type: ${classification.type}`);
@@ -201,13 +202,12 @@ class IntegratedEmailMonitor {
         attachments: attachments.map((a: any) => ({
           filename: a.filename,
           size: a.body.size || 0,
-          mimeType: a.mimeType
+          mimeType: a.mimeType,
         })),
-        tenantId: this.tenantId
+        tenantId: this.tenantId,
       });
 
       console.log(`💾 Sauvegardé dans la base de données`);
-
     } catch (err: any) {
       console.error(`❌ Erreur traitement email ${messageId}:`, err.message);
     }
@@ -250,7 +250,9 @@ class IntegratedEmailMonitor {
 
   private classifyEmail(email: any): any {
     const subject = (email.subject || '').toLowerCase();
-    const from = (typeof email.from === 'string' ? email.from : email.from?.text || '').toLowerCase();
+    const from = (
+      typeof email.from === 'string' ? email.from : email.from?.text || ''
+    ).toLowerCase();
     const text = (email.text || '').toLowerCase();
     const fullContent = `${subject} ${from} ${text}`;
 
@@ -260,25 +262,55 @@ class IntegratedEmailMonitor {
     const tags: string[] = [];
 
     // CESEDA (priorité maximale)
-    const cesedaKeywords = ['ceseda', 'titre de séjour', 'carte de resident', 'ofpra', 'oqtf', 'préfecture', 'asile', 'réfugié'];
+    const cesedaKeywords = [
+      'ceseda',
+      'titre de séjour',
+      'carte de resident',
+      'ofpra',
+      'oqtf',
+      'préfecture',
+      'asile',
+      'réfugié',
+    ];
     const cesedaScore = cesedaKeywords.filter(k => fullContent.includes(k)).length;
     if (cesedaScore >= 2) {
       type = 'ceseda';
       priority = 'critical';
-      confidence = Math.min(0.7 + (cesedaScore * 0.1), 0.95);
+      confidence = Math.min(0.7 + cesedaScore * 0.1, 0.95);
       tags.push('CESEDA', 'Droit des étrangers');
-      return { type, priority, confidence, tags, suggestedAction: 'Traiter en urgence - Délais CESEDA critiques' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Traiter en urgence - Délais CESEDA critiques',
+      };
     }
 
     // NOUVEAU CLIENT
-    const newClientKeywords = ['premier contact', 'nouveau dossier', 'besoin avocat', 'consultation', 'rendez-vous'];
+    const newClientKeywords = [
+      'premier contact',
+      'nouveau dossier',
+      'besoin avocat',
+      'consultation',
+      'rendez-vous',
+    ];
     const newClientScore = newClientKeywords.filter(k => fullContent.includes(k)).length;
-    if (newClientScore >= 2 || (subject.includes('demande') && (text.includes('avocat') || text.includes('aide juridique')))) {
+    if (
+      newClientScore >= 2 ||
+      (subject.includes('demande') && (text.includes('avocat') || text.includes('aide juridique')))
+    ) {
       type = 'nouveau_client';
       priority = 'high';
-      confidence = Math.min(0.6 + (newClientScore * 0.15), 0.9);
+      confidence = Math.min(0.6 + newClientScore * 0.15, 0.9);
       tags.push('Nouveau client', 'Premier contact');
-      return { type, priority, confidence, tags, suggestedAction: 'Créer dossier et programmer consultation' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Créer dossier et programmer consultation',
+      };
     }
 
     // RÉPONSE CLIENT
@@ -287,44 +319,91 @@ class IntegratedEmailMonitor {
     if (responseScore >= 1 && !from.includes('noreply') && !from.includes('no-reply')) {
       type = 'reponse_client';
       priority = 'high';
-      confidence = Math.min(0.55 + (responseScore * 0.15), 0.85);
+      confidence = Math.min(0.55 + responseScore * 0.15, 0.85);
       tags.push('Réponse client', 'Suivi dossier');
-      return { type, priority, confidence, tags, suggestedAction: 'Mettre à jour le dossier client' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Mettre à jour le dossier client',
+      };
     }
 
     // LA POSTE
-    if (from.includes('laposte') || from.includes('colissimo') || subject.includes('suivi') || 
-        subject.includes('colis') || text.includes('numéro de suivi') || text.includes('lettre recommandée')) {
+    if (
+      from.includes('laposte') ||
+      from.includes('colissimo') ||
+      subject.includes('suivi') ||
+      subject.includes('colis') ||
+      text.includes('numéro de suivi') ||
+      text.includes('lettre recommandée')
+    ) {
       type = 'laposte_notification';
       priority = 'high';
       confidence = 0.9;
       tags.push('La Poste', 'Suivi courrier');
-      return { type, priority, confidence, tags, suggestedAction: 'Extraire numéro de suivi et associer au dossier' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Extraire numéro de suivi et associer au dossier',
+      };
     }
 
     // URGENT
-    const urgentKeywords = ['urgent', 'important', 'immédiat', 'expulsion', 'délai', 'deadline', '!!', '!!!'];
+    const urgentKeywords = [
+      'urgent',
+      'important',
+      'immédiat',
+      'expulsion',
+      'délai',
+      'deadline',
+      '!!',
+      '!!!',
+    ];
     const urgentScore = urgentKeywords.filter(k => fullContent.includes(k)).length;
     if (urgentScore >= 2) {
       type = 'urgent';
       priority = 'critical';
-      confidence = Math.min(0.65 + (urgentScore * 0.1), 0.85);
+      confidence = Math.min(0.65 + urgentScore * 0.1, 0.85);
       tags.push('Urgent', 'Prioritaire');
       return { type, priority, confidence, tags, suggestedAction: 'Notifier avocat immédiatement' };
     }
 
     // SPAM
-    const spamKeywords = ['viagra', 'casino', 'lottery', 'prize', 'click here', 'unsubscribe', 'marketing'];
+    const spamKeywords = [
+      'viagra',
+      'casino',
+      'lottery',
+      'prize',
+      'click here',
+      'unsubscribe',
+      'marketing',
+    ];
     const spamScore = spamKeywords.filter(k => fullContent.includes(k)).length;
     if (spamScore >= 2 || from.includes('noreply') || from.includes('newsletter')) {
       type = 'spam';
       priority = 'low';
-      confidence = Math.min(0.7 + (spamScore * 0.1), 0.95);
+      confidence = Math.min(0.7 + spamScore * 0.1, 0.95);
       tags.push('Spam', 'À ignorer');
-      return { type, priority, confidence, tags, suggestedAction: 'Marquer comme spam et archiver' };
+      return {
+        type,
+        priority,
+        confidence,
+        tags,
+        suggestedAction: 'Marquer comme spam et archiver',
+      };
     }
 
-    return { type, priority, confidence, tags: tags.length > 0 ? tags : ['Non classifié'], suggestedAction: 'Révision manuelle nécessaire' };
+    return {
+      type,
+      priority,
+      confidence,
+      tags: tags.length > 0 ? tags : ['Non classifié'],
+      suggestedAction: 'Révision manuelle nécessaire',
+    };
   }
 
   private formatBytes(bytes: number): string {
@@ -332,19 +411,22 @@ class IntegratedEmailMonitor {
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 }
 
 // Lancement
 const monitor = new IntegratedEmailMonitor();
 
-monitor.connect().then(() => {
-  monitor.startMonitoring();
-}).catch((err) => {
-  console.error('❌ Erreur fatale:', err);
-  process.exit(1);
-});
+monitor
+  .connect()
+  .then(() => {
+    monitor.startMonitoring();
+  })
+  .catch(err => {
+    console.error('❌ Erreur fatale:', err);
+    process.exit(1);
+  });
 
 // Gestion arrêt propre
 process.on('SIGINT', async () => {

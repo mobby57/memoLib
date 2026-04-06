@@ -5,10 +5,50 @@ import { OAuth2Client } from 'google-auth-library';
 import * as fs from 'fs';
 import * as path from 'path';
 
+function loadScriptEnvIfNeeded(): void {
+  if (process.env.DATABASE_URL && process.env.DATABASE_URL.trim()) {
+    return;
+  }
+
+  const envCandidates = [path.join(process.cwd(), '.env.local'), path.join(process.cwd(), '.env')];
+
+  for (const envPath of envCandidates) {
+    if (!fs.existsSync(envPath)) continue;
+
+    const content = fs.readFileSync(envPath, 'utf8');
+    for (const rawLine of content.split(/\r?\n/)) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith('#')) continue;
+
+      const idx = line.indexOf('=');
+      if (idx <= 0) continue;
+
+      const key = line.slice(0, idx).trim();
+      const value = line.slice(idx + 1).trim();
+      if (!process.env[key]) {
+        process.env[key] = value;
+      }
+    }
+
+    if (process.env.DATABASE_URL && process.env.DATABASE_URL.trim()) {
+      return;
+    }
+  }
+}
+
+loadScriptEnvIfNeeded();
+
 const prisma = new PrismaClient();
 
 interface EmailClassificationData {
-  type: 'nouveau_client' | 'reponse_client' | 'laposte_notification' | 'ceseda' | 'urgent' | 'spam' | 'general';
+  type:
+    | 'nouveau_client'
+    | 'reponse_client'
+    | 'laposte_notification'
+    | 'ceseda'
+    | 'urgent'
+    | 'spam'
+    | 'general';
   priority: 'critical' | 'high' | 'medium' | 'low';
   confidence: number;
   tags: string[];
@@ -25,7 +65,7 @@ export class EmailPrismaService {
     const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
 
     if (!fs.existsSync(TOKEN_PATH)) {
-      throw new Error('Token non trouve. Executez email-monitor.ts d\'abord.');
+      throw new Error("Token non trouve. Executez email-monitor.ts d'abord.");
     }
 
     const content = fs.readFileSync(TOKEN_PATH, 'utf-8');
@@ -51,9 +91,18 @@ export class EmailPrismaService {
     tenantId?: string;
   }): Promise<void> {
     try {
+      const resolvedTenantId = params.tenantId || process.env.DEFAULT_TENANT_ID;
+
+      if (!resolvedTenantId) {
+        throw new Error('tenantId manquant: renseignez DEFAULT_TENANT_ID ou fournissez tenantId.');
+      }
+
       // Verifier si l'email existe deja
-      const existing = await prisma.email.findUnique({
-        where: { messageId: params.messageId }
+      const existing = await prisma.email.findFirst({
+        where: {
+          tenantId: resolvedTenantId,
+          messageId: params.messageId,
+        },
       });
 
       if (existing) {
@@ -69,31 +118,23 @@ export class EmailPrismaService {
           from: params.from,
           to: params.to,
           subject: params.subject,
+          body: params.bodyText || params.bodyHtml || '',
           bodyText: params.bodyText,
           bodyHtml: params.bodyHtml,
           receivedDate: params.receivedDate,
-          attachments: params.attachments ? JSON.stringify(params.attachments) : null,
-          tenantId: params.tenantId,
-          classification: {
-            create: {
-              type: params.classification.type,
-              priority: params.classification.priority,
-              confidence: params.classification.confidence,
-              tags: JSON.stringify(params.classification.tags),
-              suggestedAction: params.classification.suggestedAction
-            }
-          }
+          hasAttachments: Boolean(params.attachments && params.attachments.length > 0),
+          tenantId: resolvedTenantId,
+          category: params.classification.type,
+          urgency: params.classification.priority,
+          tags: JSON.stringify(params.classification.tags || []),
+          aiAnalysis: params.classification.suggestedAction || null,
         },
-        include: {
-          classification: true
-        }
       });
 
       console.log(` Email sauvegarde: ${email.id}`);
 
       // Auto-traitement selon le type
       await this.autoProcessEmail(email.id, params.classification);
-
     } catch (error: any) {
       console.error(' Erreur sauvegarde email:', error.message);
       throw error;
@@ -103,11 +144,13 @@ export class EmailPrismaService {
   /**
    * Traitement automatique selon la classification
    */
-  private async autoProcessEmail(emailId: string, classification: EmailClassificationData): Promise<void> {
+  private async autoProcessEmail(
+    emailId: string,
+    classification: EmailClassificationData
+  ): Promise<void> {
     try {
       const email = await prisma.email.findUnique({
         where: { id: emailId },
-        include: { classification: true }
       });
 
       if (!email) return;
@@ -131,7 +174,6 @@ export class EmailPrismaService {
       else if (classification.type === 'reponse_client') {
         await this.linkToExistingClient(email);
       }
-
     } catch (error: any) {
       console.error(' Erreur auto-traitement:', error.message);
     }
@@ -153,17 +195,19 @@ export class EmailPrismaService {
       // Verifier si client existe deja
       const existingClient = await prisma.client.findFirst({
         where: {
-          email: email.from.match(/<(.+)>/)?.[1] || email.from
-        }
+          email: email.from.match(/<(.+)>/)?.[1] || email.from,
+        },
       });
 
       if (existingClient) {
         // Lier l'email au client existant
         await prisma.email.update({
           where: { id: email.id },
-          data: { clientId: existingClient.id }
+          data: { clientId: existingClient.id },
         });
-        console.log(` Email lie au client existant: ${existingClient.firstName} ${existingClient.lastName}`);
+        console.log(
+          ` Email lie au client existant: ${existingClient.firstName} ${existingClient.lastName}`
+        );
         return;
       }
 
@@ -177,18 +221,17 @@ export class EmailPrismaService {
           source: 'email',
           datePremiereVisite: new Date(),
           tenantId: email.tenantId || process.env.DEFAULT_TENANT_ID!,
-          notes: `Premier contact par email: ${email.subject}\nDate: ${email.receivedDate.toISOString()}`
-        }
+          notes: `Premier contact par email: ${email.subject}\nDate: ${email.receivedDate.toISOString()}`,
+        },
       });
 
       // Lier l'email au nouveau client
       await prisma.email.update({
         where: { id: email.id },
-        data: { clientId: newClient.id }
+        data: { clientId: newClient.id },
       });
 
       console.log(` Nouveau prospect cree: ${newClient.firstName} ${newClient.lastName}`);
-
     } catch (error: any) {
       console.error(' Erreur creation prospect:', error.message);
     }
@@ -205,7 +248,7 @@ export class EmailPrismaService {
       const patterns = [
         /[0-9]{2}[a-z]{2}[0-9]{9}[a-z]{2}/gi, // Format La Poste
         /[0-9]{13}/g, // Format Colissimo
-        /[a-z]{2}[0-9]{9}[a-z]{2}/gi // Format recommande
+        /[a-z]{2}[0-9]{9}[a-z]{2}/gi, // Format recommande
       ];
 
       const trackingNumbers: string[] = [];
@@ -220,12 +263,11 @@ export class EmailPrismaService {
       if (trackingNumbers.length > 0) {
         await prisma.email.update({
           where: { id: email.id },
-          data: { trackingNumbers: JSON.stringify([...new Set(trackingNumbers)]) }
+          data: { trackingNumbers: JSON.stringify([...new Set(trackingNumbers)]) },
         });
 
         console.log(` Numeros de suivi extraits: ${trackingNumbers.join(', ')}`);
       }
-
     } catch (error: any) {
       console.error(' Erreur extraction tracking:', error.message);
     }
@@ -245,11 +287,10 @@ export class EmailPrismaService {
           alertType: 'legal_deadline',
           severity: 'CRITICAL',
           message: `Email urgent: ${email.subject}\nDe: ${email.from}\nRecu: ${email.receivedDate.toISOString()}\n\n${email.bodyText?.substring(0, 500)}`,
-        }
+        },
       });
 
       console.log(` Alerte urgente creee pour email ${email.id}`);
-
     } catch (error: any) {
       console.error(' Erreur creation alerte:', error.message);
     }
@@ -263,21 +304,37 @@ export class EmailPrismaService {
       const fromEmail = email.from.match(/<(.+)>/)?.[1] || email.from;
 
       const client = await prisma.client.findFirst({
-        where: { email: fromEmail }
+        where: { email: fromEmail },
       });
 
       if (client) {
         await prisma.email.update({
           where: { id: email.id },
-          data: { clientId: client.id }
+          data: { clientId: client.id },
         });
 
         console.log(` Email lie au client: ${client.firstName} ${client.lastName}`);
       }
-
     } catch (error: any) {
       console.error(' Erreur liaison client:', error.message);
     }
+  }
+
+  /**
+   * Retourne les messageIds deja connus en base (pour skip rapide)
+   */
+  async filterKnownMessageIds(messageIds: string[], tenantId?: string): Promise<Set<string>> {
+    const resolvedTenantId = tenantId || process.env.DEFAULT_TENANT_ID;
+    if (!resolvedTenantId || messageIds.length === 0) return new Set();
+
+    const existing = await prisma.email.findMany({
+      where: {
+        tenantId: resolvedTenantId,
+        messageId: { in: messageIds },
+      },
+      select: { messageId: true },
+    });
+    return new Set(existing.map(e => e.messageId).filter(Boolean) as string[]);
   }
 
   /**
@@ -287,16 +344,16 @@ export class EmailPrismaService {
     return await prisma.email.findMany({
       where: {
         tenantId,
-        isRead: false
+        isRead: false,
       },
       include: {
         classification: true,
         client: true,
-        dossier: true
+        dossier: true,
       },
       orderBy: {
-        receivedDate: 'desc'
-      }
+        receivedDate: 'desc',
+      },
     });
   }
 
@@ -306,17 +363,21 @@ export class EmailPrismaService {
   async markAsRead(emailId: string): Promise<void> {
     await prisma.email.update({
       where: { id: emailId },
-      data: { isRead: true }
+      data: { isRead: true },
     });
   }
 
   /**
    * Valider classification
    */
-  async validateClassification(emailId: string, userId: string, correctedType?: string): Promise<void> {
+  async validateClassification(
+    emailId: string,
+    userId: string,
+    correctedType?: string
+  ): Promise<void> {
     const email = await prisma.email.findUnique({
       where: { id: emailId },
-      include: { classification: true }
+      include: { classification: true },
     });
 
     if (!email?.classification) return;
@@ -327,8 +388,8 @@ export class EmailPrismaService {
         validated: true,
         validatedBy: userId,
         validatedAt: new Date(),
-        correctedType
-      }
+        correctedType,
+      },
     });
   }
 
@@ -338,7 +399,3 @@ export class EmailPrismaService {
 }
 
 export const emailPrismaService = new EmailPrismaService();
-
-
-
-
