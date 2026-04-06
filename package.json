@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
-    "dev:legacy": "next dev",
-    "dev:debug": "NODE_OPTIONS='--inspect' next dev --turbo",
-    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next build --webpack",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev --webpack",
+    "dev:turbo": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev --turbo",
+    "dev:legacy": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev",
+    "dev:debug": "cross-env NODE_OPTIONS=--inspect --max-old-space-size=8192 next dev --webpack",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 TURBOPACK=0 next build --webpack",
     "build:turbo": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next build --turbo",
     "build:fast": "cross-env NODE_OPTIONS=--max-old-space-size=8192 NEXT_TELEMETRY_DISABLED=1 next build --turbo",
     "start": "next start",
@@ -149,7 +150,11 @@
     "demo:run": "npm run dev",
     "demo:all": "tsx scripts/demo-all-features.ts",
     "api:e2e:onboarding": "powershell -ExecutionPolicy Bypass -File ./scripts/e2e-onboarding.ps1",
-    "api:e2e:onboarding:base": "powershell -ExecutionPolicy Bypass -Command \"param([string]$u='http://localhost:8091'); & ./scripts/e2e-onboarding.ps1 -BaseUrl $u\""
+    "api:e2e:onboarding:base": "powershell -ExecutionPolicy Bypass -Command \"param([string]$u='http://localhost:8091'); & ./scripts/e2e-onboarding.ps1 -BaseUrl $u\"",
+    "demo:client:sarrab:check": "node scripts/validate-demo-client-config.js",
+    "demo:client:sarrab:run": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-client-sarrab.ps1",
+    "demo:client:sarrab:monitor": "npm run demo:client:sarrab:check && npm run email:monitor:integrated",
+    "demo:client:sarrab:full": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-client-sarrab-full.ps1"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
