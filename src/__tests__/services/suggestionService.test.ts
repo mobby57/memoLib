@@ -3,16 +3,20 @@
  * Couverture: suggestions, priorités, actions contextuelles
  */
 
+afterEach(() => {
+  jest.useRealTimers();
+});
+
 describe('Suggestion Service', () => {
   describe('SmartSuggestion Interface', () => {
     it('devrait avoir la structure correcte', () => {
       const suggestion = {
         id: 'sugg-1',
         title: 'Relance client',
-        description: 'Le client n\'a pas répondu depuis 7 jours',
+        description: "Le client n'a pas répondu depuis 7 jours",
         actionType: 'CLIENT_FOLLOWUP',
         priority: 'HIGH' as const,
-        reasoning: 'Basé sur l\'historique des réponses',
+        reasoning: "Basé sur l'historique des réponses",
         suggestedAction: {
           type: 'email',
           data: { template: 'relance_standard' },
@@ -63,7 +67,7 @@ describe('Suggestion Service', () => {
       expect(sorted[0].priority).toBe('CRITICAL');
     });
 
-    it('devrait maintenir l\'ordre décroissant', () => {
+    it("devrait maintenir l'ordre décroissant", () => {
       const items = [
         { priority: 'LOW' as const },
         { priority: 'HIGH' as const },
@@ -83,7 +87,16 @@ describe('Suggestion Service', () => {
     };
 
     const getDaysWithoutUpdate = (lastUpdate: Date): number => {
-      return Math.floor((Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+      const millisecondsPerDay = 1000 * 60 * 60 * 24;
+      const now = new Date();
+      const normalizedNow = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+      const normalizedLastUpdate = Date.UTC(
+        lastUpdate.getUTCFullYear(),
+        lastUpdate.getUTCMonth(),
+        lastUpdate.getUTCDate()
+      );
+
+      return Math.floor((normalizedNow - normalizedLastUpdate) / millisecondsPerDay);
     };
 
     it('devrait détecter un dossier obsolète', () => {
@@ -99,6 +112,9 @@ describe('Suggestion Service', () => {
     });
 
     it('devrait calculer les jours sans mise à jour', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2026-04-06T12:00:00.000Z'));
+
       const tenDaysAgo = new Date();
       tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
       expect(getDaysWithoutUpdate(tenDaysAgo)).toBe(10);
@@ -227,12 +243,8 @@ describe('Suggestion Service', () => {
   });
 
   describe('Missing Documents Pattern', () => {
-    const findRecurringMissing = (
-      history: Array<{ docType: string; count: number }>
-    ): string[] => {
-      return history
-        .filter(h => h.count >= 3)
-        .map(h => h.docType);
+    const findRecurringMissing = (history: Array<{ docType: string; count: number }>): string[] => {
+      return history.filter(h => h.count >= 3).map(h => h.docType);
     };
 
     it('devrait identifier les documents manquants récurrents', () => {
