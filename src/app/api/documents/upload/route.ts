@@ -22,7 +22,7 @@ const ALLOWED_TYPES = [
 ];
 
 const uploadPayloadSchema = z.object({
-  dossierId: z.string().trim().min(1).max(100).optional(),
+  dossierId: z.string().trim().min(1).max(100),
   type: z.string().trim().min(1).max(100).default('document'),
   description: z.string().trim().max(1000).default(''),
 });
@@ -140,17 +140,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Verifier que le dossier appartient au tenant
-    if (dossierId) {
-      const dossier = await prisma.dossier.findFirst({
-        where: { id: dossierId, tenantId },
-      });
+    const dossier = await prisma.dossier.findFirst({
+      where: { id: dossierId, tenantId },
+    });
 
-      if (!dossier) {
-        return withRateLimitHeaders(
-          NextResponse.json({ error: 'Dossier non trouve ou acces interdit' }, { status: 404 }),
-          rateInfo
-        );
-      }
+    if (!dossier) {
+      return withRateLimitHeaders(
+        NextResponse.json({ error: 'Dossier non trouve ou acces interdit' }, { status: 404 }),
+        rateInfo
+      );
     }
 
     // Generer ID unique
@@ -208,9 +206,10 @@ export async function POST(request: NextRequest) {
         id: uniqueId,
         name: safeFileName,
         type: type,
+        description: description || null,
         size: file.size,
         url: fileUrl,
-        dossierId: dossierId || undefined,
+        dossierId,
       },
     });
 
@@ -305,6 +304,7 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         type: true,
+        description: true,
         size: true,
         url: true,
         dossierId: true,
