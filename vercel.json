@@ -1,4 +1,11 @@
 {
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "develop": false,
+      "staging": false
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/deadline-alerts?token=${CRON_SECRET}",
