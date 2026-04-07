@@ -1,7 +1,9 @@
-﻿import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { recordUsage } from '@/lib/billing/usage-billing';
+import { scanDocumentAsync } from '@/lib/security/antivirus';
 import { randomUUID } from 'crypto';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
@@ -20,6 +22,28 @@ const ALLOWED_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'text/plain',
 ];
+
+const DANGEROUS_EXTENSIONS = new Set([
+  'exe',
+  'dll',
+  'bat',
+  'cmd',
+  'com',
+  'scr',
+  'msi',
+  'js',
+  'jse',
+  'vbs',
+  'vbe',
+  'ps1',
+  'psm1',
+  'jar',
+  'sh',
+  'php',
+  'py',
+  'rb',
+  'pl',
+]);
 
 const uploadPayloadSchema = z.object({
   dossierId: z.string().trim().min(1).max(100),
@@ -58,6 +82,80 @@ function sanitizeFileName(fileName: string): string {
     .trim();
 }
 
+function getFileExtension(fileName: string): string {
+  const lastDot = fileName.lastIndexOf('.');
+  if (lastDot < 0 || lastDot === fileName.length - 1) {
+    return '';
+  }
+
+  return fileName.slice(lastDot + 1).toLowerCase();
+}
+
+function detectMimeTypeFromBuffer(buffer: Buffer): string | null {
+  if (
+    buffer.length >= 4 &&
+    buffer[0] === 0x25 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x44 &&
+    buffer[3] === 0x46
+  ) {
+    return 'application/pdf';
+  }
+
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return 'image/jpeg';
+  }
+
+  if (
+    buffer.length >= 8 &&
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47 &&
+    buffer[4] === 0x0d &&
+    buffer[5] === 0x0a &&
+    buffer[6] === 0x1a &&
+    buffer[7] === 0x0a
+  ) {
+    return 'image/png';
+  }
+
+  if (
+    buffer.length >= 12 &&
+    buffer[0] === 0x52 &&
+    buffer[1] === 0x49 &&
+    buffer[2] === 0x46 &&
+    buffer[3] === 0x46 &&
+    buffer[8] === 0x57 &&
+    buffer[9] === 0x45 &&
+    buffer[10] === 0x42 &&
+    buffer[11] === 0x50
+  ) {
+    return 'image/webp';
+  }
+
+  return null;
+}
+
+function looksLikePlainText(buffer: Buffer): boolean {
+  const sample = buffer.subarray(0, Math.min(buffer.length, 4096));
+  if (sample.length === 0) {
+    return true;
+  }
+
+  let nonTextBytes = 0;
+  for (const b of sample) {
+    const isControlAllowed = b === 9 || b === 10 || b === 13;
+    const isPrintableAscii = b >= 32 && b <= 126;
+    const isUtf8HighByte = b >= 128;
+    if (!isControlAllowed && !isPrintableAscii && !isUtf8HighByte) {
+      nonTextBytes += 1;
+    }
+  }
+
+  return nonTextBytes / sample.length < 0.02;
+}
+
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -72,7 +170,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
     const user = session.user as { tenantId?: string; id?: string };
@@ -80,13 +178,13 @@ export async function POST(request: NextRequest) {
     const userId = user.id;
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 403 });
+      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 403 });
     }
 
     const rateInfo = await checkRateLimit(buildRateLimitIdentifier(request, userId), 'default');
     if (!rateInfo.success) {
       return withRateLimitHeaders(
-        NextResponse.json({ error: 'Trop de requetes. Reessayez plus tard.' }, { status: 429 }),
+        NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 }),
         rateInfo
       );
     }
@@ -102,7 +200,7 @@ export async function POST(request: NextRequest) {
 
     if (!payloadResult.success) {
       return withRateLimitHeaders(
-        NextResponse.json({ error: 'Parametres invalides' }, { status: 400 }),
+        NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 }),
         rateInfo
       );
     }
@@ -131,32 +229,59 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validation type MIME
+    // Validation type MIME déclaré
     if (!ALLOWED_TYPES.includes(file.type)) {
       return withRateLimitHeaders(
-        NextResponse.json({ error: 'Type de fichier non autorise' }, { status: 400 }),
+        NextResponse.json({ error: 'Type de fichier non autorisé' }, { status: 400 }),
         rateInfo
       );
     }
 
-    // Verifier que le dossier appartient au tenant
+    const extension = getFileExtension(safeFileName);
+    if (extension && DANGEROUS_EXTENSIONS.has(extension)) {
+      return withRateLimitHeaders(
+        NextResponse.json({ error: 'Extension de fichier interdite' }, { status: 400 }),
+        rateInfo
+      );
+    }
+
+    // Vérifier que le dossier appartient au tenant
     const dossier = await prisma.dossier.findFirst({
       where: { id: dossierId, tenantId },
     });
 
     if (!dossier) {
       return withRateLimitHeaders(
-        NextResponse.json({ error: 'Dossier non trouve ou acces interdit' }, { status: 404 }),
+        NextResponse.json({ error: 'Dossier non trouvé ou accès interdit' }, { status: 404 }),
         rateInfo
       );
     }
 
-    // Generer ID unique
+    // Générer ID unique
     const uniqueId = randomUUID();
 
-    // Calculer hash pour deduplication
+    // Calculer hash pour dédoublonnage
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
+    const detectedMime = detectMimeTypeFromBuffer(buffer);
+    if (detectedMime && detectedMime !== file.type) {
+      return withRateLimitHeaders(
+        NextResponse.json(
+          { error: 'Le contenu du fichier ne correspond pas au type MIME déclaré' },
+          { status: 400 }
+        ),
+        rateInfo
+      );
+    }
+
+    if (file.type === 'text/plain' && !looksLikePlainText(buffer)) {
+      return withRateLimitHeaders(
+        NextResponse.json({ error: 'Le contenu du fichier texte est invalide' }, { status: 400 }),
+        rateInfo
+      );
+    }
+
     const crypto = await import('crypto');
     const hash = crypto.createHash('sha256').update(buffer).digest('hex');
 
@@ -169,7 +294,11 @@ export async function POST(request: NextRequest) {
         const { put } = await import('@vercel/blob');
         const blob = await put(`documents/${uniqueId}/${safeFileName}`, buffer, {
           access: 'public',
+          addRandomSuffix: true,
+          cacheControlMaxAge: 0,
         });
+        // NOTE: Pour une sécurité optimale en prod, migrer vers un signed URL pattern
+        // avec @vercel/blob getDownloadUrl() au lieu d'un accès public
         fileUrl = blob.url;
         logger.info('[UPLOAD] Fichier stocké sur Vercel Blob', { url: fileUrl });
       } catch (blobError) {
@@ -195,7 +324,7 @@ export async function POST(request: NextRequest) {
 
     if (!fileUrl) {
       return withRateLimitHeaders(
-        NextResponse.json({ error: 'Echec du stockage du fichier' }, { status: 500 }),
+        NextResponse.json({ error: 'Échec du stockage du fichier' }, { status: 500 }),
         rateInfo
       );
     }
@@ -204,16 +333,39 @@ export async function POST(request: NextRequest) {
     const document = await prisma.document.create({
       data: {
         id: uniqueId,
-        name: safeFileName,
-        type: type,
-        description: description || null,
+        tenantId,
+        filename: safeFileName,
+        originalName: file.name,
+        mimeType: file.type,
         size: file.size,
-        url: fileUrl,
+        storageKey: fileUrl,
+        category: type,
+        description: description || null,
         dossierId,
+        uploadedBy: userId!,
+        antivirusStatus: 'PENDING',
       },
     });
 
-    logger.info('[UPLOAD] Document enregistre:', {
+    void scanDocumentAsync({
+      documentId: document.id,
+      fileName: safeFileName,
+      mimeType: file.type,
+      buffer,
+    });
+
+    // Facturer l'OCR si c'est un PDF (extraction texte)
+    if (file.type === 'application/pdf') {
+      const estimatedPages = Math.max(1, Math.ceil(file.size / 50000));
+      recordUsage({
+        tenantId,
+        type: 'ocr',
+        quantity: estimatedPages,
+        metadata: { documentId: uniqueId, dossierId },
+      }).catch(e => logger.warn('[UPLOAD] Erreur enregistrement usage OCR', { error: e }));
+    }
+
+    logger.info('[UPLOAD] Document enregistré:', {
       id: uniqueId,
       name: safeFileName,
       hash,
@@ -226,12 +378,12 @@ export async function POST(request: NextRequest) {
         success: true,
         document: {
           id: document.id,
-          fileName: safeFileName,
-          fileType: file.type,
-          fileSize: file.size,
-          type,
-          description,
-          url: fileUrl,
+          fileName: document.filename,
+          fileType: document.mimeType,
+          fileSize: document.size,
+          type: document.category,
+          description: document.description,
+          antivirusStatus: document.antivirusStatus,
         },
       }),
       rateInfo
@@ -251,7 +403,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
-      return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
     const user = session.user as { tenantId?: string; id?: string };
@@ -259,13 +411,13 @@ export async function GET(request: NextRequest) {
     const userId = user.id;
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'Tenant non trouve' }, { status: 403 });
+      return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 403 });
     }
 
     const rateInfo = await checkRateLimit(buildRateLimitIdentifier(request, userId), 'default');
     if (!rateInfo.success) {
       return withRateLimitHeaders(
-        NextResponse.json({ error: 'Trop de requetes. Reessayez plus tard.' }, { status: 429 }),
+        NextResponse.json({ error: 'Trop de requêtes. Réessayez plus tard.' }, { status: 429 }),
         rateInfo
       );
     }
@@ -278,7 +430,7 @@ export async function GET(request: NextRequest) {
 
     if (!queryResult.success) {
       return withRateLimitHeaders(
-        NextResponse.json({ error: 'Parametres de requete invalides' }, { status: 400 }),
+        NextResponse.json({ error: 'Paramètres de requête invalides' }, { status: 400 }),
         rateInfo
       );
     }
@@ -292,7 +444,7 @@ export async function GET(request: NextRequest) {
 
     if (!dossier) {
       return withRateLimitHeaders(
-        NextResponse.json({ error: 'Dossier non trouve ou acces interdit' }, { status: 404 }),
+        NextResponse.json({ error: 'Dossier non trouvé ou accès interdit' }, { status: 404 }),
         rateInfo
       );
     }
@@ -300,14 +452,19 @@ export async function GET(request: NextRequest) {
     const documents = await prisma.document.findMany({
       where: { dossierId },
       take: limit,
+      orderBy: { createdAt: 'desc' },
       select: {
         id: true,
-        name: true,
-        type: true,
+        filename: true,
+        originalName: true,
+        mimeType: true,
+        category: true,
         description: true,
         size: true,
-        url: true,
         dossierId: true,
+        antivirusStatus: true,
+        antivirusScannedAt: true,
+        createdAt: true,
       },
     });
 
@@ -320,6 +477,6 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     logger.error('[DOCUMENTS] Erreur:', { error });
-    return NextResponse.json({ error: 'Erreur lors de la recuperation' }, { status: 500 });
+    return NextResponse.json({ error: 'Erreur lors de la récupération' }, { status: 500 });
   }
 }
