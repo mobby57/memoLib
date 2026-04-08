@@ -11,10 +11,8 @@ import { filterRuleService } from '@/frontend/lib/services/filter-rule.service';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { type Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import {
-  IncomingEmailPayloadSchema,
-  normalizeIncomingEmailPayload,
-} from '@/lib/email/ingestion';
+import { IncomingEmailPayloadSchema, normalizeIncomingEmailPayload } from '@/lib/email/ingestion';
+import { extractDraft } from '@/lib/adapters/email.adapter';
 import { recordEmailIngestion } from '@/lib/email/ingestion-metrics';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -174,7 +172,7 @@ export async function POST(request: NextRequest) {
             firstName: guessedIdentity.firstName,
             lastName: guessedIdentity.lastName,
             email: normalized.fromAddress || from.toLowerCase(),
-            status: 'actif',
+            status: 'draft', // Validation humaine obligatoire avant activation
           },
         });
         resolvedClientId = createdClient.id;
@@ -314,7 +312,10 @@ export async function POST(request: NextRequest) {
         });
       }
     } catch (eventLogError) {
-      logger.error('[EMAIL] EventLog best-effort failed:', { error: eventLogError, emailId: email.id });
+      logger.error('[EMAIL] EventLog best-effort failed:', {
+        error: eventLogError,
+        emailId: email.id,
+      });
     }
 
     // Phase 3: Évaluer et appliquer règles de filtrage (best effort)
@@ -339,6 +340,36 @@ export async function POST(request: NextRequest) {
     } catch (smartInboxError) {
       logger.error('[EMAIL] Smart inbox best-effort failed:', {
         error: smartInboxError,
+        emailId: email.id,
+      });
+    }
+
+    // Phase 5: Créer un Draft automatiquement pour validation humaine
+    try {
+      const existingDraft = await prisma.draft.findFirst({
+        where: { tenantId: tenant.id, sourceEmailId: email.id },
+      });
+      if (!existingDraft) {
+        const extracted = extractDraft({
+          from,
+          subject,
+          body: emailBody || '',
+          receivedAt: normalized.receivedAt,
+        });
+        await prisma.draft.create({
+          data: {
+            tenantId: tenant.id,
+            status: 'PENDING',
+            extractedData: JSON.stringify(extracted),
+            confidence: JSON.stringify(extracted.confidence),
+            sourceEmailId: email.id,
+          },
+        });
+        logger.info(`[DRAFT] Draft créé automatiquement pour email ${email.id}`);
+      }
+    } catch (draftError) {
+      logger.error('[EMAIL] Draft creation best-effort failed:', {
+        error: draftError,
         emailId: email.id,
       });
     }
@@ -404,7 +435,10 @@ export async function POST(request: NextRequest) {
       // Simuler l'execution du workflow (etapes)
       await executeWorkflowSteps(workflow.id, email, category, urgency);
     } catch (workflowError) {
-      logger.error('[EMAIL] Workflow best-effort failed:', { error: workflowError, emailId: email.id });
+      logger.error('[EMAIL] Workflow best-effort failed:', {
+        error: workflowError,
+        emailId: email.id,
+      });
     }
 
     recordEmailIngestion({
@@ -454,11 +488,17 @@ function getWorkflowName(category: string): string {
 }
 
 function shouldCreateClient(category: string, urgency: string): boolean {
-  return ['new-case', 'client-urgent', 'document-request', 'appointment-request'].includes(category) || urgency === 'high';
+  return (
+    ['new-case', 'client-urgent', 'document-request', 'appointment-request'].includes(category) ||
+    urgency === 'high'
+  );
 }
 
 function shouldCreateDossier(category: string, urgency: string): boolean {
-  return ['new-case', 'client-urgent', 'court-document', 'deadline-reminder'].includes(category) || urgency === 'high';
+  return (
+    ['new-case', 'client-urgent', 'court-document', 'deadline-reminder'].includes(category) ||
+    urgency === 'high'
+  );
 }
 
 function mapCategoryToDossierType(category: string): string {
@@ -474,7 +514,10 @@ function mapCategoryToDossierType(category: string): string {
 }
 
 function generateDossierNumber(): string {
-  const stamp = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+  const stamp = new Date()
+    .toISOString()
+    .replace(/[-:TZ.]/g, '')
+    .slice(0, 14);
   const random = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `DOS-${stamp}-${random}`;
 }
@@ -568,7 +611,12 @@ async function findDuplicateEmail(
     contentHash: string;
   }
 ) {
-  const orConditions: { messageId?: string | null; providerMessageId?: string | null; internetMessageId?: string | null; contentHash?: string | null }[] = [];
+  const orConditions: {
+    messageId?: string | null;
+    providerMessageId?: string | null;
+    internetMessageId?: string | null;
+    contentHash?: string | null;
+  }[] = [];
 
   if (normalized.messageId) {
     orConditions.push({ messageId: normalized.messageId });
