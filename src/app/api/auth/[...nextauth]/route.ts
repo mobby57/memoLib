@@ -9,7 +9,7 @@ import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { buildRbacContext, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 
-async function handleOAuthSignIn(user: any, providerName: string) {
+async function handleOAuthSignIn(user: any, providerName: string): Promise<boolean> {
   const existingUser = await prisma.user.findUnique({
     where: { email: user.email! },
     include: {
@@ -19,38 +19,28 @@ async function handleOAuthSignIn(user: any, providerName: string) {
     },
   });
 
-  if (existingUser) {
-    await prisma.user.update({
-      where: { id: existingUser.id },
-      data: {
-        name: user.name || existingUser.name,
-        avatar: user.image,
-        lastLogin: new Date(),
-      },
-    });
-
-    (user as any).role = existingUser.role;
-    (user as any).tenantId = existingUser.tenantId;
-    (user as any).tenantName = existingUser.tenant?.name;
-    (user as any).tenantPlan = existingUser.tenant?.plan?.name;
-    (user as any).clientId = existingUser.clientId;
-    (user as any).id = existingUser.id;
-  } else {
-    const newUser = await prisma.user.create({
-      data: {
-        email: user.email!,
-        name: user.name || `Utilisateur ${providerName}`,
-        password: '',
-        role: 'CLIENT',
-        avatar: user.image,
-        status: 'active',
-        lastLogin: new Date(),
-      },
-    });
-
-    (user as any).role = 'CLIENT';
-    (user as any).id = newUser.id;
+  if (!existingUser) {
+    // Anti-phishing : pas d'auto-création de compte OAuth.
+    // L'utilisateur doit être invité au préalable par un admin.
+    return false;
   }
+
+  await prisma.user.update({
+    where: { id: existingUser.id },
+    data: {
+      name: user.name || existingUser.name,
+      avatar: user.image,
+      lastLogin: new Date(),
+    },
+  });
+
+  (user as any).role = existingUser.role;
+  (user as any).tenantId = existingUser.tenantId;
+  (user as any).tenantName = existingUser.tenant?.name;
+  (user as any).tenantPlan = existingUser.tenant?.plan?.name;
+  (user as any).clientId = existingUser.clientId;
+  (user as any).id = existingUser.id;
+  return true;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -69,12 +59,29 @@ export const authOptions: NextAuthOptions = {
           }),
         ]
       : []),
-    // Email Provider pour lien magique
+    // Email Provider pour lien magique (restreint aux comptes existants)
     ...(process.env.EMAIL_SERVER
       ? [
           EmailProvider({
             server: process.env.EMAIL_SERVER,
             from: process.env.EMAIL_FROM || 'noreply@memoLib.com',
+            async sendVerificationRequest({ identifier: email, url, provider }) {
+              const existingUser = await prisma.user.findUnique({ where: { email } });
+              if (!existingUser) {
+                // Anti-phishing : ne pas envoyer de magic link à un email inconnu
+                throw new Error('Compte inexistant');
+              }
+              // Envoyer le magic link via le transport par défaut
+              const { createTransport } = await import('nodemailer');
+              const transport = createTransport(provider.server);
+              await transport.sendMail({
+                to: email,
+                from: provider.from,
+                subject: 'Connexion MemoLib',
+                text: `Connectez-vous : ${url}`,
+                html: `<p>Cliquez <a href="${url}">ici</a> pour vous connecter à MemoLib.</p>`,
+              });
+            },
           }),
         ]
       : []),
@@ -110,7 +117,8 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Identifiants requis');
         }
 
-        const isDemoMode = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true';
+        const isDemoMode =
+          process.env.NODE_ENV === 'development' && process.env.DEMO_MODE === 'true';
 
         if (isDemoMode) {
           const demoUsers: Record<string, any> = {
@@ -260,13 +268,12 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === 'azure-ad') {
-        await handleOAuthSignIn(user, 'Azure AD');
-        return true;
-      }
-
-      if (account?.provider === 'github' || account?.provider === 'google') {
-        await handleOAuthSignIn(user, account.provider === 'github' ? 'GitHub' : 'Google');
+      if (account?.provider && account.provider !== 'credentials') {
+        const allowed = await handleOAuthSignIn(user, account.provider);
+        if (!allowed) {
+          // Compte inexistant : bloquer la connexion OAuth
+          return '/auth/error?error=OAuthAccountNotLinked';
+        }
       }
       return true;
     },
@@ -318,7 +325,16 @@ export const authOptions: NextAuthOptions = {
         (session as any).githubRefreshToken = token.githubRefreshToken;
         (session as any).githubTokenExpiry = token.githubTokenExpiry;
 
-        const STAFF_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR', 'SECRETAIRE', 'COMPTABLE', 'STAGIAIRE'];
+        const STAFF_ROLES = [
+          'SUPER_ADMIN',
+          'ADMIN',
+          'AVOCAT',
+          'ASSOCIE',
+          'COLLABORATEUR',
+          'SECRETAIRE',
+          'COMPTABLE',
+          'STAGIAIRE',
+        ];
         const MANAGE_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE'];
         const FINANCE_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE', 'COMPTABLE'];
         const userRole = token.role as string;

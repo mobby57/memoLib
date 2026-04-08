@@ -22,14 +22,12 @@ export async function GET(request: NextRequest) {
   // Vérifier l'autorisation
   const authHeader = request.headers.get('authorization');
   const cronHeader = request.headers.get('x-vercel-cron');
+  const tokenParam = request.nextUrl.searchParams.get('token');
 
-  // Autoriser si:
-  // 1. Header Vercel Cron (appelé par Vercel)
-  // 2. Authorization Bearer correct
-  // 3. En développement local
   const isAuthorized =
     cronHeader === '1' ||
     Boolean(CRON_SECRET && authHeader === `Bearer ${CRON_SECRET}`) ||
+    Boolean(CRON_SECRET && tokenParam === CRON_SECRET) ||
     process.env.NODE_ENV === 'development';
 
   if (!CRON_SECRET && process.env.NODE_ENV !== 'development' && cronHeader !== '1') {
