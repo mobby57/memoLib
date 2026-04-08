@@ -5,7 +5,7 @@
       "schedule": "0 8 * * *"
     },
     {
-      "path": "/api/cron/cost-alerts",
+      "path": "/api/cron/cost-alerts?token=${CRON_SECRET}",
       "schedule": "0 9 * * *"
     }
   ],
