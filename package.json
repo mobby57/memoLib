@@ -207,7 +207,7 @@
     "next-auth": "^4.24.13",
     "next-intl": "^4.8.2",
     "node-cron": "^4.2.1",
-    "nodemailer": "^7.0.12",
+    "nodemailer": "^8.0.5",
     "openai": "^6.15.0",
     "otplib": "^13.0.0",
     "papaparse": "^5.5.3",
