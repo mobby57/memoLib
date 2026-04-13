@@ -7,6 +7,8 @@ import { MetricsWidgets, type MetricsData } from '@/components/MetricsWidgets';
 import { Alert, Badge, Breadcrumb, Card, StatCard, Tabs, useToast } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/lib/logger';
+import { AIDisclaimer } from '@/components/legal/AIDisclaimer';
+import { LegalFooter } from '@/components/legal/LegalFooter';
 import {
   AlertTriangle,
   ArrowRight,
@@ -347,6 +349,9 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* AI Disclaimer Banner */}
+      <AIDisclaimer variant="banner" />
+
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,rgba(255,255,255,0.5))]" />
@@ -736,6 +741,8 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+      {/* Legal Footer */}
+      <LegalFooter />
     </div>
   );
 }

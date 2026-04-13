@@ -7,7 +7,7 @@
     "dev:turbo": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev --turbo",
     "dev:legacy": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next dev",
     "dev:debug": "cross-env NODE_OPTIONS=--inspect --max-old-space-size=8192 next dev --webpack",
-    "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 TURBOPACK=0 next build --webpack",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next build --webpack",
     "build:turbo": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next build --turbo",
     "build:fast": "cross-env NODE_OPTIONS=--max-old-space-size=8192 NEXT_TELEMETRY_DISABLED=1 next build --turbo",
     "start": "next start",
@@ -157,7 +157,7 @@
     "demo:client:sarrab:full": "powershell -ExecutionPolicy Bypass -File ./scripts/demo-client-sarrab-full.ps1"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@azure/identity": "^4.5.0",

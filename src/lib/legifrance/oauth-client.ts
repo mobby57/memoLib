@@ -1,7 +1,8 @@
 ﻿// @ts-nocheck
+/* eslint-disable no-dupe-class-members */
 /**
  * Client OAuth2.0 pour API Legifrance (PISTE)
- * 
+ *
  * Gestion des tokens OAuth avec flux Client Credentials
  * Documentation: https://developer.aife.economie.gouv.fr/
  */
@@ -29,19 +30,19 @@ export class LegifranceOAuthClient {
 
   constructor(environment: 'sandbox' | 'production' = 'sandbox') {
     const isSandbox = environment === 'sandbox';
-    
+
     this.config = {
-      clientId: isSandbox 
-        ? process.env.PISTE_SANDBOX_CLIENT_ID || '' 
+      clientId: isSandbox
+        ? process.env.PISTE_SANDBOX_CLIENT_ID || ''
         : process.env.PISTE_PROD_CLIENT_ID || '',
-      clientSecret: isSandbox 
-        ? process.env.PISTE_SANDBOX_CLIENT_SECRET || '' 
+      clientSecret: isSandbox
+        ? process.env.PISTE_SANDBOX_CLIENT_SECRET || ''
         : process.env.PISTE_PROD_CLIENT_SECRET || '',
-      oauthUrl: isSandbox 
-        ? process.env.PISTE_SANDBOX_OAUTH_URL || 'https://sandbox-oauth.piste.gouv.fr/api/oauth/token' 
+      oauthUrl: isSandbox
+        ? process.env.PISTE_SANDBOX_OAUTH_URL || 'https://sandbox-oauth.piste.gouv.fr/api/oauth/token'
         : process.env.PISTE_PROD_OAUTH_URL || '',
-      apiUrl: isSandbox 
-        ? process.env.PISTE_SANDBOX_API_URL || 'https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app' 
+      apiUrl: isSandbox
+        ? process.env.PISTE_SANDBOX_API_URL || 'https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app'
         : process.env.PISTE_PROD_API_URL || '',
       environment,
     };
@@ -70,7 +71,7 @@ export class LegifranceOAuthClient {
     if (!this.isConfigured) {
       throw new Error('API Legifrance non configuree');
     }
-    
+
     // Si token existant et encore valide (avec marge de 5 minutes)
     if (this.token && this.token.expires_at > Date.now() + 5 * 60 * 1000) {
       return this.token.access_token;

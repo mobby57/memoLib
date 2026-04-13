@@ -18,20 +18,27 @@ export function addSecurityHeaders(response: NextResponse): NextResponse {
   const version = process.env.NEXT_PUBLIC_APP_VERSION || 'unknown';
   const commit = process.env.NEXT_PUBLIC_BUILD_COMMIT || '';
 
-  // Content Security Policy - Strict mais fonctionnel
+  // CSP nonce pour scripts (élimine unsafe-inline/unsafe-eval)
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  response.headers.set('x-nonce', nonce);
+
+  const isDev = process.env.NODE_ENV === 'development';
+
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com",
+    isDev
+      ? "script-src 'self' 'unsafe-eval' 'unsafe-inline'"
+      : `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' http://localhost:* https://api.* wss://localhost:*",
+    `connect-src 'self' ${isDev ? 'http://localhost:* ws://localhost:* wss://localhost:*' : 'https://api.* wss://*'}`,
     "media-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    'upgrade-insecure-requests',
+    ...(isDev ? [] : ['upgrade-insecure-requests']),
   ].join('; ');
 
   // Headers de securite obligatoires

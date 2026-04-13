@@ -38,6 +38,7 @@ describe('Toast System', () => {
   });
 
   afterEach(() => {
+    jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
 

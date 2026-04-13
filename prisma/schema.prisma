@@ -440,6 +440,13 @@ model Document {
   aiSummary   String?
   aiMetadata  String?
 
+  sha256      String?
+
+  antivirusStatus    String?
+  antivirusEngine    String?
+  antivirusDetails   String?
+  antivirusScannedAt DateTime?
+
   uploadedBy  String
   uploader    User     @relation(fields: [uploadedBy], references: [id])
 
@@ -451,6 +458,7 @@ model Document {
   @@index([tenantId])
   @@index([dossierId])
   @@index([clientId])
+  @@index([sha256])
 }
 
 // ============================================
