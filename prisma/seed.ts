@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
@@ -7,7 +8,7 @@ async function main() {
 
   // 1. Plans
   console.log('📦 Création des plans...');
-  
+
   const starter = await prisma.plan.upsert({
     where: { name: 'starter' },
     update: {},
@@ -229,8 +230,6 @@ async function main() {
   // 4. Utilisateurs
   console.log('👤 Création des utilisateurs...');
 
-  const bcrypt = require('bcryptjs');
-  
   // Super Admin
   const superAdmin = await prisma.user.upsert({
     where: { email: 'superadmin@memolib.com' },

@@ -20,6 +20,10 @@ export const authOptions: NextAuthOptions = {
                 return {
                     id: credentials.email,
                     email: credentials.email,
+                    name: '',
+                    role: 'AVOCAT',
+                    tenantId: '',
+                    clientId: null,
                 };
             },
         }),
