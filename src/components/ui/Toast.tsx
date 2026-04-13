@@ -20,6 +20,8 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
+let toastCounter = 0;
+
 export function useToast() {
   const context = useContext(ToastContext);
   if (!context) {
@@ -32,7 +34,7 @@ export function ToastProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const addToast = useCallback((toast: Omit<Toast, 'id'>) => {
-    const id = Date.now().toString();
+    const id = `${Date.now()}-${++toastCounter}`;
     const newToast = { ...toast, id };
     setToasts(prev => [...prev, newToast]);
 

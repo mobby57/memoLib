@@ -41,6 +41,7 @@ memolib*.db
 appsettings.Development.json
 appsettings.Production.json
 secrets.json
+.env
 .env.local
 .env.production
 .env.staging

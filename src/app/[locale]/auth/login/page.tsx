@@ -48,7 +48,7 @@ export default function LoginPage() {
         setError('Email ou mot de passe incorrect');
         setLoading(false);
       } else if (result?.ok) {
-        if (email === 'admin@memolib.fr') {
+        if (email === 'admin@memolib.fr' || email === 'superadmin@memolib.com') {
           router.push('/super-admin/dashboard');
         } else if (email === 'client@memolib.fr') {
           router.push('/client-dashboard');

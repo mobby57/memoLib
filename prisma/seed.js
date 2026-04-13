@@ -8,7 +8,6 @@ async function main() {
 
   // 1. Plans
   console.log('📦 Création des plans...');
-
   const starter = await prisma.plan.upsert({
     where: { name: 'starter' },
     update: {},
@@ -34,7 +33,6 @@ async function main() {
       isActive: true,
     },
   });
-
   const pro = await prisma.plan.upsert({
     where: { name: 'pro' },
     update: {},
@@ -60,7 +58,6 @@ async function main() {
       isActive: true,
     },
   });
-
   const enterprise = await prisma.plan.upsert({
     where: { name: 'enterprise' },
     update: {},
@@ -86,12 +83,10 @@ async function main() {
       isActive: true,
     },
   });
-
   console.log('✅ Plans créés:', { starter: starter.id, pro: pro.id, enterprise: enterprise.id });
 
   // 2. Articles CESEDA (sélection critique)
   console.log('📚 Création des articles CESEDA...');
-
   const articles = [
     {
       code: 'CESEDA',
@@ -178,7 +173,6 @@ async function main() {
       isActive: true,
     },
   ];
-
   for (const article of articles) {
     await prisma.legalReference.upsert({
       where: {
@@ -192,12 +186,10 @@ async function main() {
       create: article,
     });
   }
-
   console.log(`✅ ${articles.length} articles CESEDA créés`);
 
   // 3. Tenant de démo
   console.log('🏢 Création du tenant de démo...');
-
   const demoTenant = await prisma.tenant.upsert({
     where: { subdomain: 'demo' },
     update: {},
@@ -209,7 +201,6 @@ async function main() {
       trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     },
   });
-
   await prisma.tenantSettings.upsert({
     where: { tenantId: demoTenant.id },
     update: {},
@@ -224,12 +215,10 @@ async function main() {
       storageLimit: 2000,
     },
   });
-
   console.log('✅ Tenant démo créé:', demoTenant.id);
 
   // 4. Utilisateurs
   console.log('👤 Création des utilisateurs...');
-
   // Super Admin
   const superAdmin = await prisma.user.upsert({
     where: { email: 'superadmin@memolib.com' },
@@ -244,7 +233,6 @@ async function main() {
       timezone: 'Europe/Paris',
     },
   });
-
   // Avocat
   const avocat = await prisma.user.upsert({
     where: { email: 'avocat@memolib.fr' },
@@ -260,7 +248,6 @@ async function main() {
       timezone: 'Europe/Paris',
     },
   });
-
   // Client
   const client = await prisma.user.upsert({
     where: { email: 'client@memolib.fr' },
@@ -276,9 +263,7 @@ async function main() {
       timezone: 'Europe/Paris',
     },
   });
-
   console.log('✅ Utilisateurs créés:', { superAdmin: superAdmin.id, avocat: avocat.id, client: client.id });
-
   console.log('\n🎉 Seeding terminé avec succès !');
   console.log('\n📋 IDENTIFIANTS:');
   console.log('   Super Admin: superadmin@memolib.com / SuperAdmin2026!');

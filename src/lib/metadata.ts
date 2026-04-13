@@ -1,6 +1,8 @@
 // Metadonnees partagees pour toutes les pages
 // https://nextjs.org/docs/app/getting-started/metadata-and-og-images
 
+
+/* eslint-disable no-redeclare */
 import type { Metadata } from 'next';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memoLib.com';

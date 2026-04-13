@@ -118,10 +118,22 @@ export const authOptions: NextAuthOptions = {
         }
 
         const isDemoMode =
-          process.env.NODE_ENV === 'development' && process.env.DEMO_MODE === 'true';
+          process.env.NODE_ENV === 'development' &&
+          (process.env.DEMO_MODE === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true');
 
         if (isDemoMode) {
           const demoUsers: Record<string, any> = {
+            'superadmin@memolib.com': {
+              id: 'demo-superadmin-1',
+              email: 'superadmin@memolib.com',
+              name: 'Super Admin',
+              role: 'SUPER_ADMIN',
+              password: 'SuperAdmin2026!',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Demo',
+              tenantPlan: 'enterprise',
+              clientId: null,
+            },
             'admin@memolib.fr': {
               id: 'demo-admin-1',
               email: 'admin@memolib.fr',
@@ -131,6 +143,17 @@ export const authOptions: NextAuthOptions = {
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'enterprise',
+              clientId: null,
+            },
+            'avocat@cabinet-dupont.fr': {
+              id: 'demo-lawyer-2',
+              email: 'avocat@cabinet-dupont.fr',
+              name: 'Me. Dupont',
+              role: 'AVOCAT',
+              password: 'Avocat2026!',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Dupont',
+              tenantPlan: 'professional',
               clientId: null,
             },
             'avocat@memolib.fr': {
