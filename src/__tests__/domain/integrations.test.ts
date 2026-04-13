@@ -69,6 +69,20 @@ describe('Third Party Integrations', () => {
     it('devrait masquer une clé courte', () => {
       expect(maskApiKey('short')).toBe('****');
     });
+
+    it('devrait masquer une clé de longueur exacte 8', () => {
+      expect(maskApiKey('12345678')).toBe('****');
+    });
+
+    it('devrait masquer partiellement une clé de longueur 9', () => {
+      const masked = maskApiKey('123456789');
+      expect(masked).toBe('1234*6789');
+      expect(masked).toHaveLength(9);
+    });
+
+    it('devrait gérer une clé vide', () => {
+      expect(maskApiKey('')).toBe('****');
+    });
   });
 
   describe('Webhook Signatures', () => {
@@ -91,6 +105,12 @@ describe('Third Party Integrations', () => {
 
     it('devrait rejeter une signature invalide', () => {
       expect(verifyWebhookSignature('payload', 'wrong', 'secret')).toBe(false);
+    });
+
+    it('devrait rejeter une signature avec un mauvais secret', () => {
+      const payload = '{"event":"test"}';
+      const signature = `sha256=wrong_secret:${payload.length}`;
+      expect(verifyWebhookSignature(payload, signature, 'secret123')).toBe(false);
     });
   });
 
@@ -158,6 +178,12 @@ describe('Email Service Integration', () => {
   describe('Email Templates', () => {
     const TEMPLATE_VARIABLES = ['{{name}}', '{{email}}', '{{link}}', '{{date}}'];
 
+    it('devrait contenir les variables attendues', () => {
+      expect(TEMPLATE_VARIABLES).toContain('{{name}}');
+      expect(TEMPLATE_VARIABLES).toContain('{{email}}');
+      expect(TEMPLATE_VARIABLES).toHaveLength(4);
+    });
+
     const replaceVariables = (
       template: string,
       variables: Record<string, string>
@@ -176,6 +202,17 @@ describe('Email Service Integration', () => {
         email: 'jean@example.com',
       });
       expect(result).toBe('Bonjour Jean, votre email est jean@example.com');
+    });
+
+    it('devrait remplacer plusieurs occurrences de la même variable', () => {
+      const template = '{{name}} est {{name}}';
+      const result = replaceVariables(template, { name: 'Jean' });
+      expect(result).toBe('Jean est Jean');
+    });
+
+    it('devrait laisser les variables non fournies intactes', () => {
+      const result = replaceVariables('Hello {{name}}, {{unknown}}', { name: 'Jean' });
+      expect(result).toBe('Hello Jean, {{unknown}}');
     });
   });
 });
@@ -198,6 +235,16 @@ describe('Payment Integration', () => {
     it('devrait convertir en centimes', () => {
       expect(toStripeAmount(10)).toBe(1000);
       expect(toStripeAmount(12.99)).toBe(1299);
+    });
+
+    it('devrait gérer les montants à 0', () => {
+      expect(formatAmount(0)).toBe('0.00');
+      expect(toStripeAmount(0)).toBe(0);
+    });
+
+    it('devrait arrondir correctement les flottants', () => {
+      expect(toStripeAmount(19.99)).toBe(1999);
+      expect(toStripeAmount(0.01)).toBe(1);
     });
   });
 
@@ -244,6 +291,18 @@ describe('Cloud Storage Integration', () => {
       const url = buildStorageUrl('my-bucket', 'documents/file.pdf', 'eu-west-1');
       expect(url).toBe('https://my-bucket.s3.eu-west-1.amazonaws.com/documents/file.pdf');
     });
+
+    it('devrait contenir les régions EU', () => {
+      const euRegions = STORAGE_REGIONS.filter(r => r.startsWith('eu-'));
+      expect(euRegions.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('devrait construire une URL pour chaque région', () => {
+      STORAGE_REGIONS.forEach(region => {
+        const url = buildStorageUrl('bucket', 'key.pdf', region);
+        expect(url).toContain(region);
+      });
+    });
   });
 
   describe('File Upload', () => {
@@ -275,6 +334,22 @@ describe('Cloud Storage Integration', () => {
     it('devrait rejeter un type invalide', () => {
       const result = validateUpload({ size: 1024, type: 'application/exe' });
       expect(result.valid).toBe(false);
+    });
+
+    it('devrait accepter un fichier à la limite exacte de taille', () => {
+      const result = validateUpload({ size: MAX_FILE_SIZE, type: 'application/pdf' });
+      expect(result.valid).toBe(true);
+    });
+
+    it('devrait rejeter un fichier 1 octet au-dessus de la limite', () => {
+      const result = validateUpload({ size: MAX_FILE_SIZE + 1, type: 'application/pdf' });
+      expect(result.valid).toBe(false);
+    });
+
+    it('devrait accepter tous les types autorisés', () => {
+      ALLOWED_TYPES.forEach(type => {
+        expect(validateUpload({ size: 1024, type }).valid).toBe(true);
+      });
     });
   });
 });
@@ -330,6 +405,15 @@ describe('SMS Integration', () => {
 
     it('devrait rejeter un numéro invalide', () => {
       expect(isValidFrenchPhone('123')).toBe(false);
+    });
+
+    it('devrait accepter un numéro avec espaces/points', () => {
+      expect(isValidFrenchPhone('06 12 34 56 78')).toBe(true);
+      expect(isValidFrenchPhone('06.12.34.56.78')).toBe(true);
+    });
+
+    it('devrait rejeter un numéro commençant par 0 puis 0', () => {
+      expect(isValidFrenchPhone('0012345678')).toBe(false);
     });
   });
 
@@ -394,6 +478,14 @@ describe('Analytics Integration', () => {
 
     it('devrait nettoyer le chemin de page', () => {
       expect(sanitizePagePath('/Dashboard?tab=overview')).toBe('/dashboard');
+    });
+
+    it('devrait gérer un chemin sans query params', () => {
+      expect(sanitizePagePath('/Clients')).toBe('/clients');
+    });
+
+    it('devrait gérer un chemin avec plusieurs query params', () => {
+      expect(sanitizePagePath('/Dossiers?status=open&sort=date')).toBe('/dossiers');
     });
   });
 });

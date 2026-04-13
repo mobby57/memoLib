@@ -1,0 +1,54 @@
+name: Deploy .NET API to Azure App Service
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Controllers/**'
+      - 'Services/**'
+      - 'Models/**'
+      - 'Data/**'
+      - 'Migrations/**'
+      - 'Middleware/**'
+      - 'Authorization/**'
+      - 'Hubs/**'
+      - 'Program.cs'
+      - 'MemoLib.Api.csproj'
+      - 'Dockerfile'
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: memolib-api
+  DOTNET_VERSION: '9.0.x'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore MemoLib.Api.csproj
+
+      - name: Build
+        run: dotnet build MemoLib.Api.csproj -c Release --no-restore
+
+      - name: Publish
+        run: dotnet publish MemoLib.Api.csproj -c Release -o ./publish --no-build
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ./publish

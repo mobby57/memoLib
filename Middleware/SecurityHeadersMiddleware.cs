@@ -25,13 +25,17 @@ public class SecurityHeadersMiddleware
         // Référer policy pour éviter les fuites d'informations
         context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
         
-        // Content Security Policy strict
-        var csp = "default-src 'self'; " +
-                  "script-src 'self' 'unsafe-inline'; " +
+        // Content Security Policy strict (nonce-based)
+        var nonce = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        context.Items["csp-nonce"] = nonce;
+        
+        var csp = $"default-src 'self'; " +
+                  $"script-src 'self' 'nonce-{nonce}' 'strict-dynamic'; " +
                   "style-src 'self' 'unsafe-inline'; " +
                   "img-src 'self' data:; " +
                   "font-src 'self'; " +
                   "connect-src 'self'; " +
+                  "object-src 'none'; " +
                   "frame-ancestors 'none'; " +
                   "base-uri 'self'; " +
                   "form-action 'self'";

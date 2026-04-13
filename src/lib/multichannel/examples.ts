@@ -25,7 +25,7 @@ export async function handleEmailWebhook(req: Request) {
       checksum: message.checksum.substring(0, 12) + '...',
     };
   } catch (error) {
-    if (error.message.includes('doublon détecté')) {
+    if ((error as Error).message.includes('doublon détecté')) {
       return {
         success: false,
         error: 'DUPLICATE',

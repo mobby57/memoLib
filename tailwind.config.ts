@@ -2,7 +2,13 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: [
-    './src/app/**/*.{ts,tsx}',
+    './src/app/**/page.{ts,tsx}',
+    './src/app/**/layout.{ts,tsx}',
+    './src/app/**/loading.{ts,tsx}',
+    './src/app/**/error.{ts,tsx}',
+    './src/app/**/not-found.{ts,tsx}',
+    './src/app/**/global-error.{ts,tsx}',
+    './src/app/**/providers.{ts,tsx}',
     './src/components/**/*.{ts,tsx}',
     './src/lib/**/*.{ts,tsx}',
     './src/app/globals.css',
