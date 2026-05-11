@@ -85,6 +85,43 @@ public class BruteForceProtectionService
     public Task RecordFailedAttemptAsync(string identifier)
         => RecordFailedAttemptAsync(identifier, null);
 
+    public Task<TimeSpan> GetDelayForFailedAttemptAsync(string ip, string? email = null)
+    {
+        try
+        {
+            int attempts = 0;
+            if (!string.IsNullOrEmpty(email))
+            {
+                var normalizedEmail = email.ToLowerInvariant();
+                attempts = _cache.Get<int>($"attempts_user_{ip}_{normalizedEmail}");
+                if (attempts >= MaxAttemptsPerUser)
+                {
+                    return Task.FromResult(TimeSpan.FromMinutes(LockoutMinutesUser));
+                }
+            }
+
+            var ipAttempts = _cache.Get<int>($"attempts_ip_{ip}");
+            if (ipAttempts >= MaxAttemptsPerIp)
+            {
+                return Task.FromResult(TimeSpan.FromMinutes(LockoutMinutesIp));
+            }
+
+            // Backoff simple: 0->0, 1->0s, 2->1s, 3->2s, 4->4s, 5->8s, cap 30s
+            var count = Math.Max(attempts, ipAttempts);
+            if (count <= 1) return Task.FromResult(TimeSpan.Zero);
+            var seconds = Math.Min(30, (int)Math.Pow(2, count - 2));
+            return Task.FromResult(TimeSpan.FromSeconds(seconds));
+        }
+        catch
+        {
+            return Task.FromResult(TimeSpan.Zero);
+        }
+    }
+
+    // Surcharge rétrocompatible
+    public Task<TimeSpan> GetDelayForFailedAttemptAsync(string identifier)
+        => GetDelayForFailedAttemptAsync(identifier, null);
+
     public Task RecordSuccessfulLoginAsync(string ip, string? email = null)
     {
         if (!string.IsNullOrEmpty(email))
