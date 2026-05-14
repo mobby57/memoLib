@@ -1,17 +1,13 @@
-import createIntlMiddleware from 'next-intl/middleware';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 /**
- * Middleware combiné: i18n + sécurité globale pour MemoLib
- * - Route les requêtes vers le bon [locale]
- * - Applique les headers de sécurité globaux
+ * Middleware: i18n routing + security headers for MemoLib
+ * Simplified: redirects root to /fr/ and adds security headers
  */
 
-const intlMiddleware = createIntlMiddleware({
-  locales: ['en', 'fr', 'es', 'de', 'pt', 'ja', 'zh', 'hi', 'ru', 'ko'],
-  defaultLocale: 'en',
-});
+const LOCALES = ['en', 'fr', 'es', 'de', 'pt', 'ja', 'zh', 'hi', 'ru', 'ko'];
+const DEFAULT_LOCALE = 'fr';
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -21,12 +17,24 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname === '/favicon.ico' ||
-    /\.(?:png|jpg|jpeg|gif|svg|webp)$/.test(pathname)
+    /\.(?:png|jpg|jpeg|gif|svg|webp|ico)$/.test(pathname)
   ) {
     return NextResponse.next();
   }
 
-  const response = intlMiddleware(request);
+  // Check if pathname already has a locale prefix
+  const hasLocale = LOCALES.some(
+    locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  // Redirect to default locale if no locale in path
+  if (!hasLocale) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${DEFAULT_LOCALE}${pathname}`;
+    return NextResponse.redirect(url);
+  }
+
+  const response = NextResponse.next();
 
   // 🔒 X-Frame-Options: Prévient les attaques clickjacking
   response.headers.set('X-Frame-Options', 'DENY');
@@ -60,7 +68,7 @@ export function middleware(request: NextRequest) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
+    'upgrade-insecure-requests',
   ];
 
   response.headers.set('Content-Security-Policy', cspDirectives.join('; '));
@@ -93,7 +101,5 @@ export function middleware(request: NextRequest) {
  * - Favicon et images root
  */
 export const config = {
-  matcher: [
-    '/((?!api|_next|static|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp)$).*)',
-  ],
+  matcher: ['/((?!api|_next|static|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp)$).*)'],
 };
