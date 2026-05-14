@@ -49,11 +49,11 @@ export default function LoginPage() {
         setLoading(false);
       } else if (result?.ok) {
         if (email === 'admin@memolib.fr' || email === 'superadmin@memolib.com') {
-          router.push('/super-admin/dashboard');
+          window.location.href = '/fr/super-admin/dashboard';
         } else if (email === 'client@memolib.fr') {
-          router.push('/client-dashboard');
+          window.location.href = '/fr/client-dashboard';
         } else {
-          router.push('/dashboard');
+          window.location.href = '/fr/dashboard';
         }
       }
     } catch (error) {

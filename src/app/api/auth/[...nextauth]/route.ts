@@ -117,6 +117,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Identifiants requis');
         }
 
+        const emailNormalized = credentials.email.trim().toLowerCase();
+        const passwordInput = credentials.password.trim();
+
         const isDemoMode = true;
 
         if (isDemoMode) {
@@ -245,8 +248,8 @@ export const authOptions: NextAuthOptions = {
             },
           };
 
-          const demoUser = demoUsers[credentials.email.toLowerCase()];
-          if (demoUser && demoUser.password === credentials.password) {
+          const demoUser = demoUsers[emailNormalized];
+          if (demoUser && demoUser.password === passwordInput) {
             const { password, ...userWithoutPassword } = demoUser;
             return userWithoutPassword;
           }
@@ -254,7 +257,7 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
+            where: { email: emailNormalized },
             include: {
               tenant: {
                 select: { id: true, name: true, status: true, plan: { select: { name: true } } },
@@ -265,7 +268,7 @@ export const authOptions: NextAuthOptions = {
             },
           });
 
-          if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
+          if (!user || !(await bcrypt.compare(passwordInput, user.password))) {
             throw new Error('Identifiants invalides');
           }
 
