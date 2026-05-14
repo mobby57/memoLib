@@ -38,20 +38,23 @@ export default function Error({
           </div>
 
           {/* Title */}
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Une erreur est survenue
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Une erreur est survenue</h2>
 
           {/* Error message */}
           <p className="text-gray-600 mb-6">
-            {error.message || 'Une erreur inattendue s\'est produite'}
+            {error.message || "Une erreur inattendue s'est produite"}
           </p>
+
+          {/* Stack trace for debugging */}
+          {error.stack && (
+            <pre className="text-xs text-left text-red-600 bg-red-50 p-3 rounded mb-4 max-h-40 overflow-auto w-full">
+              {error.stack}
+            </pre>
+          )}
 
           {/* Error digest (for debugging) */}
           {error.digest && (
-            <p className="text-xs text-gray-400 mb-6">
-              Code d'erreur: {error.digest}
-            </p>
+            <p className="text-xs text-gray-400 mb-6">Code d'erreur: {error.digest}</p>
           )}
 
           {/* Actions */}
