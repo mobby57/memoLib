@@ -16,7 +16,7 @@
 import type { WorkspaceReasoning } from '@prisma/client';
 
 // Import Ollama depuis la racine lib/
-import { OllamaClient } from '../../../lib/ai/ollama-client';
+import { OllamaClient } from '@/lib/ai/ollama-client';
 
 // ============================================
 // TYPES D'EXTRACTION

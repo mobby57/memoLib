@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { defaultMetadata, getBaseUrl, SITE_DESCRIPTION, SITE_NAME } from '@/lib/metadata';
+import { Providers } from './providers';
 import './globals.css';
 
 export const metadata: Metadata = defaultMetadata;
@@ -35,7 +36,7 @@ export default function RootLayout({
             __html: JSON.stringify(structuredData),
           }}
         />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

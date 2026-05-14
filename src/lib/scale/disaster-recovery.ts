@@ -409,17 +409,10 @@ export class DisasterRecoveryCoordinator {
    */
   private async verifyStep(step: FailoverStep): Promise<boolean> {
     console.log(`  Verifying: ${step.title}`);
-
-    try {
-      // Execute verification query
-      // const result = await executeQuery(step.verificationQuery);
-      // return !!result;
-
-      return true; // Simplified
-    } catch (error) {
-      console.error(`  Verification failed: ${error}`);
-      return false;
-    }
+    // Execute verification query
+    // const result = await executeQuery(step.verificationQuery);
+    // return !!result;
+    return true; // Simplified
   }
 
   /**
