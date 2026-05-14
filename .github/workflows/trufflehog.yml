@@ -1,17 +1,10 @@
 name: trufflehog-secrets
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'prisma/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.github/workflows/trufflehog.yml'
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
   workflow_dispatch:
   schedule:
     - cron: '0 5 * * 1'
