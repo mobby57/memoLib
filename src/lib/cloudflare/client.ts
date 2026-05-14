@@ -266,14 +266,9 @@ export class CloudflareR2 {
   /**
    * Lister les fichiers
    */
-  async listFiles(prefix?: string): Promise<string[]> {
-    try {
-      // R2 list mock - return empty list for now
-      return [];
-    } catch (error) {
-      console.error('R2 list error:', error);
-      return [];
-    }
+  async listFiles(_prefix?: string): Promise<string[]> {
+    // R2 list mock - return empty list for now
+    return [];
   }
 }
 

@@ -168,7 +168,8 @@ if (!isTest && process.env.NODE_ENV === 'development') {
 // 🎯 MIDDLEWARE - SOFT DELETE & AUDIT TRAIL
 // ============================================
 
-// Soft delete middleware
+// Soft delete middleware - DISABLED: requires deletedAt on all models
+/*
 if (!isTest)
   prisma.$use(async (params: any, next: any) => {
     // Ne pas appliquer le soft delete aux EventLog (immuabilité gérée par trigger DB)
@@ -193,6 +194,7 @@ if (!isTest)
 
     return next(params);
   });
+*/
 
 // Exclure automatiquement les enregistrements supprimes (soft delete)
 // DeSACTIVe TEMPORAIREMENT - Le modele Dossier n'a pas de champ deletedAt

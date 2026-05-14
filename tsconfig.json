@@ -41,6 +41,8 @@
     "__tests__/**",
     "**/*.test.ts",
     "**/*.test.tsx",
+    "**/*.migrated.ts",
+    "**/*.backup.ts",
     "bin/**",
     "obj/**"
   ]

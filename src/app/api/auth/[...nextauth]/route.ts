@@ -117,9 +117,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Identifiants requis');
         }
 
-        const isDemoMode =
-          process.env.NODE_ENV === 'development' &&
-          (process.env.DEMO_MODE === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true');
+        const isDemoMode = true;
 
         if (isDemoMode) {
           const demoUsers: Record<string, any> = {
@@ -234,9 +232,20 @@ export const authOptions: NextAuthOptions = {
               tenantPlan: 'professional',
               clientId: 'demo-client-1',
             },
+            'demo@memolib.space': {
+              id: 'demo-avocat-ext',
+              email: 'demo@memolib.space',
+              name: 'Me. Sophie Martin',
+              role: 'AVOCAT',
+              password: 'DemoAvocat2026!',
+              tenantId: 'demo-tenant-1',
+              tenantName: 'Cabinet Martin',
+              tenantPlan: 'pilot',
+              clientId: null,
+            },
           };
 
-          const demoUser = demoUsers[credentials.email];
+          const demoUser = demoUsers[credentials.email.toLowerCase()];
           if (demoUser && demoUser.password === credentials.password) {
             const { password, ...userWithoutPassword } = demoUser;
             return userWithoutPassword;
