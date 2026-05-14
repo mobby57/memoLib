@@ -1,5 +1,11 @@
 # 🚀 MemoLib - Plateforme Juridique Intelligente
 
+[![CI/CD Pipeline](https://github.com/mobby57/memoLib/actions/workflows/ci.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/ci.yml)
+[![Deploy](https://github.com/mobby57/memoLib/actions/workflows/deploy.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/deploy.yml)
+[![Security — Semgrep](https://github.com/mobby57/memoLib/actions/workflows/semgrep.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/semgrep.yml)
+[![Trivy Scan](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml)
+[![Tests](https://img.shields.io/badge/tests-4398_passing-brightgreen)](https://github.com/mobby57/memoLib/actions)
+[![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)](https://github.com/mobby57/memoLib/actions)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791)](https://www.postgresql.org/)
@@ -21,34 +27,40 @@
 ## ✨ Features principales
 
 ### 🤖 IA Juridique
+
 - **Résumé automatique d'email** — Détecte client, urgence, type de dossier, deadline
 - **Brouillon de réponse** — Génère une réponse contextualisée au dossier
 - **Classification automatique** — OQTF, titre de séjour, asile, naturalisation...
 - **Recherche jurisprudence** — Interroge Légifrance (CESEDA, jurisprudence)
 
 ### 📧 Emails intelligents
+
 - Webhook inbound (Gmail, Outlook, SendGrid)
 - Déduplication SHA256
 - Analyse IA automatique à la réception
 - **Email → Dossier en 1 clic** (le wow moment)
 
 ### 📁 Dossiers
+
 - Workflow de statut complet
 - Timeline automatique (emails + documents + deadlines)
 - Attribution à des avocats
 - Tags, priorités, échéances
 
 ### 📄 Génération de documents
+
 - 6 templates juridiques : accusé de réception, mise en demeure, recours gracieux, recours contentieux, convocation, attestation
 - Variables auto-remplies depuis le dossier
 - Édition + téléchargement
 
 ### ⏰ Délais légaux
+
 - Alertes automatiques J-7, J-3, J-1
 - Widget dashboard avec code couleur
 - Détection IA des deadlines dans les emails
 
 ### 🔐 Sécurité & Conformité
+
 - RBAC 9 rôles (SUPER_ADMIN → CLIENT)
 - Multi-tenant par cabinet
 - RGPD : anonymisation, droit à l'oubli, audit trail chaîné (hash chain)
@@ -57,6 +69,7 @@
 - Scan antivirus sur uploads (ClamAV + signatures)
 
 ### 🚀 Onboarding
+
 - Wizard interactif pour les nouveaux utilisateurs
 - Détection automatique de la progression
 - Guide pas-à-pas : client → email → dossier
@@ -65,19 +78,38 @@
 
 ## 🛠️ Stack Technique
 
-| Composant | Technologie |
-|-----------|-------------|
-| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS |
-| Backend API | ASP.NET Core 9.0, Entity Framework Core |
-| Base de données | PostgreSQL (prod) / SQLite (dev) |
-| ORM Frontend | Prisma 5 |
-| Auth | NextAuth (Credentials, Google, GitHub, Azure AD) |
-| IA | Ollama (local) + fallback regex |
-| Email | MailKit (IMAP/SMTP), webhook inbound |
-| Paiements | Stripe (subscriptions + usage) |
-| Monitoring | Sentry (server + client + replay) |
-| CI/CD | GitHub Actions (13 workflows) |
-| Déploiement | Vercel (frontend) + Docker (backend) |
+| Composant       | Technologie                                      |
+| --------------- | ------------------------------------------------ |
+| Frontend        | Next.js 16, React 19, TypeScript, Tailwind CSS   |
+| Backend API     | ASP.NET Core 9.0, Entity Framework Core          |
+| Base de données | PostgreSQL (prod) / SQLite (dev)                 |
+| ORM Frontend    | Prisma 5                                         |
+| Auth            | NextAuth (Credentials, Google, GitHub, Azure AD) |
+| IA              | Ollama (local) + fallback regex                  |
+| Email           | MailKit (IMAP/SMTP), webhook inbound             |
+| Paiements       | Stripe (subscriptions + usage)                   |
+| Monitoring      | Sentry (server + client + replay)                |
+| CI/CD           | GitHub Actions (13 workflows)                    |
+| Déploiement     | Vercel (frontend) + Docker (backend)             |
+
+---
+
+## 🛡️ Engineering Excellence
+
+| Pratique              | Détail                                                           |
+| --------------------- | ---------------------------------------------------------------- |
+| **CI/CD**             | 19 workflows GitHub Actions (build, test, deploy, security)      |
+| **Quality Gate**      | Aucun merge sans tests verts + review                            |
+| **Tests**             | 4398 tests (Jest + xUnit + Playwright E2E) — 87% coverage        |
+| **Security Scanning** | Semgrep SAST, Trivy containers, TruffleHog secrets, CodeQL, Snyk |
+| **Environments**      | Preview → Staging → Production                                   |
+| **Semantic Release**  | Versioning automatique + changelog                               |
+| **Dependency Review** | Dependabot + audit automatique                                   |
+| **Monitoring**        | Sentry (errors + performance + session replay)                   |
+| **RGPD**              | Audit trail chaîné (hash chain), anonymisation, droit à l'oubli  |
+| **Antivirus**         | Scan ClamAV sur chaque upload                                    |
+| **Rate Limiting**     | Upstash Redis + brute force protection                           |
+| **RBAC**              | 9 rôles, permissions granulaires, multi-tenant                   |
 
 ---
 
@@ -141,6 +173,7 @@ npx playwright test tests/e2e/main-flow.spec.ts
 ```
 
 Couvre le flow complet :
+
 1. Login → Dashboard
 2. Résumé IA d'un email (vérifie urgence, type, client, deadline)
 3. Création dossier depuis email en 1 clic
@@ -308,6 +341,7 @@ docker-compose up -d
 ## 📈 Roadmap
 
 ### ✅ Livré
+
 - [x] Multi-tenant RBAC complet (9 rôles)
 - [x] Gestion dossiers + clients + emails
 - [x] IA : résumé email, brouillon réponse, classification
@@ -325,11 +359,13 @@ docker-compose up -d
 - [x] Tests (Vitest + xUnit + Playwright)
 
 ### 🚧 En cours
+
 - [ ] Plugin Gmail / Outlook natif
 - [ ] OCR avancé sur documents
 - [ ] Agents IA autonomes (suivi procédure)
 
 ### 💡 Futur
+
 - [ ] Application mobile (React Native)
 - [ ] Marketplace d'intégrations
 - [ ] Transcription audio (audiences)
