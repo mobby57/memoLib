@@ -18,7 +18,7 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    // removeConsole disabled - causes minification issues in production
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
