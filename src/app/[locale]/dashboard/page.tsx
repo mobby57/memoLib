@@ -221,6 +221,7 @@ export default function DashboardPage() {
           dossiersActifs: 18,
           dossiersEnAttente: 4,
           dossiersTermines: 2,
+          dossiersArchives: 0,
           facturesEnAttente: 5,
           revenus: 12500,
           trends: { dossiers: 8, factures: 12, revenus: 15 },
@@ -237,6 +238,7 @@ export default function DashboardPage() {
             dossiersActifs: 18,
             dossiersEnAttente: 4,
             dossiersTermines: 2,
+            dossiersArchives: 0,
             facturesEnAttente: 5,
             revenus: 12500,
             trends: { dossiers: 8, factures: 12, revenus: 15 },
@@ -253,10 +255,10 @@ export default function DashboardPage() {
       });
 
       setStatusData([
-        { name: 'En cours', value: statsData.dossiersActifs, color: '#3b82f6' },
-        { name: 'En attente', value: statsData.dossiersEnAttente, color: '#f59e0b' },
-        { name: 'Termines', value: statsData.dossiersTermines, color: '#10b981' },
-        { name: 'Archives', value: statsData.dossiersArchives, color: '#6b7280' },
+        { name: 'En cours', value: statsData.dossiersActifs || 0, color: '#3b82f6' },
+        { name: 'En attente', value: statsData.dossiersEnAttente || 0, color: '#f59e0b' },
+        { name: 'Termines', value: statsData.dossiersTermines || 0, color: '#10b981' },
+        { name: 'Archives', value: statsData.dossiersArchives || 0, color: '#6b7280' },
       ]);
 
       // Calculer les metriques
@@ -573,110 +575,112 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts with Tabs */}
-      <Card>
-        <Tabs
-          variant="underline"
-          defaultTab="evolution"
-          tabs={[
-            {
-              id: 'evolution',
-              label: 'evolution Mensuelle',
-              icon: <TrendingUp className="w-4 h-4" />,
-              content: (
-                <div className="pt-4">
-                  <ResponsiveContainer width="100%" height={350}>
-                    <BarChart data={monthlyData}>
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        className="stroke-gray-200 dark:stroke-gray-700"
-                      />
-                      <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
-                      <YAxis className="text-gray-600 dark:text-gray-400" />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'var(--tooltip-bg, #ffffff)',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px',
-                        }}
-                      />
-                      <Legend />
-                      <Bar dataKey="dossiers" fill="#3b82f6" name="Dossiers" />
-                      <Bar dataKey="factures" fill="#10b981" name="Factures" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              ),
-            },
-            {
-              id: 'repartition',
-              label: 'Repartition des Dossiers',
-              icon: <FileText className="w-4 h-4" />,
-              badge: statusData.reduce((sum, s) => sum + s.value, 0),
-              content: (
-                <div className="pt-4">
-                  <ResponsiveContainer width="100%" height={350}>
-                    <PieChart>
-                      <Pie
-                        data={statusData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) =>
-                          `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
-                        }
-                        outerRadius={120}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {statusData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              ),
-            },
-            {
-              id: 'revenus',
-              label: 'Courbe des Revenus',
-              icon: <DollarSign className="w-4 h-4" />,
-              content: (
-                <div className="pt-4">
-                  <ResponsiveContainer width="100%" height={350}>
-                    <LineChart data={monthlyData}>
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        className="stroke-gray-200 dark:stroke-gray-700"
-                      />
-                      <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
-                      <YAxis className="text-gray-600 dark:text-gray-400" />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'var(--tooltip-bg, #ffffff)',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px',
-                        }}
-                      />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="revenus"
-                        stroke="#10b981"
-                        strokeWidth={3}
-                        name="Revenus (�)"
-                        dot={{ fill: '#10b981', r: 5 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              ),
-            },
-          ]}
-        />
-      </Card>
+      {monthlyData.length > 0 && (
+        <Card>
+          <Tabs
+            variant="underline"
+            defaultTab="evolution"
+            tabs={[
+              {
+                id: 'evolution',
+                label: 'evolution Mensuelle',
+                icon: <TrendingUp className="w-4 h-4" />,
+                content: (
+                  <div className="pt-4">
+                    <ResponsiveContainer width="100%" height={350}>
+                      <BarChart data={monthlyData}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          className="stroke-gray-200 dark:stroke-gray-700"
+                        />
+                        <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
+                        <YAxis className="text-gray-600 dark:text-gray-400" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'var(--tooltip-bg, #ffffff)',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                          }}
+                        />
+                        <Legend />
+                        <Bar dataKey="dossiers" fill="#3b82f6" name="Dossiers" />
+                        <Bar dataKey="factures" fill="#10b981" name="Factures" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ),
+              },
+              {
+                id: 'repartition',
+                label: 'Repartition des Dossiers',
+                icon: <FileText className="w-4 h-4" />,
+                badge: statusData.reduce((sum, s) => sum + s.value, 0),
+                content: (
+                  <div className="pt-4">
+                    <ResponsiveContainer width="100%" height={350}>
+                      <PieChart>
+                        <Pie
+                          data={statusData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) =>
+                            `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
+                          }
+                          outerRadius={120}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {statusData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                ),
+              },
+              {
+                id: 'revenus',
+                label: 'Courbe des Revenus',
+                icon: <DollarSign className="w-4 h-4" />,
+                content: (
+                  <div className="pt-4">
+                    <ResponsiveContainer width="100%" height={350}>
+                      <LineChart data={monthlyData}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          className="stroke-gray-200 dark:stroke-gray-700"
+                        />
+                        <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
+                        <YAxis className="text-gray-600 dark:text-gray-400" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'var(--tooltip-bg, #ffffff)',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                          }}
+                        />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="revenus"
+                          stroke="#10b981"
+                          strokeWidth={3}
+                          name="Revenus (�)"
+                          dot={{ fill: '#10b981', r: 5 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                ),
+              },
+            ]}
+          />
+        </Card>
+      )}
 
       {/* Recent Activities & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
