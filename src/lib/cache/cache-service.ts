@@ -154,7 +154,7 @@ class CacheService {
     this.defaultTTL = options.ttl || 3600; // 1 heure par défaut
 
     // Initialiser le client approprié
-    getRedisClient() || getMemoryCache();
+    void (getRedisClient() || getMemoryCache());
   }
 
   private getKey(key: string): string {

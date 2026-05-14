@@ -1,0 +1,64 @@
+name: Gemini Issue Triage
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  triage:
+    name: Auto-triage Issue
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Gemini CLI
+        run: npm install -g @google/gemini-cli
+
+      - name: Analyze and label issue
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          TITLE="${{ github.event.issue.title }}"
+          BODY=$(echo '${{ github.event.issue.body }}' | head -c 2000)
+
+          PROMPT="You are a triage bot for MemoLib (legal platform: Next.js frontend, .NET backend, Prisma/PostgreSQL).
+          Given this GitHub issue, respond with ONLY a JSON object (no markdown, no explanation):
+          {\"labels\": [\"...\"], \"priority\": \"P0|P1|P2|P3\", \"component\": \"frontend|backend|database|auth|billing|docs\"}
+
+          Available labels: bug, enhancement, security, performance, ui, api, database, auth, billing, documentation, good-first-issue, help-wanted
+
+          Issue title: $TITLE
+          Issue body: $BODY"
+
+          RESULT=$(gemini -p "$PROMPT" 2>/dev/null || echo '{"labels":["needs-triage"],"priority":"P2","component":"unknown"}')
+          echo "$RESULT" > /tmp/triage.json
+          cat /tmp/triage.json
+
+      - name: Apply labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let triage;
+            try {
+              const raw = fs.readFileSync('/tmp/triage.json', 'utf8');
+              triage = JSON.parse(raw);
+            } catch {
+              triage = { labels: ['needs-triage'], priority: 'P2' };
+            }
+
+            const labels = [...(triage.labels || []), triage.priority].filter(Boolean);
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: labels
+            });

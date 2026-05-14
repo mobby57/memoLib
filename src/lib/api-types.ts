@@ -158,3 +158,70 @@ export interface Attachment {
   eventId: string;
   uploadedAt: string;
 }
+
+
+// === Documents ===
+export interface Document {
+  id: string;
+  title: string;
+  fileName: string;
+  contentType: string;
+  fileSize: number;
+  type: 'IDENTITE' | 'JURIDIQUE' | 'FINANCIER' | 'CORRESPONDANCE' | 'PREUVE' | 'AUTRE';
+  dossierId: string;
+  uploadedBy: string;
+  tags?: string[];
+  createdAt: string;
+}
+
+export interface UploadDocumentRequest {
+  dossierId: string;
+  title: string;
+  type?: string;
+  description?: string;
+  tags?: string[];
+}
+
+// === Emails (Ingestion) ===
+export interface IngestEmailRequest {
+  externalId: string;
+  from: string;
+  subject: string;
+  body: string;
+  occurredAt: string;
+}
+
+// === Factures ===
+export interface Facture {
+  id: string;
+  numero: string;
+  clientId: string;
+  dossierId?: string;
+  statut: 'BROUILLON' | 'ENVOYEE' | 'PAYEE' | 'ANNULEE' | 'EN_RETARD';
+  dateEmission: string;
+  dateEcheance: string;
+  montantHT: number;
+  montantTTC: number;
+  lignes: FactureLigne[];
+  createdAt: string;
+}
+
+export interface FactureLigne {
+  description: string;
+  quantite: number;
+  prixUnitaireHT: number;
+  tva: number;
+}
+
+export interface CreateFactureRequest {
+  clientId: string;
+  dossierId?: string;
+  dateEcheance: string;
+  lignes: Array<{
+    description: string;
+    quantite: number;
+    prixUnitaireHT: number;
+    tva: number;
+  }>;
+  notes?: string;
+}

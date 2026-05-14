@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MemoLib.Api.Hubs;
 
+[Authorize]
 public class NotificationHub : Hub
 {
     public async Task SendUrgentAlert(string message)

@@ -1,0 +1,140 @@
+// ============================================
+// PRISMA SCHEMA SIMPLIFIÉ — MEMOLIB
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS ESSENTIELS
+// ============================================
+
+enum UserRole {
+  ADMIN
+  LAWYER
+  CLIENT
+}
+
+enum CaseStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+enum EmailStatus {
+  UNREAD
+  READ
+  PROCESSED
+}
+
+enum DocumentType {
+  CONTRACT
+  IDENTITY
+  LEGAL_DOCUMENT
+  OTHER
+}
+
+// ============================================
+// MODÈLES CORE
+// ============================================
+
+model User {
+  id       String   @id @default(uuid())
+  email    String   @unique
+  name     String
+  password String   @map("password_hashed")
+  role     UserRole @default(CLIENT)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cases     Case[]
+  emails    Email[]
+  documents Document[]
+
+  @@index([email])
+}
+
+model Client {
+  id        String @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String @map("email_encrypted")
+  phone     String? @map("phone_encrypted")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cases Case[]
+
+  @@index([email])
+}
+
+model Case {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      CaseStatus @default(OPEN)
+  
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+  
+  lawyerId String
+  lawyer   User   @relation(fields: [lawyerId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emails    Email[]
+  documents Document[]
+
+  @@index([clientId])
+  @@index([lawyerId])
+  @@index([status])
+}
+
+model Email {
+  id      String      @id @default(uuid())
+  from    String
+  to      String
+  subject String
+  body    String      @db.Text
+  status  EmailStatus @default(UNREAD)
+  
+  caseId String?
+  case   Case?  @relation(fields: [caseId], references: [id])
+  
+  userId String?
+  user   User?  @relation(fields: [userId], references: [id])
+  
+  receivedAt DateTime @default(now())
+  
+  @@index([caseId])
+  @@index([userId])
+  @@index([status])
+}
+
+model Document {
+  id       String       @id @default(uuid())
+  filename String
+  type     DocumentType @default(OTHER)
+  size     Int
+  path     String
+  
+  caseId String?
+  case   Case?  @relation(fields: [caseId], references: [id])
+  
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  
+  createdAt DateTime @default(now())
+  
+  @@index([caseId])
+  @@index([userId])
+}

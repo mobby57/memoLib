@@ -7,6 +7,8 @@ import { MetricsWidgets, type MetricsData } from '@/components/MetricsWidgets';
 import { Alert, Badge, Breadcrumb, Card, StatCard, Tabs, useToast } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/lib/logger';
+import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { DeadlineAlerts } from '@/components/dashboard/DeadlineAlerts';
 import { AIDisclaimer } from '@/components/legal/AIDisclaimer';
 import { LegalFooter } from '@/components/legal/LegalFooter';
 import {
@@ -108,6 +110,18 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [showMetrics, setShowMetrics] = useState(true);
   const [metricsData, setMetricsData] = useState<MetricsData | null>(null);
+  const [onboardingSteps, setOnboardingSteps] = useState<{ accountCreated: boolean; firstClient: boolean; firstEmail: boolean; firstDossier: boolean } | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(true);
+
+  // Charger le statut d'onboarding
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      fetch('/api/onboarding/status').then(r => r.json()).then(data => {
+        if (data.needsOnboarding) setOnboardingSteps(data.steps);
+        else setShowOnboarding(false);
+      }).catch(() => {});
+    }
+  }, [isAuthenticated, isLoading]);
 
   // Redirection selon le role
   useEffect(() => {
@@ -351,6 +365,18 @@ export default function DashboardPage() {
     <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* AI Disclaimer Banner */}
       <AIDisclaimer variant="banner" />
+
+      {/* Onboarding Wizard */}
+      {showOnboarding && onboardingSteps && (
+        <OnboardingWizard
+          steps={onboardingSteps}
+          userName={user?.name?.split(' ')[0]}
+          onDismiss={() => setShowOnboarding(false)}
+        />
+      )}
+
+      {/* Deadline Alerts Widget */}
+      <DeadlineAlerts tenantId={user?.tenantId} />
 
       {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
