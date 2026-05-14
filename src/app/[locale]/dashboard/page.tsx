@@ -92,8 +92,16 @@ interface QuickAction {
 }
 
 export default function DashboardPage() {
-  const { user, isLoading, isAuthenticated, isSuperAdmin, isAdmin, isClient, hasPermission } =
-    useAuth();
+  const {
+    user,
+    isLoading,
+    isAuthenticated,
+    isSuperAdmin,
+    isAdmin,
+    isClient,
+    hasRole,
+    hasPermission,
+  } = useAuth();
   const { addToast } = useToast();
 
   const [stats, setStats] = useState<DashboardStats>({
@@ -110,44 +118,54 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [showMetrics, setShowMetrics] = useState(true);
   const [metricsData, setMetricsData] = useState<MetricsData | null>(null);
-  const [onboardingSteps, setOnboardingSteps] = useState<{ accountCreated: boolean; firstClient: boolean; firstEmail: boolean; firstDossier: boolean } | null>(null);
+  const [onboardingSteps, setOnboardingSteps] = useState<{
+    accountCreated: boolean;
+    firstClient: boolean;
+    firstEmail: boolean;
+    firstDossier: boolean;
+  } | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
 
   // Charger le statut d'onboarding
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
-      fetch('/api/onboarding/status').then(r => r.json()).then(data => {
-        if (data.needsOnboarding) setOnboardingSteps(data.steps);
-        else setShowOnboarding(false);
-      }).catch(() => {});
+      fetch('/api/onboarding/status')
+        .then(r => r.json())
+        .then(data => {
+          if (data.needsOnboarding) setOnboardingSteps(data.steps);
+          else setShowOnboarding(false);
+        })
+        .catch(() => {});
     }
   }, [isAuthenticated, isLoading]);
 
   // Redirection selon le role
   useEffect(() => {
-    // Attendre que la session soit charg�e
+    // Attendre que la session soit chargée
     if (isLoading) return;
 
     if (!isAuthenticated) {
-      window.location.href = '/auth/login';
+      window.location.href = '/fr/auth/login';
       return;
     }
     if (isClient) {
-      window.location.href = '/client-dashboard';
+      window.location.href = '/fr/client-dashboard';
       return;
     }
     if (isSuperAdmin) {
-      window.location.href = '/super-admin';
+      window.location.href = '/fr/super-admin';
       return;
     }
+    // Arrêter le loading pour les avocats/admins
+    setLoading(false);
   }, [isLoading, isAuthenticated, isClient, isSuperAdmin]);
 
   // Charger les donnees du dashboard
   useEffect(() => {
-    if (!isLoading && isAuthenticated && isAdmin) {
-      loadDashboardData();
+    if (!isLoading && isAuthenticated) {
+      loadDashboardData().catch(() => setLoading(false));
     }
-  }, [isLoading, isAuthenticated, isAdmin]);
+  }, [isLoading, isAuthenticated]);
 
   const calculateMetrics = (statsData: any) => {
     const totalDossiers = statsData.totalDossiers || 0;
@@ -192,8 +210,8 @@ export default function DashboardPage() {
       setLoading(true);
       const baseUrl = `/api/tenant/${user?.tenantId}`;
 
-      // D�MO MODE: Utiliser les donn�es mock�es directement pour rapidit�
-      const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || !user?.tenantId;
+      // DÉMO MODE: Utiliser les données mockées directement pour rapidité
+      const isDemoMode = !user?.tenantId || user.tenantId.startsWith('demo');
 
       let statsData;
       if (isDemoMode) {
@@ -336,15 +354,31 @@ export default function DashboardPage() {
     );
   }
 
-  // Cette page est uniquement pour les admins
-  if (!isAdmin) {
+  // Cette page est pour tous les membres du cabinet (pas les clients ni super admin)
+  const hasAccess =
+    isAdmin ||
+    hasRole('AVOCAT' as any) ||
+    hasRole('ASSOCIE' as any) ||
+    hasRole('COLLABORATEUR' as any) ||
+    hasRole('STAGIAIRE' as any) ||
+    hasRole('SECRETAIRE' as any) ||
+    hasRole('COMPTABLE' as any);
+  if (!hasAccess) {
+    // Client ou super admin → redirection en cours via useEffect, afficher un spinner
+    if (isClient || isSuperAdmin) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      );
+    }
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 dark:text-gray-400">Accès non autorise</p>
           <Link href="/" className="text-blue-600 hover:underline mt-2 inline-block">
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </Link>
         </div>
       </div>
