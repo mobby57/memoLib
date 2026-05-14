@@ -8,7 +8,7 @@
 
 ## 🎯 Qu'est-ce que MemoLib ?
 
-**MemoLib** est une plateforme de gestion des dossiers et communications pour **cabinets d'avocats**. Elle automatise le workflow complet : réception d'emails, extraction d'informations clients, gestion de dossiers, facturation, et conformité RGPD.
+**MemoLib** est une plateforme de gestion intelligente pour **cabinets d'avocats**. Elle automatise le workflow complet : réception d'emails, analyse IA, création de dossiers, gestion des deadlines, génération de documents, et conformité RGPD.
 
 ### Pour qui ?
 
@@ -18,51 +18,66 @@
 
 ---
 
-## 🛠️ Stack Technique
+## ✨ Features principales
 
-### Frontend (Next.js)
+### 🤖 IA Juridique
+- **Résumé automatique d'email** — Détecte client, urgence, type de dossier, deadline
+- **Brouillon de réponse** — Génère une réponse contextualisée au dossier
+- **Classification automatique** — OQTF, titre de séjour, asile, naturalisation...
+- **Recherche jurisprudence** — Interroge Légifrance (CESEDA, jurisprudence)
 
-| Composant         | Technologie                                                |
-| ----------------- | ---------------------------------------------------------- |
-| Framework         | Next.js 16 + React 19                                      |
-| Langage           | TypeScript 5.9                                             |
-| ORM               | Prisma 5                                                   |
-| Base de données   | PostgreSQL                                                 |
-| Auth              | NextAuth (Credentials, Google, GitHub, Azure AD optionnel) |
-| UI                | Tailwind CSS 3 + Lucide React                              |
-| Déploiement       | **Vercel**                                                 |
-| Stockage fichiers | Vercel Blob (cloud) / local (fallback)                     |
-| Rate limiting     | Upstash Redis                                              |
-| Monitoring        | Sentry                                                     |
-| Paiements         | Stripe                                                     |
+### 📧 Emails intelligents
+- Webhook inbound (Gmail, Outlook, SendGrid)
+- Déduplication SHA256
+- Analyse IA automatique à la réception
+- **Email → Dossier en 1 clic** (le wow moment)
 
-### Backend API (.NET)
+### 📁 Dossiers
+- Workflow de statut complet
+- Timeline automatique (emails + documents + deadlines)
+- Attribution à des avocats
+- Tags, priorités, échéances
 
-| Composant       | Technologie                        |
-| --------------- | ---------------------------------- |
-| Framework       | ASP.NET Core 9.0                   |
-| ORM             | Entity Framework Core 9.0          |
-| Base de données | SQLite (local) / PostgreSQL (prod) |
-| Email           | MailKit (IMAP/SMTP)                |
-| Auth            | JWT Bearer + BCrypt                |
-| Validation      | FluentValidation                   |
-| Déploiement     | Docker / local                     |
+### 📄 Génération de documents
+- 6 templates juridiques : accusé de réception, mise en demeure, recours gracieux, recours contentieux, convocation, attestation
+- Variables auto-remplies depuis le dossier
+- Édition + téléchargement
 
-### Sécurité
+### ⏰ Délais légaux
+- Alertes automatiques J-7, J-3, J-1
+- Widget dashboard avec code couleur
+- Détection IA des deadlines dans les emails
 
-- Hashing BCrypt pour mots de passe
-- JWT + NextAuth sessions
-- RBAC multi-rôles (SUPER_ADMIN, ADMIN, AVOCAT, ASSOCIE, COLLABORATEUR, SECRETAIRE, COMPTABLE, STAGIAIRE, CLIENT)
+### 🔐 Sécurité & Conformité
+- RBAC 9 rôles (SUPER_ADMIN → CLIENT)
 - Multi-tenant par cabinet
-- Audit trail complet
-- Antivirus scan sur uploads
-- Rate limiting par utilisateur/IP
+- RGPD : anonymisation, droit à l'oubli, audit trail chaîné (hash chain)
+- Rate limiting (Upstash Redis + fallback)
+- Brute force protection
+- Scan antivirus sur uploads (ClamAV + signatures)
+
+### 🚀 Onboarding
+- Wizard interactif pour les nouveaux utilisateurs
+- Détection automatique de la progression
+- Guide pas-à-pas : client → email → dossier
 
 ---
 
-## ⚠️ Azure n'est PAS requis
+## 🛠️ Stack Technique
 
-Azure intervient **uniquement** comme provider OAuth optionnel (Azure AD SSO). Le projet tourne sur **Vercel** (frontend) et **Docker/local** (backend .NET). Aucun service Azure n'est nécessaire pour faire tourner MemoLib.
+| Composant | Technologie |
+|-----------|-------------|
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS |
+| Backend API | ASP.NET Core 9.0, Entity Framework Core |
+| Base de données | PostgreSQL (prod) / SQLite (dev) |
+| ORM Frontend | Prisma 5 |
+| Auth | NextAuth (Credentials, Google, GitHub, Azure AD) |
+| IA | Ollama (local) + fallback regex |
+| Email | MailKit (IMAP/SMTP), webhook inbound |
+| Paiements | Stripe (subscriptions + usage) |
+| Monitoring | Sentry (server + client + replay) |
+| CI/CD | GitHub Actions (13 workflows) |
+| Déploiement | Vercel (frontend) + Docker (backend) |
 
 ---
 
@@ -71,38 +86,27 @@ Azure intervient **uniquement** comme provider OAuth optionnel (Azure AD SSO). L
 ### Prérequis
 
 - Node.js 20+ et npm
-- .NET 9.0 SDK (pour le backend API)
+- .NET 9.0 SDK
 - PostgreSQL (ou SQLite en local)
-- Git
 
 ### Frontend (Next.js)
 
 ```powershell
-# 1. Cloner
-git clone https://github.com/VOTRE_USERNAME/MemoLib.git
-cd MemoLib
-
-# 2. Installer les dépendances
+git clone https://github.com/mobby57/memoLib.git
+cd memoLib
 npm install
-
-# 3. Configurer l'environnement
 cp .env.example .env.local
-# Éditer .env.local avec vos valeurs (DATABASE_URL, NEXTAUTH_SECRET, etc.)
-
-# 4. Générer Prisma et migrer la DB
+# Éditer .env.local avec vos valeurs
 npx prisma generate
 npx prisma migrate deploy
-
-# 5. Lancer en dev
 npm run dev
 ```
 
 **Accès :** http://localhost:3000
 
-### Backend .NET (optionnel, pour l'API legacy)
+### Backend .NET
 
 ```powershell
-cd MemoLib
 dotnet restore
 dotnet ef database update
 dotnet run
@@ -112,129 +116,113 @@ dotnet run
 
 ---
 
-## ⚙️ Configuration
+## 🧪 Tests
 
-### Variables d'environnement principales
-
-```env
-# Base de données
-DATABASE_URL="postgresql://user:password@localhost:5432/memolib"
-
-# Auth
-NEXTAUTH_SECRET="votre-secret"
-NEXTAUTH_URL="http://localhost:3000"
-
-# OAuth (tous optionnels)
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
-GITHUB_CLIENT_ID=""
-GITHUB_CLIENT_SECRET=""
-AZURE_CLIENT_ID=""
-AZURE_CLIENT_SECRET=""
-AZURE_TENANT_ID=""
-
-# Stockage fichiers (optionnel, fallback local sinon)
-BLOB_READ_WRITE_TOKEN=""
-
-# Stripe (optionnel)
-STRIPE_SECRET_KEY=""
-STRIPE_WEBHOOK_SECRET=""
-
-# Email SMTP (optionnel)
-EMAIL_SERVER=""
-EMAIL_FROM=""
-
-# Rate limiting (optionnel)
-UPSTASH_REDIS_REST_URL=""
-UPSTASH_REDIS_REST_TOKEN=""
-
-# Monitoring (optionnel)
-SENTRY_DSN=""
-```
-
-### Gmail IMAP (backend .NET)
-
-```json
-{
-  "EmailMonitor": {
-    "Enabled": true,
-    "ImapHost": "imap.gmail.com",
-    "ImapPort": 993,
-    "Username": "votre-email@gmail.com",
-    "IntervalSeconds": 60
-  }
-}
-```
+### Tests unitaires + intégration (Vitest)
 
 ```powershell
-dotnet user-secrets set "EmailMonitor:Password" "votre-mot-de-passe-application"
+npx vitest run
+```
+
+Couvre : RBAC, email adapter, deadlines, documents, facturation, Légifrance.
+
+### Tests .NET (xUnit)
+
+```powershell
+dotnet test tests/MemoLib.Tests.csproj
+```
+
+Couvre : brute force, password, billing, GDPR, email monitor, export.
+
+### Tests E2E (Playwright)
+
+```powershell
+npx playwright test tests/e2e/main-flow.spec.ts
+```
+
+Couvre le flow complet :
+1. Login → Dashboard
+2. Résumé IA d'un email (vérifie urgence, type, client, deadline)
+3. Création dossier depuis email en 1 clic
+4. Génération de document juridique
+5. Brouillon de réponse IA
+6. Recherche jurisprudence
+7. Landing page + inscription beta
+
+### TypeScript check
+
+```powershell
+npx tsc --noEmit
+```
+
+### Tous les tests
+
+```powershell
+# Frontend
+npx vitest run
+
+# Backend
+dotnet test tests/MemoLib.Tests.csproj
+
+# Type check
+npx tsc --noEmit
+
+# E2E (nécessite l'app en cours d'exécution)
+npx playwright test
 ```
 
 ---
 
-## ✨ Fonctionnalités
+## 📊 API Endpoints principaux
 
-### 📧 Emails
+### IA
 
-- Monitoring automatique Gmail (IMAP) via backend .NET
-- Ingestion d'emails via API Next.js
-- Détection de doublons (hash + messageId)
-- Extraction automatique des infos clients
-- Templates d'emails avec variables dynamiques
+```
+POST /api/ai/summarize-email     # Résumé structuré d'un email
+POST /api/ai/draft-reply         # Brouillon de réponse contextualisé
+```
 
-### 📁 Dossiers
+### Dossiers
 
-- Workflow de statut complet
-- Attribution à des avocats
-- Tags, priorités, échéances
-- Timeline complète par dossier
-- Délais légaux avec alertes automatiques (J-7, J-3, J-1)
+```
+POST /api/emails/create-dossier  # Email → Dossier en 1 clic
+GET  /api/dossiers/timeline      # Timeline automatique d'un dossier
+```
 
-### 👥 Clients
+### Documents
 
-- Fiche client 360° avec historique
-- Extraction auto des coordonnées
-- Portail client dédié
-- Onboarding automatisé
+```
+POST /api/documents/generate     # Génération courrier juridique
+GET  /api/documents/generate     # Liste des templates disponibles
+POST /api/documents/upload       # Upload document sécurisé
+```
 
-### 📄 Documents
+### Jurisprudence
 
-- Upload sécurisé (validation MIME, antivirus, extensions dangereuses bloquées)
-- Stockage Vercel Blob ou local
-- OCR sur PDF
-- Preuves juridiques horodatées
+```
+GET  /api/jurisprudence/search?q=OQTF  # Recherche Légifrance
+```
 
-### 💰 Facturation
+### Webhooks
 
-- Création de factures avec lignes détaillées
-- Suivi des paiements (Stripe)
-- Facturation à l'usage (OCR, signatures, SMS)
-- Export PDF/Excel
+```
+POST /api/webhooks/email-inbound  # Réception email (Gmail/Outlook/SendGrid)
+POST /api/webhooks/stripe         # Paiements Stripe
+```
 
-### 🔍 Recherche
+### Auth
 
-- Recherche textuelle
-- Recherche par embeddings (similarité vectorielle)
-- Recherche sémantique IA
+```
+POST /api/auth/[...nextauth]     # NextAuth (login, register, OAuth)
+GET  /api/onboarding/status      # Statut onboarding utilisateur
+```
 
-### 📊 Analytics
+### Cron
 
-- Dashboard avec statistiques
-- Rapports personnalisés
-- Centre d'anomalies
-- Audit trail complet
-
-### 🔔 Notifications
-
-- Temps réel (SignalR côté .NET)
-- Push notifications
-- Alertes échéances
-
-### 🔐 Conformité
-
-- RGPD : anonymisation, droit à l'oubli, registre des traitements
-- Archivage avec politiques de rétention
-- Preuves juridiques chaînées (hash chain)
+```
+GET /api/cron/deadline-alerts    # Alertes échéances (quotidien)
+GET /api/cron/cost-alerts        # Alertes coûts (quotidien)
+```
 
 ---
 
@@ -244,196 +232,116 @@ dotnet user-secrets set "EmailMonitor:Password" "votre-mot-de-passe-application"
 MemoLib/
 ├── src/                      # Frontend Next.js
 │   ├── app/                  # App Router (pages + API routes)
-│   │   └── api/              # API endpoints Next.js
 │   ├── components/           # Composants React
-│   ├── lib/                  # Utilitaires, Prisma, auth, billing
-│   ├── hooks/                # React hooks
-│   ├── types/                # Types TypeScript
-│   └── styles/               # CSS / Tailwind
-├── prisma/                   # Schéma Prisma + migrations PostgreSQL
-├── Controllers/              # API .NET (backend legacy)
-├── Services/                 # Logique métier .NET
+│   │   ├── emails/           # EmailAISummary, DraftReplyEditor
+│   │   ├── dossiers/         # DossierTimeline
+│   │   ├── documents/        # DocumentGenerator
+│   │   ├── dashboard/        # DeadlineAlerts
+│   │   ├── onboarding/       # OnboardingWizard
+│   │   └── forms/            # FormField, FormLayout, Button
+│   ├── lib/                  # Utilitaires, Prisma, auth, billing, IA
+│   └── hooks/                # React hooks (useAuth, useRealtime)
+├── prisma/                   # Schéma Prisma + migrations
+├── Controllers/              # API .NET (68 controllers)
+├── Services/                 # Logique métier .NET (63+ services)
 ├── Models/                   # Entités .NET
-├── Data/                     # DbContext EF Core
-├── Migrations/               # Migrations EF Core (PostgreSQL)
-├── Migrations_sqlite_backup/ # Migrations SQLite (historique)
-├── wwwroot/                  # Interface web statique (.NET)
+├── tests/                    # Tests (Vitest, xUnit, Playwright)
 ├── scripts/                  # Scripts utilitaires
-├── tests/                    # Tests .NET
-├── __tests__/                # Tests Jest/Playwright
-├── public/                   # Assets statiques Next.js
-├── docker-compose.yml        # Docker pour backend .NET
-├── vercel.json               # Config déploiement Vercel
-├── package.json              # Dépendances Node.js
-└── MemoLib.Api.csproj        # Projet .NET
+├── docs/                     # Documentation technique
+├── docker-compose.yml        # Docker backend
+└── vercel.json               # Config Vercel
 ```
 
 ---
 
-## 🧪 Tests
+## ⚙️ Variables d'environnement
 
-```powershell
-# Tests unitaires (Jest)
-npm test
+```env
+# Base de données
+DATABASE_URL="postgresql://user:password@localhost:5432/memolib"
 
-# Tests avec couverture
-npm run test:coverage
+# Auth
+NEXTAUTH_SECRET="votre-secret"
+NEXTAUTH_URL="http://localhost:3000"
 
-# Tests E2E (Playwright)
-npm run test:e2e
+# IA (optionnel — fallback regex si absent)
+OLLAMA_URL="http://localhost:11434"
+OLLAMA_MODEL="llama3.2:latest"
 
-# Tests CI
-npm run test:ci
+# Jurisprudence (optionnel — fallback local si absent)
+PISTE_CLIENT_ID=""
+PISTE_CLIENT_SECRET=""
 
-# Flux onboarding E2E
-npm run api:e2e:onboarding
+# Webhook email (optionnel)
+EMAIL_WEBHOOK_SECRET="votre-secret-webhook"
 
-# Tests .NET
-cd tests && dotnet test
+# Stripe (optionnel)
+STRIPE_SECRET_KEY=""
+STRIPE_WEBHOOK_SECRET=""
+
+# Monitoring (optionnel)
+SENTRY_DSN=""
+
+# ClamAV antivirus (optionnel)
+CLAMAV_HOST="localhost"
+CLAMAV_PORT="3310"
 ```
 
 ---
 
 ## 🚀 Déploiement
 
-### Frontend → Vercel (recommandé)
+### Frontend → Vercel
 
 ```powershell
-# Preview
-npm run deploy:vercel:preview
-
-# Production
 npm run deploy:vercel
 ```
 
-### Backend .NET → Docker
+### Backend → Docker
 
 ```powershell
 docker-compose up -d
-```
-
-### Local complet
-
-```powershell
-# Frontend
-npm run dev
-
-# Backend .NET (dans un autre terminal)
-dotnet run
-```
-
----
-
-## 📊 API Endpoints (Next.js)
-
-### Auth
-
-```
-POST /api/auth/[...nextauth]  # NextAuth (login, register, OAuth)
-```
-
-### Documents
-
-```
-POST /api/documents/upload     # Upload document
-GET  /api/documents/upload     # Liste documents d'un dossier
-```
-
-### Emails
-
-```
-POST /api/emails/incoming      # Ingestion email
-GET  /api/lawyer/workspace-emails  # Emails du workspace
-```
-
-### Cron
-
-```
-GET /api/cron/deadline-alerts  # Alertes échéances (quotidien)
-GET /api/cron/cost-alerts      # Alertes coûts (quotidien)
-```
-
-### API .NET (backend legacy, port 5078)
-
-```
-POST /api/auth/register
-POST /api/auth/login
-GET  /api/cases
-POST /api/cases
-GET  /api/cases/{id}/timeline
-POST /api/ingest/email
-POST /api/email-scan/manual
-POST /api/email/send
-GET  /api/client
-POST /api/search/events
-POST /api/attachment/upload/{eventId}
-```
-
----
-
-## 🐛 Dépannage
-
-### La DB ne se connecte pas
-
-```powershell
-# Vérifier PostgreSQL
-pg_isready -h localhost -p 5432
-
-# Régénérer Prisma
-npx prisma generate
-npx prisma migrate deploy
-```
-
-### Erreur Next.js mémoire
-
-```powershell
-# Augmenter la mémoire Node
-cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run dev
-```
-
-### Port 5078 occupé (.NET)
-
-```powershell
-netstat -ano | findstr :5078
-taskkill /PID <PID> /F
 ```
 
 ---
 
 ## 📈 Roadmap
 
-### ✅ Version actuelle
-
-- [x] Multi-tenant RBAC complet
+### ✅ Livré
+- [x] Multi-tenant RBAC complet (9 rôles)
 - [x] Gestion dossiers + clients + emails
+- [x] IA : résumé email, brouillon réponse, classification
+- [x] Email → Dossier en 1 clic
+- [x] Timeline automatique
+- [x] Génération documents juridiques (6 templates)
+- [x] Recherche jurisprudence (Légifrance)
+- [x] Webhook email inbound (Gmail/Outlook/SendGrid)
 - [x] Facturation Stripe + usage billing
-- [x] Documents avec antivirus + OCR
-- [x] Délais légaux avec alertes
-- [x] Preuves juridiques chaînées
-- [x] Conformité RGPD
-- [x] Déploiement Vercel + Docker
-- [x] CI/CD GitHub Actions
+- [x] Délais légaux avec alertes J-7/J-3/J-1
+- [x] Onboarding wizard
+- [x] Landing page beta
+- [x] Conformité RGPD + audit trail chaîné
+- [x] CI/CD (13 workflows GitHub Actions)
+- [x] Tests (Vitest + xUnit + Playwright)
 
-### 🚧 Prochaine version
+### 🚧 En cours
+- [ ] Plugin Gmail / Outlook natif
+- [ ] OCR avancé sur documents
+- [ ] Agents IA autonomes (suivi procédure)
 
-- [ ] IA classification emails (Ollama)
-- [ ] Export PDF/Excel avancé
-- [ ] Rapports personnalisés
-- [ ] Tests E2E complets
-
-### 💡 Future
-
+### 💡 Futur
 - [ ] Application mobile (React Native)
-- [ ] Redis cache distribué
-- [ ] Elasticsearch recherche avancée
+- [ ] Marketplace d'intégrations
+- [ ] Transcription audio (audiences)
+- [ ] Collaboration inter-cabinets
 
 ---
 
 ## 📝 Licence
 
-MIT License - Libre d'utilisation commerciale et personnelle.
+MIT License
 
 ## 📞 Support
 
-- 📚 Documentation : fichiers `docs/` dans le projet
-- 🐛 Issues : [GitHub Issues](https://github.com/VOTRE_USERNAME/MemoLib/issues)
+- 📚 Documentation : `docs/`
+- 🐛 Issues : [GitHub Issues](https://github.com/mobby57/memoLib/issues)

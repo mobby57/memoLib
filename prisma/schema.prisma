@@ -206,6 +206,9 @@ model Tenant {
   auditLogs          AuditLog[]
   archivePolicies    ArchivePolicy[]
   reports            Report[]
+  usageRecords       UsageRecord[]
+  aiUsageLogs        AIUsageLog[]
+  quotaEvents        QuotaEvent[]
 
   @@index([planId])
   @@index([status])
@@ -1082,4 +1085,57 @@ model Report {
   @@index([type])
   @@index([status])
   @@index([dossierId])
+}
+
+// ============================================
+// NIVEAU 10 : SAAS & BILLING (EXTENSIONS)
+// ============================================
+
+model UsageRecord {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  type      String   // 'ocr' | 'signature' | 'sms' | 'ai'
+  quantity  Float
+  unitCost  Float
+  totalCost Float
+  metadata  String?  // JSON string
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model AIUsageLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  provider  String?
+  tokensUsed Int?
+  costEur   Float    @default(0)
+  operation String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([createdAt])
+}
+
+model QuotaEvent {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  quotaType String   // 'dossiers', 'storage', 'users', etc.
+  currentValue Float
+  limitValue  Float
+  percentage Float
+  eventType String   // 'warning', 'exceeded'
+  actionTaken String?
+  metadata  String?
+  occurredAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([quotaType])
+  @@index([occurredAt])
 }

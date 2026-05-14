@@ -13,7 +13,7 @@
  * ?? Cache IA: Reduit les couts de 30-50%
  */
 
-import { OllamaClient } from '../../../lib/ai/ollama-client';
+import { OllamaClient } from '@/lib/ai/ollama-client';
 import { cloudflareAI, CloudflareAI } from '../cloudflare/client';
 import { logger } from '../logger';
 import { 

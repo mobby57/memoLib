@@ -29,7 +29,7 @@ export default function SubscriptionCard({
         : product.priceMonthly;
 
     const isCurrentTier = currentTier === tier;
-    const isFree = tier === 'FREE';
+    const isFree = tier === 'PILOT';
 
     const handleSelect = async () => {
         setIsLoading(true);
@@ -47,9 +47,9 @@ export default function SubscriptionCard({
                 ? 'border-blue-500 bg-blue-50'
                 : 'border-gray-200 bg-white hover:border-gray-300'
             }
-      ${tier === 'PRO' ? 'shadow-lg scale-105' : ''}
+      ${tier === 'SOLO' ? 'shadow-lg scale-105' : ''}
     `}>
-            {tier === 'PRO' && (
+            {tier === 'SOLO' && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
                         Most Popular
@@ -85,7 +85,7 @@ export default function SubscriptionCard({
             </div>
 
             <ul className="space-y-3 mb-6">
-                {tier === 'FREE' && (
+                {tier === 'PILOT' && (
                     <>
                         <FeatureItem text="Up to 50 documents" />
                         <FeatureItem text="Up to 100 tasks" />
@@ -95,7 +95,7 @@ export default function SubscriptionCard({
                     </>
                 )}
 
-                {tier === 'PRO' && (
+                {tier === 'SOLO' && (
                     <>
                         <FeatureItem text="Up to 1,000 documents" highlight />
                         <FeatureItem text="Up to 5,000 tasks" highlight />
@@ -107,7 +107,7 @@ export default function SubscriptionCard({
                     </>
                 )}
 
-                {tier === 'ENTERPRISE' && (
+                {tier === 'CABINET' && (
                     <>
                         <FeatureItem text="Unlimited documents" highlight />
                         <FeatureItem text="Unlimited tasks" highlight />
@@ -128,7 +128,7 @@ export default function SubscriptionCard({
           w-full py-3 px-4 rounded-lg font-medium transition-colors
           ${isCurrentTier
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : tier === 'PRO'
+                        : tier === 'SOLO'
                             ? 'bg-blue-600 text-white hover:bg-blue-700'
                             : 'bg-gray-900 text-white hover:bg-gray-800'
                     }

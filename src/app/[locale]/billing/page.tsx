@@ -127,7 +127,7 @@ export default function BillingPage() {
         );
     }
 
-    const currentTier = subscription?.tier || 'FREE';
+    const currentTier = subscription?.tier || 'PILOT';
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -163,7 +163,7 @@ export default function BillingPage() {
                                         Renews on: {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
                                     </p>
                                 </div>
-                                {subscription.tier !== 'FREE' && (
+                                {subscription.tier !== 'PILOT' && (
                                     <button
                                         onClick={handleCancelSubscription}
                                         className="px-4 py-2 border border-red-600 text-red-600 rounded-md hover:bg-red-50"
@@ -210,7 +210,7 @@ export default function BillingPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {(['FREE', 'PRO', 'ENTERPRISE'] as ProductTier[]).map((tier) => (
+                        {(['PILOT', 'SOLO', 'CABINET'] as ProductTier[]).map((tier) => (
                             <SubscriptionCard
                                 key={tier}
                                 tier={tier}

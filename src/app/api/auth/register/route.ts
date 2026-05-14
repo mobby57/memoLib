@@ -1,6 +1,8 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { checkPasswordStrength } from '@/lib/security/password-strength';
+import { withRateLimit } from '@/lib/middleware/rate-limit';
 import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 
@@ -8,9 +10,9 @@ export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/auth/register
- * Inscription d'un nouvel avocat avec création du cabinet (tenant)
+ * Rate-limited: 5 req / 15 min par IP
  */
-export async function POST(request: NextRequest) {
+export const POST = withRateLimit(async function registerHandler(request: NextRequest) {
   try {
     const data = await request.json();
 
@@ -36,9 +38,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 8) {
+    const pwStrength = checkPasswordStrength(password);
+    if (!pwStrength.valid) {
       return NextResponse.json(
-        { error: 'Le mot de passe doit contenir au moins 8 caractères' },
+        { error: pwStrength.errors[0], details: pwStrength.errors },
         { status: 400 }
       );
     }
@@ -128,11 +131,39 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return { tenant, user };
+      // 3. Créer la subscription (essai gratuit)
+      const subscription = await tx.subscription.create({
+        data: {
+          id: randomUUID(),
+          tenantId: tenant.id,
+          planId: plan.id,
+          status: 'trialing',
+          billingCycle: 'monthly',
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 jours
+          trialEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          pricePerMonth: plan.priceMonthly,
+          currency: plan.currency,
+        },
+      });
+
+      // 4. Créer les réglages par défaut
+      const settings = await tx.tenantSettings.create({
+        data: {
+          id: randomUUID(),
+          tenantId: tenant.id,
+          maxDossiers: plan.maxDossiers,
+          maxUsers: plan.maxUsers,
+          storageLimit: plan.maxStorageGb * 1000, // Convert to MB if needed
+          ollamaEnabled: true,
+        },
+      });
+
+      return { tenant, user, subscription, settings };
     });
 
     // Log de l'inscription
-    logger.info('[REGISTER] Nouvel avocat inscrit: ${result.user.email} - Cabinet: ${result.tenant.name}');
+    logger.info(`[REGISTER] Nouvel avocat inscrit: ${result.user.email} - Cabinet: ${result.tenant.name}`);
 
     return NextResponse.json({
       success: true,
@@ -166,4 +197,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

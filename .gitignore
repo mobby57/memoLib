@@ -1,172 +1,101 @@
 # MemoLib - .gitignore
 
-## Build results
+## === Build artifacts ===
 [Dd]ebug/
-[Dd]ebugPublic/
 [Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-[Ww][Ii][Nn]32/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
 [Bb]in/
 [Oo]bj/
-[Ll]og/
 [Ll]ogs/
+.next/
+.turbo/
+out/
+dist/
+build/
+coverage/
+.tsbuildinfo
+tsconfig.tsbuildinfo
 
-## Visual Studio
-.vs/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-*.userprefs
+## === Dependencies ===
+node_modules/
+.pnp.*
 
-## User-specific files
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-## Database
-*.db
-*.db-shm
-*.db-wal
-memolib*.db
-
-## Secrets & Environment
-appsettings.Development.json
-appsettings.Production.json
-secrets.json
+## === Environment & Secrets ===
 .env
 .env.local
 .env.production
 .env.staging
-.env.security
-.env.infrastructure
 .env*.local
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+credentials.json
+token.json
+client_secret_*.json
 prod-key.txt
+.azure-secrets.json
+.azure-demo-secrets.json
 
-## Logs
-logs/
-*.log
+## === Database ===
+*.db
+*.db-shm
+*.db-wal
 
-## Fichiers temporaires de diagnostic
-.tmp_*.log
-*.tmp_*.log
-memolib.db-shm
-memolib.db-wal
-
-## Node modules
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.next/
-.turbo/
-coverage/
-
-## Uploaded user files (RGPD - ne jamais committer)
+## === Uploaded files (RGPD) ===
 uploads/
 !uploads/.gitkeep
-.jest-cache/
-playwright-report/
+
+## === Test output ===
 test-results/
-.tmp_*.json
-register_debug.json
+playwright-report/
+.jest-cache/
+*.tmp_*.json
+test-results*.json
 
-## Python
-venv/
-.venv/
-*.pyc
-__pycache__/
-*.py[cod]
-*$py.class
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-# Python build artifacts (not src/lib/)
-/lib/
-/lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-PIPFILE.lock
+## === Logs ===
+*.log
+npm-debug.log*
 
-## OS
+## === IDE ===
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*.swo
+
+## === OS ===
 .DS_Store
 Thumbs.db
 desktop.ini
 
-## IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+## === Python ===
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
 
-## Publish
-publish/
+## === Binaries & archives ===
+*.exe
+*.vsix
 *.zip
+*.tar
+*.gz
 
-## Backup
-*.bak
-*.backup
-
-## Package manager lockfiles (npm only)
-pnpm-lock.yaml
-yarn.lock
-
-## Legacy/build artifacts (not part of main project)
-frontend-node/
-_build_check/
-MemoLib-Package-Client/app/frontend-node/
-MemoLib-Package-Client/app/_build_check/
-.vercel
-
-
-# Azure deployment secrets
-.azure-secrets.json
-
-# Copies contenant des secrets - NE JAMAIS COMMITTER
-MemoLib-Package-Client/
-MemoLib.Api-cleanpush/
-
-.azure-demo-secrets.json
-
-# Artifacts & logs (never commit)
-artifacts/
-memolib-logs/
-memolib-fix.tar
-response.json
-egress2.json
-ingress2.json
-lint-output.txt
-test-full.txt
-test-output*.txt
-tsc-output.txt
+## === Build output text files ===
 build-output.txt
 build_output.txt
 build_errors.txt
-api_output.log
-$($found
-$($ms
-$null
+type-errors.txt
+type-errors-new.txt
+lint_output.txt
+lint-output.txt
 
-# OAuth/Gmail local secrets (never commit)
-credentials.json
-token.json
-client_secret_*.json
+## === Vercel ===
+.vercel
+
+## === Misc ===
+$null
+*.bak
+*.backup
