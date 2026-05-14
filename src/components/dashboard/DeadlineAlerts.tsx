@@ -20,11 +20,21 @@ export function DeadlineAlerts({ tenantId }: { tenantId?: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!tenantId) return;
+    if (!tenantId) {
+      setLoading(false);
+      return;
+    }
     fetch(`/api/legal-deadlines?tenantId=${tenantId}&upcoming=true&limit=10`)
-      .then((r) => r.json())
-      .then((data) => setDeadlines(data.deadlines || data || []))
-      .catch(() => {})
+      .then(r => r.json())
+      .then(data => {
+        const list = Array.isArray(data?.deadlines)
+          ? data.deadlines
+          : Array.isArray(data)
+            ? data
+            : [];
+        setDeadlines(list);
+      })
+      .catch(() => setDeadlines([]))
       .finally(() => setLoading(false));
   }, [tenantId]);
 
@@ -63,16 +73,20 @@ export function DeadlineAlerts({ tenantId }: { tenantId?: string }) {
       </h3>
 
       <div className="space-y-2">
-        {deadlines.slice(0, 5).map((dl) => {
+        {deadlines.slice(0, 5).map(dl => {
           const daysLeft = Math.ceil((new Date(dl.dueDate).getTime() - Date.now()) / 86400000);
           const urgencyClass =
-            daysLeft <= 1 ? 'border-l-red-500 bg-red-50' :
-            daysLeft <= 3 ? 'border-l-orange-500 bg-orange-50' :
-            'border-l-yellow-500 bg-yellow-50';
+            daysLeft <= 1
+              ? 'border-l-red-500 bg-red-50'
+              : daysLeft <= 3
+                ? 'border-l-orange-500 bg-orange-50'
+                : 'border-l-yellow-500 bg-yellow-50';
           const badgeClass =
-            daysLeft <= 1 ? 'bg-red-100 text-red-700' :
-            daysLeft <= 3 ? 'bg-orange-100 text-orange-700' :
-            'bg-yellow-100 text-yellow-700';
+            daysLeft <= 1
+              ? 'bg-red-100 text-red-700'
+              : daysLeft <= 3
+                ? 'bg-orange-100 text-orange-700'
+                : 'bg-yellow-100 text-yellow-700';
 
           return (
             <Link
@@ -100,7 +114,10 @@ export function DeadlineAlerts({ tenantId }: { tenantId?: string }) {
       </div>
 
       {deadlines.length > 5 && (
-        <Link href="/dossiers?filter=deadlines" className="block text-center text-xs text-blue-600 hover:text-blue-800 mt-3 font-medium">
+        <Link
+          href="/dossiers?filter=deadlines"
+          className="block text-center text-xs text-blue-600 hover:text-blue-800 mt-3 font-medium"
+        >
           Voir toutes les échéances ({deadlines.length})
         </Link>
       )}
