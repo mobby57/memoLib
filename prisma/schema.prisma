@@ -1139,3 +1139,34 @@ model QuotaEvent {
   @@index([quotaType])
   @@index([occurredAt])
 }
+
+
+// ============================================
+// NIVEAU 8 : JURISPRUDENCE (RECHERCHE AVANCÉE)
+// ============================================
+
+model Jurisprudence {
+  id           String   @id @default(uuid())
+  externalId   String   @unique
+  titre        String
+  date         DateTime
+  juridiction  String
+  numero       String?
+  chambre      String?
+  formation    String?
+  solution     String?
+  resume       String?
+  texte        String
+  url          String?
+  themes       String[] // tags: OQTF, asile, titre_sejour, etc.
+  source       String   @default("huggingface") // huggingface, legifrance, judilibre
+
+  // Full-text search vector (populated via raw SQL)
+  searchVector Unsupported("tsvector")?
+
+  createdAt    DateTime @default(now())
+
+  @@index([juridiction])
+  @@index([date])
+  @@index([themes])
+}
