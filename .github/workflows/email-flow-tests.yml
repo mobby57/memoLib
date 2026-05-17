@@ -19,9 +19,14 @@ on:
       - package.json
       - prisma/schema.prisma
 
+concurrency:
+  group: email-flow-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   email-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     services:
       postgres:

@@ -19,14 +19,15 @@ jobs:
           node-version: '20'
 
       - name: Install Gemini CLI
-        run: npm install -g @google/gemini-cli
+        run: npm install -g @google/gemini-cli@1
 
       - name: Analyze and label issue
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          TITLE="${{ github.event.issue.title }}"
-          BODY=$(echo '${{ github.event.issue.body }}' | head -c 2000)
+          BODY_TRUNCATED=$(echo "$ISSUE_BODY" | head -c 2000)
 
           PROMPT="You are a triage bot for MemoLib (legal platform: Next.js frontend, .NET backend, Prisma/PostgreSQL).
           Given this GitHub issue, respond with ONLY a JSON object (no markdown, no explanation):
@@ -34,8 +35,8 @@ jobs:
 
           Available labels: bug, enhancement, security, performance, ui, api, database, auth, billing, documentation, good-first-issue, help-wanted
 
-          Issue title: $TITLE
-          Issue body: $BODY"
+          Issue title: $ISSUE_TITLE
+          Issue body: $BODY_TRUNCATED"
 
           RESULT=$(gemini -p "$PROMPT" 2>/dev/null || echo '{"labels":["needs-triage"],"priority":"P2","component":"unknown"}')
           echo "$RESULT" > /tmp/triage.json
