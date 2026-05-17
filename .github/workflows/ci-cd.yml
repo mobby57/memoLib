@@ -26,6 +26,10 @@ on:
 env:
   NODE_VERSION: '20'
 
+permissions:
+  contents: read
+  security-events: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
