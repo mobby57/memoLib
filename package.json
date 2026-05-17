@@ -202,6 +202,7 @@
     "exceljs": "^4.4.0",
     "googleapis": "^169.0.0",
     "handlebars": "^4.7.8",
+    "imapflow": "^1.0.171",
     "ioredis": "^5.9.1",
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.2",

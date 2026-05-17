@@ -22,6 +22,38 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Raccourcis directs — redirige sans locale prefix
+  const shortcuts: Record<string, string> = {
+    '/dashboard': `/${DEFAULT_LOCALE}/dashboard`,
+    '/login': `/${DEFAULT_LOCALE}/login`,
+    '/emails': `/${DEFAULT_LOCALE}/emails`,
+    '/dossiers': `/${DEFAULT_LOCALE}/dossiers`,
+    '/clients': `/${DEFAULT_LOCALE}/clients`,
+    '/documents': `/${DEFAULT_LOCALE}/documents`,
+    '/jurisprudence': `/${DEFAULT_LOCALE}/jurisprudence`,
+    '/calendrier': `/${DEFAULT_LOCALE}/calendrier`,
+    '/factures': `/${DEFAULT_LOCALE}/factures`,
+    '/admin': `/${DEFAULT_LOCALE}/admin/dashboard`,
+    '/settings': `/${DEFAULT_LOCALE}/admin/settings`,
+    '/billing': `/${DEFAULT_LOCALE}/billing`,
+    '/analytics': `/${DEFAULT_LOCALE}/analytics`,
+  };
+
+  if (shortcuts[pathname]) {
+    const url = request.nextUrl.clone();
+    url.pathname = shortcuts[pathname];
+    return NextResponse.redirect(url);
+  }
+
+  // Root → dashboard (si connecté) ou landing
+  if (pathname === '/') {
+    const url = request.nextUrl.clone();
+    const hasSession = request.cookies.has('next-auth.session-token') || 
+                       request.cookies.has('__Secure-next-auth.session-token');
+    url.pathname = hasSession ? `/${DEFAULT_LOCALE}/dashboard` : `/${DEFAULT_LOCALE}/landing`;
+    return NextResponse.redirect(url);
+  }
+
   // Check if pathname already has a locale prefix
   const hasLocale = LOCALES.some(
     locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
