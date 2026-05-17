@@ -1,14 +1,12 @@
 # 🚀 MemoLib - Plateforme Juridique Intelligente
 
-[![CI/CD Pipeline](https://github.com/mobby57/memoLib/actions/workflows/ci.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/ci.yml)
-[![Deploy](https://github.com/mobby57/memoLib/actions/workflows/deploy.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/deploy.yml)
-[![Security — Semgrep](https://github.com/mobby57/memoLib/actions/workflows/semgrep.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/semgrep.yml)
+[![CI/CD Pipeline](https://github.com/mobby57/memoLib/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/ci-cd.yml)
+[![Security — Semgrep](https://github.com/mobby57/memoLib/actions/workflows/sast-semgrep.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/sast-semgrep.yml)
 [![Trivy Scan](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml)
 [![Tests](https://img.shields.io/badge/tests-4492_passing-brightgreen)](https://github.com/mobby57/memoLib/actions)
-[![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)](https://github.com/mobby57/memoLib/actions)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791)](https://www.postgresql.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791)](https://www.postgresql.org/)
 [![Vercel](https://img.shields.io/badge/Vercel-deployed-black)](https://vercel.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -86,7 +84,7 @@
 | ORM Frontend    | Prisma 5                                         |
 | Auth            | NextAuth (Credentials, Google, GitHub, Azure AD) |
 | IA              | Ollama (local) + fallback regex                  |
-| Email           | MailKit (IMAP/SMTP), webhook inbound             |
+| Email           | ImapFlow (IMAP), MailKit (.NET), webhook inbound     |
 | Paiements       | Stripe (subscriptions + usage)                   |
 | Monitoring      | Sentry (server + client + replay)                |
 | CI/CD           | GitHub Actions (13 workflows)                    |
@@ -98,7 +96,7 @@
 
 | Pratique              | Détail                                                           |
 | --------------------- | ---------------------------------------------------------------- |
-| **CI/CD**             | 19 workflows GitHub Actions (build, test, deploy, security)      |
+| **CI/CD**             | 13 workflows GitHub Actions (build, test, deploy, security)      |
 | **Quality Gate**      | Aucun merge sans tests verts + review                            |
 | **Tests**             | 4492 tests (Jest 4384 + Vitest 79 + xUnit 108) — TypeScript 0 errors |
 | **Security Scanning** | Semgrep SAST, Trivy containers, TruffleHog secrets, CodeQL, Snyk |
