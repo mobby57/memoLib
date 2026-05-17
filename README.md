@@ -97,7 +97,7 @@
 | Pratique              | Détail                                                           |
 | --------------------- | ---------------------------------------------------------------- |
 | **CI/CD**             | 13 workflows GitHub Actions (build, test, deploy, security)      |
-| **Quality Gate**      | Aucun merge sans tests verts + review                            |
+| **Quality Gate**      | Tests verts requis (branch protection configurable)              |
 | **Tests**             | 4492 tests (Jest 4384 + Vitest 79 + xUnit 108) — TypeScript 0 errors |
 | **Security Scanning** | Semgrep SAST, Trivy containers, TruffleHog secrets, CodeQL, Snyk |
 | **Environments**      | Preview → Staging → Production                                   |
