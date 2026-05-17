@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  memolib-frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: memolib-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXTAUTH_URL=http://localhost:3000
+    restart: unless-stopped
+    depends_on:
+      memolib-api:
+        condition: service_healthy
+    networks:
+      - frontend-network
+
   memolib-api:
     build:
       context: .
@@ -24,15 +41,45 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+    depends_on:
+      memolib-db:
+        condition: service_healthy
     networks:
-      - memolib-network
+      - frontend-network
+      - backend-network
+
+  memolib-db:
+    image: postgres:17-alpine
+    container_name: memolib-db
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set}
+      - POSTGRES_DB=${DB_NAME:-memolib}
+    volumes:
+      - memolib-pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend-network
 
 volumes:
   memolib-data:
     driver: local
   memolib-logs:
     driver: local
+  memolib-pgdata:
+    driver: local
 
 networks:
-  memolib-network:
+  frontend-network:
     driver: bridge
+    name: memolib-frontend
+  backend-network:
+    driver: bridge
+    name: memolib-backend
+    internal: true
