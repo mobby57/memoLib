@@ -1,12 +1,14 @@
 const path = require('path');
 
+// Auto-set NEXTAUTH_URL for Vercel preview deployments
+if (!process.env.NEXTAUTH_URL && process.env.VERCEL_URL) {
+  process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: process.env.DOCKER_BUILD === '1' ? 'standalone' : undefined,
   outputFileTracingRoot: path.join(__dirname),
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [

@@ -36,6 +36,10 @@ export function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
 
+  // Generate CSP nonce
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  response.headers.set('x-nonce', nonce);
+
   // 🔒 X-Frame-Options: Prévient les attaques clickjacking
   response.headers.set('X-Frame-Options', 'DENY');
 
@@ -54,10 +58,10 @@ export function middleware(request: NextRequest) {
   // 🔒 X-DNS-Prefetch-Control: Désactive le prefetch DNS pour les liens externes
   response.headers.set('X-DNS-Prefetch-Control', 'off');
 
-  // 🔒 Content-Security-Policy (CSP)
+  // 🔒 Content-Security-Policy (CSP) — nonce-based
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://vercel.live https://va.vercel-scripts.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https: blob:",
     "font-src 'self' data:",

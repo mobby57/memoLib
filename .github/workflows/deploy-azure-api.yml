@@ -17,6 +17,10 @@ on:
       - 'Dockerfile'
   workflow_dispatch:
 
+concurrency:
+  group: deploy-azure-api
+  cancel-in-progress: false
+
 env:
   AZURE_WEBAPP_NAME: memolib-api
   DOTNET_VERSION: '9.0.x'
@@ -24,6 +28,7 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
@@ -39,6 +44,9 @@ jobs:
       - name: Build
         run: dotnet build MemoLib.Api.csproj -c Release --no-restore
 
+      - name: Test
+        run: dotnet test tests/MemoLib.Tests.csproj -c Release --no-build --verbosity normal
+
       - name: Publish
         run: dotnet publish MemoLib.Api.csproj -c Release -o ./publish --no-build
 
@@ -52,3 +60,8 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           package: ./publish
+
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/health || exit 1

@@ -4,7 +4,7 @@
 [![Deploy](https://github.com/mobby57/memoLib/actions/workflows/deploy.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/deploy.yml)
 [![Security — Semgrep](https://github.com/mobby57/memoLib/actions/workflows/semgrep.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/semgrep.yml)
 [![Trivy Scan](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml)
-[![Tests](https://img.shields.io/badge/tests-4398_passing-brightgreen)](https://github.com/mobby57/memoLib/actions)
+[![Tests](https://img.shields.io/badge/tests-4492_passing-brightgreen)](https://github.com/mobby57/memoLib/actions)
 [![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)](https://github.com/mobby57/memoLib/actions)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
@@ -100,7 +100,7 @@
 | --------------------- | ---------------------------------------------------------------- |
 | **CI/CD**             | 19 workflows GitHub Actions (build, test, deploy, security)      |
 | **Quality Gate**      | Aucun merge sans tests verts + review                            |
-| **Tests**             | 4398 tests (Jest + xUnit + Playwright E2E) — 87% coverage        |
+| **Tests**             | 4492 tests (Jest 4384 + Vitest 79 + xUnit 108) — TypeScript 0 errors |
 | **Security Scanning** | Semgrep SAST, Trivy containers, TruffleHog secrets, CodeQL, Snyk |
 | **Environments**      | Preview → Staging → Production                                   |
 | **Semantic Release**  | Versioning automatique + changelog                               |
@@ -207,6 +207,8 @@ npx playwright test
 ---
 
 ## 📊 API Endpoints principaux
+
+> 📖 **Documentation interactive (Swagger)** : http://localhost:5078/swagger
 
 ### IA
 
