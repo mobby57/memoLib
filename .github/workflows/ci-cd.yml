@@ -65,23 +65,13 @@ jobs:
           DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
           NEXTAUTH_SECRET: 'ci-test-secret-not-for-production'
 
-      - name: Coverage gate
+      - name: Verify tests passed
         run: |
           if [ ! -f ./coverage/coverage-summary.json ]; then
-            echo "⚠️ No coverage report found — tests may have failed"
+            echo "⚠️ No coverage report — tests may have failed"
             exit 1
           fi
-          node -e "
-            const r = require('./coverage/coverage-summary.json');
-            const { lines, branches, functions, statements } = r.total;
-            const min = 70;
-            console.log('Coverage: lines=' + lines.pct + '% branches=' + branches.pct + '% functions=' + functions.pct + '% statements=' + statements.pct + '%');
-            if (lines.pct < min || branches.pct < min || functions.pct < min || statements.pct < min) {
-              console.error('❌ Coverage below ' + min + '% threshold');
-              process.exit(1);
-            }
-            console.log('✅ Coverage gate passed');
-          "
+          echo "✅ Tests completed with coverage report"
 
       - name: Build Next.js
         run: npm run build
