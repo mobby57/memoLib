@@ -99,3 +99,6 @@ lint-output.txt
 $null
 *.bak
 *.backup
+
+# Parquet data files
+*.parquet
