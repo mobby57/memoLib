@@ -1,2 +1,29 @@
 #!/bin/sh
-ggshield secret scan pre-commit "$@"
+
+# === Secret scanning (GitGuardian) ===
+if command -v ggshield >/dev/null 2>&1; then
+  ggshield secret scan pre-commit "$@"
+fi
+
+# === Block .tsbuildinfo ===
+if git diff --cached --name-only | grep -Eq '\.tsbuildinfo$'; then
+  echo "Commit blocked: .tsbuildinfo files must not be committed."
+  exit 1
+fi
+
+# === Whitespace check ===
+if ! git diff --cached --check; then
+  echo "Commit blocked: fix whitespace errors."
+  exit 1
+fi
+
+# === Validate package.json syntax ===
+if git diff --cached --name-only | grep -Eq '^package.json$'; then
+  if ! node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'));"; then
+    echo "Commit blocked: package.json is invalid."
+    exit 1
+  fi
+fi
+
+# === Lint-staged (prettier + eslint + tests) ===
+npx lint-staged

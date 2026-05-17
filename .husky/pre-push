@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if ! git diff --quiet --ignore-submodules --; then
+  echo "Push blocked: uncommitted changes exist."
+  exit 1
+fi
+
+if ! git diff --cached --quiet --ignore-submodules --; then
+  echo "Push blocked: staged uncommitted changes exist."
+  exit 1
+fi
