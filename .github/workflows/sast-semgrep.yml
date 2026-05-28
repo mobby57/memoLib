@@ -67,21 +67,21 @@ jobs:
 
       - name: Upload TypeScript SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: semgrep-ts.sarif
           category: semgrep-typescript
 
       - name: Upload C# SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: semgrep-cs.sarif
           category: semgrep-csharp
 
       - name: Upload Python SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: semgrep-py.sarif
           category: semgrep-python
