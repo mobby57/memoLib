@@ -66,129 +66,44 @@ export default function Sidebar() {
       name: 'Dashboard', 
       href: '/dashboard', 
       icon: LayoutDashboard,
-      badge: 5
+    },
+    { 
+      name: 'Emails', 
+      href: '/emails', 
+      icon: FileText,
+      badge: 5,
     },
     { 
       name: 'Dossiers', 
       href: '/dossiers', 
       icon: Folder,
-      badge: 42,
-      subItems: [
-        { name: 'Tous les dossiers', href: '/dossiers', icon: FolderOpen },
-        { name: 'Nouveaux dossiers', href: '/dossiers?filter=new', icon: Plus, badge: 8, color: 'green' },
-        { name: 'En cours', href: '/dossiers?filter=active', icon: Clock, badge: 23, color: 'blue' },
-        { name: 'En attente', href: '/dossiers?filter=pending', icon: AlertCircle, badge: 11, color: 'yellow' },
-        { name: 'Termines', href: '/dossiers?filter=completed', icon: CheckCircle2, color: 'green' },
-        { name: 'Urgents', href: '/dossiers?filter=urgent', icon: AlertCircle, badge: 6, color: 'red' },
-        { name: 'Archives', href: '/dossiers?filter=archived', icon: Archive },
-        { name: 'Creer un dossier', href: '/dossiers/new', icon: Plus, color: 'blue' }
-      ]
-    },
-    { 
-      name: 'Factures', 
-      href: '/factures', 
-      icon: FileText,
       badge: 18,
-      subItems: [
-        { name: 'Toutes les factures', href: '/factures', icon: FileText },
-        { name: 'En attente', href: '/factures?status=pending', icon: Clock, badge: 12, color: 'yellow' },
-        { name: 'Payees', href: '/factures?status=paid', icon: CheckCircle2, color: 'green' },
-        { name: 'En retard', href: '/factures?status=overdue', icon: XCircle, badge: 6, color: 'red' },
-        { name: 'Creer une facture', href: '/factures/new', icon: Plus, color: 'blue' }
-      ]
     },
     { 
       name: 'Clients', 
       href: '/clients', 
       icon: Users,
-      badge: 156,
-      subItems: [
-        { name: 'Tous les clients', href: '/clients', icon: Users },
-        { name: 'Clients actifs', href: '/clients?status=active', icon: CheckCircle2, badge: 142, color: 'green' },
-        { name: 'Nouveaux clients', href: '/clients?status=new', icon: Plus, badge: 14, color: 'blue' },
-        { name: 'Rechercher un client', href: '/clients?action=search', icon: Search },
-        { name: 'Ajouter un client', href: '/clients/new', icon: Plus, color: 'blue' }
-      ]
-    },
-    { 
-      name: 'Calendrier', 
-      href: '/calendrier', 
-      icon: Calendar,
-      badge: 8,
-      subItems: [
-        { name: 'Vue mensuelle', href: '/calendrier?view=month', icon: Calendar },
-        { name: 'Vue hebdomadaire', href: '/calendrier?view=week', icon: Calendar },
-        { name: 'Vue quotidienne', href: '/calendrier?view=day', icon: Calendar },
-        { name: 'Rendez-vous', href: '/calendrier?type=appointments', icon: Clock, badge: 5 },
-        { name: 'echeances', href: '/calendrier?type=deadlines', icon: AlertCircle, badge: 3, color: 'red' },
-        { name: 'Creer un evenement', href: '/calendrier/new', icon: Plus, color: 'blue' }
-      ]
-    },
-    { 
-      name: 'Analytics', 
-      href: '/analytics', 
-      icon: TrendingUp,
-      subItems: [
-        { name: 'Vue d\'ensemble', href: '/analytics', icon: TrendingUp },
-        { name: 'Dossiers', href: '/analytics/dossiers', icon: Folder },
-        { name: 'Finances', href: '/analytics/finances', icon: FileText },
-        { name: 'Performance', href: '/analytics/performance', icon: TrendingUp },
-        { name: 'Rapports', href: '/analytics/reports', icon: FileDown }
-      ]
-    },
-    { 
-      name: 'Templates', 
-      href: '/templates', 
-      icon: FileType,
-      subItems: [
-        { name: 'Tous les templates', href: '/templates', icon: FileType },
-        { name: 'Documents juridiques', href: '/templates?category=legal', icon: FileText },
-        { name: 'Emails', href: '/templates?category=email', icon: FileText },
-        { name: 'Contrats', href: '/templates?category=contracts', icon: FileText },
-        { name: 'Creer un template', href: '/templates/new', icon: Plus, color: 'blue' }
-      ]
     },
     { 
       name: 'Documents', 
       href: '/documents', 
       icon: FolderOpen,
-      badge: 234,
-      subItems: [
-        { name: 'Tous les documents', href: '/documents', icon: FolderOpen },
-        { name: 'Recents', href: '/documents?filter=recent', icon: Clock },
-        { name: 'Partages', href: '/documents?filter=shared', icon: Users },
-        { name: 'Rechercher', href: '/documents?action=search', icon: Search },
-        { name: 'Telecharger', href: '/documents/upload', icon: Plus, color: 'blue' }
-      ]
     },
     { 
-      name: 'Workflows', 
-      href: '/workflows', 
-      icon: Workflow,
-      badge: 12,
-      subItems: [
-        { name: 'Tous les workflows', href: '/workflows', icon: Workflow },
-        { name: 'Actifs', href: '/workflows?status=active', icon: CheckCircle2, badge: 8, color: 'green' },
-        { name: 'En pause', href: '/workflows?status=paused', icon: Clock, badge: 4 },
-        { name: 'Creer un workflow', href: '/workflows/new', icon: Plus, color: 'blue' }
-      ]
+      name: 'Calendrier', 
+      href: '/calendrier', 
+      icon: Calendar,
+      badge: 3,
     },
     { 
-      name: 'Exports', 
-      href: '/exports', 
-      icon: FileDown,
-      subItems: [
-        { name: 'Historique d\'exports', href: '/exports', icon: FileDown },
-        { name: 'Exporter des dossiers', href: '/exports?type=dossiers', icon: Folder },
-        { name: 'Exporter des factures', href: '/exports?type=factures', icon: FileText },
-        { name: 'Rapports personnalises', href: '/exports?type=custom', icon: TrendingUp }
-      ]
+      name: 'Factures', 
+      href: '/factures', 
+      icon: FileText,
     },
     { 
       name: 'Assistant IA', 
       href: '/ai-assistant', 
       icon: Sparkles,
-      badge: 3
     }
   ];
 
