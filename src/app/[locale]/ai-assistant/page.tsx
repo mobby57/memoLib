@@ -140,7 +140,7 @@ export default function AIAssistantPage() {
         <Card className="p-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">Cout estime</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-            {stats.estimatedCost.toFixed(2)}�
+            {stats.estimatedCost.toFixed(2)}e
           </p>
         </Card>
         <Card className="p-4">

@@ -33,7 +33,7 @@ describe('Select Components', () => {
 
   describe('SelectTrigger', () => {
     it('devrait rendre un bouton', () => {
-      render(<SelectTrigger>S�lectionner</SelectTrigger>);
+      render(<SelectTrigger>Selectionner</SelectTrigger>);
       expect(screen.getByRole('button')).toBeInTheDocument();
     });
 
@@ -43,7 +43,7 @@ describe('Select Components', () => {
       expect(button).toHaveClass('flex', 'h-10', 'w-full', 'rounded-md', 'border');
     });
 
-    it('devrait accepter des classes personnalis�es', () => {
+    it('devrait accepter des classes personnalisees', () => {
       render(<SelectTrigger className="custom-class">Test</SelectTrigger>);
       expect(screen.getByRole('button')).toHaveClass('custom-class');
     });
@@ -63,8 +63,8 @@ describe('Select Components', () => {
 
   describe('SelectValue', () => {
     it('devrait afficher le placeholder', () => {
-      render(<SelectValue placeholder="S�lectionner une option" />);
-      expect(screen.getByText('S�lectionner une option')).toBeInTheDocument();
+      render(<SelectValue placeholder="Selectionner une option" />);
+      expect(screen.getByText('Selectionner une option')).toBeInTheDocument();
     });
 
     it('devrait rendre un span', () => {
@@ -115,39 +115,39 @@ describe('Select Components', () => {
       expect(screen.getByTestId('item')).toHaveClass('hover:bg-gray-100');
     });
 
-    it('devrait accepter des classes personnalis�es', () => {
+    it('devrait accepter des classes personnalisees', () => {
       render(<SelectItem className="custom-item">Custom</SelectItem>);
       expect(screen.getByText('Custom')).toHaveClass('custom-item');
     });
 
-    it('devrait passer des props suppl�mentaires', () => {
+    it('devrait passer des props supplementaires', () => {
       render(<SelectItem value="test" data-value="test-value">Item</SelectItem>);
       expect(screen.getByText('Item')).toHaveAttribute('data-value', 'test-value');
     });
   });
 
-  describe('Composition compl�te', () => {
+  describe('Composition complete', () => {
     it('devrait rendre un select complet', () => {
       render(
         <Select>
           <SelectTrigger>
-            <SelectValue placeholder="S�lectionner un statut" />
+            <SelectValue placeholder="Selectionner un statut" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem>En cours</SelectItem>
-            <SelectItem>Termin�</SelectItem>
-            <SelectItem>Annul�</SelectItem>
+            <SelectItem>Termine</SelectItem>
+            <SelectItem>Annule</SelectItem>
           </SelectContent>
         </Select>
       );
 
-      expect(screen.getByText('S�lectionner un statut')).toBeInTheDocument();
+      expect(screen.getByText('Selectionner un statut')).toBeInTheDocument();
       expect(screen.getByText('En cours')).toBeInTheDocument();
-      expect(screen.getByText('Termin�')).toBeInTheDocument();
-      expect(screen.getByText('Annul�')).toBeInTheDocument();
+      expect(screen.getByText('Termine')).toBeInTheDocument();
+      expect(screen.getByText('Annule')).toBeInTheDocument();
     });
 
-    it('devrait �tre cliquable', () => {
+    it('devrait etre cliquable', () => {
       render(
         <Select>
           <SelectTrigger>
@@ -158,13 +158,13 @@ describe('Select Components', () => {
 
       const trigger = screen.getByRole('button');
       fireEvent.click(trigger);
-      // Le composant custom ne g�re pas l'�tat, mais le clic fonctionne
+      // Le composant custom ne gere pas l'etat, mais le clic fonctionne
       expect(trigger).toBeInTheDocument();
     });
   });
 
-  describe('Cas d\'utilisation r�els', () => {
-    it('devrait fonctionner pour un s�lecteur de statut de dossier', () => {
+  describe('Cas d\'utilisation reels', () => {
+    it('devrait fonctionner pour un selecteur de statut de dossier', () => {
       render(
         <Select>
           <SelectTrigger>
@@ -174,22 +174,22 @@ describe('Select Components', () => {
             <SelectItem data-value="nouveau">Nouveau</SelectItem>
             <SelectItem data-value="en_cours">En cours</SelectItem>
             <SelectItem data-value="en_attente">En attente</SelectItem>
-            <SelectItem data-value="termine">Termin�</SelectItem>
-            <SelectItem data-value="archive">Archiv�</SelectItem>
+            <SelectItem data-value="termine">Termine</SelectItem>
+            <SelectItem data-value="archive">Archive</SelectItem>
           </SelectContent>
         </Select>
       );
 
       expect(screen.getByText('Statut du dossier')).toBeInTheDocument();
       expect(screen.getByText('Nouveau')).toBeInTheDocument();
-      expect(screen.getByText('Archiv�')).toBeInTheDocument();
+      expect(screen.getByText('Archive')).toBeInTheDocument();
     });
 
-    it('devrait fonctionner pour un s�lecteur de priorit�', () => {
+    it('devrait fonctionner pour un selecteur de priorite', () => {
       render(
         <Select>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Priorit�" />
+            <SelectValue placeholder="Priorite" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem>Basse</SelectItem>
@@ -205,7 +205,7 @@ describe('Select Components', () => {
     });
   });
 
-  describe('Accessibilit�', () => {
+  describe('Accessibilite', () => {
     it('devrait avoir un trigger focusable', () => {
       render(
         <Select>
@@ -220,7 +220,7 @@ describe('Select Components', () => {
       expect(trigger).toHaveFocus();
     });
 
-    it('devrait �tre navigable au clavier', () => {
+    it('devrait etre navigable au clavier', () => {
       render(
         <Select>
           <SelectTrigger>

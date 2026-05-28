@@ -128,7 +128,7 @@ export function GlobalCommandPalette() {
             id: `facture-${facture.id}`,
             type: 'facture' as const,
             title: `Facture ${facture.numero}`,
-            subtitle: `${facture.montant}� - ${facture.statut}`,
+            subtitle: `${facture.montant}e - ${facture.statut}`,
             metadata: `${facture.client?.nom || ''} ${facture.statut}`,
             icon: FileText,
             href: `/factures/${facture.id}`

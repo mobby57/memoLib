@@ -172,7 +172,7 @@ export default function WorkflowConfigPage() {
             <CardHeader>
               <CardTitle>Analyse Intelligente</CardTitle>
               <CardDescription>
-                Param�tres du syst�me pour l'analyse et les suggestions
+                Parametres du systeme pour l'analyse et les suggestions
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

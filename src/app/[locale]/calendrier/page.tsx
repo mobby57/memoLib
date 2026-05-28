@@ -136,7 +136,7 @@ export default function CalendrierPage() {
 
     if (isEditing && editingEventId) {
       setEvents(events.map(e => (e.id === editingEventId ? eventData : e)));
-      showToast('�v�nement modifi� avec succ�s', 'success');
+      showToast('evenement modifie avec succes', 'success');
     } else {
       setEvents([...events, eventData]);
       showToast('événement ajoute avec succès', 'success');

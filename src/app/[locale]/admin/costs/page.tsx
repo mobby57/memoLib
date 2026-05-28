@@ -69,7 +69,7 @@ export default function AdminCostsPage() {
         setSummary(data.summary || null);
       }
     } catch (error) {
-      console.error('Erreur chargement co�ts:', error);
+      console.error('Erreur chargement coets:', error);
     } finally {
       setLoading(false);
     }
@@ -103,7 +103,7 @@ export default function AdminCostsPage() {
   const createOverageInvoice = async (tenant: TenantCost) => {
     if (!tenant.billableOverage) return;
 
-    if (!confirm(`Cr�er une facture de ${tenant.billableOverage.amount}� TTC pour ${tenant.name}?`)) {
+    if (!confirm(`Creer une facture de ${tenant.billableOverage.amount}e TTC pour ${tenant.name}?`)) {
       return;
     }
 
@@ -117,7 +117,7 @@ export default function AdminCostsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'exceeded':
-        return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">D�pass�</span>;
+        return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Depasse</span>;
       case 'warning':
         return <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Attention</span>;
       default:
@@ -132,9 +132,9 @@ export default function AdminCostsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">?? Gestion des Co�ts IA</h1>
+          <h1 className="text-3xl font-bold text-gray-900">?? Gestion des Coets IA</h1>
           <p className="mt-2 text-gray-600">
-            Surveillez les co�ts par tenant et facturez les d�passements
+            Surveillez les coets par tenant et facturez les depassements
           </p>
         </div>
 
@@ -150,9 +150,9 @@ export default function AdminCostsPage() {
           </div>
         )}
 
-        {/* Filtres p�riode */}
+        {/* Filtres periode */}
         <div className="bg-white rounded-lg shadow p-4 mb-6 flex gap-4 items-center">
-          <label className="text-sm font-medium text-gray-700">P�riode:</label>
+          <label className="text-sm font-medium text-gray-700">Periode:</label>
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
@@ -180,7 +180,7 @@ export default function AdminCostsPage() {
           </button>
         </div>
 
-        {/* R�sum� global */}
+        {/* Resume global */}
         {summary && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
             <div className="bg-white rounded-lg shadow p-4">
@@ -188,21 +188,21 @@ export default function AdminCostsPage() {
               <p className="text-2xl font-bold text-gray-900">{summary.totalTenants}</p>
             </div>
             <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-600">Co�t IA Total</p>
-              <p className="text-2xl font-bold text-blue-600">{summary.totalAICost.toFixed(2)}�</p>
+              <p className="text-sm text-gray-600">Coet IA Total</p>
+              <p className="text-2xl font-bold text-blue-600">{summary.totalAICost.toFixed(2)}e</p>
             </div>
             <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-600">Surco�ts</p>
-              <p className="text-2xl font-bold text-orange-600">{summary.totalOverage.toFixed(2)}�</p>
+              <p className="text-sm text-gray-600">Surcoets</p>
+              <p className="text-2xl font-bold text-orange-600">{summary.totalOverage.toFixed(2)}e</p>
             </div>
             <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-sm text-gray-600">Tenants en d�passement</p>
+              <p className="text-sm text-gray-600">Tenants en depassement</p>
               <p className="text-2xl font-bold text-red-600">{summary.tenantsOverBudget}</p>
             </div>
             <div className="bg-white rounded-lg shadow p-4 border-2 border-green-500">
               <p className="text-sm text-gray-600">?? Facturable</p>
-              <p className="text-2xl font-bold text-green-600">{summary.potentialBilling.toFixed(2)}�</p>
-              <p className="text-xs text-gray-500">Surco�ts + 50%</p>
+              <p className="text-2xl font-bold text-green-600">{summary.potentialBilling.toFixed(2)}e</p>
+              <p className="text-xs text-gray-500">Surcoets + 50%</p>
             </div>
           </div>
         )}
@@ -215,7 +215,7 @@ export default function AdminCostsPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tenant</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revenu</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Co�t IA</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Coet IA</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Budget</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -231,7 +231,7 @@ export default function AdminCostsPage() {
               ) : tenants.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                    Aucun tenant trouv�
+                    Aucun tenant trouve
                   </td>
                 </tr>
               ) : (
@@ -249,12 +249,12 @@ export default function AdminCostsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-900">
-                      {tenant.plan.priceMonthly}�/mois
+                      {tenant.plan.priceMonthly}e/mois
                     </td>
                     <td className="px-6 py-4">
                       <div>
                         <p className={`font-bold ${tenant.aiCosts.overage > 0 ? 'text-red-600' : 'text-gray-900'}`}>
-                          {tenant.aiCosts.current.toFixed(2)}�
+                          {tenant.aiCosts.current.toFixed(2)}e
                         </p>
                         <p className="text-xs text-gray-500">{tenant.aiCosts.tokens} tokens</p>
                       </div>
@@ -270,14 +270,14 @@ export default function AdminCostsPage() {
                         />
                       </div>
                       <p className="text-xs text-gray-500">
-                        {tenant.aiCosts.current.toFixed(2)}� / {tenant.aiCosts.limit}�
+                        {tenant.aiCosts.current.toFixed(2)}e / {tenant.aiCosts.limit}e
                       </p>
                     </td>
                     <td className="px-6 py-4">
                       {getStatusBadge(tenant.aiCosts.status)}
                       {tenant.aiCosts.overage > 0 && (
                         <p className="text-xs text-red-600 mt-1">
-                          +{tenant.aiCosts.overage.toFixed(2)}�
+                          +{tenant.aiCosts.overage.toFixed(2)}e
                         </p>
                       )}
                     </td>
@@ -289,7 +289,7 @@ export default function AdminCostsPage() {
                             disabled={actionLoading === tenant.id}
                             className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
                           >
-                            ?? Facturer {tenant.billableOverage.amount.toFixed(2)}�
+                            ?? Facturer {tenant.billableOverage.amount.toFixed(2)}e
                           </button>
                         )}
                         <button
@@ -315,14 +315,14 @@ export default function AdminCostsPage() {
           </table>
         </div>
 
-        {/* L�gende */}
+        {/* Legende */}
         <div className="mt-6 bg-blue-50 rounded-lg p-4">
-          <h3 className="font-medium text-blue-900 mb-2">?? Comment �a marche</h3>
+          <h3 className="font-medium text-blue-900 mb-2">?? Comment ea marche</h3>
           <ul className="text-sm text-blue-800 space-y-1">
-            <li>� <strong>Budget IA</strong>: Limite mensuelle de co�ts cloud (Ollama = gratuit)</li>
-            <li>� <strong>Surco�t</strong>: D�passement du budget inclus dans le plan</li>
-            <li>� <strong>Facturation</strong>: Surco�t � 1.5 (majoration 50%)</li>
-            <li>� <strong>Bloquer IA</strong>: D�sactive l&apos;acc�s � l&apos;IA cloud pour ce tenant</li>
+            <li>e <strong>Budget IA</strong>: Limite mensuelle de coets cloud (Ollama = gratuit)</li>
+            <li>e <strong>Surcoet</strong>: Depassement du budget inclus dans le plan</li>
+            <li>e <strong>Facturation</strong>: Surcoet e 1.5 (majoration 50%)</li>
+            <li>e <strong>Bloquer IA</strong>: Desactive l&apos;acces e l&apos;IA cloud pour ce tenant</li>
           </ul>
         </div>
       </div>

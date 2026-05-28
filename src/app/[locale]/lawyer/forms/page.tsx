@@ -176,7 +176,7 @@ export default function FormsPage() {
               <div>
                 <h3 className="font-medium text-gray-900">Suggestions IA en temps reel</h3>
                 <p className="text-sm text-gray-600">
-                  Le syst�me analyse vos r�ponses et propose des suggestions contextuelles
+                  Le systeme analyse vos reponses et propose des suggestions contextuelles
                 </p>
               </div>
             </div>
