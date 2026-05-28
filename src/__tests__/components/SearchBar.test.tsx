@@ -1,6 +1,6 @@
 ﻿/**
  * Tests pour SearchBar component
- * Couverture: recherche, filtres, r�sultats
+ * Couverture: recherche, filtres, resultats
  */
 
 import React from 'react';
@@ -31,7 +31,7 @@ jest.mock('lucide-react', () => ({
 // Mock fetch
 global.fetch = jest.fn();
 
-// Import apr�s les mocks
+// Import apres les mocks
 import SearchBar from '@/components/SearchBar';
 
 describe('SearchBar Component', () => {
@@ -56,7 +56,7 @@ describe('SearchBar Component', () => {
       expect(input).toBeInTheDocument();
     });
 
-    it('devrait afficher l\'ic�ne de recherche', () => {
+    it('devrait afficher l\'icene de recherche', () => {
       render(<SearchBar />);
       
       expect(screen.getByTestId('search-icon')).toBeInTheDocument();
@@ -91,7 +91,7 @@ describe('SearchResult Structure', () => {
       type: 'dossier',
       title: 'Dossier DOS-001',
       subtitle: 'Client: Jean Dupont',
-      description: 'Titre de s�jour',
+      description: 'Titre de sejour',
       score: 0.95,
       url: '/dossiers/dos-001',
       date: '2024-01-15',
@@ -148,7 +148,7 @@ describe('Filtre par type', () => {
     expect(filtered).toHaveLength(2);
   });
 
-  it('devrait retourner tous les r�sultats sans filtre', () => {
+  it('devrait retourner tous les resultats sans filtre', () => {
     const filterByType = (results: any[], types: string[]) => {
       if (types.length === 0) return results;
       return results.filter(r => types.includes(r.type));
@@ -164,8 +164,8 @@ describe('Filtre par type', () => {
   });
 });
 
-describe('Tri des r�sultats par score', () => {
-  it('devrait trier par score d�croissant', () => {
+describe('Tri des resultats par score', () => {
+  it('devrait trier par score decroissant', () => {
     const results = [
       { id: '1', score: 0.5 },
       { id: '2', score: 0.9 },
@@ -181,7 +181,7 @@ describe('Tri des r�sultats par score', () => {
 });
 
 describe('Raccourci clavier Ctrl+K', () => {
-  it('devrait �tre le raccourci standard', () => {
+  it('devrait etre le raccourci standard', () => {
     const shortcut = { ctrl: true, key: 'k' };
     
     expect(shortcut.ctrl).toBe(true);

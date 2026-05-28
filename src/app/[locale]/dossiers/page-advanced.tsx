@@ -524,7 +524,7 @@ export default function DossiersAdvancedPage() {
     {
       key: 'montant',
       header: 'Montant',
-      render: (row: Dossier) => row.montant ? `${row.montant.toLocaleString('fr-FR')} �` : '-',
+      render: (row: Dossier) => row.montant ? `${row.montant.toLocaleString('fr-FR')} e` : '-',
     },
     {
       key: 'documents',
@@ -656,7 +656,7 @@ export default function DossiersAdvancedPage() {
         />
         <StatCard
           title="Montant Total"
-          value={`${(stats.montantTotal / 1000).toFixed(0)}K�`}
+          value={`${(stats.montantTotal / 1000).toFixed(0)}Ke`}
           icon={BarChart3}
           variant="success"
         />
@@ -1026,7 +1026,7 @@ export default function DossiersAdvancedPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Montant (�)
+                Montant (e)
               </label>
               <input
                 type="number"
