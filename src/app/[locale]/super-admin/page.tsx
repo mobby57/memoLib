@@ -34,7 +34,7 @@ export default function SuperAdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Attendre que la session soit charg�e avant de v�rifier le r�le
+    // Attendre que la session soit chargee avant de verifier le rele
     if (status === 'loading') return;
     
     if (status === 'unauthenticated' || session?.user?.role !== 'SUPER_ADMIN') {
@@ -126,7 +126,7 @@ export default function SuperAdminDashboard() {
               <div>
                 <p className="text-sm text-gray-600">Revenue Total</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
-                  {stats?.totalRevenue?.toFixed(0) || 0}�
+                  {stats?.totalRevenue?.toFixed(0) || 0}e
                 </p>
                 <p className="text-xs text-green-600 mt-1">+12% ce mois</p>
               </div>

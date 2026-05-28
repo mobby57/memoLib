@@ -128,7 +128,7 @@ const STATUT_LABELS = {
   EN_COURS: 'En cours',
   CLOS: 'Clos',
   EN_ATTENTE: 'En attente',
-  ARCHIVE: 'Archiv�',
+  ARCHIVE: 'Archive',
 };
 
 const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 'default'> = {
@@ -262,12 +262,12 @@ export default function DossiersPage() {
   const deleteDossier = useCallback(
     (id: string) => {
       const dossier = dossiers.find(d => d.id === id);
-      if (window.confirm(`�tes-vous s�r de vouloir supprimer le dossier ${dossier?.numéro} ?`)) {
+      if (window.confirm(`etes-vous ser de vouloir supprimer le dossier ${dossier?.numéro} ?`)) {
         setDossiers(prev => prev.filter(d => d.id !== id));
         toast({
           variant: 'default',
-          title: 'Dossier supprim�',
-          description: `Le dossier ${dossier?.numéro} a �t� supprim�.`,
+          title: 'Dossier supprime',
+          description: `Le dossier ${dossier?.numéro} a ete supprime.`,
         });
       }
     },
@@ -276,7 +276,7 @@ export default function DossiersPage() {
 
   const exportData = useCallback(() => {
     // Export CSV
-    const headers = ['Num�ro', 'Titre', 'Client', 'Type', 'Statut', 'Date ouverture'];
+    const headers = ['Numero', 'Titre', 'Client', 'Type', 'Statut', 'Date ouverture'];
     const rows = filteredDossiers.map(d => [
       d.numéro,
       d.titre,
@@ -299,8 +299,8 @@ export default function DossiersPage() {
 
     toast({
       variant: 'success',
-      title: 'Export r�ussi',
-      description: `${filteredDossiers.length} dossier(s) export�(s) en CSV.`,
+      title: 'Export reussi',
+      description: `${filteredDossiers.length} dossier(s) exporte(s) en CSV.`,
     });
   }, [filteredDossiers, toast]);
 
@@ -311,8 +311,8 @@ export default function DossiersPage() {
       setIsRefreshing(false);
       toast({
         variant: 'success',
-        title: 'Donn�es actualis�es',
-        description: 'La liste des dossiers a �t� mise � jour.',
+        title: 'Donnees actualisees',
+        description: 'La liste des dossiers a ete mise e jour.',
       });
     }, 500);
   }, [toast]);
@@ -343,7 +343,7 @@ export default function DossiersPage() {
 
   const columns = useMemo(
     () => [
-      { key: 'numéro', header: 'Num�ro' },
+      { key: 'numéro', header: 'Numero' },
       { key: 'titre', header: 'Titre' },
       {
         key: 'clientNom',
@@ -466,7 +466,7 @@ export default function DossiersPage() {
         </div>
       </div>
 
-      {/* Stats avec ic�nes distinctes */}
+      {/* Stats avec icenes distinctes */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="transform hover:scale-105 transition-transform duration-300">
           <StatCard
@@ -487,12 +487,12 @@ export default function DossiersPage() {
         </div>
       </div>
 
-      {/* Timeline des �ch�ances � venir */}
+      {/* Timeline des echeances e venir */}
       <Card>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <Calendar className="w-5 h-5 text-indigo-600" />
-            �ch�ances � venir
+            echeances e venir
           </h2>
           <span className="text-sm text-gray-500">Prochains 7 jours</span>
         </div>
@@ -528,13 +528,13 @@ export default function DossiersPage() {
                     {new Date(dossier.dateOuverture).toLocaleDateString('fr-FR')}
                   </p>
                   <Badge variant={index === 0 ? 'danger' : index === 1 ? 'warning' : 'info'}>
-                    {index === 0 ? 'Urgent' : index === 1 ? 'Cette semaine' : 'Bient�t'}
+                    {index === 0 ? 'Urgent' : index === 1 ? 'Cette semaine' : 'Bientet'}
                   </Badge>
                 </div>
               </div>
             ))}
           {dossiers.filter(d => d.statut === 'EN_COURS').length === 0 && (
-            <p className="text-center text-gray-500 py-4">Aucune �ch�ance � venir</p>
+            <p className="text-center text-gray-500 py-4">Aucune echeance e venir</p>
           )}
         </div>
       </Card>
@@ -544,7 +544,7 @@ export default function DossiersPage() {
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <SearchInput
-              placeholder="Rechercher par num�ro, titre ou client..."
+              placeholder="Rechercher par numero, titre ou client..."
               value={searchTerm}
               onChange={e => {
                 setSearchTerm(e.target.value);
@@ -595,7 +595,7 @@ export default function DossiersPage() {
         {hasActiveFilters && (
           <div className="mt-3 flex items-center justify-between text-sm">
             <span className="text-gray-600 dark:text-gray-400">
-              {filteredDossiers.length} r�sultat{filteredDossiers.length > 1 ? 's' : ''} trouv�
+              {filteredDossiers.length} resultat{filteredDossiers.length > 1 ? 's' : ''} trouve
               {filteredDossiers.length > 1 ? 's' : ''}
             </span>
           </div>

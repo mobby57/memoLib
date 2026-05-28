@@ -29,7 +29,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Attendre l'hydratation pour �viter les mismatches SSR/client
+  // Attendre l'hydratation pour eviter les mismatches SSR/client
   useEffect(() => {
     setIsHydrated(true);
   }, []);
@@ -39,7 +39,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
     page => pathname === page || pathname?.startsWith('/auth/')
   );
 
-  // Pendant l'hydratation, retourner un layout minimal coh�rent
+  // Pendant l'hydratation, retourner un layout minimal coherent
   if (!isHydrated) {
     return (
       <main className="min-h-screen w-full bg-gray-50 dark:bg-gray-900">
