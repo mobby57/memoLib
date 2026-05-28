@@ -196,14 +196,14 @@ export default function LandingPage() {
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-            Votre cabinet d'avocat,
+            Email recu. Dossier cree.
             <br />
-            <span className="text-blue-600">enfin organisé.</span>
+            <span className="text-blue-600">Delai calcule.</span>
           </h1>
 
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-            MemoLib transforme vos emails clients en dossiers structurés, calcule vos délais OQTF automatiquement,
-            et vous alerte avant chaque échéance. Zéro email perdu, zéro délai raté.
+            MemoLib transforme vos emails clients en dossiers structures, calcule vos delais OQTF automatiquement,
+            et vous alerte avant chaque echeance. Zero deadline oubliee.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -211,7 +211,7 @@ export default function LandingPage() {
               href="/auth/register?plan=PILOT"
               className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg shadow-blue-600/25"
             >
-              Essai pilote gratuit — 30 jours
+              Essai gratuit 14 jours
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
