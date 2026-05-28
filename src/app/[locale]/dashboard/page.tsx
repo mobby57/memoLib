@@ -210,12 +210,12 @@ export default function DashboardPage() {
       setLoading(true);
       const baseUrl = `/api/tenant/${user?.tenantId}`;
 
-      // DÉMO MODE: Utiliser les données mockées directement pour rapidité
+      // DÃMO MODE: Utiliser les données mockées directement pour rapidité
       const isDemoMode = !user?.tenantId || user.tenantId.startsWith('demo');
 
       let statsData;
       if (isDemoMode) {
-        // Donn�es de d�mo - Z�RO latence
+        // Donnï¿½es de dï¿½mo - Zï¿½RO latence
         statsData = {
           totalDossiers: 24,
           dossiersActifs: 18,
@@ -366,7 +366,7 @@ export default function DashboardPage() {
     hasRole('SECRETAIRE' as any) ||
     hasRole('COMPTABLE' as any);
   if (!hasAccess) {
-    // Client ou super admin → redirection en cours via useEffect, afficher un spinner
+    // Client ou super admin â redirection en cours via useEffect, afficher un spinner
     if (isClient || isSuperAdmin) {
       return (
         <div className="flex items-center justify-center min-h-screen">
@@ -393,7 +393,7 @@ export default function DashboardPage() {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Bonjour';
-    if (hour < 18) return 'Bon apr�s-midi';
+    if (hour < 18) return 'Bon aprï¿½s-midi';
     return 'Bonsoir';
   };
 
@@ -423,7 +423,7 @@ export default function DashboardPage() {
               {getGreeting()}, {user?.name?.split(' ')[0]} ??
             </h1>
             <p className="text-blue-100 mt-1">
-              Voici un aper�u de votre cabinet �{' '}
+              Voici un aperï¿½u de votre cabinet ï¿½{' '}
               {new Date().toLocaleDateString('fr-FR', {
                 weekday: 'long',
                 day: 'numeric',
@@ -444,7 +444,7 @@ export default function DashboardPage() {
               onClick={() => setShowMetrics(!showMetrics)}
               className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 text-sm font-medium transition-colors"
             >
-              {showMetrics ? '?? Masquer m�triques' : '?? Voir m�triques'}
+              {showMetrics ? '?? Masquer mï¿½triques' : '?? Voir mï¿½triques'}
             </button>
             <Link
               href="/ai-assistant"
@@ -567,7 +567,7 @@ export default function DashboardPage() {
           trend={{ value: Math.abs(stats.trends.factures), isPositive: false }}
         />
         <StatCard
-          title="Revenus (�)"
+          title="Revenus (ï¿½)"
           value={`${(stats.revenus / 1000).toFixed(0)}K`}
           icon={DollarSign}
           trend={{ value: stats.trends.revenus, isPositive: true }}
@@ -669,7 +669,7 @@ export default function DashboardPage() {
                           dataKey="revenus"
                           stroke="#10b981"
                           strokeWidth={3}
-                          name="Revenus (�)"
+                          name="Revenus (ï¿½)"
                           dot={{ fill: '#10b981', r: 5 }}
                         />
                       </LineChart>
