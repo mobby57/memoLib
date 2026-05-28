@@ -567,7 +567,7 @@ export default function DashboardPage() {
           trend={{ value: Math.abs(stats.trends.factures), isPositive: false }}
         />
         <StatCard
-          title="Revenus (€)"
+          title="Revenus (EUR)"
           value={`${(stats.revenus / 1000).toFixed(0)}K`}
           icon={DollarSign}
           trend={{ value: stats.trends.revenus, isPositive: true }}
@@ -669,7 +669,7 @@ export default function DashboardPage() {
                           dataKey="revenus"
                           stroke="#10b981"
                           strokeWidth={3}
-                          name="Revenus (€)"
+                          name="Revenus (EUR)"
                           dot={{ fill: '#10b981', r: 5 }}
                         />
                       </LineChart>
