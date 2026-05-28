@@ -87,7 +87,7 @@
 | Email           | ImapFlow (IMAP), MailKit (.NET), webhook inbound     |
 | Paiements       | Stripe (subscriptions + usage)                   |
 | Monitoring      | Sentry (server + client + replay)                |
-| CI/CD           | GitHub Actions (13 workflows)                    |
+| CI/CD           | GitHub Actions (12 workflows)                    |
 | Déploiement     | Vercel (frontend) + Docker (backend)             |
 
 ---
@@ -96,11 +96,11 @@
 
 | Pratique              | Détail                                                           |
 | --------------------- | ---------------------------------------------------------------- |
-| **CI/CD**             | 13 workflows GitHub Actions (build, test, deploy, security)      |
-| **Quality Gate**      | Tests verts requis (branch protection configurable)              |
+| **CI/CD**             | 12 workflows GitHub Actions (build, test, security, release)     |
+| **Quality Gate**      | Tests + type-check + lint bloquants (branch protection)          |
 | **Tests**             | 4492 tests (Jest 4384 + Vitest 79 + xUnit 108) — TypeScript 0 errors |
-| **Security Scanning** | Semgrep SAST, Trivy containers, TruffleHog secrets, CodeQL, Snyk |
-| **Environments**      | Preview → Staging → Production                                   |
+| **Security Scanning** | Semgrep SAST, Trivy containers, TruffleHog secrets, CodeQL v4, Snyk |
+| **Environments**      | Preview → Staging → Production (Vercel native + Neon branches)   |
 | **Semantic Release**  | Versioning automatique + changelog                               |
 | **Dependency Review** | Dependabot + audit automatique                                   |
 | **Monitoring**        | Sentry (errors + performance + session replay)                   |
@@ -324,13 +324,18 @@ CLAMAV_PORT="3310"
 
 ## 🚀 Déploiement
 
-### Frontend → Vercel
+### Frontend → Vercel (automatique)
 
-```powershell
-npm run deploy:vercel
-```
+Vercel déploie automatiquement via l'intégration GitHub native :
+- **Preview** : chaque PR
+- **Staging** : push sur `develop`
+- **Production** : push sur `main`
 
-### Backend → Docker
+### Migrations Prisma
+
+Les migrations sont exécutées automatiquement par le CI/CD lors d'un push sur `main`.
+
+### Backend .NET → Docker (optionnel)
 
 ```powershell
 docker-compose up -d
@@ -355,7 +360,7 @@ docker-compose up -d
 - [x] Onboarding wizard
 - [x] Landing page beta
 - [x] Conformité RGPD + audit trail chaîné
-- [x] CI/CD (13 workflows GitHub Actions)
+- [x] CI/CD (12 workflows GitHub Actions)
 - [x] Tests (Vitest + xUnit + Playwright)
 
 ### 🚧 En cours
