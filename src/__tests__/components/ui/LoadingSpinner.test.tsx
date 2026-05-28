@@ -1,6 +1,6 @@
 ﻿/**
  * Tests pour le composant LoadingSpinner
- * Couverture: tailles, couleurs, accessibilit�, skeleton
+ * Couverture: tailles, couleurs, accessibilite, skeleton
  */
 
 import { render, screen } from '@testing-library/react';
@@ -13,7 +13,7 @@ describe('LoadingSpinner Component', () => {
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
-    it('devrait avoir le texte sr-only pour accessibilit�', () => {
+    it('devrait avoir le texte sr-only pour accessibilite', () => {
       render(<LoadingSpinner />);
       expect(screen.getByText('Chargement...')).toBeInTheDocument();
       expect(screen.getByText('Chargement...')).toHaveClass('sr-only');
@@ -26,7 +26,7 @@ describe('LoadingSpinner Component', () => {
   });
 
   describe('Sizes', () => {
-    it('devrait rendre la taille md par d�faut', () => {
+    it('devrait rendre la taille md par defaut', () => {
       render(<LoadingSpinner />);
       const svg = screen.getByRole('status').querySelector('svg');
       expect(svg).toHaveClass('w-6', 'h-6');
@@ -46,7 +46,7 @@ describe('LoadingSpinner Component', () => {
   });
 
   describe('Colors', () => {
-    it('devrait rendre la couleur blue par d�faut', () => {
+    it('devrait rendre la couleur blue par defaut', () => {
       render(<LoadingSpinner />);
       const svg = screen.getByRole('status').querySelector('svg');
       expect(svg).toHaveClass('text-blue-600');
@@ -79,8 +79,8 @@ describe('LoadingSpinner Component', () => {
     });
   });
 
-  describe('Classes personnalis�es', () => {
-    it('devrait accepter des classes personnalis�es sur le conteneur', () => {
+  describe('Classes personnalisees', () => {
+    it('devrait accepter des classes personnalisees sur le conteneur', () => {
       render(<LoadingSpinner className="mt-4 mx-auto" />);
       expect(screen.getByRole('status')).toHaveClass('mt-4', 'mx-auto');
     });
@@ -134,7 +134,7 @@ describe('DashboardSkeleton Component', () => {
     expect(mainGrid).toBeInTheDocument();
   });
 
-  it('devrait avoir des d�lais d\'animation d�cal�s', () => {
+  it('devrait avoir des delais d\'animation decales', () => {
     render(<DashboardSkeleton />);
     const cards = document.querySelectorAll('.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4 > div');
     

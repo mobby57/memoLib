@@ -1,8 +1,8 @@
 ﻿/**
- * Service de Recherche S�mantique
+ * Service de Recherche Semantique
  * Utilise Ollama embeddings pour trouver des dossiers similaires
  * 
- * Innovation: Recherche intelligente bas�e sur le sens, pas juste les mots-cl�s
+ * Innovation: Recherche intelligente basee sur le sens, pas juste les mots-cles
  */
 
 import { logger } from '@/lib/logger';
@@ -33,7 +33,7 @@ export class SemanticSearchService {
   }
 
   /**
-   * G�n�re un embedding pour un texte
+   * Genere un embedding pour un texte
    */
   private async generateEmbedding(text: string): Promise<number[]> {
     try {
@@ -53,12 +53,12 @@ export class SemanticSearchService {
       const data = await response.json();
       return data.embedding;
     } catch (error) {
-      logger.error('Erreur g�n�ration embedding Ollama', error, {
+      logger.error('Erreur generation embedding Ollama', error, {
         textLength: text.length,
         ollamaUrl: this.ollamaUrl,
         model: this.embeddingModel
       });
-      // Fallback: retourner un vecteur simple bas� sur le hash du texte
+      // Fallback: retourner un vecteur simple base sur le hash du texte
       return this.simpleFallbackEmbedding(text);
     }
   }
@@ -81,7 +81,7 @@ export class SemanticSearchService {
   }
 
   /**
-   * Calcule la similarit� cosinus entre deux vecteurs
+   * Calcule la similarite cosinus entre deux vecteurs
    */
   private cosineSimilarity(vecA: number[], vecB: number[]): number {
     if (vecA.length !== vecB.length) return 0;
@@ -101,7 +101,7 @@ export class SemanticSearchService {
   }
 
   /**
-   * Recherche s�mantique de dossiers similaires
+   * Recherche semantique de dossiers similaires
    */
   async searchSimilarCases(
     tenantId: string,
@@ -109,23 +109,23 @@ export class SemanticSearchService {
     limit: number = 5,
     minSimilarity: number = 0.5
   ): Promise<SemanticSearchResult[]> {
-    // G�n�rer l'embedding de la requ�te
+    // Generer l'embedding de la requete
     const queryEmbedding = await this.generateEmbedding(query);
 
-    // R�cup�rer tous les dossiers (dans une vraie app, on stockerait les embeddings)
+    // Recuperer tous les dossiers (dans une vraie app, on stockerait les embeddings)
     const dossiers = await prisma.dossier.findMany({
       where: { tenantId },
       include: {
         client: true
       },
-      take: 100 // Limiter pour la d�mo
+      take: 100 // Limiter pour la demo
     });
 
-    // Calculer la similarit� pour chaque dossier
+    // Calculer la similarite pour chaque dossier
     const results: (SemanticSearchResult & { embedding: number[] })[] = [];
 
     for (const dossier of dossiers) {
-      // Cr�er une repr�sentation textuelle du dossier
+      // Creer une representation textuelle du dossier
       const dossierText = [
         dossier.typeDossier,
         dossier.description || '',
@@ -156,15 +156,15 @@ export class SemanticSearchService {
       }
     }
 
-    // Trier par similarit� d�croissante
+    // Trier par similarite decroissante
     results.sort((a, b) => b.similarity - a.similarity);
 
-    // Retourner les top r�sultats sans l'embedding
+    // Retourner les top resultats sans l'embedding
     return results.slice(0, limit).map(({ embedding, ...rest }) => rest);
   }
 
   /**
-   * Trouve des dossiers similaires � un dossier existant
+   * Trouve des dossiers similaires e un dossier existant
    */
   async findSimilarCases(
     dossierId: string,
@@ -176,7 +176,7 @@ export class SemanticSearchService {
     });
 
     if (!dossier) {
-      throw new Error('Dossier non trouv�');
+      throw new Error('Dossier non trouve');
     }
 
     const query = [
@@ -188,7 +188,7 @@ export class SemanticSearchService {
     const results = await this.searchSimilarCases(
       dossier.tenantId,
       query,
-      limit + 1, // +1 car le dossier lui-m�me sera dans les r�sultats
+      limit + 1, // +1 car le dossier lui-meme sera dans les resultats
       0.3 // Seuil plus bas pour trouver des cas similaires
     );
 
@@ -200,7 +200,7 @@ export class SemanticSearchService {
    * Suggestions de recherche intelligentes
    */
   async suggestSearchQueries(tenantId: string): Promise<string[]> {
-    // Analyser les types de dossiers les plus fr�quents
+    // Analyser les types de dossiers les plus frequents
     const dossierTypes = await prisma.dossier.groupBy({
       by: ['typeDossier'],
       where: { tenantId },
@@ -212,13 +212,13 @@ export class SemanticSearchService {
     return dossierTypes.map((dt: { typeDossier: string }) => {
       switch (dt.typeDossier) {
         case 'REGULARISATION':
-          return 'Dossiers de r�gularisation avec employeur';
+          return 'Dossiers de regularisation avec employeur';
         case 'TITRE_SEJOUR':
-          return 'Renouvellement de titre de s�jour';
+          return 'Renouvellement de titre de sejour';
         case 'REGROUPEMENT_FAMILIAL':
           return 'Demandes de regroupement familial';
         case 'NATURALISATION':
-          return 'Proc�dures de naturalisation';
+          return 'Procedures de naturalisation';
         default:
           return `Dossiers de type ${dt.typeDossier}`;
       }
@@ -248,7 +248,7 @@ export class SemanticSearchService {
       };
     }
 
-    // R�cup�rer les d�tails complets des dossiers similaires
+    // Recuperer les details complets des dossiers similaires
     const detailedCases = await prisma.dossier.findMany({
       where: {
         id: { in: similarCases.map(c => c.id) }
@@ -258,7 +258,7 @@ export class SemanticSearchService {
     // Analyser les documents communs
     const commonDocuments: string[] = [];
 
-    // Calculer la dur�e moyenne
+    // Calculer la duree moyenne
     const durations = detailedCases
       .filter(d => d.dateCloture)
       .map(d => {
@@ -271,7 +271,7 @@ export class SemanticSearchService {
       ? durations.reduce((a, b) => a + b, 0) / durations.length
       : 0;
 
-    // Calculer le taux de succ�s
+    // Calculer le taux de succes
     const successfulCases = detailedCases.filter(d => 
       d.statut === 'CLOTURE' || d.statut === 'TERMINE'
     ).length;
@@ -279,28 +279,28 @@ export class SemanticSearchService {
       ? successfulCases / detailedCases.length
       : 0;
 
-    // G�n�rer des recommandations
+    // Generer des recommandations
     const recommendations: string[] = [];
 
     if (commonDocuments.length > 0) {
       recommendations.push(
-        `?? Documents fr�quemment requis: ${commonDocuments.slice(0, 3).join(', ')}`
+        `?? Documents frequemment requis: ${commonDocuments.slice(0, 3).join(', ')}`
       );
     }
 
     if (averageDuration > 0) {
       recommendations.push(
-        `?? Dur�e moyenne constat�e: ${Math.round(averageDuration)} jours`
+        `?? Duree moyenne constatee: ${Math.round(averageDuration)} jours`
       );
     }
 
     if (successRate > 0.8) {
       recommendations.push(
-        `? Taux de succ�s �lev� (${(successRate * 100).toFixed(0)}%) pour ce type de dossier`
+        `? Taux de succes eleve (${(successRate * 100).toFixed(0)}%) pour ce type de dossier`
       );
     } else if (successRate < 0.5) {
       recommendations.push(
-        `?? Taux de succ�s mod�r� (${(successRate * 100).toFixed(0)}%). Prudence recommand�e.`
+        `?? Taux de succes modere (${(successRate * 100).toFixed(0)}%). Prudence recommandee.`
       );
     }
 

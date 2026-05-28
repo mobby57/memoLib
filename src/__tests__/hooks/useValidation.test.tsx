@@ -1,6 +1,6 @@
 ﻿/**
  * Tests pour la logique de validation IA
- * Couverture: statuts, API endpoints, donn�es de validation
+ * Couverture: statuts, API endpoints, donnees de validation
  */
 
 import { ValidationStatus } from '@/types';
@@ -37,7 +37,7 @@ describe('Validation Logic', () => {
       expect(expectedUrl).toContain('status=');
     });
 
-    it('devrait construire URL pour diff�rents tenants', () => {
+    it('devrait construire URL pour differents tenants', () => {
       const url1 = `/api/tenant/tenant-1/ai-actions`;
       const url2 = `/api/tenant/tenant-2/ai-actions`;
       expect(url1).not.toBe(url2);
@@ -59,7 +59,7 @@ describe('Validation Logic', () => {
       expect(action.content).toHaveProperty('title');
     });
 
-    it('devrait valider diff�rents types d\'actions', () => {
+    it('devrait valider differents types d\'actions', () => {
       const actionTypes = [
         'DOCUMENT_GENERATION',
         'EMAIL_DRAFT',
@@ -74,11 +74,11 @@ describe('Validation Logic', () => {
   });
 
   describe('Approval data', () => {
-    it('devrait pr�parer les donn�es d\'approbation', () => {
+    it('devrait preparer les donnees d\'approbation', () => {
       const approvalData = {
         actionId: 'action-1',
         status: ValidationStatus.APPROVED,
-        comment: 'Approuv� par l\'avocat',
+        comment: 'Approuve par l\'avocat',
         validatedAt: new Date().toISOString(),
       };
 
@@ -98,7 +98,7 @@ describe('Validation Logic', () => {
   });
 
   describe('Rejection data', () => {
-    it('devrait pr�parer les donn�es de rejet avec commentaire obligatoire', () => {
+    it('devrait preparer les donnees de rejet avec commentaire obligatoire', () => {
       const rejectData = {
         actionId: 'action-1',
         status: ValidationStatus.REJECTED,
@@ -124,13 +124,13 @@ describe('Validation Logic', () => {
   describe('Content modification', () => {
     it('devrait permettre la modification du contenu', () => {
       const originalContent = { text: 'Original', format: 'pdf' };
-      const modifiedContent = { ...originalContent, text: 'Modifi�' };
+      const modifiedContent = { ...originalContent, text: 'Modifie' };
 
-      expect(modifiedContent.text).toBe('Modifi�');
+      expect(modifiedContent.text).toBe('Modifie');
       expect(modifiedContent.format).toBe('pdf');
     });
 
-    it('devrait pr�server les champs non modifi�s', () => {
+    it('devrait preserver les champs non modifies', () => {
       const original = { a: 1, b: 2, c: 3 };
       const modified = { ...original, b: 20 };
 
@@ -153,7 +153,7 @@ describe('Validation Logic', () => {
       expect(unreadCount).toBe(3);
     });
 
-    it('devrait filtrer par s�v�rit�', () => {
+    it('devrait filtrer par severite', () => {
       const alerts = [
         { id: 'alert-1', severity: 'high' },
         { id: 'alert-2', severity: 'medium' },
@@ -164,7 +164,7 @@ describe('Validation Logic', () => {
       expect(highSeverity).toHaveLength(2);
     });
 
-    it('devrait cr�er une date de snooze valide', () => {
+    it('devrait creer une date de snooze valide', () => {
       const now = Date.now();
       const snoozeUntil = new Date(now + 3600000); // 1 heure
 
@@ -172,7 +172,7 @@ describe('Validation Logic', () => {
       expect(snoozeUntil.getTime() - now).toBe(3600000);
     });
 
-    it('devrait supporter diff�rentes dur�es de snooze', () => {
+    it('devrait supporter differentes durees de snooze', () => {
       const now = Date.now();
       const durations = {
         '1h': 3600000,
@@ -189,12 +189,12 @@ describe('Validation Logic', () => {
   });
 
   describe('Refresh interval', () => {
-    it('devrait avoir une valeur par d�faut de 30 secondes', () => {
+    it('devrait avoir une valeur par defaut de 30 secondes', () => {
       const defaultInterval = 30000;
       expect(defaultInterval).toBe(30000);
     });
 
-    it('devrait permettre des intervalles personnalis�s', () => {
+    it('devrait permettre des intervalles personnalises', () => {
       const intervals = [5000, 10000, 30000, 60000];
 
       intervals.forEach(interval => {
@@ -215,7 +215,7 @@ describe('Validation Logic', () => {
       expect(validateOptions({ tenantId: 'valid-tenant' })).toBe(true);
     });
 
-    it('devrait avoir des valeurs par d�faut pour autoRefresh', () => {
+    it('devrait avoir des valeurs par defaut pour autoRefresh', () => {
       const defaultOptions = {
         autoRefresh: true,
         refreshInterval: 30000,
@@ -227,7 +227,7 @@ describe('Validation Logic', () => {
   });
 
   describe('Fetch response handling', () => {
-    it('devrait parser une r�ponse de succ�s', async () => {
+    it('devrait parser une reponse de succes', async () => {
       const mockResponse = {
         ok: true,
         json: async () => ({
@@ -252,7 +252,7 @@ describe('Validation Logic', () => {
       expect(errorResponse.status).toBe(500);
     });
 
-    it('devrait g�rer une liste vide', async () => {
+    it('devrait gerer une liste vide', async () => {
       const emptyResponse = {
         ok: true,
         json: async () => ({ actions: [] }),

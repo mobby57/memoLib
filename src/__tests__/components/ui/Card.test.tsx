@@ -28,7 +28,7 @@ describe('Card Components', () => {
       expect(card).toHaveClass('rounded-lg', 'border', 'shadow-sm');
     });
 
-    it('devrait accepter des classes personnalis�es', () => {
+    it('devrait accepter des classes personnalisees', () => {
       render(<Card data-testid="card" className="custom-card">Test</Card>);
       expect(screen.getByTestId('card')).toHaveClass('custom-card');
     });
@@ -110,8 +110,8 @@ describe('Card Components', () => {
     });
   });
 
-  describe('Composition compl�te', () => {
-    it('devrait rendre une card compl�te avec tous les sous-composants', () => {
+  describe('Composition complete', () => {
+    it('devrait rendre une card complete avec tous les sous-composants', () => {
       render(
         <Card data-testid="full-card">
           <CardHeader>
@@ -143,10 +143,10 @@ describe('Card Components', () => {
           </CardHeader>
           <CardContent>
             <p>Statut: En cours</p>
-            <p>Cr�� le: 01/01/2024</p>
+            <p>Cree le: 01/01/2024</p>
           </CardContent>
           <CardFooter>
-            <button>Voir d�tails</button>
+            <button>Voir details</button>
             <button>Modifier</button>
           </CardFooter>
         </Card>
@@ -155,12 +155,12 @@ describe('Card Components', () => {
       expect(screen.getByRole('article')).toBeInTheDocument();
       expect(screen.getByText('Dossier #123')).toBeInTheDocument();
       expect(screen.getByText('Client: Jean Dupont')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /voir d�tails/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /voir details/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /modifier/i })).toBeInTheDocument();
     });
   });
 
-  describe('Accessibilit�', () => {
+  describe('Accessibilite', () => {
     it('devrait permettre un role article', () => {
       render(<Card role="article">Contenu accessible</Card>);
       expect(screen.getByRole('article')).toBeInTheDocument();

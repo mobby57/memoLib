@@ -1,6 +1,6 @@
 ﻿/**
  * Tests pour le composant Modal
- * Couverture: ouverture/fermeture, tailles, accessibilit�, �v�nements clavier
+ * Couverture: ouverture/fermeture, tailles, accessibilite, evenements clavier
  */
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -50,7 +50,7 @@ describe('Modal Component', () => {
       expect(onClose).toHaveBeenCalledTimes(1);
     });
 
-    it('devrait avoir l\'ic�ne X dans le bouton', () => {
+    it('devrait avoir l\'icene X dans le bouton', () => {
       render(<Modal {...defaultProps} />);
       const button = screen.getByRole('button', { name: /close/i });
       expect(button.querySelector('svg')).toBeInTheDocument();
@@ -88,7 +88,7 @@ describe('Modal Component', () => {
       expect(onClose).toHaveBeenCalledTimes(1);
     });
 
-    it('ne devrait pas r�agir � d\'autres touches', () => {
+    it('ne devrait pas reagir e d\'autres touches', () => {
       const onClose = jest.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
       
@@ -98,7 +98,7 @@ describe('Modal Component', () => {
   });
 
   describe('Tailles', () => {
-    it('devrait rendre la taille md par d�faut', () => {
+    it('devrait rendre la taille md par defaut', () => {
       render(<Modal {...defaultProps} />);
       const modalContent = document.querySelector('.max-w-2xl');
       expect(modalContent).toBeInTheDocument();
@@ -149,7 +149,7 @@ describe('Modal Component', () => {
       expect(document.body.style.overflow).toBe('hidden');
     });
 
-    it('devrait restaurer le scroll du body quand ferm�', () => {
+    it('devrait restaurer le scroll du body quand ferme', () => {
       const { rerender } = render(<Modal {...defaultProps} />);
       expect(document.body.style.overflow).toBe('hidden');
       
@@ -161,17 +161,17 @@ describe('Modal Component', () => {
   describe('Contenu dynamique', () => {
     it('devrait rendre un formulaire', () => {
       render(
-        <Modal {...defaultProps} title="Cr�er un dossier">
+        <Modal {...defaultProps} title="Creer un dossier">
           <form data-testid="form">
             <input type="text" placeholder="Nom du dossier" />
-            <button type="submit">Cr�er</button>
+            <button type="submit">Creer</button>
           </form>
         </Modal>
       );
       
       expect(screen.getByTestId('form')).toBeInTheDocument();
       expect(screen.getByPlaceholderText('Nom du dossier')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /cr�er/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /creer/i })).toBeInTheDocument();
     });
 
     it('devrait rendre une liste', () => {
@@ -191,14 +191,14 @@ describe('Modal Component', () => {
     });
   });
 
-  describe('Accessibilit�', () => {
+  describe('Accessibilite', () => {
     it('devrait avoir le bouton de fermeture accessible', () => {
       render(<Modal {...defaultProps} />);
       const closeButton = screen.getByRole('button', { name: /close/i });
       expect(closeButton).toBeInTheDocument();
     });
 
-    it('devrait �tre focusable', () => {
+    it('devrait etre focusable', () => {
       render(<Modal {...defaultProps} />);
       const closeButton = screen.getByRole('button', { name: /close/i });
       closeButton.focus();
@@ -207,25 +207,25 @@ describe('Modal Component', () => {
   });
 
   describe('Cleanup', () => {
-    it('devrait nettoyer les event listeners � la fermeture', () => {
+    it('devrait nettoyer les event listeners e la fermeture', () => {
       const onClose = jest.fn();
       const { unmount } = render(<Modal {...defaultProps} onClose={onClose} />);
       
       unmount();
       
-      // Apr�s unmount, Escape ne devrait plus d�clencher onClose
+      // Apres unmount, Escape ne devrait plus declencher onClose
       fireEvent.keyDown(document, { key: 'Escape' });
-      // onClose a �t� appel� une fois pendant le cleanup, mais pas apr�s unmount
+      // onClose a ete appele une fois pendant le cleanup, mais pas apres unmount
       expect(document.body.style.overflow).toBe('unset');
     });
   });
 
-  describe('Cas d\'utilisation r�els', () => {
+  describe('Cas d\'utilisation reels', () => {
     it('devrait fonctionner pour un modal de confirmation', () => {
       const onClose = jest.fn();
       render(
         <Modal isOpen={true} onClose={onClose} title="Confirmer la suppression" size="sm">
-          <p>�tes-vous s�r de vouloir supprimer ce dossier?</p>
+          <p>etes-vous ser de vouloir supprimer ce dossier?</p>
           <div>
             <button onClick={onClose}>Annuler</button>
             <button>Confirmer</button>
@@ -234,16 +234,16 @@ describe('Modal Component', () => {
       );
       
       expect(screen.getByText('Confirmer la suppression')).toBeInTheDocument();
-      expect(screen.getByText(/�tes-vous s�r/i)).toBeInTheDocument();
+      expect(screen.getByText(/etes-vous ser/i)).toBeInTheDocument();
     });
 
-    it('devrait fonctionner pour un modal de d�tails', () => {
+    it('devrait fonctionner pour un modal de details', () => {
       render(
         <Modal isOpen={true} onClose={jest.fn()} title="Dossier #2024-001" size="lg">
           <div>
             <h4>Client: Jean Dupont</h4>
             <p>Statut: En cours</p>
-            <p>Date de cr�ation: 01/01/2024</p>
+            <p>Date de creation: 01/01/2024</p>
           </div>
         </Modal>
       );

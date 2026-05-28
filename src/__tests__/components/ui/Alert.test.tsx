@@ -1,6 +1,6 @@
 ﻿/**
  * Tests pour le composant Alert
- * Couverture: variants, title, onClose, accessibilit�
+ * Couverture: variants, title, onClose, accessibilite
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -27,14 +27,14 @@ describe('Alert Component', () => {
   });
 
   describe('Variants', () => {
-    it('devrait rendre le variant info par d�faut', () => {
+    it('devrait rendre le variant info par defaut', () => {
       render(<Alert>Info Alert</Alert>);
       const alert = screen.getByRole('alert');
       expect(alert).toHaveClass('bg-blue-50', 'border-blue-200');
     });
 
     it('devrait rendre le variant success', () => {
-      render(<Alert variant="success">Succ�s!</Alert>);
+      render(<Alert variant="success">Succes!</Alert>);
       const alert = screen.getByRole('alert');
       expect(alert).toHaveClass('bg-green-50', 'border-green-200');
     });
@@ -64,7 +64,7 @@ describe('Alert Component', () => {
     });
 
     it('devrait styliser le titre correctement', () => {
-      render(<Alert variant="error" title="Erreur Critique">D�tails</Alert>);
+      render(<Alert variant="error" title="Erreur Critique">Details</Alert>);
       const title = screen.getByText('Erreur Critique');
       expect(title).toHaveClass('text-sm', 'font-medium');
     });
@@ -91,26 +91,26 @@ describe('Alert Component', () => {
     });
   });
 
-  describe('Ic�ne personnalis�e', () => {
-    it('devrait afficher l\'ic�ne par d�faut du variant', () => {
-      render(<Alert variant="success">Succ�s</Alert>);
-      // L'ic�ne est rendue via Lucide, v�rifier que le conteneur existe
+  describe('Icene personnalisee', () => {
+    it('devrait afficher l\'icene par defaut du variant', () => {
+      render(<Alert variant="success">Succes</Alert>);
+      // L'icene est rendue via Lucide, verifier que le conteneur existe
       const alert = screen.getByRole('alert');
       expect(alert.querySelector('svg')).toBeInTheDocument();
     });
 
-    it('devrait permettre une ic�ne personnalis�e', () => {
+    it('devrait permettre une icene personnalisee', () => {
       render(
         <Alert icon={<span data-testid="custom-icon">??</span>}>
-          Avec ic�ne custom
+          Avec icene custom
         </Alert>
       );
       expect(screen.getByTestId('custom-icon')).toBeInTheDocument();
     });
   });
 
-  describe('Classes personnalis�es', () => {
-    it('devrait accepter des classes personnalis�es', () => {
+  describe('Classes personnalisees', () => {
+    it('devrait accepter des classes personnalisees', () => {
       render(<Alert className="mt-4 custom-alert">Test</Alert>);
       const alert = screen.getByRole('alert');
       expect(alert).toHaveClass('mt-4', 'custom-alert');
@@ -137,8 +137,8 @@ describe('Alert Component', () => {
     });
   });
 
-  describe('Composition compl�te', () => {
-    it('devrait rendre une alerte compl�te', () => {
+  describe('Composition complete', () => {
+    it('devrait rendre une alerte complete', () => {
       const handleClose = jest.fn();
       render(
         <Alert 
@@ -158,7 +158,7 @@ describe('Alert Component', () => {
     });
   });
 
-  describe('Cas d\'utilisation r�els', () => {
+  describe('Cas d\'utilisation reels', () => {
     it('devrait fonctionner pour une erreur de formulaire', () => {
       render(
         <Alert variant="error" title="Erreur de validation">
@@ -169,33 +169,33 @@ describe('Alert Component', () => {
       expect(screen.getByText('Erreur de validation')).toBeInTheDocument();
     });
 
-    it('devrait fonctionner pour un message de succ�s', () => {
+    it('devrait fonctionner pour un message de succes', () => {
       const handleClose = jest.fn();
       render(
-        <Alert variant="success" title="Dossier cr��" onClose={handleClose}>
-          Le dossier #2024-001 a �t� cr�� avec succ�s.
+        <Alert variant="success" title="Dossier cree" onClose={handleClose}>
+          Le dossier #2024-001 a ete cree avec succes.
         </Alert>
       );
-      expect(screen.getByText('Le dossier #2024-001 a �t� cr�� avec succ�s.')).toBeInTheDocument();
+      expect(screen.getByText('Le dossier #2024-001 a ete cree avec succes.')).toBeInTheDocument();
     });
 
     it('devrait fonctionner pour un avertissement', () => {
       render(
         <Alert variant="warning" title="Attention">
-          Cette action est irr�versible.
+          Cette action est irreversible.
         </Alert>
       );
       expect(screen.getByRole('alert')).toHaveClass('bg-yellow-50');
     });
   });
 
-  describe('Accessibilit�', () => {
-    it('devrait avoir le role alert par d�faut', () => {
+  describe('Accessibilite', () => {
+    it('devrait avoir le role alert par defaut', () => {
       render(<Alert>Accessible</Alert>);
       expect(screen.getByRole('alert')).toBeInTheDocument();
     });
 
-    it('devrait �tre navigable au clavier', () => {
+    it('devrait etre navigable au clavier', () => {
       const handleClose = jest.fn();
       render(<Alert onClose={handleClose}>Avec bouton</Alert>);
       

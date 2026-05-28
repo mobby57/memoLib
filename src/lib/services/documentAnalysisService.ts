@@ -20,7 +20,7 @@ interface DocumentAnalysisResult {
 }
 
 /**
- * Analyse un document juridique avec l'IA pour extraire les d�lais et informations cl�s
+ * Analyse un document juridique avec l'IA pour extraire les delais et informations cles
  */
 export async function analyzeDocumentForDeadlines(
   documentContent: string,
@@ -29,28 +29,28 @@ export async function analyzeDocumentForDeadlines(
   try {
     // Analyse IA via Ollama (Llama 3.2)
     const prompt = `Analyse ce document juridique et extrais:
-1. Tous les d�lais et �ch�ances (dates limites, audiences, d�p�ts)
-2. Les parties impliqu�es
+1. Tous les delais et echeances (dates limites, audiences, depets)
+2. Les parties impliquees
 3. Le type d'affaire
-4. Un r�sum� en 2-3 phrases
-5. Les documents manquants �ventuels
+4. Un resume en 2-3 phrases
+5. Les documents manquants eventuels
 
 Document (type: ${documentType}):
 ${documentContent}
 
-R�ponds au format JSON:
+Reponds au format JSON:
 {
   "deadlines": [
     {
       "type": "AUDIENCE|DEPOT|REPONSE|PRESCRIPTION",
       "date": "YYYY-MM-DD",
-      "description": "Description du d�lai",
+      "description": "Description du delai",
       "priority": "HAUTE|MOYENNE|BASSE"
     }
   ],
   "parties": ["partie1", "partie2"],
   "typeAffaire": "CIVIL|PENAL|COMMERCIAL|ADMINISTRATIF",
-  "resume": "R�sum� du document",
+  "resume": "Resume du document",
   "documentsManquants": ["doc1", "doc2"]
 }`;
 
@@ -89,7 +89,7 @@ R�ponds au format JSON:
 }
 
 /**
- * Extrait les dates et d�lais d'un texte
+ * Extrait les dates et delais d'un texte
  */
 function extractDeadlinesFromText(text: string): ExtractedDeadline[] {
   const deadlines: ExtractedDeadline[] = [];
@@ -98,9 +98,9 @@ function extractDeadlinesFromText(text: string): ExtractedDeadline[] {
   // Patterns de recherche pour les dates
   const datePatterns = [
     /audience.*?(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/gi,
-    /d�lai.*?(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/gi,
+    /delai.*?(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/gi,
     /avant le.*?(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/gi,
-    /�ch�ance.*?(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/gi,
+    /echeance.*?(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/gi,
     /date limite.*?(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4})/gi,
   ];
 
@@ -135,10 +135,10 @@ function extractPartiesFromText(text: string): string[] {
 
   // Patterns pour identifier les parties
   const patterns = [
-    /(?:demandeur|requ�rant|plaignant)\s*:\s*([A-Z�-�][a-z�-�]+(?:\s+[A-Z�-�][a-z�-�]+)*)/gi,
-    /(?:d�fendeur|intim�)\s*:\s*([A-Z�-�][a-z�-�]+(?:\s+[A-Z�-�][a-z�-�]+)*)/gi,
-    /M\.\s+([A-Z�-�][a-z�-�]+)/g,
-    /Mme\s+([A-Z�-�][a-z�-�]+)/g,
+    /(?:demandeur|requerant|plaignant)\s*:\s*([A-Ze-e][a-ze-e]+(?:\s+[A-Ze-e][a-ze-e]+)*)/gi,
+    /(?:defendeur|intime)\s*:\s*([A-Ze-e][a-ze-e]+(?:\s+[A-Ze-e][a-ze-e]+)*)/gi,
+    /M\.\s+([A-Ze-e][a-ze-e]+)/g,
+    /Mme\s+([A-Ze-e][a-ze-e]+)/g,
   ];
 
   patterns.forEach(pattern => {
@@ -154,18 +154,18 @@ function extractPartiesFromText(text: string): string[] {
 }
 
 /**
- * D�tecte le type d'affaire
+ * Detecte le type d'affaire
  */
 function detectCaseType(text: string): string {
   const lowerText = text.toLowerCase();
 
-  if (lowerText.includes('divorce') || lowerText.includes('succession') || lowerText.includes('propri�t�')) {
+  if (lowerText.includes('divorce') || lowerText.includes('succession') || lowerText.includes('propriete')) {
     return 'CIVIL';
   }
-  if (lowerText.includes('vol') || lowerText.includes('agression') || lowerText.includes('p�nal')) {
+  if (lowerText.includes('vol') || lowerText.includes('agression') || lowerText.includes('penal')) {
     return 'PENAL';
   }
-  if (lowerText.includes('commercial') || lowerText.includes('soci�t�') || lowerText.includes('contrat')) {
+  if (lowerText.includes('commercial') || lowerText.includes('societe') || lowerText.includes('contrat')) {
     return 'COMMERCIAL';
   }
   if (lowerText.includes('administratif') || lowerText.includes('permis') || lowerText.includes('urbanisme')) {
@@ -176,27 +176,27 @@ function detectCaseType(text: string): string {
 }
 
 /**
- * G�n�re un r�sum� du document
+ * Genere un resume du document
  */
 function generateSummary(text: string): string {
-  // Prendre les 300 premiers caract�res comme r�sum� basique
+  // Prendre les 300 premiers caracteres comme resume basique
   const summary = text.substring(0, 300).trim();
   return summary.length < text.length ? summary + '...' : summary;
 }
 
 /**
- * D�tecte les documents manquants
+ * Detecte les documents manquants
  */
 function detectMissingDocuments(text: string): string[] {
   const missing: string[] = [];
   const lowerText = text.toLowerCase();
 
   const requiredDocs = [
-    { keyword: 'pi�ce d\'identit�', doc: 'Pi�ce d\'identit�' },
+    { keyword: 'piece d\'identite', doc: 'Piece d\'identite' },
     { keyword: 'justificatif de domicile', doc: 'Justificatif de domicile' },
     { keyword: 'acte de naissance', doc: 'Acte de naissance' },
     { keyword: 'contrat', doc: 'Contrat original' },
-    { keyword: 'proc�s-verbal', doc: 'Proc�s-verbal' },
+    { keyword: 'proces-verbal', doc: 'Proces-verbal' },
   ];
 
   requiredDocs.forEach(({ keyword, doc }) => {
@@ -227,7 +227,7 @@ function parseDate(dateStr: string): Date | null {
 }
 
 /**
- * Cr�e automatiquement les �ch�ances dans la base de donn�es
+ * Cree automatiquement les echeances dans la base de donnees
  */
 export async function createDeadlinesFromAnalysis(
   dossierId: string,
@@ -236,7 +236,7 @@ export async function createDeadlinesFromAnalysis(
   try {
     const echeances = await Promise.all(
       deadlines.map(async (deadline) => {
-        // R�cup�rer le tenant du dossier
+        // Recuperer le tenant du dossier
         const dossier = await prisma.dossier.findUnique({
           where: { id: dossierId },
           select: { tenantId: true }
@@ -248,7 +248,7 @@ export async function createDeadlinesFromAnalysis(
           data: {
             dossier: { connect: { id: dossierId } },
             tenant: { connect: { id: dossier.tenantId } },
-            createdBy: 'system', // Ou passer le userId en param�tre
+            createdBy: 'system', // Ou passer le userId en parametre
             titre: deadline.description,
             type: deadline.type.toLowerCase(),
             dateEcheance: new Date(deadline.date),
@@ -262,7 +262,7 @@ export async function createDeadlinesFromAnalysis(
 
     return echeances;
   } catch (error) {
-    logger.error('Erreur lors de la cr�ation des �ch�ances', error, { dossierId, deadlinesCount: deadlines?.length });
+    logger.error('Erreur lors de la creation des echeances', error, { dossierId, deadlinesCount: deadlines?.length });
     throw error;
   } finally {
     await prisma.$disconnect();
@@ -270,7 +270,7 @@ export async function createDeadlinesFromAnalysis(
 }
 
 /**
- * Calcule les d�lais de prescription automatiquement
+ * Calcule les delais de prescription automatiquement
  */
 export function calculatePrescriptionDeadlines(
   typeAffaire: string,
@@ -278,10 +278,10 @@ export function calculatePrescriptionDeadlines(
 ): ExtractedDeadline[] {
   const deadlines: ExtractedDeadline[] = [];
 
-  // D�lais de prescription selon le type d'affaire
+  // Delais de prescription selon le type d'affaire
   const prescriptionPeriods: Record<string, number> = {
     CIVIL: 5 * 365, // 5 ans
-    PENAL: 3 * 365, // 3 ans pour d�lits
+    PENAL: 3 * 365, // 3 ans pour delits
     COMMERCIAL: 5 * 365, // 5 ans
     ADMINISTRATIF: 2 * 365, // 2 ans
   };
