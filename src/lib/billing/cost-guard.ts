@@ -29,9 +29,9 @@ export const AI_COSTS = {
 // Calculé pour garantir une marge > 80%
 export const MONTHLY_COST_LIMITS: Record<string, number> = {
   // Plans stratégiques
-  SOLO: 5,          // 5€/mois max pour 49€ de revenu
-  CABINET: 30,      // 30€/mois max pour 349€ de revenu
-  ENTERPRISE: 100,  // 100€/mois max pour 1200€+ de revenu
+  SOLO: 10,         // 10€/mois max pour 89€ de revenu
+  CABINET: 40,      // 40€/mois max pour 69€/user × 3+ users
+  ENTERPRISE: 150,  // 150€/mois max pour 149€/user × 5+ users
   
   // Plans existants dans votre DB
   BASIC: 5,         // 5€/mois max pour 49€
