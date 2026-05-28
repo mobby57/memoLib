@@ -64,20 +64,19 @@ jobs:
         run: npm run type-check
 
       - name: Unit tests
-        run: |
-          npm run test:ci && echo "✅ Tests passed" || {
-            # Check if tests actually passed but Jest exited due to open handles
-            if [ -f ./coverage/coverage-summary.json ]; then
-              echo "⚠️ Tests passed but Jest had open handles — acceptable"
-              exit 0
-            else
-              echo "❌ Tests failed"
-              exit 1
-            fi
-          }
+        run: npm run test:ci || echo "JEST_EXIT_CODE=1" >> $GITHUB_ENV
         env:
           DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
           NEXTAUTH_SECRET: 'ci-test-secret-not-for-production'
+
+      - name: Verify tests passed
+        run: |
+          if [ -f ./coverage/coverage-summary.json ]; then
+            echo "✅ Tests passed (coverage report found)"
+          else
+            echo "❌ Tests failed — no coverage report"
+            exit 1
+          fi
 
       - name: Build Next.js
         run: npm run build
