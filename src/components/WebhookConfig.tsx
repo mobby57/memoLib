@@ -70,7 +70,7 @@ export default function WebhookConfig() {
                 }),
               });
               if (response.ok) {
-                alert('Webhook sauvegard� avec succ�s');
+                alert('Webhook sauvegarde avec succes');
               } else {
                 alert('Erreur lors de la sauvegarde');
               }
