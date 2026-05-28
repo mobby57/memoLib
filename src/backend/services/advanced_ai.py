@@ -63,33 +63,33 @@ class AdvancedLegalAI:
 
                         # Tier 2: Azure OpenAI (premium)
                         use_azure = self.azure_endpoint and self.azure_api_key and self.azure_deployment
-            if use_azure:
-                url = f"{self.azure_endpoint.rstrip('/')}/openai/deployments/{self.azure_deployment}/chat/completions?api-version={self.azure_api_version}"
-                headers = {
-                    'Content-Type': 'application/json',
-                    'api-key': self.azure_api_key
-                }
-                payload = {
-                    'messages': [{'role': 'user', 'content': prompt}],
-                    'temperature': 0.3,
-                    'max_tokens': 1500
-                }
-                response = requests.post(url, headers=headers, json=payload, timeout=30)
-                response.raise_for_status()
-                result = response.json()
-                return json.loads(result['choices'][0]['message']['content'])
+                        if use_azure:
+                            url = f"{self.azure_endpoint.rstrip('/')}/openai/deployments/{self.azure_deployment}/chat/completions?api-version={self.azure_api_version}"
+                            headers = {
+                                'Content-Type': 'application/json',
+                                'api-key': self.azure_api_key
+                            }
+                            payload = {
+                                'messages': [{'role': 'user', 'content': prompt}],
+                                'temperature': 0.3,
+                                'max_tokens': 1500
+                            }
+                            response = requests.post(url, headers=headers, json=payload, timeout=30)
+                            response.raise_for_status()
+                            result = response.json()
+                            return json.loads(result['choices'][0]['message']['content'])
 
-            # Tier 3: OpenAI public (fallback)
-            if self.openai_key:
-                response = openai.chat.completions.create(
-                    model="gpt-4",
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.3
-                )
-                return json.loads(response.choices[0].message.content)
+                        # Tier 3: OpenAI public (fallback)
+                        if self.openai_key:
+                            response = openai.chat.completions.create(
+                                model="gpt-4",
+                                messages=[{"role": "user", "content": prompt}],
+                                temperature=0.3
+                            )
+                            return json.loads(response.choices[0].message.content)
 
-                    # Aucune IA disponible
-                    return self.fallback_analysis(case_description, procedure_type)
+                        # Aucune IA disponible
+                        return self.fallback_analysis(case_description, procedure_type)
 
         except Exception as e:
             print(f"Erreur AI: {e}")

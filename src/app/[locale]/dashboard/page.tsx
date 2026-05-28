@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
@@ -141,7 +141,7 @@ export default function DashboardPage() {
 
   // Redirection selon le role
   useEffect(() => {
-    // Attendre que la session soit chargée
+    // Attendre que la session soit chargÃ©e
     if (isLoading) return;
 
     if (!isAuthenticated) {
@@ -156,7 +156,7 @@ export default function DashboardPage() {
       window.location.href = '/fr/super-admin';
       return;
     }
-    // Arrêter le loading pour les avocats/admins
+    // ArrÃªter le loading pour les avocats/admins
     setLoading(false);
   }, [isLoading, isAuthenticated, isClient, isSuperAdmin]);
 
@@ -210,12 +210,12 @@ export default function DashboardPage() {
       setLoading(true);
       const baseUrl = `/api/tenant/${user?.tenantId}`;
 
-      // DÉMO MODE: Utiliser les données mockées directement pour rapidité
+      // DÃ‰MO MODE: Utiliser les donnÃ©es mockÃ©es directement pour rapiditÃ©
       const isDemoMode = !user?.tenantId || user.tenantId.startsWith('demo');
 
       let statsData;
       if (isDemoMode) {
-        // Donn�es de d�mo - Z�RO latence
+        // Donnï¿½es de dï¿½mo - Zï¿½RO latence
         statsData = {
           totalDossiers: 24,
           dossiersActifs: 18,
@@ -227,7 +227,7 @@ export default function DashboardPage() {
           trends: { dossiers: 8, factures: 12, revenus: 15 },
         };
       } else {
-        // API spécifique au tenant pour les admins
+        // API spÃ©cifique au tenant pour les admins
         const statsResponse = await fetch(`${baseUrl}/dashboard/stats`);
         if (statsResponse.ok) {
           statsData = await statsResponse.json();
@@ -271,7 +271,7 @@ export default function DashboardPage() {
         setMonthlyData(monthlyDataResult);
       }
 
-      // Charger les activités recentes
+      // Charger les activitÃ©s recentes
       const activitiesResponse = await fetch(`${baseUrl}/dashboard/recent-activities`);
       if (activitiesResponse.ok) {
         const activitiesData = await activitiesResponse.json();
@@ -328,7 +328,7 @@ export default function DashboardPage() {
       color: 'bg-indigo-500 hover:bg-indigo-600',
     });
 
-    // Nouveau: Fonctionnalités IA Avancees
+    // Nouveau: FonctionnalitÃ©s IA Avancees
     actions.push({
       label: ' IA Avancee',
       href: '/lawyer/advanced',
@@ -366,7 +366,7 @@ export default function DashboardPage() {
     hasRole('SECRETAIRE' as any) ||
     hasRole('COMPTABLE' as any);
   if (!hasAccess) {
-    // Client ou super admin → redirection en cours via useEffect, afficher un spinner
+    // Client ou super admin â†’ redirection en cours via useEffect, afficher un spinner
     if (isClient || isSuperAdmin) {
       return (
         <div className="flex items-center justify-center min-h-screen">
@@ -378,9 +378,9 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Accès non autorise</p>
+          <p className="text-gray-600 dark:text-gray-400">AccÃ¨s non autorise</p>
           <Link href="/" className="text-blue-600 hover:underline mt-2 inline-block">
-            Retour à l&apos;accueil
+            Retour Ã  l&apos;accueil
           </Link>
         </div>
       </div>
@@ -393,7 +393,7 @@ export default function DashboardPage() {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Bonjour';
-    if (hour < 18) return 'Bon apr�s-midi';
+    if (hour < 18) return 'Bon apr\u00e8s-midi';
     return 'Bonsoir';
   };
 
@@ -423,7 +423,7 @@ export default function DashboardPage() {
               {getGreeting()}, {user?.name?.split(' ')[0]} ??
             </h1>
             <p className="text-blue-100 mt-1">
-              Voici un aper�u de votre cabinet �{' '}
+              Voici un aper\u00e7u de votre cabinet \u2014{' '}
               {new Date().toLocaleDateString('fr-FR', {
                 weekday: 'long',
                 day: 'numeric',
@@ -444,7 +444,7 @@ export default function DashboardPage() {
               onClick={() => setShowMetrics(!showMetrics)}
               className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 text-sm font-medium transition-colors"
             >
-              {showMetrics ? '?? Masquer m�triques' : '?? Voir m�triques'}
+              {showMetrics ? '?? Masquer mï¿½triques' : '?? Voir mï¿½triques'}
             </button>
             <Link
               href="/ai-assistant"
@@ -567,7 +567,7 @@ export default function DashboardPage() {
           trend={{ value: Math.abs(stats.trends.factures), isPositive: false }}
         />
         <StatCard
-          title="Revenus (�)"
+          title="Revenus (ï¿½)"
           value={`${(stats.revenus / 1000).toFixed(0)}K`}
           icon={DollarSign}
           trend={{ value: stats.trends.revenus, isPositive: true }}
@@ -669,7 +669,7 @@ export default function DashboardPage() {
                           dataKey="revenus"
                           stroke="#10b981"
                           strokeWidth={3}
-                          name="Revenus (�)"
+                          name="Revenus (ï¿½)"
                           dot={{ fill: '#10b981', r: 5 }}
                         />
                       </LineChart>
@@ -689,7 +689,7 @@ export default function DashboardPage() {
           <Card>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Activités Recentes
+                ActivitÃ©s Recentes
               </h3>
               <Link
                 href="/dossiers"
@@ -764,7 +764,7 @@ export default function DashboardPage() {
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white">Nouveau Dossier</h4>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Créer un dossier client
+                      CrÃ©er un dossier client
                     </p>
                   </div>
                 </div>
@@ -782,7 +782,7 @@ export default function DashboardPage() {
                     <h4 className="font-semibold text-gray-900 dark:text-white">
                       Nouvelle Facture
                     </h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Générer une facture</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">GÃ©nÃ©rer une facture</p>
                   </div>
                 </div>
               </Link>
