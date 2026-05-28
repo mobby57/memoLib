@@ -74,12 +74,40 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // 6. Auto-créer les délais CESEDA selon le type de dossier
+    const cesedaDeadlines = getCesedaDeadlines(summary.typeDossier, new Date());
+    for (const dl of cesedaDeadlines) {
+      await prisma.legalDeadline.create({
+        data: {
+          tenantId,
+          dossierId: dossier.id,
+          clientId: client?.id,
+          type: dl.type,
+          label: dl.label,
+          dueDate: dl.dueDate,
+          status: 'PENDING',
+        },
+      }).catch(() => {});
+    }
+
+    // 7. Trouver un template communautaire pertinent
+    const suggestedTemplate = await prisma.communityTemplate.findFirst({
+      where: {
+        isPublic: true,
+        typeDossier: summary.typeDossier || undefined,
+      },
+      orderBy: { upvotes: 'desc' },
+      select: { id: true, title: true, category: true, upvotes: true },
+    }).catch(() => null);
+
     return NextResponse.json({
       success: true,
       dossierId: dossier.id,
       numero: dossier.numero,
       clientId: client?.id,
       clientName: client?.nom,
+      deadlinesCreated: cesedaDeadlines.length,
+      suggestedTemplate,
     });
   } catch (error) {
     console.error('[EMAIL→DOSSIER] Error:', error);
@@ -98,4 +126,40 @@ function parseDate(str: string): Date | null {
   // Try natural date
   const natural = new Date(str);
   return isNaN(natural.getTime()) ? null : natural;
+}
+
+interface CesedaDeadline {
+  type: string;
+  label: string;
+  dueDate: Date;
+}
+
+function getCesedaDeadlines(typeDossier: string, fromDate: Date): CesedaDeadline[] {
+  const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400000);
+
+  const deadlines: Record<string, CesedaDeadline[]> = {
+    OQTF: [
+      { type: 'OQTF_DEPART', label: 'Délai de départ volontaire (30 jours)', dueDate: addDays(fromDate, 30) },
+      { type: 'OQTF_RECOURS_TA', label: 'Recours TA contre OQTF (30 jours)', dueDate: addDays(fromDate, 30) },
+    ],
+    Asile: [
+      { type: 'ASILE_OFPRA', label: 'Dépôt demande OFPRA (21 jours)', dueDate: addDays(fromDate, 21) },
+      { type: 'ASILE_CNDA', label: 'Recours CNDA (1 mois)', dueDate: addDays(fromDate, 30) },
+    ],
+    TitreSejour: [
+      { type: 'TS_RECOURS_GRACIEUX', label: 'Recours gracieux préfecture (2 mois)', dueDate: addDays(fromDate, 60) },
+      { type: 'TS_RECOURS_TA', label: 'Recours TA (2 mois)', dueDate: addDays(fromDate, 60) },
+    ],
+    Naturalisation: [
+      { type: 'NAT_RECOURS', label: 'Recours contre refus (2 mois)', dueDate: addDays(fromDate, 60) },
+    ],
+    AppelDecision: [
+      { type: 'APPEL_CAA', label: 'Appel CAA (2 mois)', dueDate: addDays(fromDate, 60) },
+    ],
+    RegroupementFamilial: [
+      { type: 'RF_RECOURS', label: 'Recours contre refus (2 mois)', dueDate: addDays(fromDate, 60) },
+    ],
+  };
+
+  return deadlines[typeDossier] || [];
 }
