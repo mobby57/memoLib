@@ -403,6 +403,11 @@ model Dossier {
   outcomeDate  DateTime?
   outcomeNotes String?
 
+  inboxEmail        String?
+  checklistComplete Boolean  @default(false)
+  checklistTotal    Int      @default(0)
+  checklistReceived Int      @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -412,6 +417,7 @@ model Dossier {
   documents      Document[]
   legalDeadlines LegalDeadline[]
   proofs         Proof[]
+  checklistItems DossierChecklistItem[]
 
   @@unique([tenantId, numero])
   @@index([tenantId, statut])
@@ -1210,4 +1216,26 @@ model TemplateVote {
   createdAt  DateTime @default(now())
 
   @@unique([templateId, userId])
+}
+
+
+model DossierChecklistItem {
+  id         String   @id @default(uuid())
+  dossierId  String
+  dossier    Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  tenantId   String
+  label      String
+  category   String   @default("document")
+  required   Boolean  @default(true)
+  status     String   @default("missing")
+  documentId String?
+  receivedAt DateTime?
+  receivedVia String?
+  notes      String?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([dossierId, status])
 }
