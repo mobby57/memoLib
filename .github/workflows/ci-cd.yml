@@ -163,7 +163,7 @@ jobs:
 
       - name: Health check
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://memolib.vercel.app)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://memolib.space)
           if [ "$STATUS" -ne 200 ] && [ "$STATUS" -ne 307 ]; then
             echo "❌ Health check failed (HTTP $STATUS)"
             exit 1
@@ -172,7 +172,7 @@ jobs:
 
       - name: Auth endpoint check
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://memolib.vercel.app/api/auth/providers)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://memolib.space/api/auth/providers)
           if [ "$STATUS" -ne 200 ]; then
             echo "❌ Auth endpoint failed (HTTP $STATUS)"
             exit 1
@@ -181,7 +181,7 @@ jobs:
 
       - name: API version check
         run: |
-          RESPONSE=$(curl -s https://memolib.vercel.app/api/version)
+          RESPONSE=$(curl -s https://memolib.space/api/version)
           echo "API response: $RESPONSE"
           if echo "$RESPONSE" | grep -q "error"; then
             echo "⚠️ Version endpoint returned error (non-blocking)"
