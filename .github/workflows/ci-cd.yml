@@ -142,6 +142,7 @@ jobs:
         run: |
           npm ci --ignore-scripts
           npx prisma generate
+          npx prisma migrate resolve --applied 20260323090000_add_email_ingestion_fields || true
           npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
