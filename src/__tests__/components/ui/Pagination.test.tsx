@@ -1,6 +1,6 @@
 ﻿/**
  * Tests pour le composant Pagination
- * Couverture: navigation, pages, �tats d�sactiv�s
+ * Couverture: navigation, pages, etats desactives
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -26,7 +26,7 @@ describe('Pagination Component', () => {
 
     it('devrait afficher les informations de pagination', () => {
       render(<Pagination {...defaultProps} totalItems={100} itemsPerPage={10} />);
-      // Les infos sont affich�es - utiliser getAllByText car il y a plusieurs �l�ments avec "1"
+      // Les infos sont affichees - utiliser getAllByText car il y a plusieurs elements avec "1"
       expect(screen.getAllByText(/^1$/).length).toBeGreaterThan(0);
     });
   });
@@ -40,7 +40,7 @@ describe('Pagination Component', () => {
       expect(onPageChange).toHaveBeenCalledWith(2);
     });
 
-    it('devrait appeler onPageChange avec page pr�c�dente', () => {
+    it('devrait appeler onPageChange avec page precedente', () => {
       const onPageChange = jest.fn();
       render(<Pagination {...defaultProps} currentPage={5} onPageChange={onPageChange} />);
       
@@ -48,18 +48,18 @@ describe('Pagination Component', () => {
       expect(onPageChange).toHaveBeenCalledWith(4);
     });
 
-    it('devrait d�sactiver Precedent sur la premi�re page', () => {
+    it('devrait desactiver Precedent sur la premiere page', () => {
       render(<Pagination {...defaultProps} currentPage={1} />);
       expect(screen.getByText('Precedent')).toBeDisabled();
     });
 
-    it('devrait d�sactiver Suivant sur la derni�re page', () => {
+    it('devrait desactiver Suivant sur la derniere page', () => {
       render(<Pagination {...defaultProps} currentPage={10} totalPages={10} />);
       expect(screen.getByText('Suivant')).toBeDisabled();
     });
   });
 
-  describe('Affichage des num�ros de page', () => {
+  describe('Affichage des numeros de page', () => {
     it('devrait afficher toutes les pages si total <= 7', () => {
       render(<Pagination {...defaultProps} totalPages={5} />);
       
@@ -74,7 +74,7 @@ describe('Pagination Component', () => {
       expect(ellipsis.length).toBeGreaterThan(0);
     });
 
-    it('devrait mettre en �vidence la page courante', () => {
+    it('devrait mettre en evidence la page courante', () => {
       render(<Pagination {...defaultProps} currentPage={3} totalPages={5} />);
       const currentButton = screen.getByRole('button', { name: '3' });
       expect(currentButton).toHaveClass('bg-blue-600');
@@ -82,9 +82,9 @@ describe('Pagination Component', () => {
   });
 
   describe('First/Last navigation', () => {
-    it('devrait afficher les boutons first/last par d�faut', () => {
+    it('devrait afficher les boutons first/last par defaut', () => {
       render(<Pagination {...defaultProps} totalPages={20} currentPage={10} />);
-      // Les boutons avec chevrons doubles sont pr�sents
+      // Les boutons avec chevrons doubles sont presents
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(4);
     });
@@ -97,8 +97,8 @@ describe('Pagination Component', () => {
     });
   });
 
-  describe('Changement de page par num�ro', () => {
-    it('devrait naviguer au clic sur un num�ro de page', () => {
+  describe('Changement de page par numero', () => {
+    it('devrait naviguer au clic sur un numero de page', () => {
       const onPageChange = jest.fn();
       render(<Pagination {...defaultProps} totalPages={5} onPageChange={onPageChange} />);
       
@@ -150,13 +150,13 @@ describe('Pagination Component', () => {
   });
 
   describe('Edge cases', () => {
-    it('devrait g�rer 1 seule page', () => {
+    it('devrait gerer 1 seule page', () => {
       render(<Pagination {...defaultProps} currentPage={1} totalPages={1} />);
       expect(screen.getByText('Precedent')).toBeDisabled();
       expect(screen.getByText('Suivant')).toBeDisabled();
     });
 
-    it('devrait g�rer 0 pages', () => {
+    it('devrait gerer 0 pages', () => {
       render(<Pagination {...defaultProps} currentPage={0} totalPages={0} />);
       // Doit rendre sans erreur
       expect(screen.getByText('Precedent')).toBeInTheDocument();

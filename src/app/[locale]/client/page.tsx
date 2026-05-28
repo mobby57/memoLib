@@ -23,7 +23,7 @@ export default function ClientDashboard() {
 
   const handlePayment = async (factureId: string) => {
     try {
-      // Cr�er une session de paiement Stripe
+      // Creer une session de paiement Stripe
       const response = await fetch('/api/payments/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,7 +31,7 @@ export default function ClientDashboard() {
       });
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la cr�ation de la session de paiement');
+        throw new Error('Erreur lors de la creation de la session de paiement');
       }
 
       const { url, sessionId } = await response.json();

@@ -153,12 +153,12 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
       await resend.emails.send({
         from: process.env.EMAIL_FROM || 'billing@memoLib.com',
         to: tenant.owner.email,
-        subject: '?? Action requise : �chec de paiement - memoLib',
+        subject: '?? Action requise : echec de paiement - memoLib',
         html: `
-          <h2>�chec de paiement</h2>
+          <h2>echec de paiement</h2>
           <p>Nous n'avons pas pu traiter votre paiement pour l'abonnement ${tenant.name}.</p>
-          <p>Veuillez mettre � jour vos informations de paiement pour �viter une interruption de service.</p>
-          <a href="${process.env.NEXTAUTH_URL}/settings/billing" style="background:#dc2626;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Mettre � jour le paiement</a>
+          <p>Veuillez mettre e jour vos informations de paiement pour eviter une interruption de service.</p>
+          <a href="${process.env.NEXTAUTH_URL}/settings/billing" style="background:#dc2626;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">Mettre e jour le paiement</a>
         `,
       });
     }
