@@ -142,9 +142,19 @@ function getCesedaDeadlines(typeDossier: string, fromDate: Date): CesedaDeadline
       { type: 'OQTF_DEPART', label: 'Délai de départ volontaire (30 jours)', dueDate: addDays(fromDate, 30) },
       { type: 'OQTF_RECOURS_TA', label: 'Recours TA contre OQTF (30 jours)', dueDate: addDays(fromDate, 30) },
     ],
+    OQTF_SANS_DELAI: [
+      { type: 'OQTF_48H', label: '⚠️ URGENT — Recours OQTF sans délai (48h)', dueDate: addDays(fromDate, 2) },
+      { type: 'OQTF_REFERE_LIBERTE', label: '⚠️ URGENT — Référé-liberté (48h)', dueDate: addDays(fromDate, 2) },
+    ],
+    IRTF: [
+      { type: 'IRTF_RECOURS', label: '⚠️ URGENT — Recours IRTF (48h si OQTF sans délai)', dueDate: addDays(fromDate, 2) },
+    ],
     Asile: [
       { type: 'ASILE_OFPRA', label: 'Dépôt demande OFPRA (21 jours)', dueDate: addDays(fromDate, 21) },
       { type: 'ASILE_CNDA', label: 'Recours CNDA (1 mois)', dueDate: addDays(fromDate, 30) },
+    ],
+    Asile_accelere: [
+      { type: 'ASILE_ACCEL_CNDA', label: '⚠️ URGENT — Recours CNDA procédure accélérée (15 jours)', dueDate: addDays(fromDate, 15) },
     ],
     TitreSejour: [
       { type: 'TS_RECOURS_GRACIEUX', label: 'Recours gracieux préfecture (2 mois)', dueDate: addDays(fromDate, 60) },
@@ -158,6 +168,16 @@ function getCesedaDeadlines(typeDossier: string, fromDate: Date): CesedaDeadline
     ],
     RegroupementFamilial: [
       { type: 'RF_RECOURS', label: 'Recours contre refus (2 mois)', dueDate: addDays(fromDate, 60) },
+    ],
+    Refere_suspension: [
+      { type: 'REFERE_SUSP', label: '⚠️ URGENT — Référé-suspension (avant exécution)', dueDate: addDays(fromDate, 3) },
+    ],
+    Refere_liberte: [
+      { type: 'REFERE_LIB', label: '⚠️ URGENT — Référé-liberté (48h)', dueDate: addDays(fromDate, 2) },
+    ],
+    Retention: [
+      { type: 'RETENTION_JLD', label: '⚠️ URGENT — Saisine JLD rétention (48h)', dueDate: addDays(fromDate, 2) },
+      { type: 'RETENTION_APPEL', label: '⚠️ URGENT — Appel ordonnance JLD (24h)', dueDate: addDays(fromDate, 1) },
     ],
   };
 
