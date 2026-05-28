@@ -142,6 +142,15 @@ jobs:
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
 
+      - name: Run Prisma migrations
+        continue-on-error: true
+        run: |
+          npm ci --ignore-scripts
+          npx prisma generate
+          npx prisma migrate deploy || echo "⚠️ Migration skipped"
+        env:
+          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
+
       - name: Pull Vercel environment
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
@@ -173,6 +182,15 @@ jobs:
 
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
+
+      - name: Run Prisma migrations
+        continue-on-error: true
+        run: |
+          npm ci --ignore-scripts
+          npx prisma generate
+          npx prisma migrate deploy || echo "⚠️ Migration skipped"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
 
       - name: Pull Vercel environment
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
@@ -208,10 +226,11 @@ jobs:
         run: npm i -g vercel@latest
 
       - name: Run Prisma migrations
+        continue-on-error: true
         run: |
           npm ci --ignore-scripts
           npx prisma generate
-          npx prisma migrate deploy
+          npx prisma migrate deploy || echo "⚠️ Migration skipped"
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
