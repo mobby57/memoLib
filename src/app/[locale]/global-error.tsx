@@ -72,7 +72,7 @@ export default function GlobalError({
               color: '#6b7280',
               marginBottom: '1.5rem'
             }}>
-              Une erreur inattendue s'est produite. Veuillez rafra�chir la page.
+              Une erreur inattendue s'est produite. Veuillez rafraechir la page.
             </p>
 
             {error.digest && (
@@ -99,7 +99,7 @@ export default function GlobalError({
                   fontWeight: '500'
                 }}
               >
-                R�essayer
+                Reessayer
               </button>
               <button
                 onClick={() => window.location.href = '/'}
