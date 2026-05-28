@@ -211,11 +211,11 @@ export default function DashboardPage() {
       const baseUrl = `/api/tenant/${user?.tenantId}`;
 
       // DÃMO MODE: Utiliser les données mockées directement pour rapidité
-      const isDemoMode = !user?.tenantId || user.tenantId.startsWith('demo');
+      const isDemoMode = !user?.tenantId || user.tenantId.startsWith('démo');
 
       let statsData;
       if (isDemoMode) {
-        // Donnees de demo - ZeRO latence
+        // Données de démo - ZeRO latence
         statsData = {
           totalDossiers: 24,
           dossiersActifs: 18,
@@ -232,7 +232,7 @@ export default function DashboardPage() {
         if (statsResponse.ok) {
           statsData = await statsResponse.json();
         } else {
-          // Fallback demo data
+          // Fallback démo data
           statsData = {
             totalDossiers: 24,
             dossiersActifs: 18,
@@ -261,7 +261,7 @@ export default function DashboardPage() {
         { name: 'Archives', value: statsData.dossiersArchives || 0, color: '#6b7280' },
       ]);
 
-      // Calculer les metriques
+      // Calculer les métriques
       calculateMetrics(statsData);
 
       // Charger les donnees mensuelles
@@ -314,7 +314,7 @@ export default function DashboardPage() {
 
     if (hasPermission('canAccessAnalytics')) {
       actions.push({
-        label: 'Exporter Donnees',
+        label: 'Exporter Données',
         href: '/exports',
         icon: Download,
         color: 'bg-purple-500 hover:bg-purple-600',
@@ -423,7 +423,7 @@ export default function DashboardPage() {
               {getGreeting()}, {user?.name?.split(' ')[0]} ??
             </h1>
             <p className="text-blue-100 mt-1">
-              Voici un apereu de votre cabinet e{' '}
+              Voici un aperçu de votre cabinet e{' '}
               {new Date().toLocaleDateString('fr-FR', {
                 weekday: 'long',
                 day: 'numeric',
@@ -444,7 +444,7 @@ export default function DashboardPage() {
               onClick={() => setShowMetrics(!showMetrics)}
               className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 text-sm font-medium transition-colors"
             >
-              {showMetrics ? '?? Masquer metriques' : '?? Voir metriques'}
+              {showMetrics ? '?? Masquer métriques' : '?? Voir métriques'}
             </button>
             <Link
               href="/ai-assistant"
@@ -469,7 +469,7 @@ export default function DashboardPage() {
             onClick={() => setShowMetrics(!showMetrics)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
-            {showMetrics ? ' Masquer metriques' : ' Afficher metriques'}
+            {showMetrics ? ' Masquer métriques' : ' Afficher métriques'}
           </button>
 
           <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
@@ -567,7 +567,7 @@ export default function DashboardPage() {
           trend={{ value: Math.abs(stats.trends.factures), isPositive: false }}
         />
         <StatCard
-          title="Revenus (e)"
+          title="Revenus (€)"
           value={`${(stats.revenus / 1000).toFixed(0)}K`}
           icon={DollarSign}
           trend={{ value: stats.trends.revenus, isPositive: true }}
@@ -669,7 +669,7 @@ export default function DashboardPage() {
                           dataKey="revenus"
                           stroke="#10b981"
                           strokeWidth={3}
-                          name="Revenus (e)"
+                          name="Revenus (€)"
                           dot={{ fill: '#10b981', r: 5 }}
                         />
                       </LineChart>
