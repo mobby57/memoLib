@@ -1,5 +1,5 @@
 ﻿/**
- * Tests pour le syst�me Toast
+ * Tests pour le systeme Toast
  * Couverture: ToastProvider, useToast, variants, auto-dismiss
  */
 
@@ -87,7 +87,7 @@ describe('Toast System', () => {
       expect(screen.getByText('Test toast')).toBeInTheDocument();
     });
 
-    it('devrait incr�menter le compteur de toasts', () => {
+    it('devrait incrementer le compteur de toasts', () => {
       render(
         <ToastProvider>
           <TestComponent />
@@ -172,7 +172,7 @@ describe('Toast System', () => {
   });
 
   describe('Auto-dismiss', () => {
-    it('devrait supprimer automatiquement apr�s 5 secondes par d�faut', async () => {
+    it('devrait supprimer automatiquement apres 5 secondes par defaut', async () => {
       render(
         <ToastProvider>
           <TestComponent />
@@ -189,7 +189,7 @@ describe('Toast System', () => {
       expect(screen.getByTestId('toast-count')).toHaveTextContent('0');
     });
 
-    it('devrait supprimer apr�s le d�lai personnalis�', () => {
+    it('devrait supprimer apres le delai personnalise', () => {
       function CustomDurationComponent() {
         const { addToast, toasts } = useToast();
         return (
@@ -220,7 +220,7 @@ describe('Toast System', () => {
   });
 
   describe('Variants styling', () => {
-    it('devrait afficher l\'ic�ne de succ�s', () => {
+    it('devrait afficher l\'icene de succes', () => {
       render(
         <ToastProvider>
           <TestComponent />
@@ -229,7 +229,7 @@ describe('Toast System', () => {
       
       fireEvent.click(screen.getByText('Add Toast'));
       
-      // L'ic�ne CheckCircle est pr�sente
+      // L'icene CheckCircle est presente
       const toast = screen.getByText('Test toast').closest('div');
       expect(toast).toBeInTheDocument();
     });
@@ -243,14 +243,14 @@ describe('Toast System', () => {
       
       fireEvent.click(screen.getByText('Show Error'));
       
-      // Les styles error sont appliqu�s
+      // Les styles error sont appliques
       const toast = screen.getByText('Error!').closest('div');
       expect(toast).toBeInTheDocument();
     });
   });
 
   describe('Toast container', () => {
-    it('devrait �tre positionn� en haut � droite', () => {
+    it('devrait etre positionne en haut e droite', () => {
       render(
         <ToastProvider>
           <TestComponent />
@@ -263,7 +263,7 @@ describe('Toast System', () => {
       expect(container).toBeInTheDocument();
     });
 
-    it('devrait avoir un z-index �lev�', () => {
+    it('devrait avoir un z-index eleve', () => {
       render(
         <ToastProvider>
           <TestComponent />
@@ -287,7 +287,7 @@ describe('Toast System', () => {
       
       fireEvent.click(screen.getByText('Add Toast'));
       
-      // Le bouton X est pr�sent
+      // Le bouton X est present
       const closeButtons = document.querySelectorAll('button');
       expect(closeButtons.length).toBeGreaterThan(0);
     });
@@ -295,7 +295,7 @@ describe('Toast System', () => {
 });
 
 describe('Toast interface', () => {
-  it('devrait avoir les propri�t�s requises', () => {
+  it('devrait avoir les proprietes requises', () => {
     const toast: Toast = {
       id: 'test-id',
       variant: 'success',
@@ -307,7 +307,7 @@ describe('Toast interface', () => {
     expect(toast.message).toBe('Test message');
   });
 
-  it('devrait supporter les propri�t�s optionnelles', () => {
+  it('devrait supporter les proprietes optionnelles', () => {
     const toast: Toast = {
       id: 'test-id',
       variant: 'info',

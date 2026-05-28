@@ -242,8 +242,8 @@ export default function NewWorkspacePage() {
               ))}
             </select>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              Le syst�me peut d�tecter automatiquement le type de proc�dure, mais vous pouvez le
-              sp�cifier.
+              Le systeme peut detecter automatiquement le type de procedure, mais vous pouvez le
+              specifier.
             </p>
           </div>
 

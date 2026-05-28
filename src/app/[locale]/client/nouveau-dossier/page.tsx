@@ -784,7 +784,7 @@ export default function NouveauDossierClient() {
 
                   <div>
                     <label className="block font-semibold mb-2">
-                      Salaire mensuel net (�)
+                      Salaire mensuel net (e)
                     </label>
                     <input
                       type="number"
