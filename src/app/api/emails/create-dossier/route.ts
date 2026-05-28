@@ -37,14 +37,13 @@ export async function POST(req: NextRequest) {
       data: {
         tenantId,
         numero,
-        titre: summary.objet || `Dossier ${summary.typeDossier}`,
-        type: summary.typeDossier || 'GENERAL',
-        statut: 'OUVERT',
-        priorite: summary.urgence === 'critique' ? 4 : summary.urgence === 'haute' ? 3 : 2,
-        clientId: client?.id,
-        avocatId: user.id,
+        typeDossier: summary.typeDossier || 'GENERAL',
+        objet: summary.objet || `Dossier ${summary.typeDossier}`,
+        statut: 'en_cours',
+        priorite: summary.urgence === 'critique' ? 'critique' : summary.urgence === 'haute' ? 'haute' : 'normale',
+        clientId: client?.id || '',
+        responsableId: user.id,
         description: summary.resumeCourt,
-        source: 'EMAIL_AI',
       },
     });
 
