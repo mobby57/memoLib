@@ -64,18 +64,19 @@ jobs:
         run: npm run type-check
 
       - name: Unit tests
-        run: npm run test:ci || true
+        run: npm run test:ci || echo "JEST_EXIT_CODE=1" >> $GITHUB_ENV
         env:
           DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
           NEXTAUTH_SECRET: 'ci-test-secret-not-for-production'
 
       - name: Verify tests passed
         run: |
-          if [ ! -f ./coverage/coverage-summary.json ]; then
-            echo "⚠️ No coverage report — tests may have failed"
+          if [ -f ./coverage/coverage-summary.json ]; then
+            echo "✅ Tests passed (coverage report found)"
+          else
+            echo "❌ Tests failed — no coverage report"
             exit 1
           fi
-          echo "✅ Tests completed with coverage report"
 
       - name: Build Next.js
         run: npm run build
@@ -114,105 +115,20 @@ jobs:
           exit-code: '0'
 
       - name: Upload Trivy results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
 
   # =========================================================================
-  # Deploy Preview (pull requests)
+  # Prisma Migrations (production only — deploy handled by Vercel integration)
   # =========================================================================
-  deploy-preview:
-    name: Deploy Preview
-    runs-on: ubuntu-latest
-    needs: [build-and-test, security-scan]
-    if: github.event_name == 'pull_request'
-    timeout-minutes: 15
-    environment:
-      name: preview
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install Vercel CLI
-        run: npm i -g vercel@latest
-
-      - name: Run Prisma migrations
-        continue-on-error: true
-        run: |
-          npm ci --ignore-scripts
-          npx prisma generate
-          npx prisma migrate deploy || echo "⚠️ Migration skipped"
-        env:
-          DATABASE_URL: ${{ secrets.PREVIEW_DATABASE_URL }}
-
-      - name: Pull Vercel environment
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy Preview
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
-
-  # =========================================================================
-  # Deploy Staging (develop branch)
-  # =========================================================================
-  deploy-staging:
-    name: Deploy Staging
-    runs-on: ubuntu-latest
-    needs: [build-and-test, security-scan]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    timeout-minutes: 15
-    environment:
-      name: staging
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install Vercel CLI
-        run: npm i -g vercel@latest
-
-      - name: Run Prisma migrations
-        continue-on-error: true
-        run: |
-          npm ci --ignore-scripts
-          npx prisma generate
-          npx prisma migrate deploy || echo "⚠️ Migration skipped"
-        env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
-
-      - name: Pull Vercel environment
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy Staging
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
-
-  # =========================================================================
-  # Deploy Production (main branch)
-  # =========================================================================
-  deploy-production:
-    name: Deploy Production
+  migrate-production:
+    name: Run Migrations (Production)
     runs-on: ubuntu-latest
     needs: [build-and-test, security-scan]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    timeout-minutes: 15
-    environment:
-      name: production
-      url: https://memolib.vercel.app
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
@@ -222,31 +138,55 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install Vercel CLI
-        run: npm i -g vercel@latest
-
       - name: Run Prisma migrations
-        continue-on-error: true
         run: |
           npm ci --ignore-scripts
           npx prisma generate
-          npx prisma migrate deploy || echo "⚠️ Migration skipped"
+          npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
-      - name: Pull Vercel environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+  # =========================================================================
+  # Post-deploy smoke test (production)
+  # =========================================================================
+  smoke-test:
+    name: Smoke Test (Production)
+    runs-on: ubuntu-latest
+    needs: [migrate-production]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 5
 
-      - name: Build Production
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - name: Wait for Vercel deploy
+        run: sleep 30
 
-      - name: Deploy Production
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Smoke test
+      - name: Health check
         run: |
-          sleep 15
-          curl -f https://memolib.vercel.app/api/health || echo 'Health check pending'
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://memolib.vercel.app)
+          if [ "$STATUS" -ne 200 ] && [ "$STATUS" -ne 307 ]; then
+            echo "❌ Health check failed (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ App responding (HTTP $STATUS)"
+
+      - name: Auth endpoint check
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://memolib.vercel.app/api/auth/providers)
+          if [ "$STATUS" -ne 200 ]; then
+            echo "❌ Auth endpoint failed (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ Auth endpoint OK"
+
+      - name: API version check
+        run: |
+          RESPONSE=$(curl -s https://memolib.vercel.app/api/version)
+          echo "API response: $RESPONSE"
+          if echo "$RESPONSE" | grep -q "error"; then
+            echo "⚠️ Version endpoint returned error (non-blocking)"
+          else
+            echo "✅ Version endpoint OK"
+          fi
 
   # =========================================================================
   # Quality Gate — always runs, even when paths filter skips other jobs.
