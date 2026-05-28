@@ -399,6 +399,10 @@ model Dossier {
   description String?
   notes       String?
 
+  outcome      String?
+  outcomeDate  DateTime?
+  outcomeNotes String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1169,4 +1173,41 @@ model Jurisprudence {
   @@index([juridiction])
   @@index([date])
   @@index([themes])
+}
+
+model CommunityTemplate {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  category    String
+  typeDossier String
+  typeRecours String?
+  juridiction String?
+  content     String
+  variables   Json     @default("[]")
+  authorId    String
+  authorName  String
+  tenantId    String
+  isPublic    Boolean  @default(false)
+  upvotes     Int      @default(0)
+  downvotes   Int      @default(0)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  votes TemplateVote[]
+
+  @@index([typeDossier])
+  @@index([isPublic, upvotes])
+}
+
+model TemplateVote {
+  id         String   @id @default(uuid())
+  templateId String
+  template   CommunityTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  userId     String
+  vote       Int
+  createdAt  DateTime @default(now())
+
+  @@unique([templateId, userId])
 }
