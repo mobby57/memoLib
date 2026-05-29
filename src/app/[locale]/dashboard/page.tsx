@@ -423,7 +423,7 @@ export default function DashboardPage() {
               {getGreeting()}, {user?.name?.split(' ')[0]} ??
             </h1>
             <p className="text-blue-100 mt-1">
-              Voici un aperçu de votre cabinet e{' '}
+              Voici un aperçu de votre cabinet -{' '}
               {new Date().toLocaleDateString('fr-FR', {
                 weekday: 'long',
                 day: 'numeric',
@@ -444,7 +444,7 @@ export default function DashboardPage() {
               onClick={() => setShowMetrics(!showMetrics)}
               className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 text-sm font-medium transition-colors"
             >
-              {showMetrics ? '?? Masquer métriques' : '?? Voir métriques'}
+              {showMetrics ? 'Masquer metriques' : 'Voir metriques'}
             </button>
             <Link
               href="/ai-assistant"
