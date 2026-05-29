@@ -180,18 +180,18 @@ export default function RegisterPage() {
       }, 2000);
     } catch (err: unknown) {
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        setError('Service d\u2019inscription indisponible. R\u00E9essayez dans quelques instants.');
+        setError('Service d’inscription indisponible. Réessayez dans quelques instants.');
       } else if (err instanceof Error) {
         if (
           err.message.includes('Unexpected end of JSON input') ||
           err.message.includes('Unexpected token')
         ) {
-          setError('R\u00E9ponse serveur invalide. R\u00E9essayez dans quelques instants.');
+          setError('Réponse serveur invalide. Réessayez dans quelques instants.');
         } else {
           setError(err.message);
         }
       } else {
-        setError('Erreur lors de l\u2019inscription');
+        setError('Erreur lors de l’inscription');
       }
     } finally {
       setLoading(false);
@@ -207,8 +207,8 @@ export default function RegisterPage() {
   if (success) {
     return (
       <FormSuccessPage
-        title="Inscription r\u00E9ussie !"
-        message="Votre compte a \u00E9t\u00E9 cr\u00E9\u00E9. Vous allez \u00EAtre redirig\u00E9 vers la page de connexion..."
+        title="Inscription réussie !"
+        message="Votre compte a été créé. Vous allez être redirigé vers la page de connexion..."
         redirectMessage="Redirection en cours..."
       />
     );
@@ -220,7 +220,7 @@ export default function RegisterPage() {
         <FormHeader
           icon={<Scale size={32} />}
           title="MemoLib"
-          subtitle={`Inscription Avocat - \u00C9tape ${step}/3`}
+          subtitle={`Inscription Avocat - Étape ${step}/3`}
         >
           <StepProgress currentStep={step} totalSteps={3} />
         </FormHeader>
@@ -234,7 +234,7 @@ export default function RegisterPage() {
               title="Informations personnelles"
             >
               <div className="grid grid-cols-2 gap-4">
-                <FormField label="Pr\u00E9nom" required>
+                <FormField label="Prénom" required>
                   <FormInput
                     value={formData.prenom}
                     onChange={e => updateField('prenom', e.target.value)}
@@ -260,7 +260,7 @@ export default function RegisterPage() {
                 />
               </FormField>
 
-              <FormField label="T\u00E9l\u00E9phone" icon={Phone}>
+              <FormField label="Téléphone" icon={Phone}>
                 <FormInput
                   type="tel"
                   icon={Phone}
@@ -277,7 +277,7 @@ export default function RegisterPage() {
                     icon={Lock}
                     value={formData.password}
                     onChange={e => updateField('password', e.target.value)}
-                    placeholder="Min. 8 caract\u00E8res"
+                    placeholder="Min. 8 caractères"
                   />
                 </FormField>
                 <FormField label="Confirmer" required>
@@ -302,10 +302,10 @@ export default function RegisterPage() {
                   <FormInput
                     value={formData.cabinetNom}
                     onChange={e => updateField('cabinetNom', e.target.value)}
-                    placeholder="Cabinet Dupont & Associ\u00E9s"
+                    placeholder="Cabinet Dupont & Associés"
                   />
                 </FormField>
-                <FormField label="N\u00B0 Barreau" required>
+                <FormField label="N° Barreau" required>
                   <FormInput
                     value={formData.numeroBarreau}
                     onChange={e => updateField('numeroBarreau', e.target.value)}
@@ -339,14 +339,14 @@ export default function RegisterPage() {
                       {plan.recommended && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                           <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-xs font-bold">
-                            Recommand\u00E9
+                            Recommandé
                           </span>
                         </div>
                       )}
                       <h4 className="font-bold text-gray-900">{plan.name}</h4>
                       <div className="text-2xl font-bold text-blue-600 my-2">
                         {plan.price}
-                        <span className="text-sm text-gray-500">\u20AC/mois</span>
+                        <span className="text-sm text-gray-500">€/mois</span>
                       </div>
                       <p className="text-sm text-gray-600 mb-3">{plan.description}</p>
                       <ul className="text-xs text-gray-500 space-y-1">
@@ -367,7 +367,7 @@ export default function RegisterPage() {
           {step === 3 && (
             <FormSection icon={<Shield className="text-blue-600" size={24} />} title="Confirmation">
               <div className="bg-gray-50 p-6 rounded-xl space-y-4">
-                <h3 className="font-semibold text-gray-900">R\u00E9capitulatif</h3>
+                <h3 className="font-semibold text-gray-900">Récapitulatif</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Avocat:</span>
@@ -387,7 +387,7 @@ export default function RegisterPage() {
                     <span className="text-gray-500">Plan choisi:</span>
                     <p className="font-medium text-blue-600">
                       {PLANS.find(p => p.id === formData.plan)?.name} -{' '}
-                      {PLANS.find(p => p.id === formData.plan)?.price}\u20AC/mois
+                      {PLANS.find(p => p.id === formData.plan)?.price}€/mois
                     </p>
                   </div>
                 </div>
@@ -404,11 +404,11 @@ export default function RegisterPage() {
                   <span className="text-sm text-gray-600">
                     J&apos;accepte les{' '}
                     <a href="/cgu" className="text-blue-600 underline">
-                      Conditions G\u00E9n\u00E9rales d&apos;Utilisation
+                      Conditions Générales d&apos;Utilisation
                     </a>{' '}
                     et la{' '}
                     <a href="/privacy" className="text-blue-600 underline">
-                      Politique de Confidentialit\u00E9
+                      Politique de Confidentialité
                     </a>
                   </span>
                 </label>
@@ -425,8 +425,8 @@ export default function RegisterPage() {
                     <a href="/charte-ia" className="text-blue-600 underline">
                       Charte IA
                     </a>{' '}
-                    qui d\u00E9finit les r\u00E8gles d&apos;utilisation de l&apos;IA et garantit que
-                    les d\u00E9cisions critiques restent sous contr\u00F4le humain.
+                    qui définit les règles d&apos;utilisation de l&apos;IA et garantit que
+                    les décisions critiques restent sous contrôle humain.
                   </span>
                 </label>
               </div>
@@ -440,7 +440,7 @@ export default function RegisterPage() {
               </Button>
             ) : (
               <Link href="/auth/login" className="text-blue-600 hover:underline flex items-center">
-                D\u00E9j\u00E0 inscrit ? Se connecter
+                Déjà inscrit ? Se connecter
               </Link>
             )}
 

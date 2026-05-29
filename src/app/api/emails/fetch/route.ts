@@ -35,13 +35,17 @@ export async function POST(req: NextRequest) {
 
     const emails: any[] = [];
     // Fetch latest emails
-    const messages = client.fetch(`${Math.max(1, client.mailbox.exists - limit + 1)}:*`, {
+    const mailbox = client.mailbox;
+    const exists = mailbox ? (mailbox as any).exists || 0 : 0;
+    const messages = client.fetch(`${Math.max(1, exists - limit + 1)}:*`, {
       envelope: true,
       source: true,
     });
 
     for await (const msg of messages) {
-      const parsed = await simpleParser(msg.source);
+      const source = msg.source;
+      if (!source) continue;
+      const parsed = await simpleParser(source as any);
       emails.push({
         from: parsed.from?.text || '',
         subject: parsed.subject || '(sans objet)',
