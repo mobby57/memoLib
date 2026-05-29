@@ -49,9 +49,8 @@ export async function GET(request: NextRequest) {
             include: {
               client: true,
               documents: { take: 10, orderBy: { createdAt: 'desc' } },
-              delais: { where: { status: 'actif' }, orderBy: { dateEcheance: 'asc' } },
-              evenements: { take: 20, orderBy: { dateEvenement: 'desc' } },
-              _count: { select: { documents: true, delais: true, evenements: true } },
+              legalDeadlines: { orderBy: { dueDate: 'asc' }, take: 10 },
+              emails: { take: 10, orderBy: { createdAt: 'desc' } },
             },
           });
         },
@@ -75,8 +74,7 @@ export async function GET(request: NextRequest) {
           prisma.dossier.findMany({
             where,
             include: {
-              client: { select: { firstName: true, lastName: true, email: true } },
-              _count: { select: { documents: true, delais: true } },
+              client: { select: { nom: true, email: true } },
             },
             orderBy: { createdAt: 'desc' },
             take: limit,
