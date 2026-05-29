@@ -60,40 +60,46 @@ const navigationItems: NavItem[] = [
 
   // Admin (Avocat)
   {
-    label: 'Dashboard Cabinet',
+    label: 'Dashboard',
     href: '/dashboard',
     icon: Home,
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR']
+  },
+  {
+    label: 'Emails',
+    href: '/emails',
+    icon: MessageSquare,
+    roles: ['ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR']
   },
   {
     label: 'Dossiers',
     href: '/dossiers',
     icon: FileText,
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR']
   },
   {
     label: 'Clients',
     href: '/clients',
     icon: Users,
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR']
   },
   {
     label: 'Factures',
     href: '/factures',
     icon: DollarSign,
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'AVOCAT', 'ASSOCIE']
   },
   {
-    label: 'Rendez-vous',
-    href: '/rendez-vous',
+    label: 'Calendrier',
+    href: '/calendrier',
     icon: Calendar,
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'AVOCAT', 'ASSOCIE', 'COLLABORATEUR']
   },
   {
     label: 'Administration',
     href: '/admin',
     icon: Settings,
-    roles: ['ADMIN']
+    roles: ['ADMIN', 'AVOCAT']
   },
 
   // Client
@@ -185,7 +191,7 @@ export function Navigation() {
             </h2>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               {user.role === 'SUPER_ADMIN' && 'Super Admin'}
-              {user.role === 'ADMIN' && user.tenantName}
+              {(user.role === 'ADMIN' || user.role === 'AVOCAT' || user.role === 'ASSOCIE' || user.role === 'COLLABORATEUR') && user.tenantName}
               {user.role === 'CLIENT' && 'Espace Client'}
             </p>
           </div>
