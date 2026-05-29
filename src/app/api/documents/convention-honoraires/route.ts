@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
   const user = session.user as any;
   const { dossierId, tauxHoraire, provision, forfait } = await req.json();
 
-  let client = null;
-  let dossier = null;
+  let client: any = null;
+  let dossier: any = null;
 
   if (dossierId) {
     dossier = await prisma.dossier.findFirst({
