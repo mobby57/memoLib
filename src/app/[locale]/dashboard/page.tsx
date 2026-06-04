@@ -9,6 +9,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/lib/logger';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { DeadlineAlerts } from '@/components/dashboard/DeadlineAlerts';
+import { TodayFocus } from '@/components/dashboard/TodayFocus';
+import { SearchBar } from '@/components/dashboard/SearchBar';
 import { AIDisclaimer } from '@/components/legal/AIDisclaimer';
 import { LegalFooter } from '@/components/legal/LegalFooter';
 import {
@@ -411,6 +413,9 @@ export default function DashboardPage() {
         />
       )}
 
+      {/* Today Focus — Ma journée */}
+      <TodayFocus tenantId={user?.tenantId} />
+
       {/* Deadline Alerts Widget */}
       <DeadlineAlerts tenantId={user?.tenantId} />
 
@@ -465,15 +470,13 @@ export default function DashboardPage() {
 
         {/* Command Center */}
         <div className="flex items-center gap-3">
+          <SearchBar tenantId={user?.tenantId} />
+
           <button
             onClick={() => setShowMetrics(!showMetrics)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
             {showMetrics ? ' Masquer métriques' : ' Afficher métriques'}
-          </button>
-
-          <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-            <Search className="w-5 h-5" />
           </button>
 
           <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors relative">

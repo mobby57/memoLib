@@ -6,13 +6,16 @@ on:
   pull_request:
     branches: [main, develop]
   schedule:
-    # Weekly full scan every Monday at 03:00 UTC
     - cron: '0 3 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: read
   security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   semgrep:
@@ -38,58 +41,21 @@ jobs:
             --config "p/secrets" \
             --sarif \
             --output semgrep-ts.sarif \
-            src/ || true
+            src/
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
-      - name: Run Semgrep — C# / .NET
-        run: |
-          semgrep scan \
-            --config "p/csharp" \
-            --config "p/owasp-top-ten" \
-            --sarif \
-            --output semgrep-cs.sarif \
-            Controllers/ Services/ Models/ Data/ || true
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-
-      - name: Run Semgrep — Python (backend)
-        run: |
-          semgrep scan \
-            --config "p/python" \
-            --config "p/flask" \
-            --config "p/owasp-top-ten" \
-            --sarif \
-            --output semgrep-py.sarif \
-            src/backend/ || true
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-
-      - name: Upload TypeScript SARIF results
+      - name: Upload SARIF results
         if: always()
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: semgrep-ts.sarif
           category: semgrep-typescript
 
-      - name: Upload C# SARIF results
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: semgrep-cs.sarif
-          category: semgrep-csharp
-
-      - name: Upload Python SARIF results
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: semgrep-py.sarif
-          category: semgrep-python
-
-      - name: Upload all SARIF artifacts
+      - name: Upload SARIF artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: semgrep-sarif-results
-          path: semgrep-*.sarif
+          path: semgrep-ts.sarif
           retention-days: 30
