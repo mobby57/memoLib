@@ -77,15 +77,13 @@ export default function EmailSimulatorPage() {
     setResult(null);
 
     try {
-      const response = await fetch('/api/emails/incoming', {
+      const response = await fetch('/api/ai/summarize-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from: fromEmail,
-          to: toEmail,
           subject,
           body,
-          messageId: `test-${Date.now()}@simulator.local`,
         }),
       });
 
