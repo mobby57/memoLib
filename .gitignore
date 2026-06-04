@@ -15,6 +15,15 @@ coverage/
 .tsbuildinfo
 tsconfig.tsbuildinfo
 
+## === Residual / generated ===
+cookies.txt
+db_url.txt
+eslint-output.json
+memolib.db
+*.pyc
+__pycache__/
+.pytest_cache/
+
 ## === Dependencies ===
 node_modules/
 .pnp.*
