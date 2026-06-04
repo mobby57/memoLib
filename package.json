@@ -136,7 +136,7 @@
     "seed": "node prisma/seed.js"
   },
   "dependencies": {
-    "@azure/identity": "^4.5.0",
+    "@azure/identity": "^4.13.1",
     "@azure/keyvault-secrets": "^4.9.0",
     "@azure/storage-blob": "^12.24.0",
     "@google-cloud/local-auth": "^3.0.1",
@@ -172,7 +172,7 @@
     "exceljs": "^4.4.0",
     "googleapis": "^169.0.0",
     "handlebars": "^4.7.8",
-    "imapflow": "^1.0.171",
+    "imapflow": "^1.3.0",
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.562.0",
@@ -198,7 +198,7 @@
     "recharts": "^3.6.0",
     "redis": "^5.11.0",
     "regression": "^2.0.1",
-    "resend": "^6.9.1",
+    "resend": "^6.12.3",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "stripe": "^20.2.0",
