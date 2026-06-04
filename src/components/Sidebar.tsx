@@ -26,6 +26,7 @@ import {
   Archive
 } from 'lucide-react';
 import { useState } from 'react';
+import { canAccessPage } from '@/lib/page-access';
 
 interface SubMenuItem {
   name: string;
@@ -61,51 +62,32 @@ export default function Sidebar() {
     );
   };
 
-  const menuItems: MenuItem[] = [
-    { 
-      name: 'Dashboard', 
-      href: '/dashboard', 
-      icon: LayoutDashboard,
-    },
-    { 
-      name: 'Emails', 
-      href: '/emails', 
-      icon: FileText,
-      badge: 5,
-    },
-    { 
-      name: 'Dossiers', 
-      href: '/dossiers', 
-      icon: Folder,
-      badge: 18,
-    },
-    { 
-      name: 'Clients', 
-      href: '/clients', 
-      icon: Users,
-    },
-    { 
-      name: 'Documents', 
-      href: '/documents', 
-      icon: FolderOpen,
-    },
-    { 
-      name: 'Calendrier', 
-      href: '/calendrier', 
-      icon: Calendar,
-      badge: 3,
-    },
-    { 
-      name: 'Factures', 
-      href: '/factures', 
-      icon: FileText,
-    },
-    { 
-      name: 'Assistant IA', 
-      href: '/ai-assistant', 
-      icon: Sparkles,
-    }
+  const role = (session.user as any)?.role || 'AVOCAT';
+
+  // Items principaux visibles pour tous les rôles juridiques
+  const primaryItems: MenuItem[] = [
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Dossiers', href: '/dossiers', icon: Folder, badge: 18 },
+    { name: 'Emails', href: '/emails', icon: FileText, badge: 5 },
+    { name: 'Clients', href: '/clients', icon: Users },
+    { name: 'Calendrier', href: '/calendrier', icon: Calendar, badge: 3 },
   ];
+
+  // Items secondaires selon le rôle
+  const secondaryItems: MenuItem[] = [
+    ...(['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'].includes(role)
+      ? [{ name: 'Documents', href: '/documents', icon: FolderOpen }] : []),
+    ...(['ADMIN', 'ASSOCIE', 'COMPTABLE'].includes(role)
+      ? [{ name: 'Factures', href: '/factures', icon: FileText }] : []),
+    ...(['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'].includes(role)
+      ? [{ name: 'Assistant IA', href: '/ai-assistant', icon: Sparkles }] : []),
+    ...(['ADMIN', 'ASSOCIE'].includes(role)
+      ? [{ name: 'Analytics', href: '/analytics', icon: TrendingUp }] : []),
+  ];
+
+  const menuItems: MenuItem[] = [...primaryItems, ...secondaryItems].filter(
+    item => canAccessPage(role, item.href)
+  );
 
   const isActive = (item: MenuItem) => {
     if (currentPath === item.href) return true;

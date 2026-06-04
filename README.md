@@ -3,9 +3,8 @@
 [![CI/CD Pipeline](https://github.com/mobby57/memoLib/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/ci-cd.yml)
 [![Security — Semgrep](https://github.com/mobby57/memoLib/actions/workflows/sast-semgrep.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/sast-semgrep.yml)
 [![Trivy Scan](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml/badge.svg)](https://github.com/mobby57/memoLib/actions/workflows/trivy.yml)
-[![Tests](https://img.shields.io/badge/tests-4492_passing-brightgreen)](https://github.com/mobby57/memoLib/actions)
+[![Tests](https://img.shields.io/badge/tests-4463_passing-brightgreen)](https://github.com/mobby57/memoLib/actions)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
-[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791)](https://www.postgresql.org/)
 [![Vercel](https://img.shields.io/badge/Vercel-deployed-black)](https://vercel.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -78,17 +77,16 @@
 
 | Composant       | Technologie                                      |
 | --------------- | ------------------------------------------------ |
-| Frontend        | Next.js 16, React 19, TypeScript, Tailwind CSS   |
-| Backend API     | ASP.NET Core 9.0, Entity Framework Core          |
-| Base de données | PostgreSQL (prod) / SQLite (dev)                 |
-| ORM Frontend    | Prisma 5                                         |
+| Frontend + API  | Next.js 16, React 19, TypeScript, Tailwind CSS   |
+| Base de données | PostgreSQL 17 (Neon serverless)                  |
+| ORM             | Prisma 5                                         |
 | Auth            | NextAuth (Credentials, Google, GitHub, Azure AD) |
 | IA              | Ollama (local) + fallback regex                  |
-| Email           | ImapFlow (IMAP), MailKit (.NET), webhook inbound     |
+| Email           | ImapFlow (IMAP), webhook inbound                 |
 | Paiements       | Stripe (subscriptions + usage)                   |
 | Monitoring      | Sentry (server + client + replay)                |
-| CI/CD           | GitHub Actions (12 workflows)                    |
-| Déploiement     | Vercel (frontend) + Docker (backend)             |
+| CI/CD           | GitHub Actions (8 workflows)                     |
+| Déploiement     | Vercel                                           |
 
 ---
 
@@ -96,10 +94,10 @@
 
 | Pratique              | Détail                                                           |
 | --------------------- | ---------------------------------------------------------------- |
-| **CI/CD**             | 12 workflows GitHub Actions (build, test, security, release)     |
+| **CI/CD**             | 8 workflows GitHub Actions (build, test, security, release)      |
 | **Quality Gate**      | Tests + type-check + lint bloquants (branch protection)          |
-| **Tests**             | 4492 tests (Jest 4384 + Vitest 79 + xUnit 108) — TypeScript 0 errors |
-| **Security Scanning** | Semgrep SAST, Trivy containers, TruffleHog secrets, CodeQL v4, Snyk |
+| **Tests**             | 4463 tests (Jest 4384 + Vitest 79) — TypeScript 0 errors         |
+| **Security Scanning** | Semgrep SAST, Trivy (bloquant), TruffleHog secrets, CodeQL v4   |
 | **Environments**      | Preview → Staging → Production (Vercel native + Neon branches)   |
 | **Semantic Release**  | Versioning automatique + changelog                               |
 | **Dependency Review** | Dependabot + audit automatique                                   |
@@ -116,10 +114,9 @@
 ### Prérequis
 
 - Node.js 20+ et npm
-- .NET 9.0 SDK
-- PostgreSQL (ou SQLite en local)
+- PostgreSQL (ou Neon serverless)
 
-### Frontend (Next.js)
+### Installation
 
 ```powershell
 git clone https://github.com/mobby57/memoLib.git
@@ -134,16 +131,6 @@ npm run dev
 
 **Accès :** http://localhost:3000
 
-### Backend .NET
-
-```powershell
-dotnet restore
-dotnet ef database update
-dotnet run
-```
-
-**Accès API :** http://localhost:5078
-
 ---
 
 ## 🧪 Tests
@@ -155,14 +142,6 @@ npx vitest run
 ```
 
 Couvre : RBAC, email adapter, deadlines, documents, facturation, Légifrance.
-
-### Tests .NET (xUnit)
-
-```powershell
-dotnet test tests/MemoLib.Tests.csproj
-```
-
-Couvre : brute force, password, billing, GDPR, email monitor, export.
 
 ### Tests E2E (Playwright)
 
@@ -189,11 +168,8 @@ npx tsc --noEmit
 ### Tous les tests
 
 ```powershell
-# Frontend
+# Tests unitaires
 npx vitest run
-
-# Backend
-dotnet test tests/MemoLib.Tests.csproj
 
 # Type check
 npx tsc --noEmit
@@ -263,7 +239,7 @@ GET /api/cron/cost-alerts        # Alertes coûts (quotidien)
 
 ```
 MemoLib/
-├── src/                      # Frontend Next.js
+├── src/                      # App Next.js (pages + API routes)
 │   ├── app/                  # App Router (pages + API routes)
 │   ├── components/           # Composants React
 │   │   ├── emails/           # EmailAISummary, DraftReplyEditor
@@ -275,14 +251,11 @@ MemoLib/
 │   ├── lib/                  # Utilitaires, Prisma, auth, billing, IA
 │   └── hooks/                # React hooks (useAuth, useRealtime)
 ├── prisma/                   # Schéma Prisma + migrations
-├── Controllers/              # API .NET (68 controllers)
-├── Services/                 # Logique métier .NET (63+ services)
-├── Models/                   # Entités .NET
-├── tests/                    # Tests (Vitest, xUnit, Playwright)
+├── tests/                    # Tests (Vitest, Playwright)
 ├── scripts/                  # Scripts utilitaires
 ├── docs/                     # Documentation technique
-├── docker-compose.yml        # Docker backend
-└── vercel.json               # Config Vercel
+├── docker-compose.yml        # PostgreSQL (dev local)
+└── vercel.json               # Config Vercel (prod)
 ```
 
 ---
@@ -335,12 +308,6 @@ Vercel déploie automatiquement via l'intégration GitHub native :
 
 Les migrations sont exécutées automatiquement par le CI/CD lors d'un push sur `main`.
 
-### Backend .NET → Docker (optionnel)
-
-```powershell
-docker-compose up -d
-```
-
 ---
 
 ## 📈 Roadmap
@@ -360,8 +327,8 @@ docker-compose up -d
 - [x] Onboarding wizard
 - [x] Landing page beta
 - [x] Conformité RGPD + audit trail chaîné
-- [x] CI/CD (12 workflows GitHub Actions)
-- [x] Tests (Vitest + xUnit + Playwright)
+- [x] CI/CD (8 workflows GitHub Actions)
+- [x] Tests (Jest + Vitest + Playwright)
 
 ### 🚧 En cours
 
