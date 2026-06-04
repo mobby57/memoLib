@@ -6,6 +6,7 @@ import {
   CheckCircle, BarChart3, FileText, Bell, Calendar, Lock,
   Globe, Star, ChevronRight
 } from 'lucide-react';
+import { useInView, useCountUp } from '@/hooks/useAnimations';
 
 const PAIN_POINTS = [
   {
@@ -155,8 +156,12 @@ const PRICING = [
 ];
 
 export default function LandingPage() {
+  const statsSection = useInView(0.3);
+  const featuresSection = useInView(0.1);
+  const painSection = useInView(0.1);
+
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-gray-950 overflow-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/80 dark:bg-gray-950/80 backdrop-blur-md z-50 border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -190,40 +195,40 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-1.5 rounded-full text-sm font-medium mb-8">
+          <div className="animate-[fadeInUp_0.6s_ease-out_both] inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-1.5 rounded-full text-sm font-medium mb-8">
             <Zap className="w-4 h-4" />
             Spécialisé droit des étrangers & CESEDA
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+          <h1 className="animate-[fadeInUp_0.6s_ease-out_0.1s_both] text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
             Email recu. Dossier cree.
             <br />
-            <span className="text-blue-600">Delai calcule.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Delai calcule.</span>
           </h1>
 
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p className="animate-[fadeInUp_0.6s_ease-out_0.2s_both] text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
             MemoLib transforme vos emails clients en dossiers structures, calcule vos delais OQTF automatiquement,
             et vous alerte avant chaque echeance. Zero deadline oubliee.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="animate-[fadeInUp_0.6s_ease-out_0.3s_both] flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link
               href="/auth/register?plan=PILOT"
-              className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg shadow-blue-600/25"
+              className="group inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5"
             >
               Essai gratuit 14 jours
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               href="/demo/auto-login"
-              className="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-4 px-8 rounded-xl transition-colors"
+              className="group inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 hover:-translate-y-0.5"
             >
               Voir la démo
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
-          <div className="flex items-center justify-center gap-8 text-sm text-gray-500 dark:text-gray-400">
+          <div className="animate-[fadeInUp_0.6s_ease-out_0.4s_both] flex items-center justify-center gap-8 text-sm text-gray-500 dark:text-gray-400">
             <span className="flex items-center gap-1.5">
               <CheckCircle className="w-4 h-4 text-green-500" />
               Sans carte bancaire
@@ -242,18 +247,18 @@ export default function LandingPage() {
 
       {/* Pain Points */}
       <section className="py-20 px-6 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">
+        <div ref={painSection.ref} className="max-w-5xl mx-auto">
+          <h2 className={`text-3xl font-bold text-center text-gray-900 dark:text-white mb-4 transition-all duration-700 ${painSection.isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Vous perdez du temps chaque jour
           </h2>
-          <p className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">
+          <p className={`text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto transition-all duration-700 delay-100 ${painSection.isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             Les cabinets spécialisés en droit des étrangers font face à des défis uniques.
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             {PAIN_POINTS.map((point, i) => {
               const Icon = point.icon;
               return (
-                <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+                <div key={i} className={`bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-700 transition-all duration-500 hover:shadow-lg hover:-translate-y-1 ${painSection.isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${200 + i * 100}ms` }}>
                   <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center mb-4">
                     <Icon className="w-6 h-6 text-red-600 dark:text-red-400" />
                   </div>
@@ -268,7 +273,7 @@ export default function LandingPage() {
 
       {/* Features */}
       <section id="fonctionnalites" className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
+        <div ref={featuresSection.ref} className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">
             Tout ce dont votre cabinet a besoin
           </h2>
@@ -287,7 +292,7 @@ export default function LandingPage() {
                 indigo: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400',
               };
               return (
-                <div key={i} className="p-6 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-colors">
+                <div key={i} className={`p-6 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-500 hover:shadow-lg hover:-translate-y-1 ${featuresSection.isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`} style={{ transitionDelay: `${i * 80}ms` }}>
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${colorMap[feature.color]}`}>
                     <Icon className="w-6 h-6" />
                   </div>
@@ -301,15 +306,15 @@ export default function LandingPage() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 px-6 bg-blue-600">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
+      <section className="py-16 px-6 bg-gradient-to-r from-blue-600 to-indigo-600">
+        <div ref={statsSection.ref} className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
           {[
             { value: '75%', label: 'Temps économisé' },
             { value: '0', label: 'Délai raté' },
             { value: '98%', label: 'Conformité CESEDA' },
             { value: '<5min', label: 'Création dossier' },
           ].map((stat, i) => (
-            <div key={i}>
+            <div key={i} className={`transition-all duration-700 ${statsSection.isInView ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} style={{ transitionDelay: `${i * 150}ms` }}>
               <div className="text-4xl font-bold mb-1">{stat.value}</div>
               <div className="text-blue-100 text-sm">{stat.label}</div>
             </div>
