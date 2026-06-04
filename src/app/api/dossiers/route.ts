@@ -3,6 +3,18 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete, cacheInvalidatePattern } from '@/lib/cache';
+import { z } from 'zod';
+
+const createDossierSchema = z.object({
+  clientId: z.string().uuid(),
+  titre: z.string().min(1).max(500),
+  type: z.string().min(1),
+  description: z.string().optional(),
+  domaine: z.string().optional(),
+  juridiction: z.string().optional(),
+  numeroRG: z.string().optional(),
+  priorite: z.enum(['basse', 'normale', 'haute', 'urgente']).optional(),
+});
 import { logger } from '@/lib/logger';
 
 function mapPrismaErrorToHttp(error: unknown): { status: number; message: string } | null {
@@ -115,26 +127,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
     }
 
-    const {
-      tenantId: _ignoredTenantId,
-      clientId,
-      titre,
-      description,
-      type,
-      domaine,
-      juridiction,
-      numeroRG,
-      priorite,
-    } = body;
-
-    const tenantId = sessionTenantId;
-
-    if (!clientId || !titre || !type) {
+    const parsed = createDossierSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: 'clientId, titre et type requis' },
+        { error: 'Données invalides', details: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
     }
+
+    const { clientId, titre, type, description, domaine, juridiction, numeroRG, priorite } = parsed.data;
+    const tenantId = sessionTenantId;
 
     const client = await prisma.client.findFirst({ where: { id: clientId, tenantId } });
     if (!client) return NextResponse.json({ error: 'Client non trouve' }, { status: 404 });
