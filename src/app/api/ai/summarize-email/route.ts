@@ -24,11 +24,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const summary = await summarizeWithAI(subject || '', body, from || '');
-    return NextResponse.json(summary);
+    return NextResponse.json({ ...summary, confidence: { client: 0.85, urgence: 0.8, typeDossier: 0.8, deadline: 0.7 } });
   } catch {
     // Fallback regex si Ollama indisponible
     const summary = summarizeWithRegex(subject || '', body, from || '');
-    return NextResponse.json({ ...summary, _fallback: true });
+    return NextResponse.json({ ...summary, _fallback: true, confidence: { client: 0.5, urgence: 0.6, typeDossier: 0.6, deadline: 0.4 } });
   }
 }
 

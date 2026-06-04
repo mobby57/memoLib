@@ -1239,3 +1239,34 @@ model DossierChecklistItem {
   @@index([dossierId])
   @@index([dossierId, status])
 }
+
+// ============================================
+// CO-ADAPTATION : Préférences & Feedback IA
+// ============================================
+
+model UserPreference {
+  id       String @id @default(uuid())
+  userId   String
+  tenantId String
+  key      String
+  value    String // JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, key])
+  @@index([tenantId, userId])
+}
+
+model AIFeedback {
+  id        String @id @default(uuid())
+  userId    String
+  tenantId  String
+  field     String   // "urgency", "typeDossier", "clientName", etc.
+  aiValue   String
+  userValue String
+  context   String?  // emailId ou hash du contenu analysé
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, userId, field])
+  @@index([tenantId, field, aiValue])
+}
