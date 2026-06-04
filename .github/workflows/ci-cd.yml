@@ -93,7 +93,8 @@ jobs:
           fail_ci_if_error: false
 
   # =========================================================================
-  # Security Scan (blocks deploy on CRITICAL)
+  # Security Scan (reports CRITICAL/HIGH, does not block PR merge)
+  # Blocking will be enabled once existing vulnerabilities are resolved.
   # =========================================================================
   security-scan:
     name: Security Scan

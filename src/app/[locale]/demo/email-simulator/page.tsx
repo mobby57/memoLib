@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AlertCircle, CheckCircle, Loader2, Mail, Send, User, Building } from 'lucide-react';
-import { API_ENDPOINTS } from '@/lib/api-config';
 
 const DEMO_STEPS = [
   { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
@@ -78,7 +77,7 @@ export default function EmailSimulatorPage() {
     setResult(null);
 
     try {
-      const response = await fetch(API_ENDPOINTS.EMAIL_INGEST, {
+      const response = await fetch('/api/emails/incoming', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
