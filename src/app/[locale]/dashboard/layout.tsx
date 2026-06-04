@@ -1,5 +1,8 @@
-﻿// Force dynamic rendering for all dashboard pages
-// These pages require authentication and cannot be statically generated
+﻿'use client';
+
+import { DemoBanner } from '@/components/DemoBanner';
+
+// Force dynamic rendering for all dashboard pages
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
@@ -8,5 +11,10 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <>
+      <DemoBanner />
+      {children}
+    </>
+  );
 }

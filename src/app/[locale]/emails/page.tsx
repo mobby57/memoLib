@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
 import { Card, Badge } from '@/components/ui';
+import { EmailAIBadge } from '@/components/emails/EmailAIBadge';
 import QuestionnaireModal from '@/components/forms/QuestionnaireModal';
 import { Mail, RefreshCw, Link as LinkIcon, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
@@ -287,6 +288,8 @@ export default function EmailMonitorPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                   De: {email.from}
                 </p>
+
+                <EmailAIBadge urgency={email.urgency} category={email.category} />
 
                 {email.dossier && (
                   <div className="flex items-center gap-2 text-sm text-green-600">

@@ -1,4 +1,4 @@
-name: snyk-securit
+name: Snyk Security
 
 on:
   push:
@@ -21,9 +21,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Snyk to check for vulnerabilities
-        id: snyk-scan
         uses: snyk/actions/node@master
-        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:

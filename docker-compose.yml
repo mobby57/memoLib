@@ -1,59 +1,12 @@
-version: '3.8'
-
 services:
-  memolib-frontend:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.frontend
-    container_name: memolib-frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - NEXTAUTH_URL=http://localhost:3000
-    restart: unless-stopped
-    depends_on:
-      memolib-api:
-        condition: service_healthy
-    networks:
-      - frontend-network
-
-  memolib-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: memolib-api
-    ports:
-      - "5078:5078"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__Default=Data Source=/app/data/memolib.db
-      - JwtSettings__SecretKey=${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set in .env}
-      - JwtSettings__Issuer=memolib
-      - JwtSettings__Audience=memolib-users
-    volumes:
-      - memolib-data:/app/data
-      - memolib-logs:/app/logs
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5078/health"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 10s
-    depends_on:
-      memolib-db:
-        condition: service_healthy
-    networks:
-      - frontend-network
-      - backend-network
-
   memolib-db:
     image: postgres:17-alpine
     container_name: memolib-db
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_USER=${DB_USER:-postgres}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
       - POSTGRES_DB=${DB_NAME:-memolib}
     volumes:
       - memolib-pgdata:/var/lib/postgresql/data
@@ -63,23 +16,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
-    networks:
-      - backend-network
 
 volumes:
-  memolib-data:
-    driver: local
-  memolib-logs:
-    driver: local
   memolib-pgdata:
     driver: local
-
-networks:
-  frontend-network:
-    driver: bridge
-    name: memolib-frontend
-  backend-network:
-    driver: bridge
-    name: memolib-backend
-    internal: true
