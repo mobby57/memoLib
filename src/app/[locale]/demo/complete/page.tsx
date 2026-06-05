@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -84,7 +84,17 @@ const QUICK_WINS = [
 ];
 
 export default function DemoCompletePage() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('memolib-demo-step');
+      return saved ? Math.min(Number(saved), DEMO_STEPS.length - 1) : 0;
+    }
+    return 0;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('memolib-demo-step', String(currentIndex));
+  }, [currentIndex]);
 
   const progress = useMemo(
     () => Math.round(((currentIndex + 1) / DEMO_STEPS.length) * 100),

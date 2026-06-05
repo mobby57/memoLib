@@ -11,7 +11,7 @@ export default function DemoAutoLogin() {
     signIn('credentials', {
       email: 'avocat@memolib.fr',
       password: 'demo123',
-      callbackUrl: '/dashboard',
+      callbackUrl: '/demo/complete',
       redirect: true,
     }).catch(() => setError('Impossible de se connecter à la démo.'));
   }, []);
