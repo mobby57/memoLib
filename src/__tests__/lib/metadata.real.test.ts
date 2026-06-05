@@ -113,7 +113,7 @@ describe('metadata - Métadonnées SEO', () => {
     });
 
     test('contient le manifest', () => {
-      expect(defaultMetadata.manifest).toBe('/manifest.json');
+      expect(defaultMetadata.manifest).toBe('/site.webmanifest');
     });
 
     test('contient les alternates avec canonical', () => {

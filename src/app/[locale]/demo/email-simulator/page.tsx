@@ -1,14 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { AlertCircle, CheckCircle, Loader2, Mail, Send, User, Building } from 'lucide-react';
-
-const DEMO_STEPS = [
-  { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
-  { id: 2, label: 'Raisonnement dossier', href: '/demo/workspace-reasoning' },
-  { id: 3, label: 'Preuve légale', href: '/demo/légal-proof' },
-];
+import { DemoProgressBar } from '@/components/demo/DemoProgressBar';
+import { DemoStepCTA } from '@/components/demo/DemoStepCTA';
 
 const TEST_CLIENTS = [
   { email: 'sophie.dubois@email.com', name: 'Sophie Dubois (dossier OQTF)' },
@@ -105,34 +100,9 @@ export default function EmailSimulatorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6 rounded-lg border border-slate-200 bg-white/90 p-3 shadow-sm">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Parcours de démonstration</p>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {DEMO_STEPS.map((step) => {
-              const isActive = step.id === 1;
-              return (
-                <Link
-                  key={step.id}
-                  href={step.href}
-                  aria-current={isActive ? 'step' : undefined}
-                  className={`rounded-md border px-3 py-2 text-sm transition-colors ${
-                    isActive
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
-                    {step.id}
-                  </span>
-                  {step.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <DemoProgressBar />
+      <div className="max-w-4xl mx-auto p-6">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-3">
             <Mail className="w-8 h-8 text-blue-600" />
@@ -282,13 +252,7 @@ export default function EmailSimulatorPage() {
         </div>
 
         <div className="mt-8 text-center">
-          <Link
-            href="/demo/workspace-reasoning"
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-          >
-            Étape suivante: Raisonnement dossier
-            <span className="text-lg">→</span>
-          </Link>
+          <DemoStepCTA nextHref="/demo/workspace-reasoning" nextLabel="Étape suivante: Raisonnement" />
         </div>
       </div>
     </div>
