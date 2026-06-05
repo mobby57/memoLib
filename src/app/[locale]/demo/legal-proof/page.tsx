@@ -3,12 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Scale, FileCheck, Download, Eye, Shield, CheckCircle } from 'lucide-react';
-
-const DEMO_STEPS = [
-  { id: 1, label: 'Email entrant', href: '/demo/email-simulator' },
-  { id: 2, label: 'Raisonnement dossier', href: '/demo/workspace-reasoning' },
-  { id: 3, label: 'Preuve légale', href: '/demo/légal-proof' },
-];
+import { DemoProgressBar } from '@/components/demo/DemoProgressBar';
+import { DemoStepCTA } from '@/components/demo/DemoStepCTA';
 
 const LEGAL_DOCUMENTS = [
   {
@@ -49,33 +45,9 @@ export default function LegalProofPage() {
   const [showPreview, setShowPreview] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-6 rounded-lg border border-slate-200 bg-white/90 p-3 shadow-sm">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Parcours de démonstration</p>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {DEMO_STEPS.map((step) => {
-              const isActive = step.id === 3;
-              return (
-                <Link
-                  key={step.id}
-                  href={step.href}
-                  className={`rounded-md border px-3 py-2 text-sm transition-colors ${
-                    isActive
-                      ? 'border-green-500 bg-green-50 text-green-700'
-                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
-                    {step.id}
-                  </span>
-                  {step.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800">
+      <DemoProgressBar />
+      <div className="max-w-6xl mx-auto p-6">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-3">
             <Scale className="w-8 h-8 text-green-600" />
@@ -240,6 +212,8 @@ export default function LegalProofPage() {
             </div>
           </div>
         )}
+
+        <DemoStepCTA />
       </div>
     </div>
   );

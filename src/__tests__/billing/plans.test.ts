@@ -18,9 +18,9 @@ describe('PRODUCT_TIERS', () => {
 
   it.each([
     ['PILOT', 0, 0, 'pilot'],
-    ['SOLO', 49, 468, 'solo'],
-    ['CABINET', 349, 3348, 'cabinet'],
-    ['ENTERPRISE', 599, 5748, 'enterprise'],
+    ['SOLO', 89, 855, 'solo'],
+    ['CABINET', 69, 663, 'cabinet'],
+    ['ENTERPRISE', 149, 1430, 'enterprise'],
   ] as [ProductTier, number, number, string][])(
     '%s → %d€/mois, %d€/an, dbName=%s',
     (tier, monthly, yearly, dbName) => {
@@ -31,8 +31,8 @@ describe('PRODUCT_TIERS', () => {
     }
   );
 
-  it('PILOT a 30 jours de trial', () => {
-    expect(PRODUCT_TIERS.PILOT.trialDays).toBe(30);
+  it('PILOT a 14 jours de trial', () => {
+    expect(PRODUCT_TIERS.PILOT.trialDays).toBe(14);
   });
 
   it('les plans payants ont 14 jours de trial', () => {

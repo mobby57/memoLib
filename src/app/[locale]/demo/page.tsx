@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Brain, Scale, ArrowRight, Play, Zap, Compass } from 'lucide-react';
+import { Mail, Brain, Scale, ArrowRight, Play, Zap, Compass, Sparkles, Loader2 } from 'lucide-react';
 
 const DEMO_FEATURES = [
   {
@@ -48,6 +49,76 @@ const STATS = [
   { label: 'Satisfaction client', value: '94%', description: 'délais respectés' },
 ];
 
+const FAKE_RESULT = {
+  client: 'Sophie Dubois',
+  urgence: 'CRITIQUE',
+  type: 'OQTF — Recours contentieux',
+  deadline: '14 février 2026 (J-28)',
+  action: 'Recours TA sous 30 jours',
+};
+
+function WowMomentWidget() {
+  const [state, setState] = useState<'idle' | 'analyzing' | 'done'>('idle');
+
+  const run = () => {
+    setState('analyzing');
+    setTimeout(() => setState('done'), 2200);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto px-6 py-12">
+      <div className="rounded-2xl border border-indigo-200 bg-white dark:bg-gray-800 shadow-lg overflow-hidden">
+        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-4 flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-white" />
+          <h3 className="text-white font-semibold">Essayez maintenant — sans inscription</h3>
+        </div>
+        <div className="p-6 grid md:grid-cols-2 gap-6">
+          <div>
+            <p className="text-xs uppercase font-semibold text-gray-500 mb-2">Email reçu</p>
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 border">
+              <p className="font-medium mb-1">De : sophie.dubois@email.com</p>
+              <p className="font-medium mb-2">Objet : URGENT - OQTF notifiée le 15/01</p>
+              <p className="text-gray-600 dark:text-gray-400">Bonjour Maître, j'ai reçu une OQTF le 15/01/2026 avec un délai de 30 jours. Je suis en France depuis 5 ans avec mes deux enfants scolarisés...</p>
+            </div>
+            {state === 'idle' && (
+              <button onClick={run} className="mt-4 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-3 rounded-xl transition-colors">
+                <Brain className="w-5 h-5" />
+                Analyser avec l'IA
+              </button>
+            )}
+            {state === 'analyzing' && (
+              <div className="mt-4 flex items-center gap-2 text-indigo-600">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="font-medium">Analyse en cours...</span>
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="text-xs uppercase font-semibold text-gray-500 mb-2">Résultat IA</p>
+            {state === 'done' ? (
+              <div className="space-y-3 animate-in fade-in">
+                {Object.entries({ Client: FAKE_RESULT.client, Urgence: FAKE_RESULT.urgence, Type: FAKE_RESULT.type, Deadline: FAKE_RESULT.deadline, Action: FAKE_RESULT.action }).map(([k, v]) => (
+                  <div key={k} className="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <span className="text-sm text-gray-500">{k}</span>
+                    <span className={`text-sm font-semibold ${k === 'Urgence' ? 'text-red-600' : 'text-gray-900 dark:text-white'}`}>{v}</span>
+                  </div>
+                ))}
+                <Link href="/demo/auto-login" className="mt-3 inline-flex items-center gap-2 text-indigo-600 font-medium text-sm hover:text-indigo-800">
+                  Voir le parcours complet <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                {state === 'idle' ? 'Cliquez "Analyser" pour voir la magie ✨' : 'Extraction en cours...'}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DemoHomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
@@ -73,25 +144,18 @@ export default function DemoHomePage() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/auth/register?plan=PILOT"
-                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg"
-              >
-                <Zap className="w-5 h-5" />
-                Essai pilote gratuit (30 jours)
-              </Link>
-              <Link
-                href="/demo/complete"
+                href="/demo/auto-login"
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg"
               >
                 <Play className="w-5 h-5" />
-                Lancer la démo complète
+                Voir MemoLib en action (3 min)
               </Link>
               <Link
-                href="/demo/email-simulator"
+                href="/auth/register?plan=PILOT"
                 className="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg border border-gray-200"
               >
-                Démo rapide (3 étapes)
-                <ArrowRight className="w-5 h-5" />
+                <Zap className="w-5 h-5" />
+                Essai pilote gratuit (30 jours)
               </Link>
             </div>
           </div>
@@ -116,6 +180,9 @@ export default function DemoHomePage() {
           ))}
         </div>
       </div>
+
+      {/* Wow Moment — Instant AI Preview */}
+      <WowMomentWidget />
 
       {/* Demo Steps */}
       <div className="max-w-7xl mx-auto px-6 py-16">
