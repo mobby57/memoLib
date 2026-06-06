@@ -609,6 +609,9 @@ model Email {
   isArchived  Boolean  @default(false)
   isProcessed Boolean  @default(false)
 
+  processingStatus String @default("RECEIVED")
+  processingError  String?
+
   aiAnalysis  String?
   tags        String?
 
