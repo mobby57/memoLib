@@ -293,26 +293,28 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Demo accounts */}
-            <details className="mt-6">
-              <summary className="cursor-pointer text-sm font-semibold text-gray-700 flex items-center gap-2 hover:text-blue-600">
-                {`\uD83E\uDDEA Comptes de d\u00E9monstration`}
-              </summary>
-              <div className="mt-3 space-y-2 text-xs">
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
-                  <p className="font-bold text-purple-900">{`\uD83D\uDC51 Super Admin`}</p>
-                  <p className="text-purple-700 mt-1 font-mono text-xs">
-                    superadmin@memoLib.com | SuperAdmin2026!
-                  </p>
+            {/* Demo accounts - hidden in production unless NEXT_PUBLIC_SHOW_DEMO=true */}
+            {process.env.NEXT_PUBLIC_SHOW_DEMO === 'true' && (
+              <details className="mt-6">
+                <summary className="cursor-pointer text-sm font-semibold text-gray-700 flex items-center gap-2 hover:text-blue-600">
+                  {`\uD83E\uDDEA Comptes de d\u00E9monstration`}
+                </summary>
+                <div className="mt-3 space-y-2 text-xs">
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
+                    <p className="font-bold text-purple-900">{`\uD83D\uDC51 Super Admin`}</p>
+                    <p className="text-purple-700 mt-1 font-mono text-xs">
+                      superadmin@memoLib.com | SuperAdmin2026!
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
+                    <p className="font-bold text-blue-900">{`\u2696\uFE0F Avocat`}</p>
+                    <p className="text-blue-700 mt-1 font-mono text-xs">
+                      avocat@cabinet-dupont.fr | Avocat2026!
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
-                  <p className="font-bold text-blue-900">{`\u2696\uFE0F Avocat`}</p>
-                  <p className="text-blue-700 mt-1 font-mono text-xs">
-                    avocat@cabinet-dupont.fr | Avocat2026!
-                  </p>
-                </div>
-              </div>
-            </details>
+              </details>
+            )}
           </div>
 
           {/* Footer */}
