@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 /**
  * Middleware: i18n routing + security headers for MemoLib
- * Simplified: redirects root to /fr/ and adds security headers
+ * Handles locale detection, auth redirects, and security headers
  */
 
 const LOCALES = ['en', 'fr', 'es', 'de', 'pt', 'ja', 'zh', 'hi', 'ru', 'ko'];

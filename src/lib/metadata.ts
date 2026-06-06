@@ -1,5 +1,6 @@
 // Metadonnees partagees pour toutes les pages
 // https://nextjs.org/docs/app/getting-started/metadata-and-og-images
+// Updated: sitemap.xml and robots.txt are now excluded from middleware matcher
 
 
 /* eslint-disable no-redeclare */
