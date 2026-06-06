@@ -17,7 +17,9 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname === '/favicon.ico' ||
-    /\.(?:png|jpg|jpeg|gif|svg|webp|ico)$/.test(pathname)
+    pathname === '/sitemap.xml' ||
+    pathname === '/robots.txt' ||
+    /\.(?:png|jpg|jpeg|gif|svg|webp|ico|xml|txt)$/.test(pathname)
   ) {
     return NextResponse.next();
   }
