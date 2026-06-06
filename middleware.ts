@@ -17,7 +17,9 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname === '/favicon.ico' ||
-    /\.(?:png|jpg|jpeg|gif|svg|webp|ico)$/.test(pathname)
+    pathname === '/sitemap.xml' ||
+    pathname === '/robots.txt' ||
+    /\.(?:png|jpg|jpeg|gif|svg|webp|ico|xml|txt)$/.test(pathname)
   ) {
     return NextResponse.next();
   }
@@ -45,12 +47,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Root → dashboard (si connecté) ou landing
+  // Root → homepage ou dashboard selon session
   if (pathname === '/') {
     const url = request.nextUrl.clone();
     const hasSession = request.cookies.has('next-auth.session-token') || 
                        request.cookies.has('__Secure-next-auth.session-token');
-    url.pathname = hasSession ? `/${DEFAULT_LOCALE}/dashboard` : `/${DEFAULT_LOCALE}/landing`;
+    url.pathname = hasSession ? `/${DEFAULT_LOCALE}/dashboard` : `/${DEFAULT_LOCALE}`;
     return NextResponse.redirect(url);
   }
 
@@ -63,6 +65,20 @@ export function middleware(request: NextRequest) {
   if (!hasLocale) {
     const url = request.nextUrl.clone();
     url.pathname = `/${DEFAULT_LOCALE}${pathname}`;
+    return NextResponse.redirect(url);
+  }
+
+  // Protected routes: redirect to login if no session
+  const hasSession = request.cookies.has('next-auth.session-token') || 
+                     request.cookies.has('__Secure-next-auth.session-token');
+  
+  const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/super-admin', '/lawyer', '/client-dashboard', '/dossiers', '/clients', '/documents', '/factures', '/emails'];
+  const pathnameWithoutLocale = pathname.replace(/^\/(fr|en|es|de|pt|ja|zh|hi|ru|ko)/, '');
+  
+  if (!hasSession && PROTECTED_PREFIXES.some(p => pathnameWithoutLocale.startsWith(p))) {
+    const url = request.nextUrl.clone();
+    const locale = LOCALES.find(l => pathname.startsWith(`/${l}/`)) || DEFAULT_LOCALE;
+    url.pathname = `/${locale}/auth/login`;
     return NextResponse.redirect(url);
   }
 
