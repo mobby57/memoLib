@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 /**
  * Middleware: i18n routing + security headers for MemoLib
- * Simplified: redirects root to /fr/ and adds security headers
+ * Handles locale detection, auth redirects, and security headers
  */
 
 const LOCALES = ['en', 'fr', 'es', 'de', 'pt', 'ja', 'zh', 'hi', 'ru', 'ko'];
@@ -153,5 +153,5 @@ export function middleware(request: NextRequest) {
  * - Favicon et images root
  */
 export const config = {
-  matcher: ['/((?!api|_next|static|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp)$).*)'],
+  matcher: ['/((?!api|_next|static|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:png|jpg|jpeg|gif|svg|webp|xml|txt)$).*)'],
 };
