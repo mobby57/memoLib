@@ -1,26 +1,32 @@
-'use client';
+import type { Metadata } from 'next';
+import { Mail, Shield, Zap, Brain, Clock, Star } from 'lucide-react';
+import { BetaSignupForm, BetaSignupFormFull } from './BetaSignupForm';
 
-import { useState } from 'react';
-import { CheckCircle, Mail, Shield, Zap, Brain, Clock, ArrowRight, Star } from 'lucide-react';
+export const metadata: Metadata = {
+  title: 'Inscription beta — MemoLib',
+  description: 'Rejoignez la beta privée de MemoLib. Testez gratuitement le logiciel IA pour cabinets d\'avocats.',
+  robots: { index: false, follow: true },
+  openGraph: {
+    title: 'Inscription beta — MemoLib',
+    description: 'Rejoignez la beta privée de MemoLib.',
+    type: 'website',
+    url: 'https://memolib.space/fr/landing',
+  },
+  alternates: {
+    canonical: 'https://memolib.space/fr/landing',
+  },
+};
+
+const features = [
+  { icon: Brain, title: 'IA Juridique', desc: 'Résumé automatique des emails, détection des deadlines, classification des dossiers par type de procédure.' },
+  { icon: Mail, title: 'Emails intelligents', desc: 'Vos emails sont automatiquement liés aux bons dossiers. Plus jamais de recherche manuelle.' },
+  { icon: Clock, title: 'Délais légaux', desc: 'Alertes automatiques J-7, J-3, J-1 sur les échéances CESEDA, recours, et procédures.' },
+  { icon: Shield, title: 'RGPD natif', desc: 'Données chiffrées, audit trail, droit à l\'oubli. Conforme dès le premier jour.' },
+  { icon: Zap, title: 'Local-first', desc: 'Vos données restent chez vous. Cloud optionnel. Contrôle total.' },
+  { icon: Star, title: 'Multi-cabinet', desc: 'Gestion des rôles, portail client, collaboration entre associés et collaborateurs.' },
+];
 
 export default function LandingPage() {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    await fetch('/api/beta-signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, name }),
-    });
-    setSubmitted(true);
-    setLoading(false);
-  };
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
@@ -35,7 +41,7 @@ export default function LandingPage() {
             </div>
             <span className="text-white font-semibold text-lg">MemoLib</span>
           </div>
-          <a href="/auth/login" className="text-blue-200 hover:text-white text-sm font-medium transition-colors">
+          <a href="/fr/auth/login" className="text-blue-200 hover:text-white text-sm font-medium transition-colors">
             Se connecter →
           </a>
         </nav>
@@ -57,31 +63,7 @@ export default function LandingPage() {
             MemoLib analyse vos emails, crée vos dossiers, détecte les deadlines et vous fait gagner 2h par jour. Conçu par et pour les avocats.
           </p>
 
-          {/* CTA Form */}
-          {!submitted ? (
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="votre@email.com"
-                required
-                className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
-              >
-                {loading ? '...' : <>Accès beta <ArrowRight className="w-4 h-4" /></>}
-              </button>
-            </form>
-          ) : (
-            <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-400/30 rounded-xl px-6 py-3">
-              <CheckCircle className="w-5 h-5 text-green-400" />
-              <span className="text-green-200 font-medium">Inscription reçue ! On vous contacte très vite.</span>
-            </div>
-          )}
+          <BetaSignupForm />
 
           <p className="text-blue-300/60 text-xs mt-4">Gratuit pendant la beta. Aucune carte bancaire requise.</p>
         </div>
@@ -97,22 +79,18 @@ export default function LandingPage() {
         </p>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {[
-            { icon: Brain, title: 'IA Juridique', desc: 'Résumé automatique des emails, détection des deadlines, classification des dossiers par type de procédure.' },
-            { icon: Mail, title: 'Emails intelligents', desc: 'Vos emails sont automatiquement liés aux bons dossiers. Plus jamais de recherche manuelle.' },
-            { icon: Clock, title: 'Délais légaux', desc: 'Alertes automatiques J-7, J-3, J-1 sur les échéances CESEDA, recours, et procédures.' },
-            { icon: Shield, title: 'RGPD natif', desc: 'Données chiffrées, audit trail, droit à l\'oubli. Conforme dès le premier jour.' },
-            { icon: Zap, title: 'Local-first', desc: 'Vos données restent chez vous. Cloud optionnel. Contrôle total.' },
-            { icon: Star, title: 'Multi-cabinet', desc: 'Gestion des rôles, portail client, collaboration entre associés et collaborateurs.' },
-          ].map((f) => (
-            <div key={f.title} className="p-6 rounded-2xl border border-gray-100 hover:border-blue-100 hover:shadow-lg transition-all">
-              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
-                <f.icon className="w-5 h-5 text-blue-600" />
+          {features.map((f) => {
+            const Icon = f.icon;
+            return (
+              <div key={f.title} className="p-6 rounded-2xl border border-gray-100 hover:border-blue-100 hover:shadow-lg transition-all">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">{f.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{f.title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -145,40 +123,7 @@ export default function LandingPage() {
         <p className="text-gray-500 mb-8">
           Rejoignez les premiers cabinets qui utilisent l&apos;IA au quotidien.
         </p>
-
-        {!submitted ? (
-          <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Votre nom"
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="votre@email.com"
-                required
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
-              >
-                {loading ? '...' : "S'inscrire"}
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-6 py-3">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <span className="text-green-700 font-medium">Vous êtes sur la liste !</span>
-          </div>
-        )}
+        <BetaSignupFormFull />
       </section>
 
       {/* Footer */}
@@ -186,8 +131,9 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between text-sm text-gray-400">
           <span>© 2026 MemoLib. Tous droits réservés.</span>
           <div className="flex gap-4">
-            <a href="/privacy" className="hover:text-gray-600">Confidentialité</a>
-            <a href="/legal/cgu" className="hover:text-gray-600">CGU</a>
+            <a href="/fr/privacy" className="hover:text-gray-600">Confidentialité</a>
+            <a href="/fr/faq" className="hover:text-gray-600">FAQ</a>
+            <a href="/fr/contact" className="hover:text-gray-600">Contact</a>
           </div>
         </div>
       </footer>

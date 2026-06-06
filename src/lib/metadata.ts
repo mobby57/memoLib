@@ -5,7 +5,7 @@
 /* eslint-disable no-redeclare */
 import type { Metadata } from 'next';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memoLib.com';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://memolib.space';
 
 export const SITE_NAME = 'memoLib';
 export const SITE_DESCRIPTION =
@@ -30,6 +30,9 @@ export function getBaseUrl(): string {
 // Metadonnees par defaut
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(BASE_URL),
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '8WBg_hHEaAATjJ-uOhnsiN-lxpz6YjsUD3nWWzYx3g4',
+  },
   title: {
     default: 'memoLib - Gestion Juridique Intelligente',
     template: `%s | ${SITE_NAME}`,
