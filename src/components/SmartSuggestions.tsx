@@ -219,7 +219,7 @@ export function SmartSuggestions({ tenantId }: { tenantId: string }) {
                   <button
                     className="ml-auto text-xs text-blue-600 hover:text-blue-700 font-medium"
                   >
-                    Details [Next]
+                    Details →
                   </button>
                 </div>
               </div>

@@ -157,7 +157,7 @@ export default function WorkspacesPage() {
               href="/workspaces/new"
               className="inline-block mt-4 text-blue-600 hover:text-blue-700 font-medium"
             >
-              Créer votre premier dossier [Next]
+              Créer votre premier dossier →
             </Link>
           </div>
         ) : (

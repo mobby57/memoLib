@@ -160,7 +160,7 @@ export default function SuperAdminDashboard() {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-3xl">??</span>
-              <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
+              <span className="text-white/80 group-hover:translate-x-1 transition-transform">→</span>
             </div>
             <h3 className="text-xl font-bold mb-2">Gerer les Tenants</h3>
             <p className="text-white/80 text-sm">Voir, créer, modifier les cabinets</p>
@@ -172,7 +172,7 @@ export default function SuperAdminDashboard() {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-3xl"></span>
-              <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
+              <span className="text-white/80 group-hover:translate-x-1 transition-transform">→</span>
             </div>
             <h3 className="text-xl font-bold mb-2">Gerer les Plans</h3>
             <p className="text-white/80 text-sm">Basic, Premium, Enterprise</p>
@@ -184,7 +184,7 @@ export default function SuperAdminDashboard() {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-3xl">??</span>
-              <span className="text-white/80 group-hover:translate-x-1 transition-transform">[Next]</span>
+              <span className="text-white/80 group-hover:translate-x-1 transition-transform">→</span>
             </div>
             <h3 className="text-xl font-bold mb-2">Support</h3>
             <p className="text-white/80 text-sm">Tickets et assistance</p>
@@ -199,7 +199,7 @@ export default function SuperAdminDashboard() {
               href="/super-admin/tenants"
               className="text-sm text-purple-600 hover:text-purple-700 font-medium"
             >
-              Voir tous [Next]
+              Voir tous →
             </Link>
           </div>
           <div className="overflow-x-auto">
