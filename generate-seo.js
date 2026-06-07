@@ -1,4 +1,4 @@
-// Script exécuté après le build pour générer sitemap.xml et robots.txt statiques
+// Script exécuté avant/après le build pour générer sitemap.xml et robots.txt statiques
 const fs = require('fs');
 const path = require('path');
 
@@ -19,17 +19,26 @@ const PUBLIC_ROUTES = [
 
 const now = new Date().toISOString().split('T')[0];
 
-const urls = LOCALES.flatMap(locale =>
-  PUBLIC_ROUTES.map(route => `  <url>
+// Génère les URLs avec hreflang alternates
+const urls = PUBLIC_ROUTES.flatMap(route =>
+  LOCALES.map(locale => {
+    const alternates = LOCALES.map(
+      alt => `      <xhtml:link rel="alternate" hreflang="${alt}" href="${BASE_URL}/${alt}${route.path}" />`
+    ).join('\n');
+
+    return `  <url>
     <loc>${BASE_URL}/${locale}${route.path}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>${route.changeFrequency}</changefreq>
     <priority>${route.priority}</priority>
-  </url>`)
+${alternates}
+  </url>`;
+  })
 ).join('\n');
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls}
 </urlset>`;
 
