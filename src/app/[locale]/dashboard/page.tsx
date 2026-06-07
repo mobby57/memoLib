@@ -549,7 +549,7 @@ export default function DashboardPage() {
         <Alert variant="warning" title="Taches en attente">
           Vous avez {stats.facturesEnAttente} facture(s) en attente de paiement.
           <Link href="/factures" className="ml-2 underline font-medium hover:text-yellow-700">
-            Voir les factures [Next]
+            Voir les factures →
           </Link>
         </Alert>
       )}

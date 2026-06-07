@@ -163,7 +163,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
           </p>
         </div>
         <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-          Rapport detaille [Next]
+          Rapport detaille →
         </button>
       </div>
 
@@ -255,7 +255,7 @@ export function MetricsWidgets({ data }: { data: MetricsData }) {
                   Ces dossiers depassent le delai de traitement standard (14 jours)
                 </p>
                 <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">
-                  Voir les dossiers en retard [Next]
+                  Voir les dossiers en retard
                 </button>
               </div>
             </div>

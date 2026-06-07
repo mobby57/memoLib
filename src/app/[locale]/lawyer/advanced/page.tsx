@@ -24,7 +24,7 @@ export default function LawyerAdvancedPage() {
             href="/lawyer/intégrations"
             className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors"
           >
-            Voir la demo complete [Next]
+            Voir la demo complete →
           </Link>
         </div>
 
@@ -49,7 +49,7 @@ export default function LawyerAdvancedPage() {
                   }}
                   className="text-sm text-violet-600 dark:text-violet-400 hover:underline font-medium"
                 >
-                  Tester l'API [Next]
+                  Tester l'API →
                 </button>
               </div>
             </div>
@@ -72,7 +72,7 @@ export default function LawyerAdvancedPage() {
                   href="/lawyer/intégrations"
                   className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
                 >
-                  Voir la demo [Next]
+                  Voir la demo →
                 </Link>
               </div>
             </div>
@@ -92,7 +92,7 @@ export default function LawyerAdvancedPage() {
                   Outils d'anonymisation et export de donnees
                 </p>
                 <button className="text-sm text-emerald-600 dark:text-emerald-400 hover:underline font-medium">
-                  En savoir plus [Next]
+                  En savoir plus →
                 </button>
               </div>
             </div>
