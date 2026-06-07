@@ -44,7 +44,7 @@ ${localizedPrivate.join('\n')}
 Sitemap: ${BASE_URL}/sitemap.xml
 `;
 
-const publicDir = path.join(__dirname, '..', 'public');
+const publicDir = path.join(__dirname, 'public');
 fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemap);
 fs.writeFileSync(path.join(publicDir, 'robots.txt'), robots);
 console.log('✅ Generated sitemap.xml and robots.txt');
