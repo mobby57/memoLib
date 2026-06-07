@@ -153,5 +153,13 @@ export function middleware(request: NextRequest) {
  * - Favicon et images root
  */
 export const config = {
-  matcher: ['/((?!api|_next|static|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:png|jpg|jpeg|gif|svg|webp|xml|txt)$).*)'],
+  matcher: [
+    /*
+     * Match all paths except:
+     * - api routes (/api/...)
+     * - static files (/_next/..., /static/...)
+     * - public assets (images, sitemap, robots, favicon)
+     */
+    '/((?!api|_next/static|_next/image|static|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico)$).*)',
+  ],
 };
