@@ -118,7 +118,7 @@ export default function GestionCabinetPage() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-2xl font-bold text-white mb-4">Testez MemoLib gratuitement</h2>
           <p className="text-indigo-200 mb-8">Le logiciel conçu par et pour les avocats. 14 jours d'essai, sans engagement.</p>
-          <Link href="/fr/landing" className="px-8 py-4 bg-white text-indigo-900 font-semibold rounded-xl hover:bg-indigo-50 transition-colors inline-flex items-center gap-2">
+          <Link href="/auth/register?plan=PILOT" className="px-8 py-4 bg-white text-indigo-900 font-semibold rounded-xl hover:bg-indigo-50 transition-colors inline-flex items-center gap-2">
             Démarrer l'essai <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
