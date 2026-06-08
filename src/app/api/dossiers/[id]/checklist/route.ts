@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { getChecklistForType, generateDossierInboxEmail } from '@/lib/dossier/checklist-templates';
+import { createNotification } from '@/lib/notifications';
 
 /**
  * GET /api/dossiers/[id]/checklist
@@ -136,6 +137,21 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     where: { id },
     data: { checklistReceived: received, checklistComplete: complete },
   });
+
+  // Notifier l'avocat responsable
+  const dossier = await prisma.dossier.findUnique({ where: { id }, select: { responsableId: true, numero: true } });
+  if (dossier?.responsableId && status === 'received') {
+    await createNotification({
+      userId: dossier.responsableId,
+      type: 'dossier',
+      title: complete ? `✅ Dossier ${dossier.numero} COMPLET` : `📎 Pièce reçue — ${dossier.numero}`,
+      message: complete
+        ? `Toutes les pièces obligatoires ont été reçues. Le dossier est prêt pour traitement.`
+        : `"${item.label}" reçue. Progression : ${received}/${allItems.length}.`,
+      priority: complete ? 'high' : 'normal',
+      data: { dossierId: id, itemId, progress: { received, total: allItems.length, complete } },
+    });
+  }
 
   return NextResponse.json({
     success: true,

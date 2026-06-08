@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Brain, Scale, ArrowRight, Play, Zap, Compass, Sparkles, Loader2 } from 'lucide-react';
+import { Mail, Brain, Scale, ArrowRight, Play, Zap, Compass, Sparkles, Loader2, Shield } from 'lucide-react';
 
 const DEMO_FEATURES = [
   {
@@ -12,7 +12,16 @@ const DEMO_FEATURES = [
     icon: Compass,
     href: '/demo/complete',
     color: 'indigo',
-    duration: '8 min',
+    duration: '9 min',
+  },
+  {
+    id: 4,
+    title: 'Sécurité MFA (effet wow)',
+    description: 'Activez la double authentification en live — timer rotatif, QR code, vérification',
+    icon: Shield,
+    href: '/demo/security',
+    color: 'red',
+    duration: '1 min',
   },
   {
     id: 1,

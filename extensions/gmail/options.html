@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MemoLib — Configuration</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; max-width: 400px; margin: 40px auto; padding: 20px; }
+    h1 { font-size: 20px; color: #1e40af; }
+    label { display: block; margin: 16px 0 6px; font-weight: 500; color: #374151; }
+    input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; }
+    button { margin-top: 20px; padding: 12px 24px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .saved { color: #16a34a; margin-top: 12px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>⚖️ MemoLib — Configuration</h1>
+  <label>URL de votre instance MemoLib</label>
+  <input id="url" placeholder="https://app.memolib.space" />
+  <label>Clé API</label>
+  <input id="key" type="password" placeholder="Votre clé API (dans Paramètres > API)" />
+  <button onclick="save()">Sauvegarder</button>
+  <p class="saved" id="msg">✓ Configuration sauvegardée</p>
+  <script>
+    document.getElementById('url').value = localStorage.getItem('memolib_url') || '';
+    document.getElementById('key').value = localStorage.getItem('memolib_api_key') || '';
+    function save() {
+      localStorage.setItem('memolib_url', document.getElementById('url').value);
+      localStorage.setItem('memolib_api_key', document.getElementById('key').value);
+      document.getElementById('msg').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

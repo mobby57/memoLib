@@ -111,6 +111,7 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        mfaCode: { label: 'Code MFA', type: 'text' },
       },
       async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
@@ -119,6 +120,7 @@ export const authOptions: NextAuthOptions = {
 
         const emailNormalized = credentials.email.trim().toLowerCase();
         const passwordInput = credentials.password.trim();
+        const mfaCode = (credentials as any).mfaCode?.trim();
 
         const isDemoMode = true;
 
@@ -270,6 +272,17 @@ export const authOptions: NextAuthOptions = {
 
           if (!user || !(await bcrypt.compare(passwordInput, user.password))) {
             throw new Error('Identifiants invalides');
+          }
+
+          // Vérification MFA si activé
+          if (user.mfaEnabled && user.mfaSecret) {
+            if (!mfaCode) {
+              throw new Error('MFA_REQUIRED');
+            }
+            const { verifyTOTP } = await import('@/lib/security/midway-auth');
+            if (!verifyTOTP(user.mfaSecret, mfaCode)) {
+              throw new Error('MFA_INVALID');
+            }
           }
 
           if (user.role === 'ADMIN' && (!user.tenant || user.tenant.status !== 'active')) {

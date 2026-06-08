@@ -31,6 +31,17 @@ type DemoStep = {
 
 const DEMO_STEPS: DemoStep[] = [
   {
+    id: 'security',
+    title: 'Sécuriser votre compte (niveau Amazon)',
+    duration: '1 min',
+    why: 'Les données juridiques sont ultra-sensibles. MFA obligatoire = même si votre mot de passe fuite, vos dossiers sont protégés.',
+    action:
+      'Activez l\'authentification à 2 facteurs avec votre téléphone. Testez le code tournant en temps réel.',
+    href: '/demo/security',
+    tool: 'MFA TOTP + WebAuthn + Session sécurisée',
+    expectedResult: 'Votre compte est protégé par double authentification, session courte, et détection de menaces.',
+  },
+  {
     id: 'setup',
     title: 'Configurer votre espace en 2 minutes',
     duration: '2 min',

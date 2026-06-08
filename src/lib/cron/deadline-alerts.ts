@@ -37,6 +37,7 @@ export async function checkDeadlineAlerts() {
 
   const deadlinesJ1 = await prisma.legalDeadline.findMany({
     where: { status: { in: ['PENDING', 'APPROACHING', 'URGENT'] }, alertJ1Sent: false, dueDate: { lte: j1, gte: now } },
+    include: { dossier: { select: { responsableId: true, numero: true, typeDossier: true } } },
   });
 
   for (const deadline of deadlinesJ1) {
@@ -47,6 +48,25 @@ export async function checkDeadlineAlerts() {
       where: { id: deadline.id },
       data: { alertJ1Sent: true, status: 'CRITICAL' },
     });
+
+    // SMS d'urgence pour OQTF/rétention (délais < 48h)
+    const isUrgent = deadline.dossier?.typeDossier &&
+      ['OQTF', 'RECOURS_OQTF', 'OQTF_SANS_DELAI', 'RETENTION'].includes(deadline.dossier.typeDossier);
+
+    if (isUrgent && deadline.dossier?.responsableId) {
+      const avocat = await prisma.user.findUnique({
+        where: { id: deadline.dossier.responsableId },
+        select: { phone: true, firstName: true },
+      });
+      if (avocat?.phone) {
+        const smsBody = `⚠️ URGENT MemoLib: Dossier ${deadline.dossier.numero} — ${deadline.label} expire DEMAIN. Action immédiate requise.`;
+        await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/notifications/sms`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: avocat.phone, message: smsBody, dossierId: deadline.dossierId, urgence: 'critique' }),
+        }).catch(() => {});
+      }
+    }
   }
 
   const deadlinesOverdue = await prisma.legalDeadline.findMany({
