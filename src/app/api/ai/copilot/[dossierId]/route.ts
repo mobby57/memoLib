@@ -3,10 +3,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { analyzeDossier, type DossierInput } from '@/lib/ai/copilot/copilot-ceseda';
+import { enrichWithAI } from '@/lib/ai/copilot/copilot-ai-enrichment';
+import { findSimilarCases } from '@/lib/ai/copilot/copilot-rag';
+import { computeLearningRules, applyLearningRules } from '@/lib/ai/copilot/copilot-learning';
 
 /**
  * GET /api/ai/copilot/[dossierId]
  * Copilote CESEDA — Analyse complète d'un dossier
+ * 
+ * Params optionnels :
+ * - ?enrich=true → ajoute l'enrichissement IA (Ollama)
+ * - ?rag=true → recherche documents similaires
+ * - ?learn=true → applique les règles d'apprentissage
  */
 export async function GET(req: NextRequest, { params }: { params: Promise<{ dossierId: string }> }) {
   const session = await getServerSession(authOptions);
@@ -14,6 +22,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ doss
 
   const { dossierId } = await params;
   const user = session.user as any;
+  const url = new URL(req.url);
+  const wantEnrich = url.searchParams.get('enrich') === 'true';
+  const wantRAG = url.searchParams.get('rag') === 'true';
+  const wantLearn = url.searchParams.get('learn') === 'true';
 
   const dossier = await prisma.dossier.findFirst({
     where: { id: dossierId, tenantId: user.tenantId },
@@ -45,5 +57,33 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ doss
 
   const analysis = analyzeDossier(input);
 
-  return NextResponse.json(analysis);
+  // Enrichissement IA (optionnel)
+  let aiEnrichment = null;
+  if (wantEnrich) {
+    aiEnrichment = await enrichWithAI({
+      typeDossier: dossier.typeDossier,
+      situation: analysis.summary.situation,
+      strengths: analysis.strengths.map(s => s.label),
+      weaknesses: analysis.weaknesses.map(w => w.label),
+      missingDocs: analysis.completeness.missing,
+      deadlineDays: analysis.deadlines[0]?.daysRemaining,
+    });
+  }
+
+  // RAG — documents similaires (optionnel)
+  let similarDocuments = null;
+  if (wantRAG) {
+    similarDocuments = await findSimilarCases(dossier.typeDossier, analysis.summary.situation, user.tenantId);
+  }
+
+  // Co-adaptation — règles apprises (optionnel)
+  let learningAdjustments = null;
+  if (wantLearn) {
+    const rules = await computeLearningRules(user.tenantId);
+    if (rules.length > 0) {
+      learningAdjustments = applyLearningRules(analysis.summary, rules, dossier.typeDossier);
+    }
+  }
+
+  return NextResponse.json({ ...analysis, aiEnrichment, similarDocuments, learningAdjustments });
 }
