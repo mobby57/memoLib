@@ -8,6 +8,9 @@ import { Alert, Badge, Breadcrumb, Card, StatCard, Tabs, useToast } from '@/comp
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/lib/logger';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { WelcomeConnect } from '@/components/onboarding/WelcomeConnect';
+import { ChefDeCabinet } from '@/components/dashboard/ChefDeCabinet';
+import { RiskRadar } from '@/components/dashboard/RiskRadar';
 import { DeadlineAlerts } from '@/components/dashboard/DeadlineAlerts';
 import { TodayFocus } from '@/components/dashboard/TodayFocus';
 import { SearchBar } from '@/components/dashboard/SearchBar';
@@ -127,6 +130,7 @@ export default function DashboardPage() {
     firstDossier: boolean;
   } | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
+  const [showWelcomeConnect, setShowWelcomeConnect] = useState(false);
 
   // Charger le statut d'onboarding
   useEffect(() => {
@@ -134,8 +138,15 @@ export default function DashboardPage() {
       fetch('/api/onboarding/status')
         .then(r => r.json())
         .then(data => {
-          if (data.needsOnboarding) setOnboardingSteps(data.steps);
-          else setShowOnboarding(false);
+          if (data.needsOnboarding) {
+            setOnboardingSteps(data.steps);
+            // Si aucun email : afficher l'écran WelcomeConnect V3
+            if (data.stats?.emailCount === 0) {
+              setShowWelcomeConnect(true);
+            }
+          } else {
+            setShowOnboarding(false);
+          }
         })
         .catch(() => {});
     }
@@ -361,6 +372,7 @@ export default function DashboardPage() {
   // Cette page est pour tous les membres du cabinet (pas les clients ni super admin)
   const hasAccess =
     isAdmin ||
+    hasRole('LAWYER' as any) ||
     hasRole('AVOCAT' as any) ||
     hasRole('ASSOCIE' as any) ||
     hasRole('COLLABORATEUR' as any) ||
@@ -401,17 +413,28 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* V3 — Écran WelcomeConnect pour première connexion */}
+      {showWelcomeConnect && (
+        <WelcomeConnect onSkip={() => setShowWelcomeConnect(false)} />
+      )}
+
       {/* AI Disclaimer Banner */}
       <AIDisclaimer variant="banner" />
 
-      {/* Onboarding Wizard */}
-      {showOnboarding && onboardingSteps && (
+      {/* Onboarding Wizard (ancien, affiché si pas WelcomeConnect) */}
+      {showOnboarding && onboardingSteps && !showWelcomeConnect && (
         <OnboardingWizard
           steps={onboardingSteps}
           userName={user?.name?.split(' ')[0]}
           onDismiss={() => setShowOnboarding(false)}
         />
       )}
+
+      {/* V3 — Chef de Cabinet (remplace le greeting classique quand disponible) */}
+      <ChefDeCabinet tenantId={user?.tenantId} userName={user?.name?.split(' ')[0]} />
+
+      {/* V3 — Radar des risques */}
+      <RiskRadar tenantId={user?.tenantId} />
 
       {/* Today Focus — Ma journée */}
       <TodayFocus tenantId={user?.tenantId} />
