@@ -11,6 +11,7 @@ import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { WelcomeConnect } from '@/components/onboarding/WelcomeConnect';
 import { ChefDeCabinet } from '@/components/dashboard/ChefDeCabinet';
 import { RiskRadar } from '@/components/dashboard/RiskRadar';
+import { ModeUrgence } from '@/components/dashboard/ModeUrgence';
 import { DeadlineAlerts } from '@/components/dashboard/DeadlineAlerts';
 import { TodayFocus } from '@/components/dashboard/TodayFocus';
 import { SearchBar } from '@/components/dashboard/SearchBar';
@@ -831,6 +832,8 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+      {/* V3 — Mode Urgence (bouton flottant rouge) */}
+      <ModeUrgence />
       {/* Legal Footer */}
       <LegalFooter />
     </div>

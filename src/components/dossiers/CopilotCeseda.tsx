@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Brain, Shield, AlertTriangle, CheckCircle, FileText, Clock, Zap, TrendingUp, TrendingDown, Lock, Loader2, ChevronDown, ChevronRight, Scale } from "lucide-react"
 
 interface CopilotAnalysis {
@@ -16,7 +16,7 @@ interface CopilotAnalysis {
   confidence: number
 }
 
-export default function CopilotCeseda({ dossierId }: { dossierId: string }) {
+export default function CopilotCeseda({ dossierId, autoRun = false }: { dossierId: string; autoRun?: boolean }) {
   const [analysis, setAnalysis] = useState<CopilotAnalysis | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -31,6 +31,9 @@ export default function CopilotCeseda({ dossierId }: { dossierId: string }) {
     } catch { setError("Impossible d'analyser le dossier") }
     finally { setLoading(false) }
   }
+
+  // Mode proactif V3 : auto-run à l'ouverture du dossier
+  useEffect(() => { if (autoRun && !analysis && !loading) runAnalysis() }, [autoRun])
 
   if (!analysis) {
     return (
