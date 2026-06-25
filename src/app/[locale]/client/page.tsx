@@ -8,6 +8,7 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
+import { ClientPortalSummary } from '@/components/client/ClientPortalSummary';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -119,6 +120,11 @@ export default function ClientDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-8 py-8">
+        {/* V3 — Résumé simplifié du dossier */}
+        <div className="mb-8">
+          <ClientPortalSummary />
+        </div>
+
         {feedback && (
           <div
             className={`mb-6 rounded-lg border px-4 py-3 text-sm ${
