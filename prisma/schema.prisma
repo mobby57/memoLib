@@ -1,11 +1,6 @@
-// ============================================
-// PRISMA SCHEMA FINAL — WORKSPACE JURIDIQUE
-// Version fondatrice — Figée et opposable
-// ============================================
-
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  binaryTargets = ["native", "debian-openssl-3.0.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -13,75 +8,1113 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// ENUMS
-// ============================================
+model AIUsageLog {
+  id         String   @id
+  tenantId   String
+  provider   String?
+  tokensUsed Int?
+  costEur    Float    @default(0)
+  operation  String?
+  createdAt  DateTime @default(now())
+  metadata   String?
+  Tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-enum InformationUnitStatus {
-  RECEIVED                // Information reçue, non traitée
-  CLASSIFIED              // Catégorisée (client, dossier, type)
-  ANALYZED                // Analysée par IA ou humain
-  INCOMPLETE              // Manque des éléments
-  AMBIGUOUS               // Nécessite clarification
-  HUMAN_ACTION_REQUIRED   // Escalade obligatoire
-  RESOLVED                // Traitée complètement
-  CLOSED                  // Archivée
+  @@index([createdAt])
+  @@index([tenantId])
 }
 
-enum InformationUnitSource {
-  EMAIL
-  UPLOAD
-  API
-  MANUAL
-  SCAN
-  FAX
+model ArchivePolicy {
+  id              String        @id
+  tenantId        String
+  entityType      String
+  entityId        String
+  status          ArchiveStatus @default(ACTIVE)
+  retentionDays   Int
+  retentionReason String?
+  lastAccessAt    DateTime?
+  archiveAt       DateTime?
+  deleteAt        DateTime?
+  archivedAt      DateTime?
+  archivedBy      String?
+  deletedAt       DateTime?
+  deletedBy       String?
+  holdUntil       DateTime?
+  holdReason      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  Tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([entityType, entityId])
+  @@index([archiveAt])
+  @@index([deleteAt])
+  @@index([status])
+  @@index([tenantId])
 }
 
-enum DeadlineType {
-  RECOURS_GRACIEUX       // 2 mois
-  RECOURS_HIERARCHIQUE   // 2 mois
-  RECOURS_CONTENTIEUX    // 2 mois TA
-  APPEL                  // 1 mois CAA
-  CASSATION              // 2 mois CE
-  REPONSE_PREFECTURE     // Variable
-  CONVOCATION_AUDIENCE   // Variable
-  PRODUCTION_PIECES      // Fixé par juge
-  EXECUTION_DECISION     // Variable
-  OQTF                   // 30/90 jours
-  RETENTION              // 48h/28j/45j/90j
-  CUSTOM                 // Personnalisé
+model AuditLog {
+  id            String      @id
+  tenantId      String
+  userId        String
+  userEmail     String
+  userRole      String
+  action        AuditAction
+  entityType    String
+  entityId      String
+  oldValue      String?
+  newValue      String?
+  ipAddress     String?
+  userAgent     String?
+  timestamp     DateTime    @default(now())
+  timestampHash String?
+  previousLogId String?
+  createdAt     DateTime    @default(now())
+  Tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([tenantId])
+  @@index([timestamp])
+  @@index([userId])
 }
 
-enum DeadlineStatus {
-  PENDING      // En attente
-  APPROACHING  // J-7
-  URGENT       // J-3
-  CRITICAL     // J-1
-  OVERDUE      // Dépassé
-  COMPLETED    // Respecté
-  CANCELLED    // Annulé
+model CalendarEvent {
+  id             String   @id
+  tenantId       String
+  userId         String
+  dossierId      String?
+  clientId       String?
+  title          String
+  description    String?
+  location       String?
+  startDate      DateTime
+  endDate        DateTime
+  allDay         Boolean  @default(false)
+  type           String   @default("rdv")
+  status         String   @default("confirmed")
+  googleEventId  String?
+  outlookEventId String?
+  reminders      String?
+  isRecurring    Boolean  @default(false)
+  recurrenceRule String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  Client         Client?  @relation(fields: [clientId], references: [id])
+  Dossier        Dossier? @relation(fields: [dossierId], references: [id])
+  Tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  User           User     @relation(fields: [userId], references: [id])
+
+  @@index([dossierId])
+  @@index([tenantId, startDate])
+  @@index([userId])
 }
 
-enum ProofType {
-  DOCUMENT_RECEPTION
-  DOCUMENT_ENVOI
-  ACCUSE_RECEPTION
-  DEPOT_RECOURS
-  NOTIFICATION_DECISION
-  AUDIENCE_PRESENCE
-  SIGNATURE_ELECTRONIQUE
-  HORODATAGE_CERTIFIE
-  CAPTURE_EMAIL
-  SCREENSHOT
-  RAPPORT_IA
-  AUTRE
+model Client {
+  id                 String          @id
+  tenantId           String
+  civilite           String?
+  firstName          String
+  lastName           String
+  nomNaissance       String?
+  prenomUsuel        String?
+  email              String
+  emailSecondaire    String?
+  phone              String?
+  phoneSecondaire    String?
+  telephoneUrgence   String?
+  dateOfBirth        DateTime?
+  lieuNaissance      String?
+  nationality        String?
+  nationaliteOrigine String?
+  address            String?
+  codePostal         String?
+  ville              String?
+  pays               String          @default("France")
+  passportNumber     String?
+  passportExpiry     DateTime?
+  passportCountry    String?
+  status             String          @default("actif")
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime
+  CalendarEvent      CalendarEvent[]
+  Tenant             Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Document           Document[]
+  Dossier            Dossier[]
+  Email              Email[]
+  Facture            Facture[]
+  LegalDeadline      LegalDeadline[]
+  MouvementCARPA     MouvementCARPA[]
+  User               User?
+
+  @@unique([tenantId, email])
+  @@index([tenantId, email])
+  @@index([tenantId, status])
 }
 
-enum ProofStatus {
-  PENDING_VALIDATION
-  VALIDATED
-  REJECTED
+model CommunityTemplate {
+  id          String   @id
+  title       String
+  description String?
+  category    String
+  typeDossier String
+  typeRecours String?
+  juridiction String?
+  content     String
+  variables   Json?    @default("[]")
+  authorId    String
+  authorName  String
+  tenantId    String
+  isPublic    Boolean  @default(false)
+  upvotes     Int      @default(0)
+  downvotes   Int      @default(0)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+
+  @@index([isPublic, upvotes])
+  @@index([typeDossier])
+}
+
+model DeadlineAlert {
+  id             String        @id
+  deadlineId     String
+  alertType      String
+  sentAt         DateTime      @default(now())
+  sentTo         String
+  channel        String
+  acknowledged   Boolean       @default(false)
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+  LegalDeadline  LegalDeadline @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
+
+  @@index([deadlineId])
+}
+
+model Document {
+  id                 String    @id
+  tenantId           String
+  dossierId          String?
+  clientId           String?
+  filename           String
+  originalName       String
+  mimeType           String
+  size               Int
+  storageKey         String
+  category           String?
+  description        String?
+  ocrProcessed       Boolean   @default(false)
+  ocrText            String?
+  ocrConfidence      Float?
+  extractedData      String?
+  aiAnalyzed         Boolean   @default(false)
+  aiSummary          String?
+  aiMetadata         String?
+  uploadedBy         String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime
+  antivirusScannedAt DateTime?
+  antivirusEngine    String?
+  antivirusDetails   String?
+  sha256             String?
+  antivirusStatus    String?
+  Client             Client?   @relation(fields: [clientId], references: [id])
+  Dossier            Dossier?  @relation(fields: [dossierId], references: [id])
+  Tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  User               User      @relation(fields: [uploadedBy], references: [id])
+  Proof              Proof[]
+
+  @@index([clientId])
+  @@index([dossierId])
+  @@index([sha256])
+  @@index([tenantId])
+}
+
+model Dossier {
+  id                 String          @id
+  tenantId           String
+  numero             String
+  clientId           String
+  typeDossier        String
+  articleCeseda      String?
+  categorieJuridique String?
+  statut             String          @default("en_cours")
+  priorite           String          @default("normale")
+  phase              String          @default("instruction")
+  dateCreation       DateTime        @default(now())
+  dateOuverture      DateTime?
+  dateEcheance       DateTime?
+  dateProchaineEtape DateTime?
+  dateCloture        DateTime?
+  juridiction        String?
+  numeroJuridiction  String?
+  typeRecours        String?
+  responsableId      String?
+  collaborateurs     String?
+  objet              String?
+  description        String?
+  notes              String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime
+  inboxEmail         String?
+  checklistComplete  Boolean?        @default(false)
+  checklistTotal     Int?            @default(0)
+  checklistReceived  Int?            @default(0)
+  outcome            String?
+  outcomeDate        DateTime?
+  outcomeNotes       String?
+  CalendarEvent      CalendarEvent[]
+  Document           Document[]
+  Client             Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Tenant             Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Draft              Draft[]
+  Email              Email[]
+  Facture            Facture[]
+  LegalDeadline      LegalDeadline[]
+  MouvementCARPA     MouvementCARPA[]
+  Proof              Proof[]
+
+  @@unique([tenantId, numero])
+  @@index([clientId])
+  @@index([inboxEmail])
+  @@index([juridiction, outcome])
+  @@index([tenantId, statut])
+  @@index([typeDossier, outcome])
+}
+
+model DossierChecklistItem {
+  id          String    @id
+  dossierId   String
+  tenantId    String
+  label       String
+  category    String    @default("document")
+  required    Boolean   @default(true)
+  status      String    @default("missing")
+  documentId  String?
+  receivedAt  DateTime?
+  receivedVia String?
+  notes       String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+
+  @@index([dossierId])
+  @@index([dossierId, status], map: "DossierChecklistItem_status_idx")
+}
+
+model Draft {
+  id               String    @id
+  tenantId         String
+  status           String    @default("PENDING")
+  extractedData    String
+  confidence       String?
+  sourceEmailId    String?
+  createdDossierId String?
+  validatedBy      String?
+  validatedAt      DateTime?
+  rejectionReason  String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime
+  Dossier          Dossier?  @relation(fields: [createdDossierId], references: [id])
+  Email            Email?    @relation(fields: [sourceEmailId], references: [id])
+  Tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([sourceEmailId])
+  @@index([tenantId, status])
+}
+
+model Email {
+  id                String              @id
+  tenantId          String
+  messageId         String?
+  from              String
+  to                String
+  subject           String
+  body              String
+  htmlBody          String?
+  preview           String?
+  category          String              @default("general-inquiry")
+  urgency           String              @default("medium")
+  sentiment         String              @default("neutral")
+  isRead            Boolean             @default(false)
+  isStarred         Boolean             @default(false)
+  isArchived        Boolean             @default(false)
+  isProcessed       Boolean             @default(false)
+  aiAnalysis        String?
+  tags              String?
+  clientId          String?
+  dossierId         String?
+  receivedAt        DateTime            @default(now())
+  readAt            DateTime?
+  processedAt       DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  bcc               String?
+  bodyText          String?
+  cc                String?
+  contentHash       String?
+  fromAddress       String?
+  hasAttachments    Boolean             @default(false)
+  inReplyTo         String?
+  internetMessageId String?
+  normalizedPayload String?
+  providerMessageId String?
+  rawContent        String?
+  rawFormat         String?
+  rawHeaders        String?
+  rawPayload        String?
+  receivedDate      DateTime?
+  referenceIds      String?
+  replyTo           String?
+  sourceChannel     String              @default("email")
+  sourceDirection   String              @default("inbound")
+  sourceProvider    String?
+  threadId          String?
+  toAddresses       String?
+  Draft             Draft[]
+  Client            Client?             @relation(fields: [clientId], references: [id])
+  Dossier           Dossier?            @relation(fields: [dossierId], references: [id])
+  Tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  EmailAttachment   EmailAttachment[]
+  WorkflowExecution WorkflowExecution[]
+
+  @@unique([tenantId, contentHash])
+  @@unique([tenantId, internetMessageId])
+  @@unique([tenantId, messageId])
+  @@unique([tenantId, providerMessageId])
+  @@index([contentHash])
+  @@index([from])
+  @@index([tenantId, category])
+  @@index([tenantId, fromAddress])
+  @@index([tenantId, isProcessed])
+  @@index([tenantId, receivedDate])
+  @@index([tenantId, sourceProvider])
+  @@index([tenantId, threadId])
+}
+
+model EmailAttachment {
+  id          String   @id
+  emailId     String
+  filename    String
+  mimeType    String
+  size        Int
+  storageKey  String?
+  createdAt   DateTime @default(now())
+  checksum    String?
+  contentId   String?
+  disposition String?
+  metadata    String?
+  Email       Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  @@index([emailId])
+}
+
+model Facture {
+  id               String         @id
+  tenantId         String
+  clientId         String
+  dossierId        String?
+  numero           String
+  reference        String?
+  description      String?
+  montantHT        Float
+  tauxTVA          Float          @default(20)
+  montantTVA       Float
+  montantTTC       Float
+  statut           String         @default("brouillon")
+  dateEmission     DateTime       @default(now())
+  dateEcheance     DateTime
+  datePaiement     DateTime?
+  modePaiement     String?
+  referencePayment String?
+  notes            String?
+  conditions       String?
+  pdfUrl           String?
+  stripeInvoiceId  String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime
+  Client           Client         @relation(fields: [clientId], references: [id])
+  Dossier          Dossier?       @relation(fields: [dossierId], references: [id])
+  Tenant           Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  LigneFacture     LigneFacture[]
+  Paiement         Paiement[]
+
+  @@unique([tenantId, numero])
+  @@index([clientId])
+  @@index([dateEcheance])
+  @@index([tenantId, statut])
+}
+
+model InformationStatusHistory {
+  id              String                 @id
+  unitId          String
+  fromStatus      InformationUnitStatus?
+  toStatus        InformationUnitStatus
+  reason          String?
+  changedBy       String
+  changedAt       DateTime               @default(now())
+  timestampHash   String?
+  InformationUnit InformationUnit        @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@index([changedAt])
+  @@index([unitId])
+}
+
+model InformationUnit {
+  id                       String                     @id
+  tenantId                 String
+  source                   InformationUnitSource
+  content                  String
+  contentHash              String                     @unique
+  currentStatus            InformationUnitStatus      @default(RECEIVED)
+  sourceMetadata           String?
+  linkedWorkspaceId        String?
+  metadata                 String?
+  lastStatusChangeBy       String?
+  lastStatusChangeAt       DateTime?
+  receivedAt               DateTime                   @default(now())
+  classifiedAt             DateTime?
+  analyzedAt               DateTime?
+  resolvedAt               DateTime?
+  closedAt                 DateTime?
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime
+  InformationStatusHistory InformationStatusHistory[]
+  Tenant                   Tenant                     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Proof                    Proof[]
+
+  @@index([contentHash])
+  @@index([currentStatus])
+  @@index([tenantId, currentStatus])
+  @@index([tenantId])
+}
+
+model Jurisprudence {
+  id           String                   @id
+  externalId   String                   @unique
+  titre        String
+  date         DateTime
+  juridiction  String
+  numero       String?
+  chambre      String?
+  formation    String?
+  solution     String?
+  resume       String?
+  texte        String
+  url          String?
+  themes       String[]
+  source       String                   @default("huggingface")
+  searchVector Unsupported("tsvector")?
+  createdAt    DateTime                 @default(now())
+
+  @@index([date])
+  @@index([juridiction])
+  @@index([searchVector], map: "Jurisprudence_search_idx", type: Gin)
+  @@index([themes])
+}
+
+model LegalDeadline {
+  id             String          @id
+  tenantId       String
+  dossierId      String
+  clientId       String
+  type           DeadlineType
+  label          String
+  description    String?
+  referenceDate  DateTime
+  dueDate        DateTime
+  status         DeadlineStatus  @default(PENDING)
+  legalBasis     String?
+  legalDays      Int?
+  alertJ7Sent    Boolean         @default(false)
+  alertJ3Sent    Boolean         @default(false)
+  alertJ1Sent    Boolean         @default(false)
+  completedAt    DateTime?
+  completedBy    String?
+  completionNote String?
+  proofId        String?
+  createdBy      String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime
+  DeadlineAlert  DeadlineAlert[]
+  Client         Client          @relation(fields: [clientId], references: [id])
+  Dossier        Dossier         @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  Tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([dueDate])
+  @@index([status, dueDate])
+  @@index([status])
+  @@index([tenantId])
+}
+
+model LegalReference {
+  id                  String    @id
+  code                String
+  article             String
+  version             String?
+  title               String
+  content             String
+  summary             String?
+  category            String
+  keywords            String?
+  defaultDeadlineDays Int?
+  deadlineType        String?
+  legifrance_url      String?
+  eurlex_url          String?
+  isActive            Boolean   @default(true)
+  validFrom           DateTime?
+  validUntil          DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime
+
+  @@unique([code, article, version])
+  @@index([category])
+  @@index([code])
+  @@index([isActive])
+}
+
+model LigneFacture {
+  id           String   @id
+  factureId    String
+  description  String
+  quantite     Float    @default(1)
+  prixUnitaire Float
+  montantHT    Float
+  ordre        Int      @default(0)
+  createdAt    DateTime @default(now())
+  Facture      Facture  @relation(fields: [factureId], references: [id], onDelete: Cascade)
+
+  @@index([factureId])
+}
+
+model Notification {
+  id        String    @id
+  userId    String
+  type      String
+  title     String
+  message   String
+  data      String?
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  priority  String    @default("normal")
+  createdAt DateTime  @default(now())
+  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([userId, isRead])
+}
+
+model Paiement {
+  id              String   @id
+  factureId       String
+  montant         Float
+  date            DateTime @default(now())
+  mode            String
+  reference       String?
+  notes           String?
+  stripePaymentId String?
+  createdAt       DateTime @default(now())
+  Facture         Facture  @relation(fields: [factureId], references: [id], onDelete: Cascade)
+
+  @@index([factureId])
+}
+
+model Plan {
+  id                String         @id
+  name              String         @unique
+  displayName       String
+  description       String?
+  priceMonthly      Float
+  priceYearly       Float
+  currency          String         @default("EUR")
+  maxWorkspaces     Int            @default(1)
+  maxDossiers       Int            @default(100)
+  maxClients        Int            @default(20)
+  maxStorageGb      Int            @default(5)
+  maxUsers          Int            @default(5)
+  aiAutonomyLevel   Int            @default(1)
+  humanValidation   Boolean        @default(true)
+  advancedAnalytics Boolean        @default(false)
+  externalAiAccess  Boolean        @default(false)
+  prioritySupport   Boolean        @default(false)
+  customBranding    Boolean        @default(false)
+  apiAccess         Boolean        @default(false)
+  isActive          Boolean        @default(true)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime
+  Subscription      Subscription[]
+  Tenant            Tenant[]
+
+  @@index([isActive])
+}
+
+model Proof {
+  id                String           @id
+  tenantId          String
+  type              ProofType
+  title             String
+  description       String?
+  dossierId         String?
+  clientId          String?
+  documentId        String?
+  informationUnitId String?
+  fileStorageKey    String?
+  fileHash          String?
+  fileMimeType      String?
+  fileSize          Int?
+  proofDate         DateTime
+  capturedAt        DateTime         @default(now())
+  capturedBy        String
+  status            ProofStatus      @default(PENDING_VALIDATION)
+  validatedBy       String?
+  validatedAt       DateTime?
+  rejectionReason   String?
+  timestampHash     String?
+  chainPreviousId   String?
+  metadata          String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime
+  Document          Document?        @relation(fields: [documentId], references: [id])
+  Dossier           Dossier?         @relation(fields: [dossierId], references: [id])
+  InformationUnit   InformationUnit? @relation(fields: [informationUnitId], references: [id])
+  Tenant            Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([proofDate])
+  @@index([status])
+  @@index([tenantId])
+  @@index([type])
+}
+
+model QuotaEvent {
+  id           String   @id
+  tenantId     String
+  quotaType    String
+  currentValue Float
+  limitValue   Float
+  percentage   Float
+  eventType    String
+  actionTaken  String?
+  metadata     String?
+  occurredAt   DateTime @default(now())
+  Tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([occurredAt])
+  @@index([quotaType])
+  @@index([tenantId])
+}
+
+model Report {
+  id             String       @id
+  tenantId       String
+  type           ReportType
+  title          String
+  description    String?
+  parameters     String?
+  dossierId      String?
+  clientId       String?
+  periodStart    DateTime?
+  periodEnd      DateTime?
+  status         ReportStatus @default(PENDING)
+  fileStorageKey String?
+  fileMimeType   String?
+  fileSize       Int?
+  generatedAt    DateTime?
+  generatedBy    String
+  isPublic       Boolean      @default(false)
+  accessCount    Int          @default(0)
+  lastAccessAt   DateTime?
+  expiresAt      DateTime?
+  error          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime
+  Tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([dossierId])
+  @@index([status])
+  @@index([tenantId])
+  @@index([type])
+}
+
+model StripeWebhookEvent {
+  id            String    @id
+  stripeEventId String    @unique
+  provider      String    @default("stripe")
+  eventType     String
+  status        String    @default("PROCESSING")
+  payload       String?
+  processedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+
+  @@index([createdAt])
+  @@index([provider, eventType])
+  @@index([status])
+}
+
+model Subscription {
+  id                 String    @id
+  tenantId           String    @unique
+  planId             String
+  status             String    @default("active")
+  billingCycle       String    @default("monthly")
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  trialEnd           DateTime?
+  canceledAt         DateTime?
+  endedAt            DateTime?
+  pricePerMonth      Float
+  currency           String    @default("EUR")
+  autoRenew          Boolean   @default(true)
+  metadata           String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime
+  Plan               Plan      @relation(fields: [planId], references: [id])
+  Tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([tenantId])
+}
+
+model TemplateVote {
+  id         String   @id
+  templateId String
+  userId     String
+  vote       Int
+  createdAt  DateTime @default(now())
+
+  @@unique([templateId, userId])
+}
+
+model Tenant {
+  id                String              @id
+  name              String
+  subdomain         String              @unique
+  domain            String?             @unique
+  planId            String
+  status            String              @default("active")
+  trialEndsAt       DateTime?
+  billingEmail      String?
+  billingAddress    String?
+  vatNumber         String?
+  currentWorkspaces Int                 @default(0)
+  currentDossiers   Int                 @default(0)
+  currentClients    Int                 @default(0)
+  currentStorageGb  Float               @default(0)
+  currentUsers      Int                 @default(0)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  AIUsageLog        AIUsageLog[]
+  ArchivePolicy     ArchivePolicy[]
+  AuditLog          AuditLog[]
+  CalendarEvent     CalendarEvent[]
+  Client            Client[]
+  CompteComptable   CompteComptable[]
+  DeclarationTVA    DeclarationTVA[]
+  Document          Document[]
+  Dossier           Dossier[]
+  Draft             Draft[]
+  Ecriture          Ecriture[]
+  Email             Email[]
+  Facture           Facture[]
+  InformationUnit   InformationUnit[]
+  Journal           Journal[]
+  LegalDeadline     LegalDeadline[]
+  MouvementBancaire MouvementBancaire[]
+  MouvementCARPA    MouvementCARPA[]
+  Proof             Proof[]
+  QuotaEvent        QuotaEvent[]
+  Report            Report[]
+  Subscription      Subscription?
+  Plan              Plan                @relation(fields: [planId], references: [id])
+  TenantSettings    TenantSettings?
+  UsageRecord       UsageRecord[]
+  User              User[]
+  WorkflowExecution WorkflowExecution[]
+
+  @@index([planId])
+  @@index([status])
+}
+
+model TenantSettings {
+  id            String   @id
+  tenantId      String   @unique
+  ollamaEnabled Boolean  @default(true)
+  ollamaUrl     String   @default("http://localhost:11434")
+  ollamaModel   String   @default("llama3.2:latest")
+  emailEnabled  Boolean  @default(false)
+  smtpHost      String?
+  smtpPort      Int?
+  smtpUser      String?
+  smtpPass      String?
+  maxDossiers   Int      @default(100)
+  maxUsers      Int      @default(5)
+  storageLimit  Int      @default(1000)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  Tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model UsageRecord {
+  id        String   @id
+  tenantId  String
+  type      String
+  quantity  Float
+  unitCost  Float
+  totalCost Float
+  metadata  String?
+  createdAt DateTime @default(now())
+  Tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([tenantId])
+  @@index([type])
+}
+
+model User {
+  id               String          @id
+  email            String          @unique
+  emailVerified    DateTime?
+  name             String
+  password         String
+  role             String
+  tenantId         String?
+  clientId         String?         @unique
+  avatar           String?
+  phone            String?
+  status           String          @default("active")
+  lastLogin        DateTime?
+  language         String          @default("fr")
+  timezone         String          @default("Europe/Paris")
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  CalendarEvent    CalendarEvent[]
+  Document         Document[]
+  Notification     Notification[]
+  Client           Client?         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Tenant           Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([role])
+  @@index([status])
+  @@index([tenantId, email])
+}
+
+model WorkflowExecution {
+  id           String    @id
+  tenantId     String
+  workflowId   String
+  workflowName String
+  emailId      String?
+  status       String    @default("pending")
+  currentStep  String?
+  progress     Int       @default(0)
+  triggerType  String    @default("email")
+  triggerData  String?
+  steps        String?
+  result       String?
+  error        String?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  Email        Email?    @relation(fields: [emailId], references: [id])
+  Tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([emailId])
+  @@index([tenantId, status])
+  @@index([workflowId])
+}
+
+// ========== MODULE COMPTABILITÉ ==========
+
+model CompteComptable {
+  id          String          @id @default(cuid())
+  tenantId    String
+  numero      String
+  libelle     String
+  classe      Int
+  type        TypeCompte
+  parentId    String?
+  solde       Float           @default(0)
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  Tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Parent      CompteComptable?  @relation("CompteHierarchie", fields: [parentId], references: [id])
+  Enfants     CompteComptable[] @relation("CompteHierarchie")
+  Lignes      LigneEcriture[]
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, classe])
+  @@index([tenantId, type])
+}
+
+enum TypeCompte {
+  ACTIF
+  PASSIF
+  CHARGE
+  PRODUIT
+}
+
+model Journal {
+  id          String        @id @default(cuid())
+  tenantId    String
+  code        String
+  libelle     String
+  type        TypeJournal
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Ecritures   Ecriture[]
+
+  @@unique([tenantId, code])
+}
+
+enum TypeJournal {
+  VENTES
+  ACHATS
+  BANQUE
+  CAISSE
+  OD
+  CARPA
+}
+
+model Ecriture {
+  id            String          @id @default(cuid())
+  tenantId      String
+  journalId     String
+  numero        String
+  date          DateTime
+  libelle       String
+  reference     String?
+  factureId     String?
+  dossierId     String?
+  statut        StatutEcriture  @default(BROUILLON)
+  source        SourceEcriture  @default(MANUELLE)
+  validatedBy   String?
+  validatedAt   DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  Journal       Journal         @relation(fields: [journalId], references: [id])
+  Tenant        Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Lignes        LigneEcriture[]
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, date])
+  @@index([tenantId, statut])
+  @@index([factureId])
+  @@index([dossierId])
+}
+
+enum StatutEcriture {
+  BROUILLON
+  VALIDEE
+  LETTREE
+}
+
+enum SourceEcriture {
+  MANUELLE
+  FACTURE
+  PAIEMENT
+  BANQUE
+  IA
+}
+
+model LigneEcriture {
+  id          String          @id @default(cuid())
+  ecritureId  String
+  compteId    String
+  libelle     String?
+  debit       Float           @default(0)
+  credit      Float           @default(0)
+  lettrage    String?
+  Ecriture    Ecriture        @relation(fields: [ecritureId], references: [id], onDelete: Cascade)
+  Compte      CompteComptable @relation(fields: [compteId], references: [id])
+
+  @@index([ecritureId])
+  @@index([compteId])
+  @@index([lettrage])
+}
+
+model MouvementBancaire {
+  id              String    @id @default(cuid())
+  tenantId        String
+  compteBancaire  String
+  date            DateTime
+  libelle         String
+  montant         Float
+  reference       String?
+  isRapproche     Boolean   @default(false)
+  ecritureId      String?
+  importedAt      DateTime  @default(now())
+  Tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, date])
+  @@index([tenantId, isRapproche])
+}
+
+model DeclarationTVA {
+  id              String      @id @default(cuid())
+  tenantId        String
+  periode         String
+  regime          RegimeTVA
+  tvaCollectee    Float       @default(0)
+  tvaDeductible   Float       @default(0)
+  tvaNette        Float       @default(0)
+  statut          String      @default("brouillon")
+  dateLimite      DateTime
+  declaredAt      DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  Tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, periode])
+}
+
+enum RegimeTVA {
+  MENSUEL
+  TRIMESTRIEL
+  ANNUEL_SIMPLIFIE
+}
+
+model MouvementCARPA {
+  id          String   @id @default(cuid())
+  tenantId    String
+  dossierId   String
+  clientId    String
+  type        TypeMouvementCARPA
+  montant     Float
+  libelle     String
+  date        DateTime @default(now())
+  reference   String?
+  soldeApres  Float    @default(0)
+  createdAt   DateTime @default(now())
+  Tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  Dossier     Dossier  @relation(fields: [dossierId], references: [id])
+  Client      Client   @relation(fields: [clientId], references: [id])
+
+  @@index([tenantId, dossierId])
+  @@index([clientId])
+  @@index([date])
+}
+
+enum TypeMouvementCARPA {
+  PROVISION
+  RESTITUTION
+  REGLEMENT_TIERS
+  HONORAIRES
+}
+
+// ========== FIN MODULE COMPTABILITÉ ==========
+
+enum ArchiveStatus {
+  ACTIVE
+  PENDING_ARCHIVE
   ARCHIVED
+  PENDING_DELETION
+  DELETED
 }
 
 enum AuditAction {
@@ -99,12 +1132,79 @@ enum AuditAction {
   ARCHIVE
 }
 
-enum ArchiveStatus {
-  ACTIVE
-  PENDING_ARCHIVE
+enum DeadlineStatus {
+  PENDING
+  APPROACHING
+  URGENT
+  CRITICAL
+  OVERDUE
+  COMPLETED
+  CANCELLED
+}
+
+enum DeadlineType {
+  RECOURS_GRACIEUX
+  RECOURS_HIERARCHIQUE
+  RECOURS_CONTENTIEUX
+  APPEL
+  CASSATION
+  REPONSE_PREFECTURE
+  CONVOCATION_AUDIENCE
+  PRODUCTION_PIECES
+  EXECUTION_DECISION
+  OQTF
+  RETENTION
+  CUSTOM
+}
+
+enum InformationUnitSource {
+  EMAIL
+  UPLOAD
+  API
+  MANUAL
+  SCAN
+  FAX
+}
+
+enum InformationUnitStatus {
+  RECEIVED
+  CLASSIFIED
+  ANALYZED
+  INCOMPLETE
+  AMBIGUOUS
+  HUMAN_ACTION_REQUIRED
+  RESOLVED
+  CLOSED
+}
+
+enum ProofStatus {
+  PENDING_VALIDATION
+  VALIDATED
+  REJECTED
   ARCHIVED
-  PENDING_DELETION
-  DELETED
+}
+
+enum ProofType {
+  DOCUMENT_RECEPTION
+  DOCUMENT_ENVOI
+  ACCUSE_RECEPTION
+  DEPOT_RECOURS
+  NOTIFICATION_DECISION
+  AUDIENCE_PRESENCE
+  SIGNATURE_ELECTRONIQUE
+  HORODATAGE_CERTIFIE
+  CAPTURE_EMAIL
+  SCREENSHOT
+  RAPPORT_IA
+  AUTRE
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+  ARCHIVED
 }
 
 enum ReportType {
@@ -118,1155 +1218,15 @@ enum ReportType {
   CUSTOM
 }
 
-enum ReportStatus {
-  PENDING
-  GENERATING
-  COMPLETED
-  FAILED
-  ARCHIVED
-}
-
-// ============================================
-// NIVEAU 1 : PLATEFORME
-// ============================================
-
-model Plan {
-  id          String  @id @default(uuid())
-  name        String  @unique
-  displayName String
-  description String?
-
-  priceMonthly Float
-  priceYearly  Float
-  currency     String @default("EUR")
-
-  maxWorkspaces Int @default(1)
-  maxDossiers   Int @default(100)
-  maxClients    Int @default(20)
-  maxStorageGb  Int @default(5)
-  maxUsers      Int @default(5)
-
-  aiAutonomyLevel   Int     @default(1)
-  humanValidation   Boolean @default(true)
-  advancedAnalytics Boolean @default(false)
-  externalAiAccess  Boolean @default(false)
-
-  prioritySupport Boolean @default(false)
-  customBranding  Boolean @default(false)
-  apiAccess       Boolean @default(false)
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tenants       Tenant[]
-  subscriptions Subscription[]
-
-  @@index([isActive])
-}
-
-model Tenant {
-  id        String  @id @default(uuid())
-  name      String
-  subdomain String  @unique
-  domain    String? @unique
-
-  planId String
-  plan   Plan   @relation(fields: [planId], references: [id])
-
-  status      String    @default("active")
-  trialEndsAt DateTime?
-
-  billingEmail   String?
-  billingAddress String?
-  vatNumber      String?
-
-  currentWorkspaces Int   @default(0)
-  currentDossiers   Int   @default(0)
-  currentClients    Int   @default(0)
-  currentStorageGb  Float @default(0)
-  currentUsers      Int   @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  users              User[]
-  clients            Client[]
-  dossiers           Dossier[]
-  settings           TenantSettings?
-  subscription       Subscription?
-  emails             Email[]
-  workflowExecutions WorkflowExecution[]
-  factures           Facture[]
-  calendarEvents     CalendarEvent[]
-  documents          Document[]
-  informationUnits   InformationUnit[]
-  legalDeadlines     LegalDeadline[]
-  proofs             Proof[]
-  auditLogs          AuditLog[]
-  archivePolicies    ArchivePolicy[]
-  reports            Report[]
-  usageRecords       UsageRecord[]
-  aiUsageLogs        AIUsageLog[]
-  quotaEvents        QuotaEvent[]
-
-  @@index([planId])
-  @@index([status])
-}
-
-model TenantSettings {
-  id       String @id @default(uuid())
-  tenantId String @unique
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  ollamaEnabled Boolean @default(true)
-  ollamaUrl     String  @default("http://localhost:11434")
-  ollamaModel   String  @default("llama3.2:latest")
-
-  emailEnabled Boolean @default(false)
-  smtpHost     String?
-  smtpPort     Int?
-  smtpUser     String?
-  smtpPass     String?
-
-  maxDossiers  Int @default(100)
-  maxUsers     Int @default(5)
-  storageLimit Int @default(1000)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Subscription {
-  id       String @id @default(uuid())
-  tenantId String @unique
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  planId String
-  plan   Plan   @relation(fields: [planId], references: [id])
-
-  status String @default("active")
-
-  billingCycle String @default("monthly")
-
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  trialEnd           DateTime?
-  canceledAt         DateTime?
-  endedAt            DateTime?
-
-  pricePerMonth Float
-  currency      String @default("EUR")
-
-  autoRenew Boolean @default(true)
-
-  metadata String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId])
-  @@index([status])
-}
-
-// ============================================
-// NIVEAU 2 : UTILISATEURS
-// ============================================
-
-model User {
-  id       String @id @default(uuid())
-  email    String @unique
-  name     String
-  password String
-
-  role String
-
-  tenantId String?
-  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  clientId String? @unique
-  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  avatar    String?
-  phone     String?
-  status    String    @default("active")
-  lastLogin DateTime?
-
-  resetToken       String?
-  resetTokenExpiry DateTime?
-
-  language String @default("fr")
-  timezone String @default("Europe/Paris")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  notifications  Notification[]
-  calendarEvents CalendarEvent[]
-  documents      Document[]
-
-  @@index([tenantId, email])
-  @@index([role])
-  @@index([status])
-}
-
-// ============================================
-// NIVEAU 3 : OPÉRATIONNEL
-// ============================================
-
-model Client {
-  id       String @id @default(uuid())
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  civilite     String?
-  firstName    String
-  lastName     String
-  nomNaissance String?
-  prenomUsuel  String?
-
-  email            String
-  emailSecondaire  String?
-  phone            String?
-  phoneSecondaire  String?
-  telephoneUrgence String?
-
-  dateOfBirth        DateTime?
-  lieuNaissance      String?
-  nationality        String?
-  nationaliteOrigine String?
-
-  address    String?
-  codePostal String?
-  ville      String?
-  pays       String  @default("France")
-
-  user User?
-
-  passportNumber  String?
-  passportExpiry  DateTime?
-  passportCountry String?
-
-  status String @default("actif")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  dossiers       Dossier[]
-  emails         Email[]
-  factures       Facture[]
-  calendarEvents CalendarEvent[]
-  documents      Document[]
-  legalDeadlines LegalDeadline[]
-
-  @@unique([tenantId, email])
-  @@index([tenantId, email])
-  @@index([tenantId, status])
-}
-
-model Dossier {
-  id       String @id @default(uuid())
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  numero String
-
-  clientId String
-  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  typeDossier        String
-  articleCeseda      String?
-  categorieJuridique String?
-
-  statut   String @default("en_cours")
-  priorite String @default("normale")
-  phase    String @default("instruction")
-
-  dateCreation       DateTime  @default(now())
-  dateOuverture      DateTime?
-  dateEcheance       DateTime?
-  dateProchaineEtape DateTime?
-  dateCloture        DateTime?
-
-  juridiction       String?
-  numeroJuridiction String?
-  typeRecours       String?
-
-  responsableId  String?
-  collaborateurs String?
-
-  objet       String?
-  description String?
-  notes       String?
-
-  outcome      String?
-  outcomeDate  DateTime?
-  outcomeNotes String?
-
-  inboxEmail        String?
-  checklistComplete Boolean  @default(false)
-  checklistTotal    Int      @default(0)
-  checklistReceived Int      @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  emails         Email[]
-  factures       Facture[]
-  calendarEvents CalendarEvent[]
-  documents      Document[]
-  legalDeadlines LegalDeadline[]
-  proofs         Proof[]
-  checklistItems DossierChecklistItem[]
-
-  @@unique([tenantId, numero])
-  @@index([tenantId, statut])
-  @@index([clientId])
-}
-
-model Document {
+model VerificationToken {
   id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  dossierId String?
-  dossier   Dossier? @relation(fields: [dossierId], references: [id])
-
-  clientId  String?
-  client    Client?  @relation(fields: [clientId], references: [id])
-
-  filename    String
-  originalName String
-  mimeType    String
-  size        Int
-  storageKey  String
-
-  category    String?
-  description String?
-
-  ocrProcessed Boolean @default(false)
-  ocrText      String?
-  ocrConfidence Float?
-  extractedData String?
-
-  aiAnalyzed  Boolean @default(false)
-  aiSummary   String?
-  aiMetadata  String?
-
-  sha256      String?
-
-  antivirusStatus    String?
-  antivirusEngine    String?
-  antivirusDetails   String?
-  antivirusScannedAt DateTime?
-
-  uploadedBy  String
-  uploader    User     @relation(fields: [uploadedBy], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  proofs Proof[]
-
-  @@index([tenantId])
-  @@index([dossierId])
-  @@index([clientId])
-  @@index([sha256])
-}
-
-// ============================================
-// NIVEAU 4 : FACTURATION
-// ============================================
-
-model Facture {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  clientId  String
-  client    Client   @relation(fields: [clientId], references: [id])
-
-  dossierId String?
-  dossier   Dossier? @relation(fields: [dossierId], references: [id])
-
-  numero        String
-  reference     String?
-  description   String?
-
-  montantHT     Float
-  tauxTVA       Float    @default(20)
-  montantTVA    Float
-  montantTTC    Float
-
-  statut        String   @default("brouillon")
-
-  dateEmission  DateTime @default(now())
-  dateEcheance  DateTime
-  datePaiement  DateTime?
-
-  modePaiement  String?
-  referencePayment String?
-
-  notes         String?
-  conditions    String?
-
-  pdfUrl        String?
-  stripeInvoiceId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  lignes    LigneFacture[]
-  paiements Paiement[]
-
-  @@unique([tenantId, numero])
-  @@index([tenantId, statut])
-  @@index([clientId])
-  @@index([dateEcheance])
-}
-
-model LigneFacture {
-  id        String  @id @default(uuid())
-  factureId String
-  facture   Facture @relation(fields: [factureId], references: [id], onDelete: Cascade)
-
-  description String
-  quantite    Float   @default(1)
-  prixUnitaire Float
-  montantHT   Float
-
-  ordre       Int     @default(0)
-
+  email     String
+  token     String   @unique
+  type      String   @default("email_verification") // email_verification, password_reset
+  expiresAt DateTime
   createdAt DateTime @default(now())
 
-  @@index([factureId])
-}
-
-model Paiement {
-  id        String   @id @default(uuid())
-  factureId String
-  facture   Facture  @relation(fields: [factureId], references: [id], onDelete: Cascade)
-
-  montant   Float
-  date      DateTime @default(now())
-  mode      String
-  reference String?
-  notes     String?
-
-  stripePaymentId String?
-
-  createdAt DateTime @default(now())
-
-  @@index([factureId])
-}
-
-// ============================================
-// NIVEAU 5 : EMAIL & WORKFLOW
-// ============================================
-
-model Email {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  sourceChannel   String   @default("email")
-  sourceProvider  String?
-  sourceDirection String   @default("inbound")
-
-  messageId   String?
-  providerMessageId String?
-  threadId    String?
-  internetMessageId String?
-  fromAddress String?
-  toAddresses String?
-  cc          String?
-  bcc         String?
-  replyTo     String?
-  inReplyTo   String?
-  referenceIds String?
-  from        String
-  to          String
-  subject     String
-  body        String
-  bodyText    String?
-  htmlBody    String?
-  preview     String?
-  hasAttachments Boolean @default(false)
-
-  rawFormat       String?
-  rawPayload      String?
-  rawHeaders      String?
-  rawContent      String?
-  normalizedPayload String?
-  contentHash     String?
-
-  category    String   @default("general-inquiry")
-  urgency     String   @default("medium")
-  sentiment   String   @default("neutral")
-
-  isRead      Boolean  @default(false)
-  isStarred   Boolean  @default(false)
-  isArchived  Boolean  @default(false)
-  isProcessed Boolean  @default(false)
-
-  aiAnalysis  String?
-  tags        String?
-
-  clientId    String?
-  client      Client?  @relation(fields: [clientId], references: [id])
-
-  dossierId   String?
-  dossier     Dossier? @relation(fields: [dossierId], references: [id])
-
-  receivedAt  DateTime @default(now())
-  receivedDate DateTime?
-  readAt      DateTime?
-  processedAt DateTime?
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  workflows   WorkflowExecution[]
-  attachments EmailAttachment[]
-
-  @@index([tenantId, isProcessed])
-  @@index([tenantId, category])
-  @@unique([tenantId, messageId], map: "Email_tenantId_messageId_key")
-  @@unique([tenantId, providerMessageId], map: "Email_tenantId_providerMessageId_key")
-  @@unique([tenantId, internetMessageId], map: "Email_tenantId_internetMessageId_key")
-  @@unique([tenantId, contentHash], map: "Email_tenantId_contentHash_key")
-  @@index([tenantId, receivedDate])
-  @@index([tenantId, sourceProvider])
-  @@index([tenantId, threadId])
-  @@index([tenantId, fromAddress])
-  @@index([contentHash])
-  @@index([from])
-}
-
-model EmailAttachment {
-  id       String @id @default(uuid())
-  emailId  String
-  email    Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
-
-  filename    String
-  mimeType    String
-  size        Int
-  storageKey  String?
-  contentId   String?
-  disposition String?
-  checksum    String?
-  metadata    String?
-
-  createdAt DateTime @default(now())
-
-  @@index([emailId])
-}
-
-model WorkflowExecution {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  workflowId   String
-  workflowName String
-
-  emailId      String?
-  email        Email?   @relation(fields: [emailId], references: [id])
-
-  status       String   @default("pending")
-  currentStep  String?
-  progress     Int      @default(0)
-
-  triggerType  String   @default("email")
-  triggerData  String?
-
-  steps        String?
-  result       String?
-  error        String?
-
-  startedAt    DateTime?
-  completedAt  DateTime?
-
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@index([tenantId, status])
-  @@index([workflowId])
-  @@index([emailId])
-}
-
-// ============================================
-// NIVEAU 6 : CALENDAR & NOTIFICATIONS
-// ============================================
-
-model CalendarEvent {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-
-  dossierId String?
-  dossier   Dossier? @relation(fields: [dossierId], references: [id])
-
-  clientId  String?
-  client    Client?  @relation(fields: [clientId], references: [id])
-
-  title     String
-  description String?
-  location  String?
-
-  startDate DateTime
-  endDate   DateTime
-  allDay    Boolean  @default(false)
-
-  type      String   @default("rdv")
-  status    String   @default("confirmed")
-
-  googleEventId String?
-  outlookEventId String?
-
-  reminders String?
-
-  isRecurring Boolean @default(false)
-  recurrenceRule String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId, startDate])
-  @@index([userId])
-  @@index([dossierId])
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  type      String
-  title     String
-  message   String
-  data      String?
-
-  isRead    Boolean  @default(false)
-  readAt    DateTime?
-
-  priority  String   @default("normal")
-
-  createdAt DateTime @default(now())
-
-  @@index([userId, isRead])
-  @@index([createdAt])
-}
-
-// ============================================
-// NIVEAU 7 : JURIDIQUE (CŒUR DU SYSTÈME)
-// ============================================
-
-model LegalDeadline {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  dossierId String
-  dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-
-  clientId  String
-  client    Client   @relation(fields: [clientId], references: [id])
-
-  type      DeadlineType
-  label     String
-  description String?
-
-  referenceDate DateTime
-  dueDate       DateTime
-
-  status    DeadlineStatus @default(PENDING)
-
-  legalBasis    String?
-  legalDays     Int?
-
-  alertJ7Sent   Boolean @default(false)
-  alertJ3Sent   Boolean @default(false)
-  alertJ1Sent   Boolean @default(false)
-
-  completedAt   DateTime?
-  completedBy   String?
-  completionNote String?
-
-  proofId       String?
-
-  createdBy     String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  alerts        DeadlineAlert[]
-
-  @@index([tenantId])
-  @@index([dossierId])
-  @@index([status])
-  @@index([dueDate])
-  @@index([status, dueDate])
-}
-
-model DeadlineAlert {
-  id          String   @id @default(uuid())
-  deadlineId  String
-  deadline    LegalDeadline @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
-
-  alertType   String
-  sentAt      DateTime @default(now())
-  sentTo      String
-  channel     String
-
-  acknowledged Boolean @default(false)
-  acknowledgedAt DateTime?
-  acknowledgedBy String?
-
-  @@index([deadlineId])
-}
-
-model LegalReference {
-  id        String   @id @default(uuid())
-
-  code      String
-  article   String
-  version   String?
-
-  title     String
-  content   String
-  summary   String?
-
-  category  String
-  keywords  String?
-
-  defaultDeadlineDays Int?
-  deadlineType        String?
-
-  legifrance_url String?
-  eurlex_url     String?
-
-  isActive  Boolean  @default(true)
-  validFrom DateTime?
-  validUntil DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([code, article, version])
-  @@index([code])
-  @@index([category])
-  @@index([isActive])
-}
-
-// ============================================
-// NIVEAU 8 : TRAÇABILITÉ (IMMUABLE)
-// ============================================
-
-model InformationUnit {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  source        InformationUnitSource
-  content       String
-  contentHash   String   @unique
-
-  currentStatus InformationUnitStatus @default(RECEIVED)
-
-  sourceMetadata    String?
-  linkedWorkspaceId String?
-  metadata          String?
-
-  lastStatusChangeBy String?
-  lastStatusChangeAt DateTime?
-
-  receivedAt    DateTime @default(now())
-  classifiedAt  DateTime?
-  analyzedAt    DateTime?
-  resolvedAt    DateTime?
-  closedAt      DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  statusHistory InformationStatusHistory[]
-  proofs        Proof[]
-
-  @@index([tenantId])
-  @@index([currentStatus])
-  @@index([contentHash])
-  @@index([tenantId, currentStatus])
-}
-
-model InformationStatusHistory {
-  id          String   @id @default(uuid())
-  unitId      String
-  unit        InformationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
-
-  fromStatus  InformationUnitStatus?
-  toStatus    InformationUnitStatus
-  reason      String?
-
-  changedBy   String
-  changedAt   DateTime @default(now())
-
-  timestampHash String?
-
-  @@index([unitId])
-  @@index([changedAt])
-}
-
-model Proof {
-  id                String   @id @default(uuid())
-  tenantId          String
-  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  type              ProofType
-  title             String
-  description       String?
-
-  dossierId         String?
-  dossier           Dossier? @relation(fields: [dossierId], references: [id])
-
-  clientId          String?
-
-  documentId        String?
-  document          Document? @relation(fields: [documentId], references: [id])
-
-  informationUnitId String?
-  informationUnit   InformationUnit? @relation(fields: [informationUnitId], references: [id])
-
-  fileStorageKey    String?
-  fileHash          String?
-  fileMimeType      String?
-  fileSize          Int?
-
-  proofDate         DateTime
-  capturedAt        DateTime @default(now())
-  capturedBy        String
-
-  status            ProofStatus @default(PENDING_VALIDATION)
-  validatedBy       String?
-  validatedAt       DateTime?
-  rejectionReason   String?
-
-  timestampHash     String?
-  chainPreviousId   String?
-
-  metadata          String?
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@index([tenantId])
-  @@index([dossierId])
-  @@index([type])
-  @@index([status])
-  @@index([proofDate])
-}
-
-model AuditLog {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  userId    String
-  userEmail String
-  userRole  String
-
-  action    AuditAction
-  entityType String
-  entityId  String
-
-  oldValue  String?
-  newValue  String?
-
-  ipAddress String?
-  userAgent String?
-
-  timestamp DateTime @default(now())
-  timestampHash String?
-  previousLogId String?
-
-  createdAt DateTime @default(now())
-
-  @@index([tenantId])
-  @@index([userId])
-  @@index([entityType, entityId])
-  @@index([timestamp])
-  @@index([action])
-}
-
-model StripeWebhookEvent {
-  id            String   @id @default(uuid())
-  stripeEventId String   @unique
-  provider      String   @default("stripe")
-  eventType     String
-  status        String   @default("PROCESSING")
-  payload       String?
-  processedAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@index([provider, eventType])
-  @@index([status])
-  @@index([createdAt])
-}
-
-// ============================================
-// NIVEAU 9 : CONFORMITÉ & ARCHIVAGE
-// ============================================
-
-model ArchivePolicy {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  entityType String
-  entityId   String
-
-  status     ArchiveStatus @default(ACTIVE)
-
-  retentionDays    Int
-  retentionReason  String?
-
-  lastAccessAt     DateTime?
-  archiveAt        DateTime?
-  deleteAt         DateTime?
-
-  archivedAt       DateTime?
-  archivedBy       String?
-  deletedAt        DateTime?
-  deletedBy        String?
-
-  holdUntil        DateTime?
-  holdReason       String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([entityType, entityId])
-  @@index([tenantId])
-  @@index([status])
-  @@index([archiveAt])
-  @@index([deleteAt])
-}
-
-model Report {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  type      ReportType
-  title     String
-  description String?
-
-  parameters String?
-
-  dossierId String?
-  clientId  String?
-
-  periodStart DateTime?
-  periodEnd   DateTime?
-
-  status    ReportStatus @default(PENDING)
-  fileStorageKey String?
-  fileMimeType   String?
-  fileSize       Int?
-
-  generatedAt DateTime?
-  generatedBy String
-
-  isPublic    Boolean @default(false)
-  accessCount Int     @default(0)
-  lastAccessAt DateTime?
-
-  expiresAt   DateTime?
-
-  error       String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId])
-  @@index([type])
-  @@index([status])
-  @@index([dossierId])
-}
-
-// ============================================
-// NIVEAU 10 : SAAS & BILLING (EXTENSIONS)
-// ============================================
-
-model UsageRecord {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  type      String   // 'ocr' | 'signature' | 'sms' | 'ai'
-  quantity  Float
-  unitCost  Float
-  totalCost Float
-  metadata  String?  // JSON string
-  createdAt DateTime @default(now())
-
-  @@index([tenantId])
-  @@index([type])
-  @@index([createdAt])
-}
-
-model AIUsageLog {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  provider  String?
-  tokensUsed Int?
-  costEur   Float    @default(0)
-  operation String?
-  metadata  String?
-  createdAt DateTime @default(now())
-
-  @@index([tenantId])
-  @@index([createdAt])
-}
-
-model QuotaEvent {
-  id        String   @id @default(uuid())
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  quotaType String   // 'dossiers', 'storage', 'users', etc.
-  currentValue Float
-  limitValue  Float
-  percentage Float
-  eventType String   // 'warning', 'exceeded'
-  actionTaken String?
-  metadata  String?
-  occurredAt DateTime @default(now())
-
-  @@index([tenantId])
-  @@index([quotaType])
-  @@index([occurredAt])
-}
-
-
-// ============================================
-// NIVEAU 8 : JURISPRUDENCE (RECHERCHE AVANCÉE)
-// ============================================
-
-model Jurisprudence {
-  id           String   @id @default(uuid())
-  externalId   String   @unique
-  titre        String
-  date         DateTime
-  juridiction  String
-  numero       String?
-  chambre      String?
-  formation    String?
-  solution     String?
-  resume       String?
-  texte        String
-  url          String?
-  themes       String[] // tags: OQTF, asile, titre_sejour, etc.
-  source       String   @default("huggingface") // huggingface, legifrance, judilibre
-
-  // Full-text search vector (populated via raw SQL)
-  searchVector Unsupported("tsvector")?
-
-  createdAt    DateTime @default(now())
-
-  @@index([juridiction])
-  @@index([date])
-  @@index([themes])
-}
-
-model CommunityTemplate {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  category    String
-  typeDossier String
-  typeRecours String?
-  juridiction String?
-  content     String
-  variables   Json     @default("[]")
-  authorId    String
-  authorName  String
-  tenantId    String
-  isPublic    Boolean  @default(false)
-  upvotes     Int      @default(0)
-  downvotes   Int      @default(0)
-  usageCount  Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  votes TemplateVote[]
-
-  @@index([typeDossier])
-  @@index([isPublic, upvotes])
-}
-
-model TemplateVote {
-  id         String   @id @default(uuid())
-  templateId String
-  template   CommunityTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  userId     String
-  vote       Int
-  createdAt  DateTime @default(now())
-
-  @@unique([templateId, userId])
-}
-
-
-model DossierChecklistItem {
-  id         String   @id @default(uuid())
-  dossierId  String
-  dossier    Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  tenantId   String
-  label      String
-  category   String   @default("document")
-  required   Boolean  @default(true)
-  status     String   @default("missing")
-  documentId String?
-  receivedAt DateTime?
-  receivedVia String?
-  notes      String?
-  order      Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([dossierId])
-  @@index([dossierId, status])
-}
-
-// ============================================
-// CO-ADAPTATION : Préférences & Feedback IA
-// ============================================
-
-model UserPreference {
-  id       String @id @default(uuid())
-  userId   String
-  tenantId String
-  key      String
-  value    String // JSON
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, key])
-  @@index([tenantId, userId])
-}
-
-model AIFeedback {
-  id        String @id @default(uuid())
-  userId    String
-  tenantId  String
-  field     String   // "urgency", "typeDossier", "clientName", etc.
-  aiValue   String
-  userValue String
-  context   String?  // emailId ou hash du contenu analysé
-  createdAt DateTime @default(now())
-
-  @@index([tenantId, userId, field])
-  @@index([tenantId, field, aiValue])
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
 }
