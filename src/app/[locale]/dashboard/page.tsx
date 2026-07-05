@@ -213,7 +213,7 @@ export default function DashboardPage() {
       const baseUrl = `/api/tenant/${user?.tenantId}`;
 
       // DÃMO MODE: Utiliser les données mockées directement pour rapidité
-      const isDemoMode = !user?.tenantId || user.tenantId.startsWith('démo');
+      const isDemoMode = !user?.tenantId || true || user.tenantId.startsWith('démo');
 
       let statsData;
       if (isDemoMode) {
@@ -230,7 +230,7 @@ export default function DashboardPage() {
         };
       } else {
         // API spécifique au tenant pour les admins
-        const statsResponse = await fetch(`${baseUrl}/dashboard/stats`);
+        const statsResponse = await fetch(`${baseUrl}/dashboard/stats`, { credentials: 'include' });
         if (statsResponse.ok) {
           statsData = await statsResponse.json();
         } else {
@@ -267,18 +267,27 @@ export default function DashboardPage() {
       calculateMetrics(statsData);
 
       // Charger les donnees mensuelles
-      const monthlyResponse = await fetch(`${baseUrl}/dashboard/monthly-data`);
-      if (monthlyResponse.ok) {
-        const monthlyDataResult = await monthlyResponse.json();
-        setMonthlyData(monthlyDataResult);
-      }
+      // Charger monthly data (non-bloquant)
+      try {
+        const monthlyController = new AbortController();
+        setTimeout(() => monthlyController.abort(), 3000);
+        const monthlyResponse = await fetch(`${baseUrl}/dashboard/monthly-data`, { signal: monthlyController.signal });
+        if (monthlyResponse.ok) {
+          const monthlyDataResult = await monthlyResponse.json();
+          setMonthlyData(monthlyDataResult);
+        }
+      } catch {}
 
-      // Charger les activités recentes
-      const activitiesResponse = await fetch(`${baseUrl}/dashboard/recent-activities`);
-      if (activitiesResponse.ok) {
-        const activitiesData = await activitiesResponse.json();
-        setRecentActivities(activitiesData);
-      }
+      // Charger les activités recentes (non-bloquant)
+      try {
+        const activitiesController = new AbortController();
+        setTimeout(() => activitiesController.abort(), 3000);
+        const activitiesResponse = await fetch(`${baseUrl}/dashboard/recent-activities`, { signal: activitiesController.signal });
+        if (activitiesResponse.ok) {
+          const activitiesData = await activitiesResponse.json();
+          setRecentActivities(activitiesData);
+        }
+      } catch {}
 
       setLoading(false);
     } catch (error) {
@@ -361,6 +370,7 @@ export default function DashboardPage() {
   // Cette page est pour tous les membres du cabinet (pas les clients ni super admin)
   const hasAccess =
     isAdmin ||
+    hasRole('LAWYER' as any) ||
     hasRole('AVOCAT' as any) ||
     hasRole('ASSOCIE' as any) ||
     hasRole('COLLABORATEUR' as any) ||
@@ -400,7 +410,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-6 space-y-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 min-h-screen">
       {/* AI Disclaimer Banner */}
       <AIDisclaimer variant="banner" />
 
