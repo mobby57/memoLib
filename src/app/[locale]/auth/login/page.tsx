@@ -53,7 +53,7 @@ export default function LoginPage() {
         } else if (email === 'client@memolib.fr') {
           window.location.href = '/fr/client-dashboard';
         } else {
-          window.location.href = '/fr/dashboard';
+          window.location.href = '/fr/demo';
         }
       }
     } catch (error) {
