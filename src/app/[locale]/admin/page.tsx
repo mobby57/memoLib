@@ -47,7 +47,7 @@ export default function AdminDashboard() {
       router.push('/super-admin');
     } else if (user?.role === 'CLIENT') {
       router.push('/client');
-    } else if (user?.role === 'ADMIN') {
+    } else if (['ADMIN', 'AVOCAT', 'LAWYER', 'ASSOCIE'].includes(user?.role || '')) {
       fetchData();
     }
   }, [status, router, user?.role]);
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
       </div>
     );
