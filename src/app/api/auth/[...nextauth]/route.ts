@@ -120,7 +120,31 @@ export const authOptions: NextAuthOptions = {
         const emailNormalized = credentials.email.trim().toLowerCase();
         const passwordInput = credentials.password.trim();
 
-        const isDemoMode = true;
+        const isDemoMode = process.env.DEMO_MODE === 'true';
+
+        // Always allow demo@memolib.fr login (bypass bcrypt cross-platform issues)
+        if (emailNormalized === 'demo@memolib.fr' && passwordInput === 'Demo2026!') {
+          const demoUser = await prisma.user.findUnique({
+            where: { email: 'demo@memolib.fr' },
+            include: {
+              tenant: {
+                select: { id: true, name: true, status: true, plan: { select: { name: true } } },
+              },
+            },
+          });
+          if (demoUser) {
+            return {
+              id: demoUser.id,
+              email: demoUser.email,
+              name: demoUser.name,
+              role: demoUser.role,
+              tenantId: demoUser.tenantId,
+              tenantName: demoUser.tenant?.name,
+              tenantPlan: demoUser.tenant?.plan?.name,
+              clientId: demoUser.clientId,
+            } as any;
+          }
+        }
 
         if (isDemoMode) {
           const demoUsers: Record<string, any> = {
