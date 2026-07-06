@@ -106,6 +106,7 @@ export const POST = withRateLimit(async function registerHandler(request: NextRe
           name: cabinetNom || `Cabinet ${nom}`,
           subdomain,
           planId: plan.id,
+          updatedAt: new Date(),
 
           // Compteurs initiaux
           currentWorkspaces: 0,
@@ -125,9 +126,8 @@ export const POST = withRateLimit(async function registerHandler(request: NextRe
           password: hashedPassword,
           role: 'AVOCAT',
           status: 'active',
-          tenant: {
-            connect: { id: tenant.id },
-          },
+          updatedAt: new Date(),
+          tenantId: tenant.id,
         },
       });
 
@@ -144,6 +144,7 @@ export const POST = withRateLimit(async function registerHandler(request: NextRe
           trialEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           pricePerMonth: plan.priceMonthly,
           currency: plan.currency,
+          updatedAt: new Date(),
         },
       });
 
@@ -156,6 +157,7 @@ export const POST = withRateLimit(async function registerHandler(request: NextRe
           maxUsers: plan.maxUsers,
           storageLimit: plan.maxStorageGb * 1000, // Convert to MB if needed
           ollamaEnabled: true,
+          updatedAt: new Date(),
         },
       });
 
