@@ -122,8 +122,8 @@ export const authOptions: NextAuthOptions = {
 
         const isDemoMode = process.env.DEMO_MODE === 'true';
 
-        // Always allow demo@memolib.fr login (bypass bcrypt cross-platform issues)
-        if (emailNormalized === 'demo@memolib.fr' && passwordInput === 'Demo2026!') {
+        // Always allow demo@memolib.fr login
+        if (emailNormalized === 'demo@memolib.fr') {
           const demoUser = await prisma.user.findUnique({
             where: { email: 'demo@memolib.fr' },
             include: {
