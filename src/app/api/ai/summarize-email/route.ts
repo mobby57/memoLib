@@ -20,7 +20,14 @@ export async function POST(req: NextRequest) {
   const isDemoRequest = !session && req.headers.get('referer')?.includes('/demo');
   if (!session?.user && !isDemoRequest) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { subject, body, from } = await req.json();
+  let body_data: Record<string, unknown>;
+  try {
+    body_data = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
+  }
+
+  const { subject, body, from } = body_data as { subject?: string; body?: string; from?: string };
   if (!body) return NextResponse.json({ error: 'body requis' }, { status: 400 });
 
   try {

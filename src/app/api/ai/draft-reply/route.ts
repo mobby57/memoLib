@@ -10,7 +10,16 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { emailId, subject, body, from, dossierId } = await req.json();
+  let requestBody: Record<string, unknown>;
+  try {
+    requestBody = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
+  }
+
+  const { emailId, subject, body, from, dossierId } = requestBody as {
+    emailId?: string; subject?: string; body?: string; from?: string; dossierId?: string;
+  };
   if (!body) return NextResponse.json({ error: 'body requis' }, { status: 400 });
 
   const user = session.user as any;
@@ -30,10 +39,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const draft = await generateWithAI(subject, body, from, context, user.name || 'Maître');
+    const draft = await generateWithAI(subject || '', body, from || '', context, user.name || 'Maître');
     return NextResponse.json(draft);
   } catch {
-    const draft = generateFallback(subject, body, from, user.name || 'Maître');
+    const draft = generateFallback(subject || '', body, from || '', user.name || 'Maître');
     return NextResponse.json({ ...draft, _fallback: true });
   }
 }

@@ -11,7 +11,14 @@ export async function POST(req: NextRequest) {
   const tenantId = user.tenantId;
   if (!tenantId) return NextResponse.json({ error: 'Tenant requis' }, { status: 400 });
 
-  const { emailId, summary } = await req.json();
+  let requestBody: Record<string, unknown>;
+  try {
+    requestBody = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
+  }
+
+  const { emailId, summary } = requestBody as { emailId?: string; summary?: any };
   if (!summary) return NextResponse.json({ error: 'summary requis' }, { status: 400 });
 
   try {

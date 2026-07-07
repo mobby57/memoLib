@@ -199,6 +199,35 @@ async function handleInvoicePaid(db: DbClient, invoice: Stripe.Invoice) {
             paidDate: new Date((invoice as any).status_transitions.paid_at * 1000),
         },
     });
+
+    // === AUTO-ÉCRITURE COMPTABLE ===
+    // Chercher la facture MemoLib liée à cette invoice Stripe
+    try {
+        const factureMemoLib = await db.facture.findFirst({
+            where: { stripeInvoiceId: invoice.id },
+            include: {
+                Client: { select: { firstName: true, lastName: true } },
+            },
+        });
+
+        if (factureMemoLib) {
+            const { AutoEcrituresService } = await import('@/lib/services/comptabilite');
+            const clientNom = `${factureMemoLib.Client?.firstName || ''} ${factureMemoLib.Client?.lastName || ''}`.trim();
+
+            await AutoEcrituresService.genererEcriturePaiement({
+                tenantId: factureMemoLib.tenantId,
+                factureId: factureMemoLib.id,
+                factureNumero: factureMemoLib.numero,
+                montant: factureMemoLib.montantTTC,
+                date: new Date(),
+                mode: 'stripe',
+                reference: invoice.id,
+                clientNom,
+            });
+        }
+    } catch {
+        // Ne pas bloquer le webhook si la compta échoue
+    }
 }
 
 async function handleInvoicePaymentFailed(db: DbClient, invoice: Stripe.Invoice) {

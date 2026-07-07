@@ -47,10 +47,41 @@ interface AuditLogData {
 }
 
 /**
- * Create immutable audit log entry
+ * Create immutable audit log entry with hash chain (intégrité vérifiable)
+ * 
+ * VALEUR PROBANTE:
+ * - Chaque entrée inclut le hash SHA-256 de l'entrée précédente (chainage)
+ * - Toute modification d'une entrée casse la chaîne (détectable)
+ * - Prêt pour signature eIDAS qualifiée (ajout futur via HSM/PKI)
  */
 export async function createAuditLog(data: AuditLogData) {
   try {
+    // Récupérer le hash de la dernière entrée pour le chainage
+    const previousEntry = await prisma.auditLog.findFirst({
+      where: data.tenantId ? { tenantId: data.tenantId } : {},
+      orderBy: { timestamp: 'desc' },
+      select: { id: true, hash: true },
+    });
+
+    const previousHash = previousEntry?.hash || '0000000000000000000000000000000000000000000000000000000000000000';
+
+    // Construire le payload à hasher (données immuables)
+    const timestamp = new Date();
+    const hashPayload = JSON.stringify({
+      previousHash,
+      userId: data.userId,
+      tenantId: data.tenantId,
+      action: data.action,
+      resource: data.resource,
+      resourceId: data.resourceId,
+      description: data.description,
+      timestamp: timestamp.toISOString(),
+    });
+
+    // Hash SHA-256 pour intégrité de la chaîne
+    const crypto = await import('crypto');
+    const hash = crypto.createHash('sha256').update(hashPayload).digest('hex');
+
     const log = await prisma.auditLog.create({
       data: {
         userId: data.userId,
@@ -64,7 +95,10 @@ export async function createAuditLog(data: AuditLogData) {
         userAgent: data.userAgent,
         success: data.success,
         sensitiveData: data.sensitiveData || false,
-        timestamp: new Date(),
+        timestamp,
+        // Hash chain fields
+        previousHash,
+        hash,
       },
     });
 
@@ -277,4 +311,89 @@ export async function detectSuspiciousActivity(userId: string, hours: number = 2
   }
 
   return { suspicious: isSuspicious, details: suspicious };
+}
+
+
+/**
+ * Vérification de l'intégrité de la chaîne d'audit.
+ * Détecte toute modification frauduleuse d'une entrée.
+ * 
+ * @returns Liste des entrées dont le hash chain est cassé
+ */
+export async function verifyAuditChainIntegrity(tenantId?: string): Promise<{
+  valid: boolean;
+  totalEntries: number;
+  brokenAt?: { id: string; position: number; expectedHash: string; actualHash: string };
+}> {
+  const entries = await prisma.auditLog.findMany({
+    where: tenantId ? { tenantId } : {},
+    orderBy: { timestamp: 'asc' },
+    select: {
+      id: true,
+      userId: true,
+      tenantId: true,
+      action: true,
+      resource: true,
+      resourceId: true,
+      description: true,
+      timestamp: true,
+      previousHash: true,
+      hash: true,
+    },
+  });
+
+  if (entries.length === 0) return { valid: true, totalEntries: 0 };
+
+  const crypto = await import('crypto');
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    const expectedPreviousHash = i === 0
+      ? '0000000000000000000000000000000000000000000000000000000000000000'
+      : entries[i - 1].hash;
+
+    // Vérifier que le previousHash correspond au hash de l'entrée précédente
+    if (entry.previousHash && entry.previousHash !== expectedPreviousHash) {
+      return {
+        valid: false,
+        totalEntries: entries.length,
+        brokenAt: {
+          id: entry.id,
+          position: i,
+          expectedHash: expectedPreviousHash || 'unknown',
+          actualHash: entry.previousHash,
+        },
+      };
+    }
+
+    // Recalculer le hash pour vérifier que l'entrée n'a pas été modifiée
+    if (entry.hash) {
+      const hashPayload = JSON.stringify({
+        previousHash: entry.previousHash || expectedPreviousHash,
+        userId: entry.userId,
+        tenantId: entry.tenantId,
+        action: entry.action,
+        resource: entry.resource,
+        resourceId: entry.resourceId,
+        description: entry.description,
+        timestamp: entry.timestamp?.toISOString(),
+      });
+
+      const recalculatedHash = crypto.createHash('sha256').update(hashPayload).digest('hex');
+      if (recalculatedHash !== entry.hash) {
+        return {
+          valid: false,
+          totalEntries: entries.length,
+          brokenAt: {
+            id: entry.id,
+            position: i,
+            expectedHash: recalculatedHash,
+            actualHash: entry.hash,
+          },
+        };
+      }
+    }
+  }
+
+  return { valid: true, totalEntries: entries.length };
 }

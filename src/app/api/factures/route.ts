@@ -187,7 +187,54 @@ export async function PATCH(request: NextRequest) {
     const facture = await prisma.facture.update({
       where: { id: factureId },
       data: updateData,
+      include: {
+        client: { select: { firstName: true, lastName: true } },
+        dossier: { select: { typeDossier: true } },
+      },
     });
+
+    // === AUTO-ÉCRITURES COMPTABLES ===
+    try {
+      const { AutoEcrituresService } = await import('@/lib/services/comptabilite');
+      const clientNom = `${facture.client?.firstName || ''} ${facture.client?.lastName || ''}`.trim();
+
+      // Facture envoyée → écriture de vente
+      if (statut === 'envoyee') {
+        await AutoEcrituresService.genererEcritureFacture({
+          id: facture.id,
+          tenantId: facture.tenantId,
+          numero: facture.numero,
+          montantHT: facture.montantHT,
+          tauxTVA: facture.tauxTVA,
+          montantTVA: facture.montantTVA,
+          montantTTC: facture.montantTTC,
+          dateEmission: facture.dateEmission,
+          dossierId: facture.dossierId,
+          clientNom,
+          typeDossier: facture.dossier?.typeDossier,
+        });
+      }
+
+      // Facture payée → écriture d'encaissement
+      if (statut === 'payee') {
+        await AutoEcrituresService.genererEcriturePaiement({
+          tenantId: facture.tenantId,
+          factureId: facture.id,
+          factureNumero: facture.numero,
+          montant: facture.montantTTC,
+          date: datePaiement ? new Date(datePaiement) : new Date(),
+          mode: modePaiement || 'virement',
+          reference: referencePayment,
+          clientNom,
+        });
+      }
+    } catch (comptaError) {
+      // Ne pas bloquer la facture si la compta échoue (module optionnel)
+      logger.error('Auto-écriture comptable échouée', comptaError instanceof Error ? comptaError : undefined, {
+        factureId,
+        statut,
+      });
+    }
 
     return NextResponse.json({ success: true, facture });
   } catch (error) {
