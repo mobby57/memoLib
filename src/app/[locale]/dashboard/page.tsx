@@ -233,7 +233,7 @@ export default function DashboardPage() {
       const baseUrl = `/api/tenant/${user?.tenantId}`;
 
       // DÃMO MODE: Utiliser les données mockées directement pour rapidité
-      const isDemoMode = !user?.tenantId || true || user.tenantId.startsWith('démo');
+      const isDemoMode = !user?.tenantId || true || (user?.tenantId?.startsWith('d') ?? false);
 
       let statsData;
       if (isDemoMode) {
