@@ -321,6 +321,32 @@ model Draft {
   @@index([tenantId, status])
 }
 
+model EmailAccount {
+  id           String    @id @default(uuid())
+  tenantId     String
+  userId       String
+  email        String
+  provider     String    // gmail, outlook, imap
+  accessToken  String?
+  refreshToken String?
+  tokenExpiry  DateTime?
+  imapHost     String?
+  imapPort     Int?
+  imapUser     String?
+  imapPassword String?   // Chiffré AES-256
+  isActive     Boolean   @default(true)
+  lastSync     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  Tenant Tenant @relation(fields: [tenantId], references: [id])
+  User   User   @relation(fields: [userId], references: [id])
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([userId])
+}
+
 model Email {
   id                String              @id
   tenantId          String
@@ -830,6 +856,7 @@ model Tenant {
   UsageRecord       UsageRecord[]
   User              User[]
   WorkflowExecution WorkflowExecution[]
+  EmailAccount      EmailAccount[]
 
   @@index([planId])
   @@index([status])
@@ -892,6 +919,7 @@ model User {
   CalendarEvent    CalendarEvent[]
   Document         Document[]
   Notification     Notification[]
+  EmailAccount     EmailAccount[]
   Client           Client?         @relation(fields: [clientId], references: [id], onDelete: Cascade)
   Tenant           Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
