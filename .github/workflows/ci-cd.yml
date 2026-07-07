@@ -149,7 +149,7 @@ jobs:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
   # =========================================================================
-  # Post-deploy smoke test (production)
+  # Post-deploy smoke test (production — Render)
   # =========================================================================
   smoke-test:
     name: Smoke Test (Production)
@@ -157,23 +157,27 @@ jobs:
     needs: [migrate-production]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     timeout-minutes: 5
+    env:
+      PROD_URL: ${{ vars.PRODUCTION_URL || 'https://memolib.space' }}
 
     steps:
-      - name: Wait for Vercel deploy
-        run: sleep 30
+      - name: Wait for Render deploy
+        run: sleep 60
 
       - name: Health check
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://memolib.space)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 $PROD_URL)
           if [ "$STATUS" -ne 200 ] && [ "$STATUS" -ne 307 ]; then
             echo "❌ Health check failed (HTTP $STATUS)"
+            echo "Response:"
+            curl -s --max-time 10 $PROD_URL | head -50
             exit 1
           fi
           echo "✅ App responding (HTTP $STATUS)"
 
       - name: Auth endpoint check
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://memolib.space/api/auth/providers)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $PROD_URL/api/auth/providers)
           if [ "$STATUS" -ne 200 ]; then
             echo "❌ Auth endpoint failed (HTTP $STATUS)"
             exit 1
@@ -182,7 +186,7 @@ jobs:
 
       - name: API version check
         run: |
-          RESPONSE=$(curl -s https://memolib.space/api/version)
+          RESPONSE=$(curl -s --max-time 10 $PROD_URL/api/version)
           echo "API response: $RESPONSE"
           if echo "$RESPONSE" | grep -q "error"; then
             echo "⚠️ Version endpoint returned error (non-blocking)"
