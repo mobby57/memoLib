@@ -1,4 +1,5 @@
- /**
+/* eslint-disable no-unreachable */
+/**
  * Tests pour les utilitaires de gestion d'erreurs
  * Couverture: try/catch helpers, error types, retry logic
  */
@@ -200,14 +201,13 @@ describe('Error Utils', () => {
   });
 
   describe('Error Aggregation', () => {
-    const aggregateErrors = (errors: Error[]): Error | null => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function aggregateErrors(errors: Error[]): Error | null {
       if (errors.length === 0) return null;
       if (errors.length === 1) return errors[0];
-      
       const message = errors.map((e, i) => `${i + 1}. ${e.message}`).join('\n');
-      const aggregated = new Error(`Multiple errors occurred:\n${message}`);
-      return aggregated;
-    };
+      return new Error(`Multiple errors occurred:\n${message}`);
+    }
 
     it('devrait retourner null pour aucune erreur', () => {
       expect(aggregateErrors([])).toBeNull();
