@@ -79,16 +79,19 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
 
     const plan = await prisma.plan.create({
       data: {
+        id: `int-plan-id-${suffix}`,
         name: `int-plan-${suffix}`,
         displayName: 'Integration Plan',
         priceMonthly: 49,
         priceYearly: 490,
+        updatedAt: new Date(),
       },
     });
     planId = plan.id;
 
     const tenant = await prisma.tenant.create({
       data: {
+        id: `int-tenant-id-${suffix}`,
         name: `Tenant Integration ${suffix}`,
         subdomain: `int-${suffix}`,
         planId,
@@ -99,6 +102,7 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
     recipientEmail = `lawyer.${suffix}@memolib.space`;
     await prisma.user.create({
       data: {
+        id: `int-user-id-${suffix}`,
         email: recipientEmail,
         name: 'Lawyer Integration',
         password: 'not-used-in-test',
