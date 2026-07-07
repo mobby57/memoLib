@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+'use client';
+
+>>>>>>> origin/feat/email-inbox
 import Link from 'next/link';
 import {
   Mail, Brain, Scale, Shield, Clock, Users, Zap, ArrowRight,
