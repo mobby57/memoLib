@@ -1259,7 +1259,743 @@ model VerificationToken {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
+<<<<<<< HEAD
   @@index([email])
   @@index([token])
   @@index([expiresAt])
+=======
+  @@index([factureId])
+}
+
+model Paiement {
+  id        String   @id @default(uuid())
+  factureId String
+  facture   Facture  @relation(fields: [factureId], references: [id], onDelete: Cascade)
+
+  montant   Float
+  date      DateTime @default(now())
+  mode      String
+  reference String?
+  notes     String?
+
+  stripePaymentId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([factureId])
+}
+
+// ============================================
+// NIVEAU 5 : EMAIL & WORKFLOW
+// ============================================
+
+model Email {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  sourceChannel   String   @default("email")
+  sourceProvider  String?
+  sourceDirection String   @default("inbound")
+
+  messageId   String?
+  providerMessageId String?
+  threadId    String?
+  internetMessageId String?
+  fromAddress String?
+  toAddresses String?
+  cc          String?
+  bcc         String?
+  replyTo     String?
+  inReplyTo   String?
+  referenceIds String?
+  from        String
+  to          String
+  subject     String
+  body        String
+  bodyText    String?
+  htmlBody    String?
+  preview     String?
+  hasAttachments Boolean @default(false)
+
+  rawFormat       String?
+  rawPayload      String?
+  rawHeaders      String?
+  rawContent      String?
+  normalizedPayload String?
+  contentHash     String?
+
+  category    String   @default("general-inquiry")
+  urgency     String   @default("medium")
+  sentiment   String   @default("neutral")
+
+  isRead      Boolean  @default(false)
+  isStarred   Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+  isProcessed Boolean  @default(false)
+
+  processingStatus String @default("RECEIVED")
+  processingError  String?
+
+  aiAnalysis  String?
+  tags        String?
+
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id])
+
+  dossierId   String?
+  dossier     Dossier? @relation(fields: [dossierId], references: [id])
+
+  receivedAt  DateTime @default(now())
+  receivedDate DateTime?
+  readAt      DateTime?
+  processedAt DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workflows   WorkflowExecution[]
+  attachments EmailAttachment[]
+
+  @@index([tenantId, isProcessed])
+  @@index([tenantId, category])
+  @@unique([tenantId, messageId], map: "Email_tenantId_messageId_key")
+  @@unique([tenantId, providerMessageId], map: "Email_tenantId_providerMessageId_key")
+  @@unique([tenantId, internetMessageId], map: "Email_tenantId_internetMessageId_key")
+  @@unique([tenantId, contentHash], map: "Email_tenantId_contentHash_key")
+  @@index([tenantId, receivedDate])
+  @@index([tenantId, sourceProvider])
+  @@index([tenantId, threadId])
+  @@index([tenantId, fromAddress])
+  @@index([contentHash])
+  @@index([from])
+}
+
+model EmailAttachment {
+  id       String @id @default(uuid())
+  emailId  String
+  email    Email  @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  filename    String
+  mimeType    String
+  size        Int
+  storageKey  String?
+  contentId   String?
+  disposition String?
+  checksum    String?
+  metadata    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([emailId])
+}
+
+model WorkflowExecution {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  workflowId   String
+  workflowName String
+
+  emailId      String?
+  email        Email?   @relation(fields: [emailId], references: [id])
+
+  status       String   @default("pending")
+  currentStep  String?
+  progress     Int      @default(0)
+
+  triggerType  String   @default("email")
+  triggerData  String?
+
+  steps        String?
+  result       String?
+  error        String?
+
+  startedAt    DateTime?
+  completedAt  DateTime?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([tenantId, status])
+  @@index([workflowId])
+  @@index([emailId])
+}
+
+// ============================================
+// NIVEAU 6 : CALENDAR & NOTIFICATIONS
+// ============================================
+
+model CalendarEvent {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  dossierId String?
+  dossier   Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+
+  title     String
+  description String?
+  location  String?
+
+  startDate DateTime
+  endDate   DateTime
+  allDay    Boolean  @default(false)
+
+  type      String   @default("rdv")
+  status    String   @default("confirmed")
+
+  googleEventId String?
+  outlookEventId String?
+
+  reminders String?
+
+  isRecurring Boolean @default(false)
+  recurrenceRule String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, startDate])
+  @@index([userId])
+  @@index([dossierId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      String
+  title     String
+  message   String
+  data      String?
+
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+
+  priority  String   @default("normal")
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+}
+
+// ============================================
+// NIVEAU 7 : JURIDIQUE (CŒUR DU SYSTÈME)
+// ============================================
+
+model LegalDeadline {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  dossierId String
+  dossier   Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+
+  type      DeadlineType
+  label     String
+  description String?
+
+  referenceDate DateTime
+  dueDate       DateTime
+
+  status    DeadlineStatus @default(PENDING)
+
+  legalBasis    String?
+  legalDays     Int?
+
+  alertJ7Sent   Boolean @default(false)
+  alertJ3Sent   Boolean @default(false)
+  alertJ1Sent   Boolean @default(false)
+
+  completedAt   DateTime?
+  completedBy   String?
+  completionNote String?
+
+  proofId       String?
+
+  createdBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  alerts        DeadlineAlert[]
+
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([status, dueDate])
+}
+
+model DeadlineAlert {
+  id          String   @id @default(uuid())
+  deadlineId  String
+  deadline    LegalDeadline @relation(fields: [deadlineId], references: [id], onDelete: Cascade)
+
+  alertType   String
+  sentAt      DateTime @default(now())
+  sentTo      String
+  channel     String
+
+  acknowledged Boolean @default(false)
+  acknowledgedAt DateTime?
+  acknowledgedBy String?
+
+  @@index([deadlineId])
+}
+
+model LegalReference {
+  id        String   @id @default(uuid())
+
+  code      String
+  article   String
+  version   String?
+
+  title     String
+  content   String
+  summary   String?
+
+  category  String
+  keywords  String?
+
+  defaultDeadlineDays Int?
+  deadlineType        String?
+
+  legifrance_url String?
+  eurlex_url     String?
+
+  isActive  Boolean  @default(true)
+  validFrom DateTime?
+  validUntil DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code, article, version])
+  @@index([code])
+  @@index([category])
+  @@index([isActive])
+}
+
+// ============================================
+// NIVEAU 8 : TRAÇABILITÉ (IMMUABLE)
+// ============================================
+
+model InformationUnit {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  source        InformationUnitSource
+  content       String
+  contentHash   String   @unique
+
+  currentStatus InformationUnitStatus @default(RECEIVED)
+
+  sourceMetadata    String?
+  linkedWorkspaceId String?
+  metadata          String?
+
+  lastStatusChangeBy String?
+  lastStatusChangeAt DateTime?
+
+  receivedAt    DateTime @default(now())
+  classifiedAt  DateTime?
+  analyzedAt    DateTime?
+  resolvedAt    DateTime?
+  closedAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  statusHistory InformationStatusHistory[]
+  proofs        Proof[]
+
+  @@index([tenantId])
+  @@index([currentStatus])
+  @@index([contentHash])
+  @@index([tenantId, currentStatus])
+}
+
+model InformationStatusHistory {
+  id          String   @id @default(uuid())
+  unitId      String
+  unit        InformationUnit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  fromStatus  InformationUnitStatus?
+  toStatus    InformationUnitStatus
+  reason      String?
+
+  changedBy   String
+  changedAt   DateTime @default(now())
+
+  timestampHash String?
+
+  @@index([unitId])
+  @@index([changedAt])
+}
+
+model Proof {
+  id                String   @id @default(uuid())
+  tenantId          String
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  type              ProofType
+  title             String
+  description       String?
+
+  dossierId         String?
+  dossier           Dossier? @relation(fields: [dossierId], references: [id])
+
+  clientId          String?
+
+  documentId        String?
+  document          Document? @relation(fields: [documentId], references: [id])
+
+  informationUnitId String?
+  informationUnit   InformationUnit? @relation(fields: [informationUnitId], references: [id])
+
+  fileStorageKey    String?
+  fileHash          String?
+  fileMimeType      String?
+  fileSize          Int?
+
+  proofDate         DateTime
+  capturedAt        DateTime @default(now())
+  capturedBy        String
+
+  status            ProofStatus @default(PENDING_VALIDATION)
+  validatedBy       String?
+  validatedAt       DateTime?
+  rejectionReason   String?
+
+  timestampHash     String?
+  chainPreviousId   String?
+
+  metadata          String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([dossierId])
+  @@index([type])
+  @@index([status])
+  @@index([proofDate])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  userId    String
+  userEmail String
+  userRole  String
+
+  action    AuditAction
+  entityType String
+  entityId  String
+
+  oldValue  String?
+  newValue  String?
+
+  ipAddress String?
+  userAgent String?
+
+  timestamp DateTime @default(now())
+  timestampHash String?
+  previousLogId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@index([action])
+}
+
+model StripeWebhookEvent {
+  id            String   @id @default(uuid())
+  stripeEventId String   @unique
+  provider      String   @default("stripe")
+  eventType     String
+  status        String   @default("PROCESSING")
+  payload       String?
+  processedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([provider, eventType])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ============================================
+// NIVEAU 9 : CONFORMITÉ & ARCHIVAGE
+// ============================================
+
+model ArchivePolicy {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  entityType String
+  entityId   String
+
+  status     ArchiveStatus @default(ACTIVE)
+
+  retentionDays    Int
+  retentionReason  String?
+
+  lastAccessAt     DateTime?
+  archiveAt        DateTime?
+  deleteAt         DateTime?
+
+  archivedAt       DateTime?
+  archivedBy       String?
+  deletedAt        DateTime?
+  deletedBy        String?
+
+  holdUntil        DateTime?
+  holdReason       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([entityType, entityId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([archiveAt])
+  @@index([deleteAt])
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  type      ReportType
+  title     String
+  description String?
+
+  parameters String?
+
+  dossierId String?
+  clientId  String?
+
+  periodStart DateTime?
+  periodEnd   DateTime?
+
+  status    ReportStatus @default(PENDING)
+  fileStorageKey String?
+  fileMimeType   String?
+  fileSize       Int?
+
+  generatedAt DateTime?
+  generatedBy String
+
+  isPublic    Boolean @default(false)
+  accessCount Int     @default(0)
+  lastAccessAt DateTime?
+
+  expiresAt   DateTime?
+
+  error       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([type])
+  @@index([status])
+  @@index([dossierId])
+}
+
+// ============================================
+// NIVEAU 10 : SAAS & BILLING (EXTENSIONS)
+// ============================================
+
+model UsageRecord {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  type      String   // 'ocr' | 'signature' | 'sms' | 'ai'
+  quantity  Float
+  unitCost  Float
+  totalCost Float
+  metadata  String?  // JSON string
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model AIUsageLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  provider  String?
+  tokensUsed Int?
+  costEur   Float    @default(0)
+  operation String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([createdAt])
+}
+
+model QuotaEvent {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  quotaType String   // 'dossiers', 'storage', 'users', etc.
+  currentValue Float
+  limitValue  Float
+  percentage Float
+  eventType String   // 'warning', 'exceeded'
+  actionTaken String?
+  metadata  String?
+  occurredAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([quotaType])
+  @@index([occurredAt])
+}
+
+
+// ============================================
+// NIVEAU 8 : JURISPRUDENCE (RECHERCHE AVANCÉE)
+// ============================================
+
+model Jurisprudence {
+  id           String   @id @default(uuid())
+  externalId   String   @unique
+  titre        String
+  date         DateTime
+  juridiction  String
+  numero       String?
+  chambre      String?
+  formation    String?
+  solution     String?
+  resume       String?
+  texte        String
+  url          String?
+  themes       String[] // tags: OQTF, asile, titre_sejour, etc.
+  source       String   @default("huggingface") // huggingface, legifrance, judilibre
+
+  // Full-text search vector (populated via raw SQL)
+  searchVector Unsupported("tsvector")?
+
+  createdAt    DateTime @default(now())
+
+  @@index([juridiction])
+  @@index([date])
+  @@index([themes])
+}
+
+model CommunityTemplate {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  category    String
+  typeDossier String
+  typeRecours String?
+  juridiction String?
+  content     String
+  variables   Json     @default("[]")
+  authorId    String
+  authorName  String
+  tenantId    String
+  isPublic    Boolean  @default(false)
+  upvotes     Int      @default(0)
+  downvotes   Int      @default(0)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  votes TemplateVote[]
+
+  @@index([typeDossier])
+  @@index([isPublic, upvotes])
+}
+
+model TemplateVote {
+  id         String   @id @default(uuid())
+  templateId String
+  template   CommunityTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  userId     String
+  vote       Int
+  createdAt  DateTime @default(now())
+
+  @@unique([templateId, userId])
+}
+
+
+model DossierChecklistItem {
+  id         String   @id @default(uuid())
+  dossierId  String
+  dossier    Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  tenantId   String
+  label      String
+  category   String   @default("document")
+  required   Boolean  @default(true)
+  status     String   @default("missing")
+  documentId String?
+  receivedAt DateTime?
+  receivedVia String?
+  notes      String?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([dossierId, status])
+}
+
+// ============================================
+// CO-ADAPTATION : Préférences & Feedback IA
+// ============================================
+
+model UserPreference {
+  id       String @id @default(uuid())
+  userId   String
+  tenantId String
+  key      String
+  value    String // JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, key])
+  @@index([tenantId, userId])
+}
+
+model AIFeedback {
+  id        String @id @default(uuid())
+  userId    String
+  tenantId  String
+  field     String   // "urgency", "typeDossier", "clientName", etc.
+  aiValue   String
+  userValue String
+  context   String?  // emailId ou hash du contenu analysé
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, userId, field])
+  @@index([tenantId, field, aiValue])
+>>>>>>> origin/feat/email-inbox
 }
