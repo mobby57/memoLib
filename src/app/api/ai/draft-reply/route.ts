@@ -2,9 +2,7 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-
-const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.2:latest';
+import { hybridAI } from '@/lib/ai/hybrid-client';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -73,17 +71,12 @@ Retourne UNIQUEMENT un JSON:
   "suggestedActions": ["action1", "action2"]
 }`;
 
-  const response = await fetch(`${OLLAMA_URL}/api/generate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: OLLAMA_MODEL, prompt, stream: false }),
-    signal: AbortSignal.timeout(20000),
-  });
+  const session = await getServerSession(authOptions);
+  const tenantId = (session?.user as any)?.tenantId || 'demo';
 
-  if (!response.ok) throw new Error('Ollama unavailable');
-  const data = await response.json();
-  const jsonMatch = data.response.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('No JSON');
+  const response = await hybridAI.generateWithCostControl(prompt, tenantId);
+  const jsonMatch = response.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('No JSON in AI response');
   return JSON.parse(jsonMatch[0]);
 }
 
