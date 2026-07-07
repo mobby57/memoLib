@@ -107,7 +107,26 @@ export function withRateLimit<T>(
     }
 
     // Exécuter le handler original
-    const response = await handler(req, context);
+    let response: NextResponse;
+    try {
+      response = await handler(req, context);
+    } catch (error) {
+      // Catch unhandled errors from the handler (e.g., malformed request body)
+      const message = error instanceof Error ? error.message : String(error);
+      const isJsonParseError = message.includes('JSON') && message.includes('position');
+      
+      if (isJsonParseError) {
+        return NextResponse.json(
+          { error: 'Corps de requête invalide. JSON attendu.' },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: 'Erreur interne du serveur' },
+        { status: 500 }
+      );
+    }
 
     // Ajouter les headers de rate limit
     response.headers.set('X-RateLimit-Limit', String(config.maxRequests));
