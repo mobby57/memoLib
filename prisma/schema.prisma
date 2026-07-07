@@ -67,6 +67,8 @@ model AuditLog {
   timestamp     DateTime    @default(now())
   timestampHash String?
   previousLogId String?
+  hash          String?     // SHA-256 hash chain (intégrité RGPD)
+  previousHash  String?     // Hash de l'entrée précédente
   createdAt     DateTime    @default(now())
   Tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -75,6 +77,7 @@ model AuditLog {
   @@index([tenantId])
   @@index([timestamp])
   @@index([userId])
+  @@index([hash])
 }
 
 model CalendarEvent {
@@ -355,7 +358,9 @@ model Email {
   to                String
   subject           String
   body              String
+  bodyEncrypted     String?             // AES-256-GCM encrypted body (migration progressive)
   htmlBody          String?
+  htmlBodyEncrypted String?             // AES-256-GCM encrypted HTML body
   preview           String?
   category          String              @default("general-inquiry")
   urgency           String              @default("medium")

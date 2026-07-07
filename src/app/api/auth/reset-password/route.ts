@@ -9,7 +9,14 @@ import { logger } from '@/lib/logger';
  */
 export async function POST(request: NextRequest) {
   try {
-    const { token, email, password } = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
+    }
+
+    const { token, email, password } = body as { token?: string; email?: string; password?: string };
 
     if (!token || !email || !password) {
       return NextResponse.json(
