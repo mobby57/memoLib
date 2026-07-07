@@ -24,6 +24,7 @@ import {
   AI_COSTS
 } from '../billing/cost-guard';
 import { getCachedResponse, setCachedResponse, getCacheStats } from './ai-cache';
+import { sanitizePromptForAI } from './prompt-sanitizer';
 
 export type AIProvider = 'ollama' | 'cloudflare' | 'none';
 
@@ -89,8 +90,17 @@ export class HybridAIClient {
     systemPrompt?: string
   ): Promise<AIResponse> {
     const startTime = Date.now();
-    const estimatedTokens = Math.ceil((prompt.length + (systemPrompt?.length || 0)) / 4);
-    const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
+    
+    // 🔒 ÉTAPE SÉCURITÉ: Anonymiser le prompt AVANT tout envoi au LLM
+    const { sanitizedText: safePrompt, redactedCount } = sanitizePromptForAI(prompt);
+    const safeSystemPrompt = systemPrompt ? sanitizePromptForAI(systemPrompt).sanitizedText : undefined;
+    
+    if (redactedCount > 0) {
+      logger.info('AI Isolation: PII redacted from prompt', { tenantId, redactedCount });
+    }
+    
+    const estimatedTokens = Math.ceil((safePrompt.length + (safeSystemPrompt?.length || 0)) / 4);
+    const fullPrompt = safeSystemPrompt ? `${safeSystemPrompt}\n\n${safePrompt}` : safePrompt;
     
     // ??? ETAPE 0: Verifier le cache IA
     const cached = await getCachedResponse(fullPrompt, 'auto');
@@ -121,7 +131,7 @@ export class HybridAIClient {
     // Essayer Ollama d'abord (TOUJOURS gratuit)
     if (await this.ollama.isAvailable()) {
       try {
-        const response = await this.ollama.generate(prompt, systemPrompt);
+        const response = await this.ollama.generate(safePrompt, safeSystemPrompt);
         const latency = Date.now() - startTime;
         const tokensUsed = Math.ceil(response.length / 4);
         
@@ -206,10 +216,18 @@ export class HybridAIClient {
   async generate(prompt: string, systemPrompt?: string): Promise<AIResponse> {
     const startTime = Date.now();
     
+    // 🔒 SÉCURITÉ: Anonymiser avant envoi au LLM
+    const { sanitizedText: safePrompt, redactedCount } = sanitizePromptForAI(prompt);
+    const safeSystemPrompt = systemPrompt ? sanitizePromptForAI(systemPrompt).sanitizedText : undefined;
+    
+    if (redactedCount > 0) {
+      logger.info('AI Isolation: PII redacted from prompt (legacy)', { redactedCount });
+    }
+    
     // Strategie 1: Provider prefere
     if (this.preferredProvider === 'ollama') {
       try {
-        const response = await this.ollama.generate(prompt, systemPrompt);
+        const response = await this.ollama.generate(safePrompt, safeSystemPrompt);
         const latency = Date.now() - startTime;
         
         logger.info('AI request succeeded with Ollama', { latency, model: this.ollama['model'] });
@@ -227,7 +245,7 @@ export class HybridAIClient {
     
     if (this.preferredProvider === 'cloudflare') {
       try {
-        const response = await this.cloudflare.generate(prompt, { systemPrompt });
+        const response = await this.cloudflare.generate(safePrompt, { systemPrompt: safeSystemPrompt });
         const latency = Date.now() - startTime;
         
         logger.info('AI request succeeded with Cloudflare', { latency });
@@ -248,7 +266,7 @@ export class HybridAIClient {
     
     if (fallbackProvider === 'ollama') {
       try {
-        const response = await this.ollama.generate(prompt, systemPrompt);
+        const response = await this.ollama.generate(safePrompt, safeSystemPrompt);
         const latency = Date.now() - startTime;
         
         logger.info('AI request succeeded with Ollama (fallback)', { latency });
@@ -264,7 +282,7 @@ export class HybridAIClient {
       }
     } else {
       try {
-        const response = await this.cloudflare.generate(prompt, { systemPrompt });
+        const response = await this.cloudflare.generate(safePrompt, { systemPrompt: safeSystemPrompt });
         const latency = Date.now() - startTime;
         
         logger.info('AI request succeeded with Cloudflare (fallback)', { latency });
