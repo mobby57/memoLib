@@ -262,7 +262,7 @@ export class JudilibreClient {
    * await client.search({ query: 'titre séjour', solution: ['cassation'] })
    */
   async search(params: JudilibreSearchParams): Promise<JudilibreSearchResult> {
-    return this.request<JudilibreSearchResult>('/search', params as Record<string, unknown>);
+    return this.request<JudilibreSearchResult>('/search', params as unknown as Record<string, unknown>);
   }
 
   // ============================================
