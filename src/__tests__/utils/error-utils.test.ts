@@ -201,26 +201,21 @@ describe('Error Utils', () => {
   });
 
   describe('Error Aggregation', () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    function aggregateErrors(errors: Error[]): Error | null {
-      if (errors.length === 0) return null;
-      if (errors.length === 1) return errors[0];
-      const message = errors.map((e, i) => `${i + 1}. ${e.message}`).join('\n');
-      return new Error(`Multiple errors occurred:\n${message}`);
-    }
-
     it('devrait retourner null pour aucune erreur', () => {
-      expect(aggregateErrors([])).toBeNull();
+      const agg = (e: Error[]) => { if (!e.length) return null; if (e.length===1) return e[0]; return new Error(e.map((x,i)=>`${i+1}. ${x.message}`).join('\n')); };
+      expect(agg([])).toBeNull();
     });
 
     it('devrait retourner l\'erreur unique', () => {
+      const agg = (e: Error[]) => { if (!e.length) return null; if (e.length===1) return e[0]; return new Error(e.map((x,i)=>`${i+1}. ${x.message}`).join('\n')); };
       const error = new Error('single');
-      expect(aggregateErrors([error])).toBe(error);
+      expect(agg([error])).toBe(error);
     });
 
     it('devrait agréger plusieurs erreurs', () => {
+      const agg = (e: Error[]) => { if (!e.length) return null; if (e.length===1) return e[0]; return new Error(e.map((x,i)=>`${i+1}. ${x.message}`).join('\n')); };
       const errors = [new Error('first'), new Error('second')];
-      const aggregated = aggregateErrors(errors);
+      const aggregated = agg(errors);
       expect(aggregated?.message).toContain('first');
       expect(aggregated?.message).toContain('second');
     });
