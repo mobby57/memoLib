@@ -1,11 +1,10 @@
-import type { Metadata } from 'next';
-import { defaultMetadata, getBaseUrl, SITE_DESCRIPTION, SITE_NAME } from '@/lib/metadata';
+import { getBaseUrl, SITE_DESCRIPTION, SITE_NAME } from '@/lib/metadata';
 import { Providers } from './providers';
+import { LayoutWrapper } from '@/components/LayoutWrapper';
+import ConsentBanner from '@/components/compliance/ConsentBanner';
 import './globals.css';
 
-export const metadata: Metadata = defaultMetadata;
-
-export default async function RootLayout({
+export default async function LocaleLayout({
   children,
   params,
 }: {
@@ -29,16 +28,17 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang={locale}>
-      <body className="antialiased">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData),
-          }}
-        />
-        <Providers>{children}</Providers>
-      </body>
-    </html>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
+      <Providers>
+        <LayoutWrapper>{children}</LayoutWrapper>
+        <ConsentBanner />
+      </Providers>
+    </>
   );
 }
