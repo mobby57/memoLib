@@ -13,7 +13,9 @@
  */
 
 import prisma from '@/lib/prisma';
-import { TypeCompte } from '@prisma/client';
+
+// Type local — miroir de l'enum Prisma TypeCompte
+type TypeCompte = 'ACTIF' | 'PASSIF' | 'CHARGE' | 'PRODUIT';
 
 export interface CompteInput {
   numero: string;

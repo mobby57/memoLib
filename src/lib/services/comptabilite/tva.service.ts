@@ -4,7 +4,9 @@
  */
 
 import prisma from '@/lib/prisma';
-import { RegimeTVA } from '@prisma/client';
+
+// Type local — miroir de l'enum Prisma RegimeTVA
+type RegimeTVA = 'MENSUEL' | 'TRIMESTRIEL' | 'ANNUEL_SIMPLIFIE';
 
 interface CalculTVA {
   tvaCollectee: number;

@@ -4,7 +4,10 @@
  */
 
 import prisma from '@/lib/prisma';
-import { SourceEcriture, StatutEcriture } from '@prisma/client';
+
+// Types locaux — miroir des enums Prisma
+type SourceEcriture = 'MANUELLE' | 'FACTURE' | 'PAIEMENT' | 'BANQUE' | 'IA';
+type StatutEcriture = 'BROUILLON' | 'VALIDEE' | 'LETTREE';
 
 export interface LigneEcritureInput {
   compteNumero: string;
