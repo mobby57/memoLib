@@ -39,10 +39,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const draft = await generateWithAI(subject, body, from, context, user.name || 'Maître');
+    const draft = await generateWithAI(subject || '', body, from || '', context, user.name || 'Maître');
     return NextResponse.json(draft);
   } catch {
-    const draft = generateFallback(subject, body, from, user.name || 'Maître');
+    const draft = generateFallback(subject || '', body, from || '', user.name || 'Maître');
     return NextResponse.json({ ...draft, _fallback: true });
   }
 }
