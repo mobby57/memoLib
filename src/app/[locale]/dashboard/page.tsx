@@ -128,14 +128,34 @@ export default function DashboardPage() {
   } | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
 
-  // Charger le statut d'onboarding
+  // Charger le statut d'onboarding + seed démo si premier login
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       fetch('/api/onboarding/status')
         .then(r => r.json())
-        .then(data => {
-          if (data.needsOnboarding) setOnboardingSteps(data.steps);
-          else setShowOnboarding(false);
+        .then(async (data) => {
+          if (data.needsOnboarding) {
+            // Si aucune donnée (premier login), injecter la démo
+            if (!data.steps.firstClient && !data.steps.firstEmail && !data.steps.firstDossier) {
+              try {
+                const seedRes = await fetch('/api/demo/seed', { method: 'POST' });
+                const seedData = await seedRes.json();
+                if (seedData.seeded) {
+                  // Refresh onboarding status après seed
+                  const refreshed = await fetch('/api/onboarding/status').then(r => r.json());
+                  if (refreshed.needsOnboarding) {
+                    setOnboardingSteps(refreshed.steps);
+                  } else {
+                    setShowOnboarding(false);
+                  }
+                  return;
+                }
+              } catch {}
+            }
+            setOnboardingSteps(data.steps);
+          } else {
+            setShowOnboarding(false);
+          }
         })
         .catch(() => {});
     }
@@ -421,6 +441,23 @@ export default function DashboardPage() {
           userName={user?.name?.split(' ')[0]}
           onDismiss={() => setShowOnboarding(false)}
         />
+      )}
+
+      {/* Demo Banner — affiché si le wizard est masqué et qu'on vient de seeder */}
+      {!showOnboarding && onboardingSteps === null && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">🎯</span>
+            <div>
+              <h3 className="font-semibold text-amber-900">Bienvenue ! Un dossier de démonstration vous attend</h3>
+              <p className="text-amber-700 text-sm mt-1">
+                Nous avons créé un dossier fictif (OQTF - M. Diallo) pour vous montrer comment MemoLib fonctionne.
+                Explorez l&apos;email analysé par l&apos;IA, le dossier créé et les alertes de deadline.
+                Quand vous serez prêt, connectez votre vraie boîte mail pour traiter vos dossiers.
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Today Focus — Ma journée */}
