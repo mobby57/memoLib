@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -6,12 +6,7 @@ import { prisma } from '@/lib/prisma';
  * Cron quotidien : envoie une relance aux clients dont des pieces sont manquantes depuis +7 jours.
  * Appele par Vercel Cron ou manuellement.
  */
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const token = searchParams.get('token');
-  if (token !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+export async function GET() {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   // Trouver les dossiers avec pieces manquantes depuis +7j
