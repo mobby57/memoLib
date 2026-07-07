@@ -1,5 +1,4 @@
-/* eslint-disable no-unreachable */
-/**
+ /**
  * Tests pour les utilitaires de gestion d'erreurs
  * Couverture: try/catch helpers, error types, retry logic
  */
@@ -201,21 +200,27 @@ describe('Error Utils', () => {
   });
 
   describe('Error Aggregation', () => {
+    const aggregateErrors = (errors: Error[]): Error | null => {
+      if (errors.length === 0) return null;
+      if (errors.length === 1) return errors[0];
+      
+      const message = errors.map((e, i) => `${i + 1}. ${e.message}`).join('\n');
+      const aggregated = new Error(`Multiple errors occurred:\n${message}`);
+      return aggregated;
+    };
+
     it('devrait retourner null pour aucune erreur', () => {
-      const agg = (e: Error[]) => { if (!e.length) return null; if (e.length===1) return e[0]; return new Error(e.map((x,i)=>`${i+1}. ${x.message}`).join('\n')); };
-      expect(agg([])).toBeNull();
+      expect(aggregateErrors([])).toBeNull();
     });
 
     it('devrait retourner l\'erreur unique', () => {
-      const agg = (e: Error[]) => { if (!e.length) return null; if (e.length===1) return e[0]; return new Error(e.map((x,i)=>`${i+1}. ${x.message}`).join('\n')); };
       const error = new Error('single');
-      expect(agg([error])).toBe(error);
+      expect(aggregateErrors([error])).toBe(error);
     });
 
     it('devrait agréger plusieurs erreurs', () => {
-      const agg = (e: Error[]) => { if (!e.length) return null; if (e.length===1) return e[0]; return new Error(e.map((x,i)=>`${i+1}. ${x.message}`).join('\n')); };
       const errors = [new Error('first'), new Error('second')];
-      const aggregated = agg(errors);
+      const aggregated = aggregateErrors(errors);
       expect(aggregated?.message).toContain('first');
       expect(aggregated?.message).toContain('second');
     });
