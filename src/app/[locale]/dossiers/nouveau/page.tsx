@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/forms/Button'
 import { EtapeTypeDossier } from '@/components/dossiers/EtapeTypeDossier'
+import { SensitiveDataConsent } from '@/components/legal/SensitiveDataConsent'
 import { CesedaSpecificFields } from '@/components/dossiers/CesedaSpecificFields'
 
 // Schema de validation Zod
@@ -147,6 +148,21 @@ export default function NouveauDossierAvance() {
   const [documentAnalyzing, setDocumentAnalyzing] = useState(false)
   const [extractedData, setExtractedData] = useState<any>(null)
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true)
+  const [showSensitiveConsent, setShowSensitiveConsent] = useState(false)
+  const [sensitiveConsent, setSensitiveConsent] = useState<Record<string, boolean> | null>(null)
+
+  // Restore step from sessionStorage
+  useEffect(() => {
+    try {
+      const savedStep = sessionStorage.getItem('memolib_nouveau_dossier_avocat_step');
+      if (savedStep) setEtapeActive(parseInt(savedStep, 10));
+    } catch {}
+  }, []);
+
+  // Persist step
+  useEffect(() => {
+    try { sessionStorage.setItem('memolib_nouveau_dossier_avocat_step', String(etapeActive)); } catch {}
+  }, [etapeActive]);
 
   // Donnees anonymisees pour demo
   const methods = useForm<DossierFormData>({
@@ -292,13 +308,28 @@ export default function NouveauDossierAvance() {
   }
 
   const onSubmit = async (data: DossierFormData) => {
+    // Art. 9 RGPD: Consentement requis pour données sensibles (immigration, asile)
+    const SENSITIVE_TYPES = ['TITRE_SEJOUR', 'RECOURS_OQTF', 'ASILE', 'REGROUPEMENT_FAMILIAL', 'NATURALISATION'];
+    if (SENSITIVE_TYPES.includes(data.typeDossier) && !sensitiveConsent) {
+      setShowSensitiveConsent(true);
+      return;
+    }
+
     setLoading(true)
 
     try {
       const response = await fetch('/api/dossiers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          // Joindre la preuve de consentement pour l'audit trail
+          sensitiveDataConsent: sensitiveConsent ? {
+            granted: true,
+            categories: sensitiveConsent,
+            timestamp: new Date().toISOString(),
+          } : undefined,
+        }),
       })
 
       if (!response.ok) {
@@ -316,7 +347,10 @@ export default function NouveauDossierAvance() {
         description: `Dossier #${dossier.id} cree avec succès` 
       })
 
-      setTimeout(() => router.push(`/dossiers/${dossier.id}`), 1500)
+      setTimeout(() => {
+        sessionStorage.removeItem('memolib_nouveau_dossier_avocat_step')
+        router.push(`/dossiers/${dossier.id}`)
+      }, 1500)
     } catch (error) {
       toast({ 
         title: 'Erreur', 
@@ -342,6 +376,28 @@ export default function NouveauDossierAvance() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+      {/* Modal Consentement Art. 9 RGPD */}
+      {showSensitiveConsent && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <SensitiveDataConsent
+            clientName={`${methods.getValues('prenom')} ${methods.getValues('nom')}`}
+            onConsent={(consents) => {
+              setSensitiveConsent(consents);
+              setShowSensitiveConsent(false);
+              // Re-déclencher la soumission maintenant que le consentement est obtenu
+              methods.handleSubmit(onSubmit)();
+            }}
+            onCancel={() => setShowSensitiveConsent(false)}
+            categories={[
+              { id: 'ethnic_origin', label: 'Origine ethnique / nationalité', description: 'Nécessaire pour les dossiers de titre de séjour, naturalisation, et asile.', required: true },
+              { id: 'political_opinions', label: 'Opinions politiques / convictions', description: 'Pertinent pour les demandes d\'asile (persécution politique).', required: false },
+              { id: 'health_data', label: 'Données de santé', description: 'Certificats médicaux, vulnérabilités, handicap (si pertinent au dossier).', required: false },
+              { id: 'criminal_record', label: 'Données judiciaires', description: 'Casier judiciaire, condamnations antérieures (si pertinent au dossier).', required: false },
+            ]}
+          />
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto">
         {/* Header avec Role */}
         <div className="mb-8">

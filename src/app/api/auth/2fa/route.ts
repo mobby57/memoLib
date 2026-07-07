@@ -14,7 +14,14 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Non authentifie' }, { status: 401 });
 
-  const { action, code } = await req.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
+  }
+
+  const { action, code } = body as { action?: string; code?: string };
 
   if (action === 'setup') {
     const secret = crypto.randomBytes(20).toString('hex').substring(0, 32);

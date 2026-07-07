@@ -13,8 +13,8 @@ async function handleOAuthSignIn(user: any, providerName: string): Promise<boole
   const existingUser = await prisma.user.findUnique({
     where: { email: user.email! },
     include: {
-      tenant: {
-        select: { id: true, name: true, status: true, plan: { select: { name: true } } },
+      Tenant: {
+        select: { id: true, name: true, status: true, Plan: { select: { name: true } } },
       },
     },
   });
@@ -36,8 +36,8 @@ async function handleOAuthSignIn(user: any, providerName: string): Promise<boole
 
   (user as any).role = existingUser.role;
   (user as any).tenantId = existingUser.tenantId;
-  (user as any).tenantName = existingUser.tenant?.name;
-  (user as any).tenantPlan = existingUser.tenant?.plan?.name;
+  (user as any).tenantName = existingUser.Tenant?.name;
+  (user as any).tenantPlan = existingUser.Tenant?.Plan?.name;
   (user as any).clientId = existingUser.clientId;
   (user as any).id = existingUser.id;
   return true;
@@ -120,7 +120,31 @@ export const authOptions: NextAuthOptions = {
         const emailNormalized = credentials.email.trim().toLowerCase();
         const passwordInput = credentials.password.trim();
 
-        const isDemoMode = true;
+        const isDemoMode = process.env.DEMO_MODE === 'true';
+
+        // Always allow demo@memolib.fr login
+        if (emailNormalized === 'demo@memolib.fr') {
+          const demoUser = await prisma.user.findUnique({
+            where: { email: 'demo@memolib.fr' },
+            include: {
+              Tenant: {
+                select: { id: true, name: true, status: true, Plan: { select: { name: true } } },
+              },
+            },
+          });
+          if (demoUser) {
+            return {
+              id: demoUser.id,
+              email: demoUser.email,
+              name: demoUser.name,
+              role: demoUser.role,
+              tenantId: demoUser.tenantId,
+              tenantName: demoUser.Tenant?.name,
+              tenantPlan: demoUser.Tenant?.Plan?.name,
+              clientId: demoUser.clientId,
+            } as any;
+          }
+        }
 
         if (isDemoMode) {
           const demoUsers: Record<string, any> = {
@@ -259,10 +283,10 @@ export const authOptions: NextAuthOptions = {
           const user = await prisma.user.findUnique({
             where: { email: emailNormalized },
             include: {
-              tenant: {
-                select: { id: true, name: true, status: true, plan: { select: { name: true } } },
+              Tenant: {
+                select: { id: true, name: true, status: true, Plan: { select: { name: true } } },
               },
-              client: {
+              Client: {
                 select: { id: true, firstName: true, lastName: true },
               },
             },
@@ -272,12 +296,12 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Identifiants invalides');
           }
 
-          if (user.role === 'ADMIN' && (!user.tenant || user.tenant.status !== 'active')) {
+          if (user.role === 'ADMIN' && (!user.Tenant || user.Tenant.status !== 'active')) {
             throw new Error('Cabinet inactif');
           }
           if (
             user.role === 'CLIENT' &&
-            (!user.tenant || user.tenant.status !== 'active' || !user.clientId)
+            (!user.Tenant || user.Tenant.status !== 'active' || !user.clientId)
           ) {
             throw new Error('Profil client incomplet');
           }
@@ -288,8 +312,8 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role,
             tenantId: user.tenantId,
-            tenantName: user.tenant?.name,
-            tenantPlan: user.tenant?.plan?.name,
+            tenantName: user.Tenant?.name,
+            tenantPlan: user.Tenant?.Plan?.name,
             clientId: user.clientId,
           } as any;
         } catch (dbError: any) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
+import { encryptEmailBody } from '@/lib/security/email-encryption';
 
 /**
  * Webhook pour recevoir des emails forwardés.
@@ -35,7 +36,11 @@ export async function POST(req: NextRequest) {
     };
   } else {
     // JSON format (Gmail Apps Script, Power Automate, direct)
-    emailData = await req.json();
+    try {
+      emailData = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
+    }
   }
 
   if (!emailData.from || !emailData.body) {
@@ -56,15 +61,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, duplicate: true, emailId: existing.id });
   }
 
-  // Créer l'email
+  // Créer l'email (chiffrement at-rest)
+  const { body: storedBody, bodyEncrypted, htmlBody: storedHtml, htmlBodyEncrypted } = encryptEmailBody(
+    emailData.body,
+    emailData.html || null
+  );
+
   const email = await prisma.email.create({
     data: {
       tenantId,
       from: emailData.from,
       to: emailData.to || '',
       subject: emailData.subject || '(sans objet)',
-      body: emailData.body,
-      htmlBody: emailData.html || null,
+      body: storedBody,
+      bodyEncrypted,
+      htmlBody: storedHtml,
+      htmlBodyEncrypted,
       messageId: emailData.messageId || null,
       checksum,
       direction: 'INCOMING',

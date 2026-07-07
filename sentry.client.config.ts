@@ -23,6 +23,8 @@ Sentry.init({
     Sentry.replayIntegration({
       maskAllText: true,
       blockAllMedia: true,
+      // Ne jamais capturer de champs de formulaire (données client)
+      maskAllInputs: true,
     }) as any,
   ],
 
@@ -32,6 +34,35 @@ Sentry.init({
       event.tags = {};
     }
     event.tags['release_health'] = 'true';
+
+    // 🔒 PII Scrubbing côté client
+    if (event.exception?.values) {
+      for (const exception of event.exception.values) {
+        if (exception.value) {
+          exception.value = exception.value.replace(
+            /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+            '[EMAIL_REDACTED]'
+          );
+          exception.value = exception.value.replace(
+            /(?:\+33|0)\s?[1-9](?:[\s.-]?\d{2}){4}/g,
+            '[TEL_REDACTED]'
+          );
+        }
+      }
+    }
+
+    // Remove URL parameters (may contain tokens, emails)
+    if (event.request?.url) {
+      try {
+        const url = new URL(event.request.url);
+        url.searchParams.forEach((_, key) => {
+          if (['email', 'token', 'code', 'name', 'tel'].some(k => key.toLowerCase().includes(k))) {
+            url.searchParams.set(key, '[REDACTED]');
+          }
+        });
+        event.request.url = url.toString();
+      } catch { /* ignore malformed URLs */ }
+    }
 
     // Log critical errors
     if (event.exception) {
