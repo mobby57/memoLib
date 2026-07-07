@@ -9,8 +9,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/lib/logger';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { DeadlineAlerts } from '@/components/dashboard/DeadlineAlerts';
-import { TodayFocus } from '@/components/dashboard/TodayFocus';
-import { SearchBar } from '@/components/dashboard/SearchBar';
 import { AIDisclaimer } from '@/components/legal/AIDisclaimer';
 import { LegalFooter } from '@/components/legal/LegalFooter';
 import {
@@ -128,34 +126,14 @@ export default function DashboardPage() {
   } | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
 
-  // Charger le statut d'onboarding + seed démo si premier login
+  // Charger le statut d'onboarding
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
       fetch('/api/onboarding/status')
         .then(r => r.json())
-        .then(async (data) => {
-          if (data.needsOnboarding) {
-            // Si aucune donnée (premier login), injecter la démo
-            if (!data.steps.firstClient && !data.steps.firstEmail && !data.steps.firstDossier) {
-              try {
-                const seedRes = await fetch('/api/demo/seed', { method: 'POST' });
-                const seedData = await seedRes.json();
-                if (seedData.seeded) {
-                  // Refresh onboarding status après seed
-                  const refreshed = await fetch('/api/onboarding/status').then(r => r.json());
-                  if (refreshed.needsOnboarding) {
-                    setOnboardingSteps(refreshed.steps);
-                  } else {
-                    setShowOnboarding(false);
-                  }
-                  return;
-                }
-              } catch {}
-            }
-            setOnboardingSteps(data.steps);
-          } else {
-            setShowOnboarding(false);
-          }
+        .then(data => {
+          if (data.needsOnboarding) setOnboardingSteps(data.steps);
+          else setShowOnboarding(false);
         })
         .catch(() => {});
     }
@@ -232,35 +210,33 @@ export default function DashboardPage() {
       setLoading(true);
       const baseUrl = `/api/tenant/${user?.tenantId}`;
 
-      // DÃMO MODE: Utiliser les données mockées directement pour rapidité
-      const isDemoMode = !user?.tenantId || true || (user?.tenantId?.startsWith('d') ?? false);
+      // DÉMO MODE: Utiliser les données mockées directement pour rapidité
+      const isDemoMode = !user?.tenantId || user.tenantId.startsWith('demo');
 
       let statsData;
       if (isDemoMode) {
-        // Données de démo - ZeRO latence
+        // Donn�es de d�mo - Z�RO latence
         statsData = {
           totalDossiers: 24,
           dossiersActifs: 18,
           dossiersEnAttente: 4,
           dossiersTermines: 2,
-          dossiersArchives: 0,
           facturesEnAttente: 5,
           revenus: 12500,
           trends: { dossiers: 8, factures: 12, revenus: 15 },
         };
       } else {
         // API spécifique au tenant pour les admins
-        const statsResponse = await fetch(`${baseUrl}/dashboard/stats`, { credentials: 'include' });
+        const statsResponse = await fetch(`${baseUrl}/dashboard/stats`);
         if (statsResponse.ok) {
           statsData = await statsResponse.json();
         } else {
-          // Fallback démo data
+          // Fallback demo data
           statsData = {
             totalDossiers: 24,
             dossiersActifs: 18,
             dossiersEnAttente: 4,
             dossiersTermines: 2,
-            dossiersArchives: 0,
             facturesEnAttente: 5,
             revenus: 12500,
             trends: { dossiers: 8, factures: 12, revenus: 15 },
@@ -277,37 +253,28 @@ export default function DashboardPage() {
       });
 
       setStatusData([
-        { name: 'En cours', value: statsData.dossiersActifs || 0, color: '#3b82f6' },
-        { name: 'En attente', value: statsData.dossiersEnAttente || 0, color: '#f59e0b' },
-        { name: 'Termines', value: statsData.dossiersTermines || 0, color: '#10b981' },
-        { name: 'Archives', value: statsData.dossiersArchives || 0, color: '#6b7280' },
+        { name: 'En cours', value: statsData.dossiersActifs, color: '#3b82f6' },
+        { name: 'En attente', value: statsData.dossiersEnAttente, color: '#f59e0b' },
+        { name: 'Termines', value: statsData.dossiersTermines, color: '#10b981' },
+        { name: 'Archives', value: statsData.dossiersArchives, color: '#6b7280' },
       ]);
 
-      // Calculer les métriques
+      // Calculer les metriques
       calculateMetrics(statsData);
 
       // Charger les donnees mensuelles
-      // Charger monthly data (non-bloquant)
-      try {
-        const monthlyController = new AbortController();
-        setTimeout(() => monthlyController.abort(), 3000);
-        const monthlyResponse = await fetch(`${baseUrl}/dashboard/monthly-data`, { signal: monthlyController.signal });
-        if (monthlyResponse.ok) {
-          const monthlyDataResult = await monthlyResponse.json();
-          setMonthlyData(monthlyDataResult);
-        }
-      } catch {}
+      const monthlyResponse = await fetch(`${baseUrl}/dashboard/monthly-data`);
+      if (monthlyResponse.ok) {
+        const monthlyDataResult = await monthlyResponse.json();
+        setMonthlyData(monthlyDataResult);
+      }
 
-      // Charger les activités recentes (non-bloquant)
-      try {
-        const activitiesController = new AbortController();
-        setTimeout(() => activitiesController.abort(), 3000);
-        const activitiesResponse = await fetch(`${baseUrl}/dashboard/recent-activities`, { signal: activitiesController.signal });
-        if (activitiesResponse.ok) {
-          const activitiesData = await activitiesResponse.json();
-          setRecentActivities(activitiesData);
-        }
-      } catch {}
+      // Charger les activités recentes
+      const activitiesResponse = await fetch(`${baseUrl}/dashboard/recent-activities`);
+      if (activitiesResponse.ok) {
+        const activitiesData = await activitiesResponse.json();
+        setRecentActivities(activitiesData);
+      }
 
       setLoading(false);
     } catch (error) {
@@ -345,7 +312,7 @@ export default function DashboardPage() {
 
     if (hasPermission('canAccessAnalytics')) {
       actions.push({
-        label: 'Exporter Données',
+        label: 'Exporter Donnees',
         href: '/exports',
         icon: Download,
         color: 'bg-purple-500 hover:bg-purple-600',
@@ -390,7 +357,6 @@ export default function DashboardPage() {
   // Cette page est pour tous les membres du cabinet (pas les clients ni super admin)
   const hasAccess =
     isAdmin ||
-    hasRole('LAWYER' as any) ||
     hasRole('AVOCAT' as any) ||
     hasRole('ASSOCIE' as any) ||
     hasRole('COLLABORATEUR' as any) ||
@@ -398,7 +364,7 @@ export default function DashboardPage() {
     hasRole('SECRETAIRE' as any) ||
     hasRole('COMPTABLE' as any);
   if (!hasAccess) {
-    // Client ou super admin â redirection en cours via useEffect, afficher un spinner
+    // Client ou super admin → redirection en cours via useEffect, afficher un spinner
     if (isClient || isSuperAdmin) {
       return (
         <div className="flex items-center justify-center min-h-screen">
@@ -425,12 +391,12 @@ export default function DashboardPage() {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Bonjour';
-    if (hour < 18) return 'Bon apres-midi';
+    if (hour < 18) return 'Bon apr�s-midi';
     return 'Bonsoir';
   };
 
   return (
-    <div className="p-6 space-y-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 min-h-screen">
+    <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* AI Disclaimer Banner */}
       <AIDisclaimer variant="banner" />
 
@@ -442,26 +408,6 @@ export default function DashboardPage() {
           onDismiss={() => setShowOnboarding(false)}
         />
       )}
-
-      {/* Demo Banner — affiché si le wizard est masqué et qu'on vient de seeder */}
-      {!showOnboarding && onboardingSteps === null && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">🎯</span>
-            <div>
-              <h3 className="font-semibold text-amber-900">Bienvenue ! Un dossier de démonstration vous attend</h3>
-              <p className="text-amber-700 text-sm mt-1">
-                Nous avons créé un dossier fictif (OQTF - M. Diallo) pour vous montrer comment MemoLib fonctionne.
-                Explorez l&apos;email analysé par l&apos;IA, le dossier créé et les alertes de deadline.
-                Quand vous serez prêt, connectez votre vraie boîte mail pour traiter vos dossiers.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Today Focus — Ma journée */}
-      <TodayFocus tenantId={user?.tenantId} />
 
       {/* Deadline Alerts Widget */}
       <DeadlineAlerts tenantId={user?.tenantId} />
@@ -475,7 +421,7 @@ export default function DashboardPage() {
               {getGreeting()}, {user?.name?.split(' ')[0]} ??
             </h1>
             <p className="text-blue-100 mt-1">
-              Voici un aperçu de votre cabinet -{' '}
+              Voici un aper�u de votre cabinet �{' '}
               {new Date().toLocaleDateString('fr-FR', {
                 weekday: 'long',
                 day: 'numeric',
@@ -496,7 +442,7 @@ export default function DashboardPage() {
               onClick={() => setShowMetrics(!showMetrics)}
               className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 text-sm font-medium transition-colors"
             >
-              {showMetrics ? 'Masquer metriques' : 'Voir metriques'}
+              {showMetrics ? '?? Masquer m�triques' : '?? Voir m�triques'}
             </button>
             <Link
               href="/ai-assistant"
@@ -517,13 +463,15 @@ export default function DashboardPage() {
 
         {/* Command Center */}
         <div className="flex items-center gap-3">
-          <SearchBar tenantId={user?.tenantId} />
-
           <button
             onClick={() => setShowMetrics(!showMetrics)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
-            {showMetrics ? ' Masquer métriques' : ' Afficher métriques'}
+            {showMetrics ? ' Masquer metriques' : ' Afficher metriques'}
+          </button>
+
+          <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+            <Search className="w-5 h-5" />
           </button>
 
           <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors relative">
@@ -596,7 +544,7 @@ export default function DashboardPage() {
         <Alert variant="warning" title="Taches en attente">
           Vous avez {stats.facturesEnAttente} facture(s) en attente de paiement.
           <Link href="/factures" className="ml-2 underline font-medium hover:text-yellow-700">
-            Voir les factures →
+            Voir les factures [Next]
           </Link>
         </Alert>
       )}
@@ -617,7 +565,7 @@ export default function DashboardPage() {
           trend={{ value: Math.abs(stats.trends.factures), isPositive: false }}
         />
         <StatCard
-          title="Revenus (EUR)"
+          title="Revenus (�)"
           value={`${(stats.revenus / 1000).toFixed(0)}K`}
           icon={DollarSign}
           trend={{ value: stats.trends.revenus, isPositive: true }}
@@ -625,112 +573,110 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts with Tabs */}
-      {monthlyData.length > 0 && (
-        <Card>
-          <Tabs
-            variant="underline"
-            defaultTab="evolution"
-            tabs={[
-              {
-                id: 'evolution',
-                label: 'evolution Mensuelle',
-                icon: <TrendingUp className="w-4 h-4" />,
-                content: (
-                  <div className="pt-4">
-                    <ResponsiveContainer width="100%" height={350}>
-                      <BarChart data={monthlyData}>
-                        <CartesianGrid
-                          strokeDasharray="3 3"
-                          className="stroke-gray-200 dark:stroke-gray-700"
-                        />
-                        <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
-                        <YAxis className="text-gray-600 dark:text-gray-400" />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: 'var(--tooltip-bg, #ffffff)',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                          }}
-                        />
-                        <Legend />
-                        <Bar dataKey="dossiers" fill="#3b82f6" name="Dossiers" />
-                        <Bar dataKey="factures" fill="#10b981" name="Factures" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                ),
-              },
-              {
-                id: 'repartition',
-                label: 'Repartition des Dossiers',
-                icon: <FileText className="w-4 h-4" />,
-                badge: statusData.reduce((sum, s) => sum + s.value, 0),
-                content: (
-                  <div className="pt-4">
-                    <ResponsiveContainer width="100%" height={350}>
-                      <PieChart>
-                        <Pie
-                          data={statusData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, percent }) =>
-                            `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
-                          }
-                          outerRadius={120}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {statusData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                ),
-              },
-              {
-                id: 'revenus',
-                label: 'Courbe des Revenus',
-                icon: <DollarSign className="w-4 h-4" />,
-                content: (
-                  <div className="pt-4">
-                    <ResponsiveContainer width="100%" height={350}>
-                      <LineChart data={monthlyData}>
-                        <CartesianGrid
-                          strokeDasharray="3 3"
-                          className="stroke-gray-200 dark:stroke-gray-700"
-                        />
-                        <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
-                        <YAxis className="text-gray-600 dark:text-gray-400" />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: 'var(--tooltip-bg, #ffffff)',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                          }}
-                        />
-                        <Legend />
-                        <Line
-                          type="monotone"
-                          dataKey="revenus"
-                          stroke="#10b981"
-                          strokeWidth={3}
-                          name="Revenus (EUR)"
-                          dot={{ fill: '#10b981', r: 5 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                ),
-              },
-            ]}
-          />
-        </Card>
-      )}
+      <Card>
+        <Tabs
+          variant="underline"
+          defaultTab="evolution"
+          tabs={[
+            {
+              id: 'evolution',
+              label: 'evolution Mensuelle',
+              icon: <TrendingUp className="w-4 h-4" />,
+              content: (
+                <div className="pt-4">
+                  <ResponsiveContainer width="100%" height={350}>
+                    <BarChart data={monthlyData}>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="stroke-gray-200 dark:stroke-gray-700"
+                      />
+                      <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
+                      <YAxis className="text-gray-600 dark:text-gray-400" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'var(--tooltip-bg, #ffffff)',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                      />
+                      <Legend />
+                      <Bar dataKey="dossiers" fill="#3b82f6" name="Dossiers" />
+                      <Bar dataKey="factures" fill="#10b981" name="Factures" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ),
+            },
+            {
+              id: 'repartition',
+              label: 'Repartition des Dossiers',
+              icon: <FileText className="w-4 h-4" />,
+              badge: statusData.reduce((sum, s) => sum + s.value, 0),
+              content: (
+                <div className="pt-4">
+                  <ResponsiveContainer width="100%" height={350}>
+                    <PieChart>
+                      <Pie
+                        data={statusData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) =>
+                          `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`
+                        }
+                        outerRadius={120}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {statusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              ),
+            },
+            {
+              id: 'revenus',
+              label: 'Courbe des Revenus',
+              icon: <DollarSign className="w-4 h-4" />,
+              content: (
+                <div className="pt-4">
+                  <ResponsiveContainer width="100%" height={350}>
+                    <LineChart data={monthlyData}>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="stroke-gray-200 dark:stroke-gray-700"
+                      />
+                      <XAxis dataKey="month" className="text-gray-600 dark:text-gray-400" />
+                      <YAxis className="text-gray-600 dark:text-gray-400" />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'var(--tooltip-bg, #ffffff)',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                      />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="revenus"
+                        stroke="#10b981"
+                        strokeWidth={3}
+                        name="Revenus (�)"
+                        dot={{ fill: '#10b981', r: 5 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              ),
+            },
+          ]}
+        />
+      </Card>
 
       {/* Recent Activities & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
