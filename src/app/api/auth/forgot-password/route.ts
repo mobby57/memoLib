@@ -9,7 +9,14 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
+    }
+
+    const { email } = body as { email?: string };
 
     if (!email) {
       return NextResponse.json({ error: 'Email requis' }, { status: 400 });

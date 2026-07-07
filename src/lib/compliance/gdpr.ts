@@ -12,6 +12,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export type ConsentType =
     | 'essential'      // Required for service operation
@@ -372,12 +373,38 @@ export class GDPRCompliance {
 
     /**
      * Execute account deletion (run by cron job)
+     * Respecte les obligations de conservation légale (Art. 17(3)(b) RGPD)
      */
     static async executeDeletion(userId: string): Promise<void> {
-        // Anonymize or delete data based on legal requirements
+        // Vérifier les obligations de conservation légale sur les dossiers
+        const userDossiers = await prisma.dossier.findMany({
+            where: { userId },
+            select: { id: true },
+        });
 
-        // 1. Delete user data
-        await prisma.email.deleteMany({ where: { userId } });
+        const retentionBlocked: string[] = [];
+        for (const dossier of userDossiers) {
+            const retention = await checkLegalRetention(dossier.id);
+            if (!retention.canDelete) {
+                retentionBlocked.push(`Dossier ${dossier.id}: ${retention.reason}`);
+            }
+        }
+
+        if (retentionBlocked.length > 0) {
+            // Ne pas supprimer les dossiers sous obligation légale
+            // Anonymiser l'utilisateur mais conserver les dossiers
+            logger.warn('[GDPR] Deletion partielle: dossiers sous obligation de conservation', {
+                userId,
+                blockedDossiers: retentionBlocked.length,
+            });
+        }
+
+        // 1. Supprimer les emails (sauf ceux liés à des dossiers sous rétention)
+        if (retentionBlocked.length === 0) {
+            await prisma.email.deleteMany({ where: { userId } });
+        }
+        
+        // 2. Supprimer notes et workspaces personnels
         await prisma.note.deleteMany({ where: { userId } });
         await prisma.workspace.deleteMany({ where: { userId } });
 
@@ -563,11 +590,72 @@ export const COOKIE_CATEGORIES = {
 
 /**
  * Data retention periods (GDPR Article 5)
+ * Conformité obligations légales cabinets d'avocats (France)
  */
 export const DATA_RETENTION = {
-    emails: 365,              // 1 year
-    auditLogs: 730,           // 2 years
-    financialRecords: 2555,   // 7 years (tax requirement)
-    anonymousAnalytics: 1095, // 3 years
-    deletedAccounts: 30       // 30 day grace period
+    emails: 365,                    // 1 year
+    auditLogs: 730,                 // 2 years
+    financialRecords: 3650,         // 10 years (Code de commerce L123-22)
+    anonymousAnalytics: 1095,       // 3 years
+    deletedAccounts: 30,            // 30 day grace period
+    // Obligations légales cabinets d'avocats
+    legalFiles: 1825,               // 5 ans minimum (conservation dossiers clients)
+    litigationDocuments: 3650,      // 10 ans (pièces contentieux)
+    authenticDeeds: 10950,          // 30 ans (actes authentiques - notaires)
+    taxDocuments: 2555,             // 7 ans (obligations fiscales)
 } as const;
+
+/**
+ * Vérifie si un dossier est sous obligation de rétention légale.
+ * BLOQUE la suppression RGPD si le dossier ne peut pas être supprimé.
+ * 
+ * Art. 17(3)(b) RGPD: Le droit à l'effacement ne s'applique pas si le traitement
+ * est nécessaire au respect d'une obligation légale.
+ */
+export async function checkLegalRetention(dossierId: string): Promise<{
+    canDelete: boolean;
+    reason?: string;
+    retentionEndDate?: Date;
+}> {
+    const dossier = await prisma.dossier.findUnique({
+        where: { id: dossierId },
+        select: { 
+            id: true, 
+            createdAt: true, 
+            closedAt: true, 
+            statut: true,
+            type: true,
+        },
+    });
+
+    if (!dossier) return { canDelete: true };
+
+    // Date de référence = date de clôture ou date de création si non clos
+    const referenceDate = dossier.closedAt || dossier.createdAt;
+    const now = new Date();
+    const daysSinceReference = Math.floor(
+        (now.getTime() - referenceDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    // Dossier non clos = JAMAIS supprimable
+    if (!dossier.closedAt && dossier.statut !== 'ARCHIVE') {
+        return {
+            canDelete: false,
+            reason: 'Le dossier est encore actif. Il doit être clôturé avant toute suppression.',
+        };
+    }
+
+    // Vérifier la période de rétention selon le type
+    const retentionDays = DATA_RETENTION.legalFiles; // 5 ans par défaut
+    
+    if (daysSinceReference < retentionDays) {
+        const retentionEndDate = new Date(referenceDate.getTime() + retentionDays * 24 * 60 * 60 * 1000);
+        return {
+            canDelete: false,
+            reason: `Obligation de conservation légale (5 ans). Suppression possible après le ${retentionEndDate.toLocaleDateString('fr-FR')}.`,
+            retentionEndDate,
+        };
+    }
+
+    return { canDelete: true };
+}

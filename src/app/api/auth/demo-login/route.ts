@@ -11,7 +11,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Not Found' }, { status: 404 });
     }
 
-    const { email, password } = await req.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'Corps de requête invalide. JSON attendu.' }, { status: 400 });
+    }
+
+    const { email, password } = body as { email?: string; password?: string };
 
     const demoAdminPassword = process.env.DEMO_ADMIN_PASSWORD;
     const demoLawyerPassword = process.env.DEMO_LAWYER_PASSWORD;

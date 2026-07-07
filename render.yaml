@@ -1,0 +1,53 @@
+# render.yaml — Blueprint Render pour MemoLib
+# Documentation: https://render.com/docs/blueprint-spec
+# Déploiement: Render auto-détecte ce fichier ou configurez manuellement
+
+services:
+  - type: web
+    name: memolib
+    runtime: node
+    region: frankfurt  # ⚠️ EU OBLIGATOIRE (RGPD Art. 44-49)
+    plan: starter
+    buildCommand: |
+      rm -rf .next &&
+      npm install &&
+      npx prisma generate &&
+      npx prisma migrate deploy &&
+      npm run build
+    startCommand: npx next start -H 0.0.0.0 -p $PORT
+    healthCheckPath: /api/dev/health
+    autoDeploy: true  # Deploy on git push
+    envVars:
+      # --- Obligatoire ---
+      - key: NODE_ENV
+        value: production
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=4096
+      - key: DATABASE_URL
+        sync: false  # Neon EU: postgresql://...@ep-xxx.eu-central-1.aws.neon.tech/memolib
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXTAUTH_URL
+        sync: false  # https://memolib-xxxx.onrender.com ou domaine custom
+      - key: ENCRYPTION_MASTER_KEY
+        sync: false  # node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+      # --- Optionnel ---
+      - key: SENTRY_DSN
+        sync: false
+      - key: NEXT_PUBLIC_SENTRY_DSN
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false  # Upstash EU Frankfurt
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+      - key: OLLAMA_URL
+        sync: false  # Si Ollama self-hosted sur un autre service Render
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: EMAIL_WEBHOOK_SECRET
+        sync: false
+      - key: CRON_SECRET
+        generateValue: true

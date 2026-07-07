@@ -48,6 +48,7 @@ export default function CGUPage() {
                 <li><strong>Premium</strong> : 149 EUR/utilisateur/mois (5-20 utilisateurs, illimite)</li>
               </ul>
               <p className="mt-2">Les prix sont HT. La TVA applicable est celle en vigueur au jour de la facturation. L&apos;abonnement est mensuel ou annuel (-20%), sans engagement minimum. La facturation est automatique via Stripe.</p>
+              <p className="mt-2"><strong>Important :</strong> MemoLib ne gere PAS les fonds clients (CARPA). La facturation via MemoLib concerne uniquement l&apos;abonnement au service. Les flux financiers client-avocat doivent transiter par les circuits CARPA reglementaires.</p>
             </section>
 
             <section>
@@ -80,11 +81,13 @@ export default function CGUPage() {
               <ul className="list-disc pl-5 space-y-1">
                 <li>Responsable de traitement : MD Conseils SAS</li>
                 <li>Hebergement : Union Europeenne (Vercel EU, Neon PostgreSQL EU)</li>
-                <li>Duree de conservation : duree de l&apos;abonnement + 30 jours</li>
-                <li>Droits : acces, rectification, suppression, portabilite, opposition</li>
+                <li>Duree de conservation : 5 ans apres cloture du dossier (obligation legale cabinets) ; 30 jours apres resiliation pour les donnees non liees a un dossier</li>
+                <li>Droits : acces, rectification, suppression (sous reserve obligations de conservation legale), portabilite, opposition</li>
+                <li>Donnees sensibles (Art. 9 RGPD) : consentement explicite et granulaire requis pour les donnees d&apos;origine, opinions politiques, donnees de sante</li>
+                <li>Sous-traitants : Neon (base de donnees, UE), Vercel (hebergement, UE), Upstash (cache, UE), Stripe (paiements, DPA signe), Sentry (monitoring, DPA signe)</li>
                 <li>Contact DPO : sarraboudjellal57@gmail.com</li>
               </ul>
-              <p className="mt-2">Voir notre <Link href="/fr/privacy" className="text-blue-600 hover:underline">Politique de confidentialite</Link> pour le detail des traitements.</p>
+              <p className="mt-2">Voir notre <Link href="/fr/privacy-policy" className="text-blue-600 hover:underline">Politique de confidentialite</Link> pour le detail des traitements.</p>
             </section>
 
             <section>
@@ -114,7 +117,7 @@ export default function CGUPage() {
           </div>
 
           <div className="mt-8 pt-6 border-t border-gray-200 flex gap-6 text-sm text-gray-500">
-            <Link href="/fr/privacy" className="hover:text-blue-600">Confidentialite</Link>
+            <Link href="/fr/privacy-policy" className="hover:text-blue-600">Confidentialite</Link>
             <Link href="/fr/charte-ia" className="hover:text-blue-600">Charte IA</Link>
             <Link href="/fr/legal/cgu" className="hover:text-blue-600 font-medium">CGU/CGV</Link>
           </div>
