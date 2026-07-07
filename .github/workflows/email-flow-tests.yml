@@ -67,7 +67,7 @@ jobs:
         run: npx prisma generate
 
       - name: Prisma db push
-        run: npx prisma db push --accept-data-loss
+        run: npx prisma db push --force-reset
 
       - name: Run email demo tests
         run: npm run email:test:demo
