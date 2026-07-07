@@ -95,6 +95,7 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
         name: `Tenant Integration ${suffix}`,
         subdomain: `int-${suffix}`,
         planId,
+        updatedAt: new Date(),
       },
     });
     tenantId = tenant.id;
@@ -108,6 +109,7 @@ describeIfRealDb('POST /api/emails/incoming (integration db)', () => {
         password: 'not-used-in-test',
         role: 'LAWYER',
         tenantId,
+        updatedAt: new Date(),
       },
     });
   });
