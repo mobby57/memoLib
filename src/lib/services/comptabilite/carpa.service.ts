@@ -8,7 +8,9 @@
  */
 
 import prisma from '@/lib/prisma';
-import { TypeMouvementCARPA } from '@prisma/client';
+
+// Type local — miroir de l'enum Prisma TypeMouvementCARPA
+type TypeMouvementCARPA = 'PROVISION' | 'RESTITUTION' | 'REGLEMENT_TIERS' | 'HONORAIRES';
 
 interface MouvementCARPAInput {
   tenantId: string;
