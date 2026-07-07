@@ -5,10 +5,16 @@ import { useState } from 'react';
 
 interface AIDisclaimerProps {
   variant?: 'banner' | 'inline' | 'compact';
+  /** 
+   * ATTENTION: Pour des raisons de responsabilité juridique (RC Pro),
+   * le disclaimer ne devrait PAS être dismissible sur les résultats IA critiques
+   * (analyse de dossier, prédiction, copilot CESEDA).
+   * Défaut: false (non-dismissible)
+   */
   dismissible?: boolean;
 }
 
-export function AIDisclaimer({ variant = 'inline', dismissible = true }: AIDisclaimerProps) {
+export function AIDisclaimer({ variant = 'inline', dismissible = false }: AIDisclaimerProps) {
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
@@ -50,8 +56,10 @@ export function AIDisclaimer({ variant = 'inline', dismissible = true }: AIDiscl
     <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
       <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
       <div className="text-sm text-amber-800">
-        <strong>Outil d&apos;aide à la décision</strong> — Les résultats de l&apos;IA sont
-        indicatifs et ne remplacent pas le jugement professionnel de l&apos;avocat.
+        <strong>Outil d&apos;aide à la décision — Ne constitue pas un conseil juridique.</strong>
+        {' '}L&apos;avocat reste seul responsable de l&apos;analyse et des décisions prises.
+        Les résultats de l&apos;IA sont indicatifs (confiance variable) et doivent être
+        vérifiés par un professionnel qualifié.
         {dismissible && (
           <button
             onClick={() => setDismissed(true)}
