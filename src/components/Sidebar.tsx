@@ -50,7 +50,11 @@ export default function Sidebar() {
   const currentPath = pathname ?? '';
   const [expandedItems, setExpandedItems] = useState<string[]>(['Dossiers']);
 
-  if (!session || currentPath.startsWith('/auth')) {
+  // Extraire la locale du pathname (e.g. /fr/dashboard → fr)
+  const locale = currentPath.split('/')[1] || 'fr';
+  const lhref = (path: string) => `/${locale}${path.startsWith('/') ? path : '/' + path}`;
+
+  if (!session || currentPath.startsWith('/auth') || currentPath.includes('/auth/')) {
     return null;
   }
 
@@ -66,23 +70,23 @@ export default function Sidebar() {
 
   // Items principaux visibles pour tous les rôles juridiques
   const primaryItems: MenuItem[] = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Dossiers', href: '/dossiers', icon: Folder, badge: 18 },
-    { name: 'Emails', href: '/emails', icon: FileText, badge: 5 },
-    { name: 'Clients', href: '/clients', icon: Users },
-    { name: 'Calendrier', href: '/calendrier', icon: Calendar, badge: 3 },
+    { name: 'Dashboard', href: lhref('/dashboard'), icon: LayoutDashboard },
+    { name: 'Dossiers', href: lhref('/dossiers'), icon: Folder, badge: 18 },
+    { name: 'Emails', href: lhref('/emails'), icon: FileText, badge: 5 },
+    { name: 'Clients', href: lhref('/clients'), icon: Users },
+    { name: 'Calendrier', href: lhref('/calendrier'), icon: Calendar, badge: 3 },
   ];
 
   // Items secondaires selon le rôle
   const secondaryItems: MenuItem[] = [
     ...(['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'].includes(role)
-      ? [{ name: 'Documents', href: '/documents', icon: FolderOpen }] : []),
+      ? [{ name: 'Documents', href: lhref('/documents'), icon: FolderOpen }] : []),
     ...(['ADMIN', 'ASSOCIE', 'COMPTABLE'].includes(role)
-      ? [{ name: 'Factures', href: '/factures', icon: FileText }] : []),
+      ? [{ name: 'Factures', href: lhref('/factures'), icon: FileText }] : []),
     ...(['ADMIN', 'ASSOCIE', 'AVOCAT', 'COLLABORATEUR'].includes(role)
-      ? [{ name: 'Assistant IA', href: '/ai-assistant', icon: Sparkles }] : []),
+      ? [{ name: 'Assistant IA', href: lhref('/ai-assistant'), icon: Sparkles }] : []),
     ...(['ADMIN', 'ASSOCIE'].includes(role)
-      ? [{ name: 'Analytics', href: '/analytics', icon: TrendingUp }] : []),
+      ? [{ name: 'Analytics', href: lhref('/analytics'), icon: TrendingUp }] : []),
   ];
 
   const menuItems: MenuItem[] = [...primaryItems, ...secondaryItems].filter(
