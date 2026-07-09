@@ -1,0 +1,42 @@
+name: Daily Cron Jobs
+
+on:
+  schedule:
+    # Tous les jours à 8h (UTC+2 = 6h UTC)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Manual trigger for testing
+
+jobs:
+  deadline-alerts:
+    name: Check Deadline Alerts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deadline alerts
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "https://memolib.space/api/cron/deadline-alerts" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          
+          echo "HTTP $HTTP_CODE"
+          echo "$BODY"
+          
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "❌ Deadline alerts check failed"
+            exit 1
+          fi
+          echo "✅ Deadline alerts checked successfully"
+
+  cost-alerts:
+    name: Check Cost Alerts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger cost alerts
+        run: |
+          curl -s -X POST \
+            "https://memolib.space/api/cron/cost-alerts" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" || true
