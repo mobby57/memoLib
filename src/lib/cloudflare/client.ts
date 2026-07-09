@@ -207,8 +207,6 @@ export class CloudflareAI {
 
       const data = await response.json() as any;
       return data.result?.data?.[0] || [];
-
-      return response.result?.data?.[0] || [];
     } catch (error) {
       console.error('Cloudflare Workers AI embeddings error:', error);
       throw error;
