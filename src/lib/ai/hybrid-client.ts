@@ -162,7 +162,7 @@ export class HybridAIClient {
     }
     
     // ??? ETAPE 3: Utiliser Cloudflare SEULEMENT si budget OK
-    if (optimalProvider === 'cloudflare' && await this.cloudflare.isAvailable()) {
+    if (await this.cloudflare.isAvailable()) {
       const budget = await checkAICostBudget(tenantId);
       
       if (!budget.allowed) {
