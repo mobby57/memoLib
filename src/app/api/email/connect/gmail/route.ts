@@ -12,19 +12,21 @@ import { logger } from '@/lib/logger';
  */
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://memolib.space';
+  
   if (!session?.user?.tenantId) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    return NextResponse.redirect(`${baseUrl}/fr/auth/login`);
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId) {
     return NextResponse.json(
-      { error: 'Google OAuth non configuré' },
+      { error: 'Google OAuth non configuré (GOOGLE_CLIENT_ID manquant)' },
       { status: 503 }
     );
   }
 
-  const redirectUri = `${process.env.NEXTAUTH_URL}/api/email/connect/gmail/callback`;
+  const redirectUri = `${baseUrl}/api/email/connect/gmail/callback`;
 
   // Scopes Gmail en lecture seule
   const scopes = [

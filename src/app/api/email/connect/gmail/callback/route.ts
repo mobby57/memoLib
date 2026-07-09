@@ -14,18 +14,16 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get('state');
   const error = searchParams.get('error');
 
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://memolib.space';
+
   // Erreur de l'utilisateur (refus de consentement)
   if (error) {
     logger.warn('[Gmail Connect] Consentement refusé', { error });
-    return NextResponse.redirect(
-      new URL('/fr/settings/emails?error=consent_denied', request.url)
-    );
+    return NextResponse.redirect(`${baseUrl}/fr/settings/emails?error=consent_denied`);
   }
 
   if (!code || !state) {
-    return NextResponse.redirect(
-      new URL('/fr/settings/emails?error=invalid_callback', request.url)
-    );
+    return NextResponse.redirect(`${baseUrl}/fr/settings/emails?error=invalid_callback`);
   }
 
   // Décoder le state
@@ -36,14 +34,12 @@ export async function GET(request: NextRequest) {
     tenantId = decoded.tenantId;
     userId = decoded.userId;
   } catch {
-    return NextResponse.redirect(
-      new URL('/fr/settings/emails?error=invalid_state', request.url)
-    );
+    return NextResponse.redirect(`${baseUrl}/fr/settings/emails?error=invalid_state`);
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID!;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET!;
-  const redirectUri = `${process.env.NEXTAUTH_URL}/api/email/connect/gmail/callback`;
+  const redirectUri = `${baseUrl}/api/email/connect/gmail/callback`;
 
   try {
     // Échanger le code contre des tokens
@@ -63,7 +59,7 @@ export async function GET(request: NextRequest) {
       const err = await tokenRes.text();
       logger.error('[Gmail Connect] Échange token échoué', { error: err });
       return NextResponse.redirect(
-        new URL('/fr/settings/emails?error=token_exchange_failed', request.url)
+        `${baseUrl}/fr/settings/emails?error=token_exchange_failed`
       );
     }
 
@@ -116,12 +112,12 @@ export async function GET(request: NextRequest) {
 
     // Redirection vers les paramètres email avec succès
     return NextResponse.redirect(
-      new URL(`/fr/settings/emails?success=gmail_connected&email=${encodeURIComponent(gmailAddress)}`, request.url)
+      `${baseUrl}/fr/settings/emails?success=gmail_connected&email=${encodeURIComponent(gmailAddress)}`
     );
   } catch (error) {
     logger.error('[Gmail Connect] Erreur callback', error);
     return NextResponse.redirect(
-      new URL('/fr/settings/emails?error=server_error', request.url)
+      `${baseUrl}/fr/settings/emails?error=server_error`
     );
   }
 }
