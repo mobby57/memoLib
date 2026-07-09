@@ -307,7 +307,7 @@ export default function DashboardPage() {
     if (hasPermission('canManageDossiers')) {
       actions.push({
         label: 'Nouveau Dossier',
-        href: '/dossiers',
+        href: '/fr/dossiers/rapide',
         icon: Plus,
         color: 'bg-blue-500 hover:bg-blue-600',
       });
