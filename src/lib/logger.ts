@@ -628,3 +628,4 @@ export function logRGPDAction(
 
 export default logger;
 export type { ActionJuridique, LogEntry, LogLevel, TypeDossier };
+// ci-trigger
