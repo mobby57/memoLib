@@ -82,7 +82,7 @@ export class CloudflareAI {
    * Verifier si Workers AI est disponible
    */
   async isAvailable(): Promise<boolean> {
-    return CLOUDFLARE_CONFIG.workersAI.enabled && (await isCloudflareAvailable());
+    return CLOUDFLARE_CONFIG.workersAI.enabled && !!CLOUDFLARE_CONFIG.accountId && !!CLOUDFLARE_CONFIG.apiToken;
   }
 
   /**
