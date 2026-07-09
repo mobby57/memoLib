@@ -156,9 +156,19 @@ export default function DashboardPage() {
       window.location.href = '/fr/super-admin';
       return;
     }
+    // Redirection par rôle spécifique
+    const role = (user as any)?.role;
+    if (role === 'SECRETAIRE') {
+      window.location.href = '/fr/secretaire';
+      return;
+    }
+    if (role === 'COMPTABLE') {
+      window.location.href = '/fr/comptable';
+      return;
+    }
     // Arrêter le loading pour les avocats/admins
     setLoading(false);
-  }, [isLoading, isAuthenticated, isClient, isSuperAdmin]);
+  }, [isLoading, isAuthenticated, isClient, isSuperAdmin, user]);
 
   // Charger les donnees du dashboard
   useEffect(() => {
