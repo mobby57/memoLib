@@ -109,12 +109,13 @@ export class EmailMonitorService {
       rawEmail
     );
 
+    // Classification IA = aide à la décision, PAS action automatique
     const classification = await this.classifyEmail(
       parsed.subject || '',
       parsed.text || ''
     );
 
-    // 1. Sauvegarder l'email
+    // Stocker l'email brut en état RECEIVED — l'humain décidera
     const email = await prisma.email.create({
       data: {
         tenantId,
@@ -148,6 +149,8 @@ export class EmailMonitorService {
         contentHash: normalized.contentHash,
         category: classification.typeDossier,
         urgency: classification.urgency,
+        aiAnalysis: JSON.stringify(classification),
+        processingStatus: 'RECEIVED',
         isProcessed: false,
         receivedAt: normalized.receivedAt,
         receivedDate: normalized.receivedDate,
@@ -170,76 +173,12 @@ export class EmailMonitorService {
       });
     }
 
-    // 2. Trouver ou créer le client
-    let client = null;
-    if (classification.clientEmail) {
-      client = await prisma.client.findFirst({
-        where: {
-          tenantId,
-          email: classification.clientEmail
-        }
-      });
-
-      if (!client && classification.shouldCreateDossier) {
-        // Créer client automatiquement
-        const [firstName, ...lastNameParts] = (parsed.from?.text || 'Client').split(' ');
-        client = await prisma.client.create({
-          data: {
-            tenantId,
-            email: classification.clientEmail,
-            firstName: firstName || 'Prénom',
-            lastName: lastNameParts.join(' ') || 'Nom',
-            status: 'actif'
-          }
-        });
-      }
-    }
-
-    // 3. Trouver ou créer le dossier
-    let dossier = null;
-    if (classification.dossierNumero) {
-      // Dossier existant
-      dossier = await prisma.dossier.findFirst({
-        where: {
-          tenantId,
-          numero: classification.dossierNumero
-        }
-      });
-    } else if (classification.shouldCreateDossier && client) {
-      // Créer nouveau dossier
-      const numero = `DOS-${Date.now().toString().slice(-6)}`;
-      dossier = await prisma.dossier.create({
-        data: {
-          tenantId,
-          clientId: client.id,
-          numero,
-          typeDossier: classification.typeDossier,
-          statut: 'en_cours',
-          priorite: classification.urgency === 'high' ? 'haute' : 'normale',
-          objet: parsed.subject || 'Nouveau dossier',
-          description: `Créé automatiquement depuis email: ${parsed.subject}`
-        }
-      });
-    }
-
-    // 4. Lier email au dossier
-    if (dossier) {
-      await prisma.email.update({
-        where: { id: email.id },
-        data: {
-          dossierId: dossier.id,
-          clientId: client?.id,
-          isProcessed: true
-        }
-      });
-    }
-
+    // Pas d'action automatique — l'email attend dans l'inbox
+    // L'avocat décidera via POST /api/emails/[id]/integrate
     return {
       emailId: email.id,
-      clientId: client?.id,
-      dossierId: dossier?.id,
       classification,
-      action: dossier ? (classification.dossierNumero ? 'linked' : 'created') : 'pending'
+      processingStatus: 'RECEIVED',
     };
   }
 }
