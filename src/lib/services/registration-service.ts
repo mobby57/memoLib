@@ -130,6 +130,7 @@ export async function registerUser(
         currentClients: 0,
         currentUsers: 1,
         currentStorageGb: 0,
+        updatedAt: new Date(),
       },
     });
 
@@ -143,6 +144,7 @@ export async function registerUser(
         status: requireEmailVerification ? 'pending_verification' : 'active',
         emailVerified: requireEmailVerification ? null : undefined,
         tenantId: tenant.id,
+        updatedAt: new Date(),
       },
     });
 
