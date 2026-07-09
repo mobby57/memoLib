@@ -141,12 +141,14 @@ export default function DashboardPage() {
 
   // Redirection selon le role
   useEffect(() => {
-    // Attendre que la session soit chargée
+    // Attendre que la session soit COMPLÈTEMENT chargée
     if (isLoading) return;
-
+    // Ne pas rediriger immédiatement — laisser 2s pour que la session se charge
     if (!isAuthenticated) {
-      window.location.href = '/fr/auth/login';
-      return;
+      const timeout = setTimeout(() => {
+        window.location.href = '/fr/auth/login';
+      }, 2000);
+      return () => clearTimeout(timeout);
     }
     if (isClient) {
       window.location.href = '/fr/client-dashboard';
