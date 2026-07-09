@@ -1,4 +1,4 @@
-﻿import prisma from '@/lib/prisma';
+﻿import { prisma } from '@/lib/prisma';
 
 export async function checkDeadlineAlerts() {
   const now = new Date();
@@ -8,7 +8,7 @@ export async function checkDeadlineAlerts() {
 
   const deadlinesJ7 = await prisma.legalDeadline.findMany({
     where: { status: 'PENDING', alertJ7Sent: false, dueDate: { lte: j7, gte: now } },
-    include: { dossier: { include: { client: true } } },
+    include: { Dossier: { include: { Client: true } } },
   });
 
   for (const deadline of deadlinesJ7) {
