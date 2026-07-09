@@ -1263,3 +1263,4 @@ model VerificationToken {
   @@index([token])
   @@index([expiresAt])
 }
+

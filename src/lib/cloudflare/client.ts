@@ -102,17 +102,36 @@ export class CloudflareAI {
     }
 
     const model = options?.model || CLOUDFLARE_CONFIG.workersAI.defaultModel;
+    const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run/${model}`;
 
     try {
-      // Workers AI est appelé via l'API Cloudflare avec un schema specifique
-      // Utiliser une approche plus generique en cas d'API incompatibilite
-      const response = {
-        result: {
-          response: `Generated text for: ${prompt.substring(0, 50)}...`,
-        },
-      };
+      const messages: Array<{ role: string; content: string }> = [];
+      if (options?.systemPrompt) {
+        messages.push({ role: 'system', content: options.systemPrompt });
+      }
+      messages.push({ role: 'user', content: prompt });
 
-      return response.result?.response || '';
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${CLOUDFLARE_CONFIG.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages,
+          temperature: options?.temperature ?? 0.3,
+          max_tokens: options?.maxTokens ?? 2048,
+        }),
+        signal: AbortSignal.timeout(30000),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Cloudflare AI error (${response.status}): ${errText}`);
+      }
+
+      const data = await response.json() as any;
+      return data.result?.response || '';
     } catch (error) {
       console.error('Cloudflare Workers AI error:', error);
       throw error;
@@ -129,14 +148,31 @@ export class CloudflareAI {
       throw new Error('Cloudflare Workers AI not available');
     }
 
-    try {
-      const response = {
-        result: {
-          response: `Chat response for ${messages.length} messages`,
-        },
-      };
+    const model = CLOUDFLARE_CONFIG.workersAI.defaultModel;
+    const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run/${model}`;
 
-      return response.result?.response || '';
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${CLOUDFLARE_CONFIG.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages,
+          temperature: 0.3,
+          max_tokens: 2048,
+        }),
+        signal: AbortSignal.timeout(30000),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Cloudflare AI chat error (${response.status}): ${errText}`);
+      }
+
+      const data = await response.json() as any;
+      return data.result?.response || '';
     } catch (error) {
       console.error('Cloudflare Workers AI chat error:', error);
       throw error;
@@ -151,14 +187,26 @@ export class CloudflareAI {
       throw new Error('Cloudflare Workers AI not available');
     }
 
-    try {
-      const response = {
-        result: {
-          data: [[0.1, 0.2, 0.3]], // Mock embeddings
-        },
-      };
+    const model = '@cf/baai/bge-base-en-v1.5';
+    const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run/${model}`;
 
-      return response.result?.data?.[0] || [];
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${CLOUDFLARE_CONFIG.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: [text] }),
+        signal: AbortSignal.timeout(15000),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Cloudflare embeddings error (${response.status})`);
+      }
+
+      const data = await response.json() as any;
+      return data.result?.data?.[0] || [];
     } catch (error) {
       console.error('Cloudflare Workers AI embeddings error:', error);
       throw error;
