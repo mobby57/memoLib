@@ -8,7 +8,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['.next', 'node_modules', '.vercel', 'out', 'dist', 'coverage', 'build', '.turbo', '**/src/__tests__/**'],
+    ignores: ['.next', 'node_modules', '.vercel', 'out', 'dist', 'coverage', 'build', '.turbo', 'src/__tests__/**', '**/src/__tests__/**', '**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts'],
   },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
