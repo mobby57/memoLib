@@ -135,6 +135,10 @@ export function Navigation() {
   const currentPath = pathname ?? '';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Extraire la locale du pathname
+  const locale = currentPath.split('/')[1] || 'fr';
+  const lhref = (path: string) => `/${locale}${path.startsWith('/') ? path : '/' + path}`;
+
   if (!isAuthenticated || !user) {
     return null;
   }
@@ -145,10 +149,11 @@ export function Navigation() {
   );
 
   const isActive = (href: string) => {
+    const fullHref = lhref(href);
     if (href === '/dashboard' || href === '/client-dashboard' || href === '/super-admin') {
-      return currentPath === href;
+      return currentPath === fullHref;
     }
-    return currentPath.startsWith(href);
+    return currentPath.startsWith(fullHref);
   };
 
   return (
@@ -243,7 +248,7 @@ export function Navigation() {
             return (
               <li key={item.href}>
                 <Link
-                  href={item.href}
+                  href={lhref(item.href)}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     active
                       ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
