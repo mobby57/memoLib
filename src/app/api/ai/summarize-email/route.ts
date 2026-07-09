@@ -1,7 +1,9 @@
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { hybridAI } from '@/lib/ai/hybrid-client';
+
+const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.2:latest';
 
 interface EmailSummary {
   client: string | null;
@@ -56,12 +58,18 @@ Retourne ce JSON:
   "resumeCourt": "résumé complet en 2 phrases max"
 }`;
 
-  const user = await getServerSession(authOptions);
-  const tenantId = (user?.user as any)?.tenantId || 'demo';
+  const response = await fetch(`${OLLAMA_URL}/api/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: OLLAMA_MODEL, prompt, stream: false }),
+    signal: AbortSignal.timeout(15000),
+  });
 
-  const response = await hybridAI.generateWithCostControl(prompt, tenantId);
-  const jsonMatch = response.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('No JSON in AI response');
+  if (!response.ok) throw new Error(`Ollama error: ${response.status}`);
+
+  const data = await response.json();
+  const jsonMatch = data.response.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('No JSON in response');
 
   return JSON.parse(jsonMatch[0]);
 }
