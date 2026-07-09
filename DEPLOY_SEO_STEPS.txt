@@ -1,0 +1,82 @@
+============================================================
+  MemoLib — Étapes de déploiement SEO + UX
+============================================================
+
+1. VARIABLES D'ENVIRONNEMENT VERCEL
+------------------------------------------------------------
+Vercel → Projet → Settings → Environment Variables
+
+  NEXT_PUBLIC_APP_URL = https://memolib.space
+  NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION = (ton code Google)
+  
+  Ne PAS ajouter NEXT_PUBLIC_SHOW_DEMO en production.
+  (Ajouter NEXT_PUBLIC_SHOW_DEMO=true uniquement en Preview si besoin)
+
+
+2. PUSH SUR GITHUB
+------------------------------------------------------------
+  cd C:\Users\moros\Desktop\memolib
+  git add -A
+  git commit -m "fix(seo): refonte SEO + UX pages publiques"
+  git push
+
+  Vercel déploie automatiquement.
+
+
+3. GOOGLE SEARCH CONSOLE — VÉRIFICATION
+------------------------------------------------------------
+a) Va sur https://search.google.com/search-console
+b) Ajoute propriété → "Préfixe d'URL" → https://memolib.space
+c) Méthode "Balise HTML" :
+   - Copie le content (ex: abc123xyz456)
+   - Colle-le dans la variable Vercel NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+   - Redéploie
+   - Clique Vérifier
+
+   OU méthode "DNS TXT" (Spaceship) :
+   - Spaceship → Domains → memolib.space → DNS Records
+   - Type: TXT | Host: @ | Value: google-site-verification=TONCODE
+   - Attends 10 min
+   - Vérifie avec : nslookup -type=TXT memolib.space
+   - Retourne sur Search Console → Vérifier
+
+
+4. SOUMETTRE LE SITEMAP
+------------------------------------------------------------
+  Search Console → Sitemaps → Ajouter :
+  https://memolib.space/sitemap.xml
+
+
+5. VÉRIFICATION POST-DÉPLOIEMENT
+------------------------------------------------------------
+Teste ces URLs :
+
+  https://memolib.space/fr                    → 200 (homepage)
+  https://memolib.space/fr/dashboard          → 302 vers /fr/auth/login
+  https://memolib.space/fr/logiciel-avocat    → 200
+  https://memolib.space/fr/oqtf-delais-recours → 200
+  https://memolib.space/fr/gestion-cabinet-avocat → 200
+  https://memolib.space/sitemap.xml           → 200 (XML)
+  https://memolib.space/robots.txt            → 200
+
+Rich Results Test (structured data) :
+  https://search.google.com/test/rich-results?url=https://memolib.space/fr
+
+
+6. SUPPRESSIONS ANCIENS DOMAINES (optionnel)
+------------------------------------------------------------
+Si tu étais propriétaire de ces domaines dans Search Console :
+  - memolib.fly.dev
+  - memolib.pages.dev
+  - memolib.vercel.app
+
+Va dans Suppressions → Demande suppression temporaire des URLs indexées.
+
+
+7. SUIVI (dans les semaines suivantes)
+------------------------------------------------------------
+  - Search Console → Couverture : vérifier que les 18 URLs sont indexées
+  - Search Console → Performances : suivre les impressions/clics
+  - Ajouter du contenu régulier (blog, guides) pour renforcer le SEO
+
+============================================================
