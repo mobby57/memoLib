@@ -39,10 +39,10 @@ const TESTIMONIALS = [
 ];
 
 const PRICING = [
-  { name: 'Essai', price: 'Gratuit', period: '14 jours', description: 'Testez MemoLib sans engagement', features: ['3 dossiers', 'Email → Dossier 1 clic', 'Délais CESEDA auto', 'Résumé IA'], cta: 'Essai gratuit', href: '/auth/register?plan=PILOT', highlighted: false },
-  { name: 'Essentiel', price: '89€', period: '/mois', description: 'Pour les avocats indépendants', features: ['50 dossiers actifs', '1 boîte email connectée', 'Délais CESEDA automatiques', 'Génération documents', 'Recherche jurisprudence', 'Support email'], cta: 'Commencer', href: '/auth/register?plan=SOLO', highlighted: false },
-  { name: 'Cabinet', price: '69€', period: '/utilisateur/mois', description: 'Pour les cabinets de 3 à 10 avocats', features: ['Tout Essentiel +', '200 dossiers actifs', '5 boîtes email', 'Multi-utilisateurs', 'Workflows automatisés', 'Brouillon réponse IA'], cta: 'Commencer', href: '/auth/register?plan=CABINET', highlighted: true },
-  { name: 'Premium', price: '149€', period: '/utilisateur/mois', description: 'Pour les cabinets ambitieux', features: ['Tout Cabinet +', 'Dossiers illimités', 'Stats tribunal (taux succès)', 'Templates communautaires', 'API & intégrations', 'Support prioritaire'], cta: 'Nous contacter', href: '/contact', highlighted: false },
+  { name: 'Essai', price: 'Gratuit', period: '14 jours', description: 'Testez MemoLib sans engagement', features: ['3 dossiers', 'Email → Dossier 1 clic', 'Délais auto', 'Résumé IA'], cta: 'Essai gratuit', href: '/fr/auth/register?plan=PILOT', highlighted: false },
+  { name: 'Essentiel', price: '89€', period: '/mois', description: 'Pour les avocats indépendants', features: ['50 dossiers actifs', '1 boîte email connectée', 'Délais automatiques', 'Génération documents', 'Recherche jurisprudence', 'Support email'], cta: 'Commencer', href: '/fr/auth/register?plan=SOLO', highlighted: false },
+  { name: 'Cabinet', price: '69€', period: '/utilisateur/mois', description: 'Pour les cabinets de 3 à 10 avocats', features: ['Tout Essentiel +', '200 dossiers actifs', '5 boîtes email', 'Multi-utilisateurs', 'Workflows automatisés', 'Brouillon réponse IA'], cta: 'Commencer', href: '/fr/auth/register?plan=CABINET', highlighted: true },
+  { name: 'Premium', price: '149€', period: '/utilisateur/mois', description: 'Pour les cabinets ambitieux', features: ['Tout Cabinet +', 'Dossiers illimités', 'Stats tribunal (taux succès)', 'Templates communautaires', 'API & intégrations', 'Support prioritaire'], cta: 'Nous contacter', href: '/fr/contact', highlighted: false },
 ];
 
 export function HomePageContent() {
@@ -60,7 +60,7 @@ export function HomePageContent() {
             <a href="#fonctionnalites" className="hover:text-gray-900 dark:hover:text-white transition-colors">Fonctionnalités</a>
             <a href="#tarifs" className="hover:text-gray-900 dark:hover:text-white transition-colors">Tarifs</a>
             <a href="#temoignages" className="hover:text-gray-900 dark:hover:text-white transition-colors">Témoignages</a>
-            <Link href="/demo" className="hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
+            <Link href="/fr/demo" className="hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
           </div>
           <div className="flex items-center gap-3">
             <Link href={`/${locale}/auth/login`} className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors font-medium">Connexion</Link>
@@ -102,7 +102,7 @@ export function HomePageContent() {
       <section className="py-20 px-6 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">Vous perdez du temps chaque jour</h2>
-          <p className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">Les cabinets spécialisés en droit des étrangers font face à des défis uniques.</p>
+          <p className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">Les cabinets d'avocats font face à des défis administratifs quotidiens.</p>
           <div className="grid md:grid-cols-3 gap-8">
             {PAIN_POINTS.map((point, i) => {
               const Icon = point.icon;
@@ -124,7 +124,7 @@ export function HomePageContent() {
       <section id="fonctionnalites" className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">Tout ce dont votre cabinet a besoin</h2>
-          <p className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">Une plateforme complète, conçue par et pour les avocats en droit des étrangers.</p>
+          <p className="text-center text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto">Une plateforme complète, conçue par et pour les avocats.</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {FEATURES.map((feature, i) => {
               const Icon = feature.icon;
@@ -253,10 +253,10 @@ export function HomePageContent() {
           <h2 className="text-3xl font-bold text-white mb-4">Prêt à transformer votre cabinet ?</h2>
           <p className="text-gray-300 mb-8">Rejoignez les avocats qui gagnent 3 heures par jour avec MemoLib.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/register?plan=PILOT" className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors">
+            <Link href="/fr/auth/register?plan=PILOT" className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors">
               Démarrer l'essai gratuit <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link href="/demo/complete" className="inline-flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-4 px-8 rounded-xl transition-colors">
+            <Link href="/fr/demo/complete" className="inline-flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-4 px-8 rounded-xl transition-colors">
               Voir la démo interactive
             </Link>
           </div>
@@ -272,14 +272,14 @@ export function HomePageContent() {
             <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">© 2026</span>
           </div>
           <div className="flex flex-wrap gap-6 text-sm text-gray-500 dark:text-gray-400">
-            <Link href="/logiciel-avocat" className="hover:text-gray-900 dark:hover:text-white transition-colors">Logiciel avocat</Link>
-            <Link href="/oqtf-delais-recours" className="hover:text-gray-900 dark:hover:text-white transition-colors">Délais OQTF</Link>
-            <Link href="/gestion-cabinet-avocat" className="hover:text-gray-900 dark:hover:text-white transition-colors">Guide cabinet</Link>
-            <Link href="/pricing" className="hover:text-gray-900 dark:hover:text-white transition-colors">Tarifs</Link>
-            <Link href="/demo" className="hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
-            <Link href="/faq" className="hover:text-gray-900 dark:hover:text-white transition-colors">FAQ</Link>
-            <Link href="/privacy" className="hover:text-gray-900 dark:hover:text-white transition-colors">Confidentialité</Link>
-            <Link href="/contact" className="hover:text-gray-900 dark:hover:text-white transition-colors">Contact</Link>
+            <Link href="/fr/logiciel-avocat" className="hover:text-gray-900 dark:hover:text-white transition-colors">Logiciel avocat</Link>
+            <Link href="/fr/oqtf-delais-recours" className="hover:text-gray-900 dark:hover:text-white transition-colors">Délais OQTF</Link>
+            <Link href="/fr/gestion-cabinet-avocat" className="hover:text-gray-900 dark:hover:text-white transition-colors">Guide cabinet</Link>
+            <Link href="/fr/pricing" className="hover:text-gray-900 dark:hover:text-white transition-colors">Tarifs</Link>
+            <Link href="/fr/demo" className="hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
+            <Link href="/fr/faq" className="hover:text-gray-900 dark:hover:text-white transition-colors">FAQ</Link>
+            <Link href="/fr/privacy" className="hover:text-gray-900 dark:hover:text-white transition-colors">Confidentialité</Link>
+            <Link href="/fr/contact" className="hover:text-gray-900 dark:hover:text-white transition-colors">Contact</Link>
           </div>
         </div>
       </footer>
