@@ -227,7 +227,7 @@ export default function DashboardPage() {
 
       let statsData;
       if (isDemoMode) {
-        // Donn�es de d�mo - Z�RO latence
+        // Données de démo - ZÉRO latence
         statsData = {
           totalDossiers: 24,
           dossiersActifs: 18,
@@ -403,7 +403,7 @@ export default function DashboardPage() {
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Bonjour';
-    if (hour < 18) return 'Bon apr�s-midi';
+    if (hour < 18) return 'Bon après-midi';
     return 'Bonsoir';
   };
 
@@ -433,7 +433,7 @@ export default function DashboardPage() {
               {getGreeting()}, {user?.name?.split(' ')[0]} ??
             </h1>
             <p className="text-blue-100 mt-1">
-              Voici un aper�u de votre cabinet �{' '}
+              Voici un aperçu de votre cabinet —{' '}
               {new Date().toLocaleDateString('fr-FR', {
                 weekday: 'long',
                 day: 'numeric',
@@ -454,7 +454,7 @@ export default function DashboardPage() {
               onClick={() => setShowMetrics(!showMetrics)}
               className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 text-sm font-medium transition-colors"
             >
-              {showMetrics ? '?? Masquer m�triques' : '?? Voir m�triques'}
+              {showMetrics ? '📊 Masquer métriques' : '📊 Voir métriques'}
             </button>
             <Link
               href="/ai-assistant"
@@ -577,7 +577,7 @@ export default function DashboardPage() {
           trend={{ value: Math.abs(stats.trends.factures), isPositive: false }}
         />
         <StatCard
-          title="Revenus (�)"
+          title="Revenus (€)"
           value={`${(stats.revenus / 1000).toFixed(0)}K`}
           icon={DollarSign}
           trend={{ value: stats.trends.revenus, isPositive: true }}
@@ -678,7 +678,7 @@ export default function DashboardPage() {
                         dataKey="revenus"
                         stroke="#10b981"
                         strokeWidth={3}
-                        name="Revenus (�)"
+                        name="Revenus (€)"
                         dot={{ fill: '#10b981', r: 5 }}
                       />
                     </LineChart>
