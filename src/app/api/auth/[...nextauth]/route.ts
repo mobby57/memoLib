@@ -144,6 +144,17 @@ export const authOptions: NextAuthOptions = {
               clientId: demoUser.clientId,
             } as any;
           }
+          // Fallback: demo user not in DB — return mock session
+          return {
+            id: 'demo-user-fallback',
+            email: 'demo@memolib.fr',
+            name: 'Avocat Démo',
+            role: 'AVOCAT',
+            tenantId: 'demo-tenant-fallback',
+            tenantName: 'Cabinet Démo',
+            tenantPlan: 'CABINET',
+            clientId: null,
+          } as any;
         }
 
         if (isDemoMode) {
