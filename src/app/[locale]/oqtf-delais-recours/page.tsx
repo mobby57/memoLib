@@ -136,7 +136,7 @@ export default function OQTFDelaisPage() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-2xl font-bold text-white mb-4">Ne ratez plus jamais un délai OQTF</h2>
           <p className="text-slate-300 mb-8">MemoLib calcule automatiquement vos échéances et vous alerte avant chaque deadline.</p>
-          <Link href="/auth/register?plan=PILOT" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2">
+          <Link href="/fr/landing" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2">
             Essai gratuit 14 jours <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
@@ -147,7 +147,6 @@ export default function OQTFDelaisPage() {
           <span>© 2026 MemoLib</span>
           <div className="flex gap-4">
             <Link href="/fr/logiciel-avocat" className="hover:text-gray-600">Logiciel avocat</Link>
-            <Link href="/fr/gestion-cabinet-avocat" className="hover:text-gray-600">Guide cabinet</Link>
             <Link href="/fr/pricing" className="hover:text-gray-600">Tarifs</Link>
             <Link href="/fr/contact" className="hover:text-gray-600">Contact</Link>
           </div>
