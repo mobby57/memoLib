@@ -46,6 +46,7 @@ const PRICING = [
 ];
 
 export function HomePageContent() {
+  const locale = 'fr'; // Default locale
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* Navigation */}
@@ -62,8 +63,8 @@ export function HomePageContent() {
             <Link href="/demo" className="hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/auth/login" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">Connexion</Link>
-            <Link href="/auth/register?plan=PILOT" className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Essai gratuit</Link>
+            <Link href={`/${locale}/auth/login`} className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors font-medium">Connexion</Link>
+            <Link href={`/${locale}/auth/register?plan=PILOT`} className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">Essai gratuit</Link>
           </div>
         </div>
       </nav>
@@ -73,19 +74,19 @@ export function HomePageContent() {
         <div className="max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-1.5 rounded-full text-sm font-medium mb-8">
             <Zap className="w-4 h-4" />
-            Spécialisé droit des étrangers & CESEDA
+            Le logiciel de gestion pour cabinets d&apos;avocats
           </div>
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-            Email reçu. Dossier créé.<br /><span className="text-blue-600">Délai calculé.</span>
+            Gérez votre cabinet.<br /><span className="text-blue-600">Concentrez-vous sur le droit.</span>
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-            MemoLib transforme vos emails clients en dossiers structurés, calcule vos délais OQTF automatiquement, et vous alerte avant chaque échéance. Zéro deadline oubliée.
+            MemoLib automatise la gestion de votre cabinet : emails, dossiers, deadlines, documents et facturation. L&apos;IA s&apos;occupe de l&apos;administratif, vous vous occupez de vos clients.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link href="/auth/register?plan=PILOT" className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg shadow-blue-600/25">
+            <Link href={`/${locale}/auth/register?plan=PILOT`} className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors shadow-lg shadow-blue-600/25">
               Essai gratuit 14 jours <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link href="/demo/auto-login" className="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-4 px-8 rounded-xl transition-colors">
+            <Link href={`/${locale}/demo/auto-login`} className="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-4 px-8 rounded-xl transition-colors">
               Voir la démo <ChevronRight className="w-5 h-5" />
             </Link>
           </div>
