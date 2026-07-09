@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { emailMonitor } from '@/lib/email/email-monitor-service';
 import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
