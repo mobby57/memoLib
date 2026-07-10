@@ -120,7 +120,13 @@ export const authOptions: NextAuthOptions = {
         const emailNormalized = credentials.email.trim().toLowerCase();
         const passwordInput = credentials.password.trim();
 
-        const isDemoMode = process.env.DEMO_MODE === 'true';
+        // SECURITY: Disable demo mode in production
+        const isDemoMode = process.env.NODE_ENV !== 'production' && process.env.DEMO_MODE === 'true';
+
+        if (process.env.NODE_ENV === 'production' && process.env.DEMO_MODE === 'true') {
+          console.error('[SECURITY] DEMO_MODE enabled in production - rejecting login');
+          throw new Error('Service indisponible');
+        }
 
         // Always allow demo@memolib.fr login
         if (emailNormalized === 'demo@memolib.fr') {
@@ -168,7 +174,7 @@ export const authOptions: NextAuthOptions = {
               email: 'superadmin@memolib.com',
               name: 'Super Admin',
               role: 'SUPER_ADMIN',
-              password: 'SuperAdmin2026!',
+              passwordHash: process.env.DEMO_SUPERADMIN_PASSWORD_HASH || '$2b$10$o33Pm4.4OBZVhsRiuzQuLuyPHz92nziKtCKi3ER8GaqxcT.cNFmVa',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'enterprise',
@@ -179,7 +185,7 @@ export const authOptions: NextAuthOptions = {
               email: 'admin@memolib.fr',
               name: 'Admin Demo',
               role: 'SUPER_ADMIN',
-              password: process.env.DEMO_ADMIN_PASSWORD || 'demo123',
+              passwordHash: process.env.DEMO_ADMIN_PASSWORD_HASH || '$2b$10$w7SIzTM2e3HBL7IAKE3QMur1ZtQPBfo8a5z6Tzv9B4aQwF59qKr/K',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'enterprise',
@@ -190,7 +196,7 @@ export const authOptions: NextAuthOptions = {
               email: 'avocat@cabinet-dupont.fr',
               name: 'Me. Dupont',
               role: 'AVOCAT',
-              password: 'Avocat2026!',
+              passwordHash: process.env.DEMO_AVOCAT_PASSWORD_HASH || '$2b$10$2omTdPlTbikxuxF/t6nAleAs5GwX/jEvae40vCsDXk05AReCI7QG.',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Dupont',
               tenantPlan: 'professional',
@@ -201,7 +207,7 @@ export const authOptions: NextAuthOptions = {
               email: 'avocat@memolib.fr',
               name: 'Me. Sarra Boudjellal',
               role: 'AVOCAT',
-              password: process.env.DEMO_LAWYER_PASSWORD || 'demo123',
+              passwordHash: process.env.DEMO_LAWYER_PASSWORD_HASH || '$2b$10$w7SIzTM2e3HBL7IAKE3QMur1ZtQPBfo8a5z6Tzv9B4aQwF59qKr/K',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Boudjellal',
               tenantPlan: 'professional',
@@ -213,7 +219,7 @@ export const authOptions: NextAuthOptions = {
               email: 'associe@memolib.fr',
               name: 'Me. Pierre Durand',
               role: 'ASSOCIE',
-              password: 'demo123',
+              passwordHash: process.env.DEMO_ASSOCIE_PASSWORD_HASH || '$2b$10$w7SIzTM2e3HBL7IAKE3QMur1ZtQPBfo8a5z6Tzv9B4aQwF59qKr/K',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'professional',
@@ -224,7 +230,7 @@ export const authOptions: NextAuthOptions = {
               email: 'collaborateur@memolib.fr',
               name: 'Me. Julie Petit',
               role: 'COLLABORATEUR',
-              password: 'demo123',
+              passwordHash: process.env.DEMO_COLLAB_PASSWORD_HASH || '$2b$10$w7SIzTM2e3HBL7IAKE3QMur1ZtQPBfo8a5z6Tzv9B4aQwF59qKr/K',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'professional',
@@ -235,7 +241,7 @@ export const authOptions: NextAuthOptions = {
               email: 'stagiaire@memolib.fr',
               name: 'Lucas Bernard',
               role: 'STAGIAIRE',
-              password: 'demo123',
+              passwordHash: process.env.DEMO_STAGIAIRE_PASSWORD_HASH || '$2b$10$w7SIzTM2e3HBL7IAKE3QMur1ZtQPBfo8a5z6Tzv9B4aQwF59qKr/K',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'professional',
@@ -246,7 +252,7 @@ export const authOptions: NextAuthOptions = {
               email: 'secretaire@memolib.fr',
               name: 'Marie Leroy',
               role: 'SECRETAIRE',
-              password: 'demo123',
+              passwordHash: process.env.DEMO_SECRETAIRE_PASSWORD_HASH || '$2b$10$w7SIzTM2e3HBL7IAKE3QMur1ZtQPBfo8a5z6Tzv9B4aQwF59qKr/K',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'professional',
@@ -257,7 +263,7 @@ export const authOptions: NextAuthOptions = {
               email: 'comptable@memolib.fr',
               name: 'Anne Moreau',
               role: 'COMPTABLE',
-              password: 'demo123',
+              passwordHash: process.env.DEMO_COMPTABLE_PASSWORD_HASH || '$2b$10$w7SIzTM2e3HBL7IAKE3QMur1ZtQPBfo8a5z6Tzv9B4aQwF59qKr/K',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'professional',
@@ -268,7 +274,7 @@ export const authOptions: NextAuthOptions = {
               email: 'client@memolib.fr',
               name: 'Client Demo',
               role: 'CLIENT',
-              password: process.env.DEMO_CLIENT_PASSWORD || 'demo123',
+              passwordHash: process.env.DEMO_CLIENT_PASSWORD_HASH || '$2b$10$w7SIzTM2e3HBL7IAKE3QMur1ZtQPBfo8a5z6Tzv9B4aQwF59qKr/K',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Demo',
               tenantPlan: 'professional',
@@ -279,7 +285,7 @@ export const authOptions: NextAuthOptions = {
               email: 'demo@memolib.space',
               name: 'Me. Sophie Martin',
               role: 'AVOCAT',
-              password: 'DemoAvocat2026!',
+              passwordHash: process.env.DEMO_AVOCAT_EXT_PASSWORD_HASH || '$2b$10$8WXef7PUTohkm2.C7WoEzOEiyAfERYI9hbDZuHFztEMzDnYBWJEGy',
               tenantId: 'demo-tenant-1',
               tenantName: 'Cabinet Martin',
               tenantPlan: 'pilot',
@@ -288,8 +294,8 @@ export const authOptions: NextAuthOptions = {
           };
 
           const demoUser = demoUsers[emailNormalized];
-          if (demoUser && demoUser.password === passwordInput) {
-            const { password, ...userWithoutPassword } = demoUser;
+          if (demoUser && (await bcrypt.compare(passwordInput, demoUser.passwordHash))) {
+            const { passwordHash, ...userWithoutPassword } = demoUser;
             return userWithoutPassword;
           }
         }
