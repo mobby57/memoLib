@@ -250,7 +250,7 @@
     "conventional-changelog-conventionalcommits": "^9.3.1",
     "cross-env": "^7.0.3",
     "dotenv": "^17.2.3",
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.28.1",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.5",
     "eslint-plugin-jest": "^29.12.1",
@@ -267,7 +267,7 @@
     "source-map-explorer": "^2.5.3",
     "svgo": "^4.0.0",
     "tailwindcss": "^3.4.19",
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.0",
     "typescript": "^5.9.3",
     "undici": "^7.19.1",
     "vitest": "^4.1.0"
