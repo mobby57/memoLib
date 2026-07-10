@@ -124,25 +124,29 @@ export const authOptions: NextAuthOptions = {
 
         // Always allow demo@memolib.fr login
         if (emailNormalized === 'demo@memolib.fr') {
-          const demoUser = await prisma.user.findUnique({
-            where: { email: 'demo@memolib.fr' },
-            include: {
-              Tenant: {
-                select: { id: true, name: true, status: true, Plan: { select: { name: true } } },
+          try {
+            const demoUser = await prisma.user.findUnique({
+              where: { email: 'demo@memolib.fr' },
+              include: {
+                Tenant: {
+                  select: { id: true, name: true, status: true, Plan: { select: { name: true } } },
+                },
               },
-            },
-          });
-          if (demoUser) {
-            return {
-              id: demoUser.id,
-              email: demoUser.email,
-              name: demoUser.name,
-              role: demoUser.role,
-              tenantId: demoUser.tenantId,
-              tenantName: demoUser.Tenant?.name,
-              tenantPlan: demoUser.Tenant?.Plan?.name,
-              clientId: demoUser.clientId,
-            } as any;
+            });
+            if (demoUser) {
+              return {
+                id: demoUser.id,
+                email: demoUser.email,
+                name: demoUser.name,
+                role: demoUser.role,
+                tenantId: demoUser.tenantId,
+                tenantName: demoUser.Tenant?.name,
+                tenantPlan: demoUser.Tenant?.Plan?.name,
+                clientId: demoUser.clientId,
+              } as any;
+            }
+          } catch {
+            // DB unavailable — continue to fallback
           }
           // Fallback: demo user not in DB — return mock session
           return {
