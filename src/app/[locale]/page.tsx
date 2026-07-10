@@ -164,22 +164,20 @@ export default function LandingPage() {
             <span className="text-2xl">{'\u2696\uFE0F'}</span>
             <span className="text-xl font-bold text-gray-900 dark:text-white">MemoLib</span>
           </Link>
-          <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-gray-300">
-            <a href="#fonctionnalites" className="hover:text-gray-900 dark:hover:text-white transition-colors">Fonctionnalités</a>
-            <a href="#tarifs" className="hover:text-gray-900 dark:hover:text-white transition-colors">Tarifs</a>
-            <a href="#temoignages" className="hover:text-gray-900 dark:hover:text-white transition-colors">Témoignages</a>
-            <Link href="/fr/demo" className="hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
-          </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+            <a href="#fonctionnalites" className="hidden lg:inline hover:text-gray-900 dark:hover:text-white transition-colors">Fonctionnalités</a>
+            <a href="#tarifs" className="hidden lg:inline hover:text-gray-900 dark:hover:text-white transition-colors">Tarifs</a>
+            <a href="#temoignages" className="hidden lg:inline hover:text-gray-900 dark:hover:text-white transition-colors">Témoignages</a>
+            <Link href="/fr/demo" className="hidden md:inline hover:text-gray-900 dark:hover:text-white transition-colors">Démo</Link>
             <Link
               href="/fr/auth/login"
-              className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors font-medium"
+              className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors font-medium"
             >
               Connexion
             </Link>
             <Link
               href="/fr/auth/register?plan=PILOT"
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors"
             >
               Essai gratuit
             </Link>
@@ -195,7 +193,7 @@ export default function LandingPage() {
             Le logiciel de gestion pour cabinets d&apos;avocats
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
             Gérez votre cabinet.
             <br />
             <span className="text-blue-600">Concentrez-vous sur le droit.</span>
