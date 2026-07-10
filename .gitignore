@@ -111,3 +111,6 @@ $null
 
 # Parquet data files
 *.parquet
+
+sftp_host_key
+sftp_host_key.pub
