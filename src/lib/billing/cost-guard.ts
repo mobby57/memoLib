@@ -74,6 +74,18 @@ interface UsageRecord {
  * Vérifier si un tenant peut utiliser l'IA payante
  */
 export async function checkAICostBudget(tenantId: string): Promise<CostCheckResult> {
+  // Mode demo: autoriser sans limite
+  if (tenantId === 'demo' || !tenantId) {
+    return {
+      allowed: true,
+      currentCost: 0,
+      limit: 5,
+      percentage: 0,
+      alertLevel: 'ok',
+      suggestOllama: false,
+    };
+  }
+
   const tenant = await prisma.tenant.findUnique({
     where: { id: tenantId },
     include: { 
