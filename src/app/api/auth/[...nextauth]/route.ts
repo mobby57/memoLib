@@ -353,11 +353,11 @@ export const authOptions: NextAuthOptions = {
     },
     async redirect({ url, baseUrl }) {
       if (url.startsWith('/auth/')) {
-        return `${baseUrl}/dashboard`;
+        return `${baseUrl}/fr/dashboard`;
       }
       if (url.startsWith('/')) return `${baseUrl}${url}`;
       if (new URL(url).origin === baseUrl) return url;
-      return baseUrl;
+      return `${baseUrl}/fr/dashboard`;
     },
     async jwt({ token, user, account }) {
       if (user) {
