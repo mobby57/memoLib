@@ -37,7 +37,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
   // Verifier si la page courante doit etre en plein ecran
   const isFullscreenPage = FULLSCREEN_PAGES.some(
     page => pathname === page || pathname?.startsWith('/auth/')
-  );
+  ) || pathname?.includes('/auth/') || pathname === '/fr' || pathname === '/en';
 
   // Pendant l'hydratation, retourner un layout minimal coherent
   if (!isHydrated) {
