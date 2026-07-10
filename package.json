@@ -178,7 +178,7 @@
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.562.0",
-    "mailparser": "^3.9.1",
+    "mailparser": "^3.9.13",
     "mammoth": "^1.11.0",
     "next": "^16.2.6",
     "next-auth": "^4.24.14",
