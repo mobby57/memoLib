@@ -11,7 +11,30 @@ import { buildRbacContext, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
 import { NextRequest, NextResponse } from 'next/server';
 import { withLoginRateLimit } from '@/lib/middleware/rate-limit';
 
-async function handleOAuthSignIn(user: any, providerName: string): Promise<boolean> {
+// Strong types for session/user helpers to reduce `any`
+type SessionUser = {
+  id?: string;
+  role?: string;
+  tenantId?: string;
+  tenantName?: string;
+  tenantPlan?: string;
+  clientId?: string | null;
+  provider?: string;
+  groups?: string[];
+  rbacPermissions?: string[];
+  permissions?: Record<string, boolean>;
+};
+
+function asSessionUser(u: unknown): SessionUser {
+  return u as SessionUser;
+}
+
+type OAuthUser = { email?: string; name?: string; image?: string; id?: string; role?: string; tenantId?: string; clientId?: string | null };
+function asOAuthUser(u: unknown): OAuthUser { return u as OAuthUser; }
+
+function asSession(u: unknown): Record<string, any> { return u as Record<string, any>; }
+
+async function handleOAuthSignIn(user: OAuthUser, providerName: string): Promise<boolean> {
   const existingUser = await prisma.user.findUnique({
     where: { email: user.email! },
     include: {
@@ -36,12 +59,12 @@ async function handleOAuthSignIn(user: any, providerName: string): Promise<boole
     },
   });
 
-  (user as any).role = existingUser.role;
-  (user as any).tenantId = existingUser.tenantId;
-  (user as any).tenantName = existingUser.Tenant?.name;
-  (user as any).tenantPlan = existingUser.Tenant?.Plan?.name;
-  (user as any).clientId = existingUser.clientId;
-  (user as any).id = existingUser.id;
+  user.role = existingUser.role;
+  user.tenantId = existingUser.tenantId;
+  user.tenantName = existingUser.Tenant?.name;
+  user.tenantPlan = existingUser.Tenant?.Plan?.name;
+  user.clientId = existingUser.clientId;
+  user.id = existingUser.id;
   return true;
 }
 
@@ -151,7 +174,7 @@ export const authOptions: NextAuthOptions = {
                 tenantName: demoUser.Tenant?.name,
                 tenantPlan: demoUser.Tenant?.Plan?.name,
                 clientId: demoUser.clientId,
-              } as any;
+              } as OAuthUser;
             }
           } catch {
             // DB unavailable — continue to fallback
@@ -166,7 +189,7 @@ export const authOptions: NextAuthOptions = {
             tenantName: 'Cabinet Démo',
             tenantPlan: 'CABINET',
             clientId: null,
-          } as any;
+          } as OAuthUser;
         }
 
         if (isDemoMode) {
@@ -338,9 +361,9 @@ export const authOptions: NextAuthOptions = {
             tenantName: user.Tenant?.name,
             tenantPlan: user.Tenant?.Plan?.name,
             clientId: user.clientId,
-          } as any;
-        } catch (dbError: any) {
-          if (dbError.message?.includes("Can't reach database")) {
+          } as OAuthUser;
+        } catch (dbError: unknown) {
+          if (typeof dbError === 'object' && dbError !== null && 'message' in dbError && (dbError as any).message?.includes("Can't reach database")) {
             throw new Error('Identifiants invalides (DB indisponible)');
           }
           throw dbError;
@@ -369,12 +392,13 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user, account }) {
       if (user) {
-        token.id = (user as any).id;
-        token.role = (user as any).role;
-        token.tenantId = (user as any).tenantId;
-        token.tenantName = (user as any).tenantName;
-        token.tenantPlan = (user as any).tenantPlan;
-        token.clientId = (user as any).clientId;
+        const oUser = asOAuthUser(user);
+        token.id = oUser.id;
+        token.role = oUser.role;
+        token.tenantId = oUser.tenantId;
+        token.tenantName = oUser.tenantName;
+        token.tenantPlan = oUser.tenantPlan;
+        token.clientId = oUser.clientId;
         token.provider = account?.provider;
       }
 
@@ -393,19 +417,21 @@ export const authOptions: NextAuthOptions = {
           groups: token.groups as string[] | undefined,
         });
 
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
-        (session.user as any).tenantId = token.tenantId;
-        (session.user as any).tenantName = token.tenantName;
-        (session.user as any).tenantPlan = token.tenantPlan;
-        (session.user as any).clientId = token.clientId;
-        (session.user as any).provider = token.provider;
-        (session.user as any).groups = rbac.groups;
-        (session.user as any).rbacPermissions = rbac.permissions;
+        const sUser = asSessionUser(session.user);
+        sUser.id = token.id;
+        sUser.role = token.role;
+        sUser.tenantId = token.tenantId;
+        sUser.tenantName = token.tenantName;
+        sUser.tenantPlan = token.tenantPlan;
+        sUser.clientId = token.clientId;
+        sUser.provider = token.provider;
+        sUser.groups = rbac.groups;
+        sUser.rbacPermissions = rbac.permissions;
 
-        (session as any).githubAccessToken = token.githubAccessToken;
-        (session as any).githubRefreshToken = token.githubRefreshToken;
-        (session as any).githubTokenExpiry = token.githubTokenExpiry;
+        const s = asSession(session);
+        s.githubAccessToken = token.githubAccessToken;
+        s.githubRefreshToken = token.githubRefreshToken;
+        s.githubTokenExpiry = token.githubTokenExpiry;
 
         const STAFF_ROLES = [
           'SUPER_ADMIN',
@@ -421,7 +447,7 @@ export const authOptions: NextAuthOptions = {
         const FINANCE_ROLES = ['SUPER_ADMIN', 'ADMIN', 'AVOCAT', 'ASSOCIE', 'COMPTABLE'];
         const userRole = token.role as string;
 
-        (session.user as any).permissions = {
+        sUser.permissions = {
           canManageTenants: userRole === 'SUPER_ADMIN',
           canManageClients: MANAGE_ROLES.includes(userRole) || userRole === 'SECRETAIRE',
           canManageDossiers: MANAGE_ROLES.includes(userRole) || userRole === 'COLLABORATEUR',

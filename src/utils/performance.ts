@@ -68,7 +68,7 @@ export class PerformanceMonitor {
 
   // Afficher toutes les statistiques
   logAllStats(): void {
-    const allStats: any[] = [];
+    const allStats: Array<{operation: string; averageMs: string; minMs: string; maxMs: string; callCount: number}> = [];
     for (const [name, durations] of this.metrics.entries()) {
       const stats = this.getStats(name);
       if (stats) {
@@ -130,10 +130,10 @@ export function measureWebVitals() {
   // First Input Delay
   const fidObserver = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
-      const perfEntry = entry as any
+      const perfEntry = entry as PerformanceEntry & { processingStart?: number };
       if (perfEntry.processingStart) {
-        const fid = perfEntry.processingStart - entry.startTime
-        logger.debug('First Input Delay', { fidMs: fid.toFixed(2) })
+        const fid = perfEntry.processingStart - entry.startTime;
+        logger.debug('First Input Delay', { fidMs: fid.toFixed(2) });
       }
     }
   });
