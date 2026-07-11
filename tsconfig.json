@@ -16,7 +16,7 @@
     "paths": {
       "@/*": ["./src/*", "./src/frontend/*"]
     },
-    "strict": false,
+    "strict": true,
     "strictNullChecks": true,
     "plugins": [{ "name": "next" }]
   },
