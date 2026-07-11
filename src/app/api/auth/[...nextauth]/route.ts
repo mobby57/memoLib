@@ -8,6 +8,8 @@ import EmailProvider from 'next-auth/providers/email';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { buildRbacContext, RBAC_PERMISSIONS } from '@/lib/auth/rbac';
+import { NextRequest, NextResponse } from 'next/server';
+import { withLoginRateLimit } from '@/lib/middleware/rate-limit';
 
 async function handleOAuthSignIn(user: any, providerName: string): Promise<boolean> {
   const existingUser = await prisma.user.findUnique({
@@ -493,4 +495,26 @@ export const authOptions: NextAuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+
+// Wrap NextAuth handler with rate limiting for auth endpoints
+const GET = withLoginRateLimit(async (req: NextRequest) => {
+  try {
+    const res = await handler(req);
+    return res instanceof Response ? res : new NextResponse(res);
+  } catch (error) {
+    console.error('[AUTH_ROUTE] Error:', error);
+    return NextResponse.json({ error: 'Authentication error' }, { status: 500 });
+  }
+});
+
+const POST = withLoginRateLimit(async (req: NextRequest) => {
+  try {
+    const res = await handler(req);
+    return res instanceof Response ? res : new NextResponse(res);
+  } catch (error) {
+    console.error('[AUTH_ROUTE] Error:', error);
+    return NextResponse.json({ error: 'Authentication error' }, { status: 500 });
+  }
+});
+
+export { GET, POST };

@@ -4,6 +4,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { createClientSchema, updateClientSchema } from '@/lib/validation/api-schemas';
+import { validateRequest, validateQuery, parseAndValidate } from '@/lib/validation/request-validator';
+import { paginationSchema } from '@/lib/validation/api-schemas';
+import { redactSensitiveData, formatErrorForLogging } from '@/lib/security/sensitive-data-redaction';
 
 function mapPrismaErrorToHttp(error: unknown): { status: number; message: string } | null {
   const code =
@@ -135,7 +139,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error) {
-    logger.error('Erreur GET clients', error instanceof Error ? error : undefined, {
+    logger.error('Erreur GET clients', formatErrorForLogging(error), {
       route: '/api/clients',
     });
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
@@ -145,11 +149,10 @@ export async function GET(request: NextRequest) {
 // POST - Creer un nouveau client
 export async function POST(request: NextRequest) {
   try {
-    let body: Record<string, unknown>;
-    try {
-      body = (await request.json()) as Record<string, unknown>;
-    } catch {
-      return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+    // Validate request body with Zod
+    const validation = await parseAndValidate(request, createClientSchema);
+    if (!validation.valid) {
+      return validation.response;
     }
 
     const {
@@ -164,14 +167,7 @@ export async function POST(request: NextRequest) {
       dateOfBirth,
       nationality,
       civilite,
-    } = body;
-
-    if (!firstName || !lastName || !email) {
-      return NextResponse.json(
-        { error: 'firstName, lastName et email requis' },
-        { status: 400 }
-      );
-    }
+    } = validation.data;
 
     const access = await resolveTenantAccess((tenantId as string | null) || null);
     if ('error' in access) {

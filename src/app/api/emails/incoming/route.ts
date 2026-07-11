@@ -1,6 +1,11 @@
 ﻿/**
  * API Route - Reception Email Entrant (Webhook)
  * POST /api/emails/incoming - Recoit un email et declenche le workflow
+ * 
+ * Security: HMAC-SHA256 signature + timestamp verification
+ * Expected headers:
+ *   - x-webhook-signature: HMAC-SHA256 hash of body
+ *   - x-webhook-timestamp: Unix timestamp of request
  */
 
 import { logger } from '@/lib/logger';
@@ -15,6 +20,7 @@ import { IncomingEmailPayloadSchema, normalizeIncomingEmailPayload } from '@/lib
 import { extractDraft } from '@/lib/adapters/email.adapter';
 import { recordEmailIngestion } from '@/lib/email/ingestion-metrics';
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyWebhookRequest } from '@/lib/security/webhook-verification';
 
 export async function POST(request: NextRequest) {
   const startedAt = Date.now();
@@ -29,19 +35,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
     }
 
-    const providedSecret =
-      request.headers.get('x-webhook-secret') ||
-      request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+    const rawRequestBody = await request.text();
 
-    if (!providedSecret || providedSecret !== expectedWebhookSecret) {
+    // Verify webhook with HMAC signature and timestamp
+    const verification = verifyWebhookRequest(
+      request,
+      rawRequestBody,
+      expectedWebhookSecret,
+      {
+        signatureHeader: 'x-webhook-signature',
+        timestampHeader: 'x-webhook-timestamp',
+        maxAge: 5 * 60, // 5 minutes
+      }
+    );
+
+    if (!verification.valid) {
+      logger.warn('[EMAIL_WEBHOOK] Signature verification failed');
       recordEmailIngestion({
         outcome: 'unauthorized',
         durationMs: Date.now() - startedAt,
       });
-      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
+      return verification.response;
     }
-
-    const rawRequestBody = await request.text();
 
     let requestBody: unknown;
     try {
