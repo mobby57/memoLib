@@ -20,9 +20,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 const PLANS = [
-  { name: 'SOLO', display: 'MemoLib Solo', monthly: 5900, yearly: 58800, desc: 'Avocat indépendant — 50 dossiers, 1 utilisateur' },
-  { name: 'CABINET', display: 'MemoLib Cabinet', monthly: 14900, yearly: 150000, desc: 'Petit à moyen cabinet — 300 dossiers, 5 utilisateurs' },
-  { name: 'PRO', display: 'MemoLib Pro', monthly: 29900, yearly: 298800, desc: 'Grand cabinet — 1000 dossiers, 20 utilisateurs, API' },
+  { name: 'SOLO', display: 'MemoLib Solo', monthly: 2900, yearly: 27800, desc: 'Avocat indépendant — 50 dossiers, 1 utilisateur' },
+  { name: 'CABINET', display: 'MemoLib Cabinet', monthly: 7900, yearly: 75800, desc: 'Petit cabinet — 300 dossiers, 5 utilisateurs' },
+  { name: 'ENTERPRISE', display: 'MemoLib Enterprise', monthly: 19900, yearly: 191000, desc: 'Grand cabinet — 1000 dossiers, 20 utilisateurs, API' },
 ];
 
 async function main() {
@@ -49,8 +49,10 @@ async function main() {
 
     // Chercher les prix existants
     const prices = await stripe.prices.list({ product: product.id, active: true });
-    let monthlyPrice = prices.data.find(p => p.recurring?.interval === 'month');
-    let yearlyPrice = prices.data.find(p => p.recurring?.interval === 'year');
+    const matchesPrice = (price: Stripe.Price, interval: Stripe.Price.Recurring.Interval, amount: number) =>
+      price.recurring?.interval === interval && price.unit_amount === amount && price.currency === 'eur';
+    let monthlyPrice = prices.data.find(p => matchesPrice(p, 'month', plan.monthly));
+    let yearlyPrice = prices.data.find(p => matchesPrice(p, 'year', plan.yearly));
 
     if (!monthlyPrice) {
       monthlyPrice = await stripe.prices.create({

@@ -1,4 +1,3 @@
-﻿// @ts-nocheck
 /**
  * Hybrid AI Client - Bascule Automatique Ollama ? Cloudflare Workers AI
  * 
@@ -41,16 +40,18 @@ export class HybridAIClient {
   private ollama: OllamaClient;
   private cloudflare: CloudflareAI;
   private preferredProvider: AIProvider;
+  private ollamaModel: string;
   
   constructor() {
+    this.ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2:3b';
     this.ollama = new OllamaClient(
       process.env.OLLAMA_BASE_URL || process.env.OLLAMA_URL || 'http://localhost:11434',
-      process.env.OLLAMA_MODEL || 'llama3.2:3b'
+      this.ollamaModel
     );
     this.cloudflare = cloudflareAI;
     
     // Preference: Ollama (local) > Cloudflare (cloud)
-    this.preferredProvider = process.env.AI_PREFERRED_PROVIDER as AIProvider || 'ollama';
+    this.preferredProvider = (process.env.AI_PREFERRED_PROVIDER as AIProvider) || 'ollama';
   }
   
   /**
@@ -151,12 +152,12 @@ export class HybridAIClient {
         return {
           response,
           provider: 'ollama',
-          model: this.ollama['model'] || 'llama3.2:3b',
+          model: this.ollamaModel,
           latency,
           estimatedCost: 0,
           tokensUsed,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn('Ollama failed', { error, tenantId });
       }
     }
@@ -202,7 +203,7 @@ export class HybridAIClient {
           estimatedCost: cost,
           tokensUsed,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error('Cloudflare failed', { error, tenantId });
       }
     }
@@ -235,10 +236,10 @@ export class HybridAIClient {
         return {
           response,
           provider: 'ollama',
-          model: this.ollama['model'] || 'llama3.2:3b',
+          model: this.ollamaModel,
           latency,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn('Ollama failed, falling back to Cloudflare', { error });
       }
     }
@@ -256,7 +257,7 @@ export class HybridAIClient {
           model: process.env.CLOUDFLARE_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct',
           latency,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn('Cloudflare failed, falling back to Ollama', { error });
       }
     }
@@ -274,10 +275,10 @@ export class HybridAIClient {
         return {
           response,
           provider: 'ollama',
-          model: this.ollama['model'] || 'llama3.2:3b',
+          model: this.ollamaModel,
           latency,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error('Both AI providers failed', error);
       }
     } else {
@@ -293,7 +294,7 @@ export class HybridAIClient {
           model: process.env.CLOUDFLARE_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct',
           latency,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error('Both AI providers failed', error);
       }
     }
@@ -317,10 +318,10 @@ export class HybridAIClient {
         return {
           response,
           provider: 'ollama',
-          model: this.ollama['model'] || 'llama3.2:3b',
+          model: this.ollamaModel,
           latency,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn('Ollama chat failed, trying Cloudflare', { error });
       }
     }
@@ -337,7 +338,7 @@ export class HybridAIClient {
           model: process.env.CLOUDFLARE_AI_MODEL || '@cf/meta/llama-3.1-8b-instruct',
           latency,
         };
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error('Cloudflare chat failed', error);
       }
     }
@@ -353,7 +354,7 @@ export class HybridAIClient {
     if (await this.cloudflare.isAvailable()) {
       try {
         return await this.cloudflare.generateEmbeddings(text);
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn('Cloudflare embeddings failed, trying Ollama', { error });
       }
     }
@@ -367,11 +368,10 @@ export class HybridAIClient {
           'nomic-embed-text'
         );
         
-        const response = await ollamaEmbeddings.generate(text);
-        // Convertir reponse en embeddings (simplification - Ollama retourne du texte)
-        // En production, utiliser un vrai modele d'embeddings
+        await ollamaEmbeddings.generate(text);
+        // En production, utiliser un vrai modele d'embeddings avec API /api/embeddings
         return [];
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error('Ollama embeddings failed', error);
       }
     }

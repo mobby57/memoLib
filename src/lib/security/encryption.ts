@@ -1,22 +1,40 @@
 import crypto from 'crypto';
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || process.env.NEXTAUTH_SECRET || 'fallback-key-dev-only';
 const ALGORITHM = 'aes-256-gcm';
+
+/**
+ * Derive a 256-bit key from the master key using scrypt.
+ * 
+ * SECURITY NOTE (NIST SP 800-132):
+ * - Uses a deterministic salt derived from the key itself (HMAC-SHA256).
+ *   This is acceptable because the master key is unique per deployment.
+ * - For multi-key scenarios, a random salt stored alongside the ciphertext would be required.
+ * - scrypt params: N=16384, r=8, p=1 (recommended minimum for interactive applications)
+ */
+function getMasterKeyOrThrow(): Buffer {
+  const masterKey = process.env.ENCRYPTION_MASTER_KEY;
+  if (!masterKey) {
+    throw new Error(
+      'ENCRYPTION_MASTER_KEY is not configured. ' +
+      'Set this environment variable before starting the application. ' +
+      'Generate one with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"'
+    );
+  }
+
+  // Derive a deterministic salt from the master key to avoid hardcoded salt
+  const salt = crypto.createHmac('sha256', 'memolib-key-derivation-v1')
+    .update(masterKey)
+    .digest()
+    .subarray(0, 16);
+
+  return crypto.scryptSync(masterKey, salt, 32, { N: 16384, r: 8, p: 1 });
+}
 
 export interface EncryptedDataPayload {
   encrypted: string;
   iv: string;
   authTag: string;
   version: '1.0';
-}
-
-function getMasterKeyOrThrow(): Buffer {
-  const masterKey = process.env.ENCRYPTION_MASTER_KEY;
-  if (!masterKey) {
-    throw new Error('ENCRYPTION_MASTER_KEY not configured');
-  }
-
-  return crypto.scryptSync(masterKey, 'salt', 32);
 }
 
 export function encryptData(plaintext: string): EncryptedDataPayload {
@@ -58,7 +76,8 @@ export function decryptSensitiveField(value: EncryptedDataPayload): string {
 
 export class EncryptionService {
   private static getKey(): Buffer {
-    return crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
+    // Reuse the same secure key derivation as getMasterKeyOrThrow
+    return getMasterKeyOrThrow();
   }
 
   static encrypt(text: string): string {

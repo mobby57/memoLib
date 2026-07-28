@@ -3,10 +3,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { hybridAI } from '@/lib/ai/hybrid-client';
+import { checkFeatureAccess } from '@/lib/billing/features';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const user = session.user as any;
+  const tenantId = user.tenantId;
+
+  // Feature gate : brouillon IA réservé au plan Cabinet+
+  if (tenantId) {
+    const gate = await checkFeatureAccess(tenantId, 'ai_draft_reply');
+    if (!gate.allowed) {
+      return NextResponse.json({
+        error: 'FEATURE_GATED',
+        ...gate,
+        upgradeUrl: '/settings/billing?upgrade=true',
+      }, { status: 403 });
+    }
+  }
 
   let requestBody: Record<string, unknown>;
   try {
@@ -19,9 +35,6 @@ export async function POST(req: NextRequest) {
     emailId?: string; subject?: string; body?: string; from?: string; dossierId?: string;
   };
   if (!body) return NextResponse.json({ error: 'body requis' }, { status: 400 });
-
-  const user = session.user as any;
-  const tenantId = user.tenantId;
 
   // Récupérer le contexte du dossier si disponible
   let context = '';

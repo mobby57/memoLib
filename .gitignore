@@ -1,5 +1,8 @@
 # MemoLib - .gitignore
 
+## === Archived code (not part of active codebase) ===
+_archive/
+
 ## === Build artifacts ===
 [Dd]ebug/
 [Rr]elease/

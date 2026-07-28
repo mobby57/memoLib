@@ -10,7 +10,7 @@ const nextConfig = {
   output: process.env.DOCKER_BUILD === '1' ? 'standalone' : undefined,
   outputFileTracingRoot: path.join(__dirname),
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: true,

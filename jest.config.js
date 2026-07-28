@@ -12,7 +12,8 @@ module.exports = {
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{test,spec}.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',
-    '<rootDir>/__tests__/**/*.{test,spec}.{js,jsx,ts,tsx}'
+    '<rootDir>/__tests__/**/*.{test,spec}.{js,jsx,ts,tsx}',
+    // tests/unit/* → Vitest uniquement (vitest.config.ts)
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
