@@ -4,10 +4,24 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 import { judilibreClient } from '@/lib/legifrance/judilibre-client';
 import { logger } from '@/lib/logger';
+import { checkFeatureAccess } from '@/lib/billing/features';
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Feature gate : jurisprudence réservée au plan Cabinet+
+  const tenantId = (session.user as any)?.tenantId;
+  if (tenantId) {
+    const gate = await checkFeatureAccess(tenantId, 'jurisprudence_search');
+    if (!gate.allowed) {
+      return NextResponse.json({
+        error: 'FEATURE_GATED',
+        ...gate,
+        upgradeUrl: '/settings/billing?upgrade=true',
+      }, { status: 403 });
+    }
+  }
 
   const query = req.nextUrl.searchParams.get('q');
   const type = req.nextUrl.searchParams.get('type') || 'all';
