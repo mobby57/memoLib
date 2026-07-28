@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { hybridAI } from '@/lib/ai/hybrid-client';
+import { checkFeatureAccess } from '@/lib/billing/features';
 
 interface EmailSummary {
   client: string | null;
@@ -18,6 +19,18 @@ export async function POST(req: NextRequest) {
   const isDemoRequest = !session && req.headers.get('referer')?.includes('/demo');
   if (!session?.user && !isDemoRequest) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+  // Feature gate : résumé IA réservé au plan Solo+
+  const tenantId = (session?.user as any)?.tenantId;
+  if (tenantId && !isDemoRequest) {
+    const gate = await checkFeatureAccess(tenantId, 'ai_email_summary');
+    if (!gate.allowed) {
+      return NextResponse.json({
+        error: 'FEATURE_GATED',
+        ...gate,
+        upgradeUrl: '/settings/billing?upgrade=true',
+      }, { status: 403 });
+    }
+  }
   let body_data: Record<string, unknown>;
   try {
     body_data = await req.json();
