@@ -12,7 +12,7 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { eventLogService } from '@/lib/services/event-log.service';
 import { smartInboxService } from '@/lib/services/smart-inbox.service';
-import { filterRuleService } from '@/frontend/lib/services/filter-rule.service';
+import { filterRuleService } from '@/lib/services/filter-rule.service';
 import { analyzeEmail } from '@/lib/workflows/email-intelligence';
 import { type Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';

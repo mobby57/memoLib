@@ -18,11 +18,17 @@ import {
   Users,
   Eye,
   Download,
-  Upload,
   Grid,
   List,
   TrendingUp,
   MapPin,
+  ChevronDown,
+  ChevronRight,
+  Shield,
+  Briefcase,
+  Heart,
+  Globe,
+  FileText,
 } from 'lucide-react';
 import { Card, StatCard, Badge, Pagination, Breadcrumb, Alert, useToast } from '@/components/ui';
 import { Table } from '@/components/ui/TableSimple';
@@ -32,173 +38,99 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 interface Client {
   id: string;
+  civilite: string;
   nom: string;
-  type: 'particulier' | 'entreprise';
+  prenom: string;
   email: string;
-  téléphone: string;
-  adresse: string;
+  telephonePrincipal: string;
   ville: string;
   codePostal: string;
-  siret?: string;
+  nationalite: string;
+  titreSéjourActuel: string;
   nbDossiers: number;
   dateCreation: string;
   statut: 'actif' | 'inactif' | 'prospect';
 }
 
+// ─── Zod Schema ───────────────────────────────────────────────────────────────
+
 const clientSchema = z.object({
-  nom: z.string().min(2, 'Nom requis (min 2 caracteres)'),
-  type: z.enum(['particulier', 'entreprise']),
+  // Identité
+  civilite: z.enum(['M.', 'Mme', 'Autre']),
+  nom: z.string().min(2, 'Nom requis (min 2 caractères)'),
+  prenom: z.string().min(2, 'Prénom requis (min 2 caractères)'),
+  nomNaissance: z.string().optional(),
+  dateNaissance: z.string().min(1, 'Date de naissance requise'),
+  lieuNaissance: z.string().min(2, 'Lieu de naissance requis'),
+  paysNaissance: z.string().min(2, 'Pays de naissance requis'),
+  nationalite: z.string().min(2, 'Nationalité requise'),
+  autresNationalites: z.string().optional(),
+  sexe: z.enum(['M', 'F', 'Autre']),
+  numeroEtranger: z.string().optional(),
+  numeroPasseport: z.string().optional(),
+  dateExpirationPasseport: z.string().optional(),
+  numeroCNI: z.string().optional(),
+
+  // Contact
   email: z.string().email('Email invalide'),
-  téléphone: z.string().min(10, 'Téléphone invalide'),
-  adresse: z.string().min(5, 'Adresse requise'),
-  ville: z.string().min(2, 'Ville requise'),
+  telephonePrincipal: z.string().min(10, 'Téléphone invalide'),
+  telephoneSecondaire: z.string().optional(),
+  adresseRue: z.string().min(5, 'Adresse requise'),
+  adresseComplement: z.string().optional(),
   codePostal: z.string().min(5, 'Code postal requis'),
-  siret: z.string().optional(),
+  ville: z.string().min(2, 'Ville requise'),
+  pays: z.string().min(2, 'Pays requis'),
+  contactUrgenceNom: z.string().optional(),
+  contactUrgenceTelephone: z.string().optional(),
+  contactUrgenceLien: z.enum(['conjoint', 'parent', 'ami', 'autre']).optional(),
+
+  // Situation familiale
+  situationFamiliale: z.enum(['celibataire', 'marie', 'pacse', 'concubinage', 'divorce', 'veuf']),
+  dateMarriage: z.string().optional(),
+  conjointNom: z.string().optional(),
+  conjointNationalite: z.string().optional(),
+  conjointEstFrancais: z.boolean().optional(),
+  nombreEnfants: z.coerce.number().min(0).default(0),
+  enfantsEnFrance: z.coerce.number().min(0).default(0),
+  enfantsScolarises: z.boolean().optional(),
+
+  // Situation professionnelle
+  situationPro: z.enum(['CDI', 'CDD', 'interimaire', 'independant', 'sans_emploi', 'etudiant', 'retraite']),
+  employeur: z.string().optional(),
+  poste: z.string().optional(),
+  revenuMensuelNet: z.coerce.number().min(0).optional(),
+  dateDebutContrat: z.string().optional(),
+  niveauFrancais: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']).optional(),
+  diplomes: z.string().optional(),
+  domaineProfessionnel: z.string().optional(),
+
+  // Administration immigration
+  dateArriveeFrance: z.string().optional(),
+  modeEntree: z.enum(['visa', 'sans_visa', 'demandeur_asile']).optional(),
+  titreSéjourActuel: z.string().optional(),
+  numeroTitre: z.string().optional(),
+  dateDelivranceTitre: z.string().optional(),
+  dateExpirationTitre: z.string().optional(),
+  prefectureRattachement: z.string().optional(),
+  dernierRDVPrefecture: z.string().optional(),
+  prochainRDVPrefecture: z.string().optional(),
+
+  // RGPD / Legal
+  consentementTraitement: z.literal(true, { errorMap: () => ({ message: 'Le consentement est obligatoire' }) }),
+  sourceDossier: z.enum(['recommandation', 'internet', 'ancien_client', 'autre']).optional(),
+  notes: z.string().optional(),
+
+  // Statut interne
   statut: z.enum(['actif', 'inactif', 'prospect']),
 });
 
 type ClientFormData = z.infer<typeof clientSchema>;
 
-const mockClients: Client[] = [
-  {
-    id: '1',
-    nom: 'SARL Martin',
-    type: 'entreprise',
-    email: 'contact@sarl-martin.fr',
-    téléphone: '0145678901',
-    adresse: '12 Rue de la Paix',
-    ville: 'Paris',
-    codePostal: '75001',
-    siret: '12345678901234',
-    nbDossiers: 3,
-    dateCreation: '2023-06-15',
-    statut: 'actif',
-  },
-  {
-    id: '2',
-    nom: 'SAS TechCorp',
-    type: 'entreprise',
-    email: 'info@techcorp.com',
-    téléphone: '0198765432',
-    adresse: '45 Avenue des Champs',
-    ville: 'Lyon',
-    codePostal: '69001',
-    siret: '98765432109876',
-    nbDossiers: 5,
-    dateCreation: '2023-08-20',
-    statut: 'actif',
-  },
-  {
-    id: '3',
-    nom: 'M. Dupont Jean',
-    type: 'particulier',
-    email: 'jean.dupont@email.com',
-    téléphone: '0612345678',
-    adresse: '8 Rue Victor Hugo',
-    ville: 'Marseille',
-    codePostal: '13001',
-    nbDossiers: 1,
-    dateCreation: '2024-01-10',
-    statut: 'actif',
-  },
-  {
-    id: '4',
-    nom: 'SCI Investissement',
-    type: 'entreprise',
-    email: 'sci@invest.fr',
-    téléphone: '0478901234',
-    adresse: '23 Boulevard Haussmann',
-    ville: 'Paris',
-    codePostal: '75009',
-    siret: '11122233344455',
-    nbDossiers: 2,
-    dateCreation: '2023-11-05',
-    statut: 'actif',
-  },
-  {
-    id: '5',
-    nom: 'Mme Bernard Sophie',
-    type: 'particulier',
-    email: 'sophie.bernard@mail.com',
-    téléphone: '0623456789',
-    adresse: '15 Allee des Roses',
-    ville: 'Toulouse',
-    codePostal: '31000',
-    nbDossiers: 1,
-    dateCreation: '2023-12-01',
-    statut: 'actif',
-  },
-  {
-    id: '6',
-    nom: 'EURL Conseil Plus',
-    type: 'entreprise',
-    email: 'contact@conseil-plus.fr',
-    téléphone: '0467890123',
-    adresse: '7 Place Bellecour',
-    ville: 'Lyon',
-    codePostal: '69002',
-    siret: '55566677788899',
-    nbDossiers: 0,
-    dateCreation: '2024-01-20',
-    statut: 'prospect',
-  },
-  {
-    id: '7',
-    nom: 'M. Lefebvre Marc',
-    type: 'particulier',
-    email: 'marc.lefebvre@mail.fr',
-    téléphone: '0634567890',
-    adresse: '22 Rue Nationale',
-    ville: 'Lille',
-    codePostal: '59000',
-    nbDossiers: 2,
-    dateCreation: '2023-10-12',
-    statut: 'actif',
-  },
-  {
-    id: '8',
-    nom: 'SAS Innovation Tech',
-    type: 'entreprise',
-    email: 'contact@innovation-tech.fr',
-    téléphone: '0456789012',
-    adresse: '88 Avenue de la Republique',
-    ville: 'Bordeaux',
-    codePostal: '33000',
-    siret: '77788899900011',
-    nbDossiers: 4,
-    dateCreation: '2023-07-08',
-    statut: 'actif',
-  },
-  {
-    id: '9',
-    nom: 'Mme Moreau Claire',
-    type: 'particulier',
-    email: 'claire.moreau@email.com',
-    téléphone: '0645678901',
-    adresse: '5 Impasse du Parc',
-    ville: 'Nantes',
-    codePostal: '44000',
-    nbDossiers: 0,
-    dateCreation: '2024-01-15',
-    statut: 'prospect',
-  },
-  {
-    id: '10',
-    nom: 'SARL Digital Services',
-    type: 'entreprise',
-    email: 'info@digital-services.fr',
-    téléphone: '0423456789',
-    adresse: '31 Boulevard Saint-Michel',
-    ville: 'Nice',
-    codePostal: '06000',
-    siret: '22233344455566',
-    nbDossiers: 3,
-    dateCreation: '2023-09-25',
-    statut: 'actif',
-  },
-];
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUT_LABELS = {
   actif: 'Actif',
@@ -212,17 +144,284 @@ const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 
   prospect: 'info',
 };
 
-const TYPE_LABELS = {
-  particulier: 'Particulier',
-  entreprise: 'Entreprise',
-};
+const CIVILITE_OPTIONS = ['M.', 'Mme', 'Autre'] as const;
+const SEXE_OPTIONS = [
+  { value: 'M', label: 'Masculin' },
+  { value: 'F', label: 'Féminin' },
+  { value: 'Autre', label: 'Autre' },
+] as const;
+
+const SITUATION_FAMILIALE_OPTIONS = [
+  { value: 'celibataire', label: 'Célibataire' },
+  { value: 'marie', label: 'Marié(e)' },
+  { value: 'pacse', label: 'Pacsé(e)' },
+  { value: 'concubinage', label: 'Concubinage' },
+  { value: 'divorce', label: 'Divorcé(e)' },
+  { value: 'veuf', label: 'Veuf/Veuve' },
+] as const;
+
+const SITUATION_PRO_OPTIONS = [
+  { value: 'CDI', label: 'CDI' },
+  { value: 'CDD', label: 'CDD' },
+  { value: 'interimaire', label: 'Intérimaire' },
+  { value: 'independant', label: 'Indépendant' },
+  { value: 'sans_emploi', label: 'Sans emploi' },
+  { value: 'etudiant', label: 'Étudiant' },
+  { value: 'retraite', label: 'Retraité' },
+] as const;
+
+const NIVEAU_FRANCAIS_OPTIONS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
+
+const MODE_ENTREE_OPTIONS = [
+  { value: 'visa', label: 'Visa' },
+  { value: 'sans_visa', label: 'Sans visa' },
+  { value: 'demandeur_asile', label: 'Demandeur d\'asile' },
+] as const;
+
+const CONTACT_URGENCE_LIEN_OPTIONS = [
+  { value: 'conjoint', label: 'Conjoint(e)' },
+  { value: 'parent', label: 'Parent' },
+  { value: 'ami', label: 'Ami(e)' },
+  { value: 'autre', label: 'Autre' },
+] as const;
+
+const SOURCE_DOSSIER_OPTIONS = [
+  { value: 'recommandation', label: 'Recommandation' },
+  { value: 'internet', label: 'Internet' },
+  { value: 'ancien_client', label: 'Ancien client' },
+  { value: 'autre', label: 'Autre' },
+] as const;
+
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+
+const mockClients: Client[] = [
+  {
+    id: '1',
+    civilite: 'M.',
+    nom: 'Diallo',
+    prenom: 'Mamadou',
+    email: 'mamadou.diallo@email.com',
+    telephonePrincipal: '0612345678',
+    ville: 'Paris',
+    codePostal: '75018',
+    nationalite: 'Guinéenne',
+    titreSéjourActuel: 'Titre de séjour salarié',
+    nbDossiers: 3,
+    dateCreation: '2023-06-15',
+    statut: 'actif',
+  },
+  {
+    id: '2',
+    civilite: 'Mme',
+    nom: 'Nguyen',
+    prenom: 'Linh',
+    email: 'linh.nguyen@email.com',
+    telephonePrincipal: '0698765432',
+    ville: 'Lyon',
+    codePostal: '69003',
+    nationalite: 'Vietnamienne',
+    titreSéjourActuel: 'Carte de résident',
+    nbDossiers: 2,
+    dateCreation: '2023-08-20',
+    statut: 'actif',
+  },
+  {
+    id: '3',
+    civilite: 'M.',
+    nom: 'Hassan',
+    prenom: 'Ahmed',
+    email: 'ahmed.hassan@email.com',
+    telephonePrincipal: '0634567890',
+    ville: 'Marseille',
+    codePostal: '13001',
+    nationalite: 'Égyptienne',
+    titreSéjourActuel: 'Récépissé',
+    nbDossiers: 1,
+    dateCreation: '2024-01-10',
+    statut: 'actif',
+  },
+  {
+    id: '4',
+    civilite: 'Mme',
+    nom: 'Fernandez',
+    prenom: 'Maria',
+    email: 'maria.fernandez@email.com',
+    telephonePrincipal: '0645678901',
+    ville: 'Toulouse',
+    codePostal: '31000',
+    nationalite: 'Colombienne',
+    titreSéjourActuel: 'Vie privée et familiale',
+    nbDossiers: 2,
+    dateCreation: '2023-11-05',
+    statut: 'actif',
+  },
+  {
+    id: '5',
+    civilite: 'M.',
+    nom: 'Kouassi',
+    prenom: 'Jean-Pierre',
+    email: 'jp.kouassi@email.com',
+    telephonePrincipal: '0656789012',
+    ville: 'Bordeaux',
+    codePostal: '33000',
+    nationalite: 'Ivoirienne',
+    titreSéjourActuel: '',
+    nbDossiers: 1,
+    dateCreation: '2023-12-01',
+    statut: 'actif',
+  },
+  {
+    id: '6',
+    civilite: 'Mme',
+    nom: 'Petrov',
+    prenom: 'Natalia',
+    email: 'natalia.petrov@email.com',
+    telephonePrincipal: '0667890123',
+    ville: 'Nice',
+    codePostal: '06000',
+    nationalite: 'Russe',
+    titreSéjourActuel: 'Passeport talent',
+    nbDossiers: 0,
+    dateCreation: '2024-01-20',
+    statut: 'prospect',
+  },
+  {
+    id: '7',
+    civilite: 'M.',
+    nom: 'Singh',
+    prenom: 'Rajesh',
+    email: 'rajesh.singh@email.com',
+    telephonePrincipal: '0678901234',
+    ville: 'Lille',
+    codePostal: '59000',
+    nationalite: 'Indienne',
+    titreSéjourActuel: 'Étudiant',
+    nbDossiers: 1,
+    dateCreation: '2023-10-12',
+    statut: 'actif',
+  },
+  {
+    id: '8',
+    civilite: 'Mme',
+    nom: 'Amara',
+    prenom: 'Fatima',
+    email: 'fatima.amara@email.com',
+    telephonePrincipal: '0689012345',
+    ville: 'Strasbourg',
+    codePostal: '67000',
+    nationalite: 'Algérienne',
+    titreSéjourActuel: 'Carte de résident',
+    nbDossiers: 4,
+    dateCreation: '2023-07-08',
+    statut: 'actif',
+  },
+  {
+    id: '9',
+    civilite: 'M.',
+    nom: 'Chen',
+    prenom: 'Wei',
+    email: 'wei.chen@email.com',
+    telephonePrincipal: '0690123456',
+    ville: 'Nantes',
+    codePostal: '44000',
+    nationalite: 'Chinoise',
+    titreSéjourActuel: '',
+    nbDossiers: 0,
+    dateCreation: '2024-01-15',
+    statut: 'prospect',
+  },
+  {
+    id: '10',
+    civilite: 'M.',
+    nom: 'Okafor',
+    prenom: 'Emmanuel',
+    email: 'emmanuel.okafor@email.com',
+    telephonePrincipal: '0601234567',
+    ville: 'Rennes',
+    codePostal: '35000',
+    nationalite: 'Nigériane',
+    titreSéjourActuel: 'APS',
+    nbDossiers: 2,
+    dateCreation: '2023-09-25',
+    statut: 'actif',
+  },
+];
+
+
+// ─── Collapsible Section Component ────────────────────────────────────────────
+
+function FormSection({
+  title,
+  icon: Icon,
+  isOpen,
+  onToggle,
+  children,
+}: {
+  title: string;
+  icon: React.ElementType;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors"
+      >
+        <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200">
+          <Icon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          {title}
+        </div>
+        {isOpen ? (
+          <ChevronDown className="w-4 h-4 text-gray-500" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-gray-500" />
+        )}
+      </button>
+      {isOpen && <div className="p-4 space-y-4">{children}</div>}
+    </div>
+  );
+}
+
+// ─── Field Wrapper ────────────────────────────────────────────────────────────
+
+function Field({
+  label,
+  required,
+  error,
+  children,
+  className = '',
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      {children}
+      {error && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>}
+    </div>
+  );
+}
+
+const inputClass =
+  'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all';
+
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ClientsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [clients, setClients] = useState<Client[]>(mockClients);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<string>('all');
   const [filterStatut, setFilterStatut] = useState<string>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -230,51 +429,21 @@ export default function ClientsPage() {
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const itemsPerPage = 10;
 
-  const { addToast } = useToast();
+  // Collapsible sections state
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    identite: true,
+    contact: true,
+    situation: false,
+    professionnel: false,
+    immigration: false,
+    rgpd: true,
+  });
 
-  // Export CSV
-  const exportToCSV = () => {
-    const headers = [
-      'Nom',
-      'Type',
-      'Email',
-      'Téléphone',
-      'Adresse',
-      'Ville',
-      'Code Postal',
-      'SIRET',
-      'Nb Dossiers',
-      'Statut',
-      'Date Creation',
-    ];
-    const csvData = filteredClients.map(c => [
-      c.nom,
-      TYPE_LABELS[c.type],
-      c.email,
-      c.téléphone,
-      c.adresse,
-      c.ville,
-      c.codePostal,
-      c.siret || '',
-      c.nbDossiers.toString(),
-      STATUT_LABELS[c.statut],
-      c.dateCreation,
-    ]);
-
-    const csvContent = [headers.join(';'), ...csvData.map(row => row.join(';'))].join('\n');
-
-    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `clients_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-
-    addToast({
-      variant: 'success',
-      title: 'Export reussi',
-      message: `${filteredClients.length} client(s) exporte(s) au format CSV.`,
-    });
+  const toggleSection = (key: string) => {
+    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const { addToast } = useToast();
 
   const {
     register,
@@ -283,25 +452,39 @@ export default function ClientsPage() {
     watch,
     formState: { errors },
   } = useForm<ClientFormData>({
-    resolver: zodResolver(clientSchema),
+    resolver: zodResolver(clientSchema) as any,
+    defaultValues: {
+      civilite: 'M.',
+      sexe: 'M',
+      situationFamiliale: 'celibataire',
+      situationPro: 'sans_emploi',
+      statut: 'prospect',
+      nombreEnfants: 0,
+      enfantsEnFrance: 0,
+      conjointEstFrancais: false,
+      enfantsScolarises: false,
+      consentementTraitement: undefined,
+      pays: 'France',
+    },
   });
 
-  const clientType = watch('type');
+  const situationFamiliale = watch('situationFamiliale');
 
   // Filtrage et recherche
   const filteredClients = useMemo(() => {
     return clients.filter(client => {
       const matchSearch =
         client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
         client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.ville.toLowerCase().includes(searchTerm.toLowerCase());
+        client.ville.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.nationalite.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchType = filterType === 'all' || client.type === filterType;
       const matchStatut = filterStatut === 'all' || client.statut === filterStatut;
 
-      return matchSearch && matchType && matchStatut;
+      return matchSearch && matchStatut;
     });
-  }, [clients, searchTerm, filterType, filterStatut]);
+  }, [clients, searchTerm, filterStatut]);
 
   // Pagination
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
@@ -315,54 +498,161 @@ export default function ClientsPage() {
     () => ({
       total: clients.length,
       actifs: clients.filter(c => c.statut === 'actif').length,
-      entreprises: clients.filter(c => c.type === 'entreprise').length,
       prospects: clients.filter(c => c.statut === 'prospect').length,
+      avecTitre: clients.filter(c => c.titreSéjourActuel && c.titreSéjourActuel.length > 0).length,
     }),
     [clients]
   );
 
+  // Export CSV
+  const exportToCSV = () => {
+    const headers = ['Civilité', 'Nom', 'Prénom', 'Email', 'Téléphone', 'Ville', 'Nationalité', 'Titre de séjour', 'Dossiers', 'Statut', 'Date création'];
+    const csvData = filteredClients.map(c => [
+      c.civilite,
+      c.nom,
+      c.prenom,
+      c.email,
+      c.telephonePrincipal,
+      `${c.codePostal} ${c.ville}`,
+      c.nationalite,
+      c.titreSéjourActuel || 'Aucun',
+      c.nbDossiers.toString(),
+      STATUT_LABELS[c.statut],
+      c.dateCreation,
+    ]);
+
+    const csvContent = [headers.join(';'), ...csvData.map(row => row.join(';'))].join('\n');
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `clients_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+
+    addToast({
+      variant: 'success',
+      title: 'Export réussi',
+      message: `${filteredClients.length} client(s) exporté(s) au format CSV.`,
+    });
+  };
+
   const openCreateModal = () => {
     setEditingClient(null);
     reset({
+      civilite: 'M.',
       nom: '',
-      type: 'particulier',
+      prenom: '',
+      sexe: 'M',
+      dateNaissance: '',
+      lieuNaissance: '',
+      paysNaissance: '',
+      nationalite: '',
       email: '',
-      téléphone: '',
-      adresse: '',
-      ville: '',
+      telephonePrincipal: '',
+      adresseRue: '',
       codePostal: '',
-      siret: '',
+      ville: '',
+      pays: 'France',
+      situationFamiliale: 'celibataire',
+      nombreEnfants: 0,
+      enfantsEnFrance: 0,
+      situationPro: 'sans_emploi',
       statut: 'prospect',
+      consentementTraitement: undefined as unknown as true,
+    });
+    setOpenSections({
+      identite: true,
+      contact: true,
+      situation: false,
+      professionnel: false,
+      immigration: false,
+      rgpd: true,
     });
     setIsCreateModalOpen(true);
   };
 
   const openEditModal = (client: Client) => {
     setEditingClient(client);
-    reset(client);
+    reset({
+      civilite: client.civilite as 'M.' | 'Mme' | 'Autre',
+      nom: client.nom,
+      prenom: client.prenom,
+      sexe: 'M',
+      dateNaissance: '',
+      lieuNaissance: '',
+      paysNaissance: '',
+      nationalite: client.nationalite,
+      email: client.email,
+      telephonePrincipal: client.telephonePrincipal,
+      adresseRue: '',
+      codePostal: client.codePostal,
+      ville: client.ville,
+      pays: 'France',
+      situationFamiliale: 'celibataire',
+      nombreEnfants: 0,
+      enfantsEnFrance: 0,
+      situationPro: 'sans_emploi',
+      titreSéjourActuel: client.titreSéjourActuel,
+      statut: client.statut,
+      consentementTraitement: true,
+    });
+    setOpenSections({
+      identite: true,
+      contact: true,
+      situation: true,
+      professionnel: true,
+      immigration: true,
+      rgpd: true,
+    });
     setIsCreateModalOpen(true);
   };
 
   const onSubmit = (data: ClientFormData) => {
     if (editingClient) {
-      setClients(prev => prev.map(c => (c.id === editingClient.id ? { ...c, ...data } : c)));
+      setClients(prev =>
+        prev.map(c =>
+          c.id === editingClient.id
+            ? {
+                ...c,
+                civilite: data.civilite,
+                nom: data.nom,
+                prenom: data.prenom,
+                email: data.email,
+                telephonePrincipal: data.telephonePrincipal,
+                ville: data.ville,
+                codePostal: data.codePostal,
+                nationalite: data.nationalite,
+                titreSéjourActuel: data.titreSéjourActuel || '',
+                statut: data.statut,
+              }
+            : c
+        )
+      );
       addToast({
         variant: 'success',
-        title: 'Client modifie',
-        message: `Le client ${data.nom} a été modifie avec succès.`,
+        title: 'Client modifié',
+        message: `Le client ${data.prenom} ${data.nom} a été modifié avec succès.`,
       });
     } else {
       const newClient: Client = {
         id: Date.now().toString(),
-        ...data,
+        civilite: data.civilite,
+        nom: data.nom,
+        prenom: data.prenom,
+        email: data.email,
+        telephonePrincipal: data.telephonePrincipal,
+        ville: data.ville,
+        codePostal: data.codePostal,
+        nationalite: data.nationalite,
+        titreSéjourActuel: data.titreSéjourActuel || '',
         nbDossiers: 0,
         dateCreation: new Date().toISOString().split('T')[0],
+        statut: data.statut,
       };
       setClients(prev => [newClient, ...prev]);
       addToast({
         variant: 'success',
-        title: 'Client cree',
-        message: `Le client ${data.nom} a été cree avec succès.`,
+        title: 'Client créé',
+        message: `Le client ${data.prenom} ${data.nom} a été créé avec succès.`,
       });
     }
     setIsCreateModalOpen(false);
@@ -374,40 +664,43 @@ export default function ClientsPage() {
       addToast({
         variant: 'error',
         title: 'Suppression impossible',
-        message: `Le client ${client.nom} a ${client.nbDossiers} dossier(s) associe(s).`,
+        message: `Le client ${client.prenom} ${client.nom} a ${client.nbDossiers} dossier(s) associé(s).`,
       });
       return;
     }
-
-    if (window.confirm(`etes-vous sur de vouloir supprimer le client ${client?.nom} ?`)) {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${client?.civilite} ${client?.prenom} ${client?.nom} ?`)) {
       setClients(prev => prev.filter(c => c.id !== id));
       addToast({
         variant: 'info',
-        title: 'Client supprime',
-        message: `Le client ${client?.nom} a été supprime.`,
+        title: 'Client supprimé',
+        message: `Le client ${client?.prenom} ${client?.nom} a été supprimé.`,
       });
     }
   };
 
+  const handleRowClick = (client: Client) => {
+    router.push(`/clients/${client.id}`);
+  };
+
+
+  // Table columns
   const columns = [
     {
       accessor: 'nom' as const,
-      header: 'Nom',
-      render: (value: string, row: Client) => (
+      header: 'Client',
+      render: (_: string, row: Client) => (
         <div className="flex items-center gap-2">
-          {row.type === 'entreprise' ? (
-            <Building2 className="w-4 h-4 text-blue-500" />
-          ) : (
-            <User className="w-4 h-4 text-gray-500" />
-          )}
-          <span className="font-medium">{value}</span>
+          <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+            <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <span className="font-medium text-gray-900 dark:text-white">
+              {row.civilite} {row.prenom} {row.nom}
+            </span>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{row.nationalite}</div>
+          </div>
         </div>
       ),
-    },
-    {
-      accessor: 'type' as const,
-      header: 'Type',
-      render: (value: 'particulier' | 'entreprise') => TYPE_LABELS[value],
     },
     {
       accessor: 'email' as const,
@@ -420,7 +713,7 @@ export default function ClientsPage() {
           </div>
           <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
             <Phone className="w-3 h-3" />
-            <span>{row.téléphone}</span>
+            <span>{row.telephonePrincipal}</span>
           </div>
         </div>
       ),
@@ -428,7 +721,21 @@ export default function ClientsPage() {
     {
       accessor: 'ville' as const,
       header: 'Ville',
-      render: (value: string, row: Client) => `${row.codePostal} ${value}`,
+      render: (value: string, row: Client) => (
+        <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+          <MapPin className="w-3 h-3" />
+          <span>{row.codePostal} {value}</span>
+        </div>
+      ),
+    },
+    {
+      accessor: 'titreSéjourActuel' as const,
+      header: 'Titre de séjour',
+      render: (value: string) => (
+        <span className={`text-sm ${value ? 'text-gray-900 dark:text-white' : 'text-gray-400 italic'}`}>
+          {value || 'Non renseigné'}
+        </span>
+      ),
     },
     {
       accessor: 'statut' as const,
@@ -441,14 +748,12 @@ export default function ClientsPage() {
       accessor: 'nbDossiers' as const,
       header: 'Dossiers',
       render: (value: number) => (
-        <span
-          className={value > 0 ? 'font-semibold text-blue-600 dark:text-blue-400' : 'text-gray-400'}
-        >
+        <span className={value > 0 ? 'font-semibold text-blue-600 dark:text-blue-400' : 'text-gray-400'}>
           {value}
         </span>
       ),
     },
-    { accessor: 'dateCreation' as const, header: 'Date creation' },
+    { accessor: 'dateCreation' as const, header: 'Créé le' },
     {
       accessor: 'id' as const,
       header: 'Actions',
@@ -481,9 +786,6 @@ export default function ClientsPage() {
     },
   ];
 
-  const handleRowClick = (client: Client) => {
-    router.push(`/clients/${client.id}`);
-  };
 
   if (status === 'loading') {
     return (
@@ -508,8 +810,7 @@ export default function ClientsPage() {
               Gestion des clients
             </h1>
             <p className="text-blue-100 mt-2 max-w-lg">
-              Gérez votre portefeuille de {stats.total} clients - Suivez vos prospects et fidelisez
-              vos clients actifs
+              Gérez votre portefeuille de {stats.total} clients — Droit des étrangers (CESEDA)
             </p>
           </div>
           <div className="flex gap-3">
@@ -532,7 +833,7 @@ export default function ClientsPage() {
         </div>
       </div>
 
-      {/* Stats avec animation */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="transform hover:scale-105 transition-transform duration-300">
           <StatCard
@@ -546,7 +847,7 @@ export default function ClientsPage() {
           <StatCard title="Actifs" value={stats.actifs} icon={User} />
         </div>
         <div className="transform hover:scale-105 transition-transform duration-300">
-          <StatCard title="Entreprises" value={stats.entreprises} icon={Building2} />
+          <StatCard title="Avec titre de séjour" value={stats.avecTitre} icon={Globe} />
         </div>
         <div className="transform hover:scale-105 transition-transform duration-300">
           <StatCard title="Prospects" value={stats.prospects} icon={TrendingUp} />
@@ -556,36 +857,24 @@ export default function ClientsPage() {
       {/* Alert */}
       {stats.prospects > 0 && (
         <Alert variant="info">
-          Vous avez {stats.prospects} prospect(s) a convertir en clients actifs.
+          Vous avez {stats.prospects} prospect(s) à convertir en clients actifs.
         </Alert>
       )}
 
-      {/* Filters avec toggle view */}
+      {/* Filters */}
       <Card>
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Rechercher par nom, email ou ville..."
+              placeholder="Rechercher par nom, prénom, email, ville, nationalité..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </div>
           <div className="flex gap-2">
-            <select
-              value={filterType}
-              onChange={e => setFilterType(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white transition-all focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">Tous les types</option>
-              {Object.entries(TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
             <select
               value={filterStatut}
               onChange={e => setFilterStatut(e.target.value)}
@@ -598,7 +887,6 @@ export default function ClientsPage() {
                 </option>
               ))}
             </select>
-            {/* Toggle view */}
             <div className="flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
               <button
                 onClick={() => setViewMode('table')}
@@ -617,26 +905,23 @@ export default function ClientsPage() {
             </div>
           </div>
         </div>
-        {(searchTerm || filterType !== 'all' || filterStatut !== 'all') && (
+        {(searchTerm || filterStatut !== 'all') && (
           <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full">
               {filteredClients.length} résultat(s)
             </span>
             <button
-              onClick={() => {
-                setSearchTerm('');
-                setFilterType('all');
-                setFilterStatut('all');
-              }}
+              onClick={() => { setSearchTerm(''); setFilterStatut('all'); }}
               className="text-blue-600 hover:underline text-xs"
             >
-              Reinitialiser
+              Réinitialiser
             </button>
           </div>
         )}
       </Card>
 
-      {/* Vue Tableau */}
+
+      {/* Table View */}
       {viewMode === 'table' && (
         <Card>
           <Table columns={columns} data={paginatedClients} onRowClick={handleRowClick} />
@@ -654,7 +939,7 @@ export default function ClientsPage() {
         </Card>
       )}
 
-      {/* Vue Cartes */}
+      {/* Cards View */}
       {viewMode === 'cards' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {paginatedClients.map(client => (
@@ -665,21 +950,15 @@ export default function ClientsPage() {
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center ${client.type === 'entreprise' ? 'bg-blue-100 dark:bg-blue-900' : 'bg-gray-100 dark:bg-gray-700'}`}
-                  >
-                    {client.type === 'entreprise' ? (
-                      <Building2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                    ) : (
-                      <User className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-                    )}
+                  <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                    <User className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
-                      {client.nom}
+                      {client.civilite} {client.prenom} {client.nom}
                     </h3>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {TYPE_LABELS[client.type]}
+                      {client.nationalite}
                     </span>
                   </div>
                 </div>
@@ -693,14 +972,18 @@ export default function ClientsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <Phone className="w-4 h-4" />
-                  <span>{client.téléphone}</span>
+                  <span>{client.telephonePrincipal}</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <MapPin className="w-4 h-4" />
-                  <span>
-                    {client.codePostal} {client.ville}
-                  </span>
+                  <span>{client.codePostal} {client.ville}</span>
                 </div>
+                {client.titreSéjourActuel && (
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                    <Globe className="w-4 h-4" />
+                    <span className="truncate">{client.titreSéjourActuel}</span>
+                  </div>
+                )}
               </div>
 
               <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
@@ -728,7 +1011,7 @@ export default function ClientsPage() {
         </div>
       )}
 
-      {/* Pagination pour vue cartes */}
+      {/* Pagination for cards view */}
       {viewMode === 'cards' && totalPages > 1 && (
         <div className="flex justify-center">
           <Pagination
@@ -740,159 +1023,6 @@ export default function ClientsPage() {
           />
         </div>
       )}
-
-      {/* Modal */}
-      <Modal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        title={editingClient ? 'Modifier le client' : 'Créer un client'}
-      >
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Type *
-              </label>
-              <select
-                {...register('type')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              >
-                {Object.entries(TYPE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Statut *
-              </label>
-              <select
-                {...register('statut')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              >
-                {Object.entries(STATUT_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Nom {clientType === 'entreprise' ? "de l'entreprise" : 'complet'} *
-            </label>
-            <input
-              {...register('nom')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              placeholder={clientType === 'entreprise' ? 'SARL Dupont & Fils' : 'M. Dupont Jean'}
-            />
-            {errors.nom && <p className="mt-1 text-sm text-red-600">{errors.nom.message}</p>}
-          </div>
-
-          {clientType === 'entreprise' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                SIRET
-              </label>
-              <input
-                {...register('siret')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                placeholder="12345678901234"
-                maxLength={14}
-              />
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Email *
-              </label>
-              <input
-                type="email"
-                {...register('email')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Téléphone *
-              </label>
-              <input
-                type="tel"
-                {...register('téléphone')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
-              {errors.téléphone && (
-                <p className="mt-1 text-sm text-red-600">{errors.téléphone.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Adresse *
-            </label>
-            <input
-              {...register('adresse')}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            />
-            {errors.adresse && (
-              <p className="mt-1 text-sm text-red-600">{errors.adresse.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Ville *
-              </label>
-              <input
-                {...register('ville')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
-              {errors.ville && <p className="mt-1 text-sm text-red-600">{errors.ville.message}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Code postal *
-              </label>
-              <input
-                {...register('codePostal')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                maxLength={5}
-              />
-              {errors.codePostal && (
-                <p className="mt-1 text-sm text-red-600">{errors.codePostal.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex gap-2 justify-end pt-4">
-            <button
-              type="button"
-              onClick={() => setIsCreateModalOpen(false)}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              {editingClient ? 'Modifier' : 'Créer'}
-            </button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 }

@@ -149,9 +149,9 @@ describe('cost-guard - REAL TESTS', () => {
 
     it('should calculate days remaining if under budget', () => {
       const dailyUsage = 0.5 // 0.50€ per day
-      const limit = MONTHLY_COST_LIMITS.SOLO // 10€
+      const limit = MONTHLY_COST_LIMITS.SOLO // 5€
       const daysRemaining = Math.floor(limit / dailyUsage)
-      expect(daysRemaining).toBe(20)
+      expect(daysRemaining).toBe(10)
     })
   })
 })

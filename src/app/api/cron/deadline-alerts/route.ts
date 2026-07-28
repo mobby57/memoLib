@@ -2,7 +2,7 @@
 import { checkDeadlineAlerts } from '@/lib/cron/deadline-alerts';
 import { logger } from '@/lib/logger';
 
-export async function POST(request: NextRequest) {
+async function handleCron(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
@@ -11,7 +11,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Service indisponible' }, { status: 503 });
     }
 
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    const token = request.nextUrl.searchParams.get('token');
+    if (!cronSecret || (authHeader !== `Bearer ${cronSecret}` && token !== cronSecret)) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
@@ -29,3 +30,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+export const GET = handleCron;
+export const POST = handleCron;

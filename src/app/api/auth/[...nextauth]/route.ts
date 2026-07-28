@@ -29,7 +29,7 @@ function asSessionUser(u: unknown): SessionUser {
   return u as SessionUser;
 }
 
-type OAuthUser = { email?: string; name?: string; image?: string; id?: string; role?: string; tenantId?: string; clientId?: string | null };
+type OAuthUser = { email?: string; name?: string; image?: string; id?: string; role?: string; tenantId?: string; tenantName?: string; tenantPlan?: string; clientId?: string | null };
 function asOAuthUser(u: unknown): OAuthUser { return u as OAuthUser; }
 
 function asSession(u: unknown): Record<string, any> { return u as Record<string, any>; }
@@ -374,7 +374,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider && account.provider !== 'credentials') {
-        const allowed = await handleOAuthSignIn(user, account.provider);
+        const allowed = await handleOAuthSignIn(user as OAuthUser, account.provider);
         if (!allowed) {
           // Compte inexistant : bloquer la connexion OAuth
           return '/auth/error?error=OAuthAccountNotLinked';
@@ -418,13 +418,13 @@ export const authOptions: NextAuthOptions = {
         });
 
         const sUser = asSessionUser(session.user);
-        sUser.id = token.id;
-        sUser.role = token.role;
-        sUser.tenantId = token.tenantId;
-        sUser.tenantName = token.tenantName;
-        sUser.tenantPlan = token.tenantPlan;
-        sUser.clientId = token.clientId;
-        sUser.provider = token.provider;
+        sUser.id = token.id as string | undefined;
+        sUser.role = token.role as string | undefined;
+        sUser.tenantId = token.tenantId as string | undefined;
+        sUser.tenantName = token.tenantName as string | undefined;
+        sUser.tenantPlan = token.tenantPlan as string | undefined;
+        sUser.clientId = token.clientId as string | null | undefined;
+        sUser.provider = token.provider as string | undefined;
         sUser.groups = rbac.groups;
         sUser.rbacPermissions = rbac.permissions;
 
@@ -523,20 +523,20 @@ export const authOptions: NextAuthOptions = {
 const handler = NextAuth(authOptions);
 
 // Wrap NextAuth handler with rate limiting for auth endpoints
-const GET = withLoginRateLimit(async (req: NextRequest) => {
+const GET = withLoginRateLimit(async (req: NextRequest): Promise<NextResponse> => {
   try {
     const res = await handler(req);
-    return res instanceof Response ? res : new NextResponse(res);
+    return (res instanceof Response ? res : new NextResponse(res)) as NextResponse;
   } catch (error) {
     console.error('[AUTH_ROUTE] Error:', error);
     return NextResponse.json({ error: 'Authentication error' }, { status: 500 });
   }
 });
 
-const POST = withLoginRateLimit(async (req: NextRequest) => {
+const POST = withLoginRateLimit(async (req: NextRequest): Promise<NextResponse> => {
   try {
     const res = await handler(req);
-    return res instanceof Response ? res : new NextResponse(res);
+    return (res instanceof Response ? res : new NextResponse(res)) as NextResponse;
   } catch (error) {
     console.error('[AUTH_ROUTE] Error:', error);
     return NextResponse.json({ error: 'Authentication error' }, { status: 500 });

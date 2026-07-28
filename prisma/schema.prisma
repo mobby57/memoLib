@@ -76,6 +76,8 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([tenantId])
   @@index([timestamp])
+  @@index([createdAt])
+  @@index([tenantId, createdAt])
   @@index([userId])
   @@index([hash])
 }
@@ -101,8 +103,8 @@ model CalendarEvent {
   recurrenceRule String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime
-  Client         Client?  @relation(fields: [clientId], references: [id])
-  Dossier        Dossier? @relation(fields: [dossierId], references: [id])
+  Client         Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  Dossier        Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   Tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   User           User     @relation(fields: [userId], references: [id])
 
@@ -219,8 +221,8 @@ model Document {
   antivirusDetails   String?
   sha256             String?
   antivirusStatus    String?
-  Client             Client?   @relation(fields: [clientId], references: [id])
-  Dossier            Dossier?  @relation(fields: [dossierId], references: [id])
+  Client             Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  Dossier            Dossier?  @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   Tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   User               User      @relation(fields: [uploadedBy], references: [id])
   Proof              Proof[]
@@ -277,8 +279,13 @@ model Dossier {
 
   @@unique([tenantId, numero])
   @@index([clientId])
+  @@index([createdAt])
   @@index([inboxEmail])
   @@index([juridiction, outcome])
+  @@index([priorite])
+  @@index([statut])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, priorite])
   @@index([tenantId, statut])
   @@index([typeDossier, outcome])
 }
@@ -315,13 +322,15 @@ model Draft {
   validatedAt      DateTime?
   rejectionReason  String?
   createdAt        DateTime  @default(now())
-  updatedAt        DateTime
-  Dossier          Dossier?  @relation(fields: [createdDossierId], references: [id])
-  Email            Email?    @relation(fields: [sourceEmailId], references: [id])
+  updatedAt        DateTime        @updatedAt
+  Dossier          Dossier?  @relation(fields: [createdDossierId], references: [id], onDelete: SetNull)
+  Email            Email?    @relation(fields: [sourceEmailId], references: [id], onDelete: SetNull)
   Tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([sourceEmailId])
   @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, status, createdAt])
 }
 
 model EmailAccount {
@@ -401,8 +410,8 @@ model Email {
   threadId          String?
   toAddresses       String?
   Draft             Draft[]
-  Client            Client?             @relation(fields: [clientId], references: [id])
-  Dossier           Dossier?            @relation(fields: [dossierId], references: [id])
+  Client            Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  Dossier           Dossier?            @relation(fields: [dossierId], references: [id], onDelete: SetNull)
   Tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   EmailAttachment   EmailAttachment[]
   WorkflowExecution WorkflowExecution[]
@@ -461,7 +470,7 @@ model Facture {
   pdfUrl           String?
   stripeInvoiceId  String?
   createdAt        DateTime       @default(now())
-  updatedAt        DateTime
+  updatedAt        DateTime       @updatedAt
   Client           Client         @relation(fields: [clientId], references: [id])
   Dossier          Dossier?       @relation(fields: [dossierId], references: [id])
   Tenant           Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -543,38 +552,49 @@ model Jurisprudence {
 }
 
 model LegalDeadline {
-  id             String          @id
-  tenantId       String
-  dossierId      String
-  clientId       String
-  type           DeadlineType
-  label          String
-  description    String?
-  referenceDate  DateTime
-  dueDate        DateTime
-  status         DeadlineStatus  @default(PENDING)
-  legalBasis     String?
-  legalDays      Int?
-  alertJ7Sent    Boolean         @default(false)
-  alertJ3Sent    Boolean         @default(false)
-  alertJ1Sent    Boolean         @default(false)
-  completedAt    DateTime?
-  completedBy    String?
-  completionNote String?
-  proofId        String?
-  createdBy      String
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime
-  DeadlineAlert  DeadlineAlert[]
-  Client         Client          @relation(fields: [clientId], references: [id])
-  Dossier        Dossier         @relation(fields: [dossierId], references: [id], onDelete: Cascade)
-  Tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id               String          @id
+  tenantId         String
+  dossierId        String
+  clientId         String
+  type             DeadlineType
+  label            String
+  description      String?
+  referenceDate    DateTime
+  dueDate          DateTime
+  status           DeadlineStatus  @default(PENDING)
+  legalBasis       String?
+  legalDays        Int?
+  alertJ7Sent      Boolean         @default(false)
+  alertJ3Sent      Boolean         @default(false)
+  alertJ1Sent      Boolean         @default(false)
+  alertSmsSent     Boolean         @default(false)
+  acknowledgedBy   String?
+  acknowledgedAt   DateTime?
+  suspendedReason  String?
+  suspendedAt      DateTime?
+  suspendedBy      String?
+  escalatedAt      DateTime?
+  escalatedTo      String?
+  completedAt      DateTime?
+  completedBy      String?
+  completionNote   String?
+  proofId          String?
+  createdBy        String
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime
+  DeadlineAlert    DeadlineAlert[]
+  Client           Client          @relation(fields: [clientId], references: [id])
+  Dossier          Dossier         @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+  Tenant           Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([dossierId])
   @@index([dueDate])
   @@index([status, dueDate])
   @@index([status])
-  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, status, createdAt])
+  @@index([acknowledgedBy])
 }
 
 model LegalReference {
@@ -763,6 +783,9 @@ model Report {
   @@index([dossierId])
   @@index([status])
   @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, status, createdAt])
   @@index([type])
 }
 
@@ -956,6 +979,8 @@ model WorkflowExecution {
 
   @@index([emailId])
   @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, status, createdAt])
   @@index([workflowId])
 }
 
@@ -1173,6 +1198,7 @@ enum DeadlineStatus {
   OVERDUE
   COMPLETED
   CANCELLED
+  SUSPENDED
 }
 
 enum DeadlineType {
@@ -1263,4 +1289,3 @@ model VerificationToken {
   @@index([token])
   @@index([expiresAt])
 }
-
