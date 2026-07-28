@@ -166,30 +166,36 @@ export async function PATCH(request: NextRequest) {
 
     const effectiveChangedBy = access.userId;
 
-    const [updatedUnit] = await prisma.$transaction([
-      prisma.informationUnit.update({
-        where: { id: unitId },
-        data: {
-          currentStatus: newStatus,
-          lastStatusChangeBy: effectiveChangedBy,
-          lastStatusChangeAt: new Date(),
-          ...(linkedWorkspaceId && { linkedWorkspaceId }),
-          ...(newStatus === 'CLASSIFIED' && { classifiedAt: new Date() }),
-          ...(newStatus === 'ANALYZED' && { analyzedAt: new Date() }),
-          ...(newStatus === 'RESOLVED' && { resolvedAt: new Date() }),
-          ...(newStatus === 'CLOSED' && { closedAt: new Date() }),
-        },
-      }),
-      prisma.informationStatusHistory.create({
-        data: {
-          unitId,
-          fromStatus: unit.currentStatus,
-          toStatus: newStatus,
-          reason,
-          changedBy: effectiveChangedBy,
-        },
-      }),
-    ]);
+    const updatedUnit = await prisma.$transaction(
+      async (tx) => {
+        const u = await tx.informationUnit.update({
+          where: { id: unitId },
+          data: {
+            currentStatus: newStatus,
+            lastStatusChangeBy: effectiveChangedBy,
+            lastStatusChangeAt: new Date(),
+            ...(linkedWorkspaceId && { linkedWorkspaceId }),
+            ...(newStatus === 'CLASSIFIED' && { classifiedAt: new Date() }),
+            ...(newStatus === 'ANALYZED' && { analyzedAt: new Date() }),
+            ...(newStatus === 'RESOLVED' && { resolvedAt: new Date() }),
+            ...(newStatus === 'CLOSED' && { closedAt: new Date() }),
+          },
+        });
+
+        await tx.informationStatusHistory.create({
+          data: {
+            unitId,
+            fromStatus: unit.currentStatus,
+            toStatus: newStatus,
+            reason,
+            changedBy: effectiveChangedBy,
+          },
+        });
+
+        return u;
+      },
+      { timeout: 30000 }
+    );
 
     return NextResponse.json({ success: true, unit: updatedUnit });
   } catch (error) {

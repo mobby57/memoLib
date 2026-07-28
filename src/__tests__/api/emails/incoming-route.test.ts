@@ -4,7 +4,7 @@
 
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { Prisma } from '@prisma/client';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 const mockCreateEventLog = jest.fn();
 const mockAnalyzeEmail = jest.fn();
@@ -21,12 +21,35 @@ const mockPrisma = {
   emailAttachment: { createMany: jest.fn() },
   workflowExecution: { create: jest.fn(), update: jest.fn() },
   dossier: { findFirst: jest.fn(), create: jest.fn() },
+  draft: { findFirst: jest.fn(), create: jest.fn() },
 };
+
+jest.mock('@/lib/security/webhook-verification', () => {
+  const actual = jest.requireActual('@/lib/security/webhook-verification') as typeof import('@/lib/security/webhook-verification');
+  const { NextResponse: ActualNextResponse } = jest.requireActual('next/server') as typeof import('next/server');
+  return {
+    ...actual,
+    verifyWebhookRequest: jest.fn((req: NextRequest, body: string, secret: string) => {
+      const legacySecret = req.headers.get('x-webhook-secret');
+      if (legacySecret) {
+        if (legacySecret !== secret) {
+          return {
+            valid: false as const,
+            response: ActualNextResponse.json({ error: 'Invalid secret' }, { status: 401 }),
+          };
+        }
+        return { valid: true as const };
+      }
+      return actual.verifyWebhookRequest(req, body, secret);
+    }),
+  };
+});
 
 jest.mock('@/lib/logger', () => ({
   logger: {
     error: jest.fn(),
     info: jest.fn(),
+    warn: jest.fn(),
   },
 }));
 
@@ -69,6 +92,8 @@ describe('POST /api/emails/incoming', () => {
     (mockPrisma.workflowExecution.update as any).mockResolvedValue({ id: 'wf_1' });
     (mockPrisma.email.update as any).mockResolvedValue({ id: 'email_1', isProcessed: true });
     (mockPrisma.emailAttachment.createMany as any).mockResolvedValue({ count: 0 });
+    (mockPrisma.draft.findFirst as any).mockResolvedValue(null);
+    (mockPrisma.draft.create as any).mockResolvedValue({ id: 'draft_1' });
   });
 
   it('returns duplicate=true when email is already known', async () => {

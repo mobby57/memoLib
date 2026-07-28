@@ -79,5 +79,6 @@
   "codedeploy.applicationName": "MEMOLIB",
   "codedeploy.isApplicationWorkspace": true,
   "jest.runMode": "on-demand",
-  "jest.jestCommandLine": "npx jest --maxWorkers=2"
+  "jest.jestCommandLine": "npx jest --maxWorkers=2",
+  "WillLuke.nextjs.hasPrompted": true
 }

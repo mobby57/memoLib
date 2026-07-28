@@ -28,10 +28,10 @@ export const AI_COSTS = {
 // Limites de coûts mensuels par plan (en euros)
 // Calculé pour garantir une marge > 80%
 export const MONTHLY_COST_LIMITS: Record<string, number> = {
-  // Plans stratégiques
-  SOLO: 10,         // 10€/mois max pour 89€ de revenu
-  CABINET: 40,      // 40€/mois max pour 69€/user × 3+ users
-  ENTERPRISE: 150,  // 150€/mois max pour 149€/user × 5+ users
+  // Plans stratégiques (marge IA ~80%)
+  SOLO: 5,         // 5€/mois max pour 29€ de revenu
+  CABINET: 15,     // 15€/mois max pour 79€
+  ENTERPRISE: 40,  // 40€/mois max pour 199€
   
   // Plans existants dans votre DB
   BASIC: 5,         // 5€/mois max pour 49€
@@ -81,7 +81,7 @@ export async function checkAICostBudget(tenantId: string): Promise<CostCheckResu
       currentCost: 0,
       limit: 5,
       percentage: 0,
-      alertLevel: 'ok',
+      alertLevel: 'normal',
       suggestOllama: false,
     };
   }
