@@ -3,6 +3,7 @@
  * Coverage: Fonctions utilitaires générales
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { cn, formatDate, formatCurrency, truncate } from '@/lib/utils';
 
 describe('Utils Module - Extended', () => {
@@ -45,12 +46,12 @@ describe('Utils Module - Extended', () => {
 
   describe('formatDate function', () => {
     beforeEach(() => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       jest.setSystemTime(new Date('2026-01-15T12:00:00Z'));
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it('should format date with default options', () => {
@@ -144,7 +145,7 @@ describe('Additional utility functions', () => {
   let utils: any;
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     utils = await import('@/lib/utils');
   });
 
@@ -171,7 +172,7 @@ describe('Additional utility functions', () => {
   describe('debounce', () => {
     it('should debounce function calls', async () => {
       if (utils.debounce) {
-        const fn = jest.fn();
+        const fn = vi.fn();
         const debounced = utils.debounce(fn, 100);
         
         debounced();
@@ -191,7 +192,7 @@ describe('Additional utility functions', () => {
   describe('throttle', () => {
     it('should throttle function calls', async () => {
       if (utils.throttle) {
-        const fn = jest.fn();
+        const fn = vi.fn();
         const throttled = utils.throttle(fn, 100);
         
         throttled();

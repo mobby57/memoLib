@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/billing/cost-guard.ts - Pure Unit Tests
  * Coverage: Limites de coûts IA (tests unitaires sans mocks complexes)

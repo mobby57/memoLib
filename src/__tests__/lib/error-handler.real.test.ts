@@ -3,6 +3,7 @@
  * Tests error classification and handling utilities
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   ErrorCategory,
   classifyError,
@@ -343,7 +344,7 @@ describe('error-handler - REAL TESTS', () => {
       const mockResponse = {
         status: 400,
         statusText: 'Bad Request',
-        json: jest.fn().mockResolvedValue({ error: 'Invalid data' }),
+        json: vi.fn().mockResolvedValue({ error: 'Invalid data' }),
       } as unknown as Response
       
       const error = await createErrorFromResponse(mockResponse)
@@ -357,7 +358,7 @@ describe('error-handler - REAL TESTS', () => {
       const mockResponse = {
         status: 500,
         statusText: 'Server Error',
-        json: jest.fn().mockResolvedValue({ message: 'Database error' }),
+        json: vi.fn().mockResolvedValue({ message: 'Database error' }),
       } as unknown as Response
       
       const error = await createErrorFromResponse(mockResponse)
@@ -369,7 +370,7 @@ describe('error-handler - REAL TESTS', () => {
       const mockResponse = {
         status: 503,
         statusText: 'Service Unavailable',
-        json: jest.fn().mockRejectedValue(new Error('Parse error')),
+        json: vi.fn().mockRejectedValue(new Error('Parse error')),
       } as unknown as Response
       
       const error = await createErrorFromResponse(mockResponse)
@@ -380,7 +381,7 @@ describe('error-handler - REAL TESTS', () => {
 
   describe('withErrorHandling', () => {
     it('should pass through successful results', async () => {
-      const fn = jest.fn().mockResolvedValue('success')
+      const fn = vi.fn().mockResolvedValue('success')
       const wrapped = withErrorHandling(fn)
       
       const result = await wrapped()
@@ -390,7 +391,7 @@ describe('error-handler - REAL TESTS', () => {
     })
 
     it('should classify and rethrow errors', async () => {
-      const fn = jest.fn().mockRejectedValue(new Error('Network timeout'))
+      const fn = vi.fn().mockRejectedValue(new Error('Network timeout'))
       const wrapped = withErrorHandling(fn)
       
       await expect(wrapped()).rejects.toMatchObject({
@@ -399,8 +400,8 @@ describe('error-handler - REAL TESTS', () => {
     })
 
     it('should call onError callback', async () => {
-      const fn = jest.fn().mockRejectedValue(new Error('Unauthorized'))
-      const onError = jest.fn()
+      const fn = vi.fn().mockRejectedValue(new Error('Unauthorized'))
+      const onError = vi.fn()
       const wrapped = withErrorHandling(fn, onError)
       
       try {
@@ -414,7 +415,7 @@ describe('error-handler - REAL TESTS', () => {
     })
 
     it('should preserve function arguments', async () => {
-      const fn = jest.fn().mockImplementation((a, b) => Promise.resolve(a + b))
+      const fn = vi.fn().mockImplementation((a, b) => Promise.resolve(a + b))
       const wrapped = withErrorHandling(fn)
       
       const result = await wrapped(1, 2)

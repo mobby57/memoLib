@@ -8,7 +8,7 @@
  * - Audit trail complète
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 
 // --- Logique RGPD pure (miroir du service réel) ---
 

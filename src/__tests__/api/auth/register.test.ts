@@ -3,17 +3,18 @@
  * @jest-environment node
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
 
-const mockRegisterUser = jest.fn();
+const mockRegisterUser = vi.fn();
 
-jest.mock('@/lib/middleware/rate-limit', () => ({
+vi.mock('@/lib/middleware/rate-limit', () => ({
   withRateLimit: (handler: unknown) => handler,
   withLoginRateLimit: (handler: unknown) => handler,
 }));
 
-jest.mock('@/lib/middleware/parse-json', () => ({
-  parseJsonBody: jest.fn(async (req: NextRequest) => {
+vi.mock('@/lib/middleware/parse-json', () => ({
+  parseJsonBody: vi.fn(async (req: NextRequest) => {
     const { NextResponse: ActualNextResponse } = jest.requireActual('next/server') as typeof import('next/server');
     try {
       const data = await req.json();
@@ -27,12 +28,12 @@ jest.mock('@/lib/middleware/parse-json', () => ({
   }),
 }));
 
-jest.mock('@/lib/services/registration-service', () => ({
+vi.mock('@/lib/services/registration-service', () => ({
   registerUser: (...args: unknown[]) => mockRegisterUser(...args),
 }));
 
-jest.mock('@/lib/logger', () => ({
-  logger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
+vi.mock('@/lib/logger', () => ({
+  logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn() },
 }));
 
 import { POST } from '@/app/api/auth/register/route';
@@ -57,7 +58,7 @@ const VALID_BODY = {
 
 describe('POST /api/auth/register', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockRegisterUser.mockResolvedValue({
       success: true,
       user: { id: 'user-1', email: 'jean@avocat.fr', name: 'Jean Dupont' },

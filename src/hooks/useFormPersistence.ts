@@ -49,7 +49,7 @@ export function useFormPersistence<T extends Record<string, unknown>>(
     } catch {
       initialDataRef.current = JSON.stringify(data);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   // Persist on change

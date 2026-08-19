@@ -1,4 +1,5 @@
 ﻿import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Input, Select, Textarea, Button, Modal } from '@/components/forms'
 
 describe('Form Components', () => {
@@ -19,7 +20,7 @@ describe('Form Components', () => {
     })
 
     it('handles onChange event', () => {
-      const handleChange = jest.fn()
+      const handleChange = vi.fn()
       render(<Input label="Test" name="test" onChange={handleChange} />)
       
       const input = screen.getByLabelText('Test')
@@ -48,7 +49,7 @@ describe('Form Components', () => {
     })
 
     it('handles selection change', () => {
-      const handleChange = jest.fn()
+      const handleChange = vi.fn()
       render(<Select label="Test" name="test" options={options} onChange={handleChange} />)
       
       const select = screen.getByLabelText('Test')
@@ -79,7 +80,7 @@ describe('Form Components', () => {
     })
 
     it('handles click event', () => {
-      const handleClick = jest.fn()
+      const handleClick = vi.fn()
       render(<Button onClick={handleClick}>Click</Button>)
       
       fireEvent.click(screen.getByText('Click'))
@@ -112,7 +113,7 @@ describe('Form Components', () => {
   describe('Modal', () => {
     it('renders modal when open', () => {
       render(
-        <Modal isOpen={true} onClose={jest.fn()} title="Test Modal">
+        <Modal isOpen={true} onClose={vi.fn()} title="Test Modal">
           <p>Modal Content</p>
         </Modal>
       )
@@ -123,7 +124,7 @@ describe('Form Components', () => {
 
     it('does not render when closed', () => {
       render(
-        <Modal isOpen={false} onClose={jest.fn()} title="Test Modal">
+        <Modal isOpen={false} onClose={vi.fn()} title="Test Modal">
           <p>Modal Content</p>
         </Modal>
       )
@@ -132,7 +133,7 @@ describe('Form Components', () => {
     })
 
     it('calls onClose when close button clicked', () => {
-      const handleClose = jest.fn()
+      const handleClose = vi.fn()
       render(
         <Modal isOpen={true} onClose={handleClose} title="Test Modal">
           <p>Content</p>
@@ -148,7 +149,7 @@ describe('Form Components', () => {
     })
 
     it('calls onClose when backdrop clicked', () => {
-      const handleClose = jest.fn()
+      const handleClose = vi.fn()
       const { container } = render(
         <Modal isOpen={true} onClose={handleClose} title="Test Modal">
           <p>Content</p>

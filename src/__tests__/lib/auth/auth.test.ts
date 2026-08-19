@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/auth module
  * Coverage: Authentication utilities
@@ -8,7 +10,7 @@ describe('Auth Module', () => {
     let auth: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/auth');
         auth = module;
@@ -39,7 +41,7 @@ describe('Auth Module', () => {
     let sessionUtils: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/auth/session');
         sessionUtils = module;
@@ -72,7 +74,7 @@ describe('Auth Module', () => {
     let roleUtils: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/auth/roles');
         roleUtils = module;
@@ -114,7 +116,7 @@ describe('JWT utilities', () => {
   let jwt: any;
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     try {
       const module = await import('@/lib/auth/jwt');
       jwt = module;

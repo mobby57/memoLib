@@ -6,7 +6,7 @@
  * car ils necessitent un environnement de test avec serveur actif
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 
 // ============================================
 // SCeNARIOS MeTIER a VALIDER

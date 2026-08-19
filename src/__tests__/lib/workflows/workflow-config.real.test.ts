@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for workflow-config.ts to increase actual coverage
  * Tests workflow configuration validation and merging

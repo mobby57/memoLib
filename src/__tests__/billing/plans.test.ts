@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests unitaires — plans.ts
  * Vérifie l'alignement de la grille tarifaire PILOT/SOLO/CABINET/ENTERPRISE

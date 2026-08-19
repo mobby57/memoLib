@@ -62,10 +62,15 @@ export class CesedaService {
 
     const now = new Date()
     const msPerDay = 1000 * 60 * 60 * 24
+    const msPerHour = 1000 * 60 * 60
     const daysUntilDeadline = Math.ceil((echeance.getTime() - now.getTime()) / msPerDay)
+    const hoursUntilDeadline = Math.ceil((echeance.getTime() - now.getTime()) / msPerHour)
 
     switch (type) {
       case 'OQTF':
+      case 'OQTF_SANS_DELAI':
+        // OQTF sans délai = 48h de recours (Art. L.614-1 CESEDA)
+        if (hoursUntilDeadline <= 48) return 'CRITIQUE'
         if (daysUntilDeadline <= 7) return 'CRITIQUE'
         if (daysUntilDeadline <= 15) return 'HAUTE'
         return 'NORMALE'

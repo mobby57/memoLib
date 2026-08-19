@@ -4,28 +4,29 @@
  * @jest-environment node
  */
 
-jest.mock('@/lib/prisma', () => {
+vi.mock('@/lib/prisma', () => {
   const prisma = {
-    userConsent: { create: jest.fn(), findMany: jest.fn(), findFirst: jest.fn() },
-    user: { findUnique: jest.fn(), update: jest.fn() },
-    email: { findMany: jest.fn(), deleteMany: jest.fn() },
-    subscription: { findFirst: jest.fn(), findMany: jest.fn() },
-    deletionRequest: { create: jest.fn(), updateMany: jest.fn() },
-    auditLog: { findMany: jest.fn(), updateMany: jest.fn() },
-    dossier: { findMany: jest.fn(), findUnique: jest.fn() },
-    notification: { deleteMany: jest.fn() },
-    calendarEvent: { deleteMany: jest.fn() },
-    stripeCustomer: { findUnique: jest.fn(), updateMany: jest.fn() },
-    dataExportRequest: { create: jest.fn(), findUnique: jest.fn(), update: jest.fn() },
-    session: { findMany: jest.fn() },
-    userSettings: { findUnique: jest.fn() },
+    userConsent: { create: vi.fn(), findMany: vi.fn(), findFirst: vi.fn() },
+    user: { findUnique: vi.fn(), update: vi.fn() },
+    email: { findMany: vi.fn(), deleteMany: vi.fn() },
+    subscription: { findFirst: vi.fn(), findMany: vi.fn() },
+    deletionRequest: { create: vi.fn(), updateMany: vi.fn() },
+    auditLog: { findMany: vi.fn(), updateMany: vi.fn() },
+    dossier: { findMany: vi.fn(), findUnique: vi.fn() },
+    notification: { deleteMany: vi.fn() },
+    calendarEvent: { deleteMany: vi.fn() },
+    stripeCustomer: { findUnique: vi.fn(), updateMany: vi.fn() },
+    dataExportRequest: { create: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
+    session: { findMany: vi.fn() },
+    userSettings: { findUnique: vi.fn() },
   };
   (globalThis as Record<string, unknown>).__gdprPrismaMock = prisma;
   return { prisma };
 });
 
-jest.mock('@/lib/logger', () => ({ logger: { warn: jest.fn(), error: jest.fn(), info: jest.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn() } }));
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   GDPRCompliance,
   checkLegalRetention,
@@ -34,21 +35,21 @@ import {
 } from '@/lib/compliance/gdpr';
 
 const mockPrisma = (globalThis as Record<string, unknown>).__gdprPrismaMock as {
-  user: { findUnique: jest.Mock; update: jest.Mock };
-  email: { deleteMany: jest.Mock };
-  subscription: { findFirst: jest.Mock };
-  deletionRequest: { create: jest.Mock; updateMany: jest.Mock };
-  auditLog: { updateMany: jest.Mock };
-  dossier: { findMany: jest.Mock; findUnique: jest.Mock };
-  notification: { deleteMany: jest.Mock };
-  calendarEvent: { deleteMany: jest.Mock };
+  user: { findUnique: vi.Mock; update: vi.Mock };
+  email: { deleteMany: vi.Mock };
+  subscription: { findFirst: vi.Mock };
+  deletionRequest: { create: vi.Mock; updateMany: vi.Mock };
+  auditLog: { updateMany: vi.Mock };
+  dossier: { findMany: vi.Mock; findUnique: vi.Mock };
+  notification: { deleteMany: vi.Mock };
+  calendarEvent: { deleteMany: vi.Mock };
 };
 
 const TENANT_ID = 'tenant-test-rgpd';
 const USER_ID = 'user-test-rgpd';
 
 describe('RGPD — Droit à l\'oubli (Article 17) — E2E', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   describe('checkLegalRetention', () => {
     it('autorise la suppression si dossier inexistant', async () => {

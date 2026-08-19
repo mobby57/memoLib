@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour hooks - Pure logic tests
  * Coverage: Logique des hooks React (sans React)
@@ -6,7 +8,7 @@
 describe('Hooks Logic Extended - Pure Unit Tests', () => {
   describe('useDebounce logic', () => {
     it('should debounce value changes', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       
       let debouncedValue = '';
       const delay = 300;
@@ -20,10 +22,10 @@ describe('Hooks Logic Extended - Pure Unit Tests', () => {
       setDebounced('test');
       expect(debouncedValue).toBe('');
       
-      jest.advanceTimersByTime(300);
+      vi.advanceTimersByTime(300);
       expect(debouncedValue).toBe('test');
       
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 
@@ -224,18 +226,18 @@ describe('Hooks Logic Extended - Pure Unit Tests', () => {
 
   describe('useInterval logic', () => {
     it('should calculate intervals', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       
       let count = 0;
       const interval = setInterval(() => {
         count++;
       }, 100);
 
-      jest.advanceTimersByTime(350);
+      vi.advanceTimersByTime(350);
       expect(count).toBe(3);
 
       clearInterval(interval);
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 });

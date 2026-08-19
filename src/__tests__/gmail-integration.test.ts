@@ -8,7 +8,7 @@
  * - Gestion des pièces jointes
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('Gmail Integration', () => {
   describe('OAuth Authentication', () => {

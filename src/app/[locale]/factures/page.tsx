@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useSession } from 'next-auth/react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Plus,
@@ -170,7 +170,8 @@ const STATUT_COLORS: Record<string, 'info' | 'success' | 'warning' | 'danger' | 
 export default function FacturesPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [factures, setFactures] = useState<Facture[]>(mockFactures);
+  const [factures, setFactures] = useState<Facture[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatut, setFilterStatut] = useState<string>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -179,6 +180,46 @@ export default function FacturesPage() {
   const itemsPerPage = 10;
 
   const { addToast } = useToast();
+
+  // Charger les factures depuis l'API
+  useEffect(() => {
+    fetchFactures();
+  }, []);
+
+  const fetchFactures = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/factures');
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = (data.factures || data || []).map((f: any) => ({
+          id: f.id,
+          numero: f.numero || f.numeroFacture || '',
+          clientNom: f.Client?.firstName 
+            ? `${f.Client.firstName} ${f.Client.lastName}`
+            : (f.client?.firstName ? `${f.client.firstName} ${f.client.lastName}` : 'Client'),
+          clientId: f.clientId || '',
+          dossierId: f.dossierId || '',
+          dossierNumero: f.Dossier?.numero || f.dossier?.numero || '',
+          montantHT: f.montantHT || f.montant || 0,
+          tva: f.tauxTVA || f.tva || 20,
+          montantTTC: f.montantTTC || (f.montantHT || 0) * 1.2,
+          statut: f.statut || 'brouillon',
+          dateEmission: f.dateEmission || f.createdAt,
+          dateEcheance: f.dateEcheance || '',
+          datePaiement: f.datePaiement || null,
+          description: f.description || '',
+        }));
+        setFactures(mapped);
+      } else {
+        setFactures([]);
+      }
+    } catch {
+      setFactures([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const {
     register,
@@ -269,54 +310,87 @@ export default function FacturesPage() {
     setIsCreateModalOpen(true);
   };
 
-  const onSubmit = (data: FactureFormData) => {
+  const onSubmit = async (data: FactureFormData) => {
     const montantHT = parseFloat(data.montantHT);
     const tva = parseFloat(data.tauxTVA);
     const montantTTC = montantHT * (1 + tva / 100);
 
-    if (editingFacture) {
-      setFactures(prev =>
-        prev.map(f =>
-          f.id === editingFacture.id
-            ? {
-                ...f,
-                ...data,
-                montantHT,
-                montantTTC,
-              }
-            : f
-        )
-      );
+    try {
+      if (editingFacture) {
+        const res = await fetch(`/api/factures/${editingFacture.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            montantHT,
+            montantTTC,
+            tva,
+            statut: data.statut,
+            dateEcheance: data.dateEcheance || undefined,
+            datePaiement: data.datePaiement || undefined,
+          }),
+        });
+        if (!res.ok) throw new Error('Erreur modification');
+        addToast({
+          variant: 'success',
+          title: 'Facture modifiée',
+          message: `La facture ${data.numéro} a été modifiée avec succès.`,
+        });
+      } else {
+        const res = await fetch('/api/factures', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            numero: data.numéro,
+            clientId: data.client,
+            dossierId: data.dossier || undefined,
+            montantHT,
+            montantTTC,
+            tva,
+            statut: data.statut,
+            dateEmission: data.dateEmission,
+            dateEcheance: data.dateEcheance || undefined,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Erreur création');
+        }
+        addToast({
+          variant: 'success',
+          title: 'Facture créée',
+          message: `La facture ${data.numéro} a été créée avec succès.`,
+        });
+      }
+      setIsCreateModalOpen(false);
+      await fetchFactures();
+    } catch (error) {
       addToast({
-        variant: 'success',
-        title: 'Facture modifiee',
-        message: `La facture ${data.numéro} a été modifiee avec succès.`,
-      });
-    } else {
-      const newFacture: Facture = {
-        id: Date.now().toString(),
-        ...data,
-        montantHT,
-        montantTTC,
-      };
-      setFactures(prev => [newFacture, ...prev]);
-      addToast({
-        variant: 'success',
-        title: 'Facture creee',
-        message: `La facture ${data.numéro} a été creee avec succès.`,
+        variant: 'error',
+        title: 'Erreur',
+        message: error instanceof Error ? error.message : 'Une erreur est survenue.',
       });
     }
-    setIsCreateModalOpen(false);
   };
 
-  const deleteFacture = (id: string) => {
+  const deleteFacture = async (id: string) => {
     const facture = factures.find(f => f.id === id);
-    if (window.confirm(`etes-vous sur de vouloir supprimer la facture ${facture?.numéro} ?`)) {
-      setFactures(prev => prev.filter(f => f.id !== id));
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer la facture ${facture?.numero} ?`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/factures/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erreur suppression');
       addToast({
         variant: 'info',
-        title: 'Facture supprimee',
-        message: `La facture ${facture?.numéro} a été supprimee.`,
+        title: 'Facture supprimée',
+        message: `La facture ${facture?.numero} a été supprimée.`,
+      });
+      await fetchFactures();
+    } catch {
+      addToast({
+        variant: 'error',
+        title: 'Erreur',
+        message: 'Impossible de supprimer cette facture.',
       });
     }
   };

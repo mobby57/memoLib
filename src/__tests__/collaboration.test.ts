@@ -8,7 +8,7 @@
  * - Historique des modifications
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('Collaboration', () => {
   describe('Folder Sharing', () => {

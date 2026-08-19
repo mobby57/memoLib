@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le calendrier et événements
  * Couverture: événements, récurrence, rappels, conflits

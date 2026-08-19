@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for ceseda/dossier-service.ts - calculatePriorite function
  * Tests the pure priority calculation logic

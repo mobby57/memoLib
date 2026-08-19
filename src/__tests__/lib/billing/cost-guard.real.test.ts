@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for billing/cost-guard.ts to increase actual coverage
  * Tests AI cost configuration constants

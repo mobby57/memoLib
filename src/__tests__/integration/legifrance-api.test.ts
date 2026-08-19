@@ -4,6 +4,7 @@
  * Verifie l'integration avec l'API PISTE/Legifrance
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { LegifranceConfig } from '@/lib/legifrance/api-client';
 
 describe('Legifrance API Integration', () => {
@@ -18,8 +19,8 @@ describe('Legifrance API Integration', () => {
 
   beforeAll(async () => {
     // Silence expected setup and skip logs when API keys are not configured in CI/dev.
-    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const apiModule = await import('@/lib/legifrance/api-client');
     legifranceApi = apiModule.legifranceApi;

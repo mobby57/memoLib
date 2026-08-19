@@ -233,7 +233,7 @@ export default function NouveauDossierClient() {
       });
 
       // Envoi
-      const response = await fetch('/api/client/nouveau-dossier', {
+      const response = await fetch('/api/client/demandes', {
         method: 'POST',
         body: formData,
       });

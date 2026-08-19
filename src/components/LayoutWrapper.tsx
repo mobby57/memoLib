@@ -6,6 +6,7 @@ import { Navigation } from '@/components/Navigation';
 import { SidebarLayoutAdjuster } from '@/components/SidebarLayoutAdjuster';
 import { GlobalCommandPalette } from '@/components/GlobalCommandPalette';
 import { CommandPalette } from '@/components/CommandPalette';
+import { CommandPaletteGlobal } from '@/components/CommandPaletteGlobal';
 import { ActivityMonitor } from '@/components/ActivityMonitor';
 import { SessionTimeoutMonitor } from '@/components/SessionTimeoutMonitor';
 import NotificationCenter from '@/components/NotificationCenter';
@@ -37,10 +38,17 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
   // Verifier si la page courante doit etre en plein ecran
   const isFullscreenPage = FULLSCREEN_PAGES.some(
     page => pathname === page || pathname?.startsWith('/auth/')
-  ) || pathname?.includes('/auth/') || pathname === '/fr' || pathname === '/en';
+  ) || pathname?.includes('/auth/') || pathname?.includes('/demo/') || pathname === '/fr' || pathname === '/en';
 
   // Pendant l'hydratation, retourner un layout minimal coherent
   if (!isHydrated) {
+    if (isFullscreenPage) {
+      return (
+        <main className="min-h-screen w-full">
+          {children}
+        </main>
+      );
+    }
     return (
       <main className="min-h-screen w-full bg-gray-50 dark:bg-gray-900">
         <div className="p-6 lg:p-8">
@@ -74,6 +82,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
       </div>
 
       <main className="lg:ml-64 min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-300">
+        <CommandPaletteGlobal />
         <GlobalCommandPalette />
         <CommandPalette />
         <ActivityMonitor />

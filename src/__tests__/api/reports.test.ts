@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour la logique des rapports (logique pure)
  * Couverture: types de rapports, formats, validation

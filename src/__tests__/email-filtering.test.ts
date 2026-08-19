@@ -8,7 +8,7 @@
  * - Application automatique des règles
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 // --- Logique filtrage email pure ---
 

@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les limites de plan et garde-fous IA
  * Couverture: AIAction, niveaux d'autonomie, limites

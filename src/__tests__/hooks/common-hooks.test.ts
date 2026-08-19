@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les hooks React
  * Couverture: useDebounce, useLocalStorage, usePagination, useForm
@@ -18,7 +20,7 @@ describe('useDebounce Hook', () => {
     };
 
     it('devrait créer une fonction debounced', () => {
-      const fn = jest.fn();
+      const fn = vi.fn();
       const debounced = debounce(fn, 100);
       expect(typeof debounced).toBe('function');
     });

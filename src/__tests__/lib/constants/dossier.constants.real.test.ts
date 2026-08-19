@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for dossier.constants.ts to increase actual coverage
  * Tests constants and mapper functions

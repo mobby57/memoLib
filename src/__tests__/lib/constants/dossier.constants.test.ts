@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/constants/dossier.constants.ts
  * Coverage: Constantes et mappings pour dossiers
@@ -18,7 +20,7 @@ describe('Dossier Constants', () => {
   let mapPrioriteToUI: any;
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     const module = await import('@/lib/constants/dossier.constants');
     STATUTS_DB = module.STATUTS_DB;
     STATUTS_UI = module.STATUTS_UI;

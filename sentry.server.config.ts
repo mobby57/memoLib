@@ -1,7 +1,11 @@
 import * as Sentry from '@sentry/nextjs';
 
+const dsn = process.env.SENTRY_DSN;
+
+// Only initialize Sentry if a valid DSN is configured
+if (dsn && !dsn.includes('your-key')) {
 Sentry.init({
-  dsn: process.env.SENTRY_DSN,
+  dsn,
 
   // Release & Environment for Release Health
   release: process.env.APP_VERSION || '0.1.0',
@@ -69,6 +73,31 @@ Sentry.init({
       delete event.request.cookies;
     }
 
+    // 🔒 Scrub extra context (loggers may pass client names, descriptions)
+    if (event.extra) {
+      const piiRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+      const phoneRegex = /(?:\+33|0)\s?[1-9](?:[\s.-]?\d{2}){4}/g;
+      for (const key of Object.keys(event.extra)) {
+        const val = event.extra[key];
+        if (typeof val === 'string') {
+          event.extra[key] = val
+            .replace(piiRegex, '[EMAIL_REDACTED]')
+            .replace(phoneRegex, '[TEL_REDACTED]');
+        }
+        // Remove keys that commonly contain PII
+        if (['description', 'body', 'email', 'name', 'clientName', 'from', 'subject'].includes(key)) {
+          event.extra[key] = '[REDACTED]';
+        }
+      }
+      // Scrub nested context object
+      if (event.extra.context && typeof event.extra.context === 'object') {
+        const ctx = event.extra.context as Record<string, unknown>;
+        for (const k of ['email', 'name', 'body', 'subject', 'description', 'clientName']) {
+          if (k in ctx) ctx[k] = '[REDACTED]';
+        }
+      }
+    }
+
     // Filter out expected client errors (400, 415)
     const message = event.message || '';
     const errorMessage = hint?.originalException instanceof Error
@@ -102,3 +131,4 @@ Sentry.init({
     return event;
   },
 });
+}

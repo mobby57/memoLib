@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -117,7 +118,7 @@ export async function GET(request: NextRequest) {
           prisma.dossier.findMany({
             where,
             include: {
-              client: { select: { nom: true, email: true } },
+              Client: { select: { firstName: true, lastName: true, email: true } },
             },
             orderBy: { createdAt: 'desc' },
             take: limit,
@@ -126,7 +127,13 @@ export async function GET(request: NextRequest) {
           prisma.dossier.count({ where }),
         ]);
 
-        return { dossiers, total, hasMore: offset + dossiers.length < total };
+        // Mapper pour compatibilité frontend
+        const mapped = dossiers.map((d: any) => ({
+          ...d,
+          client: d.Client ? { firstName: d.Client.firstName, lastName: d.Client.lastName, email: d.Client.email } : null,
+        }));
+
+        return { dossiers: mapped, total, hasMore: offset + dossiers.length < total };
       },
       'HOT'
     );
@@ -175,39 +182,21 @@ export async function POST(request: NextRequest) {
     const count = await prisma.dossier.count({ where: { tenantId } });
     const numero = `DOS-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
-    const dossier = await prisma.$transaction(
-      async (tx: TransactionClient) => {
-        const created = await tx.dossier.create({
-          data: {
-            tenantId,
-            clientId,
-            numero,
-            titre,
-            description,
-            type,
-            domaine,
-            juridiction,
-            numeroRG,
-            priorite: priorite || 'normale',
-          },
-        });
-
-        await tx.evenement.create({
-          data: {
-            tenantId,
-            clientId,
-            type: 'action',
-            categorie: 'ouverture_dossier',
-            titre: 'Ouverture du dossier',
-            description: `Dossier ${numero} créé`,
-            dateEvenement: new Date(),
-          },
-        });
-
-        return created;
+    const dossier = await prisma.dossier.create({
+      data: {
+        id: crypto.randomUUID(),
+        tenantId,
+        clientId,
+        numero,
+        objet: titre || description || 'Nouveau dossier',
+        typeDossier: type || 'GENERAL',
+        description,
+        juridiction,
+        priorite: priorite || 'normale',
+        statut: 'en_cours',
+        updatedAt: new Date(),
       },
-      { timeout: 30000 }
-    );
+    });
 
     // Invalider le cache
     await cacheInvalidatePattern(`dossiers:${tenantId}:*`);

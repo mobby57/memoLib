@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le WebSocket service
  * Couverture: connexions, messages, rooms, broadcast

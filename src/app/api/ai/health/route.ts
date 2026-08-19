@@ -1,68 +1,51 @@
 /**
  * API Route: AI Health Check
  *
- * Returns health status of the AI service
+ * Returns health status of ALL AI providers (Ollama + Cloud)
  */
 
 import { NextResponse } from 'next/server';
-
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
-const DEMO_MODE = process.env.DEMO_MODE === '1' || process.env.DEMO_MODE === 'true';
-const AI_HEALTH_STRICT = process.env.AI_HEALTH_STRICT !== 'false';
+import { hybridAI } from '@/lib/ai/hybrid-client';
 
 export async function GET() {
   try {
-    const response = await fetch(`${AI_SERVICE_URL}/health`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      // Short timeout for health checks
-      signal: AbortSignal.timeout(5000),
-    });
+    const availability = await hybridAI.checkAvailability();
+    
+    const hasAnyProvider = availability.ollama || availability.cloud || availability.cloudflare;
+    const status = hasAnyProvider ? 'healthy' : 'degraded';
 
-    if (!response.ok) {
-      if (!AI_HEALTH_STRICT || DEMO_MODE) {
-        return NextResponse.json({
-          status: 'degraded',
-          service: 'ai-service',
-          error: `AI service returned ${response.status}`,
-          note: 'AI health check is relaxed for demo',
-          timestamp: new Date().toISOString(),
-        });
-      }
-
-      return NextResponse.json(
-        {
-          status: 'unhealthy',
-          service: 'ai-service',
-          error: `AI service returned ${response.status}`,
+    return NextResponse.json({
+      status,
+      providers: {
+        ollama: {
+          available: availability.ollama,
+          type: 'local',
+          cost: 'gratuit',
         },
-        { status: 503 }
-      );
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
-  } catch (error) {
-    if (!AI_HEALTH_STRICT || DEMO_MODE) {
-      return NextResponse.json({
-        status: 'degraded',
-        service: 'ai-service',
-        error: error instanceof Error ? error.message : 'Connection failed',
-        note: 'AI health check is relaxed for demo',
-        timestamp: new Date().toISOString(),
-      });
-    }
-
-    return NextResponse.json(
-      {
-        status: 'unreachable',
-        service: 'ai-service',
-        error: error instanceof Error ? error.message : 'Connection failed',
-        timestamp: new Date().toISOString(),
+        cloud: {
+          available: availability.cloud,
+          provider: availability.cloudProvider,
+          type: 'cloud',
+          cost: 'payant (budget contrôlé)',
+        },
+        cloudflare: {
+          available: availability.cloudflare,
+          type: 'legacy',
+        },
       },
-      { status: 503 }
-    );
+      recommended: availability.recommended,
+      preferred: hybridAI.getPreferredProvider(),
+      fallbackMode: !hasAnyProvider ? 'regex' : null,
+      note: !hasAnyProvider 
+        ? 'Aucun provider IA actif. Les fonctions IA utilisent le mode regex (dégradé). Configurez MISTRAL_API_KEY ou OPENAI_API_KEY pour activer l\'IA.'
+        : undefined,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    return NextResponse.json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Health check failed',
+      timestamp: new Date().toISOString(),
+    }, { status: 500 });
   }
 }

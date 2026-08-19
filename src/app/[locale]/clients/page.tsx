@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useSession } from 'next-auth/react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Plus,
@@ -420,7 +420,8 @@ const inputClass =
 export default function ClientsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const [clients, setClients] = useState<Client[]>(mockClients);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatut, setFilterStatut] = useState<string>('all');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -428,6 +429,43 @@ export default function ClientsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const itemsPerPage = 10;
+
+  // Charger les clients depuis l'API
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/clients');
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = (data.clients || data || []).map((c: any) => ({
+          id: c.id,
+          civilite: c.civilite || 'M.',
+          nom: c.lastName || '',
+          prenom: c.firstName || '',
+          email: c.email || '',
+          telephonePrincipal: c.phone || '',
+          ville: c.ville || '',
+          codePostal: c.codePostal || '',
+          nationalite: c.nationality || 'Française',
+          titreSéjourActuel: c.passportNumber || '',
+          nbDossiers: c._count?.Dossier || c._count?.dossiers || 0,
+          dateCreation: c.createdAt || new Date().toISOString(),
+          statut: c.status || 'actif',
+        }));
+        setClients(mapped);
+      } else {
+        setClients([]);
+      }
+    } catch {
+      setClients([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Collapsible sections state
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -606,59 +644,70 @@ export default function ClientsPage() {
     setIsCreateModalOpen(true);
   };
 
-  const onSubmit = (data: ClientFormData) => {
-    if (editingClient) {
-      setClients(prev =>
-        prev.map(c =>
-          c.id === editingClient.id
-            ? {
-                ...c,
-                civilite: data.civilite,
-                nom: data.nom,
-                prenom: data.prenom,
-                email: data.email,
-                telephonePrincipal: data.telephonePrincipal,
-                ville: data.ville,
-                codePostal: data.codePostal,
-                nationalite: data.nationalite,
-                titreSéjourActuel: data.titreSéjourActuel || '',
-                statut: data.statut,
-              }
-            : c
-        )
-      );
+  const onSubmit = async (data: ClientFormData) => {
+    try {
+      if (editingClient) {
+        // EDIT: PATCH /api/clients/[id]
+        const res = await fetch(`/api/clients/${editingClient.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            civilite: data.civilite,
+            firstName: data.prenom,
+            lastName: data.nom,
+            email: data.email,
+            phone: data.telephonePrincipal,
+            ville: data.ville,
+            codePostal: data.codePostal,
+            nationality: data.nationalite,
+            status: data.statut,
+          }),
+        });
+        if (!res.ok) throw new Error('Erreur modification');
+        addToast({
+          variant: 'success',
+          title: 'Client modifié',
+          message: `Le client ${data.prenom} ${data.nom} a été modifié avec succès.`,
+        });
+      } else {
+        // CREATE: POST /api/clients
+        const res = await fetch('/api/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            civilite: data.civilite,
+            firstName: data.prenom,
+            lastName: data.nom,
+            email: data.email,
+            phone: data.telephonePrincipal,
+            ville: data.ville,
+            codePostal: data.codePostal,
+            nationality: data.nationalite,
+            status: data.statut,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Erreur création');
+        }
+        addToast({
+          variant: 'success',
+          title: 'Client créé',
+          message: `Le client ${data.prenom} ${data.nom} a été créé avec succès.`,
+        });
+      }
+      setIsCreateModalOpen(false);
+      await fetchClients(); // Recharger depuis l'API
+    } catch (error) {
       addToast({
-        variant: 'success',
-        title: 'Client modifié',
-        message: `Le client ${data.prenom} ${data.nom} a été modifié avec succès.`,
-      });
-    } else {
-      const newClient: Client = {
-        id: Date.now().toString(),
-        civilite: data.civilite,
-        nom: data.nom,
-        prenom: data.prenom,
-        email: data.email,
-        telephonePrincipal: data.telephonePrincipal,
-        ville: data.ville,
-        codePostal: data.codePostal,
-        nationalite: data.nationalite,
-        titreSéjourActuel: data.titreSéjourActuel || '',
-        nbDossiers: 0,
-        dateCreation: new Date().toISOString().split('T')[0],
-        statut: data.statut,
-      };
-      setClients(prev => [newClient, ...prev]);
-      addToast({
-        variant: 'success',
-        title: 'Client créé',
-        message: `Le client ${data.prenom} ${data.nom} a été créé avec succès.`,
+        variant: 'error',
+        title: 'Erreur',
+        message: error instanceof Error ? error.message : 'Une erreur est survenue.',
       });
     }
-    setIsCreateModalOpen(false);
   };
 
-  const deleteClient = (id: string) => {
+  const deleteClient = async (id: string) => {
     const client = clients.find(c => c.id === id);
     if (client && client.nbDossiers > 0) {
       addToast({
@@ -668,12 +717,23 @@ export default function ClientsPage() {
       });
       return;
     }
-    if (window.confirm(`Êtes-vous sûr de vouloir supprimer ${client?.civilite} ${client?.prenom} ${client?.nom} ?`)) {
-      setClients(prev => prev.filter(c => c.id !== id));
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${client?.civilite} ${client?.prenom} ${client?.nom} ?`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erreur suppression');
       addToast({
         variant: 'info',
         title: 'Client supprimé',
         message: `Le client ${client?.prenom} ${client?.nom} a été supprimé.`,
+      });
+      await fetchClients();
+    } catch {
+      addToast({
+        variant: 'error',
+        title: 'Erreur',
+        message: 'Impossible de supprimer ce client.',
       });
     }
   };
