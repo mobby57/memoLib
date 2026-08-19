@@ -3,16 +3,16 @@
  * @jest-environment node
  */
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock Prisma
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
     tenant: {
-      findMany: jest.fn().mockResolvedValue([]),
+      findMany: vi.fn().mockResolvedValue([]),
     },
     aiUsage: {
-      aggregate: jest.fn().mockResolvedValue({ _sum: { costUSD: 0 } }),
+      aggregate: vi.fn().mockResolvedValue({ _sum: { costUSD: 0 } }),
     },
   },
 }));
@@ -22,7 +22,7 @@ import { checkAllTenantsForAlerts } from '@/lib/billing/cost-alerts';
 
 describe('cost-alerts', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('checkAllTenantsForAlerts', () => {

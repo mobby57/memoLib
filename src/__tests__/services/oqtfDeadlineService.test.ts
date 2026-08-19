@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le service OQTF Deadline
  * Couverture: types CESEDA, templates juridiques, délais

@@ -2,18 +2,110 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 /**
- * Middleware: i18n routing + security headers for MemoLib
- * Handles locale detection, auth redirects, and security headers
+ * Middleware: i18n routing + security headers + feature gate for MemoLib
+ * Handles locale detection, auth redirects, security headers, and beta feature blocking
  */
 
 const LOCALES = ['en', 'fr', 'es', 'de', 'pt', 'ja', 'zh', 'hi', 'ru', 'ko'];
 const DEFAULT_LOCALE = 'fr';
 
+// ============================================================================
+// BETA FEATURE GATE — Modules with real code but no E2E coverage
+// Enable via env vars: FEATURE_COMPTABILITE=true, etc.
+// Stubs (ANTS, RPVA, Telerecours, veille-juridique) have been DELETED.
+// ============================================================================
+const DISABLED_API_PREFIXES: { prefix: string; envKey: string; module: string }[] = [
+  // Comptabilité (11 routes, 0 tests, domaine réglementé)
+  { prefix: '/api/comptabilite', envKey: 'FEATURE_COMPTABILITE', module: 'comptabilite' },
+  { prefix: '/api/exports/fec', envKey: 'FEATURE_COMPTABILITE', module: 'comptabilite' },
+
+  // Multi-canal (WhatsApp, SMS, Teams — dépendance Twilio)
+  { prefix: '/api/multichannel', envKey: 'FEATURE_MULTICHANNEL', module: 'multichannel' },
+
+  // Voice (dictée vocale Ollama/Whisper)
+  { prefix: '/api/voice', envKey: 'FEATURE_VOICE', module: 'voice' },
+
+  // OCR (extraction texte images — tests placeholder)
+  { prefix: '/api/ocr', envKey: 'FEATURE_OCR', module: 'ocr' },
+
+  // GitHub (sync dossiers, issues — intégration Octokit)
+  { prefix: '/api/github', envKey: 'FEATURE_GITHUB', module: 'github' },
+
+  // Azure (KeyVault, Blob storage)
+  { prefix: '/api/azure', envKey: 'FEATURE_AZURE', module: 'azure' },
+
+  // Calendar sync (Google/Outlook OAuth)
+  { prefix: '/api/calendar/google-sync', envKey: 'FEATURE_CALENDAR_SYNC', module: 'calendar-sync' },
+  { prefix: '/api/calendar/sync', envKey: 'FEATURE_CALENDAR_SYNC', module: 'calendar-sync' },
+  { prefix: '/api/integrations/sync', envKey: 'FEATURE_CALENDAR_SYNC', module: 'calendar-sync' },
+
+  // IA avancée (copilot, prédiction, OFPRA, stratégie, recours)
+  { prefix: '/api/ai/copilot', envKey: 'FEATURE_AI_ADVANCED', module: 'ai-advanced' },
+  { prefix: '/api/ai/predict-outcome', envKey: 'FEATURE_AI_ADVANCED', module: 'ai-advanced' },
+  { prefix: '/api/ai/prepare-ofpra', envKey: 'FEATURE_AI_ADVANCED', module: 'ai-advanced' },
+  { prefix: '/api/ai/risk-analysis', envKey: 'FEATURE_AI_ADVANCED', module: 'ai-advanced' },
+  { prefix: '/api/ai/strategy', envKey: 'FEATURE_AI_ADVANCED', module: 'ai-advanced' },
+  { prefix: '/api/ai/translate', envKey: 'FEATURE_AI_ADVANCED', module: 'ai-advanced' },
+  { prefix: '/api/ai/generate-recours', envKey: 'FEATURE_AI_ADVANCED', module: 'ai-advanced' },
+
+  // Forms & approvals (workflows d'approbation)
+  { prefix: '/api/forms/approvals', envKey: 'FEATURE_FORMS', module: 'forms' },
+  { prefix: '/api/forms/resource-request', envKey: 'FEATURE_FORMS', module: 'forms' },
+  { prefix: '/api/forms/risk-assessment', envKey: 'FEATURE_FORMS', module: 'forms' },
+  { prefix: '/api/forms/strategic-decision', envKey: 'FEATURE_FORMS', module: 'forms' },
+
+  // Questionnaire dynamique
+  { prefix: '/api/questionnaire', envKey: 'FEATURE_QUESTIONNAIRE', module: 'questionnaire' },
+
+  // Super-admin (panel plateforme)
+  { prefix: '/api/super-admin', envKey: 'FEATURE_SUPER_ADMIN', module: 'super-admin' },
+
+  // Subscriptions Stripe
+  { prefix: '/api/subscriptions', envKey: 'FEATURE_SUBSCRIPTIONS', module: 'subscriptions' },
+
+  // Workspace reasoning (CESDA avancé)
+  { prefix: '/api/workspace-reasoning', envKey: 'FEATURE_WORKSPACE_REASONING', module: 'workspace-reasoning' },
+];
+
+function isFeatureEnvEnabled(envKey: string): boolean {
+  const val = process.env[envKey];
+  return val === 'true' || val === '1';
+}
+
+/**
+ * Check if an API route is blocked by feature flags.
+ * Returns the module name if blocked, null if allowed.
+ */
+function getBlockedApiModule(pathname: string): string | null {
+  for (const { prefix, envKey, module } of DISABLED_API_PREFIXES) {
+    if (pathname.startsWith(prefix) && !isFeatureEnvEnabled(envKey)) {
+      return module;
+    }
+  }
+  return null;
+}
+
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // ── API routes: check feature gate, then pass through ──
+  if (pathname.startsWith('/api')) {
+    const blockedModule = getBlockedApiModule(pathname);
+    if (blockedModule) {
+      return NextResponse.json(
+        {
+          error: 'Feature not available',
+          message: `Le module "${blockedModule}" n'est pas activé. Contactez votre administrateur.`,
+          code: 'FEATURE_DISABLED',
+          module: blockedModule,
+        },
+        { status: 404 }
+      );
+    }
+    return NextResponse.next();
+  }
+
   if (
-    pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname === '/favicon.ico' ||
@@ -88,6 +180,11 @@ export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   response.headers.set('x-nonce', nonce);
 
+  // 🔒 ANTI-FUITE: Empêche les proxies/CDN de cacher des données sensibles
+  response.headers.set('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
+
   // 🔒 X-Frame-Options: Prévient les attaques clickjacking
   response.headers.set('X-Frame-Options', 'DENY');
 
@@ -146,20 +243,20 @@ export function middleware(request: NextRequest) {
 /**
  * Configuration du matcher
  *
- * Applique le middleware à toutes les routes sauf:
- * - API endpoints
- * - Fichiers statiques Next.js (_next/static)
- * - Images optimisées (_next/image)
+ * Applique le middleware à toutes les routes :
+ * - API endpoints (pour le feature gate)
+ * - Pages (pour i18n + auth + security headers)
+ * Sauf:
+ * - Fichiers statiques Next.js (_next/static, _next/image)
  * - Favicon et images root
  */
 export const config = {
   matcher: [
     /*
      * Match all paths except:
-     * - api routes (/api/...)
-     * - static files (/_next/..., /static/...)
+     * - static files (/_next/static, /_next/image)
      * - public assets (images, sitemap, robots, favicon)
      */
-    '/((?!api|_next/static|_next/image|static|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico)$).*)',
+    '/((?!_next/static|_next/image|static|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico)$).*)',
   ],
 };

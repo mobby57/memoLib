@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour la fonction utilitaire cn (class merge)
  * Couverture: fusion de classes, tailwind merge

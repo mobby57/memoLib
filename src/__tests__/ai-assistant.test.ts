@@ -8,7 +8,7 @@
  * - Intégration modèles LLM (OpenAI, Llama)
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 
 // --- Logique IA pure (sans appel réseau) ---
 

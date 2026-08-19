@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/prisma module
  * Coverage: Database client utilities
@@ -26,7 +28,7 @@ describe('Prisma Module', () => {
 
       let prismaModule: any;
       try {
-        jest.resetModules();
+        vi.resetModules();
         prismaModule = await import('@/lib/prisma');
       } catch {
         prismaModule = null;
@@ -46,7 +48,7 @@ describe('Prisma Module', () => {
     let dbHelpers: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/prisma');
         dbHelpers = module;

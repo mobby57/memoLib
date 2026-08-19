@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
 import { Mail, Shield, Zap, Brain, Clock, Star } from 'lucide-react';
-import { BetaSignupForm, BetaSignupFormFull } from './BetaSignupForm';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Inscription beta — MemoLib',
-  description: 'Rejoignez la beta privée de MemoLib. Testez gratuitement le logiciel IA pour cabinets d\'avocats.',
-  robots: { index: false, follow: true },
+  title: 'MemoLib — Gestion de cabinet d\'avocat par IA',
+  description: 'L\'assistant IA qui gère votre cabinet. Emails, dossiers, deadlines, documents. Prêt en 2 minutes, aucune installation.',
   openGraph: {
-    title: 'Inscription beta — MemoLib',
-    description: 'Rejoignez la beta privée de MemoLib.',
+    title: 'MemoLib — Gestion de cabinet d\'avocat par IA',
+    description: 'L\'assistant IA qui gère votre cabinet d\'avocat.',
     type: 'website',
     url: 'https://memolib.space/fr/landing',
   },
@@ -49,7 +48,7 @@ export default function LandingPage() {
         <div className="relative z-10 max-w-4xl mx-auto px-6 pt-16 pb-24 text-center">
           <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 rounded-full px-4 py-1.5 mb-6">
             <Zap className="w-4 h-4 text-blue-300" />
-            <span className="text-blue-200 text-sm font-medium">Beta privée — Places limitées</span>
+            <span className="text-blue-200 text-sm font-medium">14 jours d&apos;essai gratuit — Prêt en 2 minutes</span>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
@@ -63,9 +62,23 @@ export default function LandingPage() {
             MemoLib analyse vos emails, crée vos dossiers, détecte les deadlines et vous fait gagner 2h par jour. Conçu par et pour les avocats.
           </p>
 
-          <BetaSignupForm />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/fr/signup"
+              className="inline-flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-400 text-white font-semibold px-8 py-4 rounded-xl transition-colors text-lg shadow-lg shadow-blue-500/25"
+            >
+              Créer mon cabinet gratuitement
+              <Zap className="w-5 h-5" />
+            </Link>
+            <Link
+              href="/fr/demo/avocat"
+              className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium px-6 py-4 rounded-xl transition-colors border border-white/20"
+            >
+              Voir la démo →
+            </Link>
+          </div>
 
-          <p className="text-blue-300/60 text-xs mt-4">Gratuit pendant la beta. Aucune carte bancaire requise.</p>
+          <p className="text-blue-300/60 text-xs mt-4">Aucune carte bancaire requise • Aucune installation</p>
         </div>
       </section>
 
@@ -108,8 +121,8 @@ export default function LandingPage() {
               <p className="text-sm text-gray-500">RGPD conforme</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-gray-900">0€</p>
-              <p className="text-sm text-gray-500">pendant la beta</p>
+              <p className="text-3xl font-bold text-gray-900">29€</p>
+              <p className="text-sm text-gray-500">par mois (Solo)</p>
             </div>
           </div>
         </div>
@@ -121,9 +134,15 @@ export default function LandingPage() {
           Prêt à moderniser votre cabinet ?
         </h2>
         <p className="text-gray-500 mb-8">
-          Rejoignez les premiers cabinets qui utilisent l&apos;IA au quotidien.
+          Créez votre espace en 2 minutes. L&apos;IA est déjà active, aucune installation requise.
         </p>
-        <BetaSignupFormFull />
+        <Link
+          href="/fr/signup"
+          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-xl transition-colors text-lg"
+        >
+          Démarrer mon essai gratuit →
+        </Link>
+        <p className="text-gray-400 text-sm mt-4">14 jours gratuits • Sans engagement • À partir de 29€/mois</p>
       </section>
 
       {/* Footer */}

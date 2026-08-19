@@ -3,6 +3,7 @@
  * Tests rate limiting, blocking, and adaptive throttling
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   RATE_LIMITS,
   checkRateLimit,
@@ -17,11 +18,11 @@ describe('rate-limiter - REAL TESTS', () => {
     // Run cleanup to reset state
     cleanupRateLimitStore()
     // Need to wait a bit for cleanup
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   describe('RATE_LIMITS configuration', () => {
@@ -139,7 +140,7 @@ describe('rate-limiter - REAL TESTS', () => {
       checkRateLimit(id, testConfig)
       
       // Fast forward past window
-      jest.advanceTimersByTime(testConfig.windowMs + 1000)
+      vi.advanceTimersByTime(testConfig.windowMs + 1000)
       
       // Should be reset
       const result = checkRateLimit(id, testConfig)
@@ -265,7 +266,7 @@ describe('rate-limiter - REAL TESTS', () => {
       checkRateLimit(id, shortWindow)
       
       // Fast forward
-      jest.advanceTimersByTime(200)
+      vi.advanceTimersByTime(200)
       
       // Cleanup
       cleanupRateLimitStore()

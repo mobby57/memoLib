@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les utilitaires de cache et memoization
  * Couverture: LRU cache, TTL cache, memoization
@@ -138,17 +140,17 @@ describe('Cache Utils', () => {
     });
 
     it('devrait expirer après TTL', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       const cache = createTTLCache<string, number>(100);
       cache.set('a', 1);
       
-      jest.advanceTimersByTime(50);
+      vi.advanceTimersByTime(50);
       expect(cache.get('a')).toBe(1);
       
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       expect(cache.get('a')).toBeUndefined();
       
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 

@@ -3,7 +3,7 @@
  * @jest-environment node
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Import après réinitialisation du module
 describe('rate-limiter', () => {
@@ -12,7 +12,7 @@ describe('rate-limiter', () => {
 
   beforeEach(async () => {
     // Reset le cache de modules pour avoir un store propre
-    jest.resetModules();
+    vi.resetModules();
 
     // Réimporter le module
     const rateLimiter = await import('@/lib/security/rate-limiter');
@@ -21,7 +21,7 @@ describe('rate-limiter', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('RATE_LIMITS configuration', () => {

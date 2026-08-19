@@ -170,12 +170,13 @@ export async function POST(req: NextRequest) {
   if (dossierId && tenantId) {
     const dossier = await prisma.dossier.findFirst({
       where: { id: dossierId, tenantId },
-      include: { client: true },
+      include: { Client: { select: { firstName: true, lastName: true } } },
     });
     if (dossier) {
       vars.numeroDossier = vars.numeroDossier || dossier.numero;
-      vars.client = vars.client || (dossier.client as any)?.nom || '';
-      vars.objet = vars.objet || dossier.titre || '';
+      const clientData = (dossier as any).Client;
+      vars.client = vars.client || (clientData ? `${clientData.firstName} ${clientData.lastName}` : '');
+      vars.objet = vars.objet || dossier.objet || '';
     }
   }
 

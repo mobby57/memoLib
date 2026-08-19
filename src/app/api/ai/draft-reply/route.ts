@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { hybridAI } from '@/lib/ai/hybrid-client';
 import { checkFeatureAccess } from '@/lib/billing/features';
+import { checkConfidentialMode } from '@/lib/security/confidential-mode';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -50,6 +51,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // 🔒 Mode confidentiel : si le dossier est confidentiel, forcer local/regex
+    if (dossierId) {
+      const confidentialCheck = await checkConfidentialMode(dossierId);
+      if (confidentialCheck.isConfidential) {
+        hybridAI.setPreferredProvider('ollama');
+      }
+    }
     const draft = await generateWithAI(subject || '', body, from || '', context, user.name || 'Maître');
     return NextResponse.json(draft);
   } catch {

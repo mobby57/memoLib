@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for reasoning/prompts.ts to increase actual coverage
  * Tests AI prompt constants and structure

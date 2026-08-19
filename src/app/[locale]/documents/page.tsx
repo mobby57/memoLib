@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import FileUploader from '@/components/FileUploader'
+import { DocxDocumentGenerator } from '@/components/documents/DocxDocumentGenerator'
 import { getStoredFiles, getFileVersions, deleteFile, downloadFile, formatFileSize, getFileIcon, getStorageStats, type StoredFile } from '@/lib/services/storageService'
 import { Download, Trash2, History, Tag, Filter } from 'lucide-react'
 import { Button } from '@/components/forms/Button'
@@ -120,6 +121,17 @@ export default function DocumentsPage() {
           }}
           onUploadComplete={() => refreshFiles()}
         />
+      </Card>
+
+      {/* Génération DOCX juridique */}
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          Générer un document juridique
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Mémoires, conclusions, requêtes — format Word (.docx) prêt à imprimer.
+        </p>
+        <DocxDocumentGenerator />
       </Card>
 
       {/* Filtres */}

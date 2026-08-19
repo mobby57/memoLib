@@ -3,34 +3,35 @@
  * Couvre les callbacks, la validation des credentials
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import bcrypt from 'bcryptjs';
 
 // Mock Prisma
 const mockPrismaClient = {
   user: {
-    findUnique: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
+    findUnique: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
   },
   tenant: {
-    findUnique: jest.fn(),
+    findUnique: vi.fn(),
   },
-  $disconnect: jest.fn(),
+  $disconnect: vi.fn(),
 };
 
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => mockPrismaClient),
+vi.mock('@prisma/client', () => ({
+  PrismaClient: vi.fn(() => mockPrismaClient),
 }));
 
 // Mock bcrypt
-jest.mock('bcryptjs', () => ({
-  compare: jest.fn(),
-  hash: jest.fn(),
+vi.mock('bcryptjs', () => ({
+  compare: vi.fn(),
+  hash: vi.fn(),
 }));
 
 describe('NextAuth Configuration', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Credentials Provider - authorize()', () => {
@@ -75,7 +76,7 @@ describe('NextAuth Configuration', () => {
       };
       
       mockPrismaClient.user.findUnique.mockResolvedValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+      (bcrypt.compare as any).mockResolvedValue(false);
       
       const user = await mockPrismaClient.user.findUnique({
         where: { email: 'test@example.com' },
@@ -95,7 +96,7 @@ describe('NextAuth Configuration', () => {
       };
       
       mockPrismaClient.user.findUnique.mockResolvedValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (bcrypt.compare as any).mockResolvedValue(true);
       
       const user = await mockPrismaClient.user.findUnique({
         where: { email: 'admin@example.com' },
@@ -125,7 +126,7 @@ describe('NextAuth Configuration', () => {
       };
       
       mockPrismaClient.user.findUnique.mockResolvedValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (bcrypt.compare as any).mockResolvedValue(true);
       
       const user = await mockPrismaClient.user.findUnique({
         where: { email: 'valid@example.com' },
@@ -248,7 +249,7 @@ describe('Password Security', () => {
   });
 
   it('rejette les comparaisons de mots de passe vides', async () => {
-    (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+    (bcrypt.compare as any).mockResolvedValue(false);
     
     const result = await bcrypt.compare('', 'somehash');
     expect(result).toBe(false);
