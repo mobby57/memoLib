@@ -1,19 +1,21 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 ﻿const mockPrisma = {
   legalDeadline: {
-    findMany: jest.fn(),
-    update: jest.fn(),
+    findMany: vi.fn(),
+    update: vi.fn(),
   },
   deadlineAlert: {
-    findFirst: jest.fn(),
-    create: jest.fn(),
+    findFirst: vi.fn(),
+    create: vi.fn(),
   },
   notification: {
-    findFirst: jest.fn(),
-    create: jest.fn(),
+    findFirst: vi.fn(),
+    create: vi.fn(),
   },
 };
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: mockPrisma,
 }));
 
@@ -21,7 +23,7 @@ const { checkDeadlineAlerts } = require('@/lib/cron/deadline-alerts') as typeof 
 
 describe('Deadline Alerts Cron', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockPrisma.deadlineAlert.findFirst.mockResolvedValue(null);
     mockPrisma.notification.findFirst.mockResolvedValue(null);
     mockPrisma.deadlineAlert.create.mockResolvedValue({});

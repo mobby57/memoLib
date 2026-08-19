@@ -1,368 +1,276 @@
-'use client';
-
-export const dynamic = 'force-dynamic';
-
-/**
- * Page Tarifs - Presentation des plans et fonctionnalités
- */
-
-import {
-  ArrowLeft,
-  Brain,
-  Building,
-  Check,
-  Clock,
-  Crown,
-  FileText,
-  Headphones,
-  Shield,
-  Star,
-  Users,
-  X,
-  Zap,
-} from 'lucide-react';
+import { Metadata } from 'next';
 import Link from 'next/link';
+import { Check, Zap, Shield, Users, ArrowRight } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Tarifs — MemoLib | Gestion de cabinet d\'avocat par IA',
+  description: 'Plans à partir de 29€/mois. IA juridique, gestion dossiers, emails automatiques. 14 jours gratuits.',
+};
 
 const PLANS = [
   {
     id: 'PILOT',
-    name: 'Pilote',
-    description: 'Essai gratuit 30 jours',
+    name: 'Découverte',
     price: 0,
-    priceAnnual: 0,
-    popular: false,
-    icon: Zap,
-    color: 'green',
+    priceYearly: 0,
+    period: '',
+    description: 'Pour tester MemoLib',
+    cta: 'Essai gratuit',
+    ctaStyle: 'border border-gray-300 text-gray-700 hover:bg-gray-50',
     features: [
-      { name: '5 clients maximum', included: true },
-      { name: '5 dossiers', included: true },
-      { name: '1 utilisateur', included: true },
-      { name: '1 GB stockage', included: true },
-      { name: 'Analyse IA basique', included: true },
-      { name: 'Support email', included: true },
-      { name: 'Multi-utilisateurs', included: false },
-      { name: 'API PISTE', included: false },
-      { name: 'Support prioritaire', included: false },
-      { name: 'Formation personnalisee', included: false },
+      '5 dossiers',
+      '5 clients',
+      '1 Go stockage',
+      'IA basique (regex)',
+      '14 jours',
     ],
+    limitations: ['Pas d\'IA avancée', 'Pas d\'email automatique'],
+    popular: false,
   },
   {
     id: 'SOLO',
-    name: 'Essentiel',
-    description: 'Pour les avocats independants',
-    price: 89,
-    priceAnnual: 71,
-    popular: false,
-    icon: Zap,
-    color: 'blue',
+    name: 'Solo',
+    price: 29,
+    priceYearly: 23,
+    period: '/mois',
+    description: 'L\'avocat indépendant',
+    cta: 'Démarrer — 14j gratuits',
+    ctaStyle: 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/25',
     features: [
-      { name: '50 dossiers actifs', included: true },
-      { name: '1 boite email connectee', included: true },
-      { name: '1 utilisateur', included: true },
-      { name: 'Email → Dossier en 1 clic', included: true },
-      { name: 'Delais CESEDA automatiques', included: true },
-      { name: 'Resume IA des emails', included: true },
-      { name: 'Generation documents', included: true },
-      { name: 'Support email', included: true },
-      { name: 'Stats tribunal', included: false },
-      { name: 'Templates communautaires', included: false },
+      '50 dossiers actifs',
+      '100 clients',
+      '5 Go stockage',
+      '✨ IA complète (résumé, brouillon, classification)',
+      '✨ Email → Dossier en 1 clic',
+      '✨ Délais légaux avec alertes',
+      '✨ Génération documents juridiques',
+      'Connexion Gmail / Outlook',
+      'Recherche jurisprudence',
     ],
+    limitations: [],
+    popular: true,
   },
   {
     id: 'CABINET',
     name: 'Cabinet',
-    description: 'Pour les cabinets de 3 a 10 avocats',
-    price: 69,
-    priceAnnual: 55,
-    popular: true,
-    icon: Building,
-    color: 'indigo',
-    priceLabel: '/utilisateur',
+    price: 79,
+    priceYearly: 63,
+    period: '/mois',
+    description: 'Cabinets 2-10 avocats',
+    cta: 'Démarrer — 14j gratuits',
+    ctaStyle: 'bg-gray-900 text-white hover:bg-gray-800',
     features: [
-      { name: '200 dossiers actifs', included: true },
-      { name: '5 boites email connectees', included: true },
-      { name: '3-10 utilisateurs', included: true },
-      { name: 'Tout Essentiel inclus', included: true },
-      { name: 'Attribution dossiers', included: true },
-      { name: 'Workflows automatises', included: true },
-      { name: 'Brouillon reponse IA', included: true },
-      { name: 'Recherche jurisprudence', included: true },
-      { name: 'Stats tribunal', included: false },
-      { name: 'Templates communautaires', included: false },
+      '500 dossiers actifs',
+      '1 000 clients',
+      '50 Go stockage',
+      'Tout Solo +',
+      '✨ Jusqu\'à 10 utilisateurs',
+      '✨ Comptabilité (CARPA, écritures, TVA)',
+      '✨ Brouillon IA contextuel au dossier',
+      '✨ Portail client',
+      '✨ Analytics avancées',
+      'Support prioritaire',
     ],
+    limitations: [],
+    popular: false,
   },
   {
     id: 'ENTERPRISE',
-    name: 'Premium',
-    description: 'Pour les cabinets ambitieux',
-    price: 149,
-    priceAnnual: 119,
-    popular: false,
-    icon: Crown,
-    color: 'purple',
-    priceLabel: '/utilisateur',
+    name: 'Enterprise',
+    price: 199,
+    priceYearly: 159,
+    period: '/mois',
+    description: 'Grands cabinets 10+',
+    cta: 'Nous contacter',
+    ctaStyle: 'border border-gray-300 text-gray-700 hover:bg-gray-50',
     features: [
-      { name: 'Dossiers illimites', included: true },
-      { name: 'Boites email illimitees', included: true },
-      { name: '5-20 utilisateurs', included: true },
-      { name: 'Tout Cabinet inclus', included: true },
-      { name: 'Stats tribunal (taux succes)', included: true },
-      { name: 'Templates communautaires', included: true },
-      { name: 'API + integrations', included: true },
-      { name: 'Support prioritaire', included: true },
-      { name: 'API PISTE intégrée', included: true },
-      { name: 'Formation sur site', included: true },
+      'Dossiers illimités',
+      'Clients illimités',
+      '200 Go stockage',
+      'Tout Cabinet +',
+      '✨ 50 utilisateurs',
+      '✨ API complète',
+      '✨ Branding personnalisé',
+      '✨ SSO (Azure AD)',
+      '✨ SLA garanti',
+      'Account manager dédié',
     ],
+    limitations: [],
+    popular: false,
   },
 ];
 
-const FEATURES_DETAILS = [
+const FAQ = [
   {
-    icon: Brain,
-    title: 'Analyse Intelligente',
-    description:
-      'Analyse automatique des emails, classification des dossiers, suggestions intelligentes',
+    q: 'Puis-je changer de plan à tout moment ?',
+    a: 'Oui, upgrade ou downgrade instantané. Le prorata est calculé automatiquement.',
   },
   {
-    icon: FileText,
-    title: 'Gestion Documentaire',
-    description: 'Stockage sécurisé, OCR, recherche dans le contenu des documents',
+    q: 'Mes données sont-elles en sécurité ?',
+    a: 'Chiffrement AES-256, hébergement France (Vercel CDG1), RGPD natif, mode confidentiel par dossier.',
   },
   {
-    icon: Users,
-    title: 'Multi-Tenant',
-    description: 'Chaque cabinet est isole avec ses propres donnees et utilisateurs',
+    q: 'L\'IA est-elle obligatoire ?',
+    a: 'Non. Vous pouvez utiliser MemoLib sans IA. Le mode confidentiel garantit qu\'aucune donnée ne quitte votre réseau.',
   },
   {
-    icon: Shield,
-    title: 'Sécurité RGPD',
-    description: 'Chiffrement bout en bout, hebergement en France, conformité totale',
+    q: 'Comment fonctionne l\'essai gratuit ?',
+    a: '14 jours complets sur le plan choisi. Aucune carte bancaire requise pour commencer. Vous ajoutez le paiement quand vous êtes convaincu.',
   },
   {
-    icon: Clock,
-    title: 'Automatisation',
-    description: 'Workflows configurable, rappels automatiques, notifications temps reel',
-  },
-  {
-    icon: Headphones,
-    title: 'Support Reactif',
-    description: 'Equipe francaise disponible par email, chat et téléphone',
+    q: 'Quel support est inclus ?',
+    a: 'Email pour tous, prioritaire pour Cabinet et Enterprise. Réponse sous 24h (4h pour Enterprise).',
   },
 ];
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+    <main className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-white/5 backdrop-blur-sm border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-white hover:text-blue-300 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Retour
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/contact" className="text-blue-300 hover:text-white transition-colors">
-              Contact
-            </Link>
-            <Link href="/auth/login" className="text-blue-300 hover:text-white transition-colors">
-              Connexion
-            </Link>
+      <nav className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">M</span>
           </div>
-        </div>
-      </div>
+          <span className="font-semibold text-lg">MemoLib</span>
+        </Link>
+        <Link href="/fr/auth/login" className="text-sm text-gray-600 hover:text-gray-900">
+          Se connecter →
+        </Link>
+      </nav>
 
       {/* Hero */}
-      <div className="text-center py-16 px-4">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-          Tarifs simples et transparents
+      <section className="text-center py-16 px-6">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          Un prix simple, transparent
         </h1>
-        <p className="text-xl text-blue-200 max-w-2xl mx-auto mb-8">
-          Choisissez le plan adapte à la taille de votre cabinet. Tous les plans incluent 14 jours
-          d'essai gratuit.
+        <p className="text-xl text-gray-500 max-w-2xl mx-auto">
+          14 jours d&apos;essai gratuit sur tous les plans. Aucune carte bancaire requise.
         </p>
-        <div className="inline-flex items-center gap-2 bg-green-500/20 text-green-300 px-4 py-2 rounded-full text-sm">
-          <Star className="w-4 h-4" />
-          -20% sur l'abonnement annuel
-        </div>
-      </div>
+      </section>
 
-      {/* Plans */}
-      <div className="max-w-7xl mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {PLANS.map(plan => {
-            const Icon = plan.icon;
-            return (
-              <div
-                key={plan.id}
-                className={`relative bg-white/10 backdrop-blur-lg rounded-2xl border ${
-                  plan.popular ? 'border-blue-400 ring-2 ring-blue-400/50' : 'border-white/20'
-                } overflow-hidden`}
-              >
-                {plan.popular && (
-                  <div className="absolute top-0 left-0 right-0 bg-blue-500 text-white text-center py-1 text-sm font-medium">
-                    Le plus populaire
-                  </div>
+      {/* Plans Grid */}
+      <section className="max-w-6xl mx-auto px-6 pb-20">
+        <div className="grid md:grid-cols-4 gap-6">
+          {PLANS.map((plan) => (
+            <div
+              key={plan.id}
+              className={`relative rounded-2xl border p-6 flex flex-col ${
+                plan.popular
+                  ? 'border-blue-600 shadow-xl shadow-blue-600/10 scale-[1.02]'
+                  : 'border-gray-200'
+              }`}
+            >
+              {plan.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
+                  Le plus populaire
+                </div>
+              )}
+
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
+                <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold text-gray-900">{plan.price}€</span>
+                  <span className="text-gray-500">{plan.period}</span>
+                </div>
+                {plan.priceYearly > 0 && (
+                  <p className="text-sm text-green-600 mt-1">
+                    ou {plan.priceYearly}€/mois en annuel (-20%)
+                  </p>
                 )}
-
-                <div className={`p-8 ${plan.popular ? 'pt-12' : ''}`}>
-                  {/* Icon & Title */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div
-                      className={`w-12 h-12 bg-${plan.color}-500/20 rounded-xl flex items-center justify-center`}
-                    >
-                      <Icon className={`w-6 h-6 text-${plan.color}-400`} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">{plan.name}</h3>
-                      <p className="text-sm text-gray-400">{plan.description}</p>
-                    </div>
-                  </div>
-
-                  {/* Price */}
-                  <div className="mb-6">
-                    {plan.price === 0 ? (
-                      <>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-4xl font-bold text-white">Gratuit</span>
-                        </div>
-                        <p className="text-sm text-green-400">30 jours sans engagement</p>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-4xl font-bold text-white">{plan.price}€</span>
-                          <span className="text-gray-400">/mois</span>
-                        </div>
-                        <p className="text-sm text-green-400">ou {plan.priceAnnual}€/mois (annuel)</p>
-                      </>
-                    )}
-                  </div>
-
-                  {/* CTA */}
-                  <Link
-                    href={`/auth/register?plan=${plan.id}`}
-                    className={`block w-full text-center py-3 rounded-lg font-medium transition-colors mb-8 ${
-                      plan.popular
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : plan.price === 0
-                          ? 'bg-green-600 text-white hover:bg-green-700'
-                          : 'bg-white/10 text-white hover:bg-white/20'
-                    }`}
-                  >
-                    {plan.price === 0 ? 'Démarrer le pilote gratuit' : "Commencer l'essai gratuit"}
-                  </Link>
-
-                  {/* Features */}
-                  <ul className="space-y-3">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-center gap-3">
-                        {feature.included ? (
-                          <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
-                        ) : (
-                          <X className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                        )}
-                        <span className={feature.included ? 'text-gray-200' : 'text-gray-500'}>
-                          {feature.name}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* Features Details */}
-      <div className="bg-white/5 border-t border-white/10 py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">
-            Toutes les fonctionnalités incluses
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {FEATURES_DETAILS.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <div key={index} className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-6 h-6 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white mb-1">{feature.title}</h3>
-                    <p className="text-gray-400 text-sm">{feature.description}</p>
-                  </div>
-                </div>
-              );
-            })}
+              <Link
+                href={plan.id === 'ENTERPRISE' ? '/fr/contact' : `/fr/signup?plan=${plan.id}`}
+                className={`block text-center py-3 px-4 rounded-lg font-medium transition mb-6 ${plan.ctaStyle}`}
+              >
+                {plan.cta}
+              </Link>
+
+              <ul className="space-y-3 flex-1">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-sm">
+                    <Check className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span className={feature.startsWith('✨') ? 'font-medium text-gray-900' : 'text-gray-600'}>
+                      {feature.replace('✨ ', '')}
+                    </span>
+                  </li>
+                ))}
+                {plan.limitations.map((limit) => (
+                  <li key={limit} className="flex items-start gap-2 text-sm text-gray-400">
+                    <span className="w-4 text-center">—</span>
+                    <span>{limit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Trust badges */}
+      <section className="bg-gray-50 py-12">
+        <div className="max-w-4xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="flex flex-col items-center gap-2">
+            <Shield className="w-6 h-6 text-blue-600" />
+            <p className="text-sm font-medium">Conforme RGPD</p>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Zap className="w-6 h-6 text-blue-600" />
+            <p className="text-sm font-medium">Prêt en 2 min</p>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Users className="w-6 h-6 text-blue-600" />
+            <p className="text-sm font-medium">Multi-cabinet</p>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <ArrowRight className="w-6 h-6 text-blue-600" />
+            <p className="text-sm font-medium">Sans engagement</p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* FAQ */}
-      <div className="py-16 px-4">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">Questions frequentes</h2>
-          <div className="space-y-6">
-            {[
-              {
-                q: 'Puis-je changer de plan a tout moment ?',
-                a: 'Oui, vous pouvez upgrader ou downgrader votre plan a tout moment. La difference sera calculee au prorata.',
-              },
-              {
-                q: 'Les donnees sont-elles securisees ?',
-                a: 'Absolument. Toutes les donnees sont chiffrees et hebergees en France, en conformité avec le RGPD.',
-              },
-              {
-                q: 'Y a-t-il un engagement ?',
-                a: "Non, vous pouvez annuler a tout moment. L'abonnement annuel offre simplement une reduction de 20%.",
-              },
-              {
-                q: "Comment fonctionne l'essai gratuit ?",
-                a: "Vous beneficiez de 14 jours d'accès complet sans carte bancaire. A la fin, vous choisissez votre plan.",
-              },
-            ].map((faq, index) => (
-              <div key={index} className="bg-white/5 rounded-xl p-6 border border-white/10">
-                <h3 className="font-semibold text-white mb-2">{faq.q}</h3>
-                <p className="text-gray-400">{faq.a}</p>
-              </div>
-            ))}
-          </div>
+      <section className="max-w-3xl mx-auto px-6 py-20">
+        <h2 className="text-2xl font-bold text-center mb-12">Questions fréquentes</h2>
+        <div className="space-y-6">
+          {FAQ.map((item) => (
+            <div key={item.q} className="border-b border-gray-100 pb-6">
+              <h3 className="font-medium text-gray-900 mb-2">{item.q}</h3>
+              <p className="text-sm text-gray-500">{item.a}</p>
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
 
-      {/* CTA */}
-      <div className="bg-blue-600 py-12 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Pret a transformer votre cabinet ?</h2>
-          <p className="text-blue-100 mb-8">
-            Rejoignez les centaines d'avocats qui font confiance à memoLib
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/contact"
-              className="px-8 py-4 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-            >
-              Demander un accompagnement
-            </Link>
-            <Link
-              href="/auth/register"
-              className="px-8 py-4 bg-blue-700 text-white rounded-lg font-medium hover:bg-blue-800 transition-colors"
-            >
-              Commencer gratuitement
-            </Link>
-            <Link
-              href="/demo"
-              className="px-8 py-4 bg-blue-700 text-white rounded-lg font-medium hover:bg-blue-800 transition-colors"
-            >
-              Demander une demo
-            </Link>
+      {/* Final CTA */}
+      <section className="text-center py-16 px-6 bg-blue-600">
+        <h2 className="text-3xl font-bold text-white mb-4">
+          Prêt à gagner 2h par jour ?
+        </h2>
+        <p className="text-blue-100 mb-8 max-w-lg mx-auto">
+          Rejoignez les avocats qui automatisent leur cabinet avec l&apos;IA.
+        </p>
+        <Link
+          href="/fr/signup"
+          className="inline-flex items-center gap-2 bg-white text-blue-600 font-semibold px-8 py-4 rounded-xl hover:bg-blue-50 transition"
+        >
+          Créer mon cabinet gratuitement <ArrowRight className="w-5 h-5" />
+        </Link>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-100 py-8">
+        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between text-sm text-gray-400">
+          <span>© 2026 MemoLib</span>
+          <div className="flex gap-4">
+            <Link href="/fr/privacy" className="hover:text-gray-600">Confidentialité</Link>
+            <Link href="/fr/faq" className="hover:text-gray-600">FAQ</Link>
+            <Link href="/fr/contact" className="hover:text-gray-600">Contact</Link>
           </div>
         </div>
-      </div>
-    </div>
+      </footer>
+    </main>
   );
 }

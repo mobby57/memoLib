@@ -1,17 +1,18 @@
 ﻿import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH } from '@/app/api/proofs/route';
 import prisma from '@/lib/prisma';
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: {
     proof: {
-      findMany: jest.fn(),
-      count: jest.fn(),
-      findFirst: jest.fn(),
-      create: jest.fn(),
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findMany: vi.fn(),
+      count: vi.fn(),
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
@@ -20,14 +21,14 @@ describe('/api/proofs', () => {
   const mockTenantId = 'tenant-123';
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('GET', () => {
     it('should return proofs', async () => {
       const mockProofs = [{ id: '1', type: 'DOCUMENT_RECEPTION', status: 'PENDING_VALIDATION' }];
-      (prisma.proof.findMany as jest.Mock).mockResolvedValue(mockProofs);
-      (prisma.proof.count as jest.Mock).mockResolvedValue(1);
+      (prisma.proof.findMany as any).mockResolvedValue(mockProofs);
+      (prisma.proof.count as any).mockResolvedValue(1);
 
       const request = new NextRequest(`http://localhost/api/proofs?tenantId=${mockTenantId}`);
       const response = await GET(request);
@@ -41,8 +42,8 @@ describe('/api/proofs', () => {
   describe('POST', () => {
     it('should create proof', async () => {
       const mockProof = { id: '1', type: 'DOCUMENT_RECEPTION' };
-      (prisma.proof.findFirst as jest.Mock).mockResolvedValue(null);
-      (prisma.proof.create as jest.Mock).mockResolvedValue(mockProof);
+      (prisma.proof.findFirst as any).mockResolvedValue(null);
+      (prisma.proof.create as any).mockResolvedValue(mockProof);
 
       const request = new NextRequest('http://localhost/api/proofs', {
         method: 'POST',
@@ -62,8 +63,8 @@ describe('/api/proofs', () => {
 
   describe('PATCH', () => {
     it('should validate proof', async () => {
-      (prisma.proof.findUnique as jest.Mock).mockResolvedValue({ id: '1' });
-      (prisma.proof.update as jest.Mock).mockResolvedValue({ id: '1', status: 'VALIDATED' });
+      (prisma.proof.findUnique as any).mockResolvedValue({ id: '1' });
+      (prisma.proof.update as any).mockResolvedValue({ id: '1', status: 'VALIDATED' });
 
       const request = new NextRequest('http://localhost/api/proofs', {
         method: 'PATCH',

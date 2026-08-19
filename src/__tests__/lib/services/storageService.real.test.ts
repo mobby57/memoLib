@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour lib/services/storageService.ts - Fonctions pures
  * Tests des utilitaires de formatage et d'icônes

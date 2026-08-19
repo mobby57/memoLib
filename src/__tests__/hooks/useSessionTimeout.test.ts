@@ -3,11 +3,12 @@
  * Couverture: timeout, warning, events
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
 // Mock next-auth/react
-const mockSignOut = jest.fn();
-jest.mock('next-auth/react', () => ({
+const mockSignOut = vi.fn();
+vi.mock('next-auth/react', () => ({
   useSession: () => ({
     data: { user: { id: 'user-1' } },
     status: 'authenticated',
@@ -16,10 +17,10 @@ jest.mock('next-auth/react', () => ({
 }));
 
 // Mock next/navigation
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
+    push: vi.fn(),
+    replace: vi.fn(),
   }),
 }));
 
@@ -28,14 +29,14 @@ import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 
 describe('useSessionTimeout Hook', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.clearAllMocks();
+    vi.useFakeTimers();
+    vi.clearAllMocks();
     // Mock confirm
-    global.confirm = jest.fn(() => true);
+    global.confirm = vi.fn(() => true);
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   describe('Configuration', () => {
@@ -142,7 +143,7 @@ describe('Cleanup', () => {
   });
 
   it('devrait supprimer les event listeners', () => {
-    const mockRemoveEventListener = jest.fn();
+    const mockRemoveEventListener = vi.fn();
     const events = ['mousedown', 'keydown', 'scroll'];
     
     events.forEach(event => {
@@ -155,7 +156,7 @@ describe('Cleanup', () => {
 
 describe('User Decision on Warning', () => {
   it('devrait recharger si utilisateur veut rester', () => {
-    const mockReload = jest.fn();
+    const mockReload = vi.fn();
     const shouldStay = true;
     
     if (shouldStay) {
@@ -166,7 +167,7 @@ describe('User Decision on Warning', () => {
   });
 
   it('devrait déconnecter si utilisateur annule', () => {
-    const mockLogout = jest.fn();
+    const mockLogout = vi.fn();
     const shouldStay = false;
     
     if (!shouldStay) {

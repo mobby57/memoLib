@@ -28,7 +28,7 @@ export const CHECKLIST_TEMPLATES: Record<string, ChecklistTemplate[]> = {
     { label: 'Tout element urgence (medical, familial)', category: 'justificatif', required: true },
     { label: 'Photos identite', category: 'identite', required: true },
   ],
-  Asile: [
+  ASILE: [
     { label: 'Recit de vie detaille', category: 'juridique', required: true },
     { label: 'Passeport ou document de voyage', category: 'identite', required: true },
     { label: 'Certificat medical (traces violences)', category: 'medical', required: true },
@@ -38,7 +38,7 @@ export const CHECKLIST_TEMPLATES: Record<string, ChecklistTemplate[]> = {
     { label: 'Justificatif hebergement (CADA ou autre)', category: 'justificatif', required: true },
     { label: 'Traductions certifiees documents etrangers', category: 'document', required: false },
   ],
-  TitreSejour: [
+  TITRE_SEJOUR: [
     { label: 'Passeport en cours de validite', category: 'identite', required: true },
     { label: 'Justificatif de domicile (moins de 3 mois)', category: 'justificatif', required: true },
     { label: 'Photos identite recentes', category: 'identite', required: true },
@@ -49,7 +49,7 @@ export const CHECKLIST_TEMPLATES: Record<string, ChecklistTemplate[]> = {
     { label: 'Acte de naissance traduit', category: 'identite', required: false },
     { label: 'Timbres fiscaux (ou preuve achat)', category: 'document', required: true },
   ],
-  Naturalisation: [
+  NATURALISATION: [
     { label: 'Passeport', category: 'identite', required: true },
     { label: 'Titre de sejour en cours', category: 'identite', required: true },
     { label: 'Acte de naissance traduit', category: 'identite', required: true },
@@ -61,7 +61,7 @@ export const CHECKLIST_TEMPLATES: Record<string, ChecklistTemplate[]> = {
     { label: 'Certificats scolarite enfants', category: 'justificatif', required: false },
     { label: 'Photos identite', category: 'identite', required: true },
   ],
-  RegroupementFamilial: [
+  REGROUPEMENT_FAMILIAL: [
     { label: 'Passeport demandeur', category: 'identite', required: true },
     { label: 'Titre de sejour demandeur', category: 'identite', required: true },
     { label: 'Acte de mariage traduit', category: 'identite', required: true },
@@ -71,6 +71,14 @@ export const CHECKLIST_TEMPLATES: Record<string, ChecklistTemplate[]> = {
     { label: 'Avis imposition', category: 'justificatif', required: true },
     { label: 'Attestation assurance maladie', category: 'justificatif', required: true },
     { label: 'Photos identite famille', category: 'identite', required: true },
+  ],
+  VISA: [
+    { label: 'Passeport valide (6 mois minimum)', category: 'identite', required: true },
+    { label: 'Photos identite recentes', category: 'identite', required: true },
+    { label: 'Justificatif hebergement', category: 'justificatif', required: true },
+    { label: 'Attestation assurance voyage', category: 'document', required: true },
+    { label: 'Justificatif ressources financieres', category: 'justificatif', required: true },
+    { label: 'Reservation billet avion', category: 'document', required: false },
   ],
 };
 
@@ -84,7 +92,13 @@ export function generateDossierInboxEmail(numero: string): string {
 
 /**
  * Retourne la checklist template pour un type de dossier
+ * Supporte les formats: 'OQTF', 'TITRE_SEJOUR', 'ASILE', 'NATURALISATION', 'REGROUPEMENT_FAMILIAL', 'VISA'
  */
 export function getChecklistForType(typeDossier: string): ChecklistTemplate[] {
-  return CHECKLIST_TEMPLATES[typeDossier] || CHECKLIST_TEMPLATES['TitreSejour'];
+  // Normaliser le type (supporter les anciens formats)
+  const normalized = typeDossier
+    .toUpperCase()
+    .replace(/\s+/g, '_');
+  
+  return CHECKLIST_TEMPLATES[normalized] || CHECKLIST_TEMPLATES['TITRE_SEJOUR'];
 }

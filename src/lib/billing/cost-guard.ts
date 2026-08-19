@@ -13,7 +13,7 @@ import { logger } from '@/lib/logger';
 // ============================================
 
 export const AI_COSTS = {
-  // Cloudflare Workers AI (en euros)
+  // Cloudflare Workers AI (en euros) — legacy
   cloudflare: {
     costPer1000Tokens: 0.01, // ~$0.011 converti
     costPerEmbedding: 0.0001,
@@ -22,6 +22,21 @@ export const AI_COSTS = {
   ollama: {
     costPer1000Tokens: 0, // 🎉 Gratuit!
     costPerEmbedding: 0,
+  },
+  // OpenAI (gpt-4o-mini)
+  openai: {
+    costPer1000Tokens: 0.0003,
+    costPerEmbedding: 0.0001,
+  },
+  // Mistral (mistral-small)
+  mistral: {
+    costPer1000Tokens: 0.0002,
+    costPerEmbedding: 0.0001,
+  },
+  // Anthropic (claude-3-haiku)
+  anthropic: {
+    costPer1000Tokens: 0.0003,
+    costPerEmbedding: 0.0001,
   },
 };
 

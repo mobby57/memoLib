@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { hybridAI } from '@/lib/ai/hybrid-client';
 import { checkFeatureAccess } from '@/lib/billing/features';
+import { checkEmailConfidential } from '@/lib/security/confidential-mode';
 
 interface EmailSummary {
   client: string | null;
@@ -41,13 +42,32 @@ export async function POST(req: NextRequest) {
   const { subject, body, from } = body_data as { subject?: string; body?: string; from?: string };
   if (!body) return NextResponse.json({ error: 'body requis' }, { status: 400 });
 
+  // 🔒 Mode confidentiel : si l'email est lié à un dossier confidentiel, forcer local/regex
+  const emailId = body_data.emailId as string | undefined;
+  const confidentialCheck = await checkEmailConfidential(emailId || '');
+
   try {
+    if (confidentialCheck.isConfidential) {
+      // Mode confidentiel : essayer Ollama uniquement, sinon regex
+      hybridAI.setPreferredProvider('ollama');
+    }
     const summary = await summarizeWithAI(subject || '', body, from || '');
-    return NextResponse.json({ ...summary, confidence: { client: 0.85, urgence: 0.8, typeDossier: 0.8, deadline: 0.7 } });
+    return NextResponse.json({ 
+      ...summary, 
+      confidence: { client: 0.85, urgence: 0.8, typeDossier: 0.8, deadline: 0.7 },
+      _confidentialMode: confidentialCheck.isConfidential || undefined,
+      _disclaimer: "⚠️ Les délais détectés sont indicatifs. Vérifiez TOUJOURS la date de notification sur l'acte original. MemoLib assiste mais ne remplace pas la vérification humaine.",
+    });
   } catch {
     // Fallback regex si Ollama indisponible
     const summary = summarizeWithRegex(subject || '', body, from || '');
-    return NextResponse.json({ ...summary, _fallback: true, confidence: { client: 0.5, urgence: 0.6, typeDossier: 0.6, deadline: 0.4 } });
+    return NextResponse.json({ 
+      ...summary, 
+      _fallback: true, 
+      _confidentialMode: confidentialCheck.isConfidential || undefined,
+      confidence: { client: 0.5, urgence: 0.6, typeDossier: 0.6, deadline: 0.4 },
+      _disclaimer: "⚠️ Analyse par mots-clés (IA indisponible). Les délais détectés sont indicatifs. Vérifiez TOUJOURS la date de notification sur l'acte original.",
+    });
   }
 }
 
@@ -88,13 +108,13 @@ function summarizeWithRegex(subject: string, body: string, from: string): EmailS
   else if (text.match(/d[eé]lai|[eé]ch[eé]ance|rapidement|au plus vite/)) urgence = 'haute';
   else if (text.match(/merci de|pourriez-vous|demande/)) urgence = 'moyenne';
 
-  // Détection type dossier
+  // Détection type dossier (ordre = priorité, OQTF d'abord car plus urgent)
   let typeDossier = 'GENERAL';
-  if (text.match(/titre de s[eé]jour|carte de s[eé]jour|r[eé]c[eé]piss[eé]/)) typeDossier = 'TITRE_SEJOUR';
-  else if (text.match(/naturalisation|nationalit[eé]/)) typeDossier = 'NATURALISATION';
-  else if (text.match(/oqtf|obligation de quitter/)) typeDossier = 'OQTF';
+  if (text.match(/oqtf|obligation de quitter/)) typeDossier = 'OQTF';
   else if (text.match(/asile|r[eé]fugi[eé]|ofpra|cnda/)) typeDossier = 'ASILE';
   else if (text.match(/regroupement familial/)) typeDossier = 'REGROUPEMENT_FAMILIAL';
+  else if (text.match(/naturalisation|nationalit[eé]/)) typeDossier = 'NATURALISATION';
+  else if (text.match(/titre de s[eé]jour|carte de s[eé]jour|r[eé]c[eé]piss[eé]/)) typeDossier = 'TITRE_SEJOUR';
 
   // Extraction client depuis "from"
   const client = from.match(/^([^<@]+)/)?.[1]?.trim() || null;

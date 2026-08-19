@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for dossier.mapper.ts to increase actual coverage
  * Tests data transformation functions

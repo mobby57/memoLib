@@ -1,25 +1,30 @@
 /**
  * Tests unitaires — audit-trail.ts
  * Coverage cible : 80%+
- * @jest-environment node
  */
 
-jest.mock('@prisma/client', () => {
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+vi.mock('@prisma/client', () => {
   const auditLog = {
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    findMany: jest.fn(),
+    findFirst: vi.fn(),
+    create: vi.fn(),
+    findMany: vi.fn(),
   };
   (globalThis as Record<string, unknown>).__auditLogMock = auditLog;
+
+  class MockPrismaClient {
+    auditLog = auditLog;
+  }
+
   return {
-    PrismaClient: jest.fn(() => ({ auditLog })),
+    PrismaClient: MockPrismaClient,
   };
 });
 
-jest.mock('@sentry/nextjs', () => ({
-  captureMessage: jest.fn(),
+vi.mock('@sentry/nextjs', () => ({
+  captureMessage: vi.fn(),
 }));
-
 import {
   createAuditLog,
   getAuditLogs,
@@ -30,9 +35,9 @@ import {
 } from '@/lib/security/audit-trail';
 
 const mockAuditLog = (globalThis as Record<string, unknown>).__auditLogMock as {
-  findFirst: jest.Mock;
-  create: jest.Mock;
-  findMany: jest.Mock;
+  findFirst: vi.Mock;
+  create: vi.Mock;
+  findMany: vi.Mock;
 };
 
 const baseData = {
@@ -46,7 +51,7 @@ const baseData = {
 
 describe('createAuditLog', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockAuditLog.findFirst.mockResolvedValue(null);
     mockAuditLog.create.mockResolvedValue({ id: 'log-1', ...baseData });
   });
@@ -84,14 +89,14 @@ describe('createAuditLog', () => {
   });
 
   it('log une alerte sécurité si success=false', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     await createAuditLog({ ...baseData, success: false });
     expect(consoleSpy).toHaveBeenCalledWith('[SECURITY ALERT]', expect.any(Object));
     consoleSpy.mockRestore();
   });
 
   it('log une alerte sécurité si action=DATA_BREACH_ATTEMPT', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     await createAuditLog({ ...baseData, action: 'DATA_BREACH_ATTEMPT' });
     expect(consoleSpy).toHaveBeenCalledWith('[SECURITY ALERT]', expect.any(Object));
     consoleSpy.mockRestore();
@@ -109,7 +114,7 @@ describe('createAuditLog', () => {
 });
 
 describe('getAuditLogs', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   it('retourne les logs filtrés', async () => {
     const mockLogs = [{ id: 'log-1', action: 'CREATE', resource: 'DOSSIER' }];
@@ -162,7 +167,7 @@ describe('getAuditLogs', () => {
 });
 
 describe('generateComplianceReport', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   it('génère un rapport avec statistiques correctes', async () => {
     const logs = [
@@ -189,7 +194,7 @@ describe('generateComplianceReport', () => {
 
 describe('detectSuspiciousActivity', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockAuditLog.findFirst.mockResolvedValue(null);
     mockAuditLog.create.mockResolvedValue({ id: 'alert-log' });
   });
@@ -267,7 +272,7 @@ describe('detectSuspiciousActivity', () => {
 });
 
 describe('verifyAuditChainIntegrity', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   it('retourne valid=true si aucune entrée', async () => {
     mockAuditLog.findMany.mockResolvedValue([]);
@@ -399,7 +404,7 @@ describe('verifyAuditChainIntegrity', () => {
 
 describe('auditMiddleware', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockAuditLog.findFirst.mockResolvedValue(null);
     mockAuditLog.create.mockResolvedValue({ id: 'middleware-log' });
   });

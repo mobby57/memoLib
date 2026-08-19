@@ -3,24 +3,24 @@
  * @jest-environment node
  */
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-jest.mock('stripe', () => ({
+vi.mock('stripe', () => ({
   __esModule: true,
-  default: jest.fn().mockImplementation(() => ({
-    customers: { create: jest.fn() },
-    subscriptions: { create: jest.fn() },
-    checkout: { sessions: { create: jest.fn() } },
-    billingPortal: { sessions: { create: jest.fn() } },
-    prices: { list: jest.fn() },
-    invoices: { list: jest.fn(), retrieveUpcoming: jest.fn() },
-    paymentIntents: { retrieve: jest.fn() },
+  default: vi.fn().mockImplementation(() => ({
+    customers: { create: vi.fn() },
+    subscriptions: { create: vi.fn() },
+    checkout: { sessions: { create: vi.fn() } },
+    billingPortal: { sessions: { create: vi.fn() } },
+    prices: { list: vi.fn() },
+    invoices: { list: vi.fn(), retrieveUpcoming: vi.fn() },
+    paymentIntents: { retrieve: vi.fn() },
   })),
 }));
 
 describe('Stripe Client', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Customer Management', () => {

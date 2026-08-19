@@ -8,7 +8,7 @@
  * - Historique des actions
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 // --- Logique métier deadline (pure) ---
 

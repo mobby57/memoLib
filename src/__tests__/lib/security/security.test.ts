@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/security module
  * Coverage: Rate limiting, validation, sanitization
@@ -8,7 +10,7 @@ describe('Security Module', () => {
     let rateLimit: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/security/rate-limit');
         rateLimit = module;
@@ -52,7 +54,7 @@ describe('Security Module', () => {
     let validation: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/security/validation');
         validation = module;
@@ -93,7 +95,7 @@ describe('Security Module', () => {
     let sanitize: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/security/sanitize');
         sanitize = module;
@@ -134,7 +136,7 @@ describe('Security Module', () => {
     let csrf: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/security/csrf');
         csrf = module;
@@ -167,7 +169,7 @@ describe('Security Module', () => {
     let encryption: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/security/encryption');
         encryption = module;

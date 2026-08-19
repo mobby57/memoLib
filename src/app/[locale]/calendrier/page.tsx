@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertTriangle, Calendar as CalendarIcon, Clock, TrendingUp } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -33,58 +33,42 @@ type EventFormData = z.infer<typeof eventSchema>;
 export default function CalendrierPage() {
   const { showToast } = useToast();
 
-  // Donnees d'exemple
-  const [events, setEvents] = useState<CalendarEvent[]>([
-    {
-      id: '1',
-      title: 'echeance depot conclusions',
-      date: new Date(2026, 0, 15, 14, 0),
-      startTime: '14:00',
-      type: 'echeance',
-      description: 'Depot des conclusions au greffe',
-      dossier: 'DOS-2026-001',
-      client: 'Martin Dupont',
-    },
-    {
-      id: '2',
-      title: 'Rendez-vous client - Consultation',
-      date: new Date(2026, 0, 8, 10, 0),
-      startTime: '10:00',
-      endTime: '11:00',
-      type: 'rendez-vous',
-      description: 'Première consultation contentieux commercial',
-      client: 'Sophie Bernard',
-      location: 'Cabinet - Salle 2',
-    },
-    {
-      id: '3',
-      title: 'Audience Tribunal de Commerce',
-      date: new Date(2026, 0, 20, 9, 0),
-      startTime: '09:00',
-      type: 'audience',
-      description: 'Affaire n deg2025/12345',
-      dossier: 'DOS-2025-089',
-      client: 'SAS TechCorp',
-      location: 'Tribunal de Commerce de Paris - Salle 3',
-    },
-    {
-      id: '4',
-      title: 'Signature contrat',
-      date: new Date(2026, 0, 5, 15, 30),
-      startTime: '15:30',
-      type: 'autre',
-      client: 'Jean Moreau',
-      location: 'Cabinet',
-    },
-    {
-      id: '5',
-      title: 'echeance appel',
-      date: new Date(2026, 0, 10),
-      type: 'echeance',
-      description: 'Dernier jour pour faire appel',
-      dossier: 'DOS-2025-156',
-    },
-  ]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Charger les événements depuis l'API
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/calendar');
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = (data.events || data || []).map((e: any) => ({
+          id: e.id,
+          title: e.title || e.titre || '',
+          date: new Date(e.startDate || e.date || e.start),
+          startTime: e.startTime || (e.startDate ? new Date(e.startDate).toTimeString().slice(0, 5) : undefined),
+          endTime: e.endTime || (e.endDate ? new Date(e.endDate).toTimeString().slice(0, 5) : undefined),
+          type: e.type || e.eventType || 'autre',
+          description: e.description || '',
+          dossier: e.dossier?.numero || e.dossierId || '',
+          client: e.client?.nom || e.clientId || '',
+          location: e.location || e.lieu || '',
+        }));
+        setEvents(mapped);
+      } else {
+        setEvents([]);
+      }
+    } catch {
+      setEvents([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -134,12 +118,43 @@ export default function CalendrierPage() {
       location: data.location,
     };
 
-    if (isEditing && editingEventId) {
-      setEvents(events.map(e => (e.id === editingEventId ? eventData : e)));
-      showToast('evenement modifie avec succes', 'success');
-    } else {
-      setEvents([...events, eventData]);
-      showToast('événement ajoute avec succès', 'success');
+    try {
+      if (isEditing && editingEventId) {
+        const res = await fetch(`/api/calendar?eventId=${editingEventId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: data.title,
+            startDate: eventData.date.toISOString(),
+            endDate: data.endTime ? new Date(data.date + `T${data.endTime}`).toISOString() : undefined,
+            type: data.type,
+            description: data.description,
+            location: data.location,
+          }),
+        });
+        if (!res.ok) throw new Error('Erreur modification');
+        showToast('Événement modifié avec succès', 'success');
+      } else {
+        const res = await fetch('/api/calendar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: data.title,
+            startDate: eventData.date.toISOString(),
+            endDate: data.endTime ? new Date(data.date + `T${data.endTime}`).toISOString() : undefined,
+            type: data.type,
+            description: data.description,
+            location: data.location,
+            clientId: data.client || undefined,
+            dossierId: data.dossier || undefined,
+          }),
+        });
+        if (!res.ok) throw new Error('Erreur création');
+        showToast('Événement ajouté avec succès', 'success');
+      }
+      await fetchEvents();
+    } catch {
+      showToast('Erreur lors de la sauvegarde', 'error');
     }
 
     setIsModalOpen(false);
@@ -166,12 +181,17 @@ export default function CalendrierPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteEvent = (eventId: string) => {
-    if (confirm('Voulez-vous vraiment supprimer cet événement ?')) {
-      setEvents(events.filter(e => e.id !== eventId));
-      showToast('événement supprime', 'success');
-      setIsEventDetailOpen(false);
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!confirm('Voulez-vous vraiment supprimer cet événement ?')) return;
+    try {
+      const res = await fetch(`/api/calendar?eventId=${eventId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erreur suppression');
+      showToast('Événement supprimé', 'success');
+      await fetchEvents();
+    } catch {
+      showToast('Erreur lors de la suppression', 'error');
     }
+    setIsEventDetailOpen(false);
   };
 
   // Statistiques

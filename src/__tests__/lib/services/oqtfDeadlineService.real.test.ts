@@ -4,15 +4,16 @@
  */
 
 // Mock du logger avant l'import
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    logAIAction: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    logAIAction: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   TypeDossierCESEDA,
   identifierTypeDossier,

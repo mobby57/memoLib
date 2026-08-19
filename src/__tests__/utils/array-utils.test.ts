@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les utilitaires de manipulation de tableaux
  * Couverture: filtrage, tri, groupage, pagination

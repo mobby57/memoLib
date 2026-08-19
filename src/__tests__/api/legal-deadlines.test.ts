@@ -1,26 +1,27 @@
 ﻿import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH } from '@/app/api/legal-deadlines/route';
 import prisma from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
+vi.mock('next-auth', () => ({
   __esModule: true,
-  default: jest.fn(() => jest.fn()),
-  getServerSession: jest.fn(),
+  default: vi.fn(() => vi.fn()),
+  getServerSession: vi.fn(),
 }));
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: {
     dossier: {
-      findFirst: jest.fn(),
+      findFirst: vi.fn(),
     },
     legalDeadline: {
-      findMany: jest.fn(),
-      count: jest.fn(),
-      create: jest.fn(),
-      findFirst: jest.fn(),
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findMany: vi.fn(),
+      count: vi.fn(),
+      create: vi.fn(),
+      findFirst: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
@@ -29,8 +30,8 @@ describe('/api/legal-deadlines', () => {
   const mockTenantId = 'tenant-123';
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    const { getServerSession } = jest.requireMock('next-auth') as { getServerSession: jest.Mock };
+    vi.clearAllMocks();
+    const { getServerSession } = jest.requireMock('next-auth') as { getServerSession: vi.Mock };
     getServerSession.mockResolvedValue({
       user: { id: 'user-1', tenantId: mockTenantId, role: 'LAWYER' },
     });
@@ -39,8 +40,8 @@ describe('/api/legal-deadlines', () => {
   describe('GET', () => {
     it('should return deadlines', async () => {
       const mockDeadlines = [{ id: '1', type: 'RECOURS_CONTENTIEUX', status: 'PENDING' }];
-      (prisma.legalDeadline.findMany as jest.Mock).mockResolvedValue(mockDeadlines);
-      (prisma.legalDeadline.count as jest.Mock).mockResolvedValue(1);
+      (prisma.legalDeadline.findMany as any).mockResolvedValue(mockDeadlines);
+      (prisma.legalDeadline.count as any).mockResolvedValue(1);
 
       const request = new NextRequest('http://localhost/api/legal-deadlines');
       const response = await GET(request);
@@ -54,8 +55,8 @@ describe('/api/legal-deadlines', () => {
   describe('POST', () => {
     it('should create deadline', async () => {
       const mockDeadline = { id: '1', type: 'RECOURS_CONTENTIEUX' };
-      (prisma.dossier.findFirst as jest.Mock).mockResolvedValue({ id: 'dossier-1' });
-      (prisma.legalDeadline.create as jest.Mock).mockResolvedValue(mockDeadline);
+      (prisma.dossier.findFirst as any).mockResolvedValue({ id: 'dossier-1' });
+      (prisma.legalDeadline.create as any).mockResolvedValue(mockDeadline);
 
       const request = new NextRequest('http://localhost/api/legal-deadlines', {
         method: 'POST',
@@ -75,8 +76,8 @@ describe('/api/legal-deadlines', () => {
 
   describe('PATCH', () => {
     it('should update deadline', async () => {
-      (prisma.legalDeadline.findFirst as jest.Mock).mockResolvedValue({ id: '1' });
-      (prisma.legalDeadline.update as jest.Mock).mockResolvedValue({ id: '1', status: 'COMPLETED' });
+      (prisma.legalDeadline.findFirst as any).mockResolvedValue({ id: '1' });
+      (prisma.legalDeadline.update as any).mockResolvedValue({ id: '1', status: 'COMPLETED' });
 
       const request = new NextRequest('http://localhost/api/legal-deadlines', {
         method: 'PATCH',

@@ -3,26 +3,27 @@
  * Couverture: anonymisation, consentement, export
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { anonymizeForAI } from '@/lib/utils/rgpd-helpers';
 
 // Mock Prisma
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
     client: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
 
 // Mock logger
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    info: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
   },
-  logRGPDAction: jest.fn(),
+  logRGPDAction: vi.fn(),
 }));
 
 describe('RGPD Helpers', () => {

@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour types/dossier.types.ts - Types et utilitaires dossiers
  * Tests des constantes et fonctions pures

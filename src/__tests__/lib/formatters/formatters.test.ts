@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/formatters module
  * Coverage: Data formatting utilities
@@ -8,7 +10,7 @@ describe('Formatters Module', () => {
     let formatters: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/formatters');
         formatters = module;
@@ -61,7 +63,7 @@ describe('Formatters Module', () => {
     let formatters: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/formatters');
         formatters = module;
@@ -123,7 +125,7 @@ describe('Formatters Module', () => {
     let formatters: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/formatters');
         formatters = module;
@@ -190,7 +192,7 @@ describe('Formatters Module', () => {
     let formatters: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/formatters');
         formatters = module;

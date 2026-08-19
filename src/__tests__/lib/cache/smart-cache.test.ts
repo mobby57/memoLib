@@ -3,20 +3,20 @@
  * @jest-environment node
  */
 
-jest.mock('@/lib/cache/redis', () => ({
+vi.mock('@/lib/cache/redis', () => ({
   redis: {
-    get: jest.fn(),
-    set: jest.fn(),
-    setex: jest.fn(),
-    del: jest.fn(),
+    get: vi.fn(),
+    set: vi.fn(),
+    setex: vi.fn(),
+    del: vi.fn(),
   },
 }));
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('Smart Cache', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Cache Operations', () => {

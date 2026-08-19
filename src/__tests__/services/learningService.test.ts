@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le service d'apprentissage IA
  * Couverture: patterns de validation, ajustements de confiance

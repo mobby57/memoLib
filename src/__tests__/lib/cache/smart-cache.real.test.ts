@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour cache/smart-cache.ts - Cache multi-couche
  * Tests des constantes et fonctions pures du cache
