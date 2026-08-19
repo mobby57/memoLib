@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour multichannel/types.ts
  * Tests des types du module multi-canal (sans services complexes)

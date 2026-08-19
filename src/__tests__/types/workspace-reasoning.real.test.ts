@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour types/workspace-reasoning.ts - Système de raisonnement Workspace
  * Tests des constantes, états, et fonctions de validation

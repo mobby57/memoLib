@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import { expect, test } from '@playwright/test';
 
 const BASE_URL = 'http://localhost:3000';

@@ -35,41 +35,47 @@ function asOAuthUser(u: unknown): OAuthUser { return u as OAuthUser; }
 function asSession(u: unknown): Record<string, any> { return u as Record<string, any>; }
 
 async function handleOAuthSignIn(user: OAuthUser, providerName: string): Promise<boolean> {
-  const existingUser = await prisma.user.findUnique({
-    where: { email: user.email! },
-    include: {
-      Tenant: {
-        select: { id: true, name: true, status: true, Plan: { select: { name: true } } },
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: { email: user.email! },
+      include: {
+        Tenant: {
+          select: { id: true, name: true, status: true, Plan: { select: { name: true } } },
+        },
       },
-    },
-  });
+    });
 
-  if (!existingUser) {
-    // Anti-phishing : pas d'auto-création de compte OAuth.
-    // L'utilisateur doit être invité au préalable par un admin.
+    if (!existingUser) {
+      console.error(`[OAuth] User not found in DB: ${user.email}`);
+      return false;
+    }
+
+    await prisma.user.update({
+      where: { id: existingUser.id },
+      data: {
+        name: user.name || existingUser.name,
+        avatar: user.image,
+        lastLogin: new Date(),
+      },
+    });
+
+    user.role = existingUser.role;
+    user.tenantId = existingUser.tenantId;
+    user.tenantName = existingUser.Tenant?.name;
+    user.tenantPlan = existingUser.Tenant?.Plan?.name;
+    user.clientId = existingUser.clientId;
+    user.id = existingUser.id;
+    console.log(`[OAuth] Login OK: ${user.email} (${existingUser.role})`);
+    return true;
+  } catch (error) {
+    console.error('[OAuth] Error during sign-in:', error);
     return false;
   }
-
-  await prisma.user.update({
-    where: { id: existingUser.id },
-    data: {
-      name: user.name || existingUser.name,
-      avatar: user.image,
-      lastLogin: new Date(),
-    },
-  });
-
-  user.role = existingUser.role;
-  user.tenantId = existingUser.tenantId;
-  user.tenantName = existingUser.Tenant?.name;
-  user.tenantPlan = existingUser.Tenant?.Plan?.name;
-  user.clientId = existingUser.clientId;
-  user.id = existingUser.id;
-  return true;
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  // PrismaAdapter désactivé — stratégie JWT sans table Account/Session
+  // adapter: PrismaAdapter(prisma),
   providers: [
     // Azure AD Provider pour authentification SSO
     ...(process.env.AZURE_CLIENT_ID &&
@@ -522,10 +528,10 @@ export const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions);
 
-// Wrap NextAuth handler with rate limiting for auth endpoints
-const GET = withLoginRateLimit(async (req: NextRequest): Promise<NextResponse> => {
+// App Router requires passing the route context (with params) to NextAuth
+const GET = withLoginRateLimit(async (req: NextRequest, context?: any): Promise<NextResponse> => {
   try {
-    const res = await handler(req);
+    const res = await handler(req, context);
     return (res instanceof Response ? res : new NextResponse(res)) as NextResponse;
   } catch (error) {
     console.error('[AUTH_ROUTE] Error:', error);
@@ -533,9 +539,9 @@ const GET = withLoginRateLimit(async (req: NextRequest): Promise<NextResponse> =
   }
 });
 
-const POST = withLoginRateLimit(async (req: NextRequest): Promise<NextResponse> => {
+const POST = withLoginRateLimit(async (req: NextRequest, context?: any): Promise<NextResponse> => {
   try {
-    const res = await handler(req);
+    const res = await handler(req, context);
     return (res instanceof Response ? res : new NextResponse(res)) as NextResponse;
   } catch (error) {
     console.error('[AUTH_ROUTE] Error:', error);

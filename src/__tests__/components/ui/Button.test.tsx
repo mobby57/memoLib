@@ -3,6 +3,7 @@
  * Couverture: variants, sizes, etats, accessibilite
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Button } from '@/components/ui/Button';
 
@@ -82,7 +83,7 @@ describe('Button Component', () => {
     });
 
     it('ne devrait pas declencher onClick quand desactive', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(<Button disabled onClick={handleClick}>Desactive</Button>);
       
       fireEvent.click(screen.getByRole('button'));
@@ -90,7 +91,7 @@ describe('Button Component', () => {
     });
 
     it('devrait declencher onClick quand clique', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(<Button onClick={handleClick}>Cliquer</Button>);
       
       fireEvent.click(screen.getByRole('button'));

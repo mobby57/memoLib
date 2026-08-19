@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/api module
  * Coverage: API utilities and helpers
@@ -8,7 +10,7 @@ describe('API Module', () => {
     let apiHelpers: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/api');
         apiHelpers = module;
@@ -67,7 +69,7 @@ describe('API Module', () => {
     let apiHelpers: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/api');
         apiHelpers = module;
@@ -89,7 +91,7 @@ describe('API Module', () => {
     it('should parse JSON body', async () => {
       if (apiHelpers?.parseJsonBody) {
         const mockRequest = {
-          json: jest.fn().mockResolvedValue({ test: 'data' }),
+          json: vi.fn().mockResolvedValue({ test: 'data' }),
         };
         const body = await apiHelpers.parseJsonBody(mockRequest);
         expect(body.test).toBe('data');
@@ -103,7 +105,7 @@ describe('API Module', () => {
     let apiHelpers: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/api');
         apiHelpers = module;
@@ -137,7 +139,7 @@ describe('API Module', () => {
     let apiHelpers: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/api');
         apiHelpers = module;
@@ -176,7 +178,7 @@ describe('API Client', () => {
   let apiClient: any;
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     try {
       const module = await import('@/lib/api/client');
       apiClient = module;
@@ -187,7 +189,7 @@ describe('API Client', () => {
 
   it('should make GET request', async () => {
     if (apiClient?.get) {
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ data: 'test' }),
       });
@@ -200,7 +202,7 @@ describe('API Client', () => {
 
   it('should make POST request', async () => {
     if (apiClient?.post) {
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ id: '123' }),
       });
@@ -213,7 +215,7 @@ describe('API Client', () => {
 
   it('should make PUT request', async () => {
     if (apiClient?.put) {
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ updated: true }),
       });
@@ -226,7 +228,7 @@ describe('API Client', () => {
 
   it('should make DELETE request', async () => {
     if (apiClient?.del || apiClient?.delete) {
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ deleted: true }),
       });

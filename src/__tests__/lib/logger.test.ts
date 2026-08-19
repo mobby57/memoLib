@@ -3,6 +3,7 @@
  * Verifie RGPD, anonymisation, niveaux de log, contexte
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { logDossierAction, logger, logIAUsage, logRGPDAction } from '@/lib/logger';
 
 describe('Logger - Systeme de logging professionnel', () => {
@@ -12,7 +13,7 @@ describe('Logger - Systeme de logging professionnel', () => {
   beforeEach(() => {
     // Reset de l'environnement
     process.env.NODE_ENV = 'development';
-    console.error = jest.fn();
+    console.error = vi.fn();
   });
 
   afterEach(() => {

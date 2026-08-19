@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/constants module
  * Coverage: Application constants
@@ -8,7 +10,7 @@ describe('Constants Module', () => {
     let constants: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/constants');
         constants = module;
@@ -46,7 +48,7 @@ describe('Constants Module', () => {
     let statusConstants: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/constants/status');
         statusConstants = module;
@@ -76,7 +78,7 @@ describe('Constants Module', () => {
     let docConstants: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/constants/documents');
         docConstants = module;
@@ -114,7 +116,7 @@ describe('Constants Module', () => {
     let errors: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/constants/errors');
         errors = module;
@@ -144,7 +146,7 @@ describe('Constants Module', () => {
     let patterns: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/constants/patterns');
         patterns = module;
@@ -174,7 +176,7 @@ describe('Constants Module', () => {
     let dateFormats: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/constants/dates');
         dateFormats = module;
@@ -204,7 +206,7 @@ describe('Constants Module', () => {
     let uiConstants: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/constants/ui');
         uiConstants = module;
@@ -235,7 +237,7 @@ describe('Feature Flags', () => {
   let featureFlags: any;
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     try {
       const module = await import('@/lib/constants/features');
       featureFlags = module;

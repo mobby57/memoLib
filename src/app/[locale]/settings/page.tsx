@@ -32,12 +32,54 @@ export default function SettingsPage() {
     sessionTimeout: 30,
   });
 
-  const handleSave = (section: string) => {
-    addToast({
-      variant: 'success',
-      title: 'Paramètres sauvegardes',
-      message: `Les paramètres de ${section} ont été mis à jour avec succès.`,
-    });
+  const handleSave = async (section: string) => {
+    try {
+      if (section === 'profil') {
+        const res = await fetch('/api/user/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: settings.name,
+            email: settings.email,
+            language: settings.language,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Erreur');
+        }
+      } else if (section === 'mot de passe') {
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentPassword: settings.currentPassword || '',
+            newPassword: settings.newPassword || '',
+            confirmPassword: settings.confirmPassword || '',
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Erreur');
+        }
+        // Reset password fields
+        setSettings((prev: any) => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
+      } else if (section === 'notifications') {
+        // TODO: persist notification preferences server-side
+      }
+
+      addToast({
+        variant: 'success',
+        title: 'Paramètres sauvegardés',
+        message: `Les paramètres de ${section} ont été mis à jour avec succès.`,
+      });
+    } catch (error) {
+      addToast({
+        variant: 'error',
+        title: 'Erreur',
+        message: error instanceof Error ? error.message : 'Impossible de sauvegarder.',
+      });
+    }
   };
 
   return (

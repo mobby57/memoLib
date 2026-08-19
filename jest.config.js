@@ -21,19 +21,21 @@ module.exports = {
     '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/__mocks__/fileMock.js'
   },
   collectCoverageFrom: [
-    'wwwroot/**/*.js',
-    '!wwwroot/**/*.test.js',
-    '!wwwroot/sw.js',
-    '!wwwroot/pwa-register.js'
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.test.{ts,tsx}',
+    '!src/**/*.spec.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/__tests__/**',
   ],
   coverageThreshold: {
     global: {
-      branches: 30,
-      functions: 30,
-      lines: 30,
-      statements: 30
+      branches: 77,
+      functions: 89,
+      lines: 85,
+      statements: 85
     }
   },
+  coverageReporters: ['text', 'text-summary', 'lcov', 'clover'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', {

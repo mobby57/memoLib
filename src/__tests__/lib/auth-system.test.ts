@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le système d'authentification
  * Couverture: sessions, tokens, rôles, permissions

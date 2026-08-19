@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/planLimits.ts - Import réel
  * Coverage: Types et enums du système de limites

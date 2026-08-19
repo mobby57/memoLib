@@ -3,11 +3,12 @@
  * Couvre rate limiting, RBAC, headers sécurité
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // Mock next-auth/jwt
-jest.mock('next-auth/jwt', () => ({
-  getToken: jest.fn(),
+vi.mock('next-auth/jwt', () => ({
+  getToken: vi.fn(),
 }));
 
 import { getToken } from 'next-auth/jwt';
@@ -27,7 +28,7 @@ describe('Middleware Global', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Routes Publiques', () => {
@@ -56,7 +57,7 @@ describe('Middleware Global', () => {
 
   describe('Routes Authentifiées', () => {
     it('rejette les requêtes non authentifiées', async () => {
-      (getToken as jest.Mock).mockResolvedValue(null);
+      (getToken as any).mockResolvedValue(null);
 
       const token = await getToken({ req: {} as any, secret: 'test' });
       expect(token).toBeNull();
@@ -69,7 +70,7 @@ describe('Middleware Global', () => {
         tenantId: 'tenant-123',
       };
 
-      (getToken as jest.Mock).mockResolvedValue(mockToken);
+      (getToken as any).mockResolvedValue(mockToken);
 
       const token = await getToken({ req: {} as any, secret: 'test' });
       expect(token).toEqual(mockToken);

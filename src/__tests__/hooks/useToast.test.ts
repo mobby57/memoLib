@@ -3,16 +3,17 @@
  * Couverture: création, dismiss, variants
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useToast } from '@/hooks/use-toast';
 
 describe('useToast Hook', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   describe('État initial', () => {
@@ -202,7 +203,7 @@ describe('useToast Hook', () => {
       
       // Avancer de 5 secondes
       act(() => {
-        jest.advanceTimersByTime(5000);
+        vi.advanceTimersByTime(5000);
       });
       
       expect(result.current.toasts).toHaveLength(0);
@@ -217,7 +218,7 @@ describe('useToast Hook', () => {
       
       // Avancer de 4.9 secondes
       act(() => {
-        jest.advanceTimersByTime(4900);
+        vi.advanceTimersByTime(4900);
       });
       
       expect(result.current.toasts).toHaveLength(1);
