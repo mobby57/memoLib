@@ -3,21 +3,22 @@
  * Couverture: recherche, filtres, resultats
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // Mock next/navigation
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
   }),
 }));
 
 // Mock lucide-react icons
-jest.mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   Search: () => <span data-testid="search-icon">Search</span>,
   X: () => <span data-testid="x-icon">X</span>,
   FileText: () => <span data-testid="file-icon">FileText</span>,
@@ -29,23 +30,23 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 // Import apres les mocks
 import SearchBar from '@/components/SearchBar';
 
 describe('SearchBar Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
-    (global.fetch as jest.Mock).mockResolvedValue({
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    (global.fetch as any).mockResolvedValue({
       ok: true,
       json: async () => ({ results: [], suggestions: [] }),
     });
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   describe('Rendu initial', () => {

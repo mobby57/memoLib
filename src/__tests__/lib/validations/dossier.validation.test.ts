@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les schemas de validation Zod des dossiers
  * Couverture: createDossierSchema, updateDossierSchema, validateDossierData

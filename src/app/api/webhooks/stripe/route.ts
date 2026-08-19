@@ -6,6 +6,7 @@
 import { stripe } from '@/lib/billing/stripe-client';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { activateAfterPayment } from '@/lib/services/saas-provisioning';
 import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
@@ -245,18 +246,24 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 /**
- * Checkout complete - Creer la subscription dans la base
+ * Checkout complete - Activer le tenant après paiement
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const subscriptionId = session.subscription as string;
   if (!subscriptionId) return;
 
   const subscription = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription;
-  const tenantId = subscription.metadata.tenantId;
+  const tenantId = subscription.metadata.tenantId || (session.metadata?.tenantId as string);
 
-  if (!tenantId) return;
+  if (!tenantId) {
+    logger.warn('Checkout completed sans tenantId dans metadata', {
+      route: '/api/webhooks/stripe',
+      subscriptionId,
+    });
+    return;
+  }
 
-  // Synchroniser le statut en base (fallback si POST /subscriptions/create a echoue)
+  // Synchroniser le statut en base
   await prisma.subscription.updateMany({
     where: { tenantId },
     data: {
@@ -266,8 +273,12 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     },
   });
 
-  logger.info(`Checkout complete pour tenant ${tenantId}`, {
+  // 🚀 Activer le tenant (SaaS provisioning)
+  await activateAfterPayment(tenantId, subscriptionId);
+
+  logger.info(`Checkout complete + tenant activé: ${tenantId}`, {
     route: '/api/webhooks/stripe',
     tenantId,
+    subscriptionId,
   });
 }

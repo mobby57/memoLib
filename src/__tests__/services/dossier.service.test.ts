@@ -3,44 +3,37 @@
  * Service métier central pour la gestion des dossiers
  */
 
-import { DossierService } from '@/lib/services/dossier.service';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock Prisma
-jest.mock('@prisma/client', () => {
-  const mockPrismaClient = {
+// Mock le singleton @/lib/prisma directement
+vi.mock('@/lib/prisma', () => {
+  const mockPrisma = {
     dossier: {
-      count: jest.fn(),
-      create: jest.fn(),
-      findFirst: jest.fn(),
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
+      count: vi.fn(),
+      create: vi.fn(),
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
     client: {
-      findFirst: jest.fn(),
+      findFirst: vi.fn(),
     },
-    $disconnect: jest.fn(),
+    $disconnect: vi.fn(),
   };
-  
-  return {
-    PrismaClient: jest.fn(() => mockPrismaClient),
-  };
+  return { prisma: mockPrisma, default: mockPrisma };
 });
 
-// Mock du logger
-jest.mock('@/lib/logger', () => ({
-  logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-  },
+vi.mock('@/lib/logger', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
+
+import { DossierService } from '@/lib/services/dossier.service';
 
 describe('DossierService', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('generateNumeroDossier()', () => {

@@ -4,46 +4,47 @@
  * @jest-environment node
  */
 
-jest.mock('@/lib/billing/stripe-client', () => ({
+vi.mock('@/lib/billing/stripe-client', () => ({
   stripe: {
     webhooks: {
-      constructEvent: jest.fn(),
+      constructEvent: vi.fn(),
     },
     subscriptions: {
-      retrieve: jest.fn(),
+      retrieve: vi.fn(),
     },
   },
 }));
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
-    subscription: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
-    facture: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-    tenant: { findUnique: jest.fn() },
+    subscription: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
+    facture: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+    tenant: { findUnique: vi.fn() },
   },
 }));
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
   },
 }));
 
-jest.mock('next/headers', () => ({
-  headers: jest.fn().mockResolvedValue({
-    get: jest.fn().mockReturnValue('sig_test'),
+vi.mock('next/headers', () => ({
+  headers: vi.fn().mockResolvedValue({
+    get: vi.fn().mockReturnValue('sig_test'),
   }),
 }));
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { prisma } from '@/lib/prisma';
 
 describe('Webhook Stripe — fix tenant.owner', () => {
   it('tenant.findUnique utilise users[] au lieu de owner', async () => {
     // Simule l'appel que fait handleInvoicePaymentFailed
-    (prisma.tenant.findUnique as jest.Mock).mockResolvedValue({
+    (prisma.tenant.findUnique as any).mockResolvedValue({
       id: 'tenant-1',
       name: 'Cabinet Test',
       users: [{ email: 'admin@cabinet.fr' }],
@@ -67,7 +68,7 @@ describe('Webhook Stripe — fix tenant.owner', () => {
   });
 
   it('gère le cas où aucun admin n\'est trouvé', async () => {
-    (prisma.tenant.findUnique as jest.Mock).mockResolvedValue({
+    (prisma.tenant.findUnique as any).mockResolvedValue({
       id: 'tenant-1',
       name: 'Cabinet Test',
       users: [],

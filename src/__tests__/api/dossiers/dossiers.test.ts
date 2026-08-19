@@ -1,37 +1,39 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests unitaires pour l'API /api/dossiers
  * Endpoints de gestion des dossiers
  */
 
 // Mock NextAuth
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn(),
 }));
 
 // Mock Prisma
 const mockPrisma = {
   dossier: {
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    count: jest.fn(),
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    count: vi.fn(),
   },
   client: {
-    findFirst: jest.fn(),
+    findFirst: vi.fn(),
   },
-  $transaction: jest.fn((fn) => fn(mockPrisma)),
+  $transaction: vi.fn((fn) => fn(mockPrisma)),
 };
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: mockPrisma,
 }));
 
 describe('API /api/dossiers', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('GET /api/dossiers', () => {

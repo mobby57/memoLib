@@ -3,6 +3,7 @@
  * Couverture: variants, title, onClose, accessibilite
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Alert } from '@/components/ui/Alert';
 
@@ -72,7 +73,7 @@ describe('Alert Component', () => {
 
   describe('Bouton de fermeture', () => {
     it('devrait afficher le bouton X si onClose est fourni', () => {
-      const handleClose = jest.fn();
+      const handleClose = vi.fn();
       render(<Alert onClose={handleClose}>Fermable</Alert>);
       expect(screen.getByRole('button')).toBeInTheDocument();
     });
@@ -83,7 +84,7 @@ describe('Alert Component', () => {
     });
 
     it('devrait appeler onClose au clic', () => {
-      const handleClose = jest.fn();
+      const handleClose = vi.fn();
       render(<Alert onClose={handleClose}>Fermable</Alert>);
       
       fireEvent.click(screen.getByRole('button'));
@@ -139,7 +140,7 @@ describe('Alert Component', () => {
 
   describe('Composition complete', () => {
     it('devrait rendre une alerte complete', () => {
-      const handleClose = jest.fn();
+      const handleClose = vi.fn();
       render(
         <Alert 
           variant="warning" 
@@ -170,7 +171,7 @@ describe('Alert Component', () => {
     });
 
     it('devrait fonctionner pour un message de succes', () => {
-      const handleClose = jest.fn();
+      const handleClose = vi.fn();
       render(
         <Alert variant="success" title="Dossier cree" onClose={handleClose}>
           Le dossier #2024-001 a ete cree avec succes.
@@ -196,7 +197,7 @@ describe('Alert Component', () => {
     });
 
     it('devrait etre navigable au clavier', () => {
-      const handleClose = jest.fn();
+      const handleClose = vi.fn();
       render(<Alert onClose={handleClose}>Avec bouton</Alert>);
       
       const button = screen.getByRole('button');

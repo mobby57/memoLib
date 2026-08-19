@@ -373,6 +373,21 @@ export async function POST(request: NextRequest) {
       stored: !!fileUrl,
     });
 
+    // Horodatage certifié RFC 3161 (preuve tierce de la date de dépôt)
+    try {
+      const { certifyDocumentUpload } = await import('@/lib/services/certified-timestamp');
+      await certifyDocumentUpload({
+        tenantId,
+        userId: userId!,
+        documentId: uniqueId,
+        documentHash: hash,
+      });
+      logger.info('[UPLOAD] Horodatage TSA certifié', { documentId: uniqueId });
+    } catch (tsaError) {
+      // Non bloquant : le document est uploadé même si le TSA échoue
+      logger.warn('[UPLOAD] TSA certification failed (non-blocking)', { error: tsaError });
+    }
+
     return withRateLimitHeaders(
       NextResponse.json({
         success: true,

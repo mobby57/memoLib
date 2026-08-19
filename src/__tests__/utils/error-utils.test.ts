@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour les utilitaires de gestion d'erreurs
  * Couverture: try/catch helpers, error types, retry logic
@@ -80,15 +82,15 @@ describe('Error Utils', () => {
     };
 
     it('devrait réussir au premier essai', async () => {
-      const fn = jest.fn().mockResolvedValue('success');
+      const fn = vi.fn().mockResolvedValue('success');
       const result = await retry(fn, 3);
       expect(result).toBe('success');
       expect(fn).toHaveBeenCalledTimes(1);
     });
 
     it('devrait réessayer après échec', async () => {
-      jest.useFakeTimers();
-      const fn = jest.fn()
+      vi.useFakeTimers();
+      const fn = vi.fn()
         .mockRejectedValueOnce(new Error('fail'))
         .mockResolvedValue('success');
       
@@ -99,13 +101,13 @@ describe('Error Utils', () => {
       expect(result).toBe('success');
       expect(fn).toHaveBeenCalledTimes(2);
       
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it.skip('devrait lancer après tous les échecs', async () => {
       // Skip: Fake timers have issues with async rejection in this test setup
-      jest.useFakeTimers();
-      const fn = jest.fn().mockRejectedValue(new Error('always fail'));
+      vi.useFakeTimers();
+      const fn = vi.fn().mockRejectedValue(new Error('always fail'));
       
       const promise = retry(fn, 3, 10);
       await jest.runAllTimersAsync();
@@ -113,7 +115,7 @@ describe('Error Utils', () => {
       await expect(promise).rejects.toThrow('always fail');
       expect(fn).toHaveBeenCalledTimes(3);
       
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 

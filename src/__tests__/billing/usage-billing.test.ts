@@ -4,10 +4,10 @@
  * @jest-environment node
  */
 
-const mockCreate = jest.fn();
-const mockGroupBy = jest.fn();
+const mockCreate = vi.fn();
+const mockGroupBy = vi.fn();
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
     usageRecord: {
       create: (...args: unknown[]) => mockCreate(...args),
@@ -16,19 +16,20 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { recordUsage, getMonthlyUsage } from '@/lib/billing/usage-billing';
 
 describe('recordUsage', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockCreate.mockResolvedValue({ id: 'test-id' });
   });
 
@@ -97,7 +98,7 @@ describe('recordUsage', () => {
 
 describe('getMonthlyUsage', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('retourne l\'usage agrégé par type', async () => {

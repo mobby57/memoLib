@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/services/dossier.service.ts
  * Coverage: Service métier centralisé pour gestion des dossiers
@@ -6,38 +8,38 @@
 // Mock Prisma
 const mockPrisma = {
   dossier: {
-    count: jest.fn(),
-    create: jest.fn(),
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    count: vi.fn(),
+    create: vi.fn(),
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
   },
   client: {
-    findFirst: jest.fn(),
+    findFirst: vi.fn(),
   },
 };
 
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => mockPrisma),
+vi.mock('@prisma/client', () => ({
+  PrismaClient: vi.fn(() => mockPrisma),
 }));
 
-jest.mock('@/lib/mappers/dossier.mapper', () => ({
-  generateNumeroDossier: jest.fn((count: number) => `DOS-2026-${(count + 1).toString().padStart(4, '0')}`),
+vi.mock('@/lib/mappers/dossier.mapper', () => ({
+  generateNumeroDossier: vi.fn((count: number) => `DOS-2026-${(count + 1).toString().padStart(4, '0')}`),
 }));
 
-jest.mock('@/lib/constants/dossier.constants', () => ({
-  mapStatutToDB: jest.fn((statut: string) => statut.toLowerCase().replace(/_/g, '_')),
-  mapPrioriteToDB: jest.fn((priorite: string) => priorite.toLowerCase()),
+vi.mock('@/lib/constants/dossier.constants', () => ({
+  mapStatutToDB: vi.fn((statut: string) => statut.toLowerCase().replace(/_/g, '_')),
+  mapPrioriteToDB: vi.fn((priorite: string) => priorite.toLowerCase()),
 }));
 
 describe('DossierService', () => {
   let DossierService: any;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
-    jest.resetModules();
+    vi.clearAllMocks();
+    vi.resetModules();
     
     const module = await import('@/lib/services/dossier.service');
     DossierService = module.DossierService;
@@ -274,8 +276,8 @@ describe('DossierService Edge Cases', () => {
   let DossierService: any;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
-    jest.resetModules();
+    vi.clearAllMocks();
+    vi.resetModules();
     
     const module = await import('@/lib/services/dossier.service');
     DossierService = module.DossierService;

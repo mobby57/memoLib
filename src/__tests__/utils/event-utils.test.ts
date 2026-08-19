@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les utilitaires d'événements et event emitter
  * Couverture: EventEmitter, pub/sub, debounce, throttle
@@ -38,7 +40,7 @@ describe('Event Utils', () => {
 
     it('devrait émettre des événements', () => {
       const emitter = createEventEmitter<{ test: [string] }>();
-      const handler = jest.fn();
+      const handler = vi.fn();
       
       emitter.on('test', handler);
       emitter.emit('test', 'hello');
@@ -48,8 +50,8 @@ describe('Event Utils', () => {
 
     it('devrait supporter plusieurs listeners', () => {
       const emitter = createEventEmitter<{ test: [] }>();
-      const handler1 = jest.fn();
-      const handler2 = jest.fn();
+      const handler1 = vi.fn();
+      const handler2 = vi.fn();
       
       emitter.on('test', handler1);
       emitter.on('test', handler2);
@@ -61,7 +63,7 @@ describe('Event Utils', () => {
 
     it('devrait supprimer un listener', () => {
       const emitter = createEventEmitter<{ test: [] }>();
-      const handler = jest.fn();
+      const handler = vi.fn();
       
       emitter.on('test', handler);
       emitter.off('test', handler);
@@ -108,7 +110,7 @@ describe('Event Utils', () => {
 
     it('devrait appeler once une seule fois', () => {
       const emitter = createEventEmitterWithOnce();
-      const handler = jest.fn();
+      const handler = vi.fn();
       
       emitter.once('test', handler);
       emitter.emit('test');
@@ -132,32 +134,32 @@ describe('Event Utils', () => {
     };
 
     it('devrait retarder l\'exécution', () => {
-      jest.useFakeTimers();
-      const fn = jest.fn();
+      vi.useFakeTimers();
+      const fn = vi.fn();
       const debounced = debounce(fn, 100);
       
       debounced();
       expect(fn).not.toHaveBeenCalled();
       
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       expect(fn).toHaveBeenCalled();
       
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     it('devrait annuler les appels précédents', () => {
-      jest.useFakeTimers();
-      const fn = jest.fn();
+      vi.useFakeTimers();
+      const fn = vi.fn();
       const debounced = debounce(fn, 100);
       
       debounced();
       debounced();
       debounced();
       
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       expect(fn).toHaveBeenCalledTimes(1);
       
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 
@@ -178,8 +180,8 @@ describe('Event Utils', () => {
     };
 
     it('devrait limiter les appels', () => {
-      jest.useFakeTimers();
-      const fn = jest.fn();
+      vi.useFakeTimers();
+      const fn = vi.fn();
       const throttled = throttle(fn, 100);
       
       throttled();
@@ -188,11 +190,11 @@ describe('Event Utils', () => {
       
       expect(fn).toHaveBeenCalledTimes(1);
       
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       throttled();
       expect(fn).toHaveBeenCalledTimes(2);
       
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 
@@ -214,7 +216,7 @@ describe('Event Utils', () => {
 
     it('devrait publier aux abonnés', () => {
       const pubsub = createPubSub<string>();
-      const handler = jest.fn();
+      const handler = vi.fn();
       
       pubsub.subscribe(handler);
       pubsub.publish('message');
@@ -224,7 +226,7 @@ describe('Event Utils', () => {
 
     it('devrait retourner une fonction de désabonnement', () => {
       const pubsub = createPubSub<string>();
-      const handler = jest.fn();
+      const handler = vi.fn();
       
       const unsubscribe = pubsub.subscribe(handler);
       unsubscribe();
@@ -305,7 +307,7 @@ describe('Event Utils', () => {
 
     it('devrait filtrer les événements', () => {
       const emitter = createFilteredEmitter<number>();
-      const handler = jest.fn();
+      const handler = vi.fn();
       
       emitter.on(handler, (n) => n > 5);
       emitter.emit(3);
@@ -376,7 +378,7 @@ describe('Event Utils', () => {
 
     it('devrait rejouer les événements bufférisés', () => {
       const emitter = createReplayEmitter<number>(3);
-      const handler = jest.fn();
+      const handler = vi.fn();
       
       emitter.emit(1);
       emitter.emit(2);
@@ -407,7 +409,7 @@ describe('Event Utils', () => {
 
     it('devrait transformer les événements', () => {
       const emitter = createMappedEmitter<number, string>((n) => `value: ${n}`);
-      const handler = jest.fn();
+      const handler = vi.fn();
       
       emitter.on(handler);
       emitter.emit(42);
@@ -441,20 +443,20 @@ describe('Event Utils', () => {
     };
 
     it('devrait agréger les événements', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       const aggregator = createAggregator<number>(100);
-      const handler = jest.fn();
+      const handler = vi.fn();
       
       aggregator.onFlush(handler);
       aggregator.add(1);
       aggregator.add(2);
       aggregator.add(3);
       
-      jest.advanceTimersByTime(100);
+      vi.advanceTimersByTime(100);
       
       expect(handler).toHaveBeenCalledWith([1, 2, 3]);
       
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 });

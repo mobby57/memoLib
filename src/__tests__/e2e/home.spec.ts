@@ -4,19 +4,19 @@
  * These are conversion to unit tests for CI/CD environments
  */
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
-    tenant: { findUnique: jest.fn() },
-    workspace: { findMany: jest.fn() },
-    dossier: { findMany: jest.fn() },
+    tenant: { findUnique: vi.fn() },
+    workspace: { findMany: vi.fn() },
+    dossier: { findMany: vi.fn() },
   },
 }));
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('Home Page - E2E (Unit Test Equivalent)', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Dashboard Loading', () => {

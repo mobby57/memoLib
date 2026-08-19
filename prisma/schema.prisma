@@ -148,6 +148,7 @@ model Client {
   Facture            Facture[]
   LegalDeadline      LegalDeadline[]
   MouvementCARPA     MouvementCARPA[]
+  TimeEntry          TimeEntry[]
   User               User?
 
   @@unique([tenantId, email])
@@ -244,6 +245,7 @@ model Dossier {
   statut             String          @default("en_cours")
   priorite           String          @default("normale")
   phase              String          @default("instruction")
+  confidentialMode   Boolean         @default(false)
   dateCreation       DateTime        @default(now())
   dateOuverture      DateTime?
   dateEcheance       DateTime?
@@ -276,6 +278,7 @@ model Dossier {
   LegalDeadline      LegalDeadline[]
   MouvementCARPA     MouvementCARPA[]
   Proof              Proof[]
+  TimeEntry          TimeEntry[]
 
   @@unique([tenantId, numero])
   @@index([clientId])
@@ -288,6 +291,37 @@ model Dossier {
   @@index([tenantId, priorite])
   @@index([tenantId, statut])
   @@index([typeDossier, outcome])
+}
+
+model TimeEntry {
+  id          String    @id @default(uuid())
+  tenantId    String
+  userId      String
+  dossierId   String?
+  clientId    String?
+  description String
+  date        DateTime  @default(now())
+  startTime   DateTime?
+  endTime     DateTime?
+  duration    Int       // Durée en minutes
+  tarifHoraire Float?  // €/h applicable
+  montant     Float?   // duration/60 * tarifHoraire
+  isBillable  Boolean  @default(true)
+  isBilled    Boolean  @default(false)
+  factureId   String?
+  category    String   @default("travail") // travail, audience, rdv, deplacement, recherche, admin
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  Tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  User    User     @relation(fields: [userId], references: [id])
+  Dossier Dossier? @relation(fields: [dossierId], references: [id], onDelete: SetNull)
+  Client  Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, userId])
+  @@index([tenantId, dossierId])
+  @@index([tenantId, date])
+  @@index([isBillable, isBilled])
 }
 
 model DossierChecklistItem {
@@ -806,24 +840,25 @@ model StripeWebhookEvent {
 }
 
 model Subscription {
-  id                 String    @id
-  tenantId           String    @unique
-  planId             String
-  status             String    @default("active")
-  billingCycle       String    @default("monthly")
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  trialEnd           DateTime?
-  canceledAt         DateTime?
-  endedAt            DateTime?
-  pricePerMonth      Float
-  currency           String    @default("EUR")
-  autoRenew          Boolean   @default(true)
-  metadata           String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime
-  Plan               Plan      @relation(fields: [planId], references: [id])
-  Tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                     String    @id
+  tenantId               String    @unique
+  planId                 String
+  status                 String    @default("active")
+  stripeSubscriptionId   String?   @unique
+  billingCycle           String    @default("monthly")
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  trialEnd               DateTime?
+  canceledAt             DateTime?
+  endedAt                DateTime?
+  pricePerMonth          Float
+  currency               String    @default("EUR")
+  autoRenew              Boolean   @default(true)
+  metadata               String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime
+  Plan                   Plan      @relation(fields: [planId], references: [id])
+  Tenant                 Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([tenantId])
@@ -846,6 +881,7 @@ model Tenant {
   domain            String?             @unique
   planId            String
   status            String              @default("active")
+  stripeCustomerId  String?             @unique
   trialEndsAt       DateTime?
   billingEmail      String?
   billingAddress    String?
@@ -885,6 +921,7 @@ model Tenant {
   User              User[]
   WorkflowExecution WorkflowExecution[]
   EmailAccount      EmailAccount[]
+  TimeEntry         TimeEntry[]
 
   @@index([planId])
   @@index([status])
@@ -948,6 +985,7 @@ model User {
   Document         Document[]
   Notification     Notification[]
   EmailAccount     EmailAccount[]
+  TimeEntry        TimeEntry[]
   Client           Client?         @relation(fields: [clientId], references: [id], onDelete: Cascade)
   Tenant           Tenant?         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 

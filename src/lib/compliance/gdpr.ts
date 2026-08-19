@@ -449,7 +449,7 @@ export class GDPRCompliance {
         });
 
         // 5. Update deletion request if model exists
-        const deletionRequestModel = (prisma as { deletionRequest?: { updateMany: Function } }).deletionRequest;
+        const deletionRequestModel = (prisma as { deletionRequest?: { updateMany: (...args: unknown[]) => Promise<unknown> } }).deletionRequest;
         if (deletionRequestModel?.updateMany) {
             await deletionRequestModel.updateMany({
                 where: { userId, status: 'scheduled' },
