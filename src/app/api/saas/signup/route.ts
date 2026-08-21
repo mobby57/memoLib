@@ -7,12 +7,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { saasSignup, SaasSignupInput } from '@/lib/services/saas-provisioning';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { checkRateLimit } from '@/lib/security/rate-limiter';
 
 export async function POST(req: NextRequest) {
   // Rate limiting: 3 inscriptions / 15 min par IP
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-  const rateLimitResult = await checkRateLimit(`signup:${ip}`, 3, 900);
+  const rateLimitResult = checkRateLimit(`signup:${ip}`, { windowMs: 15 * 60 * 1000, maxRequests: 3 });
   if (!rateLimitResult.allowed) {
     return NextResponse.json(
       { error: 'Trop de tentatives. Réessayez dans quelques minutes.' },

@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
       dossierId: dossier.id,
       numero: dossier.numero,
       clientId: client?.id,
-      clientName: client?.nom,
+      clientName: client ? `${client.firstName} ${client.lastName}` : undefined,
       deadlinesCreated: cesedaDeadlines.length,
       suggestedTemplate,
     });
