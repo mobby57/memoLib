@@ -125,7 +125,7 @@ export class TimestampService {
       headers: {
         'Content-Type': 'application/timestamp-query',
       },
-      body: tsRequest,
+      body: new Uint8Array(tsRequest),
       signal: AbortSignal.timeout(10000), // 10s timeout
     });
 

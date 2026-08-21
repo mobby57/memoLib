@@ -32,6 +32,12 @@ export default function SettingsPage() {
     sessionTimeout: 30,
   });
 
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
   const handleSave = async (section: string) => {
     try {
       if (section === 'profil') {
@@ -39,9 +45,9 @@ export default function SettingsPage() {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: settings.name,
+            name: settings.nom,
             email: settings.email,
-            language: settings.language,
+            language: settings.langue,
           }),
         });
         if (!res.ok) {
@@ -53,9 +59,9 @@ export default function SettingsPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            currentPassword: settings.currentPassword || '',
-            newPassword: settings.newPassword || '',
-            confirmPassword: settings.confirmPassword || '',
+            currentPassword: passwordForm.currentPassword,
+            newPassword: passwordForm.newPassword,
+            confirmPassword: passwordForm.confirmPassword,
           }),
         });
         if (!res.ok) {
@@ -63,7 +69,7 @@ export default function SettingsPage() {
           throw new Error(data.error || 'Erreur');
         }
         // Reset password fields
-        setSettings((prev: any) => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       } else if (section === 'notifications') {
         // TODO: persist notification preferences server-side
       }
@@ -184,6 +190,8 @@ export default function SettingsPage() {
                       </label>
                       <input
                         type="password"
+                        value={passwordForm.currentPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       />
                     </div>
@@ -193,6 +201,8 @@ export default function SettingsPage() {
                       </label>
                       <input
                         type="password"
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       />
                     </div>
@@ -202,6 +212,8 @@ export default function SettingsPage() {
                       </label>
                       <input
                         type="password"
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       />
                     </div>

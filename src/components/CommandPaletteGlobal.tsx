@@ -32,7 +32,7 @@ export function CommandPaletteGlobal() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Ouvrir avec Ctrl+K / Cmd+K
   useEffect(() => {
