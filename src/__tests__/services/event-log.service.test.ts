@@ -3,19 +3,19 @@
  * RULE-004, RULE-005, RULE-006 validation
  */
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
-    plan: { upsert: jest.fn() },
-    tenant: { upsert: jest.fn() },
-    eventLog: { create: jest.fn(), findMany: jest.fn(), count: jest.fn() },
+    plan: { upsert: vi.fn() },
+    tenant: { upsert: vi.fn() },
+    eventLog: { create: vi.fn(), findMany: vi.fn(), count: vi.fn() },
   },
 }));
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('EventLog Service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('RULE-005: Création EventLog', () => {

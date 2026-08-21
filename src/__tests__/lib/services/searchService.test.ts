@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/services/searchService.ts - Pure Unit Tests
  * Coverage: Moteur de recherche intelligent multi-entités (tests unitaires purs)

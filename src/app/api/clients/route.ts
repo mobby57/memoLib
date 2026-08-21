@@ -4,7 +4,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
-import { createClientSchema, updateClientSchema } from '@/lib/validation/api-schemas';
+import { createClientSchema, updateClientSchema, type CreateClientInput } from '@/lib/validation/api-schemas';
 import { validateRequest, validateQuery, parseAndValidate } from '@/lib/validation/request-validator';
 import { paginationSchema } from '@/lib/validation/api-schemas';
 import { redactSensitiveData, formatErrorForLogging } from '@/lib/security/sensitive-data-redaction';
@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Validate request body with Zod
-    const validation = await parseAndValidate(request, createClientSchema);
+    const validation = await parseAndValidate<CreateClientInput>(request, createClientSchema);
     if (!validation.valid) {
       return validation.response;
     }
@@ -192,27 +192,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Format dateOfBirth invalide' }, { status: 400 });
     }
 
-    const [client] = await prisma.$transaction([
-      prisma.client.create({
-        data: {
-          tenantId: effectiveTenantId,
-          firstName,
-          lastName,
-          email,
-          phone,
-          address,
-          codePostal,
-          ville,
-          dateOfBirth: parsedDate,
-          nationality,
-          civilite,
-        },
-      }),
-      prisma.tenant.update({
-        where: { id: effectiveTenantId },
-        data: { currentClients: { increment: 1 } },
-      }),
-    ]);
+    const client = await prisma.$transaction(
+      async (tx) => {
+        const created = await tx.client.create({
+          data: {
+            tenantId: effectiveTenantId,
+            firstName,
+            lastName,
+            email,
+            phone,
+            address,
+            codePostal,
+            ville,
+            dateOfBirth: parsedDate,
+            nationality,
+            civilite,
+          },
+        });
+
+        await tx.tenant.update({
+          where: { id: effectiveTenantId },
+          data: { currentClients: { increment: 1 } },
+        });
+
+        return created;
+      },
+      { timeout: 30000 }
+    );
 
     // Invalider le cache des listes clients
     await cacheInvalidatePattern(`clients:${effectiveTenantId}:*`);

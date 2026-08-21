@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour la sécurité
  * Couverture: XSS, CSRF, injection, headers

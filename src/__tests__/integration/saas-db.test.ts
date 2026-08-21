@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests d'intégration DB — Vérification SaaS readiness
  * Exécute des requêtes réelles sur la base PostgreSQL locale

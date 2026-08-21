@@ -4,34 +4,35 @@
  */
 
 // Mock Prisma
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: {
     notification: {
-      findMany: jest.fn(),
-      findFirst: jest.fn(),
-      update: jest.fn(),
-      updateMany: jest.fn(),
-      delete: jest.fn(),
-      count: jest.fn(),
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+      update: vi.fn(),
+      updateMany: vi.fn(),
+      delete: vi.fn(),
+      count: vi.fn(),
     },
   },
 }));
 
 // Mock notifications lib
-jest.mock('@/lib/notifications', () => ({
-  markNotificationAsRead: jest.fn(),
-  markAllNotificationsAsRead: jest.fn(),
-  getUnreadCount: jest.fn(),
+vi.mock('@/lib/notifications', () => ({
+  markNotificationAsRead: vi.fn(),
+  markAllNotificationsAsRead: vi.fn(),
+  getUnreadCount: vi.fn(),
 }));
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, PATCH, DELETE } from '@/app/api/notifications/route';
 import prisma from '@/lib/prisma';
 import { markNotificationAsRead, markAllNotificationsAsRead, getUnreadCount } from '@/lib/notifications';
 
 describe('API /api/notifications', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ============================================
@@ -53,8 +54,8 @@ describe('API /api/notifications', () => {
         { id: '2', title: 'Test 2', isRead: true, createdAt: new Date() },
       ];
 
-      (prisma.notification.findMany as jest.Mock).mockResolvedValue(mockNotifications);
-      (getUnreadCount as jest.Mock).mockResolvedValue(1);
+      (prisma.notification.findMany as any).mockResolvedValue(mockNotifications);
+      (getUnreadCount as any).mockResolvedValue(1);
 
       const request = new Request('http://localhost/api/notifications?userId=user123');
       const response = await GET(request as any);
@@ -66,8 +67,8 @@ describe('API /api/notifications', () => {
     });
 
     test('filtre les notifications non lues', async () => {
-      (prisma.notification.findMany as jest.Mock).mockResolvedValue([]);
-      (getUnreadCount as jest.Mock).mockResolvedValue(0);
+      (prisma.notification.findMany as any).mockResolvedValue([]);
+      (getUnreadCount as any).mockResolvedValue(0);
 
       const request = new Request('http://localhost/api/notifications?userId=user123&unreadOnly=true');
       const response = await GET(request as any);
@@ -84,8 +85,8 @@ describe('API /api/notifications', () => {
     });
 
     test('respecte limit et offset', async () => {
-      (prisma.notification.findMany as jest.Mock).mockResolvedValue([]);
-      (getUnreadCount as jest.Mock).mockResolvedValue(0);
+      (prisma.notification.findMany as any).mockResolvedValue([]);
+      (getUnreadCount as any).mockResolvedValue(0);
 
       const request = new Request('http://localhost/api/notifications?userId=user123&limit=10&offset=20');
       await GET(request as any);
@@ -100,8 +101,8 @@ describe('API /api/notifications', () => {
 
     test('indique hasMore quand limite atteinte', async () => {
       const mockNotifications = Array(50).fill({ id: '1', title: 'Test' });
-      (prisma.notification.findMany as jest.Mock).mockResolvedValue(mockNotifications);
-      (getUnreadCount as jest.Mock).mockResolvedValue(100);
+      (prisma.notification.findMany as any).mockResolvedValue(mockNotifications);
+      (getUnreadCount as any).mockResolvedValue(100);
 
       const request = new Request('http://localhost/api/notifications?userId=user123&limit=50');
       const response = await GET(request as any);
@@ -111,7 +112,7 @@ describe('API /api/notifications', () => {
     });
 
     test('gère les erreurs serveur', async () => {
-      (prisma.notification.findMany as jest.Mock).mockRejectedValue(new Error('DB Error'));
+      (prisma.notification.findMany as any).mockRejectedValue(new Error('DB Error'));
 
       const request = new Request('http://localhost/api/notifications?userId=user123');
       const response = await GET(request as any);
@@ -139,7 +140,7 @@ describe('API /api/notifications', () => {
     });
 
     test('marque toutes les notifications comme lues', async () => {
-      (markAllNotificationsAsRead as jest.Mock).mockResolvedValue(undefined);
+      (markAllNotificationsAsRead as any).mockResolvedValue(undefined);
 
       const request = new Request('http://localhost/api/notifications', {
         method: 'PATCH',
@@ -154,7 +155,7 @@ describe('API /api/notifications', () => {
     });
 
     test('marque une notification spécifique comme lue', async () => {
-      (markNotificationAsRead as jest.Mock).mockResolvedValue(undefined);
+      (markNotificationAsRead as any).mockResolvedValue(undefined);
 
       const request = new Request('http://localhost/api/notifications', {
         method: 'PATCH',
@@ -181,7 +182,7 @@ describe('API /api/notifications', () => {
     });
 
     test('gère les erreurs serveur', async () => {
-      (markNotificationAsRead as jest.Mock).mockRejectedValue(new Error('DB Error'));
+      (markNotificationAsRead as any).mockRejectedValue(new Error('DB Error'));
 
       const request = new Request('http://localhost/api/notifications', {
         method: 'PATCH',
@@ -220,8 +221,8 @@ describe('API /api/notifications', () => {
     });
 
     test('supprime une notification avec succès', async () => {
-      (prisma.notification.findFirst as jest.Mock).mockResolvedValue({ id: 'notif123', userId: 'user123' });
-      (prisma.notification.delete as jest.Mock).mockResolvedValue({ id: 'notif123' });
+      (prisma.notification.findFirst as any).mockResolvedValue({ id: 'notif123', userId: 'user123' });
+      (prisma.notification.delete as any).mockResolvedValue({ id: 'notif123' });
 
       const request = new Request('http://localhost/api/notifications?id=notif123&userId=user123', {
         method: 'DELETE',
@@ -234,7 +235,7 @@ describe('API /api/notifications', () => {
     });
 
     test('gère les erreurs serveur lors de la suppression', async () => {
-      (prisma.notification.findFirst as jest.Mock).mockRejectedValue(new Error('DB Error'));
+      (prisma.notification.findFirst as any).mockRejectedValue(new Error('DB Error'));
 
       const request = new Request('http://localhost/api/notifications?id=notif123&userId=user123', {
         method: 'DELETE',

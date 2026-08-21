@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le système de notifications
  * Couverture: types, priorités, CRUD, SSE

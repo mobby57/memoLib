@@ -1,5 +1,4 @@
 /**
-import { logger } from '@/lib/logger';
  * API Analytics - Métriques IA et Apprentissage Continu
  * Endpoint: /api/tenant/[tenantId]/analytics
  */

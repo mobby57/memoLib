@@ -6,8 +6,6 @@ on:
     paths:
       - 'src/**'
       - 'prisma/**'
-      - 'Controllers/**'
-      - 'Services/**'
 
 permissions:
   contents: read
@@ -38,7 +36,7 @@ jobs:
       - name: Get changed files
         id: diff
         run: |
-          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'src/' 'prisma/' 'Controllers/' 'Services/' | head -50)
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'src/' 'prisma/' | head -50)
           echo "files<<EOF" >> $GITHUB_OUTPUT
           echo "$FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -49,7 +47,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           cat <<'PROMPT' > /tmp/review-prompt.txt
-          You are a senior code reviewer for MemoLib, a legal platform (Next.js + .NET).
+          You are a senior code reviewer for MemoLib, a legal platform built as a Next.js modular monolith with Prisma/PostgreSQL.
           Review the following changed files for:
           - Security vulnerabilities (SQL injection, XSS, auth bypass)
           - Performance issues

@@ -1,20 +1,12 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Setting up IA Poste Manager development environment..."
-
-# Frontend dependencies
-if [ -d "src/frontend" ] && [ -f "src/frontend/package.json" ]; then
-    echo "📦 Installing frontend dependencies..."
-    cd src/frontend
-    npm install
-    cd ../..
-fi
+echo "Setting up MemoLib development environment..."
 
 # Root package.json (if exists)
 if [ -f "package.json" ]; then
     echo "📦 Installing root dependencies..."
-    npm install
+    npm ci
 fi
 
 # Python dependencies
@@ -31,16 +23,13 @@ if [ -d "ai-service" ] && [ -f "ai-service/requirements.txt" ]; then
 fi
 
 # Prisma generate (if exists)
-if [ -f "src/frontend/prisma/schema.prisma" ]; then
-    echo "🗃️ Generating Prisma client..."
-    cd src/frontend
+if [ -f "prisma/schema.prisma" ]; then
+    echo "Generating Prisma client..."
     npx prisma generate
-    cd ../..
 fi
 
-echo "✅ Development environment ready!"
+echo "Development environment ready!"
 echo ""
-echo "🎯 Quick start:"
-echo "   Frontend: cd src/frontend && npm run dev"
-echo "   Backend:  python -m flask run --debug --port 5000"
-echo "   Full:     Run task 'Full Stack: Start All'"
+echo "Quick start:"
+echo "   Application: npm run dev"
+echo "   AI worker (optional): docker compose -f docker-compose.dev.yml up ai-service"

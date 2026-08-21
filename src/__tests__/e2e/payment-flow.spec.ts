@@ -4,26 +4,26 @@
  * These are conversion to unit tests for CI/CD environments
  */
 
-jest.mock('stripe', () => ({
+vi.mock('stripe', () => ({
   __esModule: true,
-  default: jest.fn().mockImplementation(() => ({
-    checkout: { sessions: { create: jest.fn() } },
-    paymentIntents: { create: jest.fn() },
+  default: vi.fn().mockImplementation(() => ({
+    checkout: { sessions: { create: vi.fn() } },
+    paymentIntents: { create: vi.fn() },
   })),
 }));
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
-    payment: { create: jest.fn() },
-    invoice: { create: jest.fn() },
+    payment: { create: vi.fn() },
+    invoice: { create: vi.fn() },
   },
 }));
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('Payment Flow - E2E (Unit Test Equivalent)', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Payment Processing Workflow', () => {

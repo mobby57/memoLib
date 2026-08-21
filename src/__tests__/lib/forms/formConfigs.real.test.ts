@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests réels pour les configurations de formulaires
  * Ces tests IMPORTENT le vrai fichier pour augmenter le coverage

@@ -3,6 +3,7 @@
  * Service de notifications par email
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   generateEcheanceReminderEmail,
   type EmailTemplate,
@@ -11,12 +12,12 @@ import {
 } from '@/lib/services/emailService';
 
 // Mock du logger
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
   },
 }));
 

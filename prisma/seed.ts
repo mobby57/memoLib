@@ -1,7 +1,9 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const prisma = new PrismaClient();
+const uuid = () => crypto.randomUUID();
 
 async function main() {
   console.log('🌱 Début du seeding...');
@@ -13,6 +15,7 @@ async function main() {
     where: { name: 'starter' },
     update: {},
     create: {
+      id: 'plan_starter',
       name: 'starter',
       displayName: 'Starter',
       description: 'Pour débuter avec la documentation juridique',
@@ -32,6 +35,7 @@ async function main() {
       customBranding: false,
       apiAccess: false,
       isActive: true,
+      updatedAt: new Date(),
     },
   });
 
@@ -39,6 +43,7 @@ async function main() {
     where: { name: 'pro' },
     update: {},
     create: {
+      id: 'plan_pro',
       name: 'pro',
       displayName: 'Pro',
       description: 'Pour les cabinets en croissance',
@@ -58,6 +63,7 @@ async function main() {
       customBranding: false,
       apiAccess: true,
       isActive: true,
+      updatedAt: new Date(),
     },
   });
 
@@ -65,6 +71,7 @@ async function main() {
     where: { name: 'enterprise' },
     update: {},
     create: {
+      id: 'plan_enterprise',
       name: 'enterprise',
       displayName: 'Enterprise',
       description: 'Pour les grandes structures',
@@ -84,6 +91,7 @@ async function main() {
       customBranding: true,
       apiAccess: true,
       isActive: true,
+      updatedAt: new Date(),
     },
   });
 
@@ -189,7 +197,7 @@ async function main() {
         },
       },
       update: {},
-      create: article,
+      create: { id: uuid(), updatedAt: new Date(), ...article },
     });
   }
 
@@ -202,11 +210,13 @@ async function main() {
     where: { subdomain: 'demo' },
     update: {},
     create: {
+      id: uuid(),
       name: 'Cabinet Démo',
       subdomain: 'demo',
       planId: starter.id,
       status: 'active',
       trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      updatedAt: new Date(),
     },
   });
 
@@ -214,6 +224,7 @@ async function main() {
     where: { tenantId: demoTenant.id },
     update: {},
     create: {
+      id: uuid(),
       tenantId: demoTenant.id,
       ollamaEnabled: true,
       ollamaUrl: 'http://localhost:11434',
@@ -222,6 +233,7 @@ async function main() {
       maxDossiers: 50,
       maxUsers: 2,
       storageLimit: 2000,
+      updatedAt: new Date(),
     },
   });
 
@@ -235,6 +247,7 @@ async function main() {
     where: { email: 'superadmin@memolib.com' },
     update: { password: await bcrypt.hash('SuperAdmin2026!', 10), role: 'SUPER_ADMIN' },
     create: {
+      id: uuid(),
       email: 'superadmin@memolib.com',
       name: 'Super Admin',
       password: await bcrypt.hash('SuperAdmin2026!', 10),
@@ -242,6 +255,7 @@ async function main() {
       status: 'active',
       language: 'fr',
       timezone: 'Europe/Paris',
+      updatedAt: new Date(),
     },
   });
 
@@ -250,6 +264,7 @@ async function main() {
     where: { email: 'avocat@memolib.fr' },
     update: { password: await bcrypt.hash('Avocat2026!', 10), role: 'LAWYER' },
     create: {
+      id: uuid(),
       email: 'avocat@memolib.fr',
       name: 'Maître Dupont',
       password: await bcrypt.hash('Avocat2026!', 10),
@@ -258,6 +273,7 @@ async function main() {
       status: 'active',
       language: 'fr',
       timezone: 'Europe/Paris',
+      updatedAt: new Date(),
     },
   });
 
@@ -266,6 +282,7 @@ async function main() {
     where: { email: 'client@memolib.fr' },
     update: { password: await bcrypt.hash('Client2026!', 10), role: 'USER' },
     create: {
+      id: uuid(),
       email: 'client@memolib.fr',
       name: 'Jean Martin',
       password: await bcrypt.hash('Client2026!', 10),
@@ -274,6 +291,7 @@ async function main() {
       status: 'active',
       language: 'fr',
       timezone: 'Europe/Paris',
+      updatedAt: new Date(),
     },
   });
 

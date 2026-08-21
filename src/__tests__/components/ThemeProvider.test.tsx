@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour ThemeProvider component
  * Couverture: contexte, themes, tokens couleurs

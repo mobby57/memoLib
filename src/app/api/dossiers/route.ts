@@ -1,9 +1,15 @@
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
 import { cacheThrough, cacheDelete, cacheInvalidatePattern } from '@/lib/cache';
 import { z } from 'zod';
+import type { PrismaClient } from '@prisma/client';
+import { validateQuery } from '@/lib/validation/request-validator';
+import { logger } from '@/lib/logger';
+
+type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>;
 
 const createDossierSchema = z.object({
   clientId: z.string().uuid(),
@@ -15,7 +21,29 @@ const createDossierSchema = z.object({
   numeroRG: z.string().optional(),
   priorite: z.enum(['basse', 'normale', 'haute', 'urgente']).optional(),
 });
-import { logger } from '@/lib/logger';
+
+const patchDossierSchema = z.object({
+  dossierId: z.string().min(1),
+  titre: z.string().min(1).max(500).optional(),
+  description: z.string().optional(),
+  status: z.string().optional(),
+  priorite: z.enum(['basse', 'normale', 'haute', 'urgente']).optional(),
+  juridiction: z.string().optional(),
+  numeroRG: z.string().optional(),
+  dateCloture: z.string().optional().nullable(),
+});
+
+const listDossiersQuerySchema = z.object({
+  id: z.string().uuid().optional(),
+  clientId: z.string().uuid().optional(),
+  status: z.string().max(50).optional(),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
+const deleteDossierQuerySchema = z.object({
+  id: z.string().uuid('id invalide'),
+});
 
 function mapPrismaErrorToHttp(error: unknown): { status: number; message: string } | null {
   const code =
@@ -45,12 +73,16 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
+    const queryValidation = validateQuery<z.infer<typeof listDossiersQuerySchema>>(
+      Object.fromEntries(searchParams.entries()),
+      listDossiersQuerySchema
+    );
+    if (!queryValidation.valid) {
+      return queryValidation.response;
+    }
+
     const tenantId = sessionTenantId;
-    const dossierId = searchParams.get('id');
-    const clientId = searchParams.get('clientId');
-    const status = searchParams.get('status');
-    const limit = Math.max(1, parseInt(searchParams.get('limit') || '50', 10) || 50);
-    const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10) || 0);
+    const { id: dossierId, clientId, status, limit, offset } = queryValidation.data;
 
     if (dossierId) {
       const dossier = await cacheThrough(
@@ -86,7 +118,7 @@ export async function GET(request: NextRequest) {
           prisma.dossier.findMany({
             where,
             include: {
-              client: { select: { nom: true, email: true } },
+              Client: { select: { firstName: true, lastName: true, email: true } },
             },
             orderBy: { createdAt: 'desc' },
             take: limit,
@@ -95,7 +127,13 @@ export async function GET(request: NextRequest) {
           prisma.dossier.count({ where }),
         ]);
 
-        return { dossiers, total, hasMore: offset + dossiers.length < total };
+        // Mapper pour compatibilité frontend
+        const mapped = dossiers.map((d: any) => ({
+          ...d,
+          client: d.Client ? { firstName: d.Client.firstName, lastName: d.Client.lastName, email: d.Client.email } : null,
+        }));
+
+        return { dossiers: mapped, total, hasMore: offset + dossiers.length < total };
       },
       'HOT'
     );
@@ -144,33 +182,21 @@ export async function POST(request: NextRequest) {
     const count = await prisma.dossier.count({ where: { tenantId } });
     const numero = `DOS-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
-    const [dossier] = await prisma.$transaction([
-      prisma.dossier.create({
-        data: {
-          tenantId,
-          clientId,
-          numero,
-          titre,
-          description,
-          type,
-          domaine,
-          juridiction,
-          numeroRG,
-          priorite: priorite || 'normale',
-        },
-      }),
-      prisma.evenement.create({
-        data: {
-          tenantId,
-          clientId,
-          type: 'action',
-          categorie: 'ouverture_dossier',
-          titre: 'Ouverture du dossier',
-          description: `Dossier ${numero} créé`,
-          dateEvenement: new Date(),
-        },
-      }),
-    ]);
+    const dossier = await prisma.dossier.create({
+      data: {
+        id: crypto.randomUUID(),
+        tenantId,
+        clientId,
+        numero,
+        objet: titre || description || 'Nouveau dossier',
+        typeDossier: type || 'GENERAL',
+        description,
+        juridiction,
+        priorite: priorite || 'normale',
+        statut: 'en_cours',
+        updatedAt: new Date(),
+      },
+    });
 
     // Invalider le cache
     await cacheInvalidatePattern(`dossiers:${tenantId}:*`);
@@ -207,9 +233,16 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
     }
 
+    const parsed = patchDossierSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Données invalides', details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
     const {
       dossierId,
-      tenantId: _ignoredTenantId,
       titre,
       description,
       status,
@@ -217,12 +250,9 @@ export async function PATCH(request: NextRequest) {
       juridiction,
       numeroRG,
       dateCloture,
-    } = body;
+    } = parsed.data;
 
     const tenantId = sessionTenantId;
-
-    if (!dossierId)
-      return NextResponse.json({ error: 'dossierId requis' }, { status: 400 });
 
     const existing = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
     if (!existing) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });
@@ -235,13 +265,13 @@ export async function PATCH(request: NextRequest) {
     if (juridiction !== undefined) updateData.juridiction = juridiction;
     if (numeroRG !== undefined) updateData.numeroRG = numeroRG;
     if (dateCloture !== undefined) {
-      const parsed =
+      const parsedDate =
         typeof dateCloture === 'string' && dateCloture.trim().length > 0
           ? new Date(dateCloture)
           : null;
-      if (parsed && isNaN(parsed.getTime()))
+      if (parsedDate && isNaN(parsedDate.getTime()))
         return NextResponse.json({ error: 'Format dateCloture invalide' }, { status: 400 });
-      updateData.dateCloture = parsed;
+      updateData.dateCloture = parsedDate;
     }
 
     const dossier = await prisma.dossier.update({ where: { id: dossierId }, data: updateData });
@@ -278,11 +308,16 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const dossierId = searchParams.get('id');
-    const tenantId = sessionTenantId;
+    const queryValidation = validateQuery<z.infer<typeof deleteDossierQuerySchema>>(
+      Object.fromEntries(searchParams.entries()),
+      deleteDossierQuerySchema
+    );
+    if (!queryValidation.valid) {
+      return queryValidation.response;
+    }
 
-    if (!dossierId)
-      return NextResponse.json({ error: 'id requis' }, { status: 400 });
+    const { id: dossierId } = queryValidation.data;
+    const tenantId = sessionTenantId;
 
     const dossier = await prisma.dossier.findFirst({ where: { id: dossierId, tenantId } });
     if (!dossier) return NextResponse.json({ error: 'Dossier non trouve' }, { status: 404 });

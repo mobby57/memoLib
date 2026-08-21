@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for templates/documents.ts to increase actual coverage
  * Tests document templates with their generate functions

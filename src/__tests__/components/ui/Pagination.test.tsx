@@ -3,6 +3,7 @@
  * Couverture: navigation, pages, etats desactives
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Pagination } from '@/components/ui/Pagination';
 
@@ -10,11 +11,11 @@ describe('Pagination Component', () => {
   const defaultProps = {
     currentPage: 1,
     totalPages: 10,
-    onPageChange: jest.fn(),
+    onPageChange: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Rendu de base', () => {
@@ -33,7 +34,7 @@ describe('Pagination Component', () => {
 
   describe('Navigation', () => {
     it('devrait appeler onPageChange avec page suivante', () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       render(<Pagination {...defaultProps} onPageChange={onPageChange} />);
       
       fireEvent.click(screen.getByText('Suivant'));
@@ -41,7 +42,7 @@ describe('Pagination Component', () => {
     });
 
     it('devrait appeler onPageChange avec page precedente', () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       render(<Pagination {...defaultProps} currentPage={5} onPageChange={onPageChange} />);
       
       fireEvent.click(screen.getByText('Precedent'));
@@ -99,7 +100,7 @@ describe('Pagination Component', () => {
 
   describe('Changement de page par numero', () => {
     it('devrait naviguer au clic sur un numero de page', () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       render(<Pagination {...defaultProps} totalPages={5} onPageChange={onPageChange} />);
       
       fireEvent.click(screen.getByRole('button', { name: '3' }));
@@ -107,7 +108,7 @@ describe('Pagination Component', () => {
     });
 
     it('ne devrait pas appeler onPageChange au clic sur la page courante', () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       render(<Pagination {...defaultProps} currentPage={3} totalPages={5} onPageChange={onPageChange} />);
       
       fireEvent.click(screen.getByRole('button', { name: '3' }));
@@ -115,7 +116,7 @@ describe('Pagination Component', () => {
     });
 
     it('ne devrait pas appeler onPageChange au clic sur ellipsis', () => {
-      const onPageChange = jest.fn();
+      const onPageChange = vi.fn();
       render(<Pagination {...defaultProps} totalPages={20} currentPage={10} onPageChange={onPageChange} />);
       
       const ellipsis = screen.getAllByText('...');

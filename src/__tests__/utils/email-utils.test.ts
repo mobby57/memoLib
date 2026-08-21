@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les utilitaires de validation d'email
  * Couverture: format, domaine, sécurité

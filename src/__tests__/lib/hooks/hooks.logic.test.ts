@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/hooks - Hooks testables (sans contexte React)
  * Coverage: Logic hooks only
@@ -15,7 +17,7 @@ describe('Hook Logic Tests', () => {
       }
 
       if (debounce) {
-        const fn = jest.fn();
+        const fn = vi.fn();
         const debouncedFn = debounce(fn, 100);
         expect(typeof debouncedFn).toBe('function');
       } else {
@@ -29,12 +31,12 @@ describe('Hook Logic Tests', () => {
       const mockStorage: Record<string, string> = {};
       
       global.localStorage = {
-        getItem: jest.fn((key: string) => mockStorage[key] || null),
-        setItem: jest.fn((key: string, value: string) => { mockStorage[key] = value; }),
-        removeItem: jest.fn((key: string) => { delete mockStorage[key]; }),
-        clear: jest.fn(),
+        getItem: vi.fn((key: string) => mockStorage[key] || null),
+        setItem: vi.fn((key: string, value: string) => { mockStorage[key] = value; }),
+        removeItem: vi.fn((key: string) => { delete mockStorage[key]; }),
+        clear: vi.fn(),
         length: 0,
-        key: jest.fn(),
+        key: vi.fn(),
       };
 
       localStorage.setItem('test', 'value');

@@ -33,8 +33,39 @@ export function getAccessiblePages(role: string): string[] {
     .map(([path]) => path);
 }
 
+// Pages disabled by feature flags (beta)
+// These pages are hidden regardless of role when the module is disabled
+const PAGE_FEATURE_GATES: Record<string, string> = {
+  '/admin/comptabilite': 'FEATURE_COMPTABILITE',
+  '/admin/multichannel': 'FEATURE_MULTICHANNEL',
+  '/super-admin': 'FEATURE_SUPER_ADMIN',
+  '/workflows': 'FEATURE_WORKSPACE_REASONING',
+  '/workspaces': 'FEATURE_WORKSPACE_REASONING',
+};
+
+function isFeaturePageEnabled(cleanPath: string): boolean {
+  for (const [prefix, envKey] of Object.entries(PAGE_FEATURE_GATES)) {
+    if (cleanPath.startsWith(prefix)) {
+      // In client components, env vars are only available if prefixed NEXT_PUBLIC_
+      // For server components or if env is exposed:
+      if (typeof window !== 'undefined') {
+        // Client-side: check a global config (injected by layout)
+        const config = (window as any).__MEMOLIB_FEATURES__;
+        if (config && config[envKey] === false) return false;
+      }
+      // Default: show the page (feature gate is enforced at API level by middleware)
+      return true;
+    }
+  }
+  return true;
+}
+
 export function canAccessPage(role: string, path: string): boolean {
   const cleanPath = path.replace(/^\/[a-z]{2}/, '');
+
+  // Check feature gate first
+  if (!isFeaturePageEnabled(cleanPath)) return false;
+
   const matched = Object.entries(PAGE_ACCESS)
     .filter(([prefix]) => cleanPath.startsWith(prefix))
     .sort((a, b) => b[0].length - a[0].length)[0];

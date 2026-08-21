@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, StatCard, Badge, Breadcrumb, Alert } from '@/components/ui';
 import { FileText, Clock, CheckCircle, AlertTriangle, LogOut, Bell, User, Calendar, Euro, Download, MessageSquare, Shield } from 'lucide-react';
+import { ClientPortalDocuments } from '@/components/documents/ClientPortalDocuments';
 
 interface ClientDashboardData {
   monDossier: {
@@ -253,6 +254,11 @@ export default function ClientDashboardPage() {
           </Card>
         </div>
       </div>
+
+      {/* Documents partagés par l'avocat */}
+      <Card>
+        <ClientPortalDocuments />
+      </Card>
     </div>
   );
 }

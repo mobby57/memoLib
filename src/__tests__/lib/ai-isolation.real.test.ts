@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for ai-isolation.ts to increase actual coverage
  * Tests AI data isolation and security functions

@@ -8,7 +8,7 @@
  * - Audit trail complète
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('EventLog - Immutability', () => {
   describe('RULE-004: Immutability', () => {
