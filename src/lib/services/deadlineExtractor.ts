@@ -40,11 +40,11 @@ export interface DeadlineExtractionResult {
  * Templates OQTF standards - Delais CESEDA
  */
 const OQTF_TEMPLATES = {
-  // Article L.512-1 CESEDA - OQTF sans delai de depart volontaire
+  // Article L.614-1 CESEDA (ex L.512-1) - OQTF sans delai de depart volontaire
   OQTF_48H_SANS_DELAI: {
     name: 'OQTF sans delai de depart',
     delaiRecours: 48, // heures
-    articles: ['L.512-1', 'L.742-3', 'L.213-9'],
+    articles: ['L.614-1', 'L.613-7', 'L.711-2'],
     checklist: [
       'Refere-liberte au TA (48h)',
       'Verifier notification en main propre ou domicile',
@@ -56,12 +56,12 @@ const OQTF_TEMPLATES = {
     keywords: ['sans delai', 'immediatement', 'sans delai de depart volontaire'],
   },
 
-  // Article L.511-1 CESEDA - OQTF avec delai de depart volontaire 30 jours
+  // Article L.611-1 CESEDA (ex L.511-1) - OQTF avec delai de depart volontaire 30 jours
   OQTF_30J_AVEC_DELAI: {
     name: 'OQTF avec delai de depart (30 jours)',
     delaiRecours: 30, // jours
     delaiDepart: 30,
-    articles: ['L.511-1', 'L.512-1'],
+    articles: ['L.611-1', 'L.614-1'],
     checklist: [
       'Recours contentieux au TA (30 jours)',
       'evaluer recours gracieux prefecture',
@@ -77,7 +77,7 @@ const OQTF_TEMPLATES = {
   REFUS_TITRE_2MOIS: {
     name: 'Refus titre de sejour',
     delaiRecours: 60, // jours (2 mois)
-    articles: ['L.313-11', 'R.421-1 CJA'],
+    articles: ['L.423-23', 'R.421-1 CJA'],
     checklist: [
       'Recours contentieux au TA (2 mois)',
       'Analyser motivation refus',
@@ -595,4 +595,61 @@ export const deadlineExtractor = {
   extractDeadlinesFromFile,
   calculateDeadlineStatus,
   calculateDeadlinePriority,
+  calculateRecoursGracieuxProrogation,
 };
+
+/**
+ * Calcule la prorogation du délai de recours contentieux
+ * suite à un recours gracieux (Art. R.421-1 CJA).
+ * 
+ * Règle: Le recours gracieux proroge le délai de recours contentieux de 2 mois
+ * à compter de la notification du rejet du recours gracieux (ou silence de 2 mois = rejet implicite).
+ * 
+ * @param dateNotificationDecision Date de notification de la décision initiale
+ * @param dateRecoursGracieux Date d'envoi du recours gracieux
+ * @param dateReponseGracieux Date de réponse (null = pas encore de réponse)
+ * @returns Nouvelle date limite du recours contentieux
+ */
+export function calculateRecoursGracieuxProrogation(
+  dateNotificationDecision: Date,
+  dateRecoursGracieux: Date,
+  dateReponseGracieux: Date | null
+): {
+  dateFinRecoursContentieux: Date;
+  prorogation: boolean;
+  explication: string;
+} {
+  const DELAI_CONTENTIEUX_JOURS = 60; // 2 mois standard
+  const DELAI_SILENCE_JOURS = 60; // 2 mois de silence = rejet implicite
+
+  // Vérifier que le recours gracieux a été fait dans le délai initial (2 mois)
+  const dateLimiteInitiale = new Date(dateNotificationDecision.getTime() + DELAI_CONTENTIEUX_JOURS * 24 * 60 * 60 * 1000);
+  
+  if (dateRecoursGracieux.getTime() > dateLimiteInitiale.getTime()) {
+    return {
+      dateFinRecoursContentieux: dateLimiteInitiale,
+      prorogation: false,
+      explication: 'Recours gracieux hors délai — pas de prorogation. Le délai contentieux initial reste applicable.',
+    };
+  }
+
+  // Si réponse reçue → nouveau délai de 2 mois à compter de la réponse
+  if (dateReponseGracieux) {
+    const nouvelleDateLimite = new Date(dateReponseGracieux.getTime() + DELAI_CONTENTIEUX_JOURS * 24 * 60 * 60 * 1000);
+    return {
+      dateFinRecoursContentieux: nouvelleDateLimite,
+      prorogation: true,
+      explication: `Rejet explicite reçu le ${dateReponseGracieux.toLocaleDateString('fr-FR')}. Nouveau délai contentieux: 2 mois à compter du rejet (${nouvelleDateLimite.toLocaleDateString('fr-FR')}).`,
+    };
+  }
+
+  // Pas de réponse → rejet implicite après 2 mois de silence
+  const dateRejetImplicite = new Date(dateRecoursGracieux.getTime() + DELAI_SILENCE_JOURS * 24 * 60 * 60 * 1000);
+  const nouvelleDateLimite = new Date(dateRejetImplicite.getTime() + DELAI_CONTENTIEUX_JOURS * 24 * 60 * 60 * 1000);
+
+  return {
+    dateFinRecoursContentieux: nouvelleDateLimite,
+    prorogation: true,
+    explication: `Silence de l'administration = rejet implicite le ${dateRejetImplicite.toLocaleDateString('fr-FR')}. Nouveau délai contentieux: 2 mois après rejet implicite (${nouvelleDateLimite.toLocaleDateString('fr-FR')}).`,
+  };
+}

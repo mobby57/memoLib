@@ -1,26 +1,27 @@
 ﻿import { createAuditLog, getAuditContext } from '@/lib/audit';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import prisma from '@/lib/prisma';
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: {
     auditLog: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
+      findFirst: vi.fn(),
+      create: vi.fn(),
     },
   },
 }));
 
 describe('Audit Middleware', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('createAuditLog', () => {
     it('should create audit log with hash', async () => {
       const mockLastLog = { id: 'log-1', timestampHash: 'hash-1' };
-      (prisma.auditLog.findFirst as jest.Mock).mockResolvedValue(mockLastLog);
-      (prisma.auditLog.create as jest.Mock).mockResolvedValue({ id: 'log-2' });
+      (prisma.auditLog.findFirst as any).mockResolvedValue(mockLastLog);
+      (prisma.auditLog.create as any).mockResolvedValue({ id: 'log-2' });
 
       const context = {
         tenantId: 'tenant-1',
@@ -35,7 +36,7 @@ describe('Audit Middleware', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      (prisma.auditLog.findFirst as jest.Mock).mockRejectedValue(new Error('DB Error'));
+      (prisma.auditLog.findFirst as any).mockRejectedValue(new Error('DB Error'));
 
       const context = {
         tenantId: 'tenant-1',
@@ -54,7 +55,7 @@ describe('Audit Middleware', () => {
     it('should extract context from request', () => {
       const mockRequest = {
         headers: {
-          get: jest.fn((key: string) => {
+          get: vi.fn((key: string) => {
             if (key === 'x-forwarded-for') return '192.168.1.1';
             if (key === 'user-agent') return 'Mozilla/5.0';
             return null;

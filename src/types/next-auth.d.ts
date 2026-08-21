@@ -6,6 +6,7 @@ declare module 'next-auth' {
     tenantId?: string;
     tenantName?: string;
     tenantPlan?: string;
+    clientId?: string | null;
     role?: string;
     groups?: string[];
     rbacPermissions?: string[];
@@ -17,6 +18,7 @@ declare module 'next-auth' {
       tenantId?: string;
       tenantName?: string;
       tenantPlan?: string;
+      clientId?: string | null;
       role?: string;
       groups?: string[];
       rbacPermissions?: string[];
@@ -29,6 +31,7 @@ declare module 'next-auth/jwt' {
     tenantId?: string;
     tenantName?: string;
     tenantPlan?: string;
+    clientId?: string | null;
     role?: string;
     groups?: string[];
     rbacPermissions?: string[];

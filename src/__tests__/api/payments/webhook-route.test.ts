@@ -1,27 +1,24 @@
-/**
- * @jest-environment node
- */
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const mockParseStripeWebhookRequest = jest.fn();
-const mockIsStripeEventDuplicate = jest.fn();
-const mockLogStripeWebhookProcessingFailure = jest.fn();
-const mockTransaction = jest.fn();
+const mockParseStripeWebhookRequest = vi.fn();
+const mockIsStripeEventDuplicate = vi.fn();
+const mockLogStripeWebhookProcessingFailure = vi.fn();
+const mockTransaction = vi.fn();
 
-jest.mock('@/lib/stripe/config', () => ({
+vi.mock('@/lib/stripe/config', () => ({
   stripe: {},
   STRIPE_WEBHOOK_SECRET: 'whsec_test',
 }));
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
     $transaction: mockTransaction,
   },
 }));
 
-jest.mock('@/lib/stripe/webhook', () => ({
+vi.mock('@/lib/stripe/webhook', () => ({
   parseStripeWebhookRequest: mockParseStripeWebhookRequest,
   isStripeEventDuplicate: mockIsStripeEventDuplicate,
   logStripeWebhookProcessingFailure: mockLogStripeWebhookProcessingFailure,
@@ -29,7 +26,7 @@ jest.mock('@/lib/stripe/webhook', () => ({
 
 describe('POST /api/payments/webhook', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns duplicate=true when the replay cache already knows the event', async () => {

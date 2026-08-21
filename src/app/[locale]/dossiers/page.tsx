@@ -3,7 +3,7 @@
 // Force dynamic to prevent prerendering errors with React hooks
 export const dynamic = 'force-dynamic';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -151,7 +151,8 @@ const STATUT_OPTIONS = [
 
 export default function DossiersPage() {
   const router = useRouter();
-  const [dossiers, setDossiers] = useState<Dossier[]>(MOCK_DOSSIERS);
+  const [dossiers, setDossiers] = useState<Dossier[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDossier, setEditingDossier] = useState<Dossier | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -162,6 +163,45 @@ export default function DossiersPage() {
   const itemsPerPage = 10;
 
   const { toast } = useToast();
+
+  // Charger les dossiers depuis l'API
+  useEffect(() => {
+    fetchDossiers();
+  }, []);
+
+  const fetchDossiers = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch('/api/dossiers');
+      if (res.ok) {
+        const data = await res.json();
+        // Mapper les données API vers le format du composant
+        const mapped = (data.dossiers || data || []).map((d: any) => ({
+          id: d.id,
+          numéro: d.numero || d.numéro || '',
+          titre: d.objet || d.titre || d.description || `Dossier ${d.numero}`,
+          clientId: d.clientId || '',
+          clientNom: d.Client?.firstName 
+            ? `${d.Client.firstName} ${d.Client.lastName}` 
+            : (d.client?.firstName ? `${d.client.firstName} ${d.client.lastName}` : 'Client'),
+          type: (d.typeDossier || d.type || 'GENERAL').toUpperCase(),
+          statut: (d.statut || 'EN_COURS').toUpperCase().replace(/ /g, '_'),
+          dateOuverture: d.dateOuverture || d.dateCreation || d.createdAt,
+          dateCloture: d.dateCloture || null,
+          description: d.description || '',
+          priorite: d.priorite || 'normale',
+        }));
+        setDossiers(mapped);
+      } else {
+        // Si erreur API, afficher l'état vide (pas de mock!)
+        setDossiers([]);
+      }
+    } catch {
+      setDossiers([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const {
     register,
@@ -225,49 +265,79 @@ export default function DossiersPage() {
     setIsModalOpen(true);
   };
 
-  const onSubmit = (data: DossierFormData) => {
-    if (editingDossier) {
-      setDossiers(prev =>
-        prev.map(d =>
-          d.id === editingDossier.id
-            ? {
-                ...d,
-                ...data,
-                clientNom: MOCK_CLIENTS.find(c => c.id === data.clientId)?.nom || '',
-              }
-            : d
-        )
-      );
+  const onSubmit = async (data: DossierFormData) => {
+    try {
+      if (editingDossier) {
+        // EDIT: PATCH /api/dossiers/[id]
+        const res = await fetch(`/api/dossiers/${editingDossier.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            objet: data.titre,
+            typeDossier: data.type,
+            statut: data.statut.toLowerCase().replace(/_/g, '_'),
+            description: data.description,
+          }),
+        });
+        if (!res.ok) throw new Error('Erreur modification');
+        toast({
+          variant: 'success',
+          title: 'Dossier modifié',
+          description: `Le dossier ${data.numéro} a été modifié avec succès.`,
+        });
+      } else {
+        // CREATE: POST /api/dossiers
+        const res = await fetch('/api/dossiers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clientId: data.clientId,
+            titre: data.titre,
+            type: data.type,
+            description: data.description,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Erreur création');
+        }
+        toast({
+          variant: 'success',
+          title: 'Dossier créé',
+          description: `Le dossier ${data.numéro} a été créé avec succès.`,
+        });
+      }
+      setIsModalOpen(false);
+      await fetchDossiers(); // Recharger depuis l'API
+    } catch (error) {
       toast({
-        variant: 'success',
-        title: 'Dossier modifie',
-        description: `Le dossier ${data.numéro} a été modifie avec succès.`,
-      });
-    } else {
-      const newDossier: Dossier = {
-        ...data,
-        id: Date.now().toString(),
-        clientNom: MOCK_CLIENTS.find(c => c.id === data.clientId)?.nom || '',
-      };
-      setDossiers(prev => [newDossier, ...prev]);
-      toast({
-        variant: 'success',
-        title: 'Dossier cree',
-        description: `Le dossier ${data.numéro} a été cree avec succès.`,
+        variant: 'destructive',
+        title: 'Erreur',
+        description: error instanceof Error ? error.message : 'Une erreur est survenue.',
       });
     }
-    setIsModalOpen(false);
   };
 
   const deleteDossier = useCallback(
-    (id: string) => {
+    async (id: string) => {
       const dossier = dossiers.find(d => d.id === id);
-      if (window.confirm(`etes-vous ser de vouloir supprimer le dossier ${dossier?.numéro} ?`)) {
-        setDossiers(prev => prev.filter(d => d.id !== id));
+      if (!window.confirm(`Êtes-vous sûr de vouloir supprimer le dossier ${dossier?.numéro} ?`)) {
+        return;
+      }
+      try {
+        const res = await fetch(`/api/dossiers/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Erreur suppression');
         toast({
           variant: 'default',
-          title: 'Dossier supprime',
-          description: `Le dossier ${dossier?.numéro} a ete supprime.`,
+          title: 'Dossier supprimé',
+          description: `Le dossier ${dossier?.numéro} a été supprimé.`,
+        });
+        await fetchDossiers(); // Recharger
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Erreur',
+          description: 'Impossible de supprimer ce dossier.',
         });
       }
     },
@@ -304,17 +374,15 @@ export default function DossiersPage() {
     });
   }, [filteredDossiers, toast]);
 
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    // Simulate API refresh
-    setTimeout(() => {
-      setIsRefreshing(false);
-      toast({
-        variant: 'success',
-        title: 'Donnees actualisees',
-        description: 'La liste des dossiers a ete mise e jour.',
-      });
-    }, 500);
+    await fetchDossiers();
+    setIsRefreshing(false);
+    toast({
+      variant: 'success',
+      title: 'Données actualisées',
+      description: 'La liste des dossiers a été mise à jour.',
+    });
   }, [toast]);
 
   const clearFilters = useCallback(() => {

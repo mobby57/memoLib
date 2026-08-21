@@ -236,30 +236,30 @@ export async function generateComplianceReport(tenantId: string, startDate: Date
   // Aggregate statistics
   const stats = {
     totalActions: logs.length,
-    sensitiveDataAccess: logs.filter(l => l.sensitiveData).length,
-    failedActions: logs.filter(l => !l.success).length,
+    sensitiveDataAccess: logs.filter((l: { sensitiveData: boolean }) => l.sensitiveData).length,
+    failedActions: logs.filter((l: { success: boolean }) => !l.success).length,
     actionsByType: logs.reduce(
-      (acc, log) => {
+      (acc: Record<string, number>, log: { action: string }) => {
         acc[log.action] = (acc[log.action] || 0) + 1;
         return acc;
       },
       {} as Record<string, number>
     ),
     resourcesByType: logs.reduce(
-      (acc, log) => {
+      (acc: Record<string, number>, log: { resource: string }) => {
         acc[log.resource] = (acc[log.resource] || 0) + 1;
         return acc;
       },
       {} as Record<string, number>
     ),
-    uniqueUsers: new Set(logs.map(l => l.userId)).size,
+    uniqueUsers: new Set(logs.map((l: { userId: string }) => l.userId)).size,
   };
 
   return {
     period: { start: startDate, end: endDate },
     tenantId,
     statistics: stats,
-    logs: logs.map(log => ({
+    logs: logs.map((log: { timestamp: Date; userId: string; action: string; resource: string; success: boolean }) => ({
       timestamp: log.timestamp,
       user: log.userId,
       action: log.action,
@@ -283,17 +283,17 @@ export async function detectSuspiciousActivity(userId: string, hours: number = 2
   });
 
   const suspicious = {
-    multipleFailedLogins: logs.filter(l => l.action === 'FAILED_LOGIN').length > 5,
+    multipleFailedLogins: logs.filter((l: { action: string }) => l.action === 'FAILED_LOGIN').length > 5,
 
-    excessiveExports: logs.filter(l => l.action === 'EXPORT').length > 20,
+    excessiveExports: logs.filter((l: { action: string }) => l.action === 'EXPORT').length > 20,
 
     unusualHours:
-      logs.filter(l => {
+      logs.filter((l: { timestamp: Date }) => {
         const hour = l.timestamp.getHours();
         return hour < 6 || hour > 22;
       }).length > 10,
 
-    massDataAccess: logs.filter(l => l.action === 'READ' && l.sensitiveData).length > 100,
+    massDataAccess: logs.filter((l: { action: string; sensitiveData: boolean }) => l.action === 'READ' && l.sensitiveData).length > 100,
   };
 
   const isSuspicious = Object.values(suspicious).some(v => v === true);

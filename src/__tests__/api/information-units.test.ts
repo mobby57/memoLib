@@ -1,9 +1,10 @@
 ﻿import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH } from '@/app/api/information-units/route';
 import prisma from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(async () => ({
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn(async () => ({
     user: {
       id: 'user-123',
       role: 'ADMIN',
@@ -13,24 +14,24 @@ jest.mock('next-auth', () => ({
   })),
 }));
 
-jest.mock('@/app/api/auth/[...nextauth]/route', () => ({
+vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
   authOptions: {},
 }));
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: {
     informationUnit: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      count: jest.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      count: vi.fn(),
     },
     informationStatusHistory: {
-      create: jest.fn(),
+      create: vi.fn(),
     },
-    $transaction: jest.fn(),
+    $transaction: vi.fn(),
   },
 }));
 
@@ -39,14 +40,14 @@ describe('/api/information-units', () => {
   const mockUserId = 'user-123';
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('GET', () => {
     it('should return information units', async () => {
       const mockUnits = [{ id: '1', content: 'test', currentStatus: 'RECEIVED' }];
-      (prisma.informationUnit.findMany as jest.Mock).mockResolvedValue(mockUnits);
-      (prisma.informationUnit.count as jest.Mock).mockResolvedValue(1);
+      (prisma.informationUnit.findMany as any).mockResolvedValue(mockUnits);
+      (prisma.informationUnit.count as any).mockResolvedValue(1);
 
       const request = new NextRequest(`http://localhost/api/information-units?tenantId=${mockTenantId}`);
       const response = await GET(request);
@@ -58,8 +59,8 @@ describe('/api/information-units', () => {
     });
 
     it('should use tenantId from session if query tenantId is missing', async () => {
-      (prisma.informationUnit.findMany as jest.Mock).mockResolvedValue([]);
-      (prisma.informationUnit.count as jest.Mock).mockResolvedValue(0);
+      (prisma.informationUnit.findMany as any).mockResolvedValue([]);
+      (prisma.informationUnit.count as any).mockResolvedValue(0);
 
       const request = new NextRequest('http://localhost/api/information-units');
       const response = await GET(request);
@@ -71,9 +72,9 @@ describe('/api/information-units', () => {
   describe('POST', () => {
     it('should create information unit', async () => {
       const mockUnit = { id: '1', content: 'test', currentStatus: 'RECEIVED' };
-      (prisma.informationUnit.findUnique as jest.Mock).mockResolvedValue(null);
-      (prisma.informationUnit.create as jest.Mock).mockResolvedValue(mockUnit);
-      (prisma.informationStatusHistory.create as jest.Mock).mockResolvedValue({});
+      (prisma.informationUnit.findUnique as any).mockResolvedValue(null);
+      (prisma.informationUnit.create as any).mockResolvedValue(mockUnit);
+      (prisma.informationStatusHistory.create as any).mockResolvedValue({});
 
       const request = new NextRequest('http://localhost/api/information-units', {
         method: 'POST',
@@ -93,7 +94,7 @@ describe('/api/information-units', () => {
     });
 
     it('should return 409 if duplicate', async () => {
-      (prisma.informationUnit.findUnique as jest.Mock).mockResolvedValue({ id: '1' });
+      (prisma.informationUnit.findUnique as any).mockResolvedValue({ id: '1' });
 
       const request = new NextRequest('http://localhost/api/information-units', {
         method: 'POST',
@@ -113,8 +114,8 @@ describe('/api/information-units', () => {
   describe('PATCH', () => {
     it('should update status', async () => {
       const mockUnit = { id: '1', currentStatus: 'RECEIVED' };
-      (prisma.informationUnit.findUnique as jest.Mock).mockResolvedValue(mockUnit);
-      (prisma.$transaction as jest.Mock).mockResolvedValue([{ ...mockUnit, currentStatus: 'CLASSIFIED' }]);
+      (prisma.informationUnit.findUnique as any).mockResolvedValue(mockUnit);
+      (prisma.$transaction as any).mockResolvedValue([{ ...mockUnit, currentStatus: 'CLASSIFIED' }]);
 
       const request = new NextRequest('http://localhost/api/information-units', {
         method: 'PATCH',

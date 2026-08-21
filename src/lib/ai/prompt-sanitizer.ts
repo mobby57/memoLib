@@ -34,6 +34,17 @@ const PII_PATTERNS: { pattern: RegExp; replacement: string; category: string }[]
   { pattern: /\b\d{1,4}[\s,]+(rue|avenue|boulevard|impasse|place|chemin|allée|passage)\s+[A-Za-zÀ-ÿ\s-]{3,50}\b/gi, replacement: '[ADRESSE_REDACTED]', category: 'address' },
   // Code postal + ville
   { pattern: /\b\d{5}\s+[A-Za-zÀ-ÿ\s-]{2,30}\b/g, replacement: '[CP_VILLE_REDACTED]', category: 'address' },
+  // --- NOM PROPRE DETECTION (NER-lite) ---
+  // Patterns "M./Mme/Maître + Nom" (français)
+  { pattern: /\b(?:M\.|Mme|Mlle|Mr|Mrs|Maître|Me|Docteur|Dr)[\s]+[A-ZÀ-Ÿ][a-zà-ÿ]+(?:[\s-][A-ZÀ-Ÿ][a-zà-ÿ]+){0,2}\b/g, replacement: '[NOM_REDACTED]', category: 'name' },
+  // Patterns "mon client/ma cliente + Nom"
+  { pattern: /\b(?:mon\s+client|ma\s+cliente|le\s+requérant|la\s+requérante|l'intéressé|l'intéressée)[\s,:]+[A-ZÀ-Ÿ][a-zà-ÿ]+(?:[\s-][A-ZÀ-Ÿ][a-zà-ÿ]+){0,2}/gi, replacement: '[CLIENT_REDACTED]', category: 'name' },
+  // Patterns "Prénom Nom" (2+ mots commençant par majuscule, hors début de phrase)
+  { pattern: /(?<=[\s,;:(])[A-ZÀ-Ÿ][a-zà-ÿ]+\s+[A-ZÀ-Ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-Ÿ][a-zà-ÿ]+)?(?=[\s,;:).])/g, replacement: '[PERSONNE_REDACTED]', category: 'name' },
+  // Numéro étranger AGDREF/ANEF
+  { pattern: /\b\d{4}[A-Z]\d{5,7}\b/g, replacement: '[AGDREF_REDACTED]', category: 'identity' },
+  // Numéro de visa
+  { pattern: /\b[A-Z]{2}\d{7,9}\b/g, replacement: '[VISA_REDACTED]', category: 'identity' },
 ];
 
 export interface SanitizationResult {

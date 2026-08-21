@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les composants Card
  * Couverture: Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter

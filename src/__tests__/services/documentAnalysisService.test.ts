@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le service d'analyse de documents
  * Couverture: extraction délais, parties, types d'affaires

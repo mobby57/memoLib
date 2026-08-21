@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour cesda/deadlineEngine.ts - Moteur de calcul des délais CESDA
  * Tests des fonctions pures de calcul de délais

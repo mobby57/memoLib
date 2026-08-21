@@ -88,6 +88,16 @@ export async function POST(req: NextRequest) {
   // Lancer l'analyse IA en arrière-plan (fire-and-forget)
   analyzeEmailAsync(email.id, emailData.subject, emailData.body, emailData.from).catch(() => {});
 
+  // Horodatage certifié RFC 3161 (preuve tierce de la date de réception)
+  import('@/lib/services/certified-timestamp').then(({ certifyEmailReception }) => {
+    certifyEmailReception({
+      tenantId,
+      userId: 'system',
+      emailId: email.id,
+      emailHash: checksum,
+    }).catch(() => {});
+  }).catch(() => {});
+
   return NextResponse.json({ success: true, emailId: email.id });
 }
 

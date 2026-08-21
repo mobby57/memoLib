@@ -110,6 +110,37 @@ export function DraftReplyEditor({ emailId, subject, body, from, dossierId, onSe
             Envoyer
           </button>
         )}
+        {!onSend && (
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/emails/send', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    to: from,
+                    subject: `Re: ${draft.subject}`,
+                    body: editedBody,
+                    replyToEmailId: emailId,
+                  }),
+                });
+                if (res.ok) {
+                  alert('✅ Email envoyé avec succès !');
+                } else {
+                  const data = await res.json();
+                  alert(`❌ ${data.error || 'Erreur d\'envoi'}`);
+                }
+              } catch {
+                // Fallback mailto si l'API échoue
+                window.location.href = `mailto:${from}?subject=Re: ${encodeURIComponent(draft.subject)}&body=${encodeURIComponent(editedBody)}`;
+              }
+            }}
+            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            <Send className="w-3.5 h-3.5" />
+            Envoyer
+          </button>
+        )}
       </div>
     </div>
   );

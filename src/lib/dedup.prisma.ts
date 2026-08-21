@@ -3,7 +3,7 @@ import type { DedupRepository, ClientRecord, CaseRecord, DocumentRecord } from '
 
 export class PrismaDedupRepository implements DedupRepository {
   log(action: string, details: string) {
-    // eslint-disable-next-line no-console
+     
     console.info(`[dedup] ${action} | ${details}`);
   }
 

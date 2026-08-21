@@ -3,11 +3,11 @@
  * @jest-environment node
  */
 
-import { describe, expect, it, jest } from '@jest/globals';
+import { describe, expect, it, vi } from 'vitest';
 
 let mockSecretCounter = 0;
 
-jest.mock('otplib', () => ({
+vi.mock('otplib', () => ({
   authenticator: {
     generateSecret: () => `JBSWY3DPEHPK3PXP${mockSecretCounter++}`,
     keyuri: (email: string, issuer: string, secret: string) =>
@@ -16,7 +16,7 @@ jest.mock('otplib', () => ({
   },
 }));
 
-jest.mock('qrcode', () => ({
+vi.mock('qrcode', () => ({
   __esModule: true,
   default: {
     toDataURL: async () => `data:image/png;base64,${'A'.repeat(256)}`,

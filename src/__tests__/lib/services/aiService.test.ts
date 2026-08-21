@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/services/aiService.ts - Pure Unit Tests
  * Coverage: Service IA pour génération de documents (tests purs sans imports)

@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les permissions et RBAC
  * Couverture: rôles, permissions, accès, politiques
