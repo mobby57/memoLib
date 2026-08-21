@@ -1,54 +1,40 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const session = await getServerSession();
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorise' }, { status: 401 });
+    const session = await getServerSession(authOptions);
+    const user = session?.user;
+
+    if (!user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    const userId = (session.user as any).id;
-    const userRole = (session.user as any).role;
-
-    if (userRole !== 'CLIENT') {
-      return NextResponse.json({ error: 'Acces reserve aux clients' }, { status: 403 });
+    if (user.role !== 'CLIENT' || !user.tenantId || !user.clientId) {
+      return NextResponse.json({ error: 'Accès réservé aux clients' }, { status: 403 });
     }
 
-    // Recuperer tous les documents du client
     const documents = await prisma.document.findMany({
       where: {
-        OR: [
-          { uploadedBy: userId },
-          {
-            dossier: {
-              clientId: userId,
-            },
-          },
-        ],
+        tenantId: user.tenantId,
+        OR: [{ clientId: user.clientId }, { Dossier: { clientId: user.clientId } }],
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
       include: {
-        dossier: {
-          select: {
-            id: true,
-            numero: true,
-            typeDossier: true,
-          },
+        Dossier: {
+          select: { id: true, numero: true, typeDossier: true },
         },
       },
     });
 
     return NextResponse.json({ documents });
   } catch (error) {
-    logger.error('Erreur recuperation documents client', { error });
+    logger.error('[CLIENT_VAULT] Listing failed', { error });
     return NextResponse.json(
-      { error: 'Erreur serveur' },
+      { error: 'Erreur lors de la récupération des documents' },
       { status: 500 }
     );
   }

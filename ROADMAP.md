@@ -2,7 +2,7 @@
 
 Ce document traduit chaque tâche du `TODO.md` en actions concrètes ancrées dans le stack réel de MemoLib.
 
-**Stack réel** : Next.js 16 (Vercel) + ASP.NET Core 9 (Docker) + PostgreSQL + Prisma + Stripe + Sentry + Upstash Redis
+**Stack cible** : monolithe modulaire Next.js 16 (Vercel) + PostgreSQL + Prisma + Stripe + Sentry + Upstash Redis. Les workers specialises (IA, OCR ou synchronisation email) restent optionnels et communiquent par des contrats explicites ; ils ne possedent pas les donnees metier.
 
 ---
 
@@ -33,7 +33,7 @@ Security ──► DevOps ──► Cloud Architect
 
 ### CI/CD (`.github/workflows/ci-cd.yml`)
 
-- [x] Ajouter job `dotnet test` dans le pipeline CI pour le backend .NET
+- [x] Limiter la CI applicative a Next.js, Prisma et aux workers effectivement versionnes
 - [x] Ajouter job `docker build` pour valider les Dockerfiles
 - [ ] Configurer les GitHub Environments (preview/staging/production) avec approval gates sur `production`
 - [x] Ajouter cache npm + cache Prisma generate dans le workflow existant
@@ -42,7 +42,7 @@ Security ──► DevOps ──► Cloud Architect
 ### Conteneurisation (`docker-compose.yml`)
 
 - [x] Compléter `docker-compose.yml` : PostgreSQL + frontend Next.js + Nginx + Prometheus
-- [ ] Créer `docker-compose.prod.yml` avec le backend .NET + PostgreSQL + Nginx
+- [ ] Créer `docker-compose.prod.yml` avec PostgreSQL et les workers optionnels necessaires
 - [ ] Tester le stack complet localement : `docker-compose up`
 
 ### Secrets & Config
@@ -55,7 +55,7 @@ Security ──► DevOps ──► Cloud Architect
 
 - [x] Configurer Sentry releases dans le pipeline CI (source maps upload)
 - [ ] Activer les alertes Sentry sur error rate > 1% et latence P95 > 3s
-- [x] Configurer `docker/prometheus/prometheus.yml` pour scraper le backend .NET `/health`
+- [x] Configurer `docker/prometheus/prometheus.yml` pour scraper les services exposes par Docker
 
 ### Rollback
 
@@ -71,7 +71,7 @@ Security ──► DevOps ──► Cloud Architect
 
 - [x] ESLint : 115 → 0 erreurs, 3213 → 1050 warnings (`eslint.config.mjs` nettoyé)
 - [x] Dead code fixé : `cloudflare/client.ts`, `disaster-recovery.ts` (unreachable catch)
-- [x] `MemoLib.Api.csproj` : exclusion `_archive\**` pour éviter les conflits de compilation
+- [x] Exclure les archives de la compilation applicative
 - [ ] Augmenter la couverture de tests de 30% → 60%
 - [ ] Corriger les types TypeScript : `npm run type-check` doit passer sans `--skipLibCheck`
 
@@ -82,12 +82,6 @@ Security ──► DevOps ──► Cloud Architect
 - [x] Zod schemas existants dans `src/lib/validation/schemas.ts` (dossiers, clients, factures, users, documents)
 - [ ] Auditer les routes API : vérifier que chaque endpoint utilise les schemas Zod
 - [ ] Ajouter des tests d'intégration pour `/api/documents/upload` et `/api/emails/incoming`
-
-### API .NET
-
-- [x] FluentValidation ajouté : `Validators/ApiRequestValidators.cs` (IngestEmail, Search, Login, Register)
-- [x] Tests unitaires : 105 passants (GdprAnonymization, Billing, EmailMonitor, Classification, Password, Export, DB)
-- [ ] Documenter les endpoints .NET qui n'ont pas d'équivalent Next.js (SignalR, email scan)
 
 ### Base de données
 
@@ -121,7 +115,7 @@ Security ──► DevOps ──► Cloud Architect
 
 ### Automatisation
 
-- [x] Script `scripts/bootstrap.ps1` : installe Node, .NET, PostgreSQL, génère `.env.local`
+- [x] Script `scripts/bootstrap.ps1` : installe Node et PostgreSQL, puis génère `.env.local`
 - [ ] Consolider les scripts PowerShell : `scripts/start-all.ps1`, `scripts/setup-local.ps1`
 - [ ] Automatiser la rotation des logs
 
@@ -179,17 +173,18 @@ Security ──► DevOps ──► Cloud Architect
 ```
 Vercel (CDG1)                    Docker (local/VPS)
 ┌─────────────────┐              ┌──────────────────┐
-│ Next.js 16      │              │ ASP.NET Core 9   │
-│ API Routes      │              │ Port 5078        │
-│ Prisma → PG     │              │ EF Core → PG     │
-│ Vercel Blob     │              │ SignalR           │
-│ Vercel Cron     │              │ MailKit IMAP      │
-└────────┬────────┘              └────────┬─────────┘
-         │                                │
-         └──────── PostgreSQL ────────────┘
+│ Next.js 16      │
+│ App Router      │
+│ Route Handlers  │
+│ Prisma → PG     │
+│ Vercel Blob     │
+│ Vercel Cron     │
+└────────┬────────┘
+         │
+         └──────── PostgreSQL
 ```
 
-- [ ] Créer ADR : pourquoi Vercel + Docker et pas full Vercel
+- [x] Créer ADR : monolithe modulaire Next.js et workers optionnels
 - [ ] Documenter les limites Vercel
 - [ ] Évaluer Neon PostgreSQL serverless vs Supabase vs RDS
 - [ ] Configurer connection pooling Prisma
@@ -202,9 +197,8 @@ Vercel (CDG1)                    Docker (local/VPS)
 
 - [ ] Implémenter classification emails avec Ollama
 - [ ] Pipeline : Email → Ollama → `LegalCaseDraft` → Validation humaine → Dossier
-- [ ] Améliorer `Services/ClientInfoExtractor.cs` avec modèle local
 - [ ] Ajouter score de confiance par champ extrait
-- [ ] Compléter `Services/EmbeddingService.cs` + évaluer pgvector
+- [ ] Évaluer pgvector pour la recherche semantique
 - [ ] Tester OCR sur PDF juridiques
 
 **Métriques** : Précision extraction > 80%, latence classification < 2s, coût Ollama = 0€
@@ -214,7 +208,7 @@ Vercel (CDG1)                    Docker (local/VPS)
 ## Network Engineer — Semaine 5-6
 
 - [ ] Configurer domaine personnalisé Vercel avec DNSSEC
-- [ ] Configurer TLS backend .NET via Nginx
+- [ ] Configurer TLS pour les workers auto-heberges via Nginx, si necessaire
 - [ ] Évaluer Cloudflare WAF devant Vercel
 - [ ] Documenter architecture réseau
 - [ ] Configurer webhooks Stripe avec IP whitelisting

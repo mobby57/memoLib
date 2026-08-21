@@ -5,6 +5,10 @@
 **/bin
 **/obj
 **/node_modules
+/.next
+**/.next
+/bin
+/obj
 **/npm-debug.log
 **/.DS_Store
 **/Thumbs.db
@@ -19,6 +23,11 @@
 **/*.db-wal
 **/logs
 **/coverage
+**/playwright-report
+**/test-results
+**/.turbo
+**/dist
+**/out
 **/TestResults
 **/.env
 **/.env.*
