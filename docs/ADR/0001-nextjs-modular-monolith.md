@@ -1,6 +1,6 @@
 # ADR-0001: Next.js modular monolith for the pilot
 
-**Status:** Accepted  
+**Status:** Accepted
 **Date:** 2026-08-21
 
 ## Context
