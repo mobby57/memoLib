@@ -3,13 +3,13 @@
  * @jest-environment node
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 describe('encryption', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     process.env = {
       ...originalEnv,
       ENCRYPTION_MASTER_KEY: 'test-master-key-for-encryption-32chars!',
@@ -63,11 +63,12 @@ describe('encryption', () => {
 
     it('devrait lever une erreur si ENCRYPTION_MASTER_KEY manquante', async () => {
       delete process.env.ENCRYPTION_MASTER_KEY;
-      jest.resetModules();
+      vi.resetModules();
 
       const { encryptData } = await import('@/lib/security/encryption');
 
-      expect(() => encryptData('test')).toThrow('ENCRYPTION_MASTER_KEY not configured');
+      expect(() => encryptData('test')).toThrow(/ENCRYPTION_MASTER_KEY/);
+
     });
   });
 

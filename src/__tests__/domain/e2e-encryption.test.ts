@@ -1,6 +1,5 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import {
   e2eEncrypt,
   e2eDecrypt,

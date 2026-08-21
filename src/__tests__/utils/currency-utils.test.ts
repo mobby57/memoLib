@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les utilitaires de formatage de montants
  * Couverture: formatage monétaire, pourcentages, nombres

@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour formConfigs.ts - Configurations de formulaires v2
  * Tests des formulaires intelligents

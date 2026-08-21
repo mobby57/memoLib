@@ -1,7 +1,11 @@
 import * as Sentry from '@sentry/nextjs';
 
+const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+
+// Only initialize Sentry if a valid DSN is configured
+if (dsn && !dsn.includes('your-key')) {
 Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn,
 
   // Release & Environment for Release Health
   release: process.env.NEXT_PUBLIC_APP_VERSION || '0.1.0',
@@ -79,3 +83,4 @@ Sentry.init({
     return event;
   },
 });
+}

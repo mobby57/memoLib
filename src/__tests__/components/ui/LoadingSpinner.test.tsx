@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le composant LoadingSpinner
  * Couverture: tailles, couleurs, accessibilite, skeleton

@@ -4,36 +4,39 @@
 export const dynamic = 'force-dynamic';
 
 import { MetricsWidgets, type MetricsData } from '@/components/MetricsWidgets';
-import { Alert, Badge, Breadcrumb, Card, StatCard, Tabs, useToast } from '@/components/ui';
+import { Alert, Badge, Card, StatCard, Tabs, useToast } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/lib/logger';
-import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { DeadlineAlerts } from '@/components/dashboard/DeadlineAlerts';
+import { TodayFocus } from '@/components/dashboard/TodayFocus';
+import MorningBrief from '@/components/dashboard/MorningBrief';
+import { MyDay } from '@/components/dashboard/MyDay';
 import { AIDisclaimer } from '@/components/legal/AIDisclaimer';
 import { LegalFooter } from '@/components/legal/LegalFooter';
 import {
   AlertTriangle,
   ArrowRight,
-  Bell,
   CheckCircle,
   Clock,
   DollarSign,
   Download,
   FileText,
   Folder,
-  LogOut,
+  Mail,
   MessageSquare,
   Plus,
-  Search,
-  Settings,
   Shield,
   TrendingUp,
   Users,
+  X,
   Zap,
   type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { ConnectEmailPanel } from '@/components/emails/ConnectEmailButton';
 import {
   Bar,
   BarChart,
@@ -103,6 +106,9 @@ export default function DashboardPage() {
     hasPermission,
   } = useAuth();
   const { addToast } = useToast();
+  const searchParams = useSearchParams();
+
+  const [showConnectEmail, setShowConnectEmail] = useState(false);
 
   const [stats, setStats] = useState<DashboardStats>({
     totalDossiers: 0,
@@ -138,6 +144,13 @@ export default function DashboardPage() {
         .catch(() => {});
     }
   }, [isAuthenticated, isLoading]);
+
+  // Détecter connect-email=true (venant d'une démo)
+  useEffect(() => {
+    if (searchParams?.get('connect-email') === 'true') {
+      setShowConnectEmail(true);
+    }
+  }, [searchParams]);
 
   // Redirection selon le role
   useEffect(() => {
@@ -185,28 +198,25 @@ export default function DashboardPage() {
     const completionRate =
       totalDossiers > 0 ? Math.round((completedDossiers / totalDossiers) * 100) : 0;
 
-    const avgResponseTime = Math.round(Math.random() * 10 + 2);
-    const avgProcessingTime = Math.round(Math.random() * 8 + 5);
-    const clientSatisfaction = Number((Math.random() * 1.5 + 3.5).toFixed(1));
     const monthlyRevenue = statsData.revenus || 0;
     const monthlyGoal = 45000;
-    const activeClients = Math.round(totalDossiers / 3) || 15;
+    const activeClients = Math.round(totalDossiers / 3) || 0;
     const pendingValidations = statsData.facturesEnAttente || 0;
-    const overdueFiles = Math.round(statsData.dossiersEnAttente * 0.3) || 0;
+    const overdueFiles = Math.round((statsData.dossiersEnAttente || 0) * 0.3);
     const successRate = completionRate;
 
     const trends = {
       completionRate: statsData.trends?.dossiers || 0,
-      avgResponseTime: Math.round(Math.random() * 6 - 3),
-      avgProcessingTime: Math.round(Math.random() * 4 - 2),
+      avgResponseTime: 0,
+      avgProcessingTime: 0,
       monthlyRevenue: statsData.trends?.revenus || 0,
     };
 
     setMetricsData({
       completionRate,
-      avgResponseTime,
-      avgProcessingTime,
-      clientSatisfaction,
+      avgResponseTime: 0,
+      avgProcessingTime: 0,
+      clientSatisfaction: 0,
       monthlyRevenue,
       monthlyGoal,
       activeClients,
@@ -222,12 +232,12 @@ export default function DashboardPage() {
       setLoading(true);
       const baseUrl = `/api/tenant/${user?.tenantId}`;
 
-      // DÉMO MODE: Utiliser les données mockées directement pour rapidité
-      const isDemoMode = !user?.tenantId || user.tenantId.startsWith('demo');
+      // DÉMO MODE: uniquement pour les vrais comptes de démo
+      const isDemoMode = !user?.tenantId || user.tenantId === 'demo-tenant-1';
 
       let statsData;
       if (isDemoMode) {
-        // Données de démo - ZÉRO latence
+        // Données de démo uniquement pour le compte démo explicite
         statsData = {
           totalDossiers: 24,
           dossiersActifs: 18,
@@ -238,20 +248,20 @@ export default function DashboardPage() {
           trends: { dossiers: 8, factures: 12, revenus: 15 },
         };
       } else {
-        // API spécifique au tenant pour les admins
+        // API réelle pour tous les vrais tenants
         const statsResponse = await fetch(`${baseUrl}/dashboard/stats`);
         if (statsResponse.ok) {
           statsData = await statsResponse.json();
         } else {
-          // Fallback demo data
+          // Pas de fallback fake — montrer des zéros
           statsData = {
-            totalDossiers: 24,
-            dossiersActifs: 18,
-            dossiersEnAttente: 4,
-            dossiersTermines: 2,
-            facturesEnAttente: 5,
-            revenus: 12500,
-            trends: { dossiers: 8, factures: 12, revenus: 15 },
+            totalDossiers: 0,
+            dossiersActifs: 0,
+            dossiersEnAttente: 0,
+            dossiersTermines: 0,
+            facturesEnAttente: 0,
+            revenus: 0,
+            trends: { dossiers: 0, factures: 0, revenus: 0 },
           };
         }
       }
@@ -409,154 +419,116 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* Modal connexion email (après inscription depuis démo) */}
+      {showConnectEmail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 relative animate-in fade-in zoom-in duration-300">
+            <button
+              onClick={() => setShowConnectEmail(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-7 h-7 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">Connectez votre boîte mail</h2>
+              <p className="text-sm text-gray-500 mt-2">
+                L&apos;IA analysera automatiquement vos emails entrants et détectera les urgences, deadlines et types de dossiers.
+              </p>
+            </div>
+            <ConnectEmailPanel />
+            <button
+              onClick={() => setShowConnectEmail(false)}
+              className="w-full mt-4 text-sm text-gray-400 hover:text-gray-600 py-2"
+            >
+              Je ferai ça plus tard
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* AI Disclaimer Banner */}
       <AIDisclaimer variant="banner" />
 
-      {/* Onboarding Wizard */}
+      {/* === SECTION 1: ONBOARDING (si pas terminé) === */}
       {showOnboarding && onboardingSteps && (
-        <OnboardingWizard
+        <OnboardingFlow
           steps={onboardingSteps}
           userName={user?.name?.split(' ')[0]}
+          tenantId={user?.tenantId}
+          onComplete={() => setShowOnboarding(false)}
           onDismiss={() => setShowOnboarding(false)}
         />
       )}
 
-      {/* Deadline Alerts Widget */}
-      <DeadlineAlerts tenantId={user?.tenantId} />
-
-      {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,rgba(255,255,255,0.5))]" />
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold">
-              {getGreeting()}, {user?.name?.split(' ')[0]} ??
-            </h1>
-            <p className="text-blue-100 mt-1">
-              Voici un aperçu de votre cabinet —{' '}
-              {new Date().toLocaleDateString('fr-FR', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-              })}
-            </p>
-            <div className="flex items-center gap-2 mt-3">
-              <Badge variant="info" className="bg-white/20 text-white border-white/30">
-                {user?.role}
-              </Badge>
-              <Badge variant="success" className="bg-white/20 text-white border-white/30">
-                Plan {user?.tenantPlan}
-              </Badge>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowMetrics(!showMetrics)}
-              className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 text-sm font-medium transition-colors"
-            >
-              {showMetrics ? '📊 Masquer métriques' : '📊 Voir métriques'}
-            </button>
-            <Link
-              href="/ai-assistant"
-              className="px-4 py-2 bg-white text-indigo-600 rounded-lg hover:bg-blue-50 text-sm font-medium transition-colors flex items-center gap-2"
-            >
-              <Zap className="w-4 h-4" />
-              Assistant IA
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Header with User Menu */}
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <Breadcrumb items={[{ label: 'Dashboard Admin' }]} />
-        </div>
-
-        {/* Command Center */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowMetrics(!showMetrics)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
-          >
-            {showMetrics ? ' Masquer metriques' : ' Afficher metriques'}
-          </button>
-
-          <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-            <Search className="w-5 h-5" />
-          </button>
-
-          <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
-
-          <Link
-            href="/admin"
-            className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <Settings className="w-5 h-5" />
-          </Link>
-
-          <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Admin - {user?.tenantName}</p>
-            </div>
-            <button
-              onClick={() => (window.location.href = '/api/auth/signout')}
-              className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-              title="Se deconnecter"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Widgets Metriques */}
-      {showMetrics && metricsData && (
-        <div className="my-8">
-          <MetricsWidgets data={metricsData} />
-        </div>
+      {/* === SECTION 2: MY DAY — vue zero inbox === */}
+      {!showOnboarding && (
+        <>
+          <MyDay tenantId={user?.tenantId} userName={user?.name?.split(' ')[0]} />
+        </>
       )}
 
-      {/* Quick Actions Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* === SECTION 3: QUICK ACTIONS — gros boutons visibles === */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {quickActions.map(action => {
           const Icon = action.icon;
           return (
             <Link
               key={action.label}
               href={action.href}
-              className={`${action.color} text-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between group`}
+              className={`${action.color} text-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-3 group`}
             >
-              <span className="font-medium">{action.label}</span>
-              <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Icon className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="font-medium text-sm">{action.label}</span>
             </Link>
           );
         })}
-
-        {/* Advanced AI Features Button */}
-        <Link
-          href="/advanced"
-          className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 text-white p-4 rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 flex items-center justify-between group relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-          <span className="font-medium relative z-10"> IA Avancee</span>
-          <div className="relative z-10 flex items-center">
-            <span className="text-xs bg-white/20 px-2 py-1 rounded-full mr-2">NEW</span>
-            <ArrowRight className="w-5 h-5 group-hover:scale-110 group-hover:translate-x-1 transition-all" />
-          </div>
-        </Link>
       </div>
+
+      {/* === SECTION 4: DEADLINES CRITIQUES === */}
+      <DeadlineAlerts tenantId={user?.tenantId} />
+
+      {/* === SECTION 5: WELCOME COMPACT + STATS === */}
+      <div className="flex items-center justify-between bg-white rounded-xl border border-gray-100 p-4">
+        <div className="flex items-center gap-3">
+          <div>
+            <p className="text-sm text-gray-500">
+              {getGreeting()}, <span className="font-semibold text-gray-900">{user?.name?.split(' ')[0]}</span> —{' '}
+              {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </p>
+          </div>
+          <Badge variant="info">{user?.role}</Badge>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowMetrics(!showMetrics)}
+            className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs font-medium transition-colors"
+          >
+            {showMetrics ? 'Masquer métriques' : '📊 Métriques'}
+          </button>
+          <Link
+            href="/ai-assistant"
+            className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-xs font-medium transition-colors flex items-center gap-1"
+          >
+            <Zap className="w-3 h-3" /> Assistant IA
+          </Link>
+        </div>
+      </div>
+      {/* Widgets Metriques (toggle) */}
+      {showMetrics && metricsData && (
+        <div className="mt-2">
+          <MetricsWidgets data={metricsData} />
+        </div>
+      )}
 
       {/* Alert for pending tasks */}
       {stats.facturesEnAttente > 0 && (
-        <Alert variant="warning" title="Taches en attente">
+        <Alert variant="warning" title="Tâches en attente">
           Vous avez {stats.facturesEnAttente} facture(s) en attente de paiement.
           <Link href="/factures" className="ml-2 underline font-medium hover:text-yellow-700">
-            Voir les factures [Next]
+            Voir les factures →
           </Link>
         </Alert>
       )}

@@ -1,9 +1,10 @@
 ﻿import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GET, POST, PATCH, DELETE } from '@/app/api/audit-logs/route';
 import prisma from '@/lib/prisma';
 
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(async () => ({
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn(async () => ({
     user: {
       id: 'user-123',
       role: 'ADMIN',
@@ -13,18 +14,18 @@ jest.mock('next-auth', () => ({
   })),
 }));
 
-jest.mock('@/app/api/auth/[...nextauth]/route', () => ({
+vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
   authOptions: {},
 }));
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: {
     auditLog: {
-      findMany: jest.fn(),
-      count: jest.fn(),
-      findFirst: jest.fn(),
-      create: jest.fn(),
+      findMany: vi.fn(),
+      count: vi.fn(),
+      findFirst: vi.fn(),
+      create: vi.fn(),
     },
   },
 }));
@@ -33,14 +34,14 @@ describe('/api/audit-logs', () => {
   const mockTenantId = 'tenant-123';
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('GET', () => {
     it('should return audit logs', async () => {
       const mockLogs = [{ id: '1', action: 'CREATE', entityType: 'Client' }];
-      (prisma.auditLog.findMany as jest.Mock).mockResolvedValue(mockLogs);
-      (prisma.auditLog.count as jest.Mock).mockResolvedValue(1);
+      (prisma.auditLog.findMany as any).mockResolvedValue(mockLogs);
+      (prisma.auditLog.count as any).mockResolvedValue(1);
 
       const request = new NextRequest(`http://localhost/api/audit-logs?tenantId=${mockTenantId}`);
       const response = await GET(request);
@@ -54,8 +55,8 @@ describe('/api/audit-logs', () => {
   describe('POST', () => {
     it('should create audit log', async () => {
       const mockLog = { id: '1', action: 'CREATE' };
-      (prisma.auditLog.findFirst as jest.Mock).mockResolvedValue(null);
-      (prisma.auditLog.create as jest.Mock).mockResolvedValue(mockLog);
+      (prisma.auditLog.findFirst as any).mockResolvedValue(null);
+      (prisma.auditLog.create as any).mockResolvedValue(mockLog);
 
       const request = new NextRequest('http://localhost/api/audit-logs', {
         method: 'POST',

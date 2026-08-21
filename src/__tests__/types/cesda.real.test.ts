@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour types/cesda.ts - Types et constantes CESDA
  * Tests des enums, constantes et configurations CESDA

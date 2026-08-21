@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour metadata.ts - Métadonnées SEO
  * Tests des constantes et fonctions de métadonnées

@@ -1,42 +1,39 @@
-/**
- * @jest-environment node
- */
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
 const routePath = '../../../app/api/lawyer/workspaces/[id]/emails/route';
 
-const mockGetServerSession = jest.fn<(...args: any[]) => Promise<any>>();
+const mockGetServerSession = vi.fn<(...args: any[]) => Promise<any>>();
 
 const mockPrisma = {
   workspaceEmail: {
-    update: jest.fn(),
-    findMany: jest.fn(),
+    update: vi.fn(),
+    findMany: vi.fn(),
   },
 };
 
-jest.mock('next-auth', () => ({
+vi.mock('next-auth', () => ({
   getServerSession: mockGetServerSession,
 }));
 
-jest.mock('@/app/api/auth/[...nextauth]/route', () => ({
+vi.mock('@/app/api/auth/[...nextauth]/route', () => ({
   authOptions: {},
 }));
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: mockPrisma,
 }));
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    error: jest.fn(),
+    error: vi.fn(),
   },
 }));
 
 describe('POST /api/lawyer/workspaces/[id]/emails', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns 401 when user is not authenticated', async () => {

@@ -1,10 +1,12 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le service de suggestions intelligentes
  * Couverture: suggestions, priorités, actions contextuelles
  */
 
 afterEach(() => {
-  jest.useRealTimers();
+  vi.useRealTimers();
 });
 
 describe('Suggestion Service', () => {
@@ -112,7 +114,7 @@ describe('Suggestion Service', () => {
     });
 
     it('devrait calculer les jours sans mise à jour', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
       jest.setSystemTime(new Date('2026-04-06T12:00:00.000Z'));
 
       const tenDaysAgo = new Date();

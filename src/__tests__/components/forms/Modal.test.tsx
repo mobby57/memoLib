@@ -3,19 +3,20 @@
  * Couverture: ouverture/fermeture, tailles, accessibilite, evenements clavier
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Modal } from '@/components/forms/Modal';
 
 describe('Modal Component', () => {
   const defaultProps = {
     isOpen: true,
-    onClose: jest.fn(),
+    onClose: vi.fn(),
     title: 'Titre du Modal',
     children: <p>Contenu du modal</p>,
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Rendu de base', () => {
@@ -43,7 +44,7 @@ describe('Modal Component', () => {
     });
 
     it('devrait appeler onClose au clic sur le bouton X', () => {
-      const onClose = jest.fn();
+      const onClose = vi.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
       
       fireEvent.click(screen.getByRole('button', { name: /close/i }));
@@ -59,7 +60,7 @@ describe('Modal Component', () => {
 
   describe('Backdrop', () => {
     it('devrait appeler onClose au clic sur le backdrop', () => {
-      const onClose = jest.fn();
+      const onClose = vi.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
       
       // Le backdrop a la classe bg-black
@@ -71,7 +72,7 @@ describe('Modal Component', () => {
     });
 
     it('ne devrait pas fermer au clic sur le contenu du modal', () => {
-      const onClose = jest.fn();
+      const onClose = vi.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
       
       fireEvent.click(screen.getByText('Contenu du modal'));
@@ -81,7 +82,7 @@ describe('Modal Component', () => {
 
   describe('Fermeture par Escape', () => {
     it('devrait fermer le modal avec la touche Escape', () => {
-      const onClose = jest.fn();
+      const onClose = vi.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
       
       fireEvent.keyDown(document, { key: 'Escape' });
@@ -89,7 +90,7 @@ describe('Modal Component', () => {
     });
 
     it('ne devrait pas reagir e d\'autres touches', () => {
-      const onClose = jest.fn();
+      const onClose = vi.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
       
       fireEvent.keyDown(document, { key: 'Enter' });
@@ -208,7 +209,7 @@ describe('Modal Component', () => {
 
   describe('Cleanup', () => {
     it('devrait nettoyer les event listeners e la fermeture', () => {
-      const onClose = jest.fn();
+      const onClose = vi.fn();
       const { unmount } = render(<Modal {...defaultProps} onClose={onClose} />);
       
       unmount();
@@ -222,7 +223,7 @@ describe('Modal Component', () => {
 
   describe('Cas d\'utilisation reels', () => {
     it('devrait fonctionner pour un modal de confirmation', () => {
-      const onClose = jest.fn();
+      const onClose = vi.fn();
       render(
         <Modal isOpen={true} onClose={onClose} title="Confirmer la suppression" size="sm">
           <p>etes-vous ser de vouloir supprimer ce dossier?</p>
@@ -239,7 +240,7 @@ describe('Modal Component', () => {
 
     it('devrait fonctionner pour un modal de details', () => {
       render(
-        <Modal isOpen={true} onClose={jest.fn()} title="Dossier #2024-001" size="lg">
+        <Modal isOpen={true} onClose={vi.fn()} title="Dossier #2024-001" size="lg">
           <div>
             <h4>Client: Jean Dupont</h4>
             <p>Statut: En cours</p>

@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/mappers/dossier.mapper.ts
  * Coverage: Mappers pour convertir les données dossiers
@@ -12,7 +14,7 @@ describe('Dossier Mapper', () => {
   let getTypeLabel: any;
 
   beforeEach(async () => {
-    jest.resetModules();
+    vi.resetModules();
     const module = await import('@/lib/mappers/dossier.mapper');
     mapDossierToUI = module.mapDossierToUI;
     mapDossiersToUI = module.mapDossiersToUI;

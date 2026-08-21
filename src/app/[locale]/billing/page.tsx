@@ -318,7 +318,7 @@ export default function BillingPage() {
                             <Elements stripe={stripePromise}>
                                 <PaymentForm
                                     amount={PRODUCT_TIERS[selectedTier][billingCycle === 'monthly' ? 'priceMonthly' : 'priceYearly']}
-                                    currency="usd"
+                                    currency="USD"
                                     onSuccess={() => {
                                         setShowUpgrade(false);
                                         fetchBillingData();

@@ -3,6 +3,7 @@
  * Couverture: ToastProvider, useToast, variants, auto-dismiss
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { ToastProvider, useToast, Toast } from '@/components/ui/Toast';
 
@@ -34,12 +35,12 @@ function TestComponent() {
 
 describe('Toast System', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   describe('ToastProvider', () => {
@@ -64,7 +65,7 @@ describe('Toast System', () => {
 
   describe('useToast hook', () => {
     it('devrait lever une erreur hors du provider', () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       
       expect(() => {
         render(<TestComponent />);
@@ -183,7 +184,7 @@ describe('Toast System', () => {
       expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
       
       act(() => {
-        jest.advanceTimersByTime(5000);
+        vi.advanceTimersByTime(5000);
       });
       
       expect(screen.getByTestId('toast-count')).toHaveTextContent('0');
@@ -212,7 +213,7 @@ describe('Toast System', () => {
       expect(screen.getByTestId('count')).toHaveTextContent('1');
       
       act(() => {
-        jest.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(2000);
       });
       
       expect(screen.getByTestId('count')).toHaveTextContent('0');

@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/workspace-reasoning-service.ts
  * Coverage: Service de raisonnement pour les workspaces

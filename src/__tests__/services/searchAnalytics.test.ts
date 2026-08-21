@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le service d'analytics de recherche
  * Couverture: logging, recherches populaires, historique

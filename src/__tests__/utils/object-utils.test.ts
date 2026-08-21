@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les utilitaires de manipulation d'objets
  * Couverture: deep clone, merge, pick, omit, transform
