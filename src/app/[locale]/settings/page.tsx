@@ -32,12 +32,60 @@ export default function SettingsPage() {
     sessionTimeout: 30,
   });
 
-  const handleSave = (section: string) => {
-    addToast({
-      variant: 'success',
-      title: 'Paramètres sauvegardes',
-      message: `Les paramètres de ${section} ont été mis à jour avec succès.`,
-    });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  const handleSave = async (section: string) => {
+    try {
+      if (section === 'profil') {
+        const res = await fetch('/api/user/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: settings.nom,
+            email: settings.email,
+            language: settings.langue,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Erreur');
+        }
+      } else if (section === 'mot de passe') {
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentPassword: passwordForm.currentPassword,
+            newPassword: passwordForm.newPassword,
+            confirmPassword: passwordForm.confirmPassword,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || 'Erreur');
+        }
+        // Reset password fields
+        setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      } else if (section === 'notifications') {
+        // TODO: persist notification preferences server-side
+      }
+
+      addToast({
+        variant: 'success',
+        title: 'Paramètres sauvegardés',
+        message: `Les paramètres de ${section} ont été mis à jour avec succès.`,
+      });
+    } catch (error) {
+      addToast({
+        variant: 'error',
+        title: 'Erreur',
+        message: error instanceof Error ? error.message : 'Impossible de sauvegarder.',
+      });
+    }
   };
 
   return (
@@ -142,6 +190,8 @@ export default function SettingsPage() {
                       </label>
                       <input
                         type="password"
+                        value={passwordForm.currentPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       />
                     </div>
@@ -151,6 +201,8 @@ export default function SettingsPage() {
                       </label>
                       <input
                         type="password"
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       />
                     </div>
@@ -160,6 +212,8 @@ export default function SettingsPage() {
                       </label>
                       <input
                         type="password"
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                       />
                     </div>

@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for crypto.ts to increase actual coverage
  * Tests all cryptographic utility functions

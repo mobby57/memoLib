@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le Error Handler
  * Couverture: classification des erreurs, messages utilisateur

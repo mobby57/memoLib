@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/logger-extended
  * Coverage: Extensions du système de logging

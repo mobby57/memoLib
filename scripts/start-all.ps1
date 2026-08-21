@@ -1,47 +1,37 @@
-#!/usr/bin/env pwsh
-# Script de démarrage rapide - Lance tout automatiquement
+param(
+    [int]$Port = 3000
+)
 
+Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$projectDir = Split-Path -Parent $scriptDir
 
-Write-Host "🚀 Démarrage MemoLib..." -ForegroundColor Cyan
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$baseUrl = "http://localhost:$Port"
 
-# Aller dans le répertoire du projet
-Set-Location $projectDir
+Set-Location $repoRoot
 
-# Tuer les anciens processus
-Get-Process -Name "MemoLib.Api" -ErrorAction SilentlyContinue | Stop-Process -Force
+Write-Host "[start-all] Starting MemoLib on $baseUrl..." -ForegroundColor Cyan
 
-# Démarrer l'API
-Write-Host "⏳ Démarrage de l'API..." -ForegroundColor Yellow
-Start-Process -FilePath "dotnet" -ArgumentList "run --urls http://localhost:5078" -WorkingDirectory $projectDir
+$process = Start-Process `
+    -FilePath 'npm.cmd' `
+    -ArgumentList 'run', 'dev', '--', '--port', $Port `
+    -WorkingDirectory $repoRoot `
+    -PassThru
 
-# Attendre que l'API soit prête
-Start-Sleep -Seconds 5
-$maxRetries = 15
-$retries = 0
-$apiReady = $false
-
-while ($retries -lt $maxRetries) {
+for ($attempt = 1; $attempt -le 30; $attempt++) {
     try {
-        $res = Invoke-WebRequest -Uri "http://localhost:5078/health" -UseBasicParsing -TimeoutSec 2
-        if ($res.StatusCode -eq 200) {
-            $apiReady = $true
-            break
+        $response = Invoke-WebRequest -Uri "$baseUrl/api/health" -UseBasicParsing -TimeoutSec 2
+        if ($response.StatusCode -eq 200) {
+            Write-Host "[start-all] MemoLib is ready at $baseUrl (PID $($process.Id))." -ForegroundColor Green
+            exit 0
         }
-    } catch {}
+    } catch {
+        if ($process.HasExited) {
+            throw "Next.js stopped before becoming ready (exit code $($process.ExitCode))."
+        }
+    }
+
     Start-Sleep -Seconds 2
-    $retries++
 }
 
-if ($apiReady) {
-    Write-Host "✅ API prête sur http://localhost:5078" -ForegroundColor Green
-    Write-Host "✅ Interface: http://localhost:5078/demo.html" -ForegroundColor Green
-    
-    # Ouvrir le navigateur
-    Start-Process "http://localhost:5078/demo.html"
-} else {
-    Write-Host "❌ L'API n'a pas démarré correctement" -ForegroundColor Red
-    exit 1
-}
+throw "MemoLib did not become ready at $baseUrl/api/health within 60 seconds."

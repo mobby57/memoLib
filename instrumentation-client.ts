@@ -1,12 +1,13 @@
 // This file configures the initialization of Sentry on the client.
-// Disabled for Cloudflare/Azure Static Web Apps builds to avoid Html import errors
+// It is loaded by Next.js as the client instrumentation entry point.
 
-// Empty export to prevent any Sentry-related code from running during build
-export {};
+// Only initialize Sentry if DSN is configured (graceful degradation)
+if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+  import('./sentry.client.config');
+}
 
-// Provide a no-op hook to satisfy Sentry/Next.js expectations during build.
-export const onRouterTransitionStart = () => {};
-
-// Sentry client initialization is disabled to avoid build errors
-// with Next.js 15 static page generation.
-// If you need Sentry, enable it only in production after deployment.
+export const onRouterTransitionStart = () => {
+  // Hook called by Next.js on client-side navigation.
+  // Sentry automatically instruments navigations via its integration,
+  // so this hook is kept as a no-op to satisfy the framework contract.
+};

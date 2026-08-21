@@ -17,7 +17,7 @@ const IV_LENGTH = 12;
 // Polyfill: use Node webcrypto in test/SSR, browser crypto otherwise
 const getCrypto = (): Crypto => {
   if (typeof globalThis.crypto?.subtle !== 'undefined') return globalThis.crypto;
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+   
   return require('crypto').webcrypto as Crypto;
 };
 

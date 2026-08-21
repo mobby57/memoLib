@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour API routes logic
  * Coverage: Logique des routes API

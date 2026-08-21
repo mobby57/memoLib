@@ -1,5 +1,4 @@
 /**
-import { logger } from '@/lib/logger';
  * API Recherche Sémantique - Recherche par Sens avec IA
  * Endpoint: /api/tenant/[tenantId]/semantic-search
  */

@@ -58,13 +58,14 @@ Format attendu:
     }
   }
 
-  async generate(prompt: string): Promise<string> {
+  async generate(prompt: string, systemPrompt?: string): Promise<string> {
+    const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
     const response = await fetch(`${this.baseUrl}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: this.model,
-        prompt,
+        prompt: fullPrompt,
         stream: false,
         options: { temperature: 0.1 },
       }),
@@ -85,6 +86,28 @@ Format attendu:
       throw new Error('Invalid JSON response');
     }
     return JSON.parse(jsonMatch[0]) as T;
+  }
+
+  async chat(
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
+  ): Promise<string> {
+    const response = await fetch(`${this.baseUrl}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: this.model,
+        messages,
+        stream: false,
+        options: { temperature: 0.1 },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Ollama unavailable');
+    }
+
+    const data = (await response.json()) as { message?: { content?: string } };
+    return data.message?.content || '';
   }
 
   async isAvailable(): Promise<boolean> {

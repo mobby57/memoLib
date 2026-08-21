@@ -3,6 +3,7 @@
  * Tests des hooks de performance
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import {
   useDebounce,
@@ -10,7 +11,7 @@ import {
 } from '@/hooks/usePerformance';
 
 // Mock timers for testing
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 describe('usePerformance Hooks', () => {
 
@@ -19,7 +20,7 @@ describe('usePerformance Hooks', () => {
   // ============================================
   describe('useDebounce', () => {
     afterEach(() => {
-      jest.clearAllTimers();
+      vi.clearAllTimers();
     });
 
     test('retourne la valeur initiale immédiatement', () => {
@@ -49,7 +50,7 @@ describe('usePerformance Hooks', () => {
 
       // Avancer le temps de 500ms
       act(() => {
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
       });
 
       expect(result.current).toBe('updated');
@@ -64,7 +65,7 @@ describe('usePerformance Hooks', () => {
       rerender({ value: 'first', delay: 500 });
       
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       // Encore la valeur initiale
@@ -73,14 +74,14 @@ describe('usePerformance Hooks', () => {
       rerender({ value: 'second', delay: 500 });
 
       act(() => {
-        jest.advanceTimersByTime(300);
+        vi.advanceTimersByTime(300);
       });
 
       // Toujours la valeur initiale (timer resetté)
       expect(result.current).toBe('initial');
 
       act(() => {
-        jest.advanceTimersByTime(200);
+        vi.advanceTimersByTime(200);
       });
 
       // Maintenant la dernière valeur
@@ -112,7 +113,7 @@ describe('usePerformance Hooks', () => {
       rerender({ value: 'updated', delay: 0 });
 
       act(() => {
-        jest.advanceTimersByTime(0);
+        vi.advanceTimersByTime(0);
       });
 
       expect(result.current).toBe('updated');
@@ -129,7 +130,7 @@ describe('usePerformance Hooks', () => {
     beforeEach(() => {
       currentTime = 1000000;
       originalDateNow = Date.now;
-      Date.now = jest.fn(() => currentTime);
+      Date.now = vi.fn(() => currentTime);
     });
 
     afterEach(() => {
@@ -137,7 +138,7 @@ describe('usePerformance Hooks', () => {
     });
 
     test('exécute le callback immédiatement au premier appel', () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const { result } = renderHook(() => useThrottle(callback, 1000));
 
       act(() => {
@@ -148,7 +149,7 @@ describe('usePerformance Hooks', () => {
     });
 
     test('ignore les appels dans la période de throttle', () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const { result } = renderHook(() => useThrottle(callback, 1000));
 
       act(() => {
@@ -168,7 +169,7 @@ describe('usePerformance Hooks', () => {
     });
 
     test('exécute à nouveau après la période de throttle', () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const { result } = renderHook(() => useThrottle(callback, 1000));
 
       act(() => {
@@ -188,7 +189,7 @@ describe('usePerformance Hooks', () => {
     });
 
     test('passe les arguments au callback', () => {
-      const callback = jest.fn();
+      const callback = vi.fn();
       const { result } = renderHook(() => useThrottle(callback, 0));
 
       act(() => {

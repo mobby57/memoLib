@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
@@ -23,15 +24,38 @@ export async function POST(req: NextRequest) {
 
   try {
     // 1. Créer ou trouver le client
-    let client: { id: string; nom: string } | null = null;
+    let client: { id: string; firstName: string; lastName: string } | null = null;
     if (summary.client) {
+      // Chercher par nom (firstName ou lastName contient le nom détecté)
+      const clientName = summary.client.trim();
       client = await prisma.client.findFirst({
-        where: { tenantId, nom: { contains: summary.client, mode: 'insensitive' } },
+        where: { 
+          tenantId, 
+          OR: [
+            { lastName: { contains: clientName, mode: 'insensitive' } },
+            { firstName: { contains: clientName, mode: 'insensitive' } },
+          ],
+        },
+        select: { id: true, firstName: true, lastName: true },
       });
       if (!client) {
-        client = await prisma.client.create({
-          data: { tenantId, nom: summary.client, source: 'EMAIL_AI' },
+        // Essayer de séparer prénom/nom
+        const parts = clientName.split(' ');
+        const firstName = parts.length > 1 ? parts[0] : clientName;
+        const lastName = parts.length > 1 ? parts.slice(1).join(' ') : clientName;
+        
+        const created = await prisma.client.create({
+          data: { 
+            id: crypto.randomUUID(),
+            tenantId, 
+            firstName,
+            lastName,
+            email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@inconnu.fr`,
+            status: 'prospect',
+            updatedAt: new Date(),
+          },
         });
+        client = { id: created.id, firstName: created.firstName, lastName: created.lastName };
       }
     }
 
@@ -42,6 +66,7 @@ export async function POST(req: NextRequest) {
     // 3. Créer le dossier
     const dossier = await prisma.dossier.create({
       data: {
+        id: crypto.randomUUID(),
         tenantId,
         numero,
         typeDossier: summary.typeDossier || 'GENERAL',
@@ -51,6 +76,7 @@ export async function POST(req: NextRequest) {
         clientId: client?.id || '',
         responsableId: user.id,
         description: summary.resumeCourt,
+        updatedAt: new Date(),
       },
     });
 
@@ -111,7 +137,7 @@ export async function POST(req: NextRequest) {
       dossierId: dossier.id,
       numero: dossier.numero,
       clientId: client?.id,
-      clientName: client?.nom,
+      clientName: client ? `${client.firstName} ${client.lastName}` : undefined,
       deadlinesCreated: cesedaDeadlines.length,
       suggestedTemplate,
     });

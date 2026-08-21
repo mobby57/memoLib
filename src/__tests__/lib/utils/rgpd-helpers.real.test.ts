@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Real tests for rgpd-helpers.ts to increase actual coverage
  * Tests pure functions without Prisma dependencies

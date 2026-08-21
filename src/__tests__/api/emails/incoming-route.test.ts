@@ -1,57 +1,77 @@
-/**
- * @jest-environment node
- */
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Prisma } from '@prisma/client';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-const mockCreateEventLog = jest.fn();
-const mockAnalyzeEmail = jest.fn();
-const mockEvaluateAllRules = jest.fn();
-const mockApplyActions = jest.fn();
-const mockCalculateScore = jest.fn();
-const mockSaveScore = jest.fn();
+const mockCreateEventLog = vi.fn();
+const mockAnalyzeEmail = vi.fn();
+const mockEvaluateAllRules = vi.fn();
+const mockApplyActions = vi.fn();
+const mockCalculateScore = vi.fn();
+const mockSaveScore = vi.fn();
 const incomingRoutePath = '../../../app/api/emails/incoming/route';
 
 const mockPrisma = {
-  tenant: { findFirst: jest.fn() },
-  client: { findFirst: jest.fn(), create: jest.fn() },
-  email: { findFirst: jest.fn(), create: jest.fn(), update: jest.fn() },
-  emailAttachment: { createMany: jest.fn() },
-  workflowExecution: { create: jest.fn(), update: jest.fn() },
-  dossier: { findFirst: jest.fn(), create: jest.fn() },
+  tenant: { findFirst: vi.fn() },
+  client: { findFirst: vi.fn(), create: vi.fn() },
+  email: { findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
+  emailAttachment: { createMany: vi.fn() },
+  workflowExecution: { create: vi.fn(), update: vi.fn() },
+  dossier: { findFirst: vi.fn(), create: vi.fn() },
+  draft: { findFirst: vi.fn(), create: vi.fn() },
 };
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/security/webhook-verification', () => {
+  const actual = jest.requireActual('@/lib/security/webhook-verification') as typeof import('@/lib/security/webhook-verification');
+  const { NextResponse: ActualNextResponse } = jest.requireActual('next/server') as typeof import('next/server');
+  return {
+    ...actual,
+    verifyWebhookRequest: vi.fn((req: NextRequest, body: string, secret: string) => {
+      const legacySecret = req.headers.get('x-webhook-secret');
+      if (legacySecret) {
+        if (legacySecret !== secret) {
+          return {
+            valid: false as const,
+            response: ActualNextResponse.json({ error: 'Invalid secret' }, { status: 401 }),
+          };
+        }
+        return { valid: true as const };
+      }
+      return actual.verifyWebhookRequest(req, body, secret);
+    }),
+  };
+});
+
+vi.mock('@/lib/logger', () => ({
   logger: {
-    error: jest.fn(),
-    info: jest.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: mockPrisma,
 }));
 
-jest.mock('@/lib/services/event-log.service', () => ({
+vi.mock('@/lib/services/event-log.service', () => ({
   eventLogService: {
     createEventLog: mockCreateEventLog,
   },
 }));
 
-jest.mock('@/lib/workflows/email-intelligence', () => ({
+vi.mock('@/lib/workflows/email-intelligence', () => ({
   analyzeEmail: mockAnalyzeEmail,
 }));
 
-jest.mock('@/frontend/lib/services/filter-rule.service', () => ({
+vi.mock('@/lib/services/filter-rule.service', () => ({
   filterRuleService: {
     evaluateAllRules: mockEvaluateAllRules,
     applyActions: mockApplyActions,
   },
 }));
 
-jest.mock('@/lib/services/smart-inbox.service', () => ({
+vi.mock('@/lib/services/smart-inbox.service', () => ({
   smartInboxService: {
     calculateScore: mockCalculateScore,
     saveScore: mockSaveScore,
@@ -60,7 +80,7 @@ jest.mock('@/lib/services/smart-inbox.service', () => ({
 
 describe('POST /api/emails/incoming', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     process.env.INCOMING_EMAIL_WEBHOOK_SECRET = 'test-secret';
     (mockCreateEventLog as any).mockResolvedValue(undefined);
     (mockEvaluateAllRules as any).mockResolvedValue([]);
@@ -69,6 +89,8 @@ describe('POST /api/emails/incoming', () => {
     (mockPrisma.workflowExecution.update as any).mockResolvedValue({ id: 'wf_1' });
     (mockPrisma.email.update as any).mockResolvedValue({ id: 'email_1', isProcessed: true });
     (mockPrisma.emailAttachment.createMany as any).mockResolvedValue({ count: 0 });
+    (mockPrisma.draft.findFirst as any).mockResolvedValue(null);
+    (mockPrisma.draft.create as any).mockResolvedValue({ id: 'draft_1' });
   });
 
   it('returns duplicate=true when email is already known', async () => {

@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour dossier.validation.ts - Schémas Zod v2
  * Tests des schémas de validation et helper functions

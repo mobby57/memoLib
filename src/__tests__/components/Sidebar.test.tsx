@@ -3,11 +3,12 @@
  * Couverture: navigation, items de menu, expansion
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 // Mock next-auth
-jest.mock('next-auth/react', () => ({
+vi.mock('next-auth/react', () => ({
   useSession: () => ({
     data: { user: { name: 'Test User', role: 'AVOCAT' } },
     status: 'authenticated',
@@ -15,12 +16,12 @@ jest.mock('next-auth/react', () => ({
 }));
 
 // Mock next/navigation
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   usePathname: () => '/dashboard',
 }));
 
 // Mock lucide-react icons
-jest.mock('lucide-react', () => ({
+vi.mock('lucide-react', () => ({
   LayoutDashboard: () => <span data-testid="dashboard-icon">Dashboard</span>,
   Folder: () => <span data-testid="folder-icon">Folder</span>,
   FileText: () => <span data-testid="file-icon">FileText</span>,

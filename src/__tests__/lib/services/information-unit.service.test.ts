@@ -3,21 +3,21 @@
  * @jest-environment node
  */
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
     informationUnit: {
-      create: jest.fn(),
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('Information Unit Service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Unit Management', () => {

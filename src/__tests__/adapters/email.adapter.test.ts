@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 import { extractDraft } from '../../lib/adapters/email.adapter';
 
 describe('EmailAdapter.extractDraft', () => {

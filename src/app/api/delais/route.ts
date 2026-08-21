@@ -79,34 +79,40 @@ export async function POST(request: NextRequest) {
     if (isNaN(echeance.getTime()))
       return NextResponse.json({ error: 'Format dateEcheance invalide' }, { status: 400 });
 
-    const [delai] = await prisma.$transaction([
-      prisma.delai.create({
-        data: {
-          tenantId,
-          dossierId,
-          titre,
-          description,
-          type,
-          fondementLegal,
-          dateEcheance: echeance,
-          dateRappel1: new Date(echeance.getTime() - 7 * 24 * 60 * 60 * 1000),
-          dateRappel2: new Date(echeance.getTime() - 3 * 24 * 60 * 60 * 1000),
-          dateRappel3: new Date(echeance.getTime() - 1 * 24 * 60 * 60 * 1000),
-          priorite: priorite || 'normale',
-        },
-      }),
-      prisma.evenement.create({
-        data: {
-          tenantId,
-          dossierId,
-          type: 'delai',
-          categorie: 'creation_echeance',
-          titre: `Délai créé: ${titre}`,
-          description: `Échéance: ${echeance.toLocaleDateString('fr-FR')}`,
-          dateEvenement: new Date(),
-        },
-      }),
-    ]);
+    const delai = await prisma.$transaction(
+      async (tx) => {
+        const created = await tx.delai.create({
+          data: {
+            tenantId,
+            dossierId,
+            titre,
+            description,
+            type,
+            fondementLegal,
+            dateEcheance: echeance,
+            dateRappel1: new Date(echeance.getTime() - 7 * 24 * 60 * 60 * 1000),
+            dateRappel2: new Date(echeance.getTime() - 3 * 24 * 60 * 60 * 1000),
+            dateRappel3: new Date(echeance.getTime() - 1 * 24 * 60 * 60 * 1000),
+            priorite: priorite || 'normale',
+          },
+        });
+
+        await tx.evenement.create({
+          data: {
+            tenantId,
+            dossierId,
+            type: 'delai',
+            categorie: 'creation_echeance',
+            titre: `Délai créé: ${titre}`,
+            description: `Échéance: ${echeance.toLocaleDateString('fr-FR')}`,
+            dateEvenement: new Date(),
+          },
+        });
+
+        return created;
+      },
+      { timeout: 30000 }
+    );
 
     return NextResponse.json({ success: true, delai });
   } catch (error) {

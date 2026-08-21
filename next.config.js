@@ -10,10 +10,7 @@ const nextConfig = {
   output: process.env.DOCKER_BUILD === '1' ? 'standalone' : undefined,
   outputFileTracingRoot: path.join(__dirname),
   typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
+    ignoreBuildErrors: false,
   },
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -30,7 +27,16 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
   experimental: {
-    optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
+    optimizePackageImports: [
+      'lucide-react',
+      'recharts',
+      'date-fns',
+      '@prisma/client',
+      'zod',
+      'next-auth',
+      'stripe',
+      'react-hook-form',
+    ],
   },
   // Security headers
   async headers() {

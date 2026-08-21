@@ -3,6 +3,7 @@
  * Service d'automatisation des workflows
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   DEFAULT_WORKFLOWS,
   type Workflow,
@@ -14,21 +15,21 @@ import {
 } from '@/lib/services/workflowService';
 
 // Mock localStorage
-jest.mock('@/lib/localStorage', () => ({
+vi.mock('@/lib/localStorage', () => ({
   safeLocalStorage: {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
   },
 }));
 
 // Mock du logger
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
   },
 }));
 

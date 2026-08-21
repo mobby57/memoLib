@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿import { render, screen } from '@testing-library/react'
 import { SessionProvider } from 'next-auth/react'
 import { Navigation } from '@/components/Navigation'

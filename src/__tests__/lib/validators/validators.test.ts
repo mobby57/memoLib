@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour src/lib/validators module
  * Coverage: Validation schemas (Zod)
@@ -8,7 +10,7 @@ describe('Validators Module', () => {
     let validators: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/validators/dossier');
         validators = module;
@@ -57,7 +59,7 @@ describe('Validators Module', () => {
     let validators: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/validators/client');
         validators = module;
@@ -110,7 +112,7 @@ describe('Validators Module', () => {
     let validators: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/validators/document');
         validators = module;
@@ -150,7 +152,7 @@ describe('Validators Module', () => {
     let validators: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/validators/user');
         validators = module;
@@ -202,7 +204,7 @@ describe('Validators Module', () => {
     let validators: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/validators/search');
         validators = module;
@@ -228,7 +230,7 @@ describe('Validators Module', () => {
     let validators: any;
 
     beforeEach(async () => {
-      jest.resetModules();
+      vi.resetModules();
       try {
         const module = await import('@/lib/validators');
         validators = module;

@@ -8,7 +8,7 @@
  * - EventLog FLOW_SCORED créé
  */
 
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 
 // --- Logique Smart Inbox pure ---
 

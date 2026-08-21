@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour les types globaux
  * Couverture: UserRole, TenantPlan, permissions, structures

@@ -1,10 +1,12 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests unitaires — plans.ts
  * Vérifie l'alignement de la grille tarifaire PILOT/SOLO/CABINET/ENTERPRISE
  * @jest-environment node
  */
 
-import { PRODUCT_TIERS, resolvePlanDbName } from '@/lib/billing/plans';
+import { PRODUCT_TIERS, resolvePlanDbName, getStripePriceId, getPlanPrice, getPlanPriceCents } from '@/lib/billing/plans';
 import type { ProductTier } from '@/lib/billing/plans';
 
 describe('PRODUCT_TIERS', () => {
@@ -18,9 +20,9 @@ describe('PRODUCT_TIERS', () => {
 
   it.each([
     ['PILOT', 0, 0, 'pilot'],
-    ['SOLO', 89, 855, 'solo'],
-    ['CABINET', 69, 663, 'cabinet'],
-    ['ENTERPRISE', 149, 1430, 'enterprise'],
+    ['SOLO', 29, 278, 'solo'],
+    ['CABINET', 79, 758, 'cabinet'],
+    ['ENTERPRISE', 199, 1910, 'enterprise'],
   ] as [ProductTier, number, number, string][])(
     '%s → %d€/mois, %d€/an, dbName=%s',
     (tier, monthly, yearly, dbName) => {
@@ -66,5 +68,24 @@ describe('resolvePlanDbName', () => {
     expect(resolvePlanDbName()).toBe('solo');
     expect(resolvePlanDbName('')).toBe('solo');
     expect(resolvePlanDbName('UNKNOWN_PLAN')).toBe('solo');
+  });
+});
+
+describe('Stripe price helpers', () => {
+  it('retourne les prix mensuels corrects', () => {
+    expect(getPlanPrice('SOLO')).toBe(29);
+    expect(getPlanPrice('CABINET')).toBe(79);
+    expect(getPlanPrice('ENTERPRISE')).toBe(199);
+  });
+
+  it('convertit en centimes Stripe', () => {
+    expect(getPlanPriceCents('SOLO')).toBe(2900);
+    expect(getPlanPriceCents('CABINET')).toBe(7900);
+    expect(getPlanPriceCents('ENTERPRISE')).toBe(19900);
+  });
+
+  it('fournit un fallback priceId si env non configurée', () => {
+    expect(getStripePriceId('SOLO', 'monthly')).toBe('price_solo_monthly');
+    expect(getStripePriceId('ENTERPRISE', 'yearly')).toBe('price_enterprise_yearly');
   });
 });

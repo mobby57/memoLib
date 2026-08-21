@@ -40,3 +40,23 @@ jobs:
             "https://memolib.space/api/cron/cost-alerts" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" || true
+
+  escalation:
+    name: Run Escalation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger escalation
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "https://memolib.space/api/cron/escalation" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          echo "HTTP $HTTP_CODE"
+          echo "$BODY"
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "❌ Escalation failed"
+            exit 1
+          fi
+          echo "✅ Escalation completed"
