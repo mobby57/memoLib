@@ -51,6 +51,18 @@ npm run dev:all
 | `DATABASE_URL`    | ✅     | `sqlite:///memolib.db`  | Connexion DB                |
 | `SECRET_KEY`      | ✅     | -                       | Secret Flask/Python         |
 
+### **Coffre-fort documentaire client**
+
+| Variable             | Requis           | Description                                                                                                                           |
+| -------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `VAULT_STORAGE_ROOT` | ✅ en production | Volume prive, persistant et non servi par le serveur web. Les depots client sont refuses en production si cette variable est absente. |
+
+Le volume doit etre chiffre au repos, accessible uniquement au processus applicatif et sauvegarde selon la politique de retention. Ne pas utiliser Vercel Blob pour ces depots : la version integree au projet ne propose que des objets publics.
+
+La stack `docker-compose.prod.yml` monte ce volume dans le conteneur applicatif
+sur `/var/lib/memolib/client-vault`, ne l'expose sur aucun port et relie ClamAV
+uniquement au reseau Docker interne.
+
 ### **Azure AD (SSO)**
 
 | Variable              | Requis | Description          |

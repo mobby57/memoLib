@@ -6,7 +6,6 @@ on:
     paths:
       - 'package.json'
       - 'package-lock.json'
-      - '*.csproj'
       - 'requirements*.txt'
 
 permissions:

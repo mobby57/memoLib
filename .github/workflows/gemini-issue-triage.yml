@@ -29,7 +29,7 @@ jobs:
         run: |
           BODY_TRUNCATED=$(echo "$ISSUE_BODY" | head -c 2000)
 
-          PROMPT="You are a triage bot for MemoLib (legal platform: Next.js frontend, .NET backend, Prisma/PostgreSQL).
+          PROMPT="You are a triage bot for MemoLib (legal platform: Next.js modular monolith, Prisma/PostgreSQL).
           Given this GitHub issue, respond with ONLY a JSON object (no markdown, no explanation):
           {\"labels\": [\"...\"], \"priority\": \"P0|P1|P2|P3\", \"component\": \"frontend|backend|database|auth|billing|docs\"}
 
