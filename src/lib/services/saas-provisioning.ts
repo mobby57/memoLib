@@ -196,8 +196,8 @@ export async function saasSignup(input: SaasSignupInput): Promise<SaasSignupResu
     const stripeCustomer = await createStripeCustomer({
       email,
       name: `${firstName} ${lastName}`,
+      tenantId: result.tenant.id,
       metadata: {
-        tenantId: result.tenant.id,
         userId: result.user.id,
         plan,
         cabinetName,
@@ -216,14 +216,10 @@ export async function saasSignup(input: SaasSignupInput): Promise<SaasSignupResu
       const session = await createCheckoutSession({
         customerId: stripeCustomer.id,
         priceId,
+        tenantId: result.tenant.id,
         successUrl: `${process.env.NEXTAUTH_URL}/fr/dashboard?welcome=true&plan=${plan}`,
         cancelUrl: `${process.env.NEXTAUTH_URL}/fr/pricing?cancelled=true`,
-        trialPeriodDays: planConfig.trialDays,
-        metadata: {
-          tenantId: result.tenant.id,
-          userId: result.user.id,
-          plan,
-        },
+        trialDays: planConfig.trialDays,
       });
       stripeCheckoutUrl = session.url || null;
     }
