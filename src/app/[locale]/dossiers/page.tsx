@@ -203,8 +203,6 @@ export default function DossiersPage() {
     }
   };
 
-  const { toast } = useToast();
-
   const {
     register,
     handleSubmit,
