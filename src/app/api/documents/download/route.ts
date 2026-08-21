@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
     }
 
     const tenantId = session.user.tenantId;
+    const clientId = session.user.clientId;
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant non trouvé' }, { status: 403 });
     }
@@ -29,7 +30,13 @@ export async function GET(request: NextRequest) {
     }
 
     const document = await prisma.document.findFirst({
-      where: { id: documentId, tenantId },
+      where: {
+        id: documentId,
+        tenantId,
+        ...(session.user.role === 'CLIENT'
+          ? { OR: [{ clientId }, { Dossier: { clientId } }] }
+          : {}),
+      },
       select: {
         id: true,
         storageKey: true,
@@ -44,28 +51,27 @@ export async function GET(request: NextRequest) {
     }
 
     if (document.antivirusStatus === 'INFECTED') {
-      return NextResponse.json({ error: 'Document bloqué par l\'antivirus' }, { status: 403 });
+      return NextResponse.json({ error: 'Document bloqué par l’antivirus' }, { status: 403 });
     }
 
-    // Vercel Blob private URL → generate signed download URL
-    if (
-      process.env.BLOB_READ_WRITE_TOKEN &&
-      document.storageKey.startsWith('https://')
-    ) {
-      try {
-        const { getDownloadUrl } = await import('@vercel/blob');
-        const downloadUrl = await getDownloadUrl(document.storageKey);
-        return NextResponse.json({ url: downloadUrl, filename: document.filename });
-      } catch (blobError) {
-        logger.warn('[DOWNLOAD] Vercel Blob signed URL failed', { error: blobError });
-      }
+    if (session.user.role === 'CLIENT' && document.antivirusStatus !== 'CLEAN') {
+      return NextResponse.json({ error: 'Document en cours de vérification' }, { status: 423 });
     }
 
     // Local file fallback — stream the file
-    if (document.storageKey.startsWith('/uploads/')) {
+    if (
+      document.storageKey.startsWith('/uploads/') ||
+      document.storageKey.startsWith('client-quarantine/')
+    ) {
       const fs = await import('fs/promises');
       const path = await import('path');
-      const filePath = path.join(/*turbopackIgnore: true*/ process.cwd(), document.storageKey);
+      const filePath = document.storageKey.startsWith('client-quarantine/')
+        ? path.join(
+            /*turbopackIgnore: true*/ process.env.VAULT_STORAGE_ROOT ??
+              path.join(process.cwd(), 'uploads', 'client-quarantine'),
+            ...document.storageKey.split('/').slice(1)
+          )
+        : path.join(/*turbopackIgnore: true*/ process.cwd(), document.storageKey);
 
       try {
         const buffer = await fs.readFile(filePath);
