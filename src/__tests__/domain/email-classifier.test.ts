@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 import { classifyEmail } from '@/lib/classifiers/email-classifier';
 import { extractDraft } from '@/lib/adapters/email.adapter';
 

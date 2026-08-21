@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests pour le service de recherche sémantique
  * Couverture: embeddings, similarité, fallback

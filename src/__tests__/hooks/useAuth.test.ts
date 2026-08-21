@@ -3,6 +3,7 @@
  * Couverture: authentication, roles, permissions
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 
 // Mock next-auth/react
@@ -26,7 +27,7 @@ const mockSession = {
   },
 };
 
-jest.mock('next-auth/react', () => ({
+vi.mock('next-auth/react', () => ({
   useSession: () => ({
     data: mockSession,
     status: 'authenticated',

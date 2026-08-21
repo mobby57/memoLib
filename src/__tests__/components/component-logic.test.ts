@@ -1,3 +1,5 @@
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
 /**
  * Tests pour composants React - Pure logic tests
  * Coverage: Logique des composants

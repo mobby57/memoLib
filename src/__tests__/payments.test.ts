@@ -3,21 +3,21 @@
  * @jest-environment node
  */
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
-    payment: { create: jest.fn(), findUnique: jest.fn() },
-    invoice: { create: jest.fn() },
+    payment: { create: vi.fn(), findUnique: vi.fn() },
+    invoice: { create: vi.fn() },
   },
 }));
 
-jest.mock('stripe', () => ({
+vi.mock('stripe', () => ({
   __esModule: true,
-  default: jest.fn().mockImplementation(() => ({
-    paymentIntents: { create: jest.fn() },
+  default: vi.fn().mockImplementation(() => ({
+    paymentIntents: { create: vi.fn() },
   })),
 }));
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 // Logique métier extraite pour les tests
 const PLAN_PRICES: Record<string, number> = {
@@ -50,7 +50,7 @@ function isTerminalStatus(status: PaymentStatus): boolean {
 
 describe('Payment Processing', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Payment Operations', () => {

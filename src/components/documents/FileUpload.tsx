@@ -165,7 +165,12 @@ export function FileUpload({
     }
   };
 
-  const removeFile = (id: string) => {
+  const removeFile = async (id: string) => {
+    try {
+      await fetch(`/api/documents/download/${id}`, { method: 'DELETE' });
+    } catch {
+      // Silently fail — file may not be persisted yet
+    }
     setFiles(prev => prev.filter(f => f.id !== id));
   };
 

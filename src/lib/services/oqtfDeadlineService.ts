@@ -39,12 +39,13 @@ const TEMPLATES_OQTF: TemplateJuridique[] = [
       'reconduite a la frontiere'
     ],
     articles: [
-      'L.511-1',
-      'L.512-1',
-      'L.513-1',
-      'L.511-1 II',
-      'L.511-1 III',
-      'Article L.511-1 du CESEDA'
+      'L.611-1',
+      'L.612-1',
+      'L.613-1',
+      'L.614-1',
+      'L.611-1 II',
+      'L.611-1 III',
+      'Article L.611-1 du CESEDA'
     ],
     delaisStandard: {
       departVolontaire: 30, // 30 jours pour depart volontaire

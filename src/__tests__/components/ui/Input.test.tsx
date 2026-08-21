@@ -3,6 +3,7 @@
  * Couverture: props, etats, accessibilite
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Input } from '@/components/ui/Input';
@@ -70,7 +71,7 @@ describe('Input Component', () => {
     });
 
     it('devrait declencher onChange lors de la saisie', async () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Input onChange={handleChange} />);
       
       await userEvent.type(screen.getByRole('textbox'), 'test');
@@ -201,7 +202,7 @@ describe('Input Component', () => {
 
   describe('evenements', () => {
     it('devrait declencher onFocus', () => {
-      const handleFocus = jest.fn();
+      const handleFocus = vi.fn();
       render(<Input onFocus={handleFocus} />);
       
       screen.getByRole('textbox').focus();
@@ -209,7 +210,7 @@ describe('Input Component', () => {
     });
 
     it('devrait declencher onBlur', () => {
-      const handleBlur = jest.fn();
+      const handleBlur = vi.fn();
       render(<Input onBlur={handleBlur} />);
       
       const input = screen.getByRole('textbox');
@@ -219,7 +220,7 @@ describe('Input Component', () => {
     });
 
     it('devrait declencher onKeyDown', async () => {
-      const handleKeyDown = jest.fn();
+      const handleKeyDown = vi.fn();
       render(<Input onKeyDown={handleKeyDown} />);
       
       await userEvent.type(screen.getByRole('textbox'), '{Enter}');

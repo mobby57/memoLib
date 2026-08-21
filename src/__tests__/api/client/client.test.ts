@@ -1,45 +1,47 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 ﻿/**
  * Tests unitaires pour l'API /api/client
  * Endpoints du portail client
  */
 
 // Mock NextAuth
-jest.mock('next-auth', () => ({
-  getServerSession: jest.fn(),
+vi.mock('next-auth', () => ({
+  getServerSession: vi.fn(),
 }));
 
 // Mock Prisma
 const mockPrisma = {
   client: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    update: jest.fn(),
+    findUnique: vi.fn(),
+    findFirst: vi.fn(),
+    update: vi.fn(),
   },
   dossier: {
-    findMany: jest.fn(),
-    findFirst: jest.fn(),
+    findMany: vi.fn(),
+    findFirst: vi.fn(),
   },
   document: {
-    findMany: jest.fn(),
-    create: jest.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
   },
   message: {
-    findMany: jest.fn(),
-    create: jest.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
   },
   notification: {
-    findMany: jest.fn(),
-    updateMany: jest.fn(),
+    findMany: vi.fn(),
+    updateMany: vi.fn(),
   },
 };
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: mockPrisma,
 }));
 
 describe('API /api/client', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Authentication', () => {

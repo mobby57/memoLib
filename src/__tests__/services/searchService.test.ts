@@ -3,22 +3,23 @@
  * Moteur de recherche intelligent multi-entités
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { SearchResult, SearchResultType, SearchOptions } from '@/lib/services/searchService';
 
 // Mock Prisma
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
     client: {
-      findMany: jest.fn(),
+      findMany: vi.fn(),
     },
     dossier: {
-      findMany: jest.fn(),
+      findMany: vi.fn(),
     },
     document: {
-      findMany: jest.fn(),
+      findMany: vi.fn(),
     },
     email: {
-      findMany: jest.fn(),
+      findMany: vi.fn(),
     },
   },
 }));
@@ -168,10 +169,10 @@ describe('SearchService', () => {
 
   describe('Multi-Entity Search', () => {
     it('recherche en parallèle dans toutes les entités', () => {
-      const searchInClients = jest.fn().mockResolvedValue([]);
-      const searchInDossiers = jest.fn().mockResolvedValue([]);
-      const searchInDocuments = jest.fn().mockResolvedValue([]);
-      const searchInEmails = jest.fn().mockResolvedValue([]);
+      const searchInClients = vi.fn().mockResolvedValue([]);
+      const searchInDossiers = vi.fn().mockResolvedValue([]);
+      const searchInDocuments = vi.fn().mockResolvedValue([]);
+      const searchInEmails = vi.fn().mockResolvedValue([]);
 
       // Simulation de Promise.all
       const searchAll = () =>

@@ -8,7 +8,7 @@
  * - Stockage des extraits
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('Document OCR', () => {
   describe('Text Extraction', () => {

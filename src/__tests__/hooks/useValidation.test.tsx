@@ -3,14 +3,15 @@
  * Couverture: statuts, API endpoints, donnees de validation
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ValidationStatus } from '@/types';
 
 // Mock du logger
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    error: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 

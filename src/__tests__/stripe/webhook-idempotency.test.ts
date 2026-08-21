@@ -1,21 +1,18 @@
-/**
- * @jest-environment node
- */
 
-import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mockSet = jest.fn<Promise<string | null>, [string, string, { nx: true; ex: number }]>();
+const mockSet = vi.fn<Promise<string | null>, [string, string, { nx: true; ex: number }]>();
 
-jest.mock('@upstash/redis', () => ({
-  Redis: jest.fn().mockImplementation(() => ({
+vi.mock('@upstash/redis', () => ({
+  Redis: vi.fn().mockImplementation(() => ({
     set: mockSet,
   })),
 }));
 
 describe('Stripe webhook idempotency', () => {
   beforeEach(() => {
-    jest.resetModules();
-    jest.clearAllMocks();
+    vi.resetModules();
+    vi.clearAllMocks();
     process.env.UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
     process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
   });

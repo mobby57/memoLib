@@ -43,6 +43,10 @@ function isPublicRoute(pathname: string): boolean {
   return p === '/' ||
          p.startsWith('/auth') ||
          p.startsWith('/api/auth') ||
+         p.startsWith('/signup') ||
+         p.startsWith('/api/saas') ||
+         p.startsWith('/landing') ||
+         p.startsWith('/pricing') ||
          p.startsWith('/demo');
 }
 

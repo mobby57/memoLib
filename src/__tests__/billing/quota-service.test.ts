@@ -3,18 +3,18 @@
  * @jest-environment node
  */
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
-    tenant: { findUnique: jest.fn() },
-    quotaEvent: { create: jest.fn() },
+    tenant: { findUnique: vi.fn() },
+    quotaEvent: { create: vi.fn() },
   },
 }));
 
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('quota-service', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('checkQuota', () => {
