@@ -19,7 +19,7 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('Payment Flow - E2E (Unit Test Equivalent)', () => {
   beforeEach(() => {
