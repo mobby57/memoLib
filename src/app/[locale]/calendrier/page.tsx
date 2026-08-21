@@ -104,7 +104,7 @@ export default function CalendrierPage() {
     setIsEventDetailOpen(true);
   };
 
-  const onSubmit = (data: EventFormData) => {
+  const onSubmit = async (data: EventFormData) => {
     const eventData: CalendarEvent = {
       id: isEditing && editingEventId ? editingEventId : `event-${Date.now()}`,
       title: data.title,

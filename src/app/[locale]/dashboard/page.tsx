@@ -23,6 +23,7 @@ import {
   Download,
   FileText,
   Folder,
+  Mail,
   MessageSquare,
   Plus,
   Shield,
